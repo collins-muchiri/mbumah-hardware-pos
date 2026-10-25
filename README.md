@@ -1,5 +1,11 @@
 # MBUMAH HARDWARE POS & ERP
 
+*Multi-tenant hardware-store POS and ERP — inventory, sales and reporting for Kenyan hardware retail; TypeScript.*
+
+![category](https://img.shields.io/badge/category-erp-pos-F59E0B?style=flat-square) ![language](https://img.shields.io/badge/language-TypeScript-2563EB?style=flat-square) ![license](https://img.shields.io/badge/license-MIT-16A34A?style=flat-square) ![maintenance](https://img.shields.io/badge/maintenance-active-16A34A?style=flat-square) ![repo](https://img.shields.io/badge/repo-mbumah--hardware--pos-111827?style=flat-square)
+
+---
+
 Point-of-sale and business management system for Kenyan hardware stores. Multi-branch operations, M-Pesa payments through the Daraja API (STK Push), contractor debt management, equipment rentals, double-entry accounting, gift cards, supplier purchase orders, shift reconciliation, and eTIMS-ready invoice structures.
 
 Built with Next.js 16 (App Router), TypeScript, Prisma ORM, PostgreSQL (Neon in production, SQLite for local development), Tailwind CSS 4, shadcn/ui, Zustand, and TanStack Query.
@@ -40,7 +46,7 @@ Prerequisites: Node.js 20 or newer (or Bun 1.1+), and a PostgreSQL or SQLite dat
 
 ```bash
 # Clone the repository
-git clone https://github.com/bucky-ops/mbumah-hardware-pos.git
+git clone https://github.com/collins-muchiri/mbumah-hardware-pos.git
 cd mbumah-hardware-pos
 
 # Install dependencies
