@@ -18,39 +18,17 @@ import { runWithoutTenant } from '@/lib/db';
 import { withErrorBoundary, systemLog } from '@/lib/logger';
 import { runDueHrReportSchedules } from '@/lib/hr/report-schedule-service';
 import { LogSeverity, LogComponent } from '@/lib/types';
+// SECURITY AUDIT FIX (SEC-02): the local fail-open gate is retired;
+// all cron routes share the fail-closed verifier in src/lib/cron-auth.ts.
+import { verifyCronSecret } from '@/lib/cron-auth';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
-async function verifyCronSecret(request: Request): Promise<Response | null> {
-  const secret = process.env.CRON_SECRET;
-  const provided = request.headers.get('x-cron-secret');
-
-  if (!secret) {
-    await systemLog({
-      action: 'CRON_SECRET_UNSET',
-      component: LogComponent.SYSTEM,
-      severity: LogSeverity.WARN,
-      message:
-        'CRON_SECRET env var is not set - /api/cron/hr-report-digests accepted an unauthenticated request.',
-      metadata: { path: '/api/cron/hr-report-digests' },
-    });
-    return null;
-  }
-
-  if (provided !== secret) {
-    return Response.json(
-      { success: false, error: 'Forbidden: invalid or missing x-cron-secret header.' },
-      { status: 403 },
-    );
-  }
-
-  return null;
-}
 
 async function hrDigestCronHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as Request;
-  const denied = await verifyCronSecret(request);
+  const denied = await verifyCronSecret(request, '/api/cron/hr-report-digests');
   if (denied) return denied;
 
   const force = new URL(request.url).searchParams.get('force') === '1';

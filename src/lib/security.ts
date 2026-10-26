@@ -6,7 +6,21 @@ import { type NextRequest } from 'next/server';
 import { systemLog } from './logger';
 import { LogSeverity, LogComponent } from './types';
 
-// a) sanitizeInput - strip dangerous content from a string
+// a) sanitizeInput - hygiene-only string cleanup (SECURITY AUDIT FIX SEC-04)
+//
+// This function previously stripped SQL keywords (SELECT/INSERT/DROP/OR/AND
+// patterns), HTML tags and event-handler fragments from every value, then
+// HTML-entity-encoded the rest. That was both WRONG and UNSAFE:
+//   • WRONG: it corrupted legitimate data - a product named "3M Drill AND
+//     Bit" silently became "3M Drill  Bit", notes containing "drop" or an
+//     apostrophe were mangled, and double-encoding (& -> &amp;) leaked into
+//     stored strings rendered by React (which already escapes on output).
+//   • UNSAFE as a defense: SQL injection is prevented by Prisma's
+//     parameterized queries, XSS by React's output escaping + CSP. A
+//     denylist regex adds no real protection while creating integrity bugs.
+// NEW POLICY: keep only non-printable control-character removal (never
+// legitimate POS text) and trim. Validation belongs in Zod schemas
+// (src/lib/validations.ts); encoding belongs at the render boundary.
 
 export function sanitizeInput(input: string): string {
   if (typeof input !== 'string') return '';
@@ -18,36 +32,6 @@ export function sanitizeInput(input: string): string {
 
   // Remove control characters (except newline, carriage return, tab)
   sanitized = sanitized.replace(/[\x01-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
-
-  // Strip HTML tags
-  sanitized = sanitized.replace(/<[^>]*>/g, '');
-
-  // Strip script injections - <script>...</script>, javascript: protocol, event handlers
-  sanitized = sanitized.replace(/<\s*script[^>]*>[\s\S]*?<\s*\/\s*script\s*>/gi, '');
-  sanitized = sanitized.replace(/javascript\s*:/gi, '');
-  sanitized = sanitized.replace(/\bon\w+\s*=\s*["'][^"']*["']/gi, '');
-
-  // Strip SQL injection patterns
-  const sqlPatterns = [
-    /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER|CREATE|EXEC|EXECUTE)\b)/gi,
-    /(--\s)/g,
-    /(;)\s*(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER|CREATE|EXEC|EXECUTE)\b/gi,
-    /('(\s|%27)*(OR|AND)(\s|%27)*')/gi,
-    /(\b(OR|AND)\s+\d+\s*=\s*\d+)/gi,
-    /(\bOR\b\s+['"]\w+['"]\s*=\s*['"]\w+['"])/gi,
-  ];
-
-  for (const pattern of sqlPatterns) {
-    sanitized = sanitized.replace(pattern, '');
-  }
-
-  // Encode special characters
-  sanitized = sanitized
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;');
 
   // Trim whitespace
   sanitized = sanitized.trim();

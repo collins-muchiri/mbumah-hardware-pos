@@ -22,50 +22,19 @@
 
 import { withErrorBoundary } from '@/lib/logger';
 import { LogComponent } from '@/lib/types';
+// SECURITY AUDIT FIX (SEC-02): the local fail-open gate is retired;
+// all cron routes share the fail-closed verifier in src/lib/cron-auth.ts.
+import { verifyCronSecret } from '@/lib/cron-auth';
 
 export const dynamic = 'force-dynamic';
 // A 10-event batch with one KRA round-trip each fits comfortably in 60s,
 // leaving headroom for Neon cold starts on a fresh lambda instance.
 export const maxDuration = 60;
 
-// Shared cron secret gate (verbatim /api/cron/outbox pattern)
-// Returns a 403 Response when the caller is not authorised, or null to allow
-// the request through. Inlined per cron route (cron routes are standalone by
-// design - no shared mutable state between schedulers).
-async function verifyCronSecret(request: Request): Promise<Response | null> {
-  const secret = process.env.CRON_SECRET;
-  const provided = request.headers.get('x-cron-secret');
-
-  if (!secret) {
-    // Fail-open is deliberate: Vercel Cron cannot be configured to send a
-    // secret per-invocation on all plans, and blocking would stall outbox
-    // delivery entirely. The WARN audit trail makes the gap detectable.
-    const { systemLog } = await import('@/lib/logger');
-    const { LogSeverity } = await import('@/lib/types');
-    await systemLog({
-      action: 'CRON_SECRET_UNSET',
-      component: LogComponent.SYSTEM,
-      severity: LogSeverity.WARN,
-      message:
-        'CRON_SECRET env var is not set - /api/cron/etims-retry accepted an unauthenticated request.',
-      metadata: { path: '/api/cron/etims-retry' },
-    });
-    return null;
-  }
-
-  if (provided !== secret) {
-    return Response.json(
-      { success: false, error: 'Forbidden: invalid or missing x-cron-secret header.' },
-      { status: 403 },
-    );
-  }
-
-  return null;
-}
 
 async function etimsRetryCronHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as Request;
-  const denied = await verifyCronSecret(request);
+  const denied = await verifyCronSecret(request, '/api/cron/etims-retry');
   if (denied) return denied;
 
   // Lazy-import the queue machinery so a cold invocation that 403s never

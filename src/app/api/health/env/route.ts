@@ -1,7 +1,13 @@
 // GET /api/health/env - Environment variable presence check (NO secret values exposed)
-// Public endpoint (allowed through middleware via /api/health/ prefix).
-// Used by VERCEL_NEON_VERIFICATION.md Step 6c to verify Vercel env vars
-// are correctly set WITHOUT leaking the actual secrets.
+// SECURITY AUDIT FIX (SEC-03): this endpoint previously sat under the public
+// /api/health/ allowlist and leaked masked connection strings (DB hostnames,
+// usernames), secret lengths and strength verdicts to anonymous callers.
+// It is now SUPER_ADMIN-only: an unauthenticated or non-super-admin caller
+// gets 401/403 with zero configuration detail. The generic /api/health
+// liveness probe remains public.
+
+import { type NextRequest } from 'next/server';
+import { getSessionFromRequest } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -19,7 +25,18 @@ function maskUrl(url: string): string {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // SECURITY AUDIT FIX (SEC-03): SUPER_ADMIN gate. getSessionFromRequest
+  // handles both the Authorization Bearer header (scripts) and the mbt_token
+  // cookie fallback (browser admins).
+  const session = await getSessionFromRequest(request);
+  if (!session) {
+    return Response.json({ error: 'UNAUTHORIZED' }, { status: 401 });
+  }
+  if (session.role !== 'SUPER_ADMIN') {
+    return Response.json({ error: 'FORBIDDEN' }, { status: 403 });
+  }
+
   const required = ['DATABASE_URL', 'NEXTAUTH_SECRET', 'JWT_SECRET'];
   const optional = ['DIRECT_URL', 'NEXTAUTH_URL'];
 

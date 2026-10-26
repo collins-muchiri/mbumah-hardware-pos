@@ -18,9 +18,11 @@
 //   2. USER EXISTS + isActive (unknown email vs wrong password are ONE
 //      generic 'INVALID_CREDENTIALS' failure - never reveal which check
 //      failed; mirrors the login route and the credit-limit override).
-//   3. PASSWORD - bcrypt compare with the legacy "hashed_" fallback, byte-for-
-//      byte the same algorithm as src/app/api/auth/login/route.ts's
-//      verifyPassword (the transactions route previously duplicated it).
+//   3. PASSWORD - bcrypt compare via the single shared verifier in
+//      src/lib/password-verify.ts. SECURITY AUDIT FIX (SEC-01): the legacy
+//      "hashed_<plaintext>" fallback is RETIRED everywhere - a stored hash
+//      that is not bcrypt fails closed (run
+//      scripts/audit-legacy-passwords.mjs and force resets for affected rows).
 //   4. ROLE - the approver must be MANAGER-or-above (MANAGER_PLUS_ROLES =
 //      SUPER_ADMIN / STORE_OWNER / BRANCH_MANAGER).
 //
@@ -33,11 +35,12 @@
 // best-effort posture as src/lib/brute-force.ts and the abuse lockout in
 // src/lib/auth.ts). The SecurityEvent feed remains the durable record.
 
-import bcrypt from 'bcryptjs';
 import { db } from '@/lib/db';
 import { systemLog } from '@/lib/logger';
 import { LogSeverity, LogComponent } from '@/lib/types';
 import { MANAGER_PLUS_ROLES } from '@/lib/auth';
+// SECURITY AUDIT FIX (SEC-01): single shared bcrypt-only verifier.
+import { verifyPassword } from '@/lib/password-verify';
 
 // Brute-force window (per email+ip)
 
@@ -66,29 +69,20 @@ function failureKey(email: string, ip: string): string {
   return `mgr-auth:${email.trim().toLowerCase()}|${ip}`;
 }
 
-// Password verification (identical to the login route)
+// Password verification (shared single source of truth)
 
 /**
- * bcrypt compare + the legacy "hashed_" fallback. Kept byte-for-byte
- * equivalent to verifyPassword() in src/app/api/auth/login/route.ts so a
- * manager's stored hash verifies identically on both surfaces.
+ * SECURITY AUDIT FIX (SEC-01): this used to be a local copy of the login
+ * route's verifier including the legacy "hashed_<plaintext>" fallback. It
+ * now delegates to the bcrypt-only shared helper in
+ * src/lib/password-verify.ts so every surface (login, manager step-up,
+ * checkout approval) verifies identically and legacy rows fail closed.
  */
 export async function verifyManagerPassword(
   password: string,
   storedHash: string
 ): Promise<boolean> {
-  try {
-    if (storedHash.startsWith('$2')) {
-      return await bcrypt.compare(password, storedHash);
-    }
-  } catch {
-    /* ignore bcrypt errors - falls through to legacy check */
-  }
-  if (storedHash.startsWith('hashed_')) {
-    const plainPart = storedHash.replace('hashed_', '').replace(/_\d+$/, '');
-    if (password === plainPart) return true;
-  }
-  return false;
+  return verifyPassword(password, storedHash);
 }
 
 // Public API

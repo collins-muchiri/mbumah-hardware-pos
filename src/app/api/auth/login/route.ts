@@ -26,7 +26,6 @@
 //   when EXPOSE_ERRORS=true.
 
 import { type NextRequest } from 'next/server';
-import bcrypt from 'bcryptjs';
 import { db } from '@/lib/db';
 import { env } from '@/lib/env'; // Lazy env validation - fails at call site, not import
 import { systemLog, withErrorBoundary } from '@/lib/logger';
@@ -35,6 +34,9 @@ import { isRateLimited } from '@/lib/rate-limit';
 import { loginSchema, validateInput } from '@/lib/validations';
 import { checkBruteForce, recordFailedAttempt, recordSuccessfulLogin } from '@/lib/brute-force';
 import { sanitizeInput, getClientIp } from '@/lib/security';
+// SECURITY AUDIT FIX (SEC-01): single shared verifier - bcrypt only, the
+// legacy plaintext "hashed_*" fallback is retired (see src/lib/password-verify.ts).
+import { verifyPassword } from '@/lib/password-verify';
 // v2.16.0 (subdomain workspaces): shared session cookie for cross-subdomain SSO.
 import { buildSessionCookieHeaders } from '@/lib/workspace/session-cookie';
 
@@ -50,23 +52,13 @@ export const dynamic = 'force-dynamic';
 // `env.X` property access inside the handler, where withErrorBoundary catches it.
 void env;
 
-// Verify password with support for both bcrypt hashes and legacy "hashed_" format
-async function verifyPassword(password: string, storedHash: string): Promise<boolean> {
-  // First try bcrypt compare (for new passwords)
-  try {
-    if (storedHash.startsWith('$2')) {
-      return await bcrypt.compare(password, storedHash);
-    }
-  } catch { /* ignore bcrypt errors */ }
-
-  // Fallback: support legacy "hashed_" format for existing users during migration
-  if (storedHash.startsWith('hashed_')) {
-    const plainPart = storedHash.replace('hashed_', '').replace(/_\d+$/, '');
-    if (password === plainPart) return true;
-  }
-
-  return false;
-}
+// SECURITY AUDIT FIX (SEC-01): the local verifyPassword() that used to live
+// here carried a legacy "hashed_<plaintext>" fallback - it compared the
+// submitted password against a plaintext fragment embedded in the stored
+// hash. That branch is RETIRED: verification now comes from the single
+// shared bcrypt-only helper in src/lib/password-verify.ts. Legacy `hashed_*`
+// rows fail closed; run scripts/audit-legacy-passwords.mjs to find affected
+// accounts and force a reset.
 
 // Generate a cryptographically secure token using only crypto.getRandomValues
 function generateToken(): string {

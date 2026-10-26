@@ -17,6 +17,9 @@
 import { withErrorBoundary, systemLog } from '@/lib/logger';
 import { LogComponent, LogSeverity } from '@/lib/types';
 import { sweepStalledPayrollB2C } from '@/lib/hr/payroll/b2c-recovery';
+// SECURITY AUDIT FIX (SEC-02): the local fail-open gate is retired;
+// all cron routes share the fail-closed verifier in src/lib/cron-auth.ts.
+import { verifyCronSecret } from '@/lib/cron-auth';
 
 export const dynamic = 'force-dynamic';
 // 25 runs/tick, each a handful of indexed queries + at most one Daraja
@@ -24,34 +27,9 @@ export const dynamic = 'force-dynamic';
 // headroom for Neon cold starts.
 export const maxDuration = 60;
 
-async function verifyCronSecret(request: Request): Promise<Response | null> {
-  const secret = process.env.CRON_SECRET;
-  const provided = request.headers.get('x-cron-secret');
-
-  if (!secret) {
-    await systemLog({
-      action: 'CRON_SECRET_UNSET',
-      component: LogComponent.SYSTEM,
-      severity: LogSeverity.WARN,
-      message:
-        'CRON_SECRET env var is not set - /api/cron/b2c-recovery accepted an unauthenticated request.',
-      metadata: { path: '/api/cron/b2c-recovery' },
-    });
-    return null;
-  }
-
-  if (provided !== secret) {
-    return Response.json(
-      { success: false, error: 'Forbidden: invalid or missing x-cron-secret header.' },
-      { status: 403 },
-    );
-  }
-
-  return null;
-}
 
 async function b2cRecoveryHandler(request: Request): Promise<Response> {
-  const denied = await verifyCronSecret(request);
+  const denied = await verifyCronSecret(request, '/api/cron/b2c-recovery');
   if (denied) return denied;
 
   const summary = await sweepStalledPayrollB2C();

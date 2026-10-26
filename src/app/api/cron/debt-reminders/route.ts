@@ -29,6 +29,9 @@ import { db, runWithoutTenant } from '@/lib/db';
 import { withErrorBoundary } from '@/lib/logger';
 import { LogComponent } from '@/lib/types';
 import { round2 } from '@/lib/utils/financialMath';
+// SECURITY AUDIT FIX (SEC-02): the local fail-open gate is retired;
+// all cron routes share the fail-closed verifier in src/lib/cron-auth.ts.
+import { verifyCronSecret } from '@/lib/cron-auth';
 
 export const dynamic = 'force-dynamic';
 // 100 sends × (Twilio round-trip + DB writes) fits within 60s; the batch cap
@@ -36,34 +39,6 @@ export const dynamic = 'force-dynamic';
 // up by the next daily run).
 export const maxDuration = 60;
 
-// Shared cron secret gate (verbatim /api/cron/outbox pattern)
-async function verifyCronSecret(request: Request): Promise<Response | null> {
-  const secret = process.env.CRON_SECRET;
-  const provided = request.headers.get('x-cron-secret');
-
-  if (!secret) {
-    const { systemLog } = await import('@/lib/logger');
-    const { LogSeverity } = await import('@/lib/types');
-    await systemLog({
-      action: 'CRON_SECRET_UNSET',
-      component: LogComponent.SYSTEM,
-      severity: LogSeverity.WARN,
-      message:
-        'CRON_SECRET env var is not set - /api/cron/debt-reminders accepted an unauthenticated request.',
-      metadata: { path: '/api/cron/debt-reminders' },
-    });
-    return null;
-  }
-
-  if (provided !== secret) {
-    return Response.json(
-      { success: false, error: 'Forbidden: invalid or missing x-cron-secret header.' },
-      { status: 403 },
-    );
-  }
-
-  return null;
-}
 
 // Bucket-specific message templates (polite statement tone)
 function composeReminderMessage(opts: {
@@ -257,7 +232,7 @@ async function runDebtReminderSweep(): Promise<DebtReminderSweepResult> {
 
 async function debtRemindersCronHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as Request;
-  const denied = await verifyCronSecret(request);
+  const denied = await verifyCronSecret(request, '/api/cron/debt-reminders');
   if (denied) return denied;
 
   const result = await runDebtReminderSweep();

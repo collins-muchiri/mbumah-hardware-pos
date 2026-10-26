@@ -62,54 +62,15 @@ import { GET as b2cRecoveryGET } from '@/app/api/cron/b2c-recovery/route';
 // stays the portal guard's own enforcement path, this reaper only owns
 // sessions nobody will ever present again).
 import { GET as sessionReaperGET } from '@/app/api/cron/session-reaper/route';
+// SECURITY AUDIT FIX (SEC-02): the local fail-open gate is retired;
+// all cron routes share the fail-closed verifier in src/lib/cron-auth.ts.
+import { verifyCronSecret } from '@/lib/cron-auth';
 
 export const dynamic = 'force-dynamic';
 // Both sub-routes declare maxDuration 60; running them in parallel keeps the
 // dispatcher's wall clock at ~60s worst case (Vercel clamps to plan limits).
 export const maxDuration = 60;
 
-async function verifyCronSecret(request: Request): Promise<Response | null> {
-  const secret = process.env.CRON_SECRET;
-  const provided = request.headers.get('x-cron-secret');
-
-  if (!secret) {
-    await systemLog({
-      action: 'CRON_SECRET_UNSET',
-      component: LogComponent.SYSTEM,
-      severity: LogSeverity.WARN,
-      message:
-        'CRON_SECRET env var is not set - /api/cron/hourly accepted an unauthenticated request.',
-      metadata: { path: '/api/cron/hourly' },
-    });
-    return null;
-  }
-
-  if (provided !== secret) {
-    // v2.170.0: the nightly dispatcher's identical refusal ledger - a
-    // wrong-secret tick is a real operational event, and the hourly route
-    // is the one the pinger fires hourly. Same discriminator as nightly:
-    // only denials that at least SENT a non-empty secret reach the ledger
-    // (honest-but-misconfigured ticks do; anonymous scanners and the
-    // Vercel-managed scheduler send nothing), no secret material rides
-    // the row, the 403 body stays byte-identical, and the write is
-    // catch-guarded so the 403 stays deterministic.
-    if (provided && provided.length > 0) {
-      await systemLog({
-        action: 'CRON_TICK_DENIED',
-        component: LogComponent.SYSTEM,
-        severity: LogSeverity.WARN,
-        message: 'A tick sent an x-cron-secret that did not match - refused with 403.',
-        metadata: { path: '/api/cron/hourly' },
-      }).catch(() => {});
-    }
-    return Response.json(
-      { success: false, error: 'Forbidden: invalid or missing x-cron-secret header.' },
-      { status: 403 },
-    );
-  }
-
-  return null;
-}
 
 type SubJob = { name: string; run: () => Promise<Response> };
 
@@ -199,7 +160,7 @@ async function dispatchAll(request: Request, jobs: readonly SubJob[]) {
 
 async function hourlyCronHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as Request;
-  const denied = await verifyCronSecret(request);
+  const denied = await verifyCronSecret(request, '/api/cron/hourly');
   if (denied) return denied;
 
   const results = await dispatchAll(request, [

@@ -1,116 +1,15 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
-
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
-.DS_Store
-*.pem
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# env files (never commit secrets; keep the example)
 .env
-.env*.local
-.env.development
-.env.production
-!.env.example
-
-# vercel
-.vercel
-
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-local-*
-# exception: the offline install guide lives in docs/ and must be tracked
-!docs/local-offline-setup.md
-.claude
-.z-ai-config
-*.log
-dev.log
-dev.out.log
-test
-prompt
-
-server.log
-
-# Database files
-db/*.db
-
-# Skills directory
-/skills/
-# Agent tool results
-tool-results/
-agent-ctx/
-# Upload directory
-upload/
-# Screenshots (local QA artifacts)
-screenshot*.png
-# Download directory (repo-root only — never ignore app source dirs)
-/download/
-# Dev artifacts
-.zscripts/
-# Screenshots directory (spec images)
-screenshots/
 .env.local
-
-# Database
-*.db
-*.db-journal
-*.sqlite
-*.sqlite-journal
-*.db.wal
-*.db.shm
-
-# OS / editor droppings
-Thumbs.db
+.env.*
+node_modules/
+dist/
+build/
+.next/
+out/
+*.log
+.vscode/
+.idea/
 *.swp
-
-# Runner PID
-/tmp/
-
-# ── Docker / Self-Hosting ──────────────────────────────────────────────────
-# SSL certificates (never commit secrets)
-nginx/ssl/*.crt
-nginx/ssl/*.key
-nginx/ssl/*.pem
-nginx/ssl/live/
-nginx/ssl/archive/
-# Nginx logs (generated at runtime)
-nginx/logs/*.log
-scripts/populate/state.json
-scripts/populate/*.log
-
-# Local environment backups and agent handover artifacts (never commit)
-.env.bak
-.env.*.bak
-worklog.md
-
-# Generated artifacts
-package-lock.json
-
-# Runtime update staging and state (never commit)
-/updater/
+*.swo
+.DS_Store
+Thumbs.db

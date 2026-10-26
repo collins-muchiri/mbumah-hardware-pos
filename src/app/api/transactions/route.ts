@@ -22,7 +22,8 @@
 // sales, no orphaned stock movements, no unbalanced journal entries.
 
 import { type NextRequest } from 'next/server';
-import bcrypt from 'bcryptjs';
+// SECURITY AUDIT FIX (SEC-01): bcrypt import removed - manager step-up now
+// verifies through the shared bcrypt-only helper (see below).
 import { db } from '@/lib/db';
 import { systemLog, withErrorBoundary, sanitizeForLog } from '@/lib/logger';
 import { generateReceiptNumber, calculateLineTotal } from '@/lib/helpers';
@@ -51,21 +52,13 @@ function round4(d: Decimal): number {
   return d.toDecimalPlaces(4, Decimal.ROUND_HALF_UP).toNumber();
 }
 
-// v2.6.0: manager step-up credential verification - the SAME bcrypt + legacy
-// "hashed_" fallback the login route uses, so an approving manager's stored
-// hash verifies identically at checkout.
-async function verifyManagerPassword(password: string, storedHash: string): Promise<boolean> {
-  try {
-    if (storedHash.startsWith('$2')) {
-      return await bcrypt.compare(password, storedHash);
-    }
-  } catch { /* ignore bcrypt errors */ }
-  if (storedHash.startsWith('hashed_')) {
-    const plainPart = storedHash.replace('hashed_', '').replace(/_\d+$/, '');
-    if (password === plainPart) return true;
-  }
-  return false;
-}
+// SECURITY AUDIT FIX (SEC-01): the local verifyManagerPassword() that used
+// to live here carried the legacy "hashed_<plaintext>" fallback. It is
+// retired - checkout approval now shares the single bcrypt-only verifier
+// from src/lib/password-verify.ts with login and manager step-up, so a
+// manager's stored hash verifies identically on every surface and legacy
+// rows fail closed.
+import { verifyPassword as verifyManagerPassword } from '@/lib/password-verify';
 
 // AUDIT FIX (2): typed credit-limit failure. Thrown from INSIDE the checkout
 // transaction when the conditional credit-limit write claims 0 rows (i.e. a

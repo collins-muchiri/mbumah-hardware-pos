@@ -40,58 +40,15 @@ import { GET as hrDigestGET } from '@/app/api/cron/hr-report-digests/route';
 // the hourly one since v2.163.0) - same fold pattern, same scope rule:
 // expiresAt only, never lastActiveAt.
 import { GET as sessionReaperGET } from '@/app/api/cron/session-reaper/route';
+// SECURITY AUDIT FIX (SEC-02): the local fail-open gate is retired;
+// all cron routes share the fail-closed verifier in src/lib/cron-auth.ts.
+import { verifyCronSecret } from '@/lib/cron-auth';
 
 export const dynamic = 'force-dynamic';
 // Both sub-routes declare maxDuration 60; parallel execution keeps the
 // dispatcher within the 60s serverless cap on Hobby.
 export const maxDuration = 60;
 
-async function verifyCronSecret(request: Request): Promise<Response | null> {
-  const secret = process.env.CRON_SECRET;
-  const provided = request.headers.get('x-cron-secret');
-
-  if (!secret) {
-    await systemLog({
-      action: 'CRON_SECRET_UNSET',
-      component: LogComponent.SYSTEM,
-      severity: LogSeverity.WARN,
-      message:
-        'CRON_SECRET env var is not set - /api/cron/nightly accepted an unauthenticated request.',
-      metadata: { path: '/api/cron/nightly' },
-    });
-    return null;
-  }
-
-  if (provided !== secret) {
-    // v2.170.0: a refusal is a real operational event - before this, a tick
-    // that sent the WRONG secret was invisible everywhere (no ledger row,
-    // the 403 body the only trace), so the exact moment the pinger's secret
-    // went stale left the card green with an aging tick and no explanation.
-    // The ledger records the denial ONLY when the request at least SENT a
-    // non-empty secret: a misconfigured-but-honest tick (the pinger with a
-    // stale GitHub secret, a curl with a typo) always does, while anonymous
-    // scanners and the Vercel-managed scheduler (which cannot send custom
-    // headers) send nothing - the ledger never chases noise, and an
-    // unauthenticated caller cannot write rows by spamming the endpoint.
-    // No secret material rides the row - the path names the dispatcher,
-    // nothing else is needed to diagnose a mismatch.
-    if (provided && provided.length > 0) {
-      await systemLog({
-        action: 'CRON_TICK_DENIED',
-        component: LogComponent.SYSTEM,
-        severity: LogSeverity.WARN,
-        message: 'A tick sent an x-cron-secret that did not match - refused with 403.',
-        metadata: { path: '/api/cron/nightly' },
-      }).catch(() => {});
-    }
-    return Response.json(
-      { success: false, error: 'Forbidden: invalid or missing x-cron-secret header.' },
-      { status: 403 },
-    );
-  }
-
-  return null;
-}
 
 type SubJob = { name: string; run: () => Promise<Response> };
 
@@ -156,7 +113,7 @@ function ledgerEntry(r: {
 
 async function nightlyCronHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as Request;
-  const denied = await verifyCronSecret(request);
+  const denied = await verifyCronSecret(request, '/api/cron/nightly');
   if (denied) return denied;
 
   const results = await dispatchAll(request, [

@@ -22,6 +22,9 @@
 import { withErrorBoundary, systemLog } from '@/lib/logger';
 import { LogComponent, LogSeverity } from '@/lib/types';
 import { db, runWithoutTenant } from '@/lib/db';
+// SECURITY AUDIT FIX (SEC-02): the local fail-open gate is retired;
+// all cron routes share the fail-closed verifier in src/lib/cron-auth.ts.
+import { verifyCronSecret } from '@/lib/cron-auth';
 import {
   SESSION_REAPER_LOG_ACTION,
   sessionReaperSummary,
@@ -32,36 +35,10 @@ export const dynamic = 'force-dynamic';
 // 60s serverless budget even on a cold lambda.
 export const maxDuration = 60;
 
-// Shared cron secret gate (verbatim /api/cron/etims-retry pattern).
-async function verifyCronSecret(request: Request): Promise<Response | null> {
-  const secret = process.env.CRON_SECRET;
-  const provided = request.headers.get('x-cron-secret');
-
-  if (!secret) {
-    await systemLog({
-      action: 'CRON_SECRET_UNSET',
-      component: LogComponent.SYSTEM,
-      severity: LogSeverity.WARN,
-      message:
-        'CRON_SECRET env var is not set - /api/cron/session-reaper accepted an unauthenticated request.',
-      metadata: { path: '/api/cron/session-reaper' },
-    });
-    return null;
-  }
-
-  if (provided !== secret) {
-    return Response.json(
-      { success: false, error: 'Forbidden: invalid or missing x-cron-secret header.' },
-      { status: 403 },
-    );
-  }
-
-  return null;
-}
 
 async function sessionReaperCronHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as Request;
-  const denied = await verifyCronSecret(request);
+  const denied = await verifyCronSecret(request, '/api/cron/session-reaper');
   if (denied) return denied;
 
   // Session is a global (tenant-exempt) table - the delete is a genuinely
