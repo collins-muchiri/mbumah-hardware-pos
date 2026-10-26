@@ -22,8 +22,8 @@
 // sales, no orphaned stock movements, no unbalanced journal entries.
 
 import { type NextRequest } from 'next/server';
-import bcrypt from 'bcryptjs';
 import { db } from '@/lib/db';
+import { verifyPassword } from '@/lib/password';
 import { systemLog, withErrorBoundary, sanitizeForLog } from '@/lib/logger';
 import { generateReceiptNumber, calculateLineTotal } from '@/lib/helpers';
 import { recordSaleJournalEntry, getAccountIds, ACCOUNT_CODES } from '@/lib/account-helper';
@@ -51,21 +51,11 @@ function round4(d: Decimal): number {
   return d.toDecimalPlaces(4, Decimal.ROUND_HALF_UP).toNumber();
 }
 
-// v2.6.0: manager step-up credential verification - the SAME bcrypt + legacy
-// "hashed_" fallback the login route uses, so an approving manager's stored
-// hash verifies identically at checkout.
-async function verifyManagerPassword(password: string, storedHash: string): Promise<boolean> {
-  try {
-    if (storedHash.startsWith('$2')) {
-      return await bcrypt.compare(password, storedHash);
-    }
-  } catch { /* ignore bcrypt errors */ }
-  if (storedHash.startsWith('hashed_')) {
-    const plainPart = storedHash.replace('hashed_', '').replace(/_\d+$/, '');
-    if (password === plainPart) return true;
-  }
-  return false;
-}
+// v2.212.1 (SEC-01): the local verifyManagerPassword copy (bcrypt + legacy
+// "hashed_" fallback) was REMOVED. Manager step-up now uses the shared
+// verifier from @/lib/password - the single source of truth for login,
+// manager step-up and this route. Legacy "hashed_" rows verify as false;
+// migrate them with `node scripts/migrate-legacy-passwords.mjs --apply`.
 
 // AUDIT FIX (2): typed credit-limit failure. Thrown from INSIDE the checkout
 // transaction when the conditional credit-limit write claims 0 rows (i.e. a
@@ -1147,7 +1137,7 @@ async function createTransactionInner(
             where: { email: managerApproval.loginEmail.trim().toLowerCase() },
           });
           const managerPasswordOk = manager
-            ? await verifyManagerPassword(managerApproval.password, manager.passwordHash)
+            ? await verifyPassword(managerApproval.password, manager.passwordHash)
             : false;
           if (
             !manager ||

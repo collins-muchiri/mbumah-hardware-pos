@@ -27,19 +27,14 @@ export function sanitizeInput(input: string): string {
   sanitized = sanitized.replace(/javascript\s*:/gi, '');
   sanitized = sanitized.replace(/\bon\w+\s*=\s*["'][^"']*["']/gi, '');
 
-  // Strip SQL injection patterns
-  const sqlPatterns = [
-    /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER|CREATE|EXEC|EXECUTE)\b)/gi,
-    /(--\s)/g,
-    /(;)\s*(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER|CREATE|EXEC|EXECUTE)\b/gi,
-    /('(\s|%27)*(OR|AND)(\s|%27)*')/gi,
-    /(\b(OR|AND)\s+\d+\s*=\s*\d+)/gi,
-    /(\bOR\b\s+['"]\w+['"]\s*=\s*['"]\w+['"])/gi,
-  ];
-
-  for (const pattern of sqlPatterns) {
-    sanitized = sanitized.replace(pattern, '');
-  }
+  // v2.212.1 (audit SEC-04): the previous SQL-keyword stripping block
+  // (SELECT/INSERT/UPDATE/DELETE/DROP/UNION/... regexes) was REMOVED. It
+  // corrupted legitimate content - e.g. a product named "3M Drill AND Bit"
+  // was silently stored as "3M Drill Bit" - while adding no real protection:
+  // Prisma parameterizes every query (injection-safe by construction) and
+  // Zod validates shape/type at the route boundary. The HTML/script patterns
+  // above stay purely as defense-in-depth for strings surfaced outside
+  // React's escaper.
 
   // Encode special characters
   sanitized = sanitized

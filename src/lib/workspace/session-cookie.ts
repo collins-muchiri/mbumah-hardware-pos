@@ -49,6 +49,19 @@ function cookieSameSite(): 'Lax' | 'Strict' | 'None' {
   return 'Lax';
 }
 
+/**
+ * v2.212.1 (audit §5 cookie flags): opt-in HttpOnly for the session cookie.
+ * DEFAULT OFF - the SPA adopts the cookie into localStorage for
+ * cross-subdomain SSO (src/lib/stores.ts reads document.cookie), so flipping
+ * HttpOnly on without removing that client-side read would silently break
+ * branch-workspace session adoption. Set NEXTAUTH_COOKIE_HTTPONLY=true only
+ * once the document.cookie read has been removed from the client.
+ */
+function cookieHttpOnly(): boolean {
+  const raw = (process.env.NEXTAUTH_COOKIE_HTTPONLY || '').toLowerCase();
+  return raw === 'true' || raw === '1' || raw === 'yes';
+}
+
 /** Serialize the Set-Cookie header value for a fresh session. */
 export function buildSessionCookie({ token, expiresAt }: SessionCookieOptions): string {
   const parts = [
@@ -59,6 +72,7 @@ export function buildSessionCookie({ token, expiresAt }: SessionCookieOptions): 
   const domain = cookieDomain();
   if (domain) parts.push(`Domain=${domain}`);
   if (cookieSecure()) parts.push('Secure');
+  if (cookieHttpOnly()) parts.push('HttpOnly');
   if (expiresAt) {
     const exp = typeof expiresAt === 'string' ? new Date(expiresAt) : expiresAt;
     if (!Number.isNaN(exp.getTime())) parts.push(`Expires=${exp.toUTCString()}`);
@@ -83,5 +97,6 @@ export function buildSessionClearCookie(): string {
   const domain = cookieDomain();
   if (domain) parts.push(`Domain=${domain}`);
   if (cookieSecure()) parts.push('Secure');
+  if (cookieHttpOnly()) parts.push('HttpOnly');
   return parts.join('; ');
 }

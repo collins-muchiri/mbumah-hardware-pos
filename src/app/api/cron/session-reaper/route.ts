@@ -16,12 +16,13 @@
 //
 // AUTH: copied EXACTLY from /api/cron/etims-retry - Vercel Cron sends
 // unauthenticated GETs; we gate on the `x-cron-secret` header against the
-// CRON_SECRET env var (fail-open with a WARN systemLog when CRON_SECRET is
-// unset so the gap is visible and alertable - deploy with CRON_SECRET set).
+// CRON_SECRET env var (fail-closed in production; non-production allows
+// production, still alertable via the WARN row - deploy with CRON_SECRET set).
 
 import { withErrorBoundary, systemLog } from '@/lib/logger';
 import { LogComponent, LogSeverity } from '@/lib/types';
 import { db, runWithoutTenant } from '@/lib/db';
+import { verifyCronSecret } from '@/lib/cron-auth';
 import {
   SESSION_REAPER_LOG_ACTION,
   sessionReaperSummary,
@@ -33,31 +34,6 @@ export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
 // Shared cron secret gate (verbatim /api/cron/etims-retry pattern).
-async function verifyCronSecret(request: Request): Promise<Response | null> {
-  const secret = process.env.CRON_SECRET;
-  const provided = request.headers.get('x-cron-secret');
-
-  if (!secret) {
-    await systemLog({
-      action: 'CRON_SECRET_UNSET',
-      component: LogComponent.SYSTEM,
-      severity: LogSeverity.WARN,
-      message:
-        'CRON_SECRET env var is not set - /api/cron/session-reaper accepted an unauthenticated request.',
-      metadata: { path: '/api/cron/session-reaper' },
-    });
-    return null;
-  }
-
-  if (provided !== secret) {
-    return Response.json(
-      { success: false, error: 'Forbidden: invalid or missing x-cron-secret header.' },
-      { status: 403 },
-    );
-  }
-
-  return null;
-}
 
 async function sessionReaperCronHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as Request;

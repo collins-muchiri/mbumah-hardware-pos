@@ -288,9 +288,15 @@ describe('b2c-recovery contracts (source)', () => {
   const dialogSrc = readFileSync(resolve(ROOT, 'src/components/hr/payroll-run-dialog.tsx'), 'utf8');
 
   it('the cron route gates on x-cron-secret and returns the sweep summary', () => {
-    expect(routeSrc).toContain("request.headers.get('x-cron-secret')");
-    expect(routeSrc).toContain('Forbidden: invalid or missing x-cron-secret header.');
-    expect(routeSrc).toContain('CRON_SECRET env var is not set');
+    // v2.212.1 (SEC-02 remediation): the gate implementation moved to the
+    // shared fail-closed module - the route delegates, the lib implements.
+    const cronAuthSrc = readFileSync(resolve(ROOT, 'src/lib/cron-auth.ts'), 'utf8');
+    expect(routeSrc).toContain("from '@/lib/cron-auth'");
+    expect(routeSrc).toContain('verifyCronSecret(request)');
+    expect(cronAuthSrc).toContain("request.headers.get('x-cron-secret')");
+    expect(cronAuthSrc).toContain('Forbidden: invalid or missing x-cron-secret header.');
+    expect(cronAuthSrc).toContain('CRON_SECRET env var is not set');
+    expect(cronAuthSrc).toContain('status: 403');
     expect(routeSrc).toContain('sweepStalledPayrollB2C()');
     expect(routeSrc).toContain('maxDuration = 60');
   });

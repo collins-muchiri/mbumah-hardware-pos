@@ -41,8 +41,10 @@ cadence honest, and how to read the heartbeat. Companion to
 ### Arming the pinger (one-time, human)
 
 1. Set `CRON_SECRET` on the Vercel project (production env). While unset,
-   the dispatcher fail-opens: ticks are accepted unauthenticated and each
-   one writes a `CRON_SECRET_UNSET` WARN systemLog.
+   the dispatcher fails CLOSED since v2.212.1: production ticks are rejected
+   with 403 (each refusal writes a `CRON_SECRET_UNSET` WARN systemLog).
+   Non-production (local dev, previews) still accepts unauthenticated ticks
+   with the same WARN row so the local pinger workflow keeps working.
 2. Add the repo secret `CRON_SECRET` (same value) in GitHub → Settings →
    Secrets and variables → Actions.
 3. Optional repo secret `PROD_URL` (defaults to the known deployment URL).
@@ -208,8 +210,9 @@ ACCOUNTANT, parity with `/api/org/summary`; read-only over `rawDb` under
   behind the count — exact stamps and per-row gate names, newest first,
   capped at 10 with the "and N more" valve on the card.
 - `secretConfigured`: whether `CRON_SECRET` is set server-side — the honest
-  tick-gate posture (fail-open ticks render the amber "CRON_SECRET unset"
-  badge until the human arms the gate).
+  tick-gate posture (since v2.212.1 unset production ticks are refused with
+  403, fail-closed; the amber "CRON_SECRET unset" badge still renders until
+  the human arms the gate).
 - `cadence`: the vercel.json schedule, the pinger workflow name, and
   (v2.172.0) `vercelHourUtc` — the daily slot's UTC hour as a number the
   card's expectation line consumes; the card's truth line names both

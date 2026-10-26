@@ -27,6 +27,9 @@ const repo = (p: string) =>
 
 const reaperRoute = repo('src/app/api/cron/session-reaper/route.ts');
 const dispatcher = repo('src/app/api/cron/hourly/route.ts');
+// v2.212.1 (SEC-02 remediation): the cron-secret gate body moved to the
+// shared fail-closed module - the route delegates, the lib implements.
+const cronAuth = repo('src/lib/cron-auth.ts');
 const overlay = repo('src/components/hr/self-service-idle-watch.tsx');
 const loginScreen = repo('src/components/login-screen.tsx');
 const selfPortal = repo('src/app/(selfservice)/employees/me/self-portal.tsx');
@@ -125,8 +128,14 @@ describe('the reaper route - the cron contract', () => {
 
   it('is a cross-tenant sweep behind the shared cron-secret gate', () => {
     expect(reaperRoute).toContain('runWithoutTenant(()');
-    expect(reaperRoute).toContain("headers.get('x-cron-secret')");
-    expect(reaperRoute).toContain('CRON_SECRET_UNSET');
+    // v2.212.1: the gate implementation (x-cron-secret compare,
+    // CRON_SECRET_UNSET ledger row, fail-closed production behavior) lives in
+    // @/lib/cron-auth - the route delegates to it instead of carrying a copy.
+    expect(reaperRoute).toContain("from '@/lib/cron-auth'");
+    expect(reaperRoute).toContain('verifyCronSecret(request)');
+    expect(cronAuth).toContain("headers.get('x-cron-secret')");
+    expect(cronAuth).toContain('CRON_SECRET_UNSET');
+    expect(cronAuth).toContain('status: 403');
     expect(reaperRoute).toContain('maxDuration = 60');
   });
 

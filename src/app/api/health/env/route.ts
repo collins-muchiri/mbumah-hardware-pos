@@ -1,10 +1,38 @@
 // GET /api/health/env - Environment variable presence check (NO secret values exposed)
-// Public endpoint (allowed through middleware via /api/health/ prefix).
-// Used by VERCEL_NEON_VERIFICATION.md Step 6c to verify Vercel env vars
-// are correctly set WITHOUT leaking the actual secrets.
+// GATED since v2.212.1 (audit SEC-03): SUPER_ADMIN session required in
+// production; open in non-production for the Vercel/Neon verification
+// workflow. Still allowed through middleware via the /api/health/ prefix -
+// the route itself enforces the auth now.
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
+
+// v2.212.1 (audit SEC-03): this endpoint previously ran PUBLIC. It masked
+// secret VALUES but still leaked DB hostnames/usernames, pooled/SSL posture
+// and secret-strength verdicts - enough for an attacker to map the
+// infrastructure. Production now requires an authenticated SUPER_ADMIN
+// session; non-production stays open for the Vercel/Neon verification
+// workflow (VERCEL_NEON_VERIFICATION.md Step 6c).
+import { getSessionFromCookies } from '@/lib/auth';
+
+async function authorizeEnvDiagnostics(): Promise<Response | null> {
+  if (process.env.NODE_ENV !== 'production') return null;
+
+  const session = await getSessionFromCookies();
+  if (!session) {
+    return Response.json(
+      { success: false, error: 'Unauthorized: authentication required for environment diagnostics.' },
+      { status: 401 }
+    );
+  }
+  if (session.role !== 'SUPER_ADMIN') {
+    return Response.json(
+      { success: false, error: 'Forbidden: environment diagnostics are restricted to SUPER_ADMIN.' },
+      { status: 403 }
+    );
+  }
+  return null;
+}
 
 function maskUrl(url: string): string {
   // Mask password in connection string, keep hostname + query params for verification
@@ -20,6 +48,9 @@ function maskUrl(url: string): string {
 }
 
 export async function GET() {
+  const denied = await authorizeEnvDiagnostics();
+  if (denied) return denied;
+
   const required = ['DATABASE_URL', 'NEXTAUTH_SECRET', 'JWT_SECRET'];
   const optional = ['DIRECT_URL', 'NEXTAUTH_URL'];
 

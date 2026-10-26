@@ -21,6 +21,9 @@ const orgConsole = repo('src/components/workspace/org-console.tsx');
 const cronDoc = repo('docs/cron-operations.md');
 const nightly = repo('src/app/api/cron/nightly/route.ts');
 const hourly = repo('src/app/api/cron/hourly/route.ts');
+// v2.212.1 (SEC-02 remediation): the gate contract moved to the shared
+// fail-closed module; dispatchers are pinned to delegate to it.
+const cronAuth = repo('src/lib/cron-auth.ts');
 
 const cardStart = orgConsole.indexOf('data-testid="automation-card"');
 const card = orgConsole.slice(cardStart, orgConsole.indexOf('Recent audit events', cardStart));
@@ -117,18 +120,23 @@ describe('the register keeps its chronology (docs)', () => {
 });
 
 describe('the v2.170.0 gate contract is untouched', () => {
-  it('both gates still discriminate, log before the 403, and carry path-only metadata', () => {
-    for (const route of [nightly, hourly]) {
-      const start = route.indexOf('if (provided !== secret)');
-      const block = route.slice(start, route.indexOf('return null;', start));
+  it('the shared gate still discriminates, logs before the 403, and carries path-only metadata', () => {
+    for (const gate of [cronAuth]) {
+      const start = gate.indexOf('if (provided !== secret)');
+      const block = gate.slice(start, gate.indexOf('return null;', start));
       expect(block).toContain('if (provided && provided.length > 0) {');
       expect(block).toContain("action: 'CRON_TICK_DENIED'");
       expect(block).toContain('LogSeverity.WARN');
       expect(block).toContain('.catch(() => {})');
       expect(block).toContain("error: 'Forbidden: invalid or missing x-cron-secret header.'");
     }
-    expect(nightly).toContain("metadata: { path: '/api/cron/nightly' }");
-    expect(hourly).toContain("metadata: { path: '/api/cron/hourly' }");
+    // v2.212.1: the path is resolved from request.url - the row carries the
+    // { path } binding instead of per-route literals
+    expect(cronAuth).toContain('metadata: { path },');
+    for (const route of [nightly, hourly]) {
+      expect(route).toContain("from '@/lib/cron-auth'");
+      expect(route).toContain('verifyCronSecret(request)');
+    }
   });
 
   it('the failed-tick helper pins from v2.169.0 survive verbatim beside the new helper', () => {

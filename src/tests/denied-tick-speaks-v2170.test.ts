@@ -20,6 +20,10 @@ const repo = (p: string) => readFileSync(join(process.cwd(), p), 'utf8');
 
 const nightly = repo('src/app/api/cron/nightly/route.ts');
 const hourly = repo('src/app/api/cron/hourly/route.ts');
+// v2.212.1 (SEC-02 remediation): the refusal implementation moved out of the
+// per-route copies into ONE shared fail-closed gate - the pins below read it
+// from there, while the dispatchers are pinned to DELEGATE to it.
+const cronAuth = repo('src/lib/cron-auth.ts');
 const automationApi = repo('src/app/api/org/automation/route.ts');
 const orgConsole = repo('src/components/workspace/org-console.tsx');
 const cronDoc = repo('docs/cron-operations.md');
@@ -27,8 +31,8 @@ const cronDoc = repo('docs/cron-operations.md');
 const cardStart = orgConsole.indexOf('data-testid="automation-card"');
 const card = orgConsole.slice(cardStart, orgConsole.indexOf('Recent audit events', cardStart));
 
-// the denial block in each gate: from the mismatch check to the function's
-// final return null (the fail-open path lives ABOVE it and stays untouched)
+// the denial block in the shared gate: from the mismatch check to the
+// function's final return null (the unset-secret path lives ABOVE it)
 function denialBlock(route: string): string {
   const start = route.indexOf('if (provided !== secret)');
   expect(start).toBeGreaterThan(-1);
@@ -40,10 +44,10 @@ const DENIED_BASE =
 const DENIED_CAUSE =
   'The usual cause is a stale CRON_SECRET on one side of the arming walkthrough; the refused tick ran nothing.';
 
-describe('the gate writes its own row (dispatchers)', () => {
-  it('both gates record CRON_TICK_DENIED before refusing, guarded by the sent-a-secret discriminator', () => {
-    for (const route of [nightly, hourly]) {
-      const block = denialBlock(route);
+describe('the gate writes its own row (shared fail-closed gate)', () => {
+  it('the shared gate records CRON_TICK_DENIED before refusing, guarded by the sent-a-secret discriminator', () => {
+    for (const gate of [cronAuth]) {
+      const block = denialBlock(gate);
       // the discriminator: ONLY denials that at least SENT a non-empty
       // secret reach the ledger — anonymous scanners and the Vercel-managed
       // scheduler send nothing, so they never write a row and an
@@ -61,15 +65,16 @@ describe('the gate writes its own row (dispatchers)', () => {
   });
 
   it('no secret material rides the row - the path names the dispatcher, nothing else', () => {
-    expect(denialBlock(nightly)).toContain("metadata: { path: '/api/cron/nightly' }");
-    expect(denialBlock(hourly)).toContain("metadata: { path: '/api/cron/hourly' }");
+    // v2.212.1: the path is resolved from request.url inside the shared gate,
+    // so the row carries the { path } binding (per-route literals are gone)
+    expect(denialBlock(cronAuth)).toContain('metadata: { path },');
     // scoped to the systemLog CALL (the surrounding prose is allowed to
     // discuss the discriminator): neither the secret, nor its length, nor
     // the provided value is logged
-    for (const route of [nightly, hourly]) {
-      const block = denialBlock(route);
+    for (const gate of [cronAuth]) {
+      const block = denialBlock(gate);
       const logCall = block.slice(block.indexOf('await systemLog'), block.indexOf('}).catch'));
-      expect(logCall).toContain('metadata: { path:');
+      expect(logCall).toContain('metadata: { path');
       expect(logCall).not.toContain('provided');
       expect(logCall).not.toMatch(/providedLength|secret:/);
     }
@@ -78,18 +83,22 @@ describe('the gate writes its own row (dispatchers)', () => {
   it('the 403 body is byte-identical to the pre-v2.170 contract', () => {
     const body =
       "error: 'Forbidden: invalid or missing x-cron-secret header.'";
-    for (const route of [nightly, hourly]) {
-      const block = denialBlock(route);
+    for (const gate of [cronAuth]) {
+      const block = denialBlock(gate);
       expect(block).toContain(body);
       expect(block).toContain('{ status: 403 }');
     }
   });
 
-  it('the fail-open path above the refusal is untouched (CRON_SECRET_UNSET WARN in both gates)', () => {
+  it('both dispatchers delegate to the shared fail-closed gate (CRON_SECRET_UNSET handled centrally)', () => {
     for (const route of [nightly, hourly]) {
-      expect(route).toContain("action: 'CRON_SECRET_UNSET'");
-      expect(route).toContain('accepted an unauthenticated request');
+      expect(route).toContain("from '@/lib/cron-auth'");
+      expect(route).toContain('verifyCronSecret(request)');
     }
+    // the unset-secret path now FAILS CLOSED in production:
+    expect(cronAuth).toContain("action: 'CRON_SECRET_UNSET'");
+    expect(cronAuth).toContain('REJECTED an unauthenticated request (fail-closed)');
+    expect(cronAuth).toContain('failMode: isProduction ? \'closed\' : \'open\'');
   });
 });
 

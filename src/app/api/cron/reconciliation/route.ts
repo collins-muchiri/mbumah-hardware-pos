@@ -37,6 +37,7 @@
 import { db, runWithoutTenant } from '@/lib/db';
 import { withErrorBoundary, systemLog } from '@/lib/logger';
 import { LogSeverity, LogComponent } from '@/lib/types';
+import { verifyCronSecret } from '@/lib/cron-auth';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -48,31 +49,6 @@ const TRIAL_BALANCE_TOLERANCE = 0.01;
 const MPESA_STALE_MINUTES = 10;
 const EXPORT_STUCK_MINUTES = 15;
 
-async function verifyCronSecret(request: Request): Promise<Response | null> {
-  const secret = process.env.CRON_SECRET;
-  const provided = request.headers.get('x-cron-secret');
-
-  if (!secret) {
-    await systemLog({
-      action: 'CRON_SECRET_UNSET',
-      component: LogComponent.SYSTEM,
-      severity: LogSeverity.WARN,
-      message:
-        'CRON_SECRET env var is not set - /api/cron/reconciliation accepted an unauthenticated request.',
-      metadata: { path: '/api/cron/reconciliation' },
-    });
-    return null;
-  }
-
-  if (provided !== secret) {
-    return Response.json(
-      { success: false, error: 'Forbidden: invalid or missing x-cron-secret header.' },
-      { status: 403 },
-    );
-  }
-
-  return null;
-}
 
 // Normalise Postgres numeric (Prisma Decimal object) / SQLite float / string
 // into a plain JS number for comparison arithmetic.

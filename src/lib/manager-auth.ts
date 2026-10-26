@@ -18,9 +18,11 @@
 //   2. USER EXISTS + isActive (unknown email vs wrong password are ONE
 //      generic 'INVALID_CREDENTIALS' failure - never reveal which check
 //      failed; mirrors the login route and the credit-limit override).
-//   3. PASSWORD - bcrypt compare with the legacy "hashed_" fallback, byte-for-
-//      byte the same algorithm as src/app/api/auth/login/route.ts's
-//      verifyPassword (the transactions route previously duplicated it).
+//   3. PASSWORD - bcrypt compare via @/lib/password (v2.212.1, audit SEC-01:
+//      the legacy "hashed_" plaintext fallback is RETIRED. The shared
+//      verifier is the single source of truth for login, manager step-up and
+//      the transactions route. Migrate legacy rows with
+//      scripts/migrate-legacy-passwords.mjs BEFORE deploying).
 //   4. ROLE - the approver must be MANAGER-or-above (MANAGER_PLUS_ROLES =
 //      SUPER_ADMIN / STORE_OWNER / BRANCH_MANAGER).
 //
@@ -33,8 +35,8 @@
 // best-effort posture as src/lib/brute-force.ts and the abuse lockout in
 // src/lib/auth.ts). The SecurityEvent feed remains the durable record.
 
-import bcrypt from 'bcryptjs';
 import { db } from '@/lib/db';
+import { verifyPassword } from '@/lib/password';
 import { systemLog } from '@/lib/logger';
 import { LogSeverity, LogComponent } from '@/lib/types';
 import { MANAGER_PLUS_ROLES } from '@/lib/auth';
@@ -69,27 +71,13 @@ function failureKey(email: string, ip: string): string {
 // Password verification (identical to the login route)
 
 /**
- * bcrypt compare + the legacy "hashed_" fallback. Kept byte-for-byte
- * equivalent to verifyPassword() in src/app/api/auth/login/route.ts so a
- * manager's stored hash verifies identically on both surfaces.
+ * v2.212.1 (SEC-01): the local bcrypt + legacy "hashed_" fallback was removed.
+ * Manager step-up now re-exports the shared verifier from @/lib/password -
+ * the ONLY password check in the codebase. Legacy "hashed_" rows verify as
+ * false (they fail like a wrong password); migrate them with
+ * scripts/migrate-legacy-passwords.mjs BEFORE deploying this change.
  */
-export async function verifyManagerPassword(
-  password: string,
-  storedHash: string
-): Promise<boolean> {
-  try {
-    if (storedHash.startsWith('$2')) {
-      return await bcrypt.compare(password, storedHash);
-    }
-  } catch {
-    /* ignore bcrypt errors - falls through to legacy check */
-  }
-  if (storedHash.startsWith('hashed_')) {
-    const plainPart = storedHash.replace('hashed_', '').replace(/_\d+$/, '');
-    if (password === plainPart) return true;
-  }
-  return false;
-}
+export { verifyPassword as verifyManagerPassword } from '@/lib/password';
 
 // Public API
 
@@ -154,7 +142,7 @@ export async function authorizeManager(
   const manager = await db.user.findUnique({ where: { email } });
 
   const passwordOk = manager
-    ? await verifyManagerPassword(input.approverPassword, manager.passwordHash)
+    ? await verifyPassword(input.approverPassword, manager.passwordHash)
     : false;
 
   if (!manager || !manager.isActive || !passwordOk) {
