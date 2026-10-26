@@ -14,7 +14,7 @@
 // gate) - fail-closed in production; non-production allows with a WARN so the
 // gap is visible, 403 on a wrong header.
 
-import { withErrorBoundary, systemLog } from '@/lib/logger';
+import { withErrorBoundary } from '@/lib/logger';
 import { LogComponent } from '@/lib/types';
 import { sweepStalledPayrollB2C } from '@/lib/hr/payroll/b2c-recovery';
 import { verifyCronSecret } from '@/lib/cron-auth';

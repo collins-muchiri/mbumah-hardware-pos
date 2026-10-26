@@ -26,7 +26,6 @@
 //   when EXPOSE_ERRORS=true.
 
 import { type NextRequest } from 'next/server';
-import bcrypt from 'bcryptjs';
 import { db } from '@/lib/db';
 import { env } from '@/lib/env'; // Lazy env validation - fails at call site, not import
 import { systemLog, withErrorBoundary } from '@/lib/logger';
