@@ -26,37 +26,13 @@ import { withErrorBoundary, systemLog } from '@/lib/logger';
 import { dataRetention } from '@/lib/data-retention';
 import { runHrRetentionSweep } from '@/lib/hr/data-protection';
 import { LogSeverity, LogComponent } from '@/lib/types';
+import { verifyCronSecret } from '@/lib/cron-auth';
 
 export const dynamic = 'force-dynamic';
 // Purges are deleteMany batches across 6 categories; 60s leaves headroom for
 // Neon cold start + large backlog first-run.
 export const maxDuration = 60;
 
-async function verifyCronSecret(request: Request): Promise<Response | null> {
-  const secret = process.env.CRON_SECRET;
-  const provided = request.headers.get('x-cron-secret');
-
-  if (!secret) {
-    await systemLog({
-      action: 'CRON_SECRET_UNSET',
-      component: LogComponent.SYSTEM,
-      severity: LogSeverity.WARN,
-      message:
-        'CRON_SECRET env var is not set - /api/cron/retention accepted an unauthenticated request.',
-      metadata: { path: '/api/cron/retention' },
-    });
-    return null;
-  }
-
-  if (provided !== secret) {
-    return Response.json(
-      { success: false, error: 'Forbidden: invalid or missing x-cron-secret header.' },
-      { status: 403 },
-    );
-  }
-
-  return null;
-}
 
 async function retentionCronHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as Request;

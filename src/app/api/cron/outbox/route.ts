@@ -19,12 +19,13 @@
 // We gate on the `x-cron-secret` header compared against the CRON_SECRET env
 // var:
 //   • CRON_SECRET set    → header must match exactly, otherwise 403.
-//   • CRON_SECRET unset  → request is allowed, but a WARN is written to
+//   • CRON_SECRET unset  → PRODUCTION rejects (403, fail-closed); non-prod allows, WARN to
 //     system_logs so the unauthenticated gap is visible and alertable
-//     (deploy with CRON_SECRET set in production).
+//     (set CRON_SECRET in production).
 
-import { withErrorBoundary, systemLog } from '@/lib/logger';
-import { LogSeverity, LogComponent } from '@/lib/types';
+import { withErrorBoundary } from '@/lib/logger';
+import { LogComponent } from '@/lib/types';
+import { verifyCronSecret } from '@/lib/cron-auth';
 
 export const dynamic = 'force-dynamic';
 // The pump processes a bounded batch (25 events) with per-event retries;
@@ -35,34 +36,6 @@ export const maxDuration = 60;
 // Returns a 403 Response when the caller is not authorised, or null to allow
 // the request through. Inlined per cron route (cron routes are standalone by
 // design - no shared mutable state between schedulers).
-async function verifyCronSecret(request: Request): Promise<Response | null> {
-  const secret = process.env.CRON_SECRET;
-  const provided = request.headers.get('x-cron-secret');
-
-  if (!secret) {
-    // Fail-open is deliberate: Vercel Cron cannot be configured to send a
-    // secret per-invocation on all plans, and blocking would stall outbox
-    // delivery entirely. The WARN audit trail makes the gap detectable.
-    await systemLog({
-      action: 'CRON_SECRET_UNSET',
-      component: LogComponent.SYSTEM,
-      severity: LogSeverity.WARN,
-      message:
-        'CRON_SECRET env var is not set - /api/cron/outbox accepted an unauthenticated request.',
-      metadata: { path: '/api/cron/outbox' },
-    });
-    return null;
-  }
-
-  if (provided !== secret) {
-    return Response.json(
-      { success: false, error: 'Forbidden: invalid or missing x-cron-secret header.' },
-      { status: 403 },
-    );
-  }
-
-  return null;
-}
 
 async function outboxCronHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as Request;
