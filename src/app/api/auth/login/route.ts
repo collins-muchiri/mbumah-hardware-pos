@@ -34,6 +34,7 @@ import { LogSeverity, LogComponent } from '@/lib/types';
 import { isRateLimited } from '@/lib/rate-limit';
 import { loginSchema, validateInput } from '@/lib/validations';
 import { checkBruteForce, recordFailedAttempt, recordSuccessfulLogin } from '@/lib/brute-force';
+import { verifyPassword, isLegacyPasswordHash } from '@/lib/password';
 import { sanitizeInput, getClientIp } from '@/lib/security';
 // v2.16.0 (subdomain workspaces): shared session cookie for cross-subdomain SSO.
 import { buildSessionCookieHeaders } from '@/lib/workspace/session-cookie';
@@ -50,23 +51,11 @@ export const dynamic = 'force-dynamic';
 // `env.X` property access inside the handler, where withErrorBoundary catches it.
 void env;
 
-// Verify password with support for both bcrypt hashes and legacy "hashed_" format
-async function verifyPassword(password: string, storedHash: string): Promise<boolean> {
-  // First try bcrypt compare (for new passwords)
-  try {
-    if (storedHash.startsWith('$2')) {
-      return await bcrypt.compare(password, storedHash);
-    }
-  } catch { /* ignore bcrypt errors */ }
-
-  // Fallback: support legacy "hashed_" format for existing users during migration
-  if (storedHash.startsWith('hashed_')) {
-    const plainPart = storedHash.replace('hashed_', '').replace(/_\d+$/, '');
-    if (password === plainPart) return true;
-  }
-
-  return false;
-}
+// v2.212.1 (SEC-01): the local verifyPassword with the legacy "hashed_"
+// plaintext fallback was REMOVED. Password verification now lives in
+// @/lib/password - the single source of truth shared by login, manager
+// step-up and the transactions route. Legacy "hashed_" rows verify as false;
+// migrate them with `node scripts/migrate-legacy-passwords.mjs --apply`.
 
 // Generate a cryptographically secure token using only crypto.getRandomValues
 function generateToken(): string {
@@ -254,7 +243,23 @@ async function loginHandler(...args: unknown[]): Promise<Response> {
     }
 
     // 8. If password wrong: recordFailedAttempt → 401
+    //    v2.212.1 (SEC-01): verifyPassword only accepts bcrypt hashes now.
+    //    Accounts still on the retired legacy "hashed_" format fail here and
+    //    get a dedicated ledger row so ops can spot un-migrated accounts.
     if (!await verifyPassword(password, user.passwordHash)) {
+      if (isLegacyPasswordHash(user.passwordHash)) {
+        try {
+          await systemLog({
+            action: 'LOGIN_LEGACY_HASH_REJECTED',
+            component: LogComponent.AUTH,
+            severity: LogSeverity.WARN,
+            message: 'Login rejected: account still uses the retired legacy "hashed_" password format. Run scripts/migrate-legacy-passwords.mjs --apply, then rotate the password.',
+            userId: user.id,
+            metadata: { email, reason: 'LEGACY_HASH_REJECTED' },
+          });
+        } catch { /* ignore logging errors */ }
+      }
+
       const failedResult = await recordFailedAttempt(email, ip);
 
       try {
