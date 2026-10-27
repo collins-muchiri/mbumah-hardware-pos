@@ -7,7 +7,7 @@ import { execSync } from 'node:child_process';
 const remote = execSync('git remote get-url origin', { encoding: 'utf8' }).trim();
 const TOKEN = (remote.match(/x-access-token:([^@]+)@/) || [])[1] || process.env.GITHUB_TOKEN || '';
 const repoPath = (remote.match(/github\.com\/([^/]+\/[^.]+)\.git/) || [])[1];
-const REPO = repoPath || 'bucky-ops/mbumah-hardware-pos';
+const REPO = repoPath || 'collins-muchiri/mbumah-hardware-pos';
 const HEAD = 'release/v2.199.0';
 const BASE = 'main';
 

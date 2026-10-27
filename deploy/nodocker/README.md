@@ -87,7 +87,7 @@ Recommended sequence: install → staff trains on demo data → double-click
 
 ### Windows
 ```powershell
-git clone https://github.com/bucky-ops/mbumah-hardware-pos.git
+git clone https://github.com/collins-muchiri/mbumah-hardware-pos.git
 cd mbumah-hardware-pos
 powershell -ExecutionPolicy Bypass -File deploy\nodocker\install-nodocker.ps1
 ```
@@ -100,7 +100,7 @@ powershell -ExecutionPolicy Bypass -File deploy\nodocker\install-nodocker.ps1 -U
 
 ### Linux / macOS
 ```bash
-git clone https://github.com/bucky-ops/mbumah-hardware-pos.git
+git clone https://github.com/collins-muchiri/mbumah-hardware-pos.git
 cd mbumah-hardware-pos
 bash deploy/nodocker/install-nodocker.sh           # localhost only
 bash deploy/nodocker/install-nodocker.sh --lan     # shop-LAN access

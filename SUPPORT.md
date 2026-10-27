@@ -5,16 +5,16 @@ Thank you for using MBUMAH HARDWARE POS. This document describes where to get he
 ## Before opening an issue
 
 1. Check the [documentation](docs/README.md) for setup, configuration, and deployment guidance.
-2. Search [existing issues](https://github.com/bucky-ops/mbumah-hardware-pos/issues) to avoid duplicates.
+2. Search [existing issues](https://github.com/collins-muchiri/mbumah-hardware-pos/issues) to avoid duplicates.
 3. For deployment problems, include your platform (Vercel, Docker, self-hosted) and database (Neon PostgreSQL or SQLite).
 
 ## How to get help
 
 | Type of help | Channel |
 |---|---|
-| Bug reports | [Open a bug report](https://github.com/bucky-ops/mbumah-hardware-pos/issues/new?template=bug_report.yml) |
-| Feature requests | [Open a feature request](https://github.com/bucky-ops/mbumah-hardware-pos/issues/new?template=feature_request.yml) |
-| Questions and usage help | [Open a discussion](https://github.com/bucky-ops/mbumah-hardware-pos/discussions) |
+| Bug reports | [Open a bug report](https://github.com/collins-muchiri/mbumah-hardware-pos/issues/new?template=bug_report.yml) |
+| Feature requests | [Open a feature request](https://github.com/collins-muchiri/mbumah-hardware-pos/issues/new?template=feature_request.yml) |
+| Questions and usage help | [Open a discussion](https://github.com/collins-muchiri/mbumah-hardware-pos/discussions) |
 | Security vulnerabilities | Follow [SECURITY.md](SECURITY.md). Never open a public issue for a security problem. |
 
 ## What to include in a bug report

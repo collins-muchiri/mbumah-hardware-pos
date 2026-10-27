@@ -22,7 +22,7 @@ const pr = JSON.stringify({
 });
 
 const res = execSync(
-  `curl -s -X POST -H "Authorization: Bearer ${token}" -H "Accept: application/vnd.github+json" -d '${pr.replace(/'/g, `'\\''`)}' https://api.github.com/repos/bucky-ops/mbumah-hardware-pos/pulls`,
+  `curl -s -X POST -H "Authorization: Bearer ${token}" -H "Accept: application/vnd.github+json" -d '${pr.replace(/'/g, `'\\''`)}' https://api.github.com/repos/collins-muchiri/mbumah-hardware-pos/pulls`,
   { encoding: 'utf8' },
 );
 const j = JSON.parse(res);

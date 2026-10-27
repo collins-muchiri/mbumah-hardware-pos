@@ -7,7 +7,7 @@
 //                      of truth; see src/lib/version.ts).
 //   • channel - 'cloud' when DATABASE_URL points at postgres, else
 //                      'laptop' (SQLite kits updated by deploy-kit).
-//   • latestRelease - latest GitHub Release of bucky-ops/mbumah-hardware-pos
+//   • latestRelease - latest GitHub Release of collins-muchiri/mbumah-hardware-pos
 //                      (GITHUB_TOKEN raises the 60 req/h anonymous rate limit
 //                      when set). NEVER faked: a failed fetch yields `null`
 //                      plus a human-readable `releasesNote`.
@@ -31,7 +31,7 @@ import { APP_VERSION, APP_BUILD_SHA, APP_BUILD_LABEL } from '@/lib/version';
 export const dynamic = 'force-dynamic';
 
 const GITHUB_RELEASES_URL =
-  'https://api.github.com/repos/bucky-ops/mbumah-hardware-pos/releases/latest';
+  'https://api.github.com/repos/collins-muchiri/mbumah-hardware-pos/releases/latest';
 const VERCEL_DEPLOYMENTS_URL = 'https://api.vercel.com/v6/deployments';
 
 const EXTERNAL_TIMEOUT_MS = 6_000;
@@ -87,7 +87,7 @@ async function fetchLatestRelease(): Promise<{
       if (response.status === 404) {
         return {
           release: null,
-          note: 'No GitHub release found for bucky-ops/mbumah-hardware-pos (HTTP 404) - publish a release to enable update checks.',
+          note: 'No GitHub release found for collins-muchiri/mbumah-hardware-pos (HTTP 404) - publish a release to enable update checks.',
         };
       }
       return {
@@ -120,7 +120,7 @@ async function fetchLatestRelease(): Promise<{
         url:
           typeof payload.html_url === 'string'
             ? payload.html_url
-            : 'https://github.com/bucky-ops/mbumah-hardware-pos/releases',
+            : 'https://github.com/collins-muchiri/mbumah-hardware-pos/releases',
         publishedAt:
           typeof payload.published_at === 'string' ? payload.published_at : null,
       },

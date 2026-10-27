@@ -1,6 +1,6 @@
 # Troubleshooting and FAQ
 
-Common issues and their fixes. If your problem is not listed here, [open a bug report](https://github.com/bucky-ops/mbumah-hardware-pos/issues/new?template=bug_report.yml).
+Common issues and their fixes. If your problem is not listed here, [open a bug report](https://github.com/collins-muchiri/mbumah-hardware-pos/issues/new?template=bug_report.yml).
 
 ## M-Pesa Daraja callback issues (ngrok for local testing)
 
@@ -282,5 +282,5 @@ git commit -m "db: add your_change_description migration"
 ## Still stuck?
 
 - Read [Deployment](deployment.md) for setup-oriented guidance, and the archived [Vercel recovery guide](archive/VERCEL_RECOVERY.md) for the historical incident notes.
-- [Open a bug report](https://github.com/bucky-ops/mbumah-hardware-pos/issues/new?template=bug_report.yml) with your Node version, browser, and reproduction steps.
+- [Open a bug report](https://github.com/collins-muchiri/mbumah-hardware-pos/issues/new?template=bug_report.yml) with your Node version, browser, and reproduction steps.
 - For security-sensitive issues, see [SECURITY.md](../SECURITY.md); do not open a public issue.

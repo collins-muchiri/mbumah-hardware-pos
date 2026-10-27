@@ -26,7 +26,7 @@ set -u
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 cd "$ROOT" || exit 1
-REPO_SLUG="bucky-ops/mbumah-hardware-pos"
+REPO_SLUG="collins-muchiri/mbumah-hardware-pos"
 LEDGER="$HOME/mbumah-pos-data/update-ledger.jsonl"
 STATE_FILE="$HOME/mbumah-pos-data/update-state.json"
 

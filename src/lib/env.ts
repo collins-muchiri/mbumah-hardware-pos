@@ -159,7 +159,7 @@ const envSchema = z.object({
   //   OPS_GITHUB_TOKEN: fine-grained PAT with Contents RW on the ops-log repo
   //     ONLY - lets the admin console commit fleet commands and read ledgers.
   //   OPS_LOG_REPO: "owner/repo" of the private audit repo
-  //     (default bucky-ops/mbumah-ops-log).
+  //     (default collins-muchiri/mbumah-ops-log).
   //   OPS_SIGNING_KEY: shared HMAC key - commands are signed by the cloud and
   //     verified by store agents; without it no command can be issued.
   OPS_GITHUB_TOKEN: z.string().optional(),

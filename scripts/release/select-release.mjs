@@ -42,7 +42,7 @@ import { readFileSync } from 'node:fs';
 import { parseVersion, compareVersions, maxParsedVersion } from './parse-version.mjs';
 import { validateTag } from './validate-tag.mjs';
 
-const REPO_SLUG = 'bucky-ops/mbumah-hardware-pos';
+const REPO_SLUG = 'collins-muchiri/mbumah-hardware-pos';
 
 function err(msg) {
   console.error(msg);

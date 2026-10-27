@@ -6,7 +6,7 @@ import { execSync } from 'node:child_process';
 
 const remote = execSync('git remote get-url origin', { cwd: '/home/z/ems' }).toString().trim();
 const token = remote.match(/x-access-token:([^@]+)@/)[1];
-const REPO = 'bucky-ops/mbumah-hardware-pos';
+const REPO = 'collins-muchiri/mbumah-hardware-pos';
 const PR = Number(process.env.PR_NUMBER || 0);
 if (!PR) { console.error('set PR_NUMBER env (the number create-pr just made)'); process.exit(1); }
 const HEAD_SHA = execSync('git rev-parse HEAD', { cwd: '/home/z/ems' }).toString().trim();

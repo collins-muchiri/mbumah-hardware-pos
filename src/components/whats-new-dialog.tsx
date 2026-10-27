@@ -36,7 +36,7 @@ import { WHATS_NEW, type WhatsNewEntry } from '@/lib/whats-new';
 
 const SEEN_VERSION_KEY = 'mbt_seen_version';
 const CHANGELOG_URL =
-  'https://github.com/bucky-ops/mbumah-hardware-pos/blob/main/CHANGELOG.md';
+  'https://github.com/collins-muchiri/mbumah-hardware-pos/blob/main/CHANGELOG.md';
 
 function EntryBlock({ entry, latest }: { entry: WhatsNewEntry; latest: boolean }) {
   return (

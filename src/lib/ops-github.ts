@@ -1,7 +1,7 @@
 // MBUMAH HARDWARE POS - Remote Access Kit (RAK) · GitHub control bus client
 // (server-side only - v2.11.0, docs/REMOTE_ACCESS_KIT_PLAN.md §5)
 //
-// The private ops-log repository (default `bucky-ops/mbumah-ops-log`) is BOTH
+// The private ops-log repository (default `collins-muchiri/mbumah-ops-log`) is BOTH
 // the command channel to the store fleet and the immutable audit ledger:
 //
 //   commands/<store-id>.json             the CURRENT pending command per store
@@ -16,7 +16,7 @@
 //
 // Configuration (all OPTIONAL - every consumer degrades honestly when unset):
 //   OPS_GITHUB_TOKEN   fine-grained PAT - Contents RW on the ops-log repo ONLY
-//   OPS_LOG_REPO       "owner/repo", default 'bucky-ops/mbumah-ops-log'
+//   OPS_LOG_REPO       "owner/repo", default 'collins-muchiri/mbumah-ops-log'
 //   OPS_SIGNING_KEY    HMAC-SHA256 key shared with the kits; commands are
 //                      signed by the cloud and verified by the agent, so a
 //                      leaked device token alone cannot command a store.
@@ -47,7 +47,7 @@ const OPS_RETRY_DELAYS_MS = [800];
 
 export function getOpsConfig(): OpsConfig {
   const token = process.env.OPS_GITHUB_TOKEN ?? '';
-  const repo = process.env.OPS_LOG_REPO || 'bucky-ops/mbumah-ops-log';
+  const repo = process.env.OPS_LOG_REPO || 'collins-muchiri/mbumah-ops-log';
   const signingKey = process.env.OPS_SIGNING_KEY ?? '';
   const missing: string[] = [];
   if (!token) missing.push('OPS_GITHUB_TOKEN');
@@ -297,7 +297,7 @@ export async function fetchLatestReleaseTag(): Promise<{
     // GITHUB_TOKEN (read-only release checks) - separate from OPS_GITHUB_TOKEN.
     if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
     const response = await fetch(
-      `${OPS_API_BASE}/repos/bucky-ops/mbumah-hardware-pos/releases/latest`,
+      `${OPS_API_BASE}/repos/collins-muchiri/mbumah-hardware-pos/releases/latest`,
       { headers, signal: AbortSignal.timeout(6_000), cache: 'no-store' },
     );
     if (!response.ok) {

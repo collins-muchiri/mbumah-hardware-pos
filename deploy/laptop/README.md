@@ -31,7 +31,7 @@ Stack (all local, via `docker-compose.laptop.yml`):
 
 ### Windows (PowerShell)
 ```powershell
-git clone https://github.com/bucky-ops/mbumah-hardware-pos.git
+git clone https://github.com/collins-muchiri/mbumah-hardware-pos.git
 cd mbumah-hardware-pos
 powershell -ExecutionPolicy Bypass -File deploy\laptop\install-laptop.ps1
 ```
@@ -45,7 +45,7 @@ powershell -ExecutionPolicy Bypass -File deploy\laptop\install-laptop.ps1 -UseLa
 
 ### Linux / macOS / WSL
 ```bash
-git clone https://github.com/bucky-ops/mbumah-hardware-pos.git
+git clone https://github.com/collins-muchiri/mbumah-hardware-pos.git
 cd mbumah-hardware-pos
 bash deploy/laptop/install-laptop.sh          # localhost only
 bash deploy/laptop/install-laptop.sh --lan    # shop-LAN access

@@ -1,6 +1,6 @@
 # Debt Plan Module - Comprehensive Audit Report
 
-**Repository:** bucky-ops/mbumah-hardware-pos
+**Repository:** collins-muchiri/mbumah-hardware-pos
 **Branch:** `feature/debt-plan-hardening` (audited baseline: `main` @ `485d016`)
 **Scope:** the Debt Payment Plan module end-to-end - `src/app/api/debt-payment-plans/**`, `src/lib/debt-plan-utils.ts`, `src/lib/db.ts` (tenancy layer), `src/app/tabs/debt-plans-tab.tsx`, `src/components/debt-plans/**`, `src/lib/api.ts` (client), `prisma/schema.prisma`, tests.
 **Task reference:** Task 12-d (continues the Task 12-a/b/c remediation lineage already recorded in this repo's worklog).

@@ -451,7 +451,7 @@ export function ShortcutsModal({ open, onOpenChange }: { open: boolean; onOpenCh
 // muted — with a collapse for the backlog (66 entries and counting), the
 // shared mbt_seen_version flag on "Got it" (one flag across surfaces, no
 // double-nag), the GitHub changelog link, and the business contacts kept.
-const CHANGELOG_URL = 'https://github.com/bucky-ops/mbumah-hardware-pos/blob/main/CHANGELOG.md';
+const CHANGELOG_URL = 'https://github.com/collins-muchiri/mbumah-hardware-pos/blob/main/CHANGELOG.md';
 // The modal reads top-down and never drowns: the latest release + this many
 // older ones render open; the rest wait behind one expand button.
 const INITIAL_VISIBLE = 5;

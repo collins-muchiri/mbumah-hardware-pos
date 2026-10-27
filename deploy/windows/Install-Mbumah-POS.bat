@@ -23,12 +23,12 @@ if exist "deploy\nodocker\install-nodocker.ps1" (
     echo [1/4] Using the app source found in !ROOT!.
   ) else (
     echo [1/4] Downloading the latest Mbumah POS from GitHub...
-    powershell -NoProfile -Command "$ProgressPreference='SilentlyContinue';[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12;$z="$env:TEMP\mbumah-pos.zip";$d="$env:TEMP\mbumah-pos-src";iwr https://codeload.github.com/bucky-ops/mbumah-hardware-pos/zip/refs/heads/main -OutFile $z;if(test-path $d){ri $d -r -fo};Expand-Archive $z $d -Force;$s=(gci $d -Directory|select -First 1).FullName;if(test-path "$env:USERPROFILE\mbumah-hardware-pos"){ri "$env:USERPROFILE\mbumah-hardware-pos" -r -fo};mi $s "$env:USERPROFILE\mbumah-hardware-pos""
+    powershell -NoProfile -Command "$ProgressPreference='SilentlyContinue';[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12;$z="$env:TEMP\mbumah-pos.zip";$d="$env:TEMP\mbumah-pos-src";iwr https://codeload.github.com/collins-muchiri/mbumah-hardware-pos/zip/refs/heads/main -OutFile $z;if(test-path $d){ri $d -r -fo};Expand-Archive $z $d -Force;$s=(gci $d -Directory|select -First 1).FullName;if(test-path "$env:USERPROFILE\mbumah-hardware-pos"){ri "$env:USERPROFILE\mbumah-hardware-pos" -r -fo};mi $s "$env:USERPROFILE\mbumah-hardware-pos""
     if not exist "%USERPROFILE%\mbumah-hardware-pos\deploy\nodocker\install-nodocker.ps1" (
       color 0C
       echo.
       echo  Download failed. Do it manually:
-      echo   1. Open  https://github.com/bucky-ops/mbumah-hardware-pos
+      echo   1. Open  https://github.com/collins-muchiri/mbumah-hardware-pos
       echo   2. Click Code ^> Download ZIP, then extract it
       echo   3. Double-click Install-Mbumah-POS.bat inside the extracted folder
       echo.

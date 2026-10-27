@@ -5,7 +5,7 @@ const remote = execSync('git remote get-url origin', { encoding: 'utf8' }).trim(
 const m = remote.match(/x-access-token:([^@]+)@github/);
 if (!m) throw new Error('no token in remote URL');
 const TOKEN = m[1];
-const REPO = 'bucky-ops/mbumah-hardware-pos';
+const REPO = 'collins-muchiri/mbumah-hardware-pos';
 const HEAD = execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim();
 
 const res = await fetch(`https://api.github.com/repos/${REPO}/pulls`, {

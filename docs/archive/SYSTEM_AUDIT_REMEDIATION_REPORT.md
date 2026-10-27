@@ -1,6 +1,6 @@
 # System Audit, Testing & Debugging - Remediation Report
 
-**Repository:** `bucky-ops/mbumah-hardware-pos` · **Branch:** `fix/audit-remediation-patches` · **Baseline:** `e343cbc` (post PR #12/#13 financial remediations)
+**Repository:** `collins-muchiri/mbumah-hardware-pos` · **Branch:** `fix/audit-remediation-patches` · **Baseline:** `e343cbc` (post PR #12/#13 financial remediations)
 **Scope:** All 8 functional modules (POS, Quotations, Inventory, Purchasing, Debtors, Cash Drawer, Analytics, RBAC/Security) + hardware/environment fault tolerance, audited code-level against the live codebase, then remediated on this branch.
 
 ---

@@ -170,7 +170,7 @@ docker compose version
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/bucky-ops/mbumah-hardware-pos.git
+git clone https://github.com/collins-muchiri/mbumah-hardware-pos.git
 cd mbumah-hardware-pos
 
 # 2. Configure the environment

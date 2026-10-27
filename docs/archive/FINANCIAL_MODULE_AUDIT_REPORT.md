@@ -1,7 +1,7 @@
 # HARDWARE FINANCIAL MODULE SYSTEM - COMPREHENSIVE LIFECYCLE AUDIT
 
 **Role:** Principal Financial Systems Architect & Database Engineer (Supply-Chain Ledgering, Serverless Infrastructure)
-**Date:** 2026-09-04 · **Repo:** `bucky-ops/mbumah-hardware-pos` @ `33c6563` (main) · **Prod DB:** Neon `pos-erp-crm` (`broad-snow-78900501`), branch `br-proud-lab-ai15r38h`, PG 18.6
+**Date:** 2026-09-04 · **Repo:** `collins-muchiri/mbumah-hardware-pos` @ `33c6563` (main) · **Prod DB:** Neon `pos-erp-crm` (`broad-snow-78900501`), branch `br-proud-lab-ai15r38h`, PG 18.6
 **Stack:** Next.js 16 (App Router, 180 API routes) · Prisma 6 (~90 models) · Neon Serverless PostgreSQL (pgbouncer pooled) · Vercel (iad1) · GitHub Actions · M-Pesa Daraja (STK + callback) · Kenya eTIMS/KRA · CSV-based ERP hand-off
 
 **Method:** Every finding below was verified twice: (1) full source read with `file:line` evidence, and (2) where possible, **live verification against production Neon** (table counts, ledger sums, invariant checks) and the git history. One agent-reported finding (a claimed syntax error in `reports/export/route.ts`) was **disproven by byte-level inspection** and is deliberately excluded - this report contains no unverified claims.

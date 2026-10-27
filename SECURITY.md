@@ -32,7 +32,7 @@ If you cloned this repository before this cleanup:
 
 This is the fastest, most secure path. GitHub routes the report directly to repository maintainers and gives us a private collaboration workspace to develop and ship a fix.
 
-1. Go to **https://github.com/bucky-ops/mbumah-hardware-pos/security/advisories/new**
+1. Go to **https://github.com/collins-muchiri/mbumah-hardware-pos/security/advisories/new**
 2. Click **"Report a vulnerability"**.
 3. Fill in the advisory form. GitHub provides a CVSS calculator; please use it.
 4. Submit. The maintainers receive a private notification; no public issue is created.

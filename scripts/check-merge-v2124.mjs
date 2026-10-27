@@ -5,7 +5,7 @@ import { execSync } from 'node:child_process';
 
 const remote = execSync('git remote get-url origin', { cwd: '/home/z/ems' }).toString().trim();
 const token = remote.match(/x-access-token:([^@]+)@/)[1];
-const REPO = 'bucky-ops/mbumah-hardware-pos';
+const REPO = 'collins-muchiri/mbumah-hardware-pos';
 const PR = 250; // set after create-pr-v2124.mjs prints the number
 const HEAD_SHA = execSync('git rev-parse HEAD', { cwd: '/home/z/ems' }).toString().trim();
 const H = { 'User-Agent': 'ems-release', 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' };

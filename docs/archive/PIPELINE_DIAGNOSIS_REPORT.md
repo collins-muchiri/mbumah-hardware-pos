@@ -4,7 +4,7 @@
 **Date:** Cycle E (Phase 5)
 **Objective:** Diagnose and resolve the Vercel deployment hanging on "Loading…" with intermittent 500 errors.
 **Deployment:** `mbumah-hardware-pos-one.vercel.app`
-**Source:** `github.com/bucky-ops/mbumah-hardware-pos` (branch `main`)
+**Source:** `github.com/collins-muchiri/mbumah-hardware-pos` (branch `main`)
 **Database:** Neon PostgreSQL (`ep-winter-waterfall-a25wj37w-pooler.eu-central-1.aws.neon.tech`)
 
 ---
@@ -32,7 +32,7 @@ Follow the 5-stage checklist below **in order**. Each stage has a pass condition
 **Goal:** Confirm the deployed code matches `main` and contains the Cycle E fixes.
 
 ### Steps
-1. Open `https://github.com/bucky-ops/mbumah-hardware-pos` → branch `main`.
+1. Open `https://github.com/collins-muchiri/mbumah-hardware-pos` → branch `main`.
 2. Confirm the latest commit includes Cycle E changes:
    - `prisma/seed.ts` - has `seedBody()` function + `stage()` helper + `upsert` for org/store/super-admin.
    - `src/app/layout.tsx` - imports `SpeedInsights` from `@vercel/speed-insights/next` and renders `<SpeedInsights />`.

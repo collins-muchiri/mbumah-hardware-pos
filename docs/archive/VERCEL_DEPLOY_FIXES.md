@@ -5,7 +5,7 @@
 > misconfiguration pointing to a dead Neon database endpoint.
 >
 > **Production URL:** https://mbumah-hardware-pos-one.vercel.app
-> **GitHub repo:** bucky-ops/mbumah-hardware-pos
+> **GitHub repo:** collins-muchiri/mbumah-hardware-pos
 > **Database:** Neon PostgreSQL (`ep-calm-butterfly-aivj6kzm-pooler`)
 
 ---
@@ -474,7 +474,7 @@ of postgresql), or `prisma generate` didn't run before `next build`.
 | Item | Value |
 |------|-------|
 | **Production URL** | https://mbumah-hardware-pos-one.vercel.app |
-| **GitHub repo** | bucky-ops/mbumah-hardware-pos |
+| **GitHub repo** | collins-muchiri/mbumah-hardware-pos |
 | **Neon endpoint (NEW, working)** | `ep-calm-butterfly-aivj6kzm-pooler.c-4.us-east-1.aws.neon.tech` |
 | **Neon endpoint (OLD, dead)** | `ep-winter-waterfall-a25wj37w-pooler.eu-central-1.aws.neon.tech` |
 | **Neon database** | `neondb` |

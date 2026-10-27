@@ -9,7 +9,7 @@ const TOKEN = m[1];
 
 const PR = 219;
 const EXPECT_HEAD = '__FILL_FULL_SHA__';
-const REPO = 'bucky-ops/mbumah-hardware-pos';
+const REPO = 'collins-muchiri/mbumah-hardware-pos';
 const H = {
   Authorization: `Bearer ${TOKEN}`,
   Accept: 'application/vnd.github+json',

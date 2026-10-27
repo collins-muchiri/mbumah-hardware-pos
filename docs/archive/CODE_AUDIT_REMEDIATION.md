@@ -1,6 +1,6 @@
 # Code Audit Remediation Tracker
 
-**Source report:** Comprehensive Code Audit Report - MBUMAH HARDWARE POS & ERP (`bucky-ops/mbumah-hardware-pos`)
+**Source report:** Comprehensive Code Audit Report - MBUMAH HARDWARE POS & ERP (`collins-muchiri/mbumah-hardware-pos`)
 **Remediation PR:** feature/code-audit-remediation
 **Scope note:** Several findings in the source report had ALREADY been remediated by earlier PRs (#12/#14/#17/#18/#19/#20). This document maps every finding to its current status so the team has one authoritative checklist.
 

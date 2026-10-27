@@ -1,6 +1,6 @@
 # Financial & DML Audit Report
 
-**Repo:** bucky-ops/mbumah-hardware-pos · **PR:** #27 · **Auditor:** expert software audit (2026-09-10)
+**Repo:** collins-muchiri/mbumah-hardware-pos · **PR:** #27 · **Auditor:** expert software audit (2026-09-10)
 **Scope:** P&L incident (Ksh 3.8e+89), all financial calculation paths, system-wide DML (SELECT / INSERT / UPDATE / DELETE) consistency, follow-up on the earlier receipt-printing + employee CRUD audit (PR #24, already live).
 
 ---

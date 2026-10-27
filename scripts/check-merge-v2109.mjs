@@ -14,7 +14,7 @@ const remote = execSync('git remote get-url origin', { encoding: 'utf8' }).trim(
 const token = remote.match(/x-access-token:([^@]+)@/)?.[1];
 if (!token) { console.error('NO TOKEN'); process.exit(1); }
 const api = (path, opts = {}) => execSync(
-  `curl -s -H "Authorization: Bearer ${token}" -H "Accept: application/vnd.github+json" ${opts.method ? `-X ${opts.method}` : ''} https://api.github.com/repos/bucky-ops/mbumah-hardware-pos${path}`,
+  `curl -s -H "Authorization: Bearer ${token}" -H "Accept: application/vnd.github+json" ${opts.method ? `-X ${opts.method}` : ''} https://api.github.com/repos/collins-muchiri/mbumah-hardware-pos${path}`,
   { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 },
 );
 
@@ -47,7 +47,7 @@ while (attempts < 40 && !merged) {
   // EXPLICIT: the API's default is a merge commit, and PR #224 (v2.104.0)
   // landed as one when no body was sent. Squash is the house shape.
   const res = execSync(
-    `curl -s -X PUT -H "Authorization: Bearer ${token}" -H "Accept: application/vnd.github+json" -d '{"merge_method":"squash"}' https://api.github.com/repos/bucky-ops/mbumah-hardware-pos/pulls/${prNumber}/merge`,
+    `curl -s -X PUT -H "Authorization: Bearer ${token}" -H "Accept: application/vnd.github+json" -d '{"merge_method":"squash"}' https://api.github.com/repos/collins-muchiri/mbumah-hardware-pos/pulls/${prNumber}/merge`,
     { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 },
   );
   const mj = JSON.parse(res);

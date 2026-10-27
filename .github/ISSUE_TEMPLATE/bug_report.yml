@@ -11,7 +11,7 @@ body:
         please:
         - **Search** existing issues to avoid duplicates.
         - **Update** to the latest `main`; your bug may already be fixed.
-        - For **security vulnerabilities**, do NOT use this form. See [SECURITY.md](https://github.com/bucky-ops/mbumah-hardware-pos/blob/main/SECURITY.md) and report privately.
+        - For **security vulnerabilities**, do NOT use this form. See [SECURITY.md](https://github.com/collins-muchiri/mbumah-hardware-pos/blob/main/SECURITY.md) and report privately.
 
   - type: textarea
     id: description

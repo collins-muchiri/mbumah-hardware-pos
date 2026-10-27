@@ -53,7 +53,7 @@ try { [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::S
 
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 Set-Location $root
-$repoSlug = 'bucky-ops/mbumah-hardware-pos'
+$repoSlug = 'collins-muchiri/mbumah-hardware-pos'
 
 # -- Helpers ------------------------------------------------------------------
 

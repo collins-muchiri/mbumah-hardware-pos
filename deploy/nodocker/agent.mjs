@@ -55,7 +55,7 @@ if (existsSync(envPath)) {
   }
 }
 
-const OPS_REPO = process.env.OPS_LOG_REPO || 'bucky-ops/mbumah-ops-log';
+const OPS_REPO = process.env.OPS_LOG_REPO || 'collins-muchiri/mbumah-ops-log';
 const DEVICE_TOKEN = process.env.OPS_GITHUB_TOKEN || process.env.GITHUB_TOKEN || '';
 const SIGNING_KEY = process.env.OPS_SIGNING_KEY || '';
 const APP_PORT = process.env.APP_PORT || '3000';
