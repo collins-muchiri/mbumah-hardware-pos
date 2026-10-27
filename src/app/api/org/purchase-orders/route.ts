@@ -25,6 +25,27 @@
 //     chips speak real numbers — never a fabricated ladder;
 //   • the take is clamped (1..100, default 30) and DISCLOSED — the face
 //     says when it is showing a window, never a pretend-complete list.
+//
+// v2.227.0 THE WATCHLIST STITCH — the ledger row now carries its
+// branch's whisper: how many products at or below their reorder level
+// at the row's OWN store last spoke to this row's supplier. The
+// derivation is the branch watchlist's OWN law (the low-stock wire
+// resolves a product's supplier from the most recent PO that carried
+// it — the supplier of record), so the number the chip speaks is the
+// number the branch's Low-Stock Alert Panel would group under that
+// supplier. COST (assessed honestly, the worklog's demand):
+//   • candidates: the active products of ONLY the stores present in
+//     the loaded window, three cheap columns each (id, storeId, two
+//     decimals) — catalog-bounded, not history-bounded;
+//   • items: PO items of ONLY the low candidates, five cheap columns —
+//     bounded by the low rows' order history, not the whole pipe;
+//   • both queries ride INSIDE the same runWithoutTenant (an org read
+//     is org-wide by definition — the v2.57.0 leak class never
+//     shrinks an org read), and the stitch answers for the NARROWING
+//     (a branch filter narrows the candidates to that branch).
+// A row whose supplier holds no low rows carries 0 — the chip stays
+// silent (absence stays absent). The roster CSV keeps its seven
+// columns: the stitch is a live whisper, not a row of the file.
 
 import { type NextRequest } from 'next/server';
 import { rawDb, runWithoutTenant } from '@/lib/db';
@@ -96,7 +117,45 @@ async function orgPurchaseOrdersHandler(request: NextRequest, session: AuthSessi
       }),
       rawDb.purchaseOrder.groupBy({ by: ['status'], where, _count: { _all: true } }),
     ]);
-    return { rows, grouped };
+
+    // v2.227.0 THE WATCHLIST STITCH — per (store, supplier-of-record):
+    // how many of the store's low products last spoke to this supplier.
+    // Two bounded queries, same org-wide law as the rows above.
+    const storeIds = [...new Set(rows.map((po) => po.store.id))];
+    const supplierIds = [...new Set(rows.map((po) => po.supplier.id))];
+    const hints = new Map<string, number>();
+    if (storeIds.length > 0 && supplierIds.length > 0) {
+      // The candidates: active products of the window's stores only.
+      const candidates = await rawDb.product.findMany({
+        where: { storeId: { in: storeIds }, isActive: true },
+        select: { id: true, storeId: true, quantityInStock: true, reorderLevel: true },
+      });
+      const low = candidates.filter((p) => Number(p.quantityInStock) <= Number(p.reorderLevel));
+      if (low.length > 0) {
+        const storeByProduct = new Map(low.map((p) => [p.id, p.storeId]));
+        // The supplier of record: the most recent PO that carried the
+        // product (the branch low-stock wire's own derivation — newest
+        // orderDate wins; items arrive newest-first, first sight pins).
+        const items = await rawDb.purchaseOrderItem.findMany({
+          where: { productId: { in: low.map((p) => p.id) } },
+          select: { productId: true, purchaseOrder: { select: { supplierId: true, orderDate: true } } },
+          orderBy: { purchaseOrder: { orderDate: 'desc' } },
+        });
+        const supplierByProduct = new Map<string, string>();
+        for (const item of items) {
+          if (!supplierByProduct.has(item.productId)) {
+            supplierByProduct.set(item.productId, item.purchaseOrder.supplierId);
+          }
+        }
+        for (const [productId, supplierId] of supplierByProduct) {
+          if (!supplierIds.includes(supplierId)) continue;
+          const key = `${storeByProduct.get(productId)}:${supplierId}`;
+          hints.set(key, (hints.get(key) ?? 0) + 1);
+        }
+      }
+    }
+
+    return { rows, grouped, hints };
   });
 
   const canViewCost = hasFeaturePermission(session.role, 'inventory.view.cost');
@@ -122,6 +181,9 @@ async function orgPurchaseOrdersHandler(request: NextRequest, session: AuthSessi
         supplierName: po.supplier.name,
         raisedByName: po.createdBy?.name ?? null,
         notes: po.notes,
+        // v2.227.0: the branch's whisper — the low rows at this store
+        // that last spoke to this supplier (0 stays silent on the face).
+        watchlistHints: result.hints.get(`${po.store.id}:${po.supplier.id}`) ?? 0,
         // The shillings speak only past the cost gate (null otherwise —
         // the face renders the honest absence, never a hidden zero).
         totalAmount: canViewCost ? Number(po.totalAmount) : null,

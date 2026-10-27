@@ -1772,3 +1772,44 @@
     overflow: visible !important;
   }
 }
+
+/* v2.227.0 THE SHEET'S PAPER — the same law, the amber family's turn:
+   while a count-sheet drill is open the body carries .sheet-printing,
+   and the paper is the sheet: the shell falls silent, the open drill
+   card becomes the page (header, tiles, notes, lines with their
+   variance chips), and the controls (close, finder, CSV/Print, N-of-M)
+   stay off the paper — a control is a screen thing. Chips keep their
+   colors on paper (print-color-adjust: exact). Without an open drill
+   the class is absent and printing behaves as before. The two print
+   faces are mutually exclusive by construction: only one drill door
+   can be open at a time. */
+@media print {
+  body.sheet-printing * { visibility: hidden; }
+  body.sheet-printing [data-sheet-print-overlay],
+  body.sheet-printing [data-sheet-print-overlay] * { visibility: visible; }
+  body.sheet-printing [data-sheet-print-overlay] {
+    position: absolute !important;
+    inset: 0 auto auto 0 !important;
+    display: block !important;
+    width: 100% !important;
+    background: #ffffff !important;
+    padding: 0 !important;
+  }
+  body.sheet-printing [data-sheet-print] {
+    max-height: none !important;
+    max-width: none !important;
+    width: 100% !important;
+    overflow: visible !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  body.sheet-printing [data-sheet-print-off] { display: none !important; }
+  body.sheet-printing [data-sheet-print] [data-testid="sheet-drill-lines-list"] {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+}
