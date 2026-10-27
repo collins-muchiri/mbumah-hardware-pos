@@ -80,6 +80,17 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.223.0',
+    title: 'The hand move',
+    bullets: [
+      'The supplier split answers to the hand now: in a split draft every line carries a “ships via” picker — move a row to another counter and the draft regroups live, the moved row wearing its “moved by hand” chip with a “back on its hint” way back.',
+      'The split toggle no longer dies when one big purchase flattens every ledger hint to one supplier: with two or more active counters on the branch, the toggle stays and the rows carry the move affordance — the cut is yours to draw by hand.',
+      'A group holding moved lines says how many, a “clear all moves” returns the whole draft to the hints’ story, and a raised PO’s notes name the hand’s work.',
+      'Count sheets that were cancelled now land in the tamper-evident audit chain as explicit VOID events — who ended the sheet, the zero-movement law in the record, the reason kept verbatim.',
+      'The sheet drill grew a line finder: type a name or SKU to narrow a big sheet’s lines — an honest “N of M” count, the summary tiles staying whole-sheet.',
+    ],
+  },
+  {
     version: '2.222.0',
     title: 'The sheet drill',
     bullets: [

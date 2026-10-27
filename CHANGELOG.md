@@ -2,6 +2,20 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.223.0] The hand move
+
+The supplier split answers to the hand as well as the ledger. The v2.221 cut read the hints; but the hints have a known failure shape — seen LIVE in the v2.221 E2E, where one big recent purchase flattened every row's hint to ONE supplier, the groups collapsed, and the toggle's availability died with them. A yard that orders per counter had no way back until new POs re-diversified the ledger. This round gives the hand power with receipts, and the void joins the tamper-evident chain.
+
+### Added
+- **The hand move** (`src/components/org/restock-dialog.tsx`): in split mode every draft row carries a "ships via" select — moving a row writes a HAND MOVE for THIS draft only (the ledger's hints stay the default and the record; the move never persists). A moved row wears the violet "moved by hand" chip and a "back on its hint" reset; a group holding moved rows says how many; a global "clear all moves" returns the whole draft to the hints' story; parked moves (split flipped off) are disclosed, never silent. Setting a row back onto its DERIVED place deletes the move — the record holds only differences, the hints' story is restored by re-derivation, never re-written.
+- **The grown availability law**: the split toggle now shows whenever the branch's ACTIVE roster names 2+ suppliers, even when the hints flattened to one group — the one-group split speaks its single-group truth ("move lines by hand to cut the draft") instead of hiding. A single-supplier branch still hides the toggle: there is genuinely nowhere to move a line TO (an absent control never lies).
+- **The walk's receipts**: a split PO raised from moved rows carries "N lines moved by hand." in its notes — the raised document remembers the hand that shaped it.
+- **The void joins the tamper-evident chain** (`src/app/api/stock-takes/[id]/cancel/route.ts`): a cancelled sheet now writes a best-effort chained-HMAC audit event — action `VOID`, resourceType `STOCK_TAKE`, the zero law spoken in the event's own body (`stockMoved: 0, movements: 0`), the canceller's reason kept verbatim (ISO 27001 A.12.4 wants the event log to speak the exception; now it does). Best-effort by law: the chain must never block the void (the shift-closeout pattern).
+- **The line finder** (`src/components/org/sheet-drill.tsx`): a big sheet's lines can outrun the fold — the drill grows a client-side needle (name or SKU, case-insensitive) over the lines it ALREADY holds. Zero new fetch; an honest "N of M" count; an empty face that names the needle and the sheet's truth; the summary tiles stay whole-sheet (the finder narrows the reading, never the arithmetic); the map keys the drill per sheet, so a fresh door opens with an empty needle by construction.
+
+### Styled
+- The violet family carries the hand — distinct from the amber split and the emerald success, 3:1 contrast on every chip; the move row rides a dashed hairline (a boundary, not a new card); the reset link is a dotted underline that solidifies on hover; the finder wears the house focus ring with the search glass inside the field; tabular-nums on every figure; dark halves from birth; the muted family (slate-500 / dark:slate-400) on every sub-line.
+
 ## [2.222.0] The sheet drill
 
 The variance map's rows become doors. v2.220.0 gave the org its map — every branch's live counts with their progress, the recent roster with its variance chips — but the rows only SPOKE; they could not open. This round an org user can drill into any count sheet's lines from the console, and the restock draft gains its honest widening.

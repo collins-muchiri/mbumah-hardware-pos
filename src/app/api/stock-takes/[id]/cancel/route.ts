@@ -20,6 +20,11 @@
 //     is honest without a schema change;
 //   • the closer-of-record is the canceller (closedById/closedAt fill —
 //     the sheet's life ended, and the face names who ended it).
+//
+// v2.223.0: the void joins the TAMPER-EVIDENT chain — a best-effort
+// auditTrail.log('VOID' / STOCK_TAKE) records who ended the sheet, the
+// zero law in the event's own body, the reason verbatim (ISO 27001
+// A.12.4 wants the event log to speak the exception; now it does).
 
 import { type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
@@ -40,7 +45,7 @@ async function cancelStockTakeHandler(request: NextRequest, session: AuthSession
     ? body.reason.trim().slice(0, 300)
     : null;
 
-  const sheet = await db.stockTake.findUnique({ where: { id }, select: { id: true, status: true, notes: true } });
+  const sheet = await db.stockTake.findUnique({ where: { id }, select: { id: true, status: true, notes: true, storeId: true } });
   if (!sheet) {
     return Response.json({ success: false, error: 'count sheet not found.' }, { status: 404 });
   }
@@ -77,6 +82,31 @@ async function cancelStockTakeHandler(request: NextRequest, session: AuthSession
   // the log line says exactly that, so the audit trail carries the void
   // without pretending it touched the books.
   systemLog(LogSeverity.INFO, LogComponent.INVENTORY, `stock take cancelled (no stock moved): ${reason ?? 'no reason given'} (sheet ${id})`, { referenceId: id });
+
+  // v2.223.0: the tamper-evident chain NAMES the void. The systemLog
+  // line above is the ops face; the audit trail is the compliance face
+  // (ISO 27001 A.12.4) — a chained-HMAC row recording WHO voided WHICH
+  // sheet, with the zero law spoken in the event's own body
+  // (stockMoved: 0, movements: 0) and the canceller's reason kept
+  // verbatim. Best-effort by law: the sheet is already dead and the
+  // books already silent — a chain hiccup must never resurrect either
+  // (the same pattern the shift closeout speaks).
+  try {
+    const { auditTrail } = await import('@/lib/audit-trail');
+    await auditTrail.log({
+      action: 'VOID',
+      resourceType: 'STOCK_TAKE',
+      resourceId: id,
+      actorId: session.userId,
+      actorRole: session.role,
+      storeId: sheet.storeId,
+      oldValues: { status: 'COUNTING' },
+      newValues: { status: 'CANCELLED', stockMoved: 0, movements: 0 },
+      reason: reason ?? 'no reason given',
+    });
+  } catch {
+    /* the chain must never block the void */
+  }
 
   return Response.json({
     success: true,
