@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.219.0',
+    title: 'The stocktake',
+    bullets: [
+      'The count sheet is here: open one from the branch inventory tab and every active product\u2019s system stock freezes as the sheet\u2019s snapshot \u2014 the floor counts against a moment, never a moving number.',
+      'Count against the sheet (zero is a finding, the latest count is the truth), then close it: the variance speaks into the ledger \u2014 one ADJUSTMENT movement per changed line, the books re-anchored to what the shelves actually hold. Sales during the count are preserved.',
+      'The honest gates: a branch holds ONE open sheet at a time, the close refuses a sheet with uncounted lines, and the variance\u2019s shillings speak only to roles that may see cost \u2014 everyone else counts units.',
+    ],
+  },
+  {
     version: '2.218.0',
     title: 'The full restock',
     bullets: [

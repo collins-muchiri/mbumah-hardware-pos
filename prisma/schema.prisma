@@ -105,6 +105,7 @@ model Store {
   receipts         Receipt[]
   suppliers        Supplier[]
   purchaseOrders   PurchaseOrder[]
+  stockTakes       StockTake[]
   expenses         Expense[]
   shifts           Shift[]
   giftCards        GiftCard[]
@@ -242,6 +243,8 @@ model User {
   // ── Purchase Order relations ──────────────────────────────────────────────
   createdPOs              PurchaseOrder[]     @relation("POCreatedBy")
   approvedPOs             PurchaseOrder[]     @relation("POApprovedBy")
+  stockTakesStarted       StockTake[]         @relation("StockTakeStartedBy")
+  stockTakesClosed        StockTake[]         @relation("StockTakeClosedBy")
   receivedPOs             PurchaseOrder[]     @relation("POReceivedBy")
   cancelledPOs            PurchaseOrder[]     @relation("POCancelledBy")
   // ── v3.4.0 relations ────────────────────────────────────────────────────
@@ -360,6 +363,7 @@ model Product {
   warehouseStocks    WarehouseStock[]
   rentals            EquipmentRental[]
   purchaseOrderItems PurchaseOrderItem[]
+  stockTakeLines     StockTakeLine[]
   invoiceItems       InvoiceItem[]
   deliveryNoteItems  DeliveryNoteItem[]
   // ── v2.0.0 inventory relations ─────────────────────────────────────────
@@ -434,6 +438,62 @@ model StockMovement {
   @@index([movementType])
   @@index([createdAt])
   @@map("stock_movements")
+}
+
+// STOCKTAKE (v2.219.0): the cycle count. A sheet freezes the branch's
+// system stock the moment it opens (snapshotQty per line), the floor
+// counts against the snapshot (countedQty), and the close speaks the
+// variance (counted − snapshot) into the ledger: ADJUSTMENT stock
+// movements for every line that moved, the books re-anchored to what
+// the shelves actually hold. Statuses follow the PO convention
+// (free-text uppercase strings, not a Prisma enum — SQLite compatibility).
+model StockTake {
+  id          String    @id @default(cuid())
+  storeId     String
+  // COUNTING | CLOSED | CANCELLED
+  status      String    @default("COUNTING")
+  notes       String?
+  startedById String?
+  closedById  String?
+  startedAt   DateTime  @default(now())
+  closedAt    DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  store     Store            @relation(fields: [storeId], references: [id])
+  lines     StockTakeLine[]
+  startedBy User?            @relation("StockTakeStartedBy", fields: [startedById], references: [id])
+  closedBy  User?            @relation("StockTakeClosedBy", fields: [closedById], references: [id])
+
+  @@index([storeId])
+  @@index([storeId, status])
+  @@index([status])
+  @@map("stock_takes")
+}
+
+model StockTakeLine {
+  id           String   @id @default(cuid())
+  stockTakeId  String
+  productId    String
+  // The system stock at sheet-open — the count counts against THIS, never
+  // against a moving number.
+  snapshotQty  Decimal
+  // null = the floor has not spoken yet. The close refuses a sheet with
+  // uncounted lines (a count sheet that closes with holes is a lie).
+  countedQty   Decimal?
+  // counted − snapshot, written when the count lands; the close reads it
+  // for the ledger's adjustments. Decimal? to survive sqlite Decimal.read.
+  variance     Decimal?
+  // variance × the product's cost price at close (KES — the ledger's own
+  // voice, never indicative). Only closed lines carry it.
+  varianceCost Decimal?
+  stockTake    StockTake @relation(fields: [stockTakeId], references: [id], onDelete: Cascade)
+  product      Product   @relation(fields: [productId], references: [id])
+
+  @@unique([stockTakeId, productId])
+  @@index([stockTakeId])
+  @@index([productId])
+  @@map("stock_take_lines")
 }
 
 // CUSTOMERS & CRM
