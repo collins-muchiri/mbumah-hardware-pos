@@ -73,9 +73,12 @@ describe('the restock dialog wears an honest scope pair (v2.218.0)', () => {
 
 describe('the full scope reads the branch\u2019s own wire (v2.218.0)', () => {
   it('the fetch is store-scoped to the SAME store-level route', () => {
-    expect(dialog.includes("queryKey: ['restock-full', storeId],")).toBe(true);
+    // v2.222.0: the near-band toggle joins the key and widens the fetch
+    // (includeNear=true only when the band is on) — the route is the
+    // SAME store-level wire, the band is a deliberate act on it.
+    expect(dialog.includes("queryKey: ['restock-full', storeId, nearBand],")).toBe(true);
     expect(dialog.includes("enabled: open && !!storeId && mode === 'full',")).toBe(true);
-    expect(dialog.includes("fetch(`/api/products/low-stock?storeId=${encodeURIComponent(storeId)}`)")).toBe(true);
+    expect(dialog.includes('fetch(`/api/products/low-stock?storeId=${encodeURIComponent(storeId)}${nearBand ? \'&includeNear=true\' : \'\'}`)')).toBe(true);
   });
 
   it('the wire is the route of record (store-scoped, low stock)', () => {
@@ -257,13 +260,13 @@ describe('the watchlist modal discloses the cap and keeps the count law (v2.218.
 
 describe('the round of record (v2.218.0)', () => {
   it('package.json leads 2.218.0 (all three slots)', () => {
-    expect(pkg.version).toBe('2.221.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.221.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.221.0');
+    expect(pkg.version).toBe('2.222.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.222.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.222.0');
   });
 
   it('VERSION speaks the same truth', () => {
-    expect(read('VERSION').trim()).toBe('2.221.0');
+    expect(read('VERSION').trim()).toBe('2.222.0');
   });
 
   it('the changelog of record speaks the round', () => {

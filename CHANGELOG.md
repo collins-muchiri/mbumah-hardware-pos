@@ -2,6 +2,21 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.222.0] The sheet drill
+
+The variance map's rows become doors. v2.220.0 gave the org its map — every branch's live counts with their progress, the recent roster with its variance chips — but the rows only SPOKE; they could not open. This round an org user can drill into any count sheet's lines from the console, and the restock draft gains its honest widening.
+
+### Added
+- **The org sheet drill** (`GET /api/org/stock-takes/[id]` + `src/components/org/sheet-drill.tsx`): a roster row (or a live row) opens ONE count sheet's lines org-side — the store-scoped detail route's 403 wall for org roles made the map all voice and no door. ORG_ROLES only (the kpi-summary contract), the read runs WITHOUT tenant, and every status drills: a COUNTING sheet shows its progress lines (the drill re-reads every 10s while the floor speaks), a CLOSED sheet its variance chips and the stored close-day cost, a CANCELLED sheet its void. READ-ONLY BY LAW — no count inputs, no close, no cancel; the branch sheet keeps the only pens.
+- **The cost law rides the drill**: variance VALUE (the summary tile and the per-line cost) arrives null past `inventory.view.cost` — the face renders the honest absence ("the shillings stay behind the cost gate"), never a hidden zero.
+- **The near-reorder band** (`restock-dialog.tsx`): the full scope's honest widening — the wire's `includeNear` (level × 1.5) joins the items APPROACHING the level. Defaults OFF (a restock drafts the shortage, not the comfort); the toggle discloses both states and the widened rows wear a "near band" chip so the draft reads which lines are below the level and which are approaching it. Split-aware: the widened list groups exactly as the tight one did.
+
+### Styled
+- The roster rows grew a chevron and a hover ground — the affordance says door before the click does; the drill wears the house org family (slate card, dark halves from birth, the muted family on every sub-line), the map's own chip ladder (amber COUNTING / emerald CLOSED / slate CANCELLED, red-700-short / emerald-700-over), tabular-nums on every figure, and the read-only footer that names the law.
+
+### Measured
+- `src/tests/sheet-drill-v2222.test.ts` (source pins: the org gate, the cost law, the read-only law, the drill faces, the near band's default-off and its disclosure) + `scripts/verify-v2-222-0.mjs` wired as `verify:v2-222-0`.
+
 ## [2.221.0] The supplier split
 
 The restock draft learns that a hardware yard orders from MORE than one counter. v2.217.0/v2.218.0's dialog drafts every line to ONE supplier — the ledger's most-common hint — so a full-branch list whose rows point at two counters shipped all of them to the louder one. This round lets the draft split: one PO per supplier, exactly where each line's ledger hint points.
