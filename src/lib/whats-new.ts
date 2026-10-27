@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.213.0',
+    title: 'The security posture speaks',
+    bullets: [
+      'The System desk gains a Security posture card: the SEC-01/02/03 remediations that landed server-side are now visible to the owner \u2014 legacy-hash lockout count, cron-gate arm status, env-diagnostics gate, and auth-secret presence, read from one wire.',
+      'The secret law holds in both directions: the wire carries booleans and counts only \u2014 the VALUE of CRON_SECRET, JWT_SECRET or NEXTAUTH_SECRET never leaves the server, and the card\u2019s footer says so in its own voice.',
+      'A locked-out account speaks with its fix attached: the legacy-hash row names scripts/migrate-legacy-passwords.mjs and says dry-run first; an unset production CRON_SECRET speaks red AND says the 403 wall is the fail-closed law, not an outage.',
+    ],
+  },
+  {
     version: '2.212.0',
     title: 'One wire, two surfaces, one truth \u2014 now live',
     bullets: [

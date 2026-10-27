@@ -35,6 +35,7 @@ import { EmailDeliveryLogSection } from '@/components/admin/email-delivery-log-s
 // v2.211.0: the exchange-rates writer surface — the CurrencyRate wire's
 // admin card (list, set, reset-to-built-in) over /api/currency/rates.
 import { CurrencyRatesSection } from '@/components/admin/currency-rates-section';
+import { SecurityPostureSection } from '@/components/admin/security-posture-section';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -2037,6 +2038,11 @@ export default function AdminTab() {
       {/* Exchange Rates (v2.211.0) — the currency wire's writer surface  */}
       {/* ================================================================== */}
       <CurrencyRatesSection />
+
+      {/* ================================================================== */}
+      {/* Security posture (v2.213.0) — the SEC program's surface          */}
+      {/* ================================================================== */}
+      <SecurityPostureSection />
 
       {/* ================================================================== */}
       {/* Updates, Rollback & Backups (v2.9.0 architecture plan)          */}

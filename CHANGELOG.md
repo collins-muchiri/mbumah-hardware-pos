@@ -2,6 +2,20 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.213.0] The security posture speaks
+
+The visibility round for the security program. The v2.212.1 remediation round (PR #343) landed SEC-01..SEC-04 server-side — the single fail-closed password verifier, the fail-closed CRON_SECRET gate on all 11 cron routes, the SUPER_ADMIN-gated /api/health/env, and the sanitizer drop — but a SUPER_ADMIN with a browser had no way to SEE any of it. The System desk's new **Security posture** card reads one wire and speaks what the environment admits.
+
+### Added
+- **`GET /api/admin/security-posture`** (SUPER_ADMIN-gated, `runWithoutTenant`): booleans and counts ONLY — the count of accounts still on the retired `hashed_` password format (SEC-01; which IS the count of people the fail-closed verifier locks out until `scripts/migrate-legacy-passwords.mjs --apply` rehashes them), whether CRON_SECRET / JWT_SECRET / NEXTAUTH_SECRET are present (SEC-02 + boot secrets; the VALUES never leave the server — presence via `Boolean()`, never interpolation), the pinned `GATED_CRON_ROUTES = 11` constant, and whether env diagnostics are production-gated (SEC-03).
+- **The Security posture card** (admin desk, below Exchange Rates): four rows, each with its own measured chip palette (emerald calm / red locked-out-or-fail-closed / amber dev-unset / slate dev-open — light and dark from birth, 13/13 measured pairs), a Re-read affordance on the same wire key, an error state that claims nothing rather than guess, and a footer that speaks the secret law: "booleans and counts only — the payload carries no secret material."
+- **The honest posture voice**: unset-in-production CRON_SECRET speaks red AND says the 403 wall is "the fail-closed law, not an outage" — a security wall reported as an outage would train the owner to disarma it. The legacy-hash row speaks the fix by its own command name, dry-run first.
+
+### Tests
+- **`src/tests/security-posture-v2213.test.ts`** (22 pins): the route's gate/escape/prefix laws, the secret-interpolation ban, the pinned-count law (readdirSync counts the real cron routes and demands the constant match), the section's door law, dark-half law, 17 testids, the fix-naming voice, the footer's secret law, and the admin-desk mount order.
+- **`scripts/verify-v2-213-0.mjs`** (21 checks) wired as `verify:v2-213-0`; **`scripts/contrast-math-security-posture-v2213.mjs`** measures the card's 13 light+dark voices on their real grounds (13/13 PASS, amber-700-on-amber-100 recorded honestly at the 4.51 knife-edge).
+
+
 ## [2.212.0] One wire, two surfaces, one truth — now live
 
 The reactivity round. The currency switcher and the Exchange Rates card have read the SAME wire since v2.210.0 — but each into its own pocket: the switcher fetched once per mount into local state, so a rate the card wrote left the dropdown stale until a full remount. This release the two surfaces share one query cache, the switcher learns to speak when the wire answered, a curl-only write finds its surface, and — the headline nobody expected — **the switcher finally switches**.
