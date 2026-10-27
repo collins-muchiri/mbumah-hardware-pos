@@ -375,10 +375,10 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // Re-anchored for 2.206.0 joining the feed (95/96/97/128 → 96/97/98/129
     // → 97/98/99/130), 2.208.0 joining it (→ 99/100/101/132), 2.209.0
     // joining it (→ 100/101/102/133) and 2.210.0 joining it (→ 101/102/103/134), 2.211.0 joining it (→ 102/103/104/135), 2.212.0 joining it (→ 103/104/105/136), 2.213.0 joining it (→ 104/105/106/137), 2.214.0 joining it (→ 105/106/107/138), 2.215.0 joining it (→ 106/107/108/139).
-    expect(whatsNewUnreadCount('2.110.0')).toBe(107);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(108);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(109);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(140);
+    expect(whatsNewUnreadCount('2.110.0')).toBe(108);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(109);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(110);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(141);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 

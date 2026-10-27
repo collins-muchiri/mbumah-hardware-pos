@@ -141,8 +141,9 @@ describe('the dark voice fixed - the house pattern over the dialog ground', () =
     // headers + sub-lines) — 50 mounts total; v2.199.0: the approval
     // desk's families join (its label, meta, three grid labels + three
     // shares, the PO rows' two sub-lines, and its two section headers)
-    // — 60 mounts total
-    expect(kpi.match(/text-slate-500 dark:text-slate-400/g)?.length).toBe(60);
+    // — 60 mounts total; v2.217.0: the reorder bridge's branch-row
+    // supplier-hint sub-line joins the family (+1 = 61 mounts)
+    expect(kpi.match(/text-slate-500 dark:text-slate-400/g)?.length).toBe(61);
     // v2.198.0: the yard's four bucket values join the value voice (15);
     // v2.199.0: the desk count's calm voice joins (16)
     expect(kpi.match(/text-slate-800 dark:text-slate-100/g)?.length).toBe(16);
@@ -183,9 +184,9 @@ describe('the dark voice fixed - the house pattern over the dialog ground', () =
 
 describe('docs and release surfaces', () => {
   it('package.json rides at 2.198.0 (all three slots) and the verify script is wired', () => {
-    expect(pkg.version).toBe('2.216.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.216.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.216.0');
+    expect(pkg.version).toBe('2.217.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.217.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.217.0');
     expect(pkg.scripts['verify:v2-194-0']).toBe('node scripts/verify-v2-194-0.mjs');
     expect(pkg.scripts['verify:v2-193-0']).toBe('node scripts/verify-v2-193-0.mjs');
     expect(readRepo('scripts/verify-v2-194-0.mjs')).toContain('v2.194.0 verification');
@@ -204,8 +205,8 @@ describe('docs and release surfaces', () => {
 
   it('the head-pin counters re-anchored to the new head', () => {
     const counter = readRepo('src/tests/console-changelog.test.ts');
-    expect(counter).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(107);");
+    expect(counter).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(108);");
     const a11yShell = readRepo('src/tests/a11y-shell-v2148.test.ts');
-    expect(a11yShell).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(107);");
+    expect(a11yShell).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(108);");
   });
 });

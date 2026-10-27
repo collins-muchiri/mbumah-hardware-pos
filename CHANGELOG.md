@@ -2,6 +2,23 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.217.0] The reorder bridge
+
+The watchlist learns to act. Since v2.197.0 the organization console's reorder watchlist has been a read-only story — it SPEAKS the shortage but cannot act on it; the only "Create PO" path lived on an orphaned store-level panel imported nowhere, and the Purchase orders tab's own low-stock helper required knowing the flow existed. This round bridges the two halves of the reorder life: the watchlist raises the draft, the branch workspace carries the flow.
+
+### Added
+- **Per-branch Draft PO doors in the watchlist modal** (`restock-open-<branch>`): the watchlist's by-branch face gains a compact amber door per branch — scoped to that branch's named rows, disabled honestly when the rows carry no store. The door opens the restock dialog, the bridge's far bank.
+- **The restock dialog** (`src/components/org/restock-dialog.tsx`, testids `restock-*`): the branch's named items as draft lines — quantity pre-seeded from the payload's suggestion, unit cost pre-seeded at the last PAID cost (the most recent PO line's `unitCost`, falling back to the product's book cost server-side), steppers and direct entry with the zero law (a zero line ships nowhere, the submit refuses an empty draft), supplier select from the branch's active roster defaulting to the MOST COMMON last supplier among the lines, optional expected date, and the honest estimate block: VAT-EXCLUSIVE, labeled as such, because the server adds VAT at the org's rate when the PO is raised — the success face speaks the server's own numbers (`restock-po-number`, DRAFT status, subtotal/VAT/total).
+- **The wire carries the bridge's arithmetic**: `/api/org/kpi-summary`'s named watchlist now rides `storeId` (the POST target — a purchase order is a ONE-store document), `costPrice`, `suggestedQty` (the store-level low-stock formula `ceil(1.5 × level − stock)` — one arithmetic on both surfaces), and the supplier hint (`lastUnitCost`, `lastSupplierId`, `lastSupplierName` from ONE bounded read over the ≤12 named items' most recent PO lines, first-hit-per-product in JS). The watchlist rows wear the suggestion in the open (`restock-suggest-<sku>` "order N" chips) and the branch rows name the supplier hints.
+- **The indicative strip's FOURTH consumer**: the restock draft's estimate is money-voiced by construction, so it carries the strip on the SAME observer terms as the debt (v2.214), revenue (v2.215) and desk (v2.216) strips — pre-resolved lens passed down from the component's ONE observer (`restock-indicative-strip/-figure/-rate/-voice`), KES pivot → silent, silent wire → silent, the ledger stays in KES. The watchlist modal itself stays count-voiced BY LAW (units short are units, never shillings).
+
+### Removed
+- **The orphaned low-stock alert panel** (`src/components/inventory/low-stock-alert-panel.tsx`): imported nowhere since birth — a full watchlist UI with a "Create PO" callback that no parent ever wired. The bridge makes it truly dead weight; the deletion is the round's honest cleanup.
+
+### Measured
+- `src/tests/restock-bridge-v2217.test.ts` (28 source pins: the wire's new fields, the dialog's zero laws, the fourth consumer's guards, the count law holding on the modal) + `scripts/verify-v2-217-0.mjs` wired as `verify:v2-217-0` (39 checks).
+- `scripts/contrast-math-restock-bridge-v2217.mjs` — the new voices on their REAL grounds (amber door white-on-amber-700, suggestion chips amber-800 on amber-100, the strip's slate family light and dark), 10/10 PASS.
+
 ## [2.216.0] The second shelf
 
 The topology arc completes both org shells wide. v2.215.0 moved the rates cache's supply into the console shell; this round gives the org desk the same treatment and the strip's third consumer — the desk's slice modals were the last money-voiced org surface the family hadn't reached.

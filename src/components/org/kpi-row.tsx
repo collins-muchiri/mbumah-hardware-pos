@@ -74,11 +74,12 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ArrowDownRight, ArrowUpRight, Banknote, CalendarCheck2, Clock3, HandCoins, PackageOpen, ShoppingCart, TrendingUp } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, Banknote, CalendarCheck2, Clock3, HandCoins, PackageOpen, ShoppingCart, TrendingUp, Truck } from 'lucide-react';
 import { ADMIN_CURRENCY_RATES_QUERY_KEY, RATE_SOURCE_PHRASE, type RatesWireBody } from '@/components/currency-switcher';
 import { useCurrency } from '@/hooks/use-currency';
 import { CURRENCY_BY_CODE, formatCurrency } from '@/lib/currency-utils';
 import { CountUp, Sparkline, WeekDeltaChip, kes, num, type KpiSummaryData, type StoreRow } from './primitives';
+import { RestockDialog } from './restock-dialog';
 
 /** Compact KES for tight chips: 437k / 1.2m / 97.5k. */
 const kShort = (v: number): string =>
@@ -113,6 +114,10 @@ export function KpiRow({ data, perStoreTrend, stores = [] }: {
   const [yardOpen, setYardOpen] = useState(false);
   // v2.199.0: the approval-desk drill-down — the KPI row's sixth voice.
   const [deskOpen, setDeskOpen] = useState(false);
+  // v2.217.0: the reorder bridge's far bank — the branch a draft PO is
+  // being raised for. Null = the bridge is closed; the dialog owns the
+  // rest of its own state (lines, supplier, result) and reseeds on open.
+  const [restockStore, setRestockStore] = useState<{ id: string; name: string } | null>(null);
   // v2.187.0: the modal's lens — GROSS is the default and the contract
   // (v2.185.0); net is an explicit analyst turn, never a second meaning.
   const [lens, setLens] = useState<'gross' | 'net'>('gross');
@@ -431,11 +436,16 @@ export function KpiRow({ data, perStoreTrend, stores = [] }: {
   // needs), the chip the item count.
   const branchStock = stockRows && stockRows.length > 0
     ? Object.entries(
-        stockRows.reduce<Record<string, { short: number; count: number }>>((acc, p) => {
+        stockRows.reduce<Record<string, { short: number; count: number; storeId: string | null }>>((acc, p) => {
           const name = p.store ?? 'Unassigned';
-          acc[name] = acc[name] ?? { short: 0, count: 0 };
+          acc[name] = acc[name] ?? { short: 0, count: 0, storeId: null };
           acc[name].short += p.deficit;
           acc[name].count += 1;
+          // v2.217.0: the branch's storeId — the POST target the bridge
+          // needs (a purchase order is a ONE-store document). First
+          // non-null wins; an all-unnamed group stays null and its
+          // Draft PO door steps aside honestly.
+          if (acc[name].storeId == null && p.storeId) acc[name].storeId = p.storeId;
           return acc;
         }, {}),
       )
@@ -453,6 +463,29 @@ export function KpiRow({ data, perStoreTrend, stores = [] }: {
     if (pct < 100) return { text: `${pct}%`, cls: 'bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/30' };
     return { text: `${pct}%`, cls: 'bg-slate-50 text-slate-500 ring-slate-200 dark:bg-slate-500/10 dark:text-slate-400 dark:ring-slate-500/30' };
   };
+
+  // ── v2.217.0: the reorder bridge's lens ─────────────────────────────
+  // The FOURTH consumer of the indicative wire (debt v2.214, revenue
+  // v2.215, desk slices v2.216): the restock dialog's estimate is
+  // money-voiced by construction, so it carries the strip on the SAME
+  // observer terms — the SAME pivot guard, the SAME pair lookup, the
+  // SAME voice family. The lens is pre-resolved HERE (one observer in
+  // the component; the dialog never fetches, never re-queries) and
+  // handed down as a plain shape; the KES pivot and a silent wire both
+  // resolve to null and the strip stays honestly absent.
+  const restockLens = (() => {
+    if (activeCurrency === 'KES') return null;
+    const entry = indicativeQuery.data?.data?.currencies.find((c) => c.code === activeCurrency);
+    if (!entry || typeof entry.kesToRate !== 'number' || !Number.isFinite(entry.kesToRate)) return null;
+    const meta = CURRENCY_BY_CODE[activeCurrency];
+    if (!meta) return null;
+    return {
+      code: activeCurrency,
+      name: meta.name,
+      rate: entry.kesToRate,
+      source: RATE_SOURCE_PHRASE[entry.source] ?? 'wire rate',
+    };
+  })();
 
   // ── v2.198.0: the rental yard's derivations ─────────────────────────────
   // Every figure below composes the SAME payload the card already spoke
@@ -1481,6 +1514,20 @@ export function KpiRow({ data, perStoreTrend, stores = [] }: {
                       <span className="block truncate text-[10px] text-slate-500 dark:text-slate-400">{p.sku}{p.store ? ` · ${p.store}` : ''}{p.category ? ` · ${p.category}` : ''}</span>
                     </span>
                     <span className="flex shrink-0 items-center gap-1.5">
+                      {/* v2.217.0: the bridge's suggestion chip — the SAME
+                          suggested figure the restock dialog seeds its
+                          drafts from (one arithmetic, two surfaces). An
+                          at-level item suggests nothing and speaks no
+                          chip — the honest zero. */}
+                      {p.suggestedQty != null && p.suggestedQty > 0 && (
+                        <span
+                          data-testid={`restock-suggest-${p.sku}`}
+                          title={`Suggested reorder: ${p.suggestedQty} units (1.5 × level − stock)`}
+                          className="inline-flex items-center rounded bg-amber-100 px-1.5 py-0.5 text-[9px] font-semibold tabular-nums text-amber-800 ring-1 ring-amber-200 dark:bg-amber-500/20 dark:text-amber-200 dark:ring-amber-500/30"
+                        >
+                          order {p.suggestedQty}
+                        </span>
+                      )}
                       <span
                         className={`inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tabular-nums tracking-wide ring-1 ${coverageChip(p).cls}`}
                         title={p.coverage != null ? `Coverage: ${num(p.stockQty)} of ${num(p.reorderLevel)} units (${Math.round(p.coverage * 100)}% of the level)` : 'No reorder level set'}
@@ -1507,7 +1554,16 @@ export function KpiRow({ data, perStoreTrend, stores = [] }: {
               <ul className="space-y-1.5">
                 {branchStock.map((b) => (
                   <li key={b.name} data-testid="lowstock-branch-row" className="flex items-center justify-between gap-3">
-                    <span className="truncate text-xs text-slate-600 dark:text-slate-400">{b.name}</span>
+                    <span className="min-w-0">
+                      <span className="block truncate text-xs text-slate-600 dark:text-slate-400">{b.name}</span>
+                      {b.storeId && (
+                        <span className="block truncate text-[9px] text-slate-500 dark:text-slate-400">
+                          {stockRows.filter((p) => p.store === b.name && (p.lastSupplierName != null)).length > 0
+                            ? `hints: ${[...new Set(stockRows.filter((p) => p.store === b.name && p.lastSupplierName).map((p) => p.lastSupplierName))].slice(0, 2).join(', ')}`
+                            : 'no supplier hints on this answer'}
+                        </span>
+                      )}
+                    </span>
                     <span className="flex shrink-0 items-center gap-2">
                       <span
                         className="rounded bg-slate-50 px-1.5 py-0.5 text-[9px] font-medium tabular-nums text-slate-500 ring-1 ring-slate-200 dark:bg-slate-500/10 dark:text-slate-400 dark:ring-slate-500/30"
@@ -1516,6 +1572,21 @@ export function KpiRow({ data, perStoreTrend, stores = [] }: {
                         {b.count} {b.count === 1 ? 'item' : 'items'}
                       </span>
                       <span className="text-xs font-semibold tabular-nums text-amber-700 dark:text-amber-400">{num(b.short)} short</span>
+                      {/* v2.217.0: THE BRIDGE DOOR — the branch's draft PO,
+                          scoped to its named watchlist rows. Only a branch
+                          whose items carry a storeId opens the door (a PO
+                          needs its ONE store); an unnamed group steps
+                          aside with the honest disabled state. */}
+                      <button
+                        type="button"
+                        data-testid={`restock-open-${b.name}`}
+                        disabled={!b.storeId}
+                        onClick={() => b.storeId && setRestockStore({ id: b.storeId, name: b.name })}
+                        title={b.storeId ? `Draft a purchase order for ${b.name} from its named watchlist` : 'this branch\u2019s items carry no store on this cached answer'}
+                        className="inline-flex items-center gap-1 rounded bg-amber-700 px-2 py-1 text-[10px] font-semibold text-white hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-amber-600 dark:hover:bg-amber-700"
+                      >
+                        <Truck className="h-3 w-3" /> Draft PO
+                      </button>
                     </span>
                   </li>
                 ))}
@@ -1540,6 +1611,26 @@ export function KpiRow({ data, perStoreTrend, stores = [] }: {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* v2.217.0: THE REORDER BRIDGE's far bank — the per-branch draft
+          purchase order dialog. The watchlist above SPEAKS the shortage;
+          this dialog ACTS on it: the branch's named rows seeded with the
+          payload's suggested quantities and last-paid costs, the supplier
+          defaulting to the hint the wire carried, POSTed to the SAME
+          /api/purchase-orders endpoint the Purchase orders tab has always
+          used. The indicative lens rides pre-resolved from the component's
+          ONE observer (fourth consumer; KES pivot → silent). The dialog
+          reseeds its draft each time it opens — a second supplier run
+          starts fresh, never on stale quantities. */}
+      <RestockDialog
+        open={restockStore != null}
+        onOpenChange={(v) => {
+          if (!v) setRestockStore(null);
+        }}
+        store={restockStore}
+        items={(stockRows ?? []).filter((p) => restockStore != null && p.storeId === restockStore.id)}
+        lens={restockLens}
+      />
 
       {/* v2.198.0: the rental-yard drill-down — the KPI row's fifth voice,
           the door arc's LAST tile. The anatomy mirrors the four modals
