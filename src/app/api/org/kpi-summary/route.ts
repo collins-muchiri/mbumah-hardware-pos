@@ -244,6 +244,12 @@ async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Pr
         lastUnitCost: null as number | null,
         lastSupplierId: null as string | null,
         lastSupplierName: null as string | null,
+        // v2.224.0 THE SPOKEN HINT: the hint names its SOURCE — which PO
+        // spoke, and when. The hint-law (the latest PO of ANY status by
+        // orderDate) had a known failure shape (the v2.221 flattening);
+        // a hint that shows its receipt is legible BEFORE it bites.
+        lastSupplierPoNumber: null as string | null,
+        lastSupplierAt: null as string | null,
       }));
 
     // v2.217.0: the supplier hint — each named item's most recent purchase
@@ -261,7 +267,7 @@ async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Pr
           select: {
             productId: true,
             unitCost: true,
-            purchaseOrder: { select: { supplierId: true, supplier: { select: { name: true } } } },
+            purchaseOrder: { select: { supplierId: true, poNumber: true, orderDate: true, supplier: { select: { name: true } } } },
           },
         })
       : [];
@@ -274,6 +280,11 @@ async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Pr
       item.lastUnitCost = toDec(line.unitCost).toNumber();
       item.lastSupplierId = line.purchaseOrder?.supplierId ?? null;
       item.lastSupplierName = line.purchaseOrder?.supplier?.name ?? null;
+      // v2.224.0: the receipt — the PO that spoke, and the day it spoke.
+      item.lastSupplierPoNumber = line.purchaseOrder?.poNumber ?? null;
+      item.lastSupplierAt = line.purchaseOrder?.orderDate
+        ? line.purchaseOrder.orderDate.toISOString()
+        : null;
     }
     for (const item of lowStockItems) {
       if (item.lastUnitCost == null) item.lastUnitCost = item.costPrice;

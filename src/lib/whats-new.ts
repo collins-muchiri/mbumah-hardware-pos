@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.224.0',
+    title: 'The spoken hint',
+    bullets: [
+      'Every restock line now shows its receipt: the “hint: PO-…” chip names the exact purchase order that pointed the row at its supplier — the ledger’s voice is legible before it shapes your draft, and a flattened hint cut can be read, not just survived.',
+      'The count sheet drill grew a CSV button: the whole sheet’s lines — product, SKU, snapshot, count, variance — in one file for the ring binder, exactly as the face speaks them.',
+      'The cost gate rides in the file: where your role can’t see shillings, the file exports empty cells — absence stays absence, never a hidden zero.',
+      'A cancelled sheet exports its void truth: snapshot and uncounted, no adjustments, no movements.',
+    ],
+  },
+  {
     version: '2.223.0',
     title: 'The hand move',
     bullets: [

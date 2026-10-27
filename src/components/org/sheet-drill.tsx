@@ -17,6 +17,16 @@
 // is STATE of the drill, not of the sheet: the map keys the drill per
 // sheet, so a fresh door opens with an empty needle by construction.
 //
+// v2.224.0 THE SHEET'S COPY — the drill's lines go portable: a client-
+// side CSV over the lines the drill ALREADY holds (zero new fetch, the
+// wire untouched) for physical filing — the audit loop a hardware yard
+// actually runs (a printed sheet in a ring binder). The law of the
+// file: it speaks the WHOLE sheet (the finder narrows the reading,
+// never the export); a cost-gated cell exports EMPTY (absence, never a
+// hidden zero); a CANCELLED sheet exports its void truth (snapshot +
+// uncounted); the button hides on a sheet that froze no lines (an
+// absent control never lies).
+//
 // THE LAWS IT INHERITS:
 // • the cost law: the wire's varianceValue and per-line varianceCost
 //   arrive null past the cost gate — the face renders the honest
@@ -32,11 +42,36 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { ClipboardCheck, Search, X } from 'lucide-react';
+import { ClipboardCheck, Download, Search, X } from 'lucide-react';
 import { num, timeAgo } from './primitives';
 
 const fmtKes = (v: number) =>
   `KES ${v.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+// v2.224.0: CSV escaping — the boring law that keeps a file honest:
+// a field carrying a comma, a quote or a newline rides wrapped, its
+// own quotes doubled. Pure, so the pins can read it.
+export function csvCell(v: string | number | null | undefined): string {
+  const s = v == null ? '' : String(v);
+  return /[",\n]/.test(s) ? `"${s.replaceAll('"', '""')}"` : s;
+}
+
+export function sheetLinesCsv(lines: DrillWire['data']['lines'], opts: { costGated: boolean }): string {
+  const header = 'product,sku,unit,snapshot,counted,variance,variance_cost_kes';
+  const rows = lines.map((l) =>
+    [
+      csvCell(l.name),
+      csvCell(l.sku),
+      csvCell(l.unitType),
+      l.snapshotQty,
+      l.countedQty != null ? l.countedQty : '',
+      l.variance != null ? l.variance : '',
+      !opts.costGated && l.varianceCost != null ? l.varianceCost : '',
+    ].join(','),
+  );
+  // The BOM: Excel opens UTF-8 honestly (the yard's machine, not ours).
+  return `\ufeff${[header, ...rows].join('\r\n')}`;
+}
 
 const statusChip = (s: string) => {
   if (s === 'COUNTING') return 'bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/30';
@@ -105,6 +140,23 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
 
   if (!target) return null;
   const data = wire.data?.data;
+
+  // v2.224.0: the copy — a download of the WHOLE sheet's lines (the
+  // finder narrows the reading, never the export). The cost cell obeys
+  // the gate the SAME way the face does: absent is absent in the file.
+  const costGated = data?.summary.varianceValue == null;
+  const exportLines = () => {
+    if (!data) return;
+    const csv = sheetLinesCsv(data.lines, { costGated });
+    const stamp = data.startedAt.slice(0, 10);
+    const name = `count-sheet-${data.store.code ?? 'branch'}-${stamp}-${data.status.toLowerCase()}.csv`;
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
   // v2.223.0: the finder's arithmetic — the needle filters the lines
   // the drill ALREADY holds (name or SKU, case-insensitive); the counts
   // stay honest (N of M), the tiles stay whole-sheet (the summary is
@@ -221,6 +273,23 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
               <div className="flex items-center justify-between gap-2">
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">the lines</p>
                 <div className="flex items-center gap-1.5">
+                  {data && data.lines.length > 0 && (
+                    /* v2.224.0: THE SHEET'S COPY — the whole sheet, one
+                        file. Absent on a line-less sheet (an absent
+                        control never lies); the aria names the whole-
+                        sheet law so the ear reads the same contract. */
+                    <button
+                      type="button"
+                      data-testid="sheet-drill-export"
+                      aria-label={`Download all ${data.lines.length} lines as CSV`}
+                      title="the whole sheet, one file — the finder narrows the reading, never the export"
+                      onClick={exportLines}
+                      className="flex h-6 items-center gap-1 rounded-md border border-slate-200 bg-white px-1.5 text-[10px] font-semibold text-slate-600 transition-colors hover:bg-slate-50 focus:outline-none focus:ring-1 focus:ring-amber-500/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+                    >
+                      <Download className="h-3 w-3" aria-hidden="true" />
+                      CSV
+                    </button>
+                  )}
                   <span className="relative">
                     <Search className="pointer-events-none absolute left-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400 dark:text-slate-500" aria-hidden="true" />
                     <input
