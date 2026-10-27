@@ -380,10 +380,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.219.0: the stocktake entry joins the feed (+1 on every anchor → 110/111/112/143)
     // v2.220.0: the variance-map entry joins the feed (+1 on every anchor → 111/112/113/144)
     // v2.221.0: the supplier-split entry joins the feed (+1 on every anchor → 112/113/114/145)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(112);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(113);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(114);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(145);
+    // v2.222.0: the sheet-drill entry joins the feed (+1 on every anchor → 113/114/115/146)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(113);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(114);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(115);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(146);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 

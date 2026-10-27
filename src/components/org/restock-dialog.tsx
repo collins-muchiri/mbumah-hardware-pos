@@ -80,6 +80,8 @@ export type RestockItem = {
   lastUnitCost?: number | null;
   lastSupplierId?: string | null;
   lastSupplierName?: string | null;
+  // v2.222.0: the full wire's urgency tag — the near-band rows wear it.
+  urgency?: string;
 };
 
 /** The indicative lens, pre-resolved by the parent's observer (null at the KES pivot). */
@@ -108,6 +110,10 @@ type FullRow = {
   suggestedReorderQty: number;
   costPrice: number;
   supplier: { id: string; name: string; lastUnitCost: number } | null;
+  // v2.222.0: the wire tags each row's urgency — the near-band toggle's
+  // rows carry NEAR_REORDER so the widened draft reads which lines are
+  // BELOW the level and which are just approaching it.
+  urgency?: string;
 };
 
 type FullResponse = {
@@ -141,6 +147,7 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
   // the record IS the reseed.
   const [lines, setLines] = useState<Record<string, { qty: number; unitCost: number }>>({});
   const [supplierId, setSupplierId] = useState<string>('');
+  const [nearBand, setNearBand] = useState(false);
   const [expectedDate, setExpectedDate] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -157,6 +164,11 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
   // always a deliberate act.
   const [mode, setMode] = useState<'named' | 'full'>('named');
   const [splitMode, setSplitMode] = useState(false);
+  // v2.222.0: the NEAR-REORDER BAND — the full scope's honest widening.
+  // The wire's includeNear widens the threshold to level × 1.5 so items
+  // APPROACHING the level join the draft; it defaults OFF (a restock
+  // drafts the shortage, not the comfort) and flipping it refetches —
+  // a different list is a different draft, the flip discloses itself.
 
   const storeId = store?.id ?? null;
 
@@ -181,12 +193,12 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
   // already carries the supplier hint (last PO line) + the SAME
   // suggested-reorder arithmetic the named wire rides.
   const fullQuery = useQuery<FullResponse>({
-    queryKey: ['restock-full', storeId],
+    queryKey: ['restock-full', storeId, nearBand],
     enabled: open && !!storeId && mode === 'full',
     staleTime: 60_000,
     queryFn: async () => {
       if (!storeId) throw new Error('no branch on this draft');
-      const res = await fetch(`/api/products/low-stock?storeId=${encodeURIComponent(storeId)}`);
+      const res = await fetch(`/api/products/low-stock?storeId=${encodeURIComponent(storeId)}${nearBand ? '&includeNear=true' : ''}`);
       if (!res.ok) throw new Error(`the branch's low-stock wire failed (${res.status})`);
       return res.json();
     },
@@ -206,6 +218,7 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
       lastUnitCost: r.supplier?.lastUnitCost ?? r.costPrice,
       lastSupplierId: r.supplier?.id ?? null,
       lastSupplierName: r.supplier?.name ?? null,
+      urgency: r.urgency,
     })),
     [fullQuery.data],
   );
@@ -453,9 +466,12 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
   // v2.221.0: the line row, lifted so the flat list and every split
   // group render the SAME row (one markup, N callers — the group
   // dividers organize the list, the rows never change their voice).
+  // v2.222.0: a NEAR_REORDER row wears its chip — the widened draft
+  // reads which lines are below the level and which are approaching it.
   const restockLineRow = (item: RestockItem) => {
     const line = lines[item.id] ?? seededLine(item);
     const lineTotal = line.qty > 0 ? line.qty * line.unitCost : 0;
+    const near = item.urgency === 'NEAR_REORDER';
     return (
       <li key={item.id} data-testid={`restock-line-${item.sku}`} className="rounded-lg border border-slate-100 bg-white/70 px-2.5 py-2 dark:border-slate-700 dark:bg-slate-800/60">
         <div className="flex items-start justify-between gap-2">
@@ -465,6 +481,11 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
               {item.sku} · stock {num(item.stockQty)} / level {num(item.reorderLevel)}
               {item.lastSupplierName ? ` · last via ${item.lastSupplierName}` : ''}
             </span>
+            {near && (
+              <span data-testid={`restock-near-chip-${item.sku}`} className="mt-0.5 inline-flex items-center rounded bg-slate-100 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-slate-600 ring-1 ring-slate-200 dark:bg-slate-500/10 dark:text-slate-300 dark:ring-slate-500/30">
+                near band
+              </span>
+            )}
             {coverageBar(item)}
           </span>
           <span className="shrink-0 text-right">
@@ -662,6 +683,31 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
                   {shippingCount} of {activeItems.length} lines shipping
                 </p>
               </div>
+              {mode === 'full' && (
+                /* v2.222.0: THE NEAR-REORDER BAND — the full scope's honest
+                    widening (the wire's includeNear, level × 1.5). Defaults
+                    OFF: a restock drafts the shortage, not the comfort. */
+                <div className="mt-1.5">
+                  <button
+                    type="button"
+                    data-testid="restock-near-toggle"
+                    aria-pressed={nearBand}
+                    onClick={() => setNearBand((v) => !v)}
+                    className={`rounded px-2 py-1 text-[10px] font-semibold ring-1 transition-colors ${
+                      nearBand
+                        ? 'bg-amber-700 text-white ring-amber-700 dark:bg-amber-600 dark:ring-amber-600'
+                        : 'bg-white text-slate-600 ring-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-600'
+                    }`}
+                  >
+                    Include near-reorder band
+                  </button>
+                  <span data-testid="restock-near-note" className="ml-1.5 text-[10px] text-slate-500 dark:text-slate-400">
+                    {nearBand
+                      ? 'the list widened to level × 1.5 — near-band lines wear their chip.'
+                      : 'the list stops at the reorder level — widen to catch items approaching it.'}
+                  </span>
+                </div>
+              )}
               {mode === 'full' && fullQuery.isLoading && (
                 <p data-testid="restock-full-loading" className="mt-2 text-[10px] text-slate-500 dark:text-slate-400">
                   reading the branch&apos;s low-stock wire…

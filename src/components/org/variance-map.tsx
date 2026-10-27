@@ -25,11 +25,13 @@
 // • the panel-owns-its-dark-half law: dark halves from birth; the muted
 //   family (slate-500 / dark:slate-400) carries every sub-line.
 
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ClipboardCheck } from 'lucide-react';
+import { ClipboardCheck, ChevronRight } from 'lucide-react';
 import { ADMIN_CURRENCY_RATES_QUERY_KEY, RATE_SOURCE_PHRASE, type RatesWireBody } from '@/components/currency-switcher';
 import { useCurrency } from '@/hooks/use-currency';
 import { CURRENCY_BY_CODE, formatCurrency } from '@/lib/currency-utils';
+import { SheetDrill, type SheetDrillTarget } from './sheet-drill';
 import { num, timeAgo, type KpiSummaryData, type StoreRow } from './primitives';
 
 const fmtKes = (v: number) =>
@@ -49,6 +51,10 @@ const varianceChip = (v: number) => {
 
 export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: StoreRow[] }) {
   const block = data.stockTakes ?? null;
+  // v2.222.0 THE SHEET DRILL — a roster row (or a live row) is a door:
+  // clicking it opens the sheet's lines org-side (the ONE deliberate
+  // fetch the map itself never makes; the DRILL owns it).
+  const [drill, setDrill] = useState<SheetDrillTarget>(null);
 
   // THE FIFTH CONSUMER of the indicative wire — the same pure OBSERVER
   // the debt/revenue/desk/restock strips speak: a cache watcher that
@@ -172,11 +178,17 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
                   return (
                     <li key={s.id} data-testid="variance-map-live-row" className="rounded-lg border border-slate-100 bg-white/70 px-2.5 py-2 dark:border-slate-700 dark:bg-slate-800/60">
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <span className="flex min-w-0 items-center gap-1.5">
+                        <button
+                          type="button"
+                          data-testid={`variance-map-open-sheet-${s.id}`}
+                          onClick={() => setDrill({ id: s.id, storeName: s.storeName, status: 'COUNTING' })}
+                          className="flex min-w-0 flex-1 items-center gap-1.5 rounded text-left hover:bg-slate-50 dark:hover:bg-slate-800"
+                        >
                           <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide ring-1 ring-amber-200 bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/30">COUNTING</span>
                           <span className="truncate text-xs font-medium text-slate-700 dark:text-slate-200">{s.storeName}</span>
                           {s.storeCode && <span className="text-[9px] font-semibold text-slate-400 dark:text-slate-500">{s.storeCode}</span>}
-                        </span>
+                          <ChevronRight className="h-3 w-3 shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true" />
+                        </button>
                         <span className="text-[10px] tabular-nums text-slate-500 dark:text-slate-400">
                           {s.countedCount}/{s.lineCount} counted · {pct}%
                         </span>
@@ -210,13 +222,19 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
                   const branch = stores.find((st) => st.id === s.storeId);
                   return (
                     <li key={s.id} data-testid="variance-map-sheet-row" className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-100 bg-white/70 px-2.5 py-2 dark:border-slate-700 dark:bg-slate-800/60">
-                      <span className="flex min-w-0 items-center gap-1.5">
+                      <button
+                        type="button"
+                        data-testid={`variance-map-open-sheet-${s.id}`}
+                        onClick={() => setDrill({ id: s.id, storeName: s.storeName, status: s.status })}
+                        className="flex min-w-0 flex-1 items-center gap-1.5 rounded text-left hover:bg-slate-50 dark:hover:bg-slate-800"
+                      >
                         <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide ring-1 ${statusChip(s.status)}`}>
                           {s.status}
                         </span>
                         <span className="truncate text-xs font-medium text-slate-700 dark:text-slate-200">{s.storeName}</span>
                         <span className="text-[9px] font-semibold text-slate-400 dark:text-slate-500">{branch?.code ?? s.storeCode ?? ''}</span>
-                      </span>
+                        <ChevronRight className="h-3 w-3 shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true" />
+                      </button>
                       <span className="flex flex-wrap items-center gap-1.5">
                         {chip && (
                           <span data-testid={`variance-map-chip-${s.id}`} className={`inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-semibold tabular-nums ring-1 ${chip.cls}`}>
@@ -247,6 +265,10 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
           </div>
         </div>
       )}
+
+      {/* v2.222.0 THE SHEET DRILL — the door's room: ONE deliberate fetch
+          of the sheet's lines, read-only, every status. */}
+      {drill && <SheetDrill target={drill} onClose={() => setDrill(null)} />}
     </div>
   );
 }

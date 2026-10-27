@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.222.0',
+    title: 'The sheet drill',
+    bullets: [
+      'The variance map\u2019s rows are doors now: click any count sheet in the organization console to read its lines \u2014 every snapshot, count and variance chip, and the stored close-day cost where your role allows it.',
+      'Every status drills: a live count refreshes as the floor speaks, a closed sheet shows what moved, a cancelled sheet shows its void.',
+      'The restock draft can widen honestly: include the near-reorder band (level \u00d7 1.5) to catch items approaching the line \u2014 each widened row wears its chip.',
+      'The drill is read-only by law \u2014 the branch sheet keeps the only pens.',
+    ],
+  },
+  {
     version: '2.221.0',
     title: 'The supplier split',
     bullets: [
