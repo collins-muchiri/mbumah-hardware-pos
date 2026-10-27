@@ -2,6 +2,19 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.226.0] The paper trail
+
+The ring binder gets its paper. The v2.225.0 drill grew the order's file (CSV); this round the order grows its SHEET — while a drill is open, printing lays the document itself on the page, and the lines carry the voices they always held in the database (their notes). And the ledger's window joins the portable family: one file for the whole roster.
+
+### Added
+- **The print face** (`src/app/globals.css` + `src/components/org/po-drill.tsx`): while a PO drill is open, the body carries the `po-printing` class (a mount/unmount lifecycle effect — the class lives exactly as long as the door does), and the print stylesheet silences the shell and lays the open document on the page: header, summary tiles, timeline, lines with their received progress — chips and bars keep their colors (`print-color-adjust: exact`). The controls (close, finder, CSV/Print buttons, the N-of-M count) stay off the paper via `data-po-print-off` — a control is a screen thing. Without an open drill the class is absent and printing behaves exactly as before (the v2.152 console header/footer rule untouched).
+- **The Print button** (`po-drill.tsx`): names the act for the ear and the eye (`data-testid="po-drill-print"`, aria-label "Print purchase order …", title speaking the law); it mounts only once the document has loaded — an absent control never lies. `window.print()` is the whole machinery; the stylesheet does the work.
+- **The line's note** (`GET /api/org/purchase-orders/[id]` + `po-drill.tsx`): the drill wire now selects `items.notes` and every line carries it; a line with a note speaks it under its name on a quotation hairline (italic, muted family) — someone's voice on the record, not a system field. A line without one stays quiet: absence stays absent, on screen and on paper alike.
+- **The roster's copy** (`src/components/org/po-ledger.tsx`): the ledger grows a CSV export over the rows it ALREADY holds (zero new fetch) — the WHOLE WINDOW the wire answered by law (the finder narrows the reading, never the export; the aria names it). Seven columns (po_number, status, supplier, branch, lines, ordered_day, total_kes); a cost-gated cell exports EMPTY (absence stays absence); the BOM rides; CRLF joins; the boring quoting law reused verbatim from the sheet drill's pure `csvCell`. File name carries the day: `po-ledger-YYYY-MM-DD.csv`.
+
+### Styled
+- The Print button wears the drill's house border family with the sky focus ring (a sibling of the CSV button it sits beside); the note rides a left quotation hairline in the muted family at 3:1, italic — a voice, not a field; the paper face inherits the document's ladder chips and received-progress bars with exact color reproduction; dark halves from birth on every new element; tabular-nums on every figure.
+
 ## [2.225.0] The pipeline from above
 
 The procurement pipeline joins the org shelf. The v2.224.0 hint chips taught the org to read WHICH purchase order spoke to a restock row — but the documents themselves lived only in the branch workspaces. An org role could see the hints' receipts and never the pipeline. This round the console reads the pipeline: every branch's purchase orders, newest first, with honest counts on every status rung — and each row is a door into the document's lines, its received progress, and its timeline.

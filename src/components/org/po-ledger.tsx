@@ -7,6 +7,10 @@
 // filtered honestly (status chips with REAL counts, a branch picker),
 // each row a door into the PO drill.
 //
+// v2.226.0 THE ROSTER'S COPY — the window goes portable: a client-side
+// CSV over the rows the ledger ALREADY holds, the WHOLE WINDOW by law
+// (the finder narrows the reading, never the export).
+//
 // THE LAWS IT INHERITS:
 // • the cost law: the wire's totalAmount arrives null past
 //   `inventory.view.cost` — the face renders the honest absence
@@ -25,7 +29,7 @@
 
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronRight, ClipboardList } from 'lucide-react';
+import { ChevronRight, ClipboardList, Download } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -34,10 +38,34 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { PoDrill, poStatusChip, type PoDrillTarget } from './po-drill';
+import { csvCell } from './sheet-drill';
 import { num, timeAgo, type StoreRow } from './primitives';
 
 const fmtKes = (v: number) =>
   `KES ${v.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+// v2.226.0 THE ROSTER'S COPY — the ledger's window goes portable (the
+// drill's file law, grown to the list): a client-side CSV over the rows
+// the ledger ALREADY holds (zero new fetch). The file speaks the WHOLE
+// WINDOW the wire answered — the finder narrows the reading, never the
+// export. A cost-gated cell exports EMPTY (absence, never a hidden
+// zero); the BOM so Excel opens UTF-8 honestly; CRLF joins; the boring
+// quoting law reused verbatim from the sheet drill's pure builder.
+export function rosterCsv(rows: PoLedgerWire['data']['rows'], opts: { costGated: boolean }): string {
+  const header = 'po_number,status,supplier,branch,lines,ordered_day,total_kes';
+  const rowsOut = rows.map((r) =>
+    [
+      csvCell(r.poNumber),
+      csvCell(r.status),
+      csvCell(r.supplierName),
+      csvCell(r.store.code ?? r.store.name),
+      r.lineCount,
+      r.orderDate.slice(0, 10),
+      !opts.costGated && r.totalAmount != null ? r.totalAmount : '',
+    ].join(','),
+  );
+  return `\ufeff${[header, ...rowsOut].join('\r\n')}`;
+}
 
 interface PoLedgerWire {
   success: boolean;
@@ -106,6 +134,21 @@ export function ProcurementLedger({ stores }: { stores: StoreRow[] }) {
   }, [data, cleanNeedle]);
 
   const totalCount = data?.counts.reduce((acc, c) => acc + c.count, 0) ?? 0;
+
+  // v2.226.0: the roster's copy — the WHOLE WINDOW the wire answered
+  // (the finder narrows the reading, never the export), gated like the
+  // face (a cost-gated cell exports EMPTY).
+  const exportRoster = () => {
+    if (!data) return;
+    const csv = rosterCsv(data.rows, { costGated: data.costGated });
+    const name = `po-ledger-${new Date().toISOString().slice(0, 10)}.csv`;
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div
@@ -187,8 +230,23 @@ export function ProcurementLedger({ stores }: { stores: StoreRow[] }) {
         <>
           {/* The finder — the sheet drill's law, grown to the roster:
               a client-side needle over the loaded window (PO number,
-              supplier or branch), an honest N-of-M, a clear (×). */}
+              supplier or branch), an honest N-of-M, a clear (×). The
+              roster's copy rides beside it (v2.226.0): the whole
+              window, one file. */}
           <div className="mt-2.5 flex items-center justify-end gap-2">
+            {data && data.rows.length > 0 && (
+              <button
+                type="button"
+                data-testid="po-ledger-export"
+                aria-label={`Download all ${data.rows.length} orders as CSV`}
+                title="the whole window, one file — the finder narrows the reading, never the export"
+                onClick={exportRoster}
+                className="flex h-6 items-center gap-1 rounded-md border border-slate-200 bg-white px-1.5 text-[10px] font-semibold text-slate-600 transition-colors hover:bg-slate-50 focus:outline-none focus:ring-1 focus:ring-sky-500/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+              >
+                <Download className="h-3 w-3" aria-hidden="true" />
+                CSV
+              </button>
+            )}
             <span className="relative">
               <input
                 type="text"

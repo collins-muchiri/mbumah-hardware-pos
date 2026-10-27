@@ -7,6 +7,16 @@
 // status drills: a DRAFT shows its ink, a RECEIVED its fulfillment, a
 // CANCELLED its grave.
 //
+// v2.226.0 THE PAPER TRAIL — the CSV is the ring binder's file; the
+// PRINT FACE is its paper. While a drill is open, the body carries the
+// po-printing class, and the print stylesheet (globals.css) silences
+// the shell and lays the open document on the page: header, tiles,
+// timeline, lines — the controls (close, finder, buttons) stay off the
+// paper (a control is a screen thing). The Print button names the act;
+// it hides on a document that never loaded (an absent control never
+// lies). The line's own NOTE rides the wire now — a line that carries
+// one speaks it under its name (absent stays absent).
+//
 // THE ORDER'S COPY — the drill's lines go portable (the sheet drill's
 // v2.224.0 law, grown to the pipeline): a client-side CSV over the
 // lines the drill ALREADY holds (zero new fetch). The file speaks the
@@ -27,8 +37,8 @@
 //   the 3:1 contrast law on every chip; tabular-nums on every figure.
 
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
-import { ClipboardList, Download, Search, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ClipboardList, Download, Printer, Search, X } from 'lucide-react';
 import { csvCell } from './sheet-drill';
 import { num, timeAgo } from './primitives';
 
@@ -105,6 +115,7 @@ interface PoDrillWire {
       receivedQty: number;
       unitCost: number | null;
       totalCost: number | null;
+      notes: string | null;
     }>;
   };
 }
@@ -128,6 +139,16 @@ export function PoDrill({ target, onClose }: { target: PoDrillTarget; onClose: (
       return res.json();
     },
   });
+
+  // v2.226.0: THE PAPER TRAIL's gate — while the drill is open, the
+  // body carries the class the print stylesheet reads (the shell falls
+  // silent, the document becomes the page). A mount/unmount lifecycle
+  // effect: the class lives exactly as long as the door does. It rides
+  // ABOVE the null guard — hooks never ride a conditional.
+  useEffect(() => {
+    document.body.classList.add('po-printing');
+    return () => document.body.classList.remove('po-printing');
+  }, []);
 
   if (!target) return null;
   const data = wire.data?.data;
@@ -158,12 +179,14 @@ export function PoDrill({ target, onClose }: { target: PoDrillTarget; onClose: (
   return (
     <div
       data-testid="po-drill"
+      data-po-print-overlay=""
       role="dialog"
       aria-label={`Purchase order ${target.poNumber}`}
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 dark:bg-slate-950/70"
       onClick={onClose}
     >
       <div
+        data-po-print=""
         className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-700 dark:bg-slate-900"
         onClick={(e) => e.stopPropagation()}
       >
@@ -190,6 +213,7 @@ export function PoDrill({ target, onClose }: { target: PoDrillTarget; onClose: (
           <button
             type="button"
             data-testid="po-drill-close"
+            data-po-print-off=""
             aria-label="Close the purchase order drill"
             onClick={onClose}
             className="rounded p-1 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
@@ -278,19 +302,39 @@ export function PoDrill({ target, onClose }: { target: PoDrillTarget; onClose: (
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">the lines</p>
                 <div className="flex items-center gap-1.5">
                   {data && data.lines.length > 0 && (
-                    <button
-                      type="button"
-                      data-testid="po-drill-export"
-                      aria-label={`Download all ${data.lines.length} lines as CSV`}
-                      title="the whole order, one file — the finder narrows the reading, never the export"
-                      onClick={exportLines}
-                      className="flex h-6 items-center gap-1 rounded-md border border-slate-200 bg-white px-1.5 text-[10px] font-semibold text-slate-600 transition-colors hover:bg-slate-50 focus:outline-none focus:ring-1 focus:ring-sky-500/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
-                    >
-                      <Download className="h-3 w-3" aria-hidden="true" />
-                      CSV
-                    </button>
+                    <>
+                      {/* v2.226.0: THE PAPER — the print act, named for
+                          the ear. The stylesheet lays the document on
+                          the page; this button only names it. Absent
+                          until the document loads (an absent control
+                          never lies). */}
+                      <button
+                        type="button"
+                        data-testid="po-drill-print"
+                        data-po-print-off=""
+                        aria-label={`Print purchase order ${data.poNumber}`}
+                        title="the paper trail — the document, on one sheet; the controls stay off the paper"
+                        onClick={() => window.print()}
+                        className="flex h-6 items-center gap-1 rounded-md border border-slate-200 bg-white px-1.5 text-[10px] font-semibold text-slate-600 transition-colors hover:bg-slate-50 focus:outline-none focus:ring-1 focus:ring-sky-500/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+                      >
+                        <Printer className="h-3 w-3" aria-hidden="true" />
+                        Print
+                      </button>
+                      <button
+                        type="button"
+                        data-testid="po-drill-export"
+                        data-po-print-off=""
+                        aria-label={`Download all ${data.lines.length} lines as CSV`}
+                        title="the whole order, one file — the finder narrows the reading, never the export"
+                        onClick={exportLines}
+                        className="flex h-6 items-center gap-1 rounded-md border border-slate-200 bg-white px-1.5 text-[10px] font-semibold text-slate-600 transition-colors hover:bg-slate-50 focus:outline-none focus:ring-1 focus:ring-sky-500/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+                      >
+                        <Download className="h-3 w-3" aria-hidden="true" />
+                        CSV
+                      </button>
+                    </>
                   )}
-                  <span className="relative">
+                  <span className="relative" data-po-print-off="">
                     <Search className="pointer-events-none absolute left-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400 dark:text-slate-500" aria-hidden="true" />
                     <input
                       type="text"
@@ -314,7 +358,7 @@ export function PoDrill({ target, onClose }: { target: PoDrillTarget; onClose: (
                     )}
                   </span>
                   {data && (
-                    <span data-testid="po-drill-finder-count" className="whitespace-nowrap text-[10px] tabular-nums text-slate-500 dark:text-slate-400">
+                    <span data-testid="po-drill-finder-count" data-po-print-off="" className="whitespace-nowrap text-[10px] tabular-nums text-slate-500 dark:text-slate-400">
                       {num(shownLines.length)} of {num(data.lines.length)}
                     </span>
                   )}
@@ -329,6 +373,16 @@ export function PoDrill({ target, onClose }: { target: PoDrillTarget; onClose: (
                       <span className="min-w-0">
                         <span className="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">{l.name}</span>
                         <span className="block truncate text-[10px] text-slate-500 dark:text-slate-400">{l.sku}</span>
+                        {l.notes && (
+                          /* v2.226.0: the line's own note — the wire now
+                              carries it; a line that carries one speaks
+                              it (absent stays absent). Muted family, a
+                              quotation hairline: someone's voice on the
+                              record, not a system field. */
+                          <span data-testid="po-drill-line-note" className="mt-0.5 block border-l-2 border-slate-200 pl-1.5 text-[10px] italic text-slate-500 dark:border-slate-600 dark:text-slate-400">
+                            {l.notes}
+                          </span>
+                        )}
                       </span>
                       <span className="flex flex-wrap items-center gap-2">
                         <span className="text-[10px] tabular-nums text-slate-500 dark:text-slate-400">

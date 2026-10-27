@@ -383,10 +383,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.222.0: the sheet-drill entry joins the feed (+1 on every anchor → 113/114/115/146)
     // v2.224.0: the spoken-hint entry joins the feed (+1 on every anchor → 114/115/116/147)
     // v2.225.0: the pipeline entry joins the feed (+1 on every anchor → 115/116/117/148)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(116);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(117);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(118);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(149);
+    // v2.226.0: the paper-trail entry joins the feed (+1 on every anchor → 116/117/118/149)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(117);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(118);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(119);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(150);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 
