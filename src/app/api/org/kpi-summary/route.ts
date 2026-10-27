@@ -206,7 +206,7 @@ async function orgKpiSummaryHandler(): Promise<Response> {
         id: true, name: true, sku: true, quantityInStock: true, reorderLevel: true,
         costPrice: true, pricePerUnit: true,
         category: { select: { name: true } },
-        store: { select: { name: true, code: true } },
+        store: { select: { id: true, name: true, code: true } },
       },
     });
     const totalSkus = products.length;
@@ -226,7 +226,57 @@ async function orgKpiSummaryHandler(): Promise<Response> {
         store: p.store?.name ?? null,
         stockQty: toDec(p.quantityInStock).toNumber(),
         reorderLevel: toDec(p.reorderLevel).toNumber(),
+        // v2.217.0 THE REORDER BRIDGE: the named watchlist now carries
+        // everything a draft PO needs, so the bridge composes and never
+        // invents. `storeId` is the POST target (the org watchlist is
+        // org-wide; a purchase order belongs to ONE store); `costPrice`
+        // is the product's own fallback cost. `suggestedQty` reuses the
+        // store-level low-stock API's formula (ceil(1.5 × RL − stock)) so
+        // the two surfaces speak one reorder arithmetic; a product with
+        // no reorder level (RL 0) suggests nothing — the honest zero.
+        storeId: p.store?.id ?? null,
+        costPrice: toDec(p.costPrice).toNumber(),
+        suggestedQty: Math.max(0, Math.ceil(toDec(p.reorderLevel).mul(1.5).minus(toDec(p.quantityInStock)).toNumber())),
+        // The supplier-hint fields, pre-declared nullable so the PO-line
+        // reduction below can fill them in place (tsc keeps the literal's
+        // shape — no assignment-to-unknown-key errors).
+        lastUnitCost: null as number | null,
+        lastSupplierId: null as string | null,
+        lastSupplierName: null as string | null,
       }));
+
+    // v2.217.0: the supplier hint — each named item's most recent purchase
+    // order line names the supplier that last carried it (and the cost that
+    // was actually paid, which beats the product's book costPrice as a PO
+    // draft default). ONE bounded read over the ≤12 named items' PO lines,
+    // newest PO first, reduced to the first hit per product in JS — the
+    // bridge composes existing rows, it never invents a supplier.
+    const lowIds = lowStockItems.map((item) => item.id);
+    const lastPoLines = lowIds.length
+      ? await rawDb.purchaseOrderItem.findMany({
+          where: { productId: { in: lowIds } },
+          orderBy: { purchaseOrder: { orderDate: 'desc' } },
+          take: 60,
+          select: {
+            productId: true,
+            unitCost: true,
+            purchaseOrder: { select: { supplierId: true, supplier: { select: { name: true } } } },
+          },
+        })
+      : [];
+    const seenLowIds = new Set<string>();
+    for (const line of lastPoLines) {
+      if (seenLowIds.has(line.productId)) continue;
+      seenLowIds.add(line.productId);
+      const item = lowStockItems.find((entry) => entry.id === line.productId);
+      if (!item) continue;
+      item.lastUnitCost = toDec(line.unitCost).toNumber();
+      item.lastSupplierId = line.purchaseOrder?.supplierId ?? null;
+      item.lastSupplierName = line.purchaseOrder?.supplier?.name ?? null;
+    }
+    for (const item of lowStockItems) {
+      if (item.lastUnitCost == null) item.lastUnitCost = item.costPrice;
+    }
 
     // ── Rentals ─────────────────────────────────────────────────────────────
     const [rentalsActive, rentalsOverdue, rentalRows] = await Promise.all([

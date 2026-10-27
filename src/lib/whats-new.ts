@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.217.0',
+    title: 'The reorder bridge',
+    bullets: [
+      'The organization console\u2019s reorder watchlist can now ACT: each branch\u2019s named rows raise a draft purchase order straight from the watchlist \u2014 suggested quantities pre-seeded, the supplier defaulted to the ledger\u2019s own hint, POSTed to the same endpoint the Purchase orders tab has always used.',
+      'The named items carry the bridge\u2019s arithmetic in the open: an \u201corder N\u201d chip per row (the store-level 1.5 \u00d7 level \u2212 stock formula, one arithmetic on both surfaces), the last-paid supplier named under each branch, and the draft\u2019s estimate is VAT-exclusive with the server\u2019s own total on the success face.',
+      'The indicative strip reaches its FOURTH consumer: the restock draft\u2019s estimate rides the same observer the debt, revenue and desk strips use \u2014 while the watchlist itself stays count-voiced by law. And the round\u2019s honest cleanup: the orphaned low-stock alert panel (imported nowhere since birth) is gone.',
+    ],
+  },
+  {
     version: '2.216.0',
     title: 'The second shelf',
     bullets: [

@@ -117,7 +117,14 @@ export interface KpiSummaryData {
     stockValue: number;
     retailValue: number;
     lowStock: number;
-    lowStockItems: Array<{ id: string; sku: string; name: string; category: string; store: string | null; stockQty: number; reorderLevel: number }>;
+    // v2.217.0 the reorder bridge: each named item carries the PO-draft
+    // kit — the store it belongs to (the POST target), its book cost
+    // fallback, the suggested reorder qty (the store-level low-stock
+    // formula, ceil(1.5 × RL − stock)), and the supplier hint from its
+    // most recent PO line (the cost actually paid last time beats the
+    // book cost as a draft default). All optional: an older cached
+    // answer keeps the count story, the bridge steps aside honestly.
+    lowStockItems: Array<{ id: string; sku: string; name: string; category: string; store: string | null; stockQty: number; reorderLevel: number; storeId?: string | null; costPrice?: number | null; suggestedQty?: number | null; lastUnitCost?: number | null; lastSupplierId?: string | null; lastSupplierName?: string | null }>;
   };
   debtExpert: {
     total: number;

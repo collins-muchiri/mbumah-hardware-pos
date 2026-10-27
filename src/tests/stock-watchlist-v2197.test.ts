@@ -293,7 +293,12 @@ describe('the tolerances - the honest absences and the dark ground from birth', 
 
   it('the type contract already carried the named watchlist - zero wire changes', () => {
     expect(primitives).toContain('inventory: {');
-    expect(primitives).toContain('lowStockItems: Array<{ id: string; sku: string; name: string; category: string; store: string | null; stockQty: number; reorderLevel: number }>');
+    // v2.217.0: the bridge EXTENDS the row type with the optional PO-draft
+    // kit (storeId/costPrice/suggestedQty + the supplier hint) — the CORE
+    // seven fields this pin has watched since v2.197.0 all still ride the
+    // front of the contract; the additions are optional, so an older
+    // cached answer keeps the count story (the tolerance law itself).
+    expect(primitives).toContain('lowStockItems: Array<{ id: string; sku: string; name: string; category: string; store: string | null; stockQty: number; reorderLevel: number; storeId?: string | null;');
     // the route keeps shipping the same shape (most-critical-first, capped at 12)
     const route = readRepo('src/app/api/org/kpi-summary/route.ts');
     expect(route).toContain('.sort((a, b) => toDec(a.quantityInStock).minus(toDec(a.reorderLevel)).toNumber() - toDec(b.quantityInStock).minus(toDec(b.reorderLevel)).toNumber())');
@@ -323,9 +328,9 @@ describe('the a11y surface - the REAL-chain math for the watchlist families', ()
 
 describe('the release surfaces', () => {
   it('package.json rides at 2.198.0 (all three slots) and the verify script is wired', () => {
-    expect(pkg.version).toBe('2.216.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.216.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.216.0');
+    expect(pkg.version).toBe('2.217.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.217.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.217.0');
     expect(pkg.scripts['verify:v2-197-0']).toBeTruthy();
     // the prior surfaces stay wired
     expect(pkg.scripts['verify:v2-196-0']).toBeTruthy();
