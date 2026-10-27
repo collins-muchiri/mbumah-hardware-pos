@@ -134,7 +134,7 @@ describe('the dropdown footer speaks the read time (v2.212.0)', () => {
 describe('the trigger tooltip speaks the active wire figure (v2.212.0)', () => {
   it('only after the wire answered, only for a non-KES active currency', () => {
     expect(switcher).toMatch(/const activeRow = currency !== 'KES' \? rates\?\.get\(currency\) : undefined;/);
-    expect(switcher).toMatch(/const triggerTitle = activeRow\s*\? `1 KES = \$\{formatCurrency\(activeRow\.kesToRate, currency\)\} · \$\{SOURCE_PHRASE\[activeRow\.source\] \?\? 'wire rate'\}`\s*: undefined;/);
+    expect(switcher).toMatch(/const triggerTitle = activeRow\s*\? `1 KES = \$\{formatCurrency\(activeRow\.kesToRate, currency\)\} · \$\{RATE_SOURCE_PHRASE\[activeRow\.source\] \?\? 'wire rate'\}`\s*: undefined;/);
   });
 
   it('rides the trigger button as a title — the rows voice on hover', () => {

@@ -2,6 +2,19 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.214.0] The currency wire's first consumer
+
+The closing round for the v2.212 honest-scope note. Since v2.210.0 the rates wire could store non-KES pairs "until a consumer exists" — the debt ledger's indicative strip is that consumer.
+
+### Added
+- **The indicative strip** (debt ledger modal, below the total): when the active display currency is NOT KES **and** the wire answered with that pair, the total's approximate value in the active currency appears as a muted strip — `≈ {figure} · 1 KES = {rate} · {source}` — with the closing voice "indicative; the ledger stays in KES." The `aria-label` speaks the full honest sentence including "this strip does not change what the debt is."
+- **One wire, three surfaces**: the strip reads `ADMIN_CURRENCY_RATES_QUERY_KEY` — the SAME cache the switcher and the Exchange Rates card share — lazily (`enabled: debtOpen`), never polled, with the switcher's now-exported `RatesWireBody` shape and `RATE_SOURCE_PHRASE` provenance map (the one-voice law: no privately re-worded copies).
+- **The canonical law holds everywhere**: `debt-ledger-total` keeps its literal (`kes(k.debt.total)`), the strip is gated on the computed `indicative` (never a truthy total), and silence stays silence — KES pivot, missing wire answer, non-finite rate, or unknown currency code all render NOTHING.
+
+### Measured
+- `scripts/contrast-math-indicative-strip-v2214.mjs` — the strip's four voices on their real composited grounds (white/70 over slate-50 light; slate-800/60 over slate-900 dark): **4/4 PASS** (7.50 / 4.71 / 10.74 / 6.22).
+- `src/tests/debt-indicative-strip-v2214.test.ts` (14 source pins) + `scripts/verify-v2-214-0.mjs` wired as `verify:v2-214-0`.
+
 ## [2.213.0] The security posture speaks
 
 The visibility round for the security program. The v2.212.1 remediation round (PR #343) landed SEC-01..SEC-04 server-side — the single fail-closed password verifier, the fail-closed CRON_SECRET gate on all 11 cron routes, the SUPER_ADMIN-gated /api/health/env, and the sanitizer drop — but a SUPER_ADMIN with a browser had no way to SEE any of it. The System desk's new **Security posture** card reads one wire and speaks what the environment admits.

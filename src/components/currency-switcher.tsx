@@ -88,7 +88,7 @@ interface RateWireEntry {
 }
 
 /** What the GET answers — the SAME body shape the admin card reads. */
-interface RatesWireBody {
+export interface RatesWireBody {
   data?: {
     currencies?: RateWireEntry[];
   };
@@ -103,7 +103,13 @@ async function authedFetch(input: string, init: RequestInit = {}): Promise<Respo
   return fetch(input, { ...init, headers, credentials: 'same-origin' });
 }
 
-const SOURCE_PHRASE: Record<string, string> = {
+/**
+ * The ONE provenance voice map (v2.214.0 export): every surface that shows
+ * a wire-sourced figure speaks the SAME three phrases — the switcher's
+ * rows, the trigger's tooltip, the Exchange Rates card's chips, and the
+ * debt ledger's indicative strip (the wire's first consumer).
+ */
+export const RATE_SOURCE_PHRASE: Record<string, string> = {
   MANUAL: 'admin-set rate',
   API: 'API rate',
   STATIC: 'built-in rate',
@@ -133,7 +139,7 @@ function CurrencyRow({
       ? 'Base currency'
       : `1 KES = ${formatCurrency(dbRate ? dbRate.kesToRate : 1 / meta.exchangeRateToKES, meta.code)}`;
 
-  const sourcePhrase = dbRate ? SOURCE_PHRASE[dbRate.source] : undefined;
+  const sourcePhrase = dbRate ? RATE_SOURCE_PHRASE[dbRate.source] : undefined;
 
   return (
     <DropdownMenuItem
@@ -248,7 +254,7 @@ export function CurrencySwitcher({
   // nothing (the static constant is never presented as wire truth).
   const activeRow = currency !== 'KES' ? rates?.get(currency) : undefined;
   const triggerTitle = activeRow
-    ? `1 KES = ${formatCurrency(activeRow.kesToRate, currency)} · ${SOURCE_PHRASE[activeRow.source] ?? 'wire rate'}`
+    ? `1 KES = ${formatCurrency(activeRow.kesToRate, currency)} · ${RATE_SOURCE_PHRASE[activeRow.source] ?? 'wire rate'}`
     : undefined;
 
   // THE FRESHNESS VOICE (v2.212.0): the footer speaks WHEN the wire

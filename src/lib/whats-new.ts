@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.214.0',
+    title: 'The currency wire\u2019s first consumer',
+    bullets: [
+      'The debt ledger gains an indicative strip: switch the display currency and the ledger\u2019s total speaks its approximate value in that currency \u2014 reading the SAME wire the switcher and the Exchange Rates card share, with the rate\u2019s provenance spoken in the same three phrases.',
+      'KES stays canonical: the strip never replaces the total, never invents a figure from a fallback constant, and says out loud what it is \u2014 \u201cindicative; the ledger stays in KES.\u201d No switch, no wire answer, no strip.',
+      'The v2.212 honest-scope note is closed: a tracked pair finally has its consumer, and the provenance voice map is now one export every surface shares.',
+    ],
+  },
+  {
     version: '2.213.0',
     title: 'The security posture speaks',
     bullets: [
