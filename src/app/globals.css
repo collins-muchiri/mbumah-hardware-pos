@@ -1734,3 +1734,41 @@
 @media print {
   .mbumah-console header, .mbumah-console footer, .no-print { display: none !important; }
 }
+
+/* v2.226.0 THE PAPER TRAIL — while a PO drill is open the body carries
+   .po-printing, and the paper is the document: the shell falls silent,
+   the open drill card becomes the page (header, tiles, timeline, lines),
+   and the controls (close, finder, CSV/Print buttons, N-of-M) stay off
+   the paper — a control is a screen thing. Chips and bars keep their
+   colors on paper (print-color-adjust: exact). Without an open drill
+   the class is absent and printing behaves as before. */
+@media print {
+  body.po-printing * { visibility: hidden; }
+  body.po-printing [data-po-print-overlay],
+  body.po-printing [data-po-print-overlay] * { visibility: visible; }
+  body.po-printing [data-po-print-overlay] {
+    position: absolute !important;
+    inset: 0 auto auto 0 !important;
+    display: block !important;
+    width: 100% !important;
+    background: #ffffff !important;
+    padding: 0 !important;
+  }
+  body.po-printing [data-po-print] {
+    max-height: none !important;
+    max-width: none !important;
+    width: 100% !important;
+    overflow: visible !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  body.po-printing [data-po-print-off] { display: none !important; }
+  body.po-printing [data-po-print] [data-testid="po-drill-lines-list"] {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+}

@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.226.0',
+    title: 'The paper trail',
+    bullets: [
+      'The PO drill grew a Print button: while a document is open, printing lays the order itself on the page — header, tiles, timeline, lines — with every control staying off the paper. The CSV is the ring binder’s file; this is its paper.',
+      'Order lines now speak their own notes: a line that carries one shows it under its name, exactly where the paper reads it (a line without one stays quiet — absence stays absent).',
+      'The procurement ledger grew its own copy: one CSV of the whole window the wire answered — the finder narrows the reading, never the export.',
+      'The cost gate rides both files: where your role can’t see shillings, the cells export empty — absence stays absence, never a hidden zero.',
+    ],
+  },
+  {
     version: '2.225.0',
     title: 'The pipeline from above',
     bullets: [

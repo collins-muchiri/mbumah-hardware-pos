@@ -72,6 +72,9 @@ async function orgPurchaseOrderDetailHandler(_request: NextRequest, session: Aut
             unitCost: true,
             totalCost: true,
             receivedQty: true,
+            // v2.226.0: the line's own note rides the wire — the paper
+            // face and the screen face both read it (absent stays absent).
+            notes: true,
             product: { select: { sku: true, unitType: true } },
           },
         },
@@ -124,6 +127,7 @@ async function orgPurchaseOrderDetailHandler(_request: NextRequest, session: Aut
         receivedQty: Number(l.receivedQty),
         unitCost: canViewCost ? Number(l.unitCost) : null,
         totalCost: canViewCost ? Number(l.totalCost) : null,
+        notes: l.notes,
       })),
     },
   });
