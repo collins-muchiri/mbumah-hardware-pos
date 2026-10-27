@@ -1,6 +1,17 @@
 'use client';
 
 // v2.217.0 THE REORDER BRIDGE — the restock plan dialog.
+// v2.221.0 THE SUPPLIER SPLIT — the draft learns that a yard orders
+// from more than one counter. The single-supplier draft shipped every
+// line to the ledger's LOUDEST hint; the split raises one PO per
+// supplier, each line going where its OWN hint points (the hint-less
+// rows follow the draft's effective supplier — the explicit choice
+// still wins for them). The walk is SEQUENTIAL against the same
+// /api/purchase-orders wire (a PO is a one-supplier document; the
+// bridge composes the existing flow N times, it never invents a batch
+// endpoint), and a refused group never blocks the rest — the success
+// face lists every raised PO and names every refusal with the
+// server's error.
 // v2.218.0 THE FULL RESTOCK — the bridge's scope grows: the named
 // watchlist answers name only the LOUDEST twelve items org-wide, so a
 // branch whose shortage outruns the cap could only draft from the rows
@@ -76,7 +87,15 @@ export type RestockLens = { code: string; name: string; rate: number; source: st
 
 type SupplierRow = { id: string; name: string };
 
-type RestockResult = { poNumber: string; itemCount: number; subTotal: number; taxAmount: number; totalAmount: number };
+// v2.221.0: the raise's outcome — every PO the server accepted (with
+// its OWN server-truth numbers) and every group it refused (with the
+// server's error, named by supplier). A single-PO draft populates
+// raised[0] exactly as v2.217.0 did; a split raises one entry per
+// supplier. Partial honesty is structural: an entry exists per group
+// outcome, never a merged summary that could hide a refusal.
+type RaisedPO = { poNumber: string; itemCount: number; subTotal: number; taxAmount: number; totalAmount: number; supplierName: string };
+type RefusedGroup = { supplierName: string; lines: number; error: string };
+type RestockResult = { raised: RaisedPO[]; refused: RefusedGroup[] };
 
 // v2.218.0: the branch low-stock wire's own row shape (the store-level
 // route's response — one read of the source of record, no re-invention).
@@ -126,12 +145,18 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<RestockResult | null>(null);
+  // v2.221.0: the split is a DELIBERATE act (default OFF — one PO, the
+  // v2.217.0 behavior untouched). The toggle's availability is derived
+  // (splitOn below), so a scope flip re-coheres it without an effect:
+  // a named list with one hint and a full list with three render the
+  // toggle's presence honestly from the SAME boolean.
   // The draft scope — 'named' composes this answer's rows (zero fetch),
   // 'full' reads the branch's own low-stock wire (one fetch). A fresh
   // open is a fresh MOUNT (the parent keys per branch), so every open
   // starts on the named rows: the payload's story leads, the fetch is
   // always a deliberate act.
   const [mode, setMode] = useState<'named' | 'full'>('named');
+  const [splitMode, setSplitMode] = useState(false);
 
   const storeId = store?.id ?? null;
 
@@ -214,6 +239,8 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
   // v2.218.0 styling detail: the hint chip — when the draft's supplier
   // came from the LEDGER's hints (not the user's hand), the dialog says
   // so, and names whose ledger spoke. An explicit choice silences it.
+  // v2.221.0: the chip speaks in ONE-PO mode only — in split mode the
+  // per-group story takes over and the chip would lie by singular.
   const hintLed = useMemo(() => {
     if (supplierId && suppliers.some((s) => s.id === supplierId)) return null;
     const tally = new Map<string, number>();
@@ -224,6 +251,50 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
     const best = [...tally.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
     return best ? (suppliers.find((s) => s.id === best)?.name ?? null) : null;
   }, [supplierId, suppliers, activeItems]);
+
+  // v2.221.0 THE SUPPLIER GROUPS — derived, never an effect (the
+  // derivation law holds): a row's supplier is its OWN ledger hint
+  // while that hint sits on the branch's ACTIVE roster, else the
+  // draft's effective supplier (the explicit choice wins for the
+  // hint-less rows — they need a name, and the note says so). Groups
+  // carry every row (the LIST reads its cut); the SHIPPING figures
+  // count only qty>0 rows (a zero line ships nowhere — a group whose
+  // lines all zero raises no PO and the face says how many will).
+  const supplierGroups = useMemo(() => {
+    const order: string[] = [];
+    const map = new Map<string, RestockItem[]>();
+    for (const item of activeItems) {
+      const sid = item.lastSupplierId && suppliers.some((s) => s.id === item.lastSupplierId)
+        ? item.lastSupplierId
+        : effectiveSupplierId;
+      const bucket = map.get(sid);
+      if (bucket) {
+        bucket.push(item);
+      } else {
+        map.set(sid, [item]);
+        order.push(sid);
+      }
+    }
+    return order.map((sid) => {
+      const rows = map.get(sid) ?? [];
+      const supplierName = suppliers.find((s) => s.id === sid)?.name ?? 'unknown supplier';
+      const shippingSubTotal = rows.reduce((acc, item) => {
+        const line = lines[item.id] ?? seededLine(item);
+        return line.qty > 0 ? acc + line.qty * line.unitCost : acc;
+      }, 0);
+      const shippingLines = rows.filter((item) => (lines[item.id] ?? seededLine(item)).qty > 0).length;
+      return { supplierId: sid, supplierName, rows, shippingSubTotal, shippingLines };
+    });
+  }, [activeItems, lines, suppliers, effectiveSupplierId]);
+
+  // The split's honest availability: MORE than one group must EXIST
+  // (a single-hint draft has nothing to split — the toggle hides
+  // rather than disabling, an absent control never lies). splitOn is
+  // the DERIVED state the whole dialog reads, so a scope flip or an
+  // edit that empties a group re-coheres without an effect.
+  const splitAvailable = supplierGroups.length > 1;
+  const splitOn = splitMode && splitAvailable;
+  const shippingGroupCount = supplierGroups.filter((g) => g.shippingLines > 0).length;
 
   // The estimate: Σ(qty × unitCost) over the ACTIVE rows that would
   // ship — VAT-EXCLUSIVE, labeled as such; the server adds the org's
@@ -280,45 +351,78 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
 
   const submit = async () => {
     if (!store || !effectiveSupplierId) return;
-    const payloadItems = activeItems
-      .map((item) => ({ productId: item.id, quantity: (lines[item.id] ?? seededLine(item)).qty, unitCost: (lines[item.id] ?? seededLine(item)).unitCost }))
-      .filter((line) => line.quantity > 0);
-    if (payloadItems.length === 0) return;
+    if (payloadLinesFor(activeItems, lines).length === 0) return;
     setSubmitting(true);
     setError(null);
     try {
-      const res = await fetch('/api/purchase-orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          storeId: store.id,
-          supplierId: effectiveSupplierId,
-          items: payloadItems,
-          notes: mode === 'full'
-            ? 'Raised from the org console reorder watchlist (full branch restock list).'
-            : 'Raised from the org console reorder watchlist (named watchlist).',
-          ...(expectedDate ? { expectedDate } : {}),
-        }),
-      });
-      const body = await res.json().catch(() => null);
-      if (!res.ok || !body?.success) {
-        setError(body?.error ?? `the draft was refused (${res.status})`);
+      // v2.221.0: the raise walks the SHIPPING groups (a group whose
+      // lines all zero raises nothing) — ONE supplier per POST, the
+      // same wire the Purchase orders tab has always used. In one-PO
+      // mode the walk is a single step and the behavior is v2.217.0's
+      // exactly. SEQUENTIAL, never parallel: a PO run is a ledger
+      // sequence, and a mid-run refusal must not race the next raise.
+      const groups = splitOn
+        ? supplierGroups.filter((g) => g.shippingLines > 0)
+        : [{ supplierId: effectiveSupplierId, supplierName: suppliers.find((s) => s.id === effectiveSupplierId)?.name ?? '', rows: activeItems, shippingSubTotal: subTotal, shippingLines: shippingCount }];
+      const scopePhrase = mode === 'full' ? 'full branch restock list' : 'named watchlist';
+      const raised: RaisedPO[] = [];
+      const refused: RefusedGroup[] = [];
+      for (let i = 0; i < groups.length; i += 1) {
+        const group = groups[i];
+        const payloadItems = payloadLinesFor(group.rows, lines);
+        if (payloadItems.length === 0) continue;
+        const notes = splitOn
+          ? `Raised from the org console reorder watchlist (${scopePhrase}) — supplier split ${i + 1} of ${groups.length} (${group.supplierName}).`
+          : `Raised from the org console reorder watchlist (${scopePhrase}).`;
+        const res = await fetch('/api/purchase-orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            storeId: store.id,
+            supplierId: group.supplierId,
+            items: payloadItems,
+            notes,
+            ...(expectedDate ? { expectedDate } : {}),
+          }),
+        });
+        const body = await res.json().catch(() => null);
+        if (!res.ok || !body?.success) {
+          // PARTIAL HONESTY: a refused group is NAMED, never swallowed
+          // and never fatal to the rest — the walk continues, and the
+          // face carries both truths (the raised and the refused).
+          refused.push({ supplierName: group.supplierName, lines: payloadItems.length, error: body?.error ?? `the draft was refused (${res.status})` });
+          continue;
+        }
+        const po = body.data;
+        raised.push({
+          poNumber: po.poNumber,
+          itemCount: po.items?.length ?? payloadItems.length,
+          subTotal: Number(po.subTotal),
+          taxAmount: Number(po.taxAmount),
+          totalAmount: Number(po.totalAmount),
+          supplierName: group.supplierName,
+        });
+      }
+      if (raised.length === 0 && refused.length === 0) {
+        setError('nothing to raise — every line was refused before the walk began');
         return;
       }
-      const po = body.data;
-      setResult({
-        poNumber: po.poNumber,
-        itemCount: po.items?.length ?? payloadItems.length,
-        subTotal: Number(po.subTotal),
-        taxAmount: Number(po.taxAmount),
-        totalAmount: Number(po.totalAmount),
-      });
+      setResult({ raised, refused });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'the draft was refused');
     } finally {
       setSubmitting(false);
     }
   };
+
+  // The payload composition for a group of rows — shared by the single
+  // raise and every step of the split walk (one arithmetic, N callers,
+  // the same zero law: a line ships only at qty>0).
+  function payloadLinesFor(rows: RestockItem[], edits: Record<string, { qty: number; unitCost: number }>) {
+    return rows
+      .map((item) => ({ productId: item.id, quantity: (edits[item.id] ?? seededLine(item)).qty, unitCost: (edits[item.id] ?? seededLine(item)).unitCost }))
+      .filter((line) => line.quantity > 0);
+  }
 
   // v2.218.0 styling detail: the per-line coverage bar — the line's
   // stock against its reorder level, the SAME hue ladder the watchlist
@@ -346,6 +450,71 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
     );
   };
 
+  // v2.221.0: the line row, lifted so the flat list and every split
+  // group render the SAME row (one markup, N callers — the group
+  // dividers organize the list, the rows never change their voice).
+  const restockLineRow = (item: RestockItem) => {
+    const line = lines[item.id] ?? seededLine(item);
+    const lineTotal = line.qty > 0 ? line.qty * line.unitCost : 0;
+    return (
+      <li key={item.id} data-testid={`restock-line-${item.sku}`} className="rounded-lg border border-slate-100 bg-white/70 px-2.5 py-2 dark:border-slate-700 dark:bg-slate-800/60">
+        <div className="flex items-start justify-between gap-2">
+          <span className="min-w-0">
+            <span className="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">{item.name}</span>
+            <span className="block truncate text-[10px] text-slate-500 dark:text-slate-400">
+              {item.sku} · stock {num(item.stockQty)} / level {num(item.reorderLevel)}
+              {item.lastSupplierName ? ` · last via ${item.lastSupplierName}` : ''}
+            </span>
+            {coverageBar(item)}
+          </span>
+          <span className="shrink-0 text-right">
+            <span data-testid={`restock-line-total-${item.sku}`} className="block text-xs font-semibold tabular-nums text-amber-700 dark:text-amber-400">
+              {lineTotal > 0 ? formatCurrency(lineTotal, 'KES') : '—'}
+            </span>
+            <span className="block text-[9px] uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              {line.qty > 0 ? `excl. VAT` : 'not shipping'}
+            </span>
+          </span>
+        </div>
+        <div className="mt-1.5 flex items-center justify-between gap-2">
+          <span className="text-[10px] text-slate-500 dark:text-slate-400">
+            {item.suggestedQty != null && item.suggestedQty > 0 ? `suggested ${item.suggestedQty}` : 'no suggestion — set a quantity'}
+          </span>
+          <span className="flex items-center gap-1">
+            <button
+              type="button"
+              aria-label={`Decrease quantity for ${item.name}`}
+              data-testid={`restock-qty-minus-${item.sku}`}
+              onClick={() => nudgeQty(item.id, -1)}
+              className="flex h-6 w-6 items-center justify-center rounded border border-slate-200 text-slate-600 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+            >
+              <Minus className="h-3 w-3" />
+            </button>
+            <input
+              type="number"
+              min={0}
+              step={1}
+              aria-label={`Quantity for ${item.name}`}
+              data-testid={`restock-qty-${item.sku}`}
+              value={line.qty}
+              onChange={(e) => setQty(item.id, Number(e.target.value))}
+              className="h-6 w-14 rounded border border-slate-200 bg-white px-1.5 text-center text-xs tabular-nums text-slate-700 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+            />
+            <button
+              type="button"
+              aria-label={`Increase quantity for ${item.name}`}
+              data-testid={`restock-qty-plus-${item.sku}`}
+              onClick={() => nudgeQty(item.id, +1)}
+              className="flex h-6 w-6 items-center justify-center rounded border border-slate-200 text-slate-600 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+            >
+              <Plus className="h-3 w-3" />
+            </button>
+          </span>
+        </div>
+      </li>
+    );
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent data-testid="restock-dialog" className="sm:max-w-lg">
@@ -364,15 +533,59 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
         </DialogHeader>
 
         {result ? (
-          /* The success face — the server's own numbers, never the estimate. */
+          /* The success face — the server's own numbers, never the estimate.
+             v2.221.0: one PO keeps the v2.217.0 face EXACTLY; a split run
+             raises the roster — every raised PO speaks its number, supplier
+             and total, every refused group is named with the server's own
+             error, and the run's server-truth grand total closes it. */
           <div data-testid="restock-success" className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-4 dark:border-emerald-500/30 dark:bg-emerald-500/10">
             <p className="flex items-center gap-2 text-sm font-semibold text-emerald-800 dark:text-emerald-300">
-              <CheckCircle2 className="h-4 w-4" /> DRAFT raised
+              <CheckCircle2 className="h-4 w-4" /> {result.raised.length === 1 ? 'DRAFT raised' : `${result.raised.length} DRAFT POs raised`}
             </p>
-            <p data-testid="restock-po-number" className="mt-1 font-mono text-lg font-bold text-emerald-900 dark:text-emerald-200">{result.poNumber}</p>
-            <p className="mt-1 text-[11px] text-emerald-800/80 dark:text-emerald-300/80">
-              {result.itemCount} {result.itemCount === 1 ? 'line' : 'lines'} for {store?.name} · subtotal {formatCurrency(result.subTotal, 'KES')} · VAT {formatCurrency(result.taxAmount, 'KES')} · total {formatCurrency(result.totalAmount, 'KES')}
-            </p>
+            {result.raised.length === 1 ? (
+              <>
+                <p data-testid="restock-po-number" className="mt-1 font-mono text-lg font-bold text-emerald-900 dark:text-emerald-200">{result.raised[0].poNumber}</p>
+                <p className="mt-1 text-[11px] text-emerald-800/80 dark:text-emerald-300/80">
+                  {result.raised[0].itemCount} {result.raised[0].itemCount === 1 ? 'line' : 'lines'} for {store?.name} · subtotal {formatCurrency(result.raised[0].subTotal, 'KES')} · VAT {formatCurrency(result.raised[0].taxAmount, 'KES')} · total {formatCurrency(result.raised[0].totalAmount, 'KES')}
+                </p>
+              </>
+            ) : (
+              <ul data-testid="restock-success-rows" className="mt-2 space-y-1.5">
+                {result.raised.map((po) => (
+                  <li key={po.poNumber} data-testid="restock-success-row" className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-emerald-200/70 bg-white/70 px-2.5 py-1.5 dark:border-emerald-500/20 dark:bg-emerald-500/5">
+                    <span className="flex min-w-0 items-center gap-2">
+                      <span data-testid="restock-po-number" className="font-mono text-sm font-bold text-emerald-900 dark:text-emerald-200">{po.poNumber}</span>
+                      <span className="truncate text-[11px] font-medium text-emerald-800/90 dark:text-emerald-300/90">{po.supplierName}</span>
+                    </span>
+                    <span className="text-[10px] tabular-nums text-emerald-800/80 dark:text-emerald-300/80">
+                      {po.itemCount} {po.itemCount === 1 ? 'line' : 'lines'} · total {formatCurrency(po.totalAmount, 'KES')}
+                    </span>
+                  </li>
+                ))}
+                <li className="flex items-center justify-between gap-2 px-0.5 pt-1">
+                  <span data-testid="restock-success-total" className="text-[11px] font-semibold uppercase tracking-wide text-emerald-800 dark:text-emerald-300">
+                    run total ({result.raised.length} POs)
+                  </span>
+                  <span className="text-sm font-bold tabular-nums text-emerald-900 dark:text-emerald-200">
+                    {formatCurrency(result.raised.reduce((acc, po) => acc + po.totalAmount, 0), 'KES')}
+                  </span>
+                </li>
+              </ul>
+            )}
+            {result.refused.length > 0 && (
+              <div data-testid="restock-refused" className="mt-2 rounded-lg border border-red-200 bg-red-50 px-2.5 py-2 dark:border-red-500/30 dark:bg-red-500/10">
+                <p className="text-[11px] font-semibold text-red-700 dark:text-red-300">
+                  {result.refused.length === 1 ? '1 supplier was refused — the rest of the run went through:' : `${result.refused.length} suppliers were refused — the rest of the run went through:`}
+                </p>
+                <ul className="mt-1 space-y-1">
+                  {result.refused.map((r) => (
+                    <li key={r.supplierName} data-testid="restock-refused-row" className="text-[10px] text-red-700/90 dark:text-red-300/90">
+                      <span className="font-semibold">{r.supplierName}</span> ({r.lines} {r.lines === 1 ? 'line' : 'lines'}) — {r.error}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             <p className="mt-2 text-[10px] text-emerald-800/70 dark:text-emerald-300/70">
               The branch workspace&apos;s Purchase orders tab carries the full flow — approval, send, receive.
             </p>
@@ -382,7 +595,8 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
               onClick={() => {
                 // "Draft another" clears the edits — the ACTIVE scope's
                 // seeds re-derive themselves (a fresh draft, never the
-                // shipped one's leftovers).
+                // shipped one's leftovers). The split keeps its position:
+                // the next draft starts where the yard's habit points.
                 setResult(null);
                 setError(null);
                 setLines({});
@@ -464,67 +678,31 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
                 </p>
               )}
               <ul className="mt-2 max-h-[42vh] space-y-2 overflow-y-auto pr-1">
-                {activeItems.map((item) => {
-                  const line = lines[item.id] ?? seededLine(item);
-                  const lineTotal = line.qty > 0 ? line.qty * line.unitCost : 0;
-                  return (
-                    <li key={item.id} data-testid={`restock-line-${item.sku}`} className="rounded-lg border border-slate-100 bg-white/70 px-2.5 py-2 dark:border-slate-700 dark:bg-slate-800/60">
-                      <div className="flex items-start justify-between gap-2">
-                        <span className="min-w-0">
-                          <span className="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">{item.name}</span>
-                          <span className="block truncate text-[10px] text-slate-500 dark:text-slate-400">
-                            {item.sku} · stock {num(item.stockQty)} / level {num(item.reorderLevel)}
-                            {item.lastSupplierName ? ` · last via ${item.lastSupplierName}` : ''}
+                {splitOn
+                  ? /* v2.221.0: the split draft READS its cut — the rows
+                       render under their supplier's divider (name, row
+                       count, the group's shipping subtotal), in group
+                       order. An empty group (every line zeroed) still
+                       shows its divider with the honest "nothing
+                       shipping" — the cut is visible even when a side
+                       of it is quiet. */
+                    supplierGroups.map((group) => (
+                      <li key={`group-${group.supplierId}`} className="space-y-2">
+                        <div data-testid={`restock-group-divider-${group.supplierId}`} className="flex items-center justify-between gap-2 rounded-md bg-amber-50 px-2 py-1 ring-1 ring-amber-200 dark:bg-amber-500/10 dark:ring-amber-500/30">
+                          <span className="flex min-w-0 items-center gap-1.5">
+                            <span className="truncate text-[10px] font-bold uppercase tracking-wide text-amber-800 dark:text-amber-300">{group.supplierName}</span>
+                            <span className="shrink-0 text-[9px] tabular-nums text-amber-700/80 dark:text-amber-300/80">{group.rows.length} {group.rows.length === 1 ? 'line' : 'lines'}</span>
                           </span>
-                          {coverageBar(item)}
-                        </span>
-                        <span className="shrink-0 text-right">
-                          <span data-testid={`restock-line-total-${item.sku}`} className="block text-xs font-semibold tabular-nums text-amber-700 dark:text-amber-400">
-                            {lineTotal > 0 ? formatCurrency(lineTotal, 'KES') : '—'}
+                          <span className="shrink-0 text-[10px] tabular-nums font-semibold text-amber-800 dark:text-amber-300">
+                            {group.shippingLines > 0 ? `${formatCurrency(group.shippingSubTotal, 'KES')}` : 'nothing shipping'}
                           </span>
-                          <span className="block text-[9px] uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                            {line.qty > 0 ? `excl. VAT` : 'not shipping'}
-                          </span>
-                        </span>
-                      </div>
-                      <div className="mt-1.5 flex items-center justify-between gap-2">
-                        <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                          {item.suggestedQty != null && item.suggestedQty > 0 ? `suggested ${item.suggestedQty}` : 'no suggestion — set a quantity'}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <button
-                            type="button"
-                            aria-label={`Decrease quantity for ${item.name}`}
-                            data-testid={`restock-qty-minus-${item.sku}`}
-                            onClick={() => nudgeQty(item.id, -1)}
-                            className="flex h-6 w-6 items-center justify-center rounded border border-slate-200 text-slate-600 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
-                          >
-                            <Minus className="h-3 w-3" />
-                          </button>
-                          <input
-                            type="number"
-                            min={0}
-                            step={1}
-                            aria-label={`Quantity for ${item.name}`}
-                            data-testid={`restock-qty-${item.sku}`}
-                            value={line.qty}
-                            onChange={(e) => setQty(item.id, Number(e.target.value))}
-                            className="h-6 w-14 rounded border border-slate-200 bg-white px-1.5 text-center text-xs tabular-nums text-slate-700 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
-                          />
-                          <button
-                            type="button"
-                            aria-label={`Increase quantity for ${item.name}`}
-                            data-testid={`restock-qty-plus-${item.sku}`}
-                            onClick={() => nudgeQty(item.id, +1)}
-                            className="flex h-6 w-6 items-center justify-center rounded border border-slate-200 text-slate-600 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
-                          >
-                            <Plus className="h-3 w-3" />
-                          </button>
-                        </span>
-                      </div>
-                    </li>
-                  );
-                })}
+                        </div>
+                        <ul className="space-y-2">
+                          {group.rows.map((item) => restockLineRow(item))}
+                        </ul>
+                      </li>
+                    ))
+                  : activeItems.map((item) => restockLineRow(item))}
               </ul>
               {activeItems.length === 0 && mode === 'full' && !fullQuery.isLoading && !fullQuery.isError && (
                 <p data-testid="restock-full-empty" className="mt-2 text-[10px] text-slate-500 dark:text-slate-400">
@@ -534,7 +712,10 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
             </div>
 
             {/* The supplier + expected date — the two fields a PO header
-                needs that the watchlist wire could not carry. */}
+                needs that the watchlist wire could not carry. v2.221.0:
+                the split toggle joins the supplier when the draft's hints
+                name more than one active supplier — "One PO" is the
+                honest default, the split is a deliberate act. */}
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <div>
                 <label htmlFor="restock-supplier" className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Supplier</label>
@@ -553,10 +734,32 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
                     no active supplier on this branch — add one in the branch workspace first
                   </p>
                 )}
-                {hintLed && (
+                {hintLed && !splitOn && (
                   <p data-testid="restock-supplier-hint" className="mt-1 text-[10px] text-slate-500 dark:text-slate-400">
                     the ledger points to {hintLed} — the draft begins where the ledger points.
                   </p>
+                )}
+                {splitAvailable && (
+                  <div className="mt-1.5">
+                    <button
+                      type="button"
+                      data-testid="restock-split-toggle"
+                      aria-pressed={splitOn}
+                      onClick={() => setSplitMode((v) => !v)}
+                      className={`rounded px-2 py-1 text-[10px] font-semibold ring-1 transition-colors ${
+                        splitOn
+                          ? 'bg-amber-700 text-white ring-amber-700 dark:bg-amber-600 dark:ring-amber-600'
+                          : 'bg-white text-slate-600 ring-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-600'
+                      }`}
+                    >
+                      {splitOn ? `Per supplier (${shippingGroupCount} PO${shippingGroupCount === 1 ? '' : 's'})` : 'Per supplier'}
+                    </button>
+                    <p data-testid="restock-split-note" className="mt-1 text-[10px] text-slate-500 dark:text-slate-400">
+                      {splitOn
+                        ? `the ledger’s hints name ${supplierGroups.length} suppliers — one draft each; your chosen supplier covers the hint-less lines.`
+                        : `this draft’s hints span ${supplierGroups.length} suppliers — the split raises one PO each, every line where its own ledger points.`}
+                    </p>
+                  </div>
                 )}
               </div>
               <div>
@@ -581,6 +784,16 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
                 <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">estimate (excl. VAT)</span>
                 <span data-testid="restock-estimate" className="text-base font-bold tabular-nums text-slate-800 dark:text-slate-100">{formatCurrency(subTotal, 'KES')}</span>
               </div>
+              {splitOn && (
+                <ul className="mt-1.5 space-y-0.5">
+                  {supplierGroups.filter((g) => g.shippingLines > 0).map((g) => (
+                    <li key={`est-${g.supplierId}`} data-testid={`restock-group-estimate-${g.supplierId}`} className="flex items-center justify-between gap-2 text-[10px]">
+                      <span className="truncate text-slate-500 dark:text-slate-400">{g.supplierName} · {g.shippingLines} {g.shippingLines === 1 ? 'line' : 'lines'}</span>
+                      <span className="tabular-nums font-semibold text-slate-700 dark:text-slate-200">{formatCurrency(g.shippingSubTotal, 'KES')}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
               <p className="mt-0.5 text-[9px] text-slate-500 dark:text-slate-400">
                 VAT is added at the org&apos;s rate when the PO is raised — the success face speaks the server&apos;s own total.
               </p>
@@ -616,7 +829,11 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
               onClick={submit}
               className="w-full rounded-md bg-amber-700 px-3 py-2 text-xs font-semibold text-white hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-amber-600 dark:hover:bg-amber-700"
             >
-              {submitting ? 'raising the draft…' : `Raise DRAFT PO · ${shippingCount} ${shippingCount === 1 ? 'line' : 'lines'} · ${formatCurrency(subTotal, 'KES')}`}
+              {submitting
+                ? 'raising the draft…'
+                : splitOn
+                  ? `Raise ${shippingGroupCount} DRAFT POs · ${shippingCount} ${shippingCount === 1 ? 'line' : 'lines'} · ${formatCurrency(subTotal, 'KES')}`
+                  : `Raise DRAFT PO · ${shippingCount} ${shippingCount === 1 ? 'line' : 'lines'} · ${formatCurrency(subTotal, 'KES')}`}
             </button>
           </div>
         )}
