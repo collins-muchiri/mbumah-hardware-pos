@@ -55,6 +55,11 @@ import {
 import { LoginScreen } from '@/components/login-screen';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { UnifiedConsoleShell } from '@/components/console/unified-console';
+// v2.216.0: the SECOND SHELF — the display-currency switcher reaches the
+// org desk's own banner, the shell where the desk's strip-bearing slice
+// modals live (the shelf law the v2.215.0 console shelf established: the
+// supply lives where the consumers live).
+import { CurrencySwitcher } from '@/components/currency-switcher';
 import { useAuthStore } from '@/lib/stores';
 import { authorizedFetchJson } from '@/lib/api';
 // v2.165.0: the Automation pulse's "Last tick" line gains the exact EAT
@@ -1470,6 +1475,20 @@ export function OrgConsole() {
               whole page to 435 at 390 even after the shell fix. The group
               wraps now and the long role Badge wraps inside itself. */}
           <div className="flex max-w-full min-w-0 flex-wrap items-center gap-2">
+            {/* v2.216.0: the second shelf — one first-open of THIS switcher
+                fills the shared rates cache in the SAME boot the desk's
+                slice modals read, so the desk's indicative strip speaks in
+                real flows (the v2.215.0 topology law, now both org shells
+                wide). The trigger wears the banner's own light voices —
+                this banner is bg-background, so the switcher's default
+                border/bg fit as a sibling of the Badge/Global Chat
+                controls (no dark overrides needed here, unlike the
+                console's dark banner). */}
+            <CurrencySwitcher
+              compact
+              triggerTestId="org-desk-currency-switcher"
+              className="h-8 px-2 text-[11px]"
+            />
             <Badge variant="outline" className="max-w-full whitespace-normal text-xs">
               {user?.name || 'Signed in'} - {role}
             </Badge>

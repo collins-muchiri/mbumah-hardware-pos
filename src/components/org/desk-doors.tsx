@@ -39,11 +39,18 @@
  */
 
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
 import { formatKES } from '@/lib/api';
 import { Building2 } from 'lucide-react';
+// v2.216.0: the indicative strip's supply — the SAME shared exports the
+// kpi-row consumers speak (one voice map, one wire body shape), observed
+// through the SAME cache key the switcher fills. The desk never fetches.
+import { ADMIN_CURRENCY_RATES_QUERY_KEY, RATE_SOURCE_PHRASE, type RatesWireBody } from '@/components/currency-switcher';
+import { useCurrency } from '@/hooks/use-currency';
+import { CURRENCY_BY_CODE, formatCurrency } from '@/lib/currency-utils';
 
 // ── The wire slice the doors read ───────────────────────────────────────────
 // A structural subset of the org summary payload (OrgSummary satisfies it).
@@ -231,6 +238,45 @@ export function BranchSliceModal({
 }) {
   const voice = HUE_VOICE[metric.hue];
   const total = metric.total(wire);
+  // v2.216.0: the THIRD consumer — the org desk's slice modal gains the
+  // indicative strip, the kpi-row debt/revenue strips' sibling from the
+  // SAME observer: a pure cache watcher that NEVER fetches (enabled:
+  // false; the queryFn exists only to say so — the v2.199 zero-fetch law
+  // holds three surfaces wide). The supply is the shelf's own switcher:
+  // the desk banner mounts it this round (org-console.tsx), so one
+  // first-open fills the shared cache in the SAME boot and the strip
+  // speaks in real flows. THE COUNT LAW (the wire's own units, not
+  // adjacency): only the money-voiced metrics (revenue, debt) convert —
+  // a count converted to shillings would be nonsense, so transactions /
+  // lowStock / overdueRentals / pendingMpesa stay count-voiced BY LAW.
+  // The guards are the family's: KES pivot → silent, missing or
+  // non-finite rate → silent, unknown code → silent — a figure is NEVER
+  // born from a fallback constant.
+  const { currency: activeCurrency } = useCurrency();
+  const indicativeQuery = useQuery<RatesWireBody>({
+    queryKey: ADMIN_CURRENCY_RATES_QUERY_KEY,
+    queryFn: async () => {
+      throw new Error('the org desk never fetches — it observes the shared currency cache');
+    },
+    enabled: false,
+    staleTime: 30_000,
+    refetchInterval: false,
+  });
+  const deskIndicative = (() => {
+    if (metric.unit !== 'money') return null;
+    if (activeCurrency === 'KES') return null;
+    const entry = indicativeQuery.data?.data?.currencies.find((c) => c.code === activeCurrency);
+    if (!entry || typeof entry.kesToRate !== 'number' || !Number.isFinite(entry.kesToRate)) return null;
+    const meta = CURRENCY_BY_CODE[activeCurrency];
+    if (!meta) return null;
+    return {
+      meta,
+      rate: entry.kesToRate,
+      source: RATE_SOURCE_PHRASE[entry.source] ?? 'wire rate',
+      figure: formatCurrency(total * entry.kesToRate, activeCurrency),
+      rateFigure: formatCurrency(entry.kesToRate, activeCurrency),
+    };
+  })();
   const stores = wire.stores ?? [];
   const rows = stores.length > 0 ? deskRows(metric, stores) : [];
   const namedTotal = rows.reduce((s, r) => s + r.value, 0);
@@ -265,6 +311,30 @@ export function BranchSliceModal({
               <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400" data-testid={`org-desk-meta-${metric.id}`}>
                 across {rows.length} branch{rows.length === 1 ? '' : 'es'} · {loud.length} with a {metric.noun} slice
               </p>
+              {/* v2.216.0: the indicative strip — the desk slice's annotation
+                  of the tile's own figure, the kpi-row family's third face.
+                  Same visual family (slate strip, dark half from birth),
+                  same three-part voice (figure · rate · provenance · honest
+                  tail), same silence law: it mounts ONLY when a display
+                  currency ≠ KES is active AND the shared cache answered
+                  with that pair AND the metric is money-voiced. The tail
+                  names the metric's own noun so the honesty sentence stays
+                  exact on every surface. */}
+              {deskIndicative && (
+                <p
+                  data-testid="org-desk-indicative-strip"
+                  className="mt-1.5 rounded-md border border-slate-200 bg-white/70 px-2 py-1 text-[10px] leading-relaxed text-slate-500 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-400"
+                  aria-label={`Indicative value in ${deskIndicative.meta.name}: approximately ${deskIndicative.figure}, at 1 KES = ${deskIndicative.rateFigure}, ${deskIndicative.source}. The ledger stays in KES — this strip does not change what the ${metric.noun} is.`}
+                >
+                  <span data-testid="org-desk-indicative-figure" className="font-semibold tabular-nums text-slate-600 dark:text-slate-300">
+                    ≈ {deskIndicative.figure}
+                  </span>{' '}
+                  <span data-testid="org-desk-indicative-rate" className="tabular-nums">
+                    · 1 KES = {deskIndicative.rateFigure} · {deskIndicative.source}
+                  </span>{' '}
+                  <span data-testid="org-desk-indicative-voice">— indicative; the ledger stays in KES.</span>
+                </p>
+              )}
             </div>
 
             {clear ? (
