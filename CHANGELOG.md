@@ -2,6 +2,17 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.224.0] The spoken hint
+
+The hint names its source, and the sheet goes portable. The supplier hint has a law ("the latest purchase order of ANY status, newest orderDate wins") and a known failure shape (the v2.221 live flattening, where one big PO pointed every row at one supplier and the split died with the groups). A hint that hides its source can only be survived; a hint that shows its receipt can be READ — before it shapes a draft. And the drill's lines, already the org's readable truth, become the yard's portable truth: one CSV, the ring binder's loop closed.
+
+### Added
+- **The spoken hint** (`src/app/api/org/kpi-summary/route.ts` + `src/components/org/restock-dialog.tsx`): the named wire's supplier-hint reduction now carries the receipt — `lastSupplierPoNumber` + `lastSupplierAt` (the full wire already spoke `lastPoNumber`/`lastPoDate`; the dialog maps both, one story in both scopes). Every restock row wears a mono `hint: PO-…` chip whose title speaks the law ("the ledger hints the latest purchase order of ANY status, newest first — PO-… named this row (ordered …)"). The flattening is no longer a mystery: the row names the document that flattened it.
+- **The sheet's copy** (`src/components/org/sheet-drill.tsx`): the drill grows a CSV export over the lines it ALREADY holds — zero new fetch, the wire untouched. The file speaks the WHOLE sheet (the finder narrows the reading, never the export; the aria names the law); columns product, sku, unit, snapshot, counted, variance, variance_cost_kes; a cost-gated cell exports EMPTY (absence stays absence in the file, never a hidden zero); a CANCELLED sheet exports its void truth (snapshot + uncounted); the button hides on a line-less sheet (an absent control never lies); the BOM rides so Excel opens UTF-8 honestly; CSV quoting per the boring law (commas, quotes and newlines ride wrapped and doubled — a pure `csvCell` the pins can read). File name carries the branch code, the sheet's day and the status: `count-sheet-JUJ-2026-10-27-closed.csv`.
+
+### Styled
+- The hint chip is mono + tabular-nums in the muted family at 3:1 (a document number, not a word — distinct from the violet hand and the amber split); the CSV button wears the house border family with the amber focus ring and a decorative download glass; dark halves from birth; tabular-nums on every figure.
+
 ## [2.223.0] The hand move
 
 The supplier split answers to the hand as well as the ledger. The v2.221 cut read the hints; but the hints have a known failure shape — seen LIVE in the v2.221 E2E, where one big recent purchase flattened every row's hint to ONE supplier, the groups collapsed, and the toggle's availability died with them. A yard that orders per counter had no way back until new POs re-diversified the ledger. This round gives the hand power with receipts, and the void joins the tamper-evident chain.

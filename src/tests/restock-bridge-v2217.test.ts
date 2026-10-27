@@ -56,7 +56,9 @@ describe('the kpi-summary wire carries the PO-draft kit (v2.217.0)', () => {
   it('the supplier hint is ONE bounded read, newest PO first', () => {
     expect(api.includes("orderBy: { purchaseOrder: { orderDate: 'desc' } },")).toBe(true);
     expect(api.includes('take: 60,')).toBe(true);
-    expect(api.includes("purchaseOrder: { select: { supplierId: true, supplier: { select: { name: true } } } }")).toBe(true);
+    // v2.224.0 THE SPOKEN HINT: the select grew the receipt (poNumber +
+    // orderDate) — the hint names the document that spoke, additively.
+    expect(api.includes("purchaseOrder: { select: { supplierId: true, poNumber: true, orderDate: true, supplier: { select: { name: true } } } }")).toBe(true);
   });
 
   it('the hint reduces to the first hit per product, then falls back to the book cost', () => {

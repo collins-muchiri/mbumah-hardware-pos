@@ -101,6 +101,12 @@ export type RestockItem = {
   lastSupplierName?: string | null;
   // v2.222.0: the full wire's urgency tag — the near-band rows wear it.
   urgency?: string;
+  // v2.224.0 THE SPOKEN HINT: the hint's receipt — the PO that spoke
+  // (the latest purchase order of ANY status by orderDate) and the day
+  // it spoke. A hint that shows its source is legible before it bites
+  // (the v2.221 flattening was real; the wire now says who flattened it).
+  lastSupplierPoNumber?: string | null;
+  lastSupplierAt?: string | null;
 };
 
 /** The indicative lens, pre-resolved by the parent's observer (null at the KES pivot). */
@@ -143,7 +149,7 @@ type FullRow = {
   reorderLevel: number;
   suggestedReorderQty: number;
   costPrice: number;
-  supplier: { id: string; name: string; lastUnitCost: number } | null;
+  supplier: { id: string; name: string; lastUnitCost: number; lastPoNumber?: string | null; lastPoDate?: string | null } | null;
   // v2.222.0: the wire tags each row's urgency — the near-band toggle's
   // rows carry NEAR_REORDER so the widened draft reads which lines are
   // BELOW the level and which are just approaching it.
@@ -258,6 +264,10 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
       lastUnitCost: r.supplier?.lastUnitCost ?? r.costPrice,
       lastSupplierId: r.supplier?.id ?? null,
       lastSupplierName: r.supplier?.name ?? null,
+      // v2.224.0: the full wire already carried the receipt — map it
+      // (the named wire now speaks the same fields; one story both scopes).
+      lastSupplierPoNumber: r.supplier?.lastPoNumber ?? null,
+      lastSupplierAt: r.supplier?.lastPoDate ?? null,
       urgency: r.urgency,
     })),
     [fullQuery.data],
@@ -572,6 +582,21 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
               {item.sku} · stock {num(item.stockQty)} / level {num(item.reorderLevel)}
               {item.lastSupplierName ? ` · last via ${item.lastSupplierName}` : ''}
             </span>
+            {item.lastSupplierPoNumber && (
+              /* v2.224.0 THE SPOKEN HINT — the row's receipt: the PO that
+                  spoke. The hint-law reads "the latest purchase order of
+                  ANY status, newest orderDate wins"; a row that names the
+                  PO makes the flattening legible BEFORE it bites (the
+                  v2.221 live catch is the case study). Mono face — it is
+                  a document number, not a word. */
+              <span
+                data-testid={`restock-hint-po-${item.sku}`}
+                title={`the ledger hints the latest purchase order of ANY status, newest first — ${item.lastSupplierPoNumber} named this row${item.lastSupplierAt ? ` (ordered ${new Date(item.lastSupplierAt).toLocaleDateString('en-KE')})` : ''}.`}
+                className="mt-0.5 inline-flex max-w-full items-center rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[9px] tabular-nums text-slate-600 ring-1 ring-slate-200 dark:bg-slate-500/10 dark:text-slate-300 dark:ring-slate-500/30"
+              >
+                <span className="truncate">hint: {item.lastSupplierPoNumber}</span>
+              </span>
+            )}
             {near && (
               <span data-testid={`restock-near-chip-${item.sku}`} className="mt-0.5 inline-flex items-center rounded bg-slate-100 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-slate-600 ring-1 ring-slate-200 dark:bg-slate-500/10 dark:text-slate-300 dark:ring-slate-500/30">
                 near band
