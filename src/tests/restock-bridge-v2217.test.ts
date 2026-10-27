@@ -83,7 +83,9 @@ describe('the watchlist grows per-branch Draft PO doors (v2.217.0)', () => {
   it('the door opens scoped to that branch and its named rows', () => {
     expect(row.includes('data-testid={`restock-open-${b.name}`}')).toBe(true);
     expect(row.includes('onClick={() => b.storeId && setRestockStore({ id: b.storeId, name: b.name })}')).toBe(true);
-    expect(row.includes('items={(stockRows ?? []).filter((p) => restockStore != null && p.storeId === restockStore.id)}')).toBe(true);
+    // v2.218.0: the rows ride a memoized derivation (stable identity).
+    expect(row.includes('items={restockItems}')).toBe(true);
+    expect(row.includes('(stockRows ?? []).filter((p) => restockStore != null && p.storeId === restockStore.id),')).toBe(true);
   });
 
   it('the named rows wear the suggestion chip — the honest zero stays silent', () => {
@@ -101,7 +103,11 @@ describe('the watchlist grows per-branch Draft PO doors (v2.217.0)', () => {
 describe('the restock dialog composes the store\u2019s existing flow (v2.217.0)', () => {
   it('it POSTs to the SAME endpoint the Purchase orders tab has always used', () => {
     expect(dialog.includes("fetch('/api/purchase-orders', {")).toBe(true);
-    expect(dialog.includes("notes: 'Raised from the org console reorder watchlist (v2.217.0).'")).toBe(true);
+    // v2.218.0: the notes grew a scope suffix — the PO names which list
+    // it drafted from (named watchlist vs the full branch restock list).
+    expect(dialog.includes('Raised from the org console reorder watchlist (')).toBe(true);
+    expect(dialog.includes("'Raised from the org console reorder watchlist (full branch restock list).'")).toBe(true);
+    expect(dialog.includes("'Raised from the org console reorder watchlist (named watchlist).'")).toBe(true);
   });
 
   it('the draft seeds from the wire: suggestion for qty, last-paid cost for unit cost', () => {
@@ -131,8 +137,13 @@ describe('the restock dialog composes the store\u2019s existing flow (v2.217.0)'
     expect(dialog.includes('/api/suppliers?storeId=${encodeURIComponent(storeId)}')).toBe(true);
   });
 
-  it('the draft reseeds on open — a second supplier run starts fresh', () => {
-    expect(dialog.includes('}, [open, items]);')).toBe(true);
+  it('the draft reseeds by DERIVATION — the edits are the only state', () => {
+    // v2.218.0: the reseed law's final form — an untouched row renders
+    // its seed (?? seededLine(item)); the lines state holds ONLY the
+    // user's edits; the parent keys the dialog per branch so a fresh
+    // open is a fresh mount (no reset effect to go stale).
+    expect(dialog.includes('?? seededLine(item)')).toBe(true);
+    expect(dialog.includes("const [lines, setLines] = useState<Record<string, { qty: number; unitCost: number }>>({});")).toBe(true);
   });
 
   it('the success face speaks the SERVER\u2019s own numbers', () => {

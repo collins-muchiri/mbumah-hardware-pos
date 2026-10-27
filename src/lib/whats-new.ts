@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.218.0',
+    title: 'The full restock',
+    bullets: [
+      'The restock dialog wears a scope: draft from the named watchlist rows (zero fetch) or from the branch\u2019s OWN low-stock wire \u2014 one disclosed fetch, uncapped, every item at or below its level. The watchlist modal now says when the answer had to leave rows unnamed, and names the way out.',
+      'The draft reads its urgency while it edits: every line draws a coverage bar (stock against level, the watchlist\u2019s own hue ladder), the lines scroll at reading height, and \u201cDraft another\u201d starts truly fresh. The raised PO\u2019s notes say which list it drafted from.',
+      'Under the hood: the draft now reseeds by CONTENT, never by array identity \u2014 a background refresh can no longer wipe your edits mid-session. The ledger\u2019s supplier hint gets its own chip: \u201cthe draft begins where the ledger points.\u201d',
+    ],
+  },
+  {
     version: '2.217.0',
     title: 'The reorder bridge',
     bullets: [

@@ -2,6 +2,27 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.218.0] The full restock
+
+The bridge learns the whole branch. v2.217.0's reorder bridge drafted from the org answer's NAMED rows — the loudest twelve items org-wide, the wire's honest window. A branch whose shortage outruns the cap could only draft the rows the answer happened to carry. This round gives the dialog a scope: the named rows (zero fetch) or the branch's OWN low-stock wire (one fetch, uncapped) — the restock story now covers every item at or below its level, and the modal discloses the cap instead of leaving it implied.
+
+### Added
+- **The scope toggle in the restock dialog** (`restock-mode-named` / `restock-mode-full`, an aria-pressed pair): "Named watchlist (N)" composes this answer's rows with ZERO fetch (the v2.217.0 zero-fetch law, untouched); "Full branch list" performs the dialog's second disclosed fetch — the branch's own `/api/products/low-stock` wire (store-scoped, uncapped), mapped onto the same `RestockItem` shape so every law below is scope-agnostic by construction (the supplier hint's last-PAID cost keeps precedence over the book cost, the SAME suggested-reorder arithmetic rides both surfaces). Each open starts on the named rows: the payload's story leads, the fetch is always a deliberate act. Switching the list RESEEDS the draft, and the mode note says so.
+- **The cap disclosure in the watchlist modal** (`lowstock-cap-note`): when the org shortage outruns the route's 12-row window, the meta now names the window AND the way out — "the answer names the 12 loudest of N — each branch's Draft PO can switch to the full branch list to cover the rest." The muted family carries it (the counter moves 61 → 62).
+- **The reseed law, hardened**: the draft reseeds on OPEN, on SCOPE flip, and on genuine row change — keyed by a CONTENT signature (`id:suggestion:cost` per row), never by array identity. A parent re-render handing the dialog a fresh array of equal rows can no longer wipe the user's edits mid-session (the identity-churn lesson, found by reading the v2.217 wire's inline-filter prop before it could bite).
+- **Full-mode honesty states** (`restock-full-meta`, `restock-full-loading`, `restock-full-error`, `restock-full-empty`): the wire's own summary (total at/below level · out of stock · below level), a loading voice while the fetch runs, an honest refusal if it fails (with the named way back), and the truthful empty face when the branch's wire names nothing.
+- **The ledger-hint chip** (`restock-supplier-hint`): when the draft's supplier came from the LEDGER's hints rather than the user's hand, the dialog says so and names whose ledger spoke — "the ledger points to Bamburi Cement Ltd — the draft begins where the ledger points." An explicit choice silences it.
+- **Scope-named PO notes**: the raised draft's notes say which list it drafted from — "(named watchlist)" or "(full branch restock list)" — so the branch workspace's Purchase orders tab reads the draft's provenance at a glance.
+
+### Styled
+- **Per-line coverage bars in the draft** (styling detail): every draft line draws its stock against its reorder level at reading size — the SAME hue ladder the watchlist chips speak (out red → deep orange → amber → at-level emerald), aria-hidden, the numbers carrying the meaning. A full-list draft reads its urgency while it edits.
+- **The draft lines scroll at reading height** (`max-h-[42vh]`) so an uncapped full-list draft never outruns the dialog; "Draft another" now reseeds the ACTIVE scope's rows (a fresh draft, never the shipped one's leftovers).
+- **The supplier tally rides the ACTIVE scope**: a full-list draft reads the whole branch's ledger hints (the most-common last supplier across EVERY low item), not just the named twelve's.
+
+### Measured
+- `src/tests/restock-full-v2218.test.ts` (source pins: the scope toggle + its honest notes, the ONE disclosed fetch, the wire mapping's cost precedence, the content-signature reseed law, the zero laws in both scopes, the strip riding the active rows, the count law holding on the modal, the cap disclosure, the version metadata) + `scripts/verify-v2-218-0.mjs` wired as `verify:v2-218-0`.
+- The v2.217 bridge pins updated in place where the law evolved (the mode-aware notes, the signature-keyed reseed deps, the memoized items prop); the muted-family counter re-anchored 61 → 62; the console-changelog anchors re-anchored 108/109/110/141 → 109/110/111/142.
+
 ## [2.217.0] The reorder bridge
 
 The watchlist learns to act. Since v2.197.0 the organization console's reorder watchlist has been a read-only story — it SPEAKS the shortage but cannot act on it; the only "Create PO" path lived on an orphaned store-level panel imported nowhere, and the Purchase orders tab's own low-stock helper required knowing the flow existed. This round bridges the two halves of the reorder life: the watchlist raises the draft, the branch workspace carries the flow.

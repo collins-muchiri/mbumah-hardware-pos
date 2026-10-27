@@ -70,7 +70,7 @@
 // the installed palette's bar — the v2.159 knife-edge number came from
 // the older palette — but the house's hot REAL text speaks red-700).
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -410,7 +410,11 @@ export function KpiRow({ data, perStoreTrend, stores = [] }: {
   // is what the modal speaks, never a projected whole). ONE derivation
   // carries the rows AND their counts, so every consumer reads the same
   // shape without a bare assertion (the lint-baseline law).
-  const stockRows = watchlist?.map((p) => ({ ...p, coverage: stockCoverage(p) })) ?? null;
+  // v2.218.0: memoized — the restock bridge's draft rows derive from
+  // these, and a stable identity keeps the dialog's reseed law honest
+  // (the dialog keys on CONTENT, but the memo is the cheap belt to the
+  // signature's braces).
+  const stockRows = useMemo(() => watchlist?.map((p) => ({ ...p, coverage: stockCoverage(p) })) ?? null, [watchlist]);
   const levelSum = stockRows?.reduce((acc, p) => acc + p.reorderLevel, 0) ?? 0;
   const shelfCoverage = stockRows && levelSum > 0 ? Math.round((stockRows.reduce((acc, p) => acc + p.stockQty, 0) / levelSum) * 1000) / 10 : null;
   const severity = stockRows && stockRows.length > 0
@@ -428,6 +432,14 @@ export function KpiRow({ data, perStoreTrend, stores = [] }: {
   // re-queried. An all-at-level watchlist sums to zero and renders no
   // strip (honest absence, never an empty box).
   const shortSum = stockRows?.reduce((acc, p) => acc + p.deficit, 0) ?? 0;
+  // v2.218.0 THE FULL RESTOCK: the branch's named rows as the dialog's
+  // NAMED-scope draft — memoized so the dialog's reseed law reads a
+  // stable list (the content signature stays the true key; this is the
+  // cheap belt).
+  const restockItems = useMemo(
+    () => (stockRows ?? []).filter((p) => restockStore != null && p.storeId === restockStore.id),
+    [stockRows, restockStore],
+  );
   // The watchlist by branch — the same named items grouped by the branch
   // that holds them (the route resolves the store name server-side; an
   // unnamed item rests under "Unassigned" — still spoken, never dropped).
@@ -1436,6 +1448,17 @@ export function KpiRow({ data, perStoreTrend, stores = [] }: {
               {stockRows ? ` · ${stockRows.length} named on this answer` : ' · named watchlist not on this cached answer'}
               {shelfCoverage != null && stockRows && stockRows.length > 0 ? ` · shelves hold ${shelfCoverage}% of the reorder line` : ''}
             </p>
+            {/* v2.218.0 THE FULL RESTOCK: the cap disclosure — when the org
+                shortage outruns the route's 12-row window, the modal says
+                so AND names the way out: each branch's Draft PO can
+                switch to the full branch list (the dialog's one-fetch
+                scope) to cover the rows this answer had to leave
+                unnamed. The muted family carries it. */}
+            {stockRows && k.lowStock.count > stockRows.length && (
+              <p data-testid="lowstock-cap-note" className="mt-1 text-[10px] text-slate-500 dark:text-slate-400">
+                the answer names the {stockRows.length} loudest of {num(k.lowStock.count)} — each branch&apos;s Draft PO can switch to the full branch list to cover the rest.
+              </p>
+            )}
             {/* The severity composition bar — the card's mini bar at
                 reading size: one stacked strip, the grid below spells each
                 bucket's count and its honest share. No stroke, no trend
@@ -1620,15 +1643,16 @@ export function KpiRow({ data, perStoreTrend, stores = [] }: {
           /api/purchase-orders endpoint the Purchase orders tab has always
           used. The indicative lens rides pre-resolved from the component's
           ONE observer (fourth consumer; KES pivot → silent). The dialog
-          reseeds its draft each time it opens — a second supplier run
-          starts fresh, never on stale quantities. */}
+          mounts FRESH per branch (v2.218.0: the key below) — a second
+          supplier run starts fresh, never on stale quantities. */}
       <RestockDialog
+        key={restockStore?.id ?? 'restock-closed'}
         open={restockStore != null}
         onOpenChange={(v) => {
           if (!v) setRestockStore(null);
         }}
         store={restockStore}
-        items={(stockRows ?? []).filter((p) => restockStore != null && p.storeId === restockStore.id)}
+        items={restockItems}
         lens={restockLens}
       />
 

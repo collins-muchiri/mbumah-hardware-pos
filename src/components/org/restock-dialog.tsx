@@ -1,19 +1,31 @@
 'use client';
 
 // v2.217.0 THE REORDER BRIDGE — the restock plan dialog.
+// v2.218.0 THE FULL RESTOCK — the bridge's scope grows: the named
+// watchlist answers name only the LOUDEST twelve items org-wide, so a
+// branch whose shortage outruns the cap could only draft from the rows
+// the answer happened to carry. The dialog now wears a scope toggle:
+//   • named — composed from this answer's rows, ZERO fetch (the
+//     v2.217.0 zero-fetch law, untouched);
+//   • full — ONE fetch of the branch's own low-stock wire
+//     (/api/products/low-stock, the store-level route), uncapped,
+//     mapped onto the same RestockItem shape (the store-level formula
+//     already speaks the SAME suggested arithmetic: ceil(1.5 × RL − stock)).
+// Switching the scope clears the edits (disclosed in the note) — a
+// different list is a different draft, never a silent merge.
 //
-// The org console's reorder watchlist (v2.197.0) has been a read-only
-// story: it SPEAKS the shortage but cannot ACT on it. This dialog is the
-// bridge's far bank — per-branch draft purchase orders raised straight
-// from the named watchlist, POSTed to /api/purchase-orders (the same
-// endpoint the Purchase orders tab has always used; the bridge composes
-// the store's existing flow, it never invents a second one).
+// The dialog is the bridge's far bank — per-branch draft purchase
+// orders raised straight from the watchlist, POSTed to
+// /api/purchase-orders (the same endpoint the Purchase orders tab has
+// always used; the bridge composes the store's existing flow, it never
+// invents a second one).
 //
 // THE LAWS IT INHERITS:
-// • the zero-fetch law (v2.199.0): the dialog composes the rows the
-//   kpi-summary payload already carried (quantities, supplier hints,
-//   last-paid costs) — the ONLY fetch it makes is the supplier list for
-//   the chosen branch, which the watchlist wire never carried.
+// • the zero-fetch law (v2.199.0, scoped): the NAMED mode composes the
+//   rows the kpi-summary payload already carried — the ONLY fetches the
+//   dialog may make are the supplier list for the chosen branch and the
+//   branch's own low-stock wire, and only in FULL mode. Every fetch is
+//   disclosed in the mode note.
 // • the count law (v2.216.0): the WATCHLIST modal stays count-voiced
 //   (units short are units, never shillings) — but THIS dialog is
 //   money-voiced by construction (draft lines, an estimate), so it
@@ -28,8 +40,18 @@
 //   success face speaks the server's own total); a zero-quantity line
 //   ships nowhere; a branch with no active supplier refuses to submit
 //   rather than pretending.
+// • the DERIVATION LAW (v2.218.0, the reseed law's final form): the
+//   draft NEVER stores its seed. An untouched row RENDERS its seed —
+//   the payload's suggestion at the last-paid cost — as a derivation;
+//   the lines state holds ONLY the user's edits. Reseeding is clearing:
+//   a scope flip and "Draft another" both set the edits to {} and the
+//   seeds re-derive themselves. No effect ever writes state here (the
+//   file mounts with ZERO useEffect — the identity-churn lesson made
+//   structural: a parent re-render cannot wipe what it does not own),
+//   and a fresh open is a fresh MOUNT — the parent keys the dialog per
+//   branch, so mode and edits reset by construction, no reset effect.
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -56,6 +78,35 @@ type SupplierRow = { id: string; name: string };
 
 type RestockResult = { poNumber: string; itemCount: number; subTotal: number; taxAmount: number; totalAmount: number };
 
+// v2.218.0: the branch low-stock wire's own row shape (the store-level
+// route's response — one read of the source of record, no re-invention).
+type FullRow = {
+  id: string;
+  name: string;
+  sku: string;
+  quantityInStock: number;
+  reorderLevel: number;
+  suggestedReorderQty: number;
+  costPrice: number;
+  supplier: { id: string; name: string; lastUnitCost: number } | null;
+};
+
+type FullResponse = {
+  success: boolean;
+  data: FullRow[];
+  summary?: { total: number; outOfStock: number; belowReorder: number; nearReorder: number };
+};
+
+// The seed — pure, per row: qty starts at the payload's suggestion (the
+// store-level low-stock formula's own arithmetic — the two surfaces
+// speak one number), unit cost starts at the last PAID cost when the
+// wire carried one (the book cost fallback the route already resolved
+// server-side). The DERIVATION LAW renders this for every untouched row.
+const seededLine = (item: RestockItem) => ({
+  qty: Math.max(0, Math.ceil(item.suggestedQty ?? 0)),
+  unitCost: Math.max(0, item.lastUnitCost ?? 0),
+});
+
 export function RestockDialog({ open, onOpenChange, store, items, lens }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
@@ -66,42 +117,27 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
   /** The indicative lens from the SAME observer the sibling strips use. */
   lens: RestockLens;
 }) {
-  // The draft lines: qty starts at the payload's suggestion (the store-level
-  // low-stock formula's own arithmetic — the two surfaces speak one number),
-  // unit cost starts at the last PAID cost when the wire carried one (the
-  // book cost fallback the route already resolved server-side).
+  // The edits ONLY (the DERIVATION LAW): a row absent from this record
+  // renders its seed; a row present speaks the user's hand. Clearing
+  // the record IS the reseed.
   const [lines, setLines] = useState<Record<string, { qty: number; unitCost: number }>>({});
   const [supplierId, setSupplierId] = useState<string>('');
   const [expectedDate, setExpectedDate] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<RestockResult | null>(null);
-
-  // Re-seed the draft each time the dialog opens for a branch (reopening
-  // for a second supplier run starts a FRESH draft — no stale quantities).
-  // (One accepted react-hooks/set-state-in-effect warning: reseeding on
-  // open is the honest reset — a remount would drop the supplier list
-  // cache, a render-derivation would fight the user's edits mid-session.)
-  useEffect(() => {
-    if (!open) return;
-    setError(null);
-    setResult(null);
-    setSubmitting(false);
-    setExpectedDate('');
-    const seeded: Record<string, { qty: number; unitCost: number }> = {};
-    for (const item of items) {
-      seeded[item.id] = {
-        qty: Math.max(0, Math.ceil(item.suggestedQty ?? 0)),
-        unitCost: Math.max(0, item.lastUnitCost ?? 0),
-      };
-    }
-    setLines(seeded);
-  }, [open, items]);
+  // The draft scope — 'named' composes this answer's rows (zero fetch),
+  // 'full' reads the branch's own low-stock wire (one fetch). A fresh
+  // open is a fresh MOUNT (the parent keys per branch), so every open
+  // starts on the named rows: the payload's story leads, the fetch is
+  // always a deliberate act.
+  const [mode, setMode] = useState<'named' | 'full'>('named');
 
   const storeId = store?.id ?? null;
 
-  // The branch's active suppliers — the ONE fetch the bridge is allowed
-  // (the watchlist wire never carried the supplier roster; a PO needs one).
+  // The branch's active suppliers — the ONE fetch the NAMED bridge is
+  // allowed (the watchlist wire never carried the supplier roster; a PO
+  // needs one).
   const suppliersQuery = useQuery<{ success: boolean; data: SupplierRow[] }>({
     queryKey: ['restock-suppliers', storeId],
     enabled: open && !!storeId,
@@ -115,33 +151,93 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
   });
   const suppliers = useMemo(() => suppliersQuery.data?.data ?? [], [suppliersQuery.data]);
 
+  // v2.218.0: the branch's OWN low-stock wire — the FULL mode's single
+  // fetch, uncapped. The route is store-scoped (requireStoreAccess) and
+  // already carries the supplier hint (last PO line) + the SAME
+  // suggested-reorder arithmetic the named wire rides.
+  const fullQuery = useQuery<FullResponse>({
+    queryKey: ['restock-full', storeId],
+    enabled: open && !!storeId && mode === 'full',
+    staleTime: 60_000,
+    queryFn: async () => {
+      if (!storeId) throw new Error('no branch on this draft');
+      const res = await fetch(`/api/products/low-stock?storeId=${encodeURIComponent(storeId)}`);
+      if (!res.ok) throw new Error(`the branch's low-stock wire failed (${res.status})`);
+      return res.json();
+    },
+  });
+
+  // The wire's rows mapped onto the draft's own shape — the supplier
+  // hint's last-PAID cost wins over the book costPrice (the same
+  // precedence the named wire's server-side reduction speaks).
+  const fullItems: RestockItem[] = useMemo(
+    () => (fullQuery.data?.data ?? []).map((r) => ({
+      id: r.id,
+      name: r.name,
+      sku: r.sku,
+      stockQty: r.quantityInStock,
+      reorderLevel: r.reorderLevel,
+      suggestedQty: r.suggestedReorderQty,
+      lastUnitCost: r.supplier?.lastUnitCost ?? r.costPrice,
+      lastSupplierId: r.supplier?.id ?? null,
+      lastSupplierName: r.supplier?.name ?? null,
+    })),
+    [fullQuery.data],
+  );
+
+  // The draft's rows — the scope's list. Both derivations ride the SAME
+  // RestockItem shape, so every law below (zero lines, the estimate,
+  // the strip) is scope-agnostic by construction.
+  const activeItems = useMemo(
+    () => (mode === 'full' ? fullItems : items),
+    [mode, fullItems, items],
+  );
+
   // The effective supplier — derived, never an effect: the user's explicit
   // choice wins while it stays on the branch's active roster; otherwise the
   // hint the wire carried speaks (the MOST COMMON last supplier among the
-  // branch's named items); otherwise the roster's first name. The draft
-  // begins where the ledger points — never at a guess.
+  // branch's draft rows); otherwise the roster's first name. The draft
+  // begins where the ledger points — never at a guess. v2.218.0: the
+  // tally rides the ACTIVE scope's rows, so a full-list draft reads the
+  // whole branch's ledger hints, not just the named twelve.
   const effectiveSupplierId = useMemo(() => {
     if (supplierId && suppliers.some((s) => s.id === supplierId)) return supplierId;
     const tally = new Map<string, number>();
-    for (const item of items) {
+    for (const item of activeItems) {
       const hint = item.lastSupplierId;
       if (hint && suppliers.some((s) => s.id === hint)) tally.set(hint, (tally.get(hint) ?? 0) + 1);
     }
     const best = [...tally.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
     return best ?? suppliers[0]?.id ?? '';
-  }, [supplierId, suppliers, items]);
+  }, [supplierId, suppliers, activeItems]);
 
-  // The estimate: Σ(qty × unitCost) over the lines that would ship —
-  // VAT-EXCLUSIVE, labeled as such; the server adds the org's VAT rate.
+  // v2.218.0 styling detail: the hint chip — when the draft's supplier
+  // came from the LEDGER's hints (not the user's hand), the dialog says
+  // so, and names whose ledger spoke. An explicit choice silences it.
+  const hintLed = useMemo(() => {
+    if (supplierId && suppliers.some((s) => s.id === supplierId)) return null;
+    const tally = new Map<string, number>();
+    for (const item of activeItems) {
+      const hint = item.lastSupplierId;
+      if (hint && suppliers.some((s) => s.id === hint)) tally.set(hint, (tally.get(hint) ?? 0) + 1);
+    }
+    const best = [...tally.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+    return best ? (suppliers.find((s) => s.id === best)?.name ?? null) : null;
+  }, [supplierId, suppliers, activeItems]);
+
+  // The estimate: Σ(qty × unitCost) over the ACTIVE rows that would
+  // ship — VAT-EXCLUSIVE, labeled as such; the server adds the org's
+  // VAT rate. The indicative strip rides the SAME figure in both scopes.
+  // (The seed is re-derived inline — the deps stay the honest two.)
   const subTotal = useMemo(
-    () => items.reduce((acc, item) => {
-      const line = lines[item.id];
-      if (!line || line.qty <= 0) return acc;
+    () => activeItems.reduce((acc, item) => {
+      const line = lines[item.id] ?? seededLine(item);
+      if (line.qty <= 0) return acc;
       return acc + line.qty * line.unitCost;
     }, 0),
-    [items, lines],
+    [activeItems, lines],
   );
-  const shippingCount = items.filter((item) => (lines[item.id]?.qty ?? 0) > 0).length;
+  const shippingCount = activeItems.filter((item) => (lines[item.id] ?? seededLine(item)).qty > 0).length;
 
   // THE FOURTH CONSUMER: the indicative strip over the estimate. Same
   // guards, same voice family — the lens arrives pre-resolved (null at
@@ -157,15 +253,35 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
     };
   })();
 
+  // Writing a quantity — an EDIT records itself over the row's SEED (an
+  // untouched row's unitCost is the last-paid seed, never a silent 0).
   const setQty = (id: string, qty: number) =>
-    setLines((prev) => ({ ...prev, [id]: { ...prev[id], qty: Math.max(0, Math.min(999_999, Math.floor(qty))) } }));
+    setLines((prev) => {
+      const item = activeItems.find((i) => i.id === id);
+      const base = prev[id] ?? (item ? seededLine(item) : { qty: 0, unitCost: 0 });
+      return { ...prev, [id]: { ...base, qty: Math.max(0, Math.min(999_999, Math.floor(qty))) } };
+    });
   const nudgeQty = (id: string, delta: number) =>
-    setLines((prev) => ({ ...prev, [id]: { ...prev[id], qty: Math.max(0, Math.min(999_999, prev[id].qty + delta)) } }));
+    setLines((prev) => {
+      const item = activeItems.find((i) => i.id === id);
+      if (!item) return prev;
+      const base = prev[id] ?? seededLine(item);
+      return { ...prev, [id]: { ...base, qty: Math.max(0, Math.min(999_999, base.qty + delta)) } };
+    });
+
+  // The scope flip — an EVENT, never an effect: clearing the edits IS
+  // the reseed (the new list's seeds re-derive themselves).
+  const flipScope = (next: 'named' | 'full') => {
+    if (next === mode) return;
+    setMode(next);
+    setLines({});
+    setError(null);
+  };
 
   const submit = async () => {
     if (!store || !effectiveSupplierId) return;
-    const payloadItems = items
-      .map((item) => ({ productId: item.id, quantity: lines[item.id]?.qty ?? 0, unitCost: lines[item.id]?.unitCost ?? 0 }))
+    const payloadItems = activeItems
+      .map((item) => ({ productId: item.id, quantity: (lines[item.id] ?? seededLine(item)).qty, unitCost: (lines[item.id] ?? seededLine(item)).unitCost }))
       .filter((line) => line.quantity > 0);
     if (payloadItems.length === 0) return;
     setSubmitting(true);
@@ -178,7 +294,9 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
           storeId: store.id,
           supplierId: effectiveSupplierId,
           items: payloadItems,
-          notes: 'Raised from the org console reorder watchlist (v2.217.0).',
+          notes: mode === 'full'
+            ? 'Raised from the org console reorder watchlist (full branch restock list).'
+            : 'Raised from the org console reorder watchlist (named watchlist).',
           ...(expectedDate ? { expectedDate } : {}),
         }),
       });
@@ -200,6 +318,32 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  // v2.218.0 styling detail: the per-line coverage bar — the line's
+  // stock against its reorder level, the SAME hue ladder the watchlist
+  // chips speak (out red → deep orange → amber → at-level emerald),
+  // drawn at reading size so a full-list draft reads its urgency while
+  // it edits. Decorative (aria-hidden) — the numbers carry the meaning.
+  const coverageBar = (item: RestockItem) => {
+    const cov = item.reorderLevel > 0 ? Math.min(1, item.stockQty / item.reorderLevel) : null;
+    const hue = item.stockQty <= 0
+      ? 'bg-red-500'
+      : cov != null && cov <= 0.5
+        ? 'bg-orange-500'
+        : cov != null && cov < 1
+          ? 'bg-amber-500'
+          : 'bg-emerald-500';
+    return (
+      <span className="mt-1 flex items-center gap-1.5" aria-hidden>
+        <span className="h-1 w-20 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+          <span className={`block h-full rounded-full ${hue}`} style={{ width: `${Math.round((cov ?? 0) * 100)}%` }} />
+        </span>
+        <span className="text-[9px] tabular-nums text-slate-500 dark:text-slate-400">
+          {cov != null ? `${Math.round(cov * 100)}% of level` : 'no level'}
+        </span>
+      </span>
+    );
   };
 
   return (
@@ -235,7 +379,14 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
             <button
               type="button"
               data-testid="restock-again"
-              onClick={() => setResult(null)}
+              onClick={() => {
+                // "Draft another" clears the edits — the ACTIVE scope's
+                // seeds re-derive themselves (a fresh draft, never the
+                // shipped one's leftovers).
+                setResult(null);
+                setError(null);
+                setLines({});
+              }}
               className="mt-3 rounded-md border border-emerald-300 bg-white px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 dark:border-emerald-500/40 dark:bg-transparent dark:text-emerald-300 dark:hover:bg-emerald-500/10"
             >
               Draft another
@@ -243,20 +394,78 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
           </div>
         ) : (
           <div className="space-y-3">
-            {/* The draft lines — the named rows with their suggested
-                quantities, editable in place. The zero law: a zero line
-                ships nowhere and says so; the submit refuses an empty
-                draft rather than POSTing a hollow PO. */}
+            {/* v2.218.0: THE SCOPE TOGGLE — the named rows (zero fetch)
+                against the branch's own low-stock wire (one fetch,
+                uncapped). aria-pressed pair, honest notes; switching
+                clears the edits and says so. */}
+            <div role="group" aria-label="Draft scope" className="rounded-xl border border-slate-100 bg-slate-50 p-2 dark:border-slate-700 dark:bg-slate-900">
+              <div className="grid grid-cols-2 gap-1">
+                <button
+                  type="button"
+                  data-testid="restock-mode-named"
+                  aria-pressed={mode === 'named'}
+                  onClick={() => flipScope('named')}
+                  className={`rounded-lg px-2 py-1.5 text-[11px] font-semibold transition-colors ${
+                    mode === 'named'
+                      ? 'bg-amber-700 text-white dark:bg-amber-600'
+                      : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-600 dark:hover:bg-slate-700'
+                  }`}
+                >
+                  Named watchlist ({items.length})
+                </button>
+                <button
+                  type="button"
+                  data-testid="restock-mode-full"
+                  aria-pressed={mode === 'full'}
+                  onClick={() => flipScope('full')}
+                  className={`rounded-lg px-2 py-1.5 text-[11px] font-semibold transition-colors ${
+                    mode === 'full'
+                      ? 'bg-amber-700 text-white dark:bg-amber-600'
+                      : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-600 dark:hover:bg-slate-700'
+                  }`}
+                >
+                  Full branch list
+                </button>
+              </div>
+              <p data-testid="restock-mode-note" className="mt-1.5 px-0.5 text-[10px] text-slate-500 dark:text-slate-400">
+                {mode === 'named'
+                  ? 'composed from this answer’s named rows — zero fetch.'
+                  : 'fetched live from the branch’s low-stock wire — one fetch, uncapped.'}
+                {' '}Switching the list clears the edits.
+              </p>
+            </div>
+
+            {/* The draft lines — the ACTIVE scope's rows at their seeds,
+                editable in place (an untouched row IS its seed; the zero
+                law: a zero line ships nowhere and says so; the submit
+                refuses an empty draft rather than POSTing a hollow PO).
+                The list scrolls at reading height — a full branch list
+                can outrun the fold. */}
             <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900">
               <div className="flex items-baseline justify-between gap-2">
                 <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">the draft lines</p>
                 <p data-testid="restock-line-count" className="text-[10px] tabular-nums text-slate-500 dark:text-slate-400">
-                  {shippingCount} of {items.length} lines shipping
+                  {shippingCount} of {activeItems.length} lines shipping
                 </p>
               </div>
-              <ul className="mt-2 space-y-2">
-                {items.map((item) => {
-                  const line = lines[item.id] ?? { qty: 0, unitCost: 0 };
+              {mode === 'full' && fullQuery.isLoading && (
+                <p data-testid="restock-full-loading" className="mt-2 text-[10px] text-slate-500 dark:text-slate-400">
+                  reading the branch&apos;s low-stock wire…
+                </p>
+              )}
+              {mode === 'full' && fullQuery.isError && (
+                <p data-testid="restock-full-error" className="mt-2 text-[10px] text-red-700 dark:text-red-400">
+                  the branch&apos;s low-stock wire failed — switch back to the named rows to draft from this answer.
+                </p>
+              )}
+              {mode === 'full' && fullQuery.data?.summary && !fullQuery.isError && (
+                <p data-testid="restock-full-meta" className="mt-1 text-[10px] text-slate-500 dark:text-slate-400">
+                  {fullQuery.data.summary.total} at/below level · {fullQuery.data.summary.outOfStock} out of stock · {fullQuery.data.summary.belowReorder} below level
+                </p>
+              )}
+              <ul className="mt-2 max-h-[42vh] space-y-2 overflow-y-auto pr-1">
+                {activeItems.map((item) => {
+                  const line = lines[item.id] ?? seededLine(item);
                   const lineTotal = line.qty > 0 ? line.qty * line.unitCost : 0;
                   return (
                     <li key={item.id} data-testid={`restock-line-${item.sku}`} className="rounded-lg border border-slate-100 bg-white/70 px-2.5 py-2 dark:border-slate-700 dark:bg-slate-800/60">
@@ -267,6 +476,7 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
                             {item.sku} · stock {num(item.stockQty)} / level {num(item.reorderLevel)}
                             {item.lastSupplierName ? ` · last via ${item.lastSupplierName}` : ''}
                           </span>
+                          {coverageBar(item)}
                         </span>
                         <span className="shrink-0 text-right">
                           <span data-testid={`restock-line-total-${item.sku}`} className="block text-xs font-semibold tabular-nums text-amber-700 dark:text-amber-400">
@@ -316,6 +526,11 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
                   );
                 })}
               </ul>
+              {activeItems.length === 0 && mode === 'full' && !fullQuery.isLoading && !fullQuery.isError && (
+                <p data-testid="restock-full-empty" className="mt-2 text-[10px] text-slate-500 dark:text-slate-400">
+                  the branch&apos;s wire names nothing at or below its levels — the named rows above carry this answer&apos;s story.
+                </p>
+              )}
             </div>
 
             {/* The supplier + expected date — the two fields a PO header
@@ -338,6 +553,11 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
                     no active supplier on this branch — add one in the branch workspace first
                   </p>
                 )}
+                {hintLed && (
+                  <p data-testid="restock-supplier-hint" className="mt-1 text-[10px] text-slate-500 dark:text-slate-400">
+                    the ledger points to {hintLed} — the draft begins where the ledger points.
+                  </p>
+                )}
               </div>
               <div>
                 <label htmlFor="restock-expected" className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Expected (optional)</label>
@@ -354,7 +574,8 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
 
             {/* The estimate — VAT-exclusive and honest about it; the
                 indicative strip rides the SAME observer the sibling
-                strips use (fourth consumer, v2.217.0). */}
+                strips use (fourth consumer, v2.217.0), now over the
+                ACTIVE scope's rows. */}
             <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900">
               <div className="flex items-baseline justify-between gap-2">
                 <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">estimate (excl. VAT)</span>
