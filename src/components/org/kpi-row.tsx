@@ -71,9 +71,13 @@
 // the older palette — but the house's hot REAL text speaks red-700).
 
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ArrowDownRight, ArrowUpRight, Banknote, CalendarCheck2, Clock3, HandCoins, PackageOpen, ShoppingCart, TrendingUp } from 'lucide-react';
+import { ADMIN_CURRENCY_RATES_QUERY_KEY, RATE_SOURCE_PHRASE, type RatesWireBody } from '@/components/currency-switcher';
+import { useCurrency } from '@/hooks/use-currency';
+import { CURRENCY_BY_CODE, formatCurrency } from '@/lib/currency-utils';
 import { CountUp, Sparkline, WeekDeltaChip, kes, num, type KpiSummaryData, type StoreRow } from './primitives';
 
 /** Compact KES for tight chips: 437k / 1.2m / 97.5k. */
@@ -113,6 +117,41 @@ export function KpiRow({ data, perStoreTrend, stores = [] }: {
   // (v2.185.0); net is an explicit analyst turn, never a second meaning.
   const [lens, setLens] = useState<'gross' | 'net'>('gross');
   const k = data.kpis;
+
+  // THE INDICATIVE WIRE (v2.214.0): the currency wire's first consumer —
+  // as a pure OBSERVER. The v2.199 zero-fetch law holds: the drill-down
+  // composes, it never invents, so this query NEVER fetches (enabled:
+  // false, and the queryFn exists only to say so). It subscribes to the
+  // SHARED cache the switcher and the Exchange Rates card fill: when one
+  // of them answers, the strip re-renders; if nobody answered this
+  // session, the strip stays silent — an indicative figure is never born
+  // from a network call the ledger made itself.
+  const { activeCurrency } = useCurrency();
+  const indicativeQuery = useQuery<RatesWireBody>({
+    queryKey: ADMIN_CURRENCY_RATES_QUERY_KEY,
+    queryFn: async () => {
+      throw new Error('the debt ledger never fetches — it observes the shared currency cache');
+    },
+    enabled: false,
+    staleTime: 30_000,
+    refetchInterval: false,
+  });
+  // Silence stays silence: the strip exists only when the active display
+  // currency is NOT the KES pivot AND the wire answered with that pair.
+  const indicative = (() => {
+    if (activeCurrency === 'KES') return null;
+    const entry = indicativeQuery.data?.data?.currencies.find((c) => c.code === activeCurrency);
+    if (!entry || typeof entry.kesToRate !== 'number' || !Number.isFinite(entry.kesToRate)) return null;
+    const meta = CURRENCY_BY_CODE[activeCurrency];
+    if (!meta) return null;
+    return {
+      meta,
+      rate: entry.kesToRate,
+      source: RATE_SOURCE_PHRASE[entry.source] ?? 'wire rate',
+      figure: formatCurrency(k.debt.total * entry.kesToRate, activeCurrency),
+      rateFigure: formatCurrency(entry.kesToRate, activeCurrency),
+    };
+  })();
   // v2.187.0: the net lens is available only when the payload carried the
   // per-day net buckets — an older cached answer keeps the calm gross modal
   // (no toggle, no broken promises), the same tolerance the ribbon speaks.
@@ -1116,6 +1155,28 @@ export function KpiRow({ data, perStoreTrend, stores = [] }: {
             <p data-testid="debt-ledger-meta" className="text-[10px] text-slate-500 dark:text-slate-400">
               {num(k.debt.count)} accounts{debtors ? ` · ${debtors.length} named on this answer` : ' · named ledger not on this cached answer'}
             </p>
+            {/* THE INDICATIVE STRIP (v2.214.0) — the currency wire's first
+                consumer. KES stays canonical: the total above never moves,
+                and this strip only exists when the owner actively switched
+                the display currency AND the wire answered with that pair.
+                The provenance rides the SAME three phrases the switcher's
+                rows speak, and the closing voice says out loud what the
+                figure is not: it does not change what the debt IS. */}
+            {indicative && (
+              <p
+                data-testid="debt-indicative-strip"
+                className="mt-1.5 rounded-md border border-slate-200 bg-white/70 px-2 py-1 text-[10px] leading-relaxed text-slate-500 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-400"
+                aria-label={`Indicative value in ${indicative.meta.name}: approximately ${indicative.figure}, at 1 KES = ${indicative.rateFigure}, ${indicative.source}. The ledger stays in KES — this strip does not change what the debt is.`}
+              >
+                <span data-testid="debt-indicative-figure" className="font-semibold tabular-nums text-slate-600 dark:text-slate-300">
+                  ≈ {indicative.figure}
+                </span>{' '}
+                <span data-testid="debt-indicative-rate" className="tabular-nums">
+                  · 1 KES = {indicative.rateFigure} · {indicative.source}
+                </span>{' '}
+                <span data-testid="debt-indicative-voice">— indicative; the ledger stays in KES.</span>
+              </p>
+            )}
             {/* The aging composition bar — the card's mini bar at reading
                 size: one stacked strip, the grid below spells each
                 bucket's amount and its honest share. No stroke, no trend
