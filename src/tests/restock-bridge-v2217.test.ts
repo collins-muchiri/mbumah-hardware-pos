@@ -105,9 +105,11 @@ describe('the restock dialog composes the store\u2019s existing flow (v2.217.0)'
     expect(dialog.includes("fetch('/api/purchase-orders', {")).toBe(true);
     // v2.218.0: the notes grew a scope suffix — the PO names which list
     // it drafted from (named watchlist vs the full branch restock list).
+    // v2.221.0: the phrase composes ONCE (the scope phrase) and the
+    // split run appends its own k-of-n suffix — one voice, N raises.
     expect(dialog.includes('Raised from the org console reorder watchlist (')).toBe(true);
-    expect(dialog.includes("'Raised from the org console reorder watchlist (full branch restock list).'")).toBe(true);
-    expect(dialog.includes("'Raised from the org console reorder watchlist (named watchlist).'")).toBe(true);
+    expect(dialog.includes("const scopePhrase = mode === 'full' ? 'full branch restock list' : 'named watchlist';")).toBe(true);
+    expect(dialog.includes('Raised from the org console reorder watchlist (${scopePhrase})')).toBe(true);
   });
 
   it('the draft seeds from the wire: suggestion for qty, last-paid cost for unit cost', () => {
@@ -117,7 +119,9 @@ describe('the restock dialog composes the store\u2019s existing flow (v2.217.0)'
 
   it('the zero law: a zero line ships nowhere and the submit refuses an empty draft', () => {
     expect(dialog.includes('.filter((line) => line.quantity > 0);')).toBe(true);
-    expect(dialog.includes('if (payloadItems.length === 0) return;')).toBe(true);
+    // v2.221.0: the composition lifted into payloadLinesFor (one
+    // arithmetic, the single raise and every split step share it).
+    expect(dialog.includes('if (payloadLinesFor(activeItems, lines).length === 0) return;')).toBe(true);
   });
 
   it('the supplier default is derived, never an effect — the ledger\u2019s hint leads', () => {

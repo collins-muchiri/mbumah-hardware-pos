@@ -2,6 +2,22 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.221.0] The supplier split
+
+The restock draft learns that a hardware yard orders from MORE than one counter. v2.217.0/v2.218.0's dialog drafts every line to ONE supplier — the ledger's most-common hint — so a full-branch list whose rows point at two counters shipped all of them to the louder one. This round lets the draft split: one PO per supplier, exactly where each line's ledger hint points.
+
+### Added
+- **The supplier split** (`restock-dialog.tsx`): when the draft's shipping rows carry hints naming MORE than one active supplier, a toggle appears — "One PO" (the v2.217.0 behavior, untouched, the honest default) against "Per supplier (N)". In split mode each line drafts to its OWN hint's supplier; the lines the ledger never hinted follow the draft's effective supplier (the explicit choice wins for them — the hint-less rows need a name, and the note says so). Every group's PO notes name the split: "supplier split 2 of 3 (Nairobi Steel Traders)" — the ledger remembers how the draft was cut.
+- **The per-group draft lines** — the list regroups under slim supplier dividers (name, line count, the group's shipping subtotal) so a split draft READS its cut while it edits; the per-group estimate rows join the estimate block (supplier + KES subtotal each) beneath the unchanged total and its indicative strip (the strip annotates the WHOLE draft's money figure, never a slice).
+- **The multi-PO raise** — the submit walks the groups SEQUENTIALLY against the same `/api/purchase-orders` wire (one POST per supplier — a PO is a one-supplier document; the bridge composes the existing flow N times, it never invents a batch endpoint). Partial-failure honesty: a refused group never blocks the rest — the success face lists every raised PO (number, supplier, lines, the server's own total) AND names every refused group with the server's error, so a mid-run 429 is a named event, never a silent loss and never a fake success.
+- **The split success face** — one PO keeps the v2.217.0 face exactly; several raise the roster: each row speaks its number, supplier and total, the run's server-truth grand total closes it, and "Draft another" clears the edits (the seeds re-derive; the toggle keeps its position — the next draft starts where the yard's habit points).
+
+### Styled
+- The split toggle wears the dialog's aria-pressed family (amber-700 active, the honest ring when at rest); the group dividers speak the amber-50/amber-700 chip family over the muted sub-lines (slate-500/dark:slate-400), tabular-nums on every subtotal, dark halves from birth; the refused rows wear the house red-700/50 family — the 3:1 law holds on every new surface.
+
+### Measured
+- `src/tests/restock-split-v2221.test.ts` (source pins: the group derivation, the explicit-choice fallback law, the sequential per-group notes, the partial-failure face, the toggle's honest availability, the strip's whole-draft figure) + `scripts/verify-v2-221-0.mjs` wired as `verify:v2-221-0`.
+
 ## [2.220.0] The variance map
 
 Phase 2 of the stocktake arc: the count sheets reach the organization console. v2.219.0 gave the branch its sheet; this round gives the org its map — every branch's live counts with their progress, the recent roster with its variance chips, the rolling 30-day ledger impact as a money-voiced figure — and the sheet gains its honest way out.

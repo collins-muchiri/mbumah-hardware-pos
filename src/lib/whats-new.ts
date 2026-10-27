@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.221.0',
+    title: 'The supplier split',
+    bullets: [
+      'The restock draft learns that a yard orders from more than one counter: when the lines\u2019 ledger hints name several active suppliers, a toggle cuts the draft into one PO per supplier \u2014 each line goes where its own last purchase points, and the hint-less lines follow your chosen supplier.',
+      'The draft list regroups under supplier dividers with per-group subtotals, so a split draft reads its cut while it edits.',
+      'Raising a split walks the suppliers one POST at a time against the same purchase-orders wire \u2014 and a refused group never blocks the rest: the success face lists every raised PO and names every refusal with the server\u2019s own error.',
+      'One PO still raises exactly as before \u2014 the split is a deliberate act, never a silent default.',
+    ],
+  },
+  {
     version: '2.220.0',
     title: 'The variance map',
     bullets: [

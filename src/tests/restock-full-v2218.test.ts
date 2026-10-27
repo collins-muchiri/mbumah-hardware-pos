@@ -139,7 +139,9 @@ describe('every law rides the ACTIVE rows (v2.218.0)', () => {
 
   it('the zero law: a zero line ships nowhere, in BOTH scopes', () => {
     expect(dialog.includes('.filter((line) => line.quantity > 0);')).toBe(true);
-    expect(dialog.includes('if (payloadItems.length === 0) return;')).toBe(true);
+    // v2.221.0: the composition lifted into payloadLinesFor (one
+    // arithmetic, the single raise and every split step share it).
+    expect(dialog.includes('if (payloadLinesFor(activeItems, lines).length === 0) return;')).toBe(true);
   });
 
   it('the estimate reduces over the ACTIVE rows', () => {
@@ -159,8 +161,10 @@ describe('every law rides the ACTIVE rows (v2.218.0)', () => {
   });
 
   it('the PO notes name the scope the draft came from', () => {
-    expect(dialog.includes("'Raised from the org console reorder watchlist (full branch restock list).'")).toBe(true);
-    expect(dialog.includes("'Raised from the org console reorder watchlist (named watchlist).'")).toBe(true);
+    // v2.221.0: the scope phrase composes once and the split appends
+    // its k-of-n suffix — one voice, N raises.
+    expect(dialog.includes("const scopePhrase = mode === 'full' ? 'full branch restock list' : 'named watchlist';")).toBe(true);
+    expect(dialog.includes('Raised from the org console reorder watchlist (${scopePhrase})')).toBe(true);
   });
 });
 
@@ -253,13 +257,13 @@ describe('the watchlist modal discloses the cap and keeps the count law (v2.218.
 
 describe('the round of record (v2.218.0)', () => {
   it('package.json leads 2.218.0 (all three slots)', () => {
-    expect(pkg.version).toBe('2.220.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.220.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.220.0');
+    expect(pkg.version).toBe('2.221.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.221.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.221.0');
   });
 
   it('VERSION speaks the same truth', () => {
-    expect(read('VERSION').trim()).toBe('2.220.0');
+    expect(read('VERSION').trim()).toBe('2.221.0');
   });
 
   it('the changelog of record speaks the round', () => {
