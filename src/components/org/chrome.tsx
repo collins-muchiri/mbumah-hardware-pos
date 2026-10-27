@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { CheckCheck, ChevronDown, ChevronUp, CloudOff, ExternalLink, FileText, History, Home, Keyboard, LogIn, Package, ScrollText, Sparkles, Terminal, Store } from 'lucide-react';
+import { CurrencySwitcher } from '@/components/currency-switcher';
 import { goHomeToPos } from '@/components/console/unified-console';
 import { APP_BUILD_LABEL, APP_VERSION } from '@/lib/version';
 import { WHATS_NEW, whatsNewMarkAllTarget, whatsNewReadState, whatsNewUnreadCount, type WhatsNewEntry } from '@/lib/whats-new';
@@ -113,6 +114,29 @@ export function ConsoleHeader({ kpi, stores, online, onOpenPalette, onOpenChat, 
           <button onClick={onOpenPalette} className="focus-ring hidden items-center gap-1.5 rounded-lg border border-white/15 px-2 py-1 text-[11px] text-slate-300 hover:bg-white/10 md:flex" aria-label="Open command palette">
             <Terminal className="h-3 w-3" /> cmd+K
           </button>
+
+          {/* v2.215.0: the display-currency switcher reaches the shell where
+              its consumers live. THE SHELF LAW (the honest topology finding
+              this round records): the indicative strip's only supply — the
+              shared rates cache — could only be filled from the POS
+              workspace (the top-bar switcher's first open, the System
+              tab's rates card), while the strip-bearing debt/revenue
+              modals live HERE; the shells full-navigate between each other
+              by design (goHomeToPos assigns a location), so the react-query
+              cache could never cross the hop and the strip was
+              architecturally silent. With the switcher mounted in this
+              banner, one first-open fills the shared cache in the SAME
+              boot and the strip speaks — the v2.214.0 honest-scope note
+              gets its shelf. The trigger wears the banner's own dark
+              voices (border-white/15, slate-200, hover white/10) so it
+              sits as a sibling of the Stores/palette controls; the
+              dropdown itself stays the shared popover (the Stores menu
+              behaves the same way over this banner). */}
+          <CurrencySwitcher
+            compact
+            triggerTestId="console-currency-switcher"
+            className="h-8 border-white/15 bg-transparent px-2 text-[11px] text-slate-200 hover:bg-white/10 data-[state=open]:bg-white/10"
+          />
 
           <IconPulse label={`${notifications} unread notifications`} onClick={onOpenNotifications} count={notifications} dot="bg-red-500">
             <History className="h-4 w-4" />

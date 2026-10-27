@@ -18,7 +18,11 @@ import { authorizedFetchJson } from '@/lib/api';
 import { kes, num, timeAgo, type HealthBreakdownItem, type KpiSummaryData } from './primitives';
 
 const PCT = (v: number) => `${v}%`;
-const pctColor = (v: number) => (v >= 90 ? 'text-emerald-700' : v >= 70 ? 'text-amber-700' : 'text-red-600');
+// v2.215.0: the pct voice joins the armored family (red-700) — the tile
+// value is bold but the voice rides the same white ground as every hot
+// number in the product; the house lifted hot REAL text to red-700 in
+// v2.159 and the straggler helper now agrees.
+const pctColor = (v: number) => (v >= 90 ? 'text-emerald-700' : v >= 70 ? 'text-amber-700' : 'text-red-700');
 
 interface LazyState<T> { data: T | null; error: string | null; loading: boolean }
 
@@ -138,7 +142,17 @@ function AuditExpert() {
                 <TableCell className="text-xs text-slate-500">{timeAgo(a.createdAt)}</TableCell>
                 <TableCell className="text-xs">{a.user?.name ?? 'System'}</TableCell>
                 <TableCell>
-                  <Badge variant="outline" className={`text-[10px] ${a.severity === 'ERROR' ? 'border-red-200 text-red-600' : a.severity === 'WARN' ? 'border-amber-200 text-amber-700' : 'text-slate-500'}`}>{a.severity}</Badge>
+                  {/* v2.215.0: the severity sweep (the a11y backlog's
+                      EXPERTS-chip audit, carried since v2.199.0) — ERROR
+                      wore text-red-600 (a knife-edge voice on the white
+                      ground, the exact v2.159 family straggler) and WARN
+                      wore text-amber-700 (above the bar on white, but
+                      under it on any tinted worst case). Both now speak
+                      the house's armored voices: red-700 / amber-800.
+                      The rings stay decoration (the v2.198 law): the
+                      badge text carries the severity and the row's
+                      message column repeats the story. */}
+                  <Badge variant="outline" className={`text-[10px] ${a.severity === 'ERROR' ? 'border-red-200 text-red-700' : a.severity === 'WARN' ? 'border-amber-200 text-amber-800' : 'text-slate-500'}`}>{a.severity}</Badge>
                 </TableCell>
                 <TableCell className="text-xs font-medium text-slate-700">{a.action}</TableCell>
                 <TableCell className="max-w-[280px] truncate text-xs text-slate-500">{a.message}</TableCell>
@@ -265,9 +279,9 @@ export function ExpertModules({ data }: { data: KpiSummaryData }) {
                       <TableCell className="text-xs">{c.customer}</TableCell>
                       <TableCell className="text-xs text-slate-500">{c.store ?? '-'}</TableCell>
                       <TableCell className="text-right text-xs font-semibold tabular-nums">{kes(c.outstanding)}</TableCell>
-                      <TableCell><Badge variant="outline" className={`text-[10px] ${c.bucket === 'DAYS_90_PLUS' ? 'border-red-200 text-red-600' : 'text-slate-500'}`}>{c.bucket}</Badge></TableCell>
+                      <TableCell><Badge variant="outline" className={`text-[10px] ${c.bucket === 'DAYS_90_PLUS' ? 'border-red-200 text-red-700' : 'text-slate-500'}`}>{c.bucket}</Badge></TableCell>
                       <TableCell>
-                        <Badge variant="outline" className={`text-[10px] ${c.status === 'OVERDUE' ? 'border-red-200 text-red-600' : 'border-emerald-200 text-emerald-700'}`}>{c.status}</Badge>
+                        <Badge variant="outline" className={`text-[10px] ${c.status === 'OVERDUE' ? 'border-red-200 text-red-700' : 'border-emerald-200 text-emerald-700'}`}>{c.status}</Badge>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -363,7 +377,7 @@ export function ExpertModules({ data }: { data: KpiSummaryData }) {
                       <TableCell className="text-xs">{m.phoneMasked ?? '-'}</TableCell>
                       <TableCell className="text-right text-xs tabular-nums">{kes(m.amount)}</TableCell>
                       <TableCell>
-                        <Badge variant="outline" className={`text-[10px] ${m.status === 'COMPLETED' ? 'border-emerald-200 text-emerald-700' : m.status === 'PENDING' || m.status === 'PROCESSING' ? 'border-amber-200 text-amber-700' : 'border-red-200 text-red-600'}`}>{m.status}</Badge>
+                        <Badge variant="outline" className={`text-[10px] ${m.status === 'COMPLETED' ? 'border-emerald-200 text-emerald-700' : m.status === 'PENDING' || m.status === 'PROCESSING' ? 'border-amber-200 text-amber-800' : 'border-red-200 text-red-700'}`}>{m.status}</Badge>
                       </TableCell>
                       <TableCell className="font-mono text-[10px]">{m.mpesaReceipt ?? '-'}</TableCell>
                     </TableRow>

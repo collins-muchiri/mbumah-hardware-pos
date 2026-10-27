@@ -2,6 +2,26 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.215.0] The strip reaches its shelf
+
+The topology round. v2.214.0 shipped the indicative strip with an honest contingency: the react-query cache is per-boot, and the QA drive could not make the strip speak within a single console session. This round proves WHY on the real surfaces — the strip-bearing modals live on the org console, the cache's only supply lived in the POS workspace, and the shells full-navigate between each other by design — then fixes it by TOPOLOGY, not by a law amendment: the supply moves into the shell where the consumers live.
+
+### Added
+- **The console banner gains the display-currency switcher** (`console-currency-switcher`): one first-open fills the shared `ADMIN_CURRENCY_RATES_QUERY_KEY` cache in the SAME boot, and the debt ledger's indicative strip speaks in real flows — open the switcher once, then open a door. The trigger wears the banner's own dark voices (`border-white/15`, `text-slate-200`, hover `white/10`) as a sibling of the Stores/palette controls; the switcher gains a typed `triggerTestId` prop (no untyped `data-*` passthrough).
+- **The revenue modal's indicative strip — the second consumer**: the SAME observer, the SAME guards (KES pivot → silent, missing/non-finite rate → silent, unknown code → silent), the SAME visual family and dark half from birth. The figure follows the ACTIVE LENS — gross `weekTotal`, or the net face's `netWeekTotal` with the same `??` guard the net grid uses — and the aria tail keeps the family sentence: "this strip does not change what the revenue is." The count-voiced surfaces (transactions) deliberately stay count-voiced: a count converted to shillings would be nonsense, so the sibling choice was made on the wire's units, not adjacency.
+- **The zero-fetch law is untouched**: the row still contains no `fetch(` call — the strip still observes, the switcher's own first-open remains the sanctioned supply.
+
+### Fixed
+- **THE SPEAKING FIX (found live in the QA drive)**: `kpi-row.tsx` destructured `const { activeCurrency } = useCurrency()` — but the hook returns the field AS `currency` (`return { currency: activeCurrency, … }`). The binding was `undefined`, so both indicative strips' pivot guard compared `undefined === 'KES'` and the pair lookup searched `code === undefined`: **the strips were architecturally silent — cache full, USD active, still no figure.** The v2.214.0 E2E "silence verified live" had passed for the wrong reason, and the speaking state was never capturable; this round's drive (switcher open → cache filled, trigger hover-truth speaking, modal mute) exposed it. The rename at the destructuring site (`const { currency: activeCurrency }`) keeps every downstream line untouched; three new source pins + three verify checks bury the pattern.
+
+### Changed
+- **The EXPERTS chip sweep** (carried since v2.199.0): the audit tab's severity badges (ERROR `red-600`→`red-700`, WARN `amber-700`→`amber-800`), the credit-control bucket and OVERDUE badges (`red-600`→`red-700`), the mpesa status badge (`red-600`→`red-700`, `amber-700`→`amber-800`), and the `pctColor` helper (`red-600`→`red-700`). With the installed palette the pre-fix states measure ABOVE the bar on their real grounds (red-600 on white 4.76:1) — a CONSISTENCY re-voice, honestly recorded, the v2.199 Store-Matrix lesson repeating; the red-600-on-red-50 ghost (4.36:1) explains why the family fled red-600, and the armored voices buy 6.1–7.1:1 of headroom.
+- **The QA daemon probes before spawning** (`scripts/ems-daemon-3200.cjs`): three health probes over ~4.5s, and a healthy listener is never raced again — the v2.214.0 EADDRINUSE ops note closes.
+
+### Measured
+- `scripts/contrast-math-experts-chips-v2215.mjs` — **17/17 PASS** (fixed voices 6.42/6.13/7.13/6.81; pre-fix states recorded above the bar at 4.76/4.55/5.05/4.82; the red-50 ghost under at 4.36).
+- `src/tests/strip-shelf-v2215.test.ts` (21 source pins, three of them the speaking fix) + `scripts/verify-v2-215-0.mjs` wired as `verify:v2-215-0` (42 checks).
+
 ## [2.214.0] The currency wire's first consumer
 
 The closing round for the v2.212 honest-scope note. Since v2.210.0 the rates wire could store non-KES pairs "until a consumer exists" — the debt ledger's indicative strip is that consumer.
