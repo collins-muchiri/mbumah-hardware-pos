@@ -342,12 +342,18 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
     return order.map((sid) => {
       const rows = map.get(sid) ?? [];
       const supplierName = suppliers.find((s) => s.id === sid)?.name ?? 'unknown supplier';
+      // v2.225.0 THE PROVENANCE ROLLUP — the group is a DERIVED bucket;
+      // its rows may cite different POs (the hand's moves, the ledger's
+      // own drift). Counting the DISTINCT hint documents among the rows
+      // lets the divider speak the cut's provenance honestly — "N POs
+      // spoke here" — instead of pretending one document owns the cut.
+      const hintPos = Array.from(new Set(rows.map((r) => r.lastSupplierPoNumber).filter((p): p is string => Boolean(p))));
       const shippingSubTotal = rows.reduce((acc, item) => {
         const line = lines[item.id] ?? seededLine(item);
         return line.qty > 0 ? acc + line.qty * line.unitCost : acc;
       }, 0);
       const shippingLines = rows.filter((item) => (lines[item.id] ?? seededLine(item)).qty > 0).length;
-      return { supplierId: sid, supplierName, rows, shippingSubTotal, shippingLines, movedRows: rows.filter((item) => {
+      return { supplierId: sid, supplierName, rows, shippingSubTotal, shippingLines, hintPos, movedRows: rows.filter((item) => {
         const move = moves[item.id];
         return Boolean(move && suppliers.some((s) => s.id === move));
       }).length };
@@ -910,6 +916,22 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
                                   many, so the cut reads its own story. */
                               <span data-testid={`restock-group-moved-${group.supplierId}`} className="shrink-0 rounded bg-violet-50 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-violet-700 ring-1 ring-violet-200 dark:bg-violet-500/10 dark:text-violet-300 dark:ring-violet-500/30">
                                 {group.movedRows} moved by hand
+                              </span>
+                            )}
+                            {group.hintPos.length > 1 && (
+                              /* v2.225.0: THE PROVENANCE ROLLUP — the
+                                  honest form of a derived bucket's
+                                  provenance: the rows may cite different
+                                  POs, and the divider says how many
+                                  documents spoke. Mono face — document
+                                  numbers, not words (the hint chip's
+                                  v2.224.0 voice, grown to the group). */
+                              <span
+                                data-testid={`restock-group-provenance-${group.supplierId}`}
+                                title={`the group is a derived bucket — its rows may cite different purchase orders; the ledger's hints named ${group.hintPos.length}: ${group.hintPos.join(', ')}.`}
+                                className="shrink-0 rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[9px] font-semibold tabular-nums text-slate-600 ring-1 ring-slate-200 dark:bg-slate-500/10 dark:text-slate-300 dark:ring-slate-500/30"
+                              >
+                                {group.hintPos.length} POs spoke here
                               </span>
                             )}
                           </span>

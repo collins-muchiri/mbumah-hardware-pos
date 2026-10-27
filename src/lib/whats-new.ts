@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.225.0',
+    title: 'The pipeline from above',
+    bullets: [
+      'The org console now reads the whole procurement pipeline: a new ledger beside the variance map shows every branch’s purchase orders, newest first, with a real count on every status rung — the hint chips named the documents, now the documents themselves are on the shelf.',
+      'Every order row is a door: drill into any PO’s lines with per-line received progress, the raised→approved→received timeline with names, and the read-only law kept — the branch workspace keeps the only pens.',
+      'The order’s copy goes portable: a CSV of the whole document’s lines (the finder narrows the reading, never the export), with cost cells staying empty where your role can’t see shillings.',
+      'Split drafts speak their provenance: when a supplier group’s rows cite more than one purchase order, the divider says so — “N POs spoke here” — instead of pretending one document owns the cut.',
+    ],
+  },
+  {
     version: '2.224.0',
     title: 'The spoken hint',
     bullets: [
