@@ -111,7 +111,11 @@ describe('the stock-take wire is store-scoped and honest (v2.219.0)', () => {
   });
 
   it('the default population is EVERY active product (the full sheet)', () => {
-    expect(listRoute.includes('where: { storeId, isActive: true, ...(productIds ? { id: { in: productIds } } : {}) },')).toBe(true);
+    // v2.220.0: the where-clause grew the category scope in place — the
+    // full-sheet default (storeId + isActive, no explicit list) is the
+    // SAME fall-through, now the ternary's final arm.
+    expect(listRoute.includes('where: {\n      storeId,\n      isActive: true,')).toBe(true);
+    expect(listRoute.includes('? { id: { in: productIds } }')).toBe(true);
   });
 });
 
@@ -241,18 +245,18 @@ describe('the branch inventory tab wears the count sheet (v2.219.0)', () => {
 
 describe('the round of record (v2.219.0)', () => {
   it('package.json leads 2.219.0 (all three slots)', () => {
-    expect(pkg.version).toBe('2.219.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.219.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.219.0');
+    expect(pkg.version).toBe('2.220.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.220.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.220.0');
   });
 
   it('VERSION speaks the same truth', () => {
-    expect(read('VERSION').trim()).toBe('2.219.0');
+    expect(read('VERSION').trim()).toBe('2.220.0');
   });
 
   it('the changelog of record speaks the round', () => {
     expect(changelog.includes('## [2.219.0] The stocktake')).toBe(true);
-    expect(changelog.indexOf('2.219.0')).toBeLessThan(changelog.indexOf('2.218.0'));
+    expect(changelog.indexOf('## [2.219.0]')).toBeLessThan(changelog.indexOf('## [2.218.0]'));
   });
 
   it('the changelog feed grows the entry at the head', () => {

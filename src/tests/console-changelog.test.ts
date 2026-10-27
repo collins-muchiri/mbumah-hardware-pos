@@ -378,10 +378,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // (→ 107/108/109/140), 2.217.0 joining it (→ 108/109/110/141).
     // v2.218.0: the full-restock entry joins the feed (+1 on every anchor → 109/110/111/142)
     // v2.219.0: the stocktake entry joins the feed (+1 on every anchor → 110/111/112/143)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(110);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(111);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(112);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(143);
+    // v2.220.0: the variance-map entry joins the feed (+1 on every anchor → 111/112/113/144)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(111);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(112);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(113);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(144);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 
