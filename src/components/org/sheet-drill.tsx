@@ -8,6 +8,15 @@
 // CLOSED its variance chips and the stored close-day cost, CANCELLED
 // its void.
 //
+// v2.223.0 THE LINE FINDER — a big sheet's lines can outrun the fold;
+// the drill grows a client-side needle (name or SKU, case-insensitive)
+// over the lines it ALREADY holds — zero new fetch, the wire untouched.
+// The count line says N of M (an honest arithmetic, never a hidden
+// filter), the empty face names the needle and the truth ("the sheet
+// holds M lines"), and a clear (×) returns the full list. The needle
+// is STATE of the drill, not of the sheet: the map keys the drill per
+// sheet, so a fresh door opens with an empty needle by construction.
+//
 // THE LAWS IT INHERITS:
 // • the cost law: the wire's varianceValue and per-line varianceCost
 //   arrive null past the cost gate — the face renders the honest
@@ -22,7 +31,8 @@
 //   the 3:1 contrast law on every chip.
 
 import { useQuery } from '@tanstack/react-query';
-import { ClipboardCheck, X } from 'lucide-react';
+import { useState } from 'react';
+import { ClipboardCheck, Search, X } from 'lucide-react';
 import { num, timeAgo } from './primitives';
 
 const fmtKes = (v: number) =>
@@ -74,6 +84,9 @@ interface DrillWire {
 }
 
 export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onClose: () => void }) {
+  // v2.223.0: the needle — the finder's state, reset by the map's per-
+  // sheet key (a fresh door is an empty needle), never an effect.
+  const [needle, setNeedle] = useState('');
   const wire = useQuery<DrillWire>({
     queryKey: ['org-sheet-drill', target?.id],
     enabled: !!target?.id,
@@ -92,6 +105,17 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
 
   if (!target) return null;
   const data = wire.data?.data;
+  // v2.223.0: the finder's arithmetic — the needle filters the lines
+  // the drill ALREADY holds (name or SKU, case-insensitive); the counts
+  // stay honest (N of M), the tiles stay whole-sheet (the summary is
+  // the SHEET's truth — the finder narrows the reading, never the
+  // arithmetic).
+  const cleanNeedle = needle.trim().toLowerCase();
+  const shownLines = data
+    ? (cleanNeedle
+        ? data.lines.filter((l) => l.name.toLowerCase().includes(cleanNeedle) || l.sku.toLowerCase().includes(cleanNeedle))
+        : data.lines)
+    : [];
 
   return (
     <div
@@ -188,11 +212,47 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
             )}
 
             {/* The lines — read-only. Uncounted first (the wire's order),
-                then alphabetical; the variance chip carries the meaning. */}
+                then alphabetical; the variance chip carries the meaning.
+                v2.223.0: the LINE FINDER rides above the list — a
+                client-side needle over the lines the drill already
+                holds (zero new fetch), an honest N-of-M count, and an
+                empty face that names the needle and the sheet's truth. */}
             <div className="mt-3">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">the lines</p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">the lines</p>
+                <div className="flex items-center gap-1.5">
+                  <span className="relative">
+                    <Search className="pointer-events-none absolute left-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400 dark:text-slate-500" aria-hidden="true" />
+                    <input
+                      type="text"
+                      data-testid="sheet-drill-finder"
+                      aria-label="Find a line by name or SKU"
+                      placeholder="find a line — name or SKU"
+                      value={needle}
+                      onChange={(e) => setNeedle(e.target.value)}
+                      className="h-6 w-40 rounded-md border border-slate-200 bg-white pl-6 pr-5 text-[10px] text-slate-700 placeholder:text-slate-400 focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:placeholder:text-slate-500"
+                    />
+                    {needle !== '' && (
+                      <button
+                        type="button"
+                        data-testid="sheet-drill-finder-clear"
+                        aria-label="Clear the line finder"
+                        onClick={() => setNeedle('')}
+                        className="absolute right-1 top-1/2 -translate-y-1/2 rounded p-0.5 text-slate-400 transition-colors hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
+                      >
+                        <X className="h-2.5 w-2.5" />
+                      </button>
+                    )}
+                  </span>
+                  {data && (
+                    <span data-testid="sheet-drill-finder-count" className="whitespace-nowrap text-[10px] tabular-nums text-slate-500 dark:text-slate-400">
+                      {num(shownLines.length)} of {num(data.lines.length)}
+                    </span>
+                  )}
+                </div>
+              </div>
               <ul data-testid="sheet-drill-lines-list" className="mt-1.5 max-h-[40vh] space-y-1 overflow-y-auto pr-1">
-                {data.lines.map((l) => {
+                {shownLines.map((l) => {
                   const chip = l.variance != null ? varianceChip(l.variance) : null;
                   return (
                     <li key={l.id} data-testid="sheet-drill-line" className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-100 bg-white/70 px-2.5 py-1.5 dark:border-slate-700 dark:bg-slate-800/60">
@@ -219,7 +279,12 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
                   );
                 })}
               </ul>
-              {data.lines.length === 0 && (
+              {data && cleanNeedle !== '' && shownLines.length === 0 && (
+                <p data-testid="sheet-drill-finder-empty" className="mt-1.5 rounded-lg border border-dashed border-slate-200 bg-white/60 px-3 py-2 text-[11px] text-slate-500 dark:border-slate-600 dark:bg-slate-900/60 dark:text-slate-400">
+                  no line answers “{needle.trim()}” — the sheet holds {num(data.lines.length)} {data.lines.length === 1 ? 'line' : 'lines'}.
+                </p>
+              )}
+              {data && data.lines.length === 0 && (
                 <p data-testid="sheet-drill-lines-empty" className="mt-1.5 rounded-lg border border-dashed border-slate-200 bg-white/60 px-3 py-2 text-[11px] text-slate-500 dark:border-slate-600 dark:bg-slate-900/60 dark:text-slate-400">
                   the sheet froze no lines — nothing to count.
                 </p>

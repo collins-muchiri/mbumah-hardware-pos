@@ -267,8 +267,11 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
       )}
 
       {/* v2.222.0 THE SHEET DRILL — the door's room: ONE deliberate fetch
-          of the sheet's lines, read-only, every status. */}
-      {drill && <SheetDrill target={drill} onClose={() => setDrill(null)} />}
+          of the sheet's lines, read-only, every status. v2.223.0: keyed
+          per SHEET — a fresh door is a fresh MOUNT, so the line finder's
+          needle starts empty by construction (state of the drill, not
+          of the map; no effect ever resets it). */}
+      {drill && <SheetDrill key={drill.id} target={drill} onClose={() => setDrill(null)} />}
     </div>
   );
 }

@@ -53,13 +53,13 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.221.0)', () => {
   it('package.json leads 2.221.0 (all three slots)', () => {
-    expect(version).toBe('2.222.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.222.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.222.0');
+    expect(version).toBe('2.223.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.223.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.223.0');
   });
 
   it('VERSION speaks the same truth', () => {
-    expect(read('VERSION').trim()).toBe('2.222.0');
+    expect(read('VERSION').trim()).toBe('2.223.0');
   });
 
   it('the changelog of record speaks the round', () => {
@@ -82,14 +82,23 @@ describe('the round of record (v2.221.0)', () => {
 describe('the supplier groups are derived, never an effect (v2.221.0)', () => {
   it('the group derivation exists and rides the active rows', () => {
     expect(dialog.includes('const supplierGroups = useMemo(() => {')).toBe(true);
-    expect(dialog.includes('const splitAvailable = supplierGroups.length > 1;')).toBe(true);
+    // v2.223.0 THE GROWN LAW: the toggle also shows when the branch's
+    // ACTIVE roster names 2+ suppliers — the hand move is the way back
+    // from a hint-flattened cut, and the one-group split speaks its
+    // single-group truth instead of hiding.
+    expect(dialog.includes('const splitAvailable = supplierGroups.length > 1 || suppliers.length > 1;')).toBe(true);
     expect(dialog.includes('const splitOn = splitMode && splitAvailable;')).toBe(true);
   });
 
-  it('a row goes to its OWN ledger hint while it sits on the active roster', () => {
-    expect(dialog.includes('item.lastSupplierId && suppliers.some((s) => s.id === item.lastSupplierId)')).toBe(true);
-    expect(dialog.includes('? item.lastSupplierId')).toBe(true);
-    expect(dialog.includes(': effectiveSupplierId;')).toBe(true);
+  it('a row goes to its OWN ledger hint while it sits on the active roster (v2.223.0: via the assignment law)', () => {
+    // v2.223.0: the derivation moved into ONE pure function —
+    // assignedSupplier(item, moves, suppliers, fallbackId) — so the
+    // grouping memo and every row render speak one arithmetic. The
+    // hint-first order is the same law, one home.
+    expect(dialog.includes('function assignedSupplier(item: RestockItem, moves: HandMoves, suppliers: SupplierRow[], fallbackId: string): string {')).toBe(true);
+    expect(dialog.includes('if (item.lastSupplierId && suppliers.some((s) => s.id === item.lastSupplierId)) return item.lastSupplierId;')).toBe(true);
+    expect(dialog.includes('return fallbackId;')).toBe(true);
+    expect(dialog.includes('const sid = assignedSupplier(item, moves, suppliers, effectiveSupplierId);')).toBe(true);
   });
 
   it('the split state is a deliberate act, default OFF', () => {

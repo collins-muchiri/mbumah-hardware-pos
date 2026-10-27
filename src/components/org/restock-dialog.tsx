@@ -12,6 +12,25 @@
 // endpoint), and a refused group never blocks the rest — the success
 // face lists every raised PO and names every refusal with the
 // server's error.
+// v2.223.0 THE HAND MOVE — the cut answers to the hand as well as the
+// ledger. The v2.221 split reads the hints; but the hints have a known
+// failure shape (seen LIVE in the v2.221 E2E): one big recent PO
+// flattens every row's hint to ONE supplier, the groups collapse to
+// one, the toggle's availability died with them — and the yard that
+// orders per counter had no way back until new POs re-diversified the
+// ledger. The fix is power with receipts:
+//   • every row (in split mode) carries a "ships via" select — moving a
+//     row writes a HAND MOVE for THIS draft only (the ledger's hints
+//     stay the default and the record; the move never persists);
+//   • a moved row wears its chip and a "back on its hint" reset; a
+//     group holding moved rows says how many; a global clear returns
+//     the whole draft to the hints' story;
+//   • the split's availability law GROWS: the toggle now shows whenever
+//     the branch's ACTIVE roster names 2+ suppliers (a one-group split
+//     speaks its single-group truth and offers the hand door) — the
+//     flattened cut is no longer a dead end;
+//   • the walk's PO notes name the hand's work ("N lines moved by
+//     hand."), so the raised documents carry the story too.
 // v2.218.0 THE FULL RESTOCK — the bridge's scope grows: the named
 // watchlist answers name only the LOUDEST twelve items org-wide, so a
 // branch whose shortage outruns the cap could only draft from the rows
@@ -89,6 +108,21 @@ export type RestockLens = { code: string; name: string; rate: number; source: st
 
 type SupplierRow = { id: string; name: string };
 
+// v2.223.0 THE ASSIGNMENT LAW — one definition, every reader: a row
+// ships where (1) the HAND moved it (while that supplier sits on the
+// branch's active roster — a stale move falls through, never lies),
+// else (2) its OWN ledger hint (while active — the v2.221 law), else
+// (3) the draft's effective supplier (the hint-less rows follow the
+// explicit choice). Pure, so the grouping memo and every row render
+// speak ONE arithmetic.
+type HandMoves = Record<string, string>;
+function assignedSupplier(item: RestockItem, moves: HandMoves, suppliers: SupplierRow[], fallbackId: string): string {
+  const move = moves[item.id];
+  if (move && suppliers.some((s) => s.id === move)) return move;
+  if (item.lastSupplierId && suppliers.some((s) => s.id === item.lastSupplierId)) return item.lastSupplierId;
+  return fallbackId;
+}
+
 // v2.221.0: the raise's outcome — every PO the server accepted (with
 // its OWN server-truth numbers) and every group it refused (with the
 // server's error, named by supplier). A single-PO draft populates
@@ -164,6 +198,12 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
   // always a deliberate act.
   const [mode, setMode] = useState<'named' | 'full'>('named');
   const [splitMode, setSplitMode] = useState(false);
+  // v2.223.0: the HAND MOVES — productId → supplierId, for THIS draft
+  // only (the derivation law's newest citizen: the record holds ONLY
+  // the hand's differences from the hints' story; clearing it IS the
+  // reset). A scope flip and "Draft another" clear the moves too — a
+  // different list is a different draft, the hand starts again.
+  const [moves, setMoves] = useState<HandMoves>({});
   // v2.222.0: the NEAR-REORDER BAND — the full scope's honest widening.
   // The wire's includeNear widens the threshold to level × 1.5 so items
   // APPROACHING the level join the draft; it defaults OFF (a restock
@@ -277,9 +317,10 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
     const order: string[] = [];
     const map = new Map<string, RestockItem[]>();
     for (const item of activeItems) {
-      const sid = item.lastSupplierId && suppliers.some((s) => s.id === item.lastSupplierId)
-        ? item.lastSupplierId
-        : effectiveSupplierId;
+      // v2.223.0: the ASSIGNMENT LAW — the hand's move leads (while the
+      // supplier is active), the row's own hint follows, the effective
+      // supplier catches the hint-less. One pure function, no fork.
+      const sid = assignedSupplier(item, moves, suppliers, effectiveSupplierId);
       const bucket = map.get(sid);
       if (bucket) {
         bucket.push(item);
@@ -296,18 +337,58 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
         return line.qty > 0 ? acc + line.qty * line.unitCost : acc;
       }, 0);
       const shippingLines = rows.filter((item) => (lines[item.id] ?? seededLine(item)).qty > 0).length;
-      return { supplierId: sid, supplierName, rows, shippingSubTotal, shippingLines };
+      return { supplierId: sid, supplierName, rows, shippingSubTotal, shippingLines, movedRows: rows.filter((item) => {
+        const move = moves[item.id];
+        return Boolean(move && suppliers.some((s) => s.id === move));
+      }).length };
     });
-  }, [activeItems, lines, suppliers, effectiveSupplierId]);
+  }, [activeItems, lines, suppliers, effectiveSupplierId, moves]);
 
-  // The split's honest availability: MORE than one group must EXIST
-  // (a single-hint draft has nothing to split — the toggle hides
-  // rather than disabling, an absent control never lies). splitOn is
-  // the DERIVED state the whole dialog reads, so a scope flip or an
-  // edit that empties a group re-coheres without an effect.
-  const splitAvailable = supplierGroups.length > 1;
+  // The split's honest availability — v2.223.0's GROWN LAW: more than
+  // one group still qualifies (the hints' own diversity), and now so
+  // does a branch whose ACTIVE roster names 2+ suppliers even when the
+  // hints flattened to one — the hand move is the way back, and the
+  // one-group split speaks its single-group truth (with the move
+  // affordance on every row) rather than hiding. An absent control
+  // still never lies: a single-supplier branch hides the toggle,
+  // because there is genuinely nowhere to move a line TO.
+  const splitAvailable = supplierGroups.length > 1 || suppliers.length > 1;
   const splitOn = splitMode && splitAvailable;
   const shippingGroupCount = supplierGroups.filter((g) => g.shippingLines > 0).length;
+  // v2.223.0: the hand's census — how many rows are off their hints
+  // right now (drives the moves note, the clear-all, the parked note).
+  const movedCount = useMemo(
+    () => activeItems.filter((item) => {
+      const move = moves[item.id];
+      return Boolean(move && suppliers.some((s) => s.id === move));
+    }).length,
+    [activeItems, moves, suppliers],
+  );
+
+  // v2.223.0: writing a move — the hand's word over the row's
+  // assignment. Setting a row back onto its DERIVED place (its own
+  // active hint, else the effective supplier) CLEARS the move — the
+  // record holds only differences, so the reset is a deletion, and
+  // the hint's story is restored by re-derivation, never re-written.
+  const onMoveChange = (item: RestockItem, v: string) => {
+    const derived = assignedSupplier(item, {}, suppliers, effectiveSupplierId);
+    setMoves((prev) => {
+      if (v === derived) {
+        if (!(item.id in prev)) return prev;
+        const { [item.id]: _drop, ...rest } = prev;
+        return rest;
+      }
+      if (prev[item.id] === v) return prev;
+      return { ...prev, [item.id]: v };
+    });
+  };
+  const clearMove = (id: string) =>
+    setMoves((prev) => {
+      if (!(id in prev)) return prev;
+      const { [id]: _drop, ...rest } = prev;
+      return rest;
+    });
+  const clearAllMoves = () => setMoves({});
 
   // The estimate: Σ(qty × unitCost) over the ACTIVE rows that would
   // ship — VAT-EXCLUSIVE, labeled as such; the server adds the org's
@@ -359,6 +440,7 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
     if (next === mode) return;
     setMode(next);
     setLines({});
+    setMoves({});
     setError(null);
   };
 
@@ -378,14 +460,23 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
         ? supplierGroups.filter((g) => g.shippingLines > 0)
         : [{ supplierId: effectiveSupplierId, supplierName: suppliers.find((s) => s.id === effectiveSupplierId)?.name ?? '', rows: activeItems, shippingSubTotal: subTotal, shippingLines: shippingCount }];
       const scopePhrase = mode === 'full' ? 'full branch restock list' : 'named watchlist';
+      // v2.223.0: the hand's receipt — a split walk with moved rows
+      // names the work on EVERY raised PO (the document carries the
+      // story of the cut that shaped it, not just the ledger's).
       const raised: RaisedPO[] = [];
       const refused: RefusedGroup[] = [];
       for (let i = 0; i < groups.length; i += 1) {
         const group = groups[i];
         const payloadItems = payloadLinesFor(group.rows, lines);
         if (payloadItems.length === 0) continue;
+        const movedInGroup = splitOn
+          ? group.rows.filter((item) => {
+              const move = moves[item.id];
+              return Boolean(move && suppliers.some((s) => s.id === move));
+            }).length
+          : 0;
         const notes = splitOn
-          ? `Raised from the org console reorder watchlist (${scopePhrase}) — supplier split ${i + 1} of ${groups.length} (${group.supplierName}).`
+          ? `Raised from the org console reorder watchlist (${scopePhrase}) — supplier split ${i + 1} of ${groups.length} (${group.supplierName}).${movedInGroup > 0 ? ` ${movedInGroup} ${movedInGroup === 1 ? 'line' : 'lines'} moved by hand.` : ''}`
           : `Raised from the org console reorder watchlist (${scopePhrase}).`;
         const res = await fetch('/api/purchase-orders', {
           method: 'POST',
@@ -487,6 +578,53 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
               </span>
             )}
             {coverageBar(item)}
+            {splitOn && (
+              /* v2.223.0: THE HAND MOVE — the row's "ships via" select.
+                  Shows ONLY in split mode (a one-PO draft has one
+                  destination; a per-row picker there would promise a
+                  power the raise would not honor). The select speaks
+                  the row's ASSIGNMENT (hand move first, then the hint,
+                  then the effective supplier); changing it writes or
+                  clears the move; a moved row wears its chip and its
+                  way back. */
+              <span className="mt-1.5 flex items-center gap-1.5 border-t border-dashed border-slate-200 pt-1.5 dark:border-slate-700">
+                <span className="shrink-0 text-[9px] uppercase tracking-wide text-slate-500 dark:text-slate-400">ships via</span>
+                <Select value={assignedSupplier(item, moves, suppliers, effectiveSupplierId)} onValueChange={(v) => onMoveChange(item, v)}>
+                  <SelectTrigger
+                    data-testid={`restock-move-select-${item.sku}`}
+                    aria-label={`Supplier for ${item.name}`}
+                    className="h-5 w-auto max-w-[180px] gap-1 rounded-md border-slate-200 bg-white px-1.5 text-[10px] text-slate-700 focus:ring-1 focus:ring-amber-500/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {suppliers.map((s) => (
+                      <SelectItem key={s.id} value={s.id} className="text-[10px]">{s.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {(() => {
+                  const move = moves[item.id];
+                  if (!move || !suppliers.some((s) => s.id === move)) return null;
+                  return (
+                    <span className="flex shrink-0 items-center gap-1">
+                      <span data-testid={`restock-moved-chip-${item.sku}`} className="inline-flex items-center rounded bg-violet-50 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-violet-700 ring-1 ring-violet-200 dark:bg-violet-500/10 dark:text-violet-300 dark:ring-violet-500/30">
+                        moved by hand
+                      </span>
+                      <button
+                        type="button"
+                        data-testid={`restock-move-reset-${item.sku}`}
+                        aria-label={`Put ${item.name} back on its ledger hint`}
+                        onClick={() => clearMove(item.id)}
+                        className="rounded px-1 py-0.5 text-[9px] font-medium text-slate-500 underline decoration-dotted underline-offset-2 transition-colors hover:text-slate-700 hover:decoration-solid dark:text-slate-400 dark:hover:text-slate-200"
+                      >
+                        back on its hint
+                      </button>
+                    </span>
+                  );
+                })()}
+              </span>
+            )}
           </span>
           <span className="shrink-0 text-right">
             <span data-testid={`restock-line-total-${item.sku}`} className="block text-xs font-semibold tabular-nums text-amber-700 dark:text-amber-400">
@@ -616,11 +754,14 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
               onClick={() => {
                 // "Draft another" clears the edits — the ACTIVE scope's
                 // seeds re-derive themselves (a fresh draft, never the
-                // shipped one's leftovers). The split keeps its position:
-                // the next draft starts where the yard's habit points.
+                // shipped one's leftovers). The hand moves clear too —
+                // a fresh draft is the ledger's story again. The split
+                // keeps its position: the next draft starts where the
+                // yard's habit points.
                 setResult(null);
                 setError(null);
                 setLines({});
+                setMoves({});
               }}
               className="mt-3 rounded-md border border-emerald-300 bg-white px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 dark:border-emerald-500/40 dark:bg-transparent dark:text-emerald-300 dark:hover:bg-emerald-500/10"
             >
@@ -738,6 +879,14 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
                           <span className="flex min-w-0 items-center gap-1.5">
                             <span className="truncate text-[10px] font-bold uppercase tracking-wide text-amber-800 dark:text-amber-300">{group.supplierName}</span>
                             <span className="shrink-0 text-[9px] tabular-nums text-amber-700/80 dark:text-amber-300/80">{group.rows.length} {group.rows.length === 1 ? 'line' : 'lines'}</span>
+                            {group.movedRows > 0 && (
+                              /* v2.223.0: the group owns its hand's work —
+                                  a divider holding moved rows says how
+                                  many, so the cut reads its own story. */
+                              <span data-testid={`restock-group-moved-${group.supplierId}`} className="shrink-0 rounded bg-violet-50 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-violet-700 ring-1 ring-violet-200 dark:bg-violet-500/10 dark:text-violet-300 dark:ring-violet-500/30">
+                                {group.movedRows} moved by hand
+                              </span>
+                            )}
                           </span>
                           <span className="shrink-0 text-[10px] tabular-nums font-semibold text-amber-800 dark:text-amber-300">
                             {group.shippingLines > 0 ? `${formatCurrency(group.shippingSubTotal, 'KES')}` : 'nothing shipping'}
@@ -787,24 +936,55 @@ export function RestockDialog({ open, onOpenChange, store, items, lens }: {
                 )}
                 {splitAvailable && (
                   <div className="mt-1.5">
-                    <button
-                      type="button"
-                      data-testid="restock-split-toggle"
-                      aria-pressed={splitOn}
-                      onClick={() => setSplitMode((v) => !v)}
-                      className={`rounded px-2 py-1 text-[10px] font-semibold ring-1 transition-colors ${
-                        splitOn
-                          ? 'bg-amber-700 text-white ring-amber-700 dark:bg-amber-600 dark:ring-amber-600'
-                          : 'bg-white text-slate-600 ring-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-600'
-                      }`}
-                    >
-                      {splitOn ? `Per supplier (${shippingGroupCount} PO${shippingGroupCount === 1 ? '' : 's'})` : 'Per supplier'}
-                    </button>
+                    <span className="flex flex-wrap items-center gap-1.5">
+                      <button
+                        type="button"
+                        data-testid="restock-split-toggle"
+                        aria-pressed={splitOn}
+                        onClick={() => setSplitMode((v) => !v)}
+                        className={`rounded px-2 py-1 text-[10px] font-semibold ring-1 transition-colors ${
+                          splitOn
+                            ? 'bg-amber-700 text-white ring-amber-700 dark:bg-amber-600 dark:ring-amber-600'
+                            : 'bg-white text-slate-600 ring-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-600'
+                        }`}
+                      >
+                        {splitOn ? `Per supplier (${shippingGroupCount} PO${shippingGroupCount === 1 ? '' : 's'})` : 'Per supplier'}
+                      </button>
+                      {splitOn && movedCount > 0 && (
+                        /* v2.223.0: the global way back — one click returns
+                            every row to the hints' story (the moves record
+                            empties, the groups re-derive, nothing else
+                            changes: the quantities are the quantity law's,
+                            untouched by the hand's geography). */
+                        <button
+                          type="button"
+                          data-testid="restock-moves-clear"
+                          onClick={clearAllMoves}
+                          className="rounded px-2 py-1 text-[10px] font-semibold text-violet-700 ring-1 ring-violet-200 transition-colors hover:bg-violet-50 dark:text-violet-300 dark:ring-violet-500/30 dark:hover:bg-violet-500/10"
+                        >
+                          clear all moves ({movedCount})
+                        </button>
+                      )}
+                    </span>
                     <p data-testid="restock-split-note" className="mt-1 text-[10px] text-slate-500 dark:text-slate-400">
                       {splitOn
-                        ? `the ledger’s hints name ${supplierGroups.length} suppliers — one draft each; your chosen supplier covers the hint-less lines.`
-                        : `this draft’s hints span ${supplierGroups.length} suppliers — the split raises one PO each, every line where its own ledger points.`}
+                        ? supplierGroups.length > 1
+                          ? `the ledger’s hints name ${supplierGroups.length} suppliers — one draft each; your chosen supplier covers the hint-less lines.`
+                          : 'the hints name one supplier — the rows carry the move affordance; move lines by hand to cut the draft.'
+                        : supplierGroups.length > 1
+                          ? `this draft’s hints span ${supplierGroups.length} suppliers — the split raises one PO each, every line where its own ledger points.`
+                          : 'one supplier on the hints — turn the split on and move lines by hand to cut it.'}
                     </p>
+                    {splitOn && movedCount > 0 && (
+                      <p data-testid="restock-moves-note" className="mt-0.5 text-[10px] text-violet-700 dark:text-violet-300">
+                        {movedCount} {movedCount === 1 ? 'line' : 'lines'} moved by hand — the cut is yours; a row’s “back on its hint” puts it where the ledger pointed.
+                      </p>
+                    )}
+                    {!splitOn && movedCount > 0 && (
+                      <p data-testid="restock-moves-parked" className="mt-0.5 text-[10px] text-slate-500 dark:text-slate-400">
+                        {movedCount} hand {movedCount === 1 ? 'move' : 'moves'} parked — they speak again when the split returns.
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
