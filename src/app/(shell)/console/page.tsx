@@ -23,6 +23,7 @@ import { StoreMatrix } from '@/components/org/store-matrix';
 import { ExpertModules } from '@/components/org/experts';
 import { KpiRow } from '@/components/org/kpi-row';
 import { VarianceMap } from '@/components/org/variance-map';
+import { ProcurementLedger } from '@/components/org/po-ledger';
 import { ChangelogModal, CommandPalette, ConsoleFooter, ConsoleHeader, LoginDialog, ShortcutsModal, type SessionUser } from '@/components/org/chrome';
 import { SectionErrorBoundary } from '@/components/error-boundary';
 import { KenyaMap, Sparkline, WeekDeltaChip, weekDeltaWords, kes, num, timeAgo, type DeskActivityData, type DeskActivityFilter, type KpiSummaryData, type OrgSummaryData, type StoreRow } from '@/components/org/primitives';
@@ -373,6 +374,21 @@ export default function OrgConsolePage() {
           <div id="variance-map">
             <SectionErrorBoundary sectionName="Variance map">
               {kpi ? <VarianceMap data={kpi} stores={stores} /> : null}
+            </SectionErrorBoundary>
+          </div>
+
+          {/* v2.225.0 THE PIPELINE FROM ABOVE — the procurement ledger,
+              mounted beside the variance map: the org's purchase orders
+              (every branch's, newest first) with their honest status
+              ladder, a branch picker, a finder, and a drill door per
+              document. The hint chips (v2.224.0) named the documents;
+              this face shows the documents themselves. Its OWN wire
+              (a deliberate surface — the org opened the pipeline on
+              purpose), read-only by law: the branch workspace keeps
+              the only pens. */}
+          <div id="po-ledger">
+            <SectionErrorBoundary sectionName="Procurement ledger">
+              <ProcurementLedger stores={stores} />
             </SectionErrorBoundary>
           </div>
 
