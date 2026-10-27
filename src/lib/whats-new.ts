@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.215.0',
+    title: 'The strip reaches its shelf',
+    bullets: [
+      'The organization console gains the display-currency switcher: the rates cache\u2019s supply now lives in the same shell as the ledgers that read it, so the debt ledger\u2019s indicative strip finally speaks in real flows \u2014 open the switcher once, then open a door.',
+      'The revenue ledger joins as the second consumer: its 7-day aggregate gains the same indicative annotation, following the active lens (gross or net) \u2014 while the count-voiced surfaces (transactions) deliberately stay count-voiced.',
+      'The EXPERTS surface\u2019s last red-600/amber-700 chip stragglers join the house\u2019s armored voices (red-700 / amber-800), and the QA daemon no longer races a healthy listener on respawn.',
+    ],
+  },
+  {
     version: '2.214.0',
     title: 'The currency wire\u2019s first consumer',
     bullets: [

@@ -276,13 +276,20 @@ describe('v2.210.0 — the expert-table chips finish the badge sweep', () => {
     expect(src).toContain('text-amber-600');
   });
 
-  it('the honest passers were left alone (4.76 / 5.05 / 5.37 / 4.77)', () => {
-    // red-600 badges, amber-700 WARN, emerald-700 healthy, slate-500 muted —
-    // already above the bar; the audit does not churn what passes.
-    expect(src).toContain("a.severity === 'ERROR' ? 'border-red-200 text-red-600'");
-    expect(src).toContain("'border-amber-200 text-amber-700'");
+  it('the v2.215.0 family re-voice superseded the leave-them law (4.76 was above the bar)', () => {
+    // v2.210's audit left the passers alone (red-600 on white 4.76:1 was
+    // ABOVE the bar with the installed palette — this test's old law: the
+    // audit does not churn what passes). v2.215.0 amends that: the
+    // EXPERTS surface was the last holdout of the pre-v2.159 hot voice,
+    // and the family alignment re-voices every badge to the armored
+    // family (red-700 / amber-800) so no future tinted ground can sink
+    // them. scripts/contrast-math-experts-chips-v2215.mjs records the
+    // numbers honestly — including the red-50 ghost (4.36:1) that
+    // explains why the family fled red-600.
+    expect(src).toContain("a.severity === 'ERROR' ? 'border-red-200 text-red-700'");
+    expect(src).toContain("'border-amber-200 text-amber-800'");
     expect(src).toContain("'border-emerald-200 text-emerald-700'");
-    expect(src).toContain("v >= 90 ? 'text-emerald-700' : v >= 70 ? 'text-amber-700' : 'text-red-600'");
+    expect(src).toContain("v >= 90 ? 'text-emerald-700' : v >= 70 ? 'text-amber-700' : 'text-red-700'");
   });
 
   it('the measurement script is the source of the numbers', () => {
@@ -302,9 +309,9 @@ describe('v2.210.0 — the suite rides at the head', () => {
   };
 
   it('the release is 2.210.0 in all three version fields', () => {
-    expect(pkg.version).toBe('2.214.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.214.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.214.0');
+    expect(pkg.version).toBe('2.215.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.215.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.215.0');
   });
 
   it('the What\u2019s New feed heads this release', () => {

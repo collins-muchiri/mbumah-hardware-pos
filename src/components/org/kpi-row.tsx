@@ -126,7 +126,17 @@ export function KpiRow({ data, perStoreTrend, stores = [] }: {
   // of them answers, the strip re-renders; if nobody answered this
   // session, the strip stays silent — an indicative figure is never born
   // from a network call the ledger made itself.
-  const { activeCurrency } = useCurrency();
+  // v2.215.0 THE SPEAKING FIX: the hook's return field is `currency`
+  // (`return { currency: activeCurrency, … }` in use-currency.ts) — this
+  // file destructured a bare `activeCurrency`, which is NOT a field of
+  // UseCurrencyReturn, so the strip's pivot guard compared UNDEFINED
+  // against 'KES' and the pair lookup searched for code === undefined:
+  // the strip was architecturally silent — cache full, USD active, and
+  // still no figure. Found LIVE in the v2.215 QA drive (the trigger's
+  // hover truth spoke while the modal stayed mute); the v2.214 E2E
+  // "silence verified" had passed for the wrong reason. The rename at
+  // the destructuring site keeps every downstream line untouched.
+  const { currency: activeCurrency } = useCurrency();
   const indicativeQuery = useQuery<RatesWireBody>({
     queryKey: ADMIN_CURRENCY_RATES_QUERY_KEY,
     queryFn: async () => {
@@ -149,6 +159,31 @@ export function KpiRow({ data, perStoreTrend, stores = [] }: {
       rate: entry.kesToRate,
       source: RATE_SOURCE_PHRASE[entry.source] ?? 'wire rate',
       figure: formatCurrency(k.debt.total * entry.kesToRate, activeCurrency),
+      rateFigure: formatCurrency(entry.kesToRate, activeCurrency),
+    };
+  })();
+  // v2.215.0: the SECOND consumer — the revenue modal's indicative strip.
+  // The SAME observer, the SAME guards, the SAME voice family as the debt
+  // strip (one shelf, one law): the only difference is the figure the
+  // annotation converts — the ACTIVE LENS's own 7-day aggregate (gross
+  // weekTotal, or the net face's netWeekTotal with the same ?? guard the
+  // net grid uses). A count-voiced modal (transactions) never gains a
+  // currency strip — a count converted to shillings would be nonsense;
+  // the sibling choice was made on the wire's own units, not adjacency.
+  const revenueIndicative = (() => {
+    if (activeCurrency === 'KES') return null;
+    const entry = indicativeQuery.data?.data?.currencies.find((c) => c.code === activeCurrency);
+    if (!entry || typeof entry.kesToRate !== 'number' || !Number.isFinite(entry.kesToRate)) return null;
+    const meta = CURRENCY_BY_CODE[activeCurrency];
+    if (!meta) return null;
+    const weekKes = lens === 'gross'
+      ? k.revenue.weekTotal
+      : (k.revenue.netWeekTotal ?? k.revenue.weekTotal - (k.revenue.taxWeekTotal ?? 0));
+    return {
+      meta,
+      rate: entry.kesToRate,
+      source: RATE_SOURCE_PHRASE[entry.source] ?? 'wire rate',
+      figure: formatCurrency(weekKes * entry.kesToRate, activeCurrency),
       rateFigure: formatCurrency(entry.kesToRate, activeCurrency),
     };
   })();
@@ -895,6 +930,30 @@ export function KpiRow({ data, perStoreTrend, stores = [] }: {
                 </>
               )}
             </div>
+            {/* v2.215.0: the SECOND indicative strip — the revenue modal's
+                annotation of its own 7-day aggregate, the v2.214.0 debt
+                strip's sibling from the SAME observer (one cache, one law).
+                The figure follows the ACTIVE LENS (gross weekTotal / the
+                net face's netWeekTotal) and every guard is the debt
+                strip's: KES pivot → silent, missing/non-finite rate →
+                silent, unknown code → silent — a figure is NEVER born from
+                a fallback constant. Same visual family, same dark half
+                from birth, same honest tail. */}
+            {revenueIndicative && (
+              <p
+                data-testid="revenue-indicative-strip"
+                className="mt-1.5 rounded-md border border-slate-200 bg-white/70 px-2 py-1 text-[10px] leading-relaxed text-slate-500 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-400"
+                aria-label={`Indicative value in ${revenueIndicative.meta.name}: approximately ${revenueIndicative.figure}, at 1 KES = ${revenueIndicative.rateFigure}, ${revenueIndicative.source}. The ledger stays in KES — this strip does not change what the revenue is.`}
+              >
+                <span data-testid="revenue-indicative-figure" className="font-semibold tabular-nums text-slate-600 dark:text-slate-300">
+                  ≈ {revenueIndicative.figure}
+                </span>{' '}
+                <span data-testid="revenue-indicative-rate" className="tabular-nums">
+                  · 1 KES = {revenueIndicative.rateFigure} · {revenueIndicative.source}
+                </span>{' '}
+                <span data-testid="revenue-indicative-voice">— indicative; the ledger stays in KES.</span>
+              </p>
+            )}
             {/* v2.188.0: the net lens wears its own week-over-week verdict —
                 the v2.187.0 ribbon chip spoke only the VAT face; the net face
                 stayed mute about its own trend even though BOTH windows were

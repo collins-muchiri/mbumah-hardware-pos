@@ -57,6 +57,9 @@ export interface CurrencySwitcherProps {
   className?: string;
   /** Optional callback fired when the user picks a currency. */
   onChange?: (currency: CurrencyCode) => void;
+  /** Optional testid for the trigger button (the E2E hooks the shelf by it).
+   * v2.215.0: the console banner's mount passes console-currency-switcher. */
+  triggerTestId?: string;
 }
 
 /** Per-row provenance + the DB-backed KES rate, when the wire answered. */
@@ -200,6 +203,7 @@ export function CurrencySwitcher({
   compact = false,
   className,
   onChange,
+  triggerTestId,
 }: CurrencySwitcherProps) {
   const { currency, switchCurrency, meta } = useCurrency();
 
@@ -282,6 +286,7 @@ export function CurrencySwitcher({
           aria-label={`Display currency: ${meta.name}. Click to change.`}
           aria-haspopup="menu"
           title={triggerTitle}
+          {...(triggerTestId ? { 'data-testid': triggerTestId } : {})}
         >
           <DollarSign className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
           <span className="text-base leading-none" aria-hidden>
