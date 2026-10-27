@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.220.0',
+    title: 'The variance map',
+    bullets: [
+      'The organization console grows the stocktake\u2019s org face: the variance map sits under the KPI row and speaks every branch\u2019s count sheets \u2014 live counts with their progress bars, the recent roster with its over/short chips, and the org\u2019s rolling 30-day ledger impact.',
+      'A count can now die honestly: the sheet face carries a two-step cancel (with an optional reason kept on the sheet) \u2014 a cancelled sheet is a void, no adjustments, no movements; the books never hear it.',
+      'The sheet\u2019s population wears a scope: every active product (the honest default) or ONE category \u2014 picked from the real category list with its real product count, resolved server-side.',
+      'The indicative strip reaches its FIFTH consumer: the variance map\u2019s 30-day ledger impact rides the same observer the debt, revenue, desk and restock strips use \u2014 while variance units stay unit-voiced for every role, and the shillings still speak only past the cost gate.',
+    ],
+  },
+  {
     version: '2.219.0',
     title: 'The stocktake',
     bullets: [

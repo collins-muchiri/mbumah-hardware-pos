@@ -9,10 +9,16 @@
 // GET  ?storeId=…   → the store's sheets, newest first (lean list: line
 //                     counts + counted counts; the detail route carries
 //                     the lines).
-// POST {storeId, productIds?, notes?}
+// POST {storeId, productIds?, categoryId?, notes?}
 //                   → open a sheet. productIds defaults to EVERY active
 //                     product of the store (a full-sheet count — the
-//                     honest default for a cycle count). THE ONE-OPEN-
+//                     honest default for a cycle count). v2.220.0: the
+//                     sheet's population may instead name ONE CATEGORY
+//                     (`categoryId` — resolved SERVER-SIDE against this
+//                     store's active products of that category, so the
+//                     picker never ships product ids across the wire;
+//                     an explicit productIds list still wins when both
+//                     arrive). THE ONE-OPEN-
 //                     SHEET LAW: a store with a COUNTING sheet refuses
 //                     a second one (409, the open sheet's id in the
 //                     body) — two live sheets on one floor would count
@@ -77,6 +83,11 @@ async function createStockTakeHandler(request: NextRequest, session: AuthSession
   const productIds = Array.isArray(body?.productIds)
     ? body.productIds.filter((v: unknown): v is string => typeof v === 'string' && v.length > 0)
     : null;
+  // v2.220.0: the category scope — resolved against THIS store (a
+  // category id from another store matches nothing: the sheet refuses
+  // with the same honest empty-population refusal below, never a
+  // cross-store leak).
+  const categoryId = typeof body?.categoryId === 'string' && body.categoryId.length > 0 ? body.categoryId : null;
 
   // THE ONE-OPEN-SHEET LAW: a COUNTING sheet on this store refuses a
   // second (the floor can only count against one frozen snapshot).
@@ -96,14 +107,25 @@ async function createStockTakeHandler(request: NextRequest, session: AuthSession
   }
 
   // The sheet's population: the caller's explicit list (validated against
-  // THIS store's active products) or every active product (the full sheet).
+  // THIS store's active products), else one named category's active
+  // products (v2.220.0), else every active product (the full sheet).
   const population = await db.product.findMany({
-    where: { storeId, isActive: true, ...(productIds ? { id: { in: productIds } } : {}) },
+    where: {
+      storeId,
+      isActive: true,
+      ...(productIds
+        ? { id: { in: productIds } }
+        : categoryId
+          ? { categoryId }
+          : {}),
+    },
     select: { id: true },
   });
   if (population.length === 0) {
     return Response.json(
-      { success: false, error: 'no active products matched this sheet\u2019s population — nothing to count.' },
+      { success: false, error: categoryId
+        ? 'no active products in this category — the sheet refuses an empty count.'
+        : 'no active products matched this sheet\u2019s population — nothing to count.' },
       { status: 400 },
     );
   }
@@ -129,12 +151,12 @@ async function createStockTakeHandler(request: NextRequest, session: AuthSession
     return created;
   });
 
-  systemLog(LogSeverity.INFO, LogComponent.INVENTORY, `stock take opened: ${population.length} lines (sheet ${sheet.id})`, { storeId });
+  systemLog(LogSeverity.INFO, LogComponent.INVENTORY, `stock take opened: ${population.length} lines (sheet ${sheet.id})${categoryId ? ' · category scope' : ''}`, { storeId });
 
   return Response.json(
     {
       success: true,
-      data: { id: sheet.id, status: sheet.status, lineCount: population.length, startedAt: sheet.startedAt },
+      data: { id: sheet.id, status: sheet.status, lineCount: population.length, startedAt: sheet.startedAt, scope: productIds ? 'list' : categoryId ? 'category' : 'full' },
     },
     { status: 201 },
   );

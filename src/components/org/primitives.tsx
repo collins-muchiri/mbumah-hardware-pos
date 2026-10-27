@@ -153,6 +153,28 @@ export interface KpiSummaryData {
     txns: Array<{ id: string; checkoutRequestId: string | null; phoneMasked: string | null; amount: number; status: string; mpesaReceipt: string | null; resultDesc: string | null; createdAt: string }>;
   };
   etims: { pending: number; issued: number };
+  // v2.220.0 the variance map: the org's count sheets (additive + optional
+  // so an older cached answer renders the honest step-aside, never a
+  // crash). The cost law rides the wire: varianceUnits is org-wide truth,
+  // but every cost field arrives null unless the caller holds
+  // inventory.view.cost — the face renders the honest absence.
+  stockTakes?: {
+    openCount: number;
+    openSheets: Array<{
+      id: string; storeId: string; storeName: string; storeCode: string | null;
+      notes: string | null; startedAt: string; startedByName: string | null;
+      lineCount: number; countedCount: number;
+    }>;
+    recentSheets: Array<{
+      id: string; status: string; notes: string | null;
+      startedAt: string; closedAt: string | null;
+      startedByName: string | null; closedByName: string | null;
+      storeId: string; storeName: string; storeCode: string | null;
+      lineCount: number; countedCount: number;
+      varianceUnits: number | null; varianceCost: number | null;
+    }>;
+    window30d: { closedCount: number; varianceUnits: number; varianceCostTotal: number | null };
+  };
   system: { stores: number; activeUsers: number; chatMessages: number; notificationsUnread: number };
   alerts: ConsoleAlert[];
   actionQueue: { pendingExpenses: number; pendingPOs: number; openShifts: number };

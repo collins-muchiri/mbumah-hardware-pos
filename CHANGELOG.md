@@ -2,6 +2,23 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.220.0] The variance map
+
+Phase 2 of the stocktake arc: the count sheets reach the organization console. v2.219.0 gave the branch its sheet; this round gives the org its map — every branch's live counts with their progress, the recent roster with its variance chips, the rolling 30-day ledger impact as a money-voiced figure — and the sheet gains its honest way out.
+
+### Added
+- **The org block** (`stockTakes` in `/api/org/kpi-summary`, additive): live COUNTING sheets org-wide (with per-sheet counted progress), the 12 most recent sheets of any status (with per-sheet variance units and, past the cost gate, their stored close-day cost), and `window30d` — the rolling-30-day ledger impact read across EVERY closed sheet in the window (not just the named roster). The cost law rides the org wire too: variance UNITS speak to every org role, the SHILLINGS arrive only past `inventory.view.cost` (null otherwise — the face renders the honest absence).
+- **The variance map** (`src/components/org/variance-map.tsx`, mounted on the console under the KPI row): the org face of the cycle count — four window tiles (counting now / closed 30d / net variance units / ledger impact), the live counts with amber progress bars, the recent roster with exact/over/short chips and the closed-by memory, and the honest step-asides (an older cached answer speaks `variance-map-stale`; an org with no sheets speaks the empty face). Zero new fetches — the map composes the SAME payload the KPI row already carries.
+- **The cancel path** (`POST /api/stock-takes/[id]/cancel`): only a COUNTING sheet cancels (409 names the dead status); the COUNTING→CANCELLED claim is atomic inside the transaction (the double-click law the close speaks); NO stock moves, NO adjustments, NO movements — a cancelled sheet is a void; the optional reason (≤300 chars) is appended to the sheet's notes so the roster remembers WHY; the canceller becomes the closer-of-record.
+- **The population picker** (branch panel create flow + `categoryId` on the create route): the sheet's scope speaks before it freezes — "Every active product" (the honest default) or "One category", picked from the categories wire's `includeProductCount` face so the confirm button quotes the REAL row count, resolved server-side against the store's own active products (a cross-store category matches nothing: the same honest empty-population refusal).
+
+### Styled
+- The map wears the house org family: slate card with dark halves from birth, the muted family on every sub-line, amber live progress against emerald closed chips, red-700-short / emerald-700-over variance chips (the 3:1 law), tabular-nums on every figure, and the cancel zone's two-step arm (red-700 confirm, "keep counting" disarm) so the destructive turn owes an intent.
+- **The indicative strip reaches its FIFTH consumer** (`org-variance-indicative-strip`): the 30-day ledger impact rides the same zero-fetch observer the debt (v2.214.0), revenue (v2.215.0), desk (v2.216.0) and restock (v2.217.0) strips use — same silence law (KES pivot → silent; missing rate → silent; zero ledger impact → silent — a zero converts to a zero), same three-part voice, the tail naming what the figure is.
+
+### Measured
+- `src/tests/stocktake-v2220.test.ts` (source pins: the org block's cost gate, the cancel route's laws, the map's strip + step-asides, the picker's server-side resolution, the release face) + `scripts/verify-v2-220-0.mjs` wired as `verify:v2-220-0`.
+
 ## [2.219.0] The stocktake
 
 The biggest confirmed feature gap gets its arc's first half. Every worklog since the bridge has named it: no model, no API, no UI for the cycle count — the floor counts on paper and the books guess. This round ships the count sheet end to end: the snapshot freezes, the floor counts against it, and the close speaks the variance into the ledger with the same ADJUSTMENT voice the manual adjustment flow has always used.

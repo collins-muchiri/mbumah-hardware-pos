@@ -1,10 +1,10 @@
 {
   "name": "mbumah-hardware-pos",
-  "version": "2.219.0",
+  "version": "2.220.0",
   "private": true,
   "mbumah": {
-    "releaseVersion": "2.219.0",
-    "baseVersion": "2.219.0",
+    "releaseVersion": "2.220.0",
+    "baseVersion": "2.220.0",
     "hotfix": 0
   },
   "scripts": {
@@ -210,7 +210,8 @@
     "verify:v2-216-0": "node scripts/verify-v2-216-0.mjs",
     "verify:v2-217-0": "node scripts/verify-v2-217-0.mjs",
     "verify:v2-218-0": "node scripts/verify-v2-218-0.mjs",
-    "verify:v2-219-0": "node scripts/verify-v2-219-0.mjs"
+    "verify:v2-219-0": "node scripts/verify-v2-219-0.mjs",
+    "verify:v2-220-0": "node scripts/verify-v2-220-0.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

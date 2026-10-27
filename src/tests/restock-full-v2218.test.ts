@@ -253,18 +253,18 @@ describe('the watchlist modal discloses the cap and keeps the count law (v2.218.
 
 describe('the round of record (v2.218.0)', () => {
   it('package.json leads 2.218.0 (all three slots)', () => {
-    expect(pkg.version).toBe('2.219.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.219.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.219.0');
+    expect(pkg.version).toBe('2.220.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.220.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.220.0');
   });
 
   it('VERSION speaks the same truth', () => {
-    expect(read('VERSION').trim()).toBe('2.219.0');
+    expect(read('VERSION').trim()).toBe('2.220.0');
   });
 
   it('the changelog of record speaks the round', () => {
     expect(changelog.includes('## [2.218.0] The full restock')).toBe(true);
-    expect(changelog.indexOf('2.218.0')).toBeLessThan(changelog.indexOf('2.217.0'));
+    expect(changelog.indexOf('## [2.218.0]')).toBeLessThan(changelog.indexOf('## [2.217.0]'));
   });
 
   it('the changelog feed grows the entry at the head', () => {

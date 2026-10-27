@@ -22,6 +22,7 @@ import { ActivityTimeline, ChatDrawer, DecisionSupport, DeskActivity, LiveFeed }
 import { StoreMatrix } from '@/components/org/store-matrix';
 import { ExpertModules } from '@/components/org/experts';
 import { KpiRow } from '@/components/org/kpi-row';
+import { VarianceMap } from '@/components/org/variance-map';
 import { ChangelogModal, CommandPalette, ConsoleFooter, ConsoleHeader, LoginDialog, ShortcutsModal, type SessionUser } from '@/components/org/chrome';
 import { SectionErrorBoundary } from '@/components/error-boundary';
 import { KenyaMap, Sparkline, WeekDeltaChip, weekDeltaWords, kes, num, timeAgo, type DeskActivityData, type DeskActivityFilter, type KpiSummaryData, type OrgSummaryData, type StoreRow } from '@/components/org/primitives';
@@ -361,6 +362,17 @@ export default function OrgConsolePage() {
                   stores={stores}
                 />
               ) : <UnavailableCard message={kpiError ?? 'Loading organization KPIs...'} onSignIn={() => setLoginOpen(true)} showSignIn={needsAuth && !signedIn} />}
+            </SectionErrorBoundary>
+          </div>
+
+          {/* v2.220.0 THE VARIANCE MAP — the stocktake's org face, mounted
+              under the KPI row: the org's count sheets (live counts with
+              their progress, the recent roster with its variance chips,
+              and the rolling-30-day ledger impact the indicative strip
+              annotates). Composes the SAME kpi payload — zero new fetches. */}
+          <div id="variance-map">
+            <SectionErrorBoundary sectionName="Variance map">
+              {kpi ? <VarianceMap data={kpi} stores={stores} /> : null}
             </SectionErrorBoundary>
           </div>
 

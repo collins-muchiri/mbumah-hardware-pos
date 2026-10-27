@@ -27,7 +27,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { ClipboardCheck, History, Loader2 } from 'lucide-react';
+import { ClipboardCheck, FolderTree, History, Loader2 } from 'lucide-react';
 import { authorizedFetchJson } from '@/lib/api';
 import { num } from '@/components/org/primitives';
 
@@ -81,6 +81,11 @@ type CloseResult = {
   varianceCostTotal: number;
 };
 
+// v2.220.0: the create flow's category rows (the population picker's
+// options) — the categories wire's own includeProductCount face, so the
+// picker speaks the REAL frozen count before the sheet opens.
+type CategoryRow = { id: string; name: string; productCount?: number };
+
 const fmtKes = (v: number) =>
   `Ksh ${v.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
@@ -101,6 +106,15 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
   const [openSheetId, setOpenSheetId] = useState<string | null>(null);
   const [createNotes, setCreateNotes] = useState('');
   const [createOpen, setCreateOpen] = useState(false);
+  // v2.220.0: the population picker — the sheet's scope. FULL (the honest
+  // default: every active product) or ONE CATEGORY (the picker resolves
+  // server-side; the UI never ships product ids across the wire).
+  const [createScope, setCreateScope] = useState<'full' | 'category'>('full');
+  const [createCategoryId, setCreateCategoryId] = useState('');
+  // v2.220.0: the cancel flow — armed two-step (the same intent law a
+  // destructive action owes), with an optional reason the sheet keeps.
+  const [cancelArmed, setCancelArmed] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
   // The edits-only count draft (the v2.218 derivation law's sibling):
   // the input renders its own session value while typing; a recorded
   // count lands on the wire and the sheet refetches.
@@ -127,6 +141,22 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
     },
   });
 
+  // v2.220.0: the picker's options — the categories wire with the REAL
+  // product counts (includeProductCount=true), read only while the
+  // picker needs them (the create drawer is open AND the category scope
+  // is chosen). A category from another store can't leak in: the wire is
+  // storeId-scoped, and the create route re-validates server-side.
+  const categoriesQuery = useQuery({
+    queryKey: ['stock-take-categories', storeId],
+    enabled: !!storeId && createOpen && createScope === 'category',
+    staleTime: 30_000,
+    queryFn: async () => {
+      const res = await authorizedFetchJson(`/api/categories?storeId=${encodeURIComponent(storeId ?? '')}&includeProductCount=true`);
+      if (!res.ok || !res.json?.success) throw new Error(res.json?.error ?? `the categories wire failed (${res.status})`);
+      return (res.json.data as CategoryRow[]).filter((c) => (c.productCount ?? 0) > 0);
+    },
+  });
+
   const invalidateSheets = () => {
     queryClient.invalidateQueries({ queryKey: ['stock-takes', storeId] });
     queryClient.invalidateQueries({ queryKey: ['stock-take', openSheetId] });
@@ -139,22 +169,53 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
 
   const createMutation = useMutation({
     mutationFn: async () => {
+      if (createScope === 'category' && !createCategoryId) {
+        throw new Error('pick a category first — the sheet refuses an unnamed scope');
+      }
       const res = await authorizedFetchJson('/api/stock-takes', {
         method: 'POST',
-        body: JSON.stringify({ storeId, ...(createNotes.trim() ? { notes: createNotes.trim() } : {}) }),
+        body: JSON.stringify({
+          storeId,
+          ...(createNotes.trim() ? { notes: createNotes.trim() } : {}),
+          ...(createScope === 'category' && createCategoryId ? { categoryId: createCategoryId } : {}),
+        }),
       });
       if (!res.ok || !res.json?.success) throw new Error(res.json?.error ?? `the sheet was refused (${res.status})`);
-      return res.json.data as { id: string; lineCount: number };
+      return res.json.data as { id: string; lineCount: number; scope?: string };
     },
     onSuccess: (data) => {
       toast.success(`Count sheet open — ${data.lineCount} lines to count`);
       setCreateNotes('');
       setCreateOpen(false);
+      setCreateScope('full');
+      setCreateCategoryId('');
       invalidateSheets();
       setOpenSheetId(data.id);
     },
     onError: (err: unknown) => {
       toast.error(err instanceof Error ? err.message : 'the sheet was refused');
+    },
+  });
+
+  // v2.220.0: the cancel — the sheet's honest way out (the books never
+  // hear a cancelled sheet). The two-step arm keeps the accident out.
+  const cancelMutation = useMutation({
+    mutationFn: async () => {
+      const res = await authorizedFetchJson(`/api/stock-takes/${openSheetId}/cancel`, {
+        method: 'POST',
+        body: JSON.stringify(cancelReason.trim() ? { reason: cancelReason.trim() } : {}),
+      });
+      if (!res.ok || !res.json?.success) throw new Error(res.json?.error ?? `the cancel was refused (${res.status})`);
+      return res.json.data as { id: string; status: string };
+    },
+    onSuccess: () => {
+      toast.success('Sheet cancelled — no stock moved');
+      setCancelArmed(false);
+      setCancelReason('');
+      invalidateSheets();
+    },
+    onError: (err: unknown) => {
+      toast.error(err instanceof Error ? err.message : 'the cancel was refused');
     },
   });
 
@@ -196,6 +257,14 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
   // The last close result rides the DETAIL's own status change — the
   // success face reads the wire's summary (server truth), not a memo.
   const closedFace = detail?.status === 'CLOSED' ? detail : null;
+  // v2.220.0: the honest void — a CANCELLED sheet's face says what did
+  // NOT happen (no stock moved), and the picker's chosen category keeps
+  // its row count so the confirm button speaks the real freeze.
+  const cancelledFace = detail?.status === 'CANCELLED' ? detail : null;
+  const pickedCategory = useMemo(
+    () => categoriesQuery.data?.find((c) => c.id === createCategoryId) ?? null,
+    [categoriesQuery.data, createCategoryId],
+  );
 
   const recordCount = (line: SheetLine) => {
     const raw = drafts[line.id];
@@ -239,7 +308,11 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                 <button
                   type="button"
                   data-testid="stocktake-back"
-                  onClick={() => setOpenSheetId(null)}
+                  onClick={() => {
+                    setOpenSheetId(null);
+                    setCancelArmed(false);
+                    setCancelReason('');
+                  }}
                   className="text-[10px] font-semibold text-slate-500 underline-offset-2 hover:underline dark:text-slate-400"
                 >
                   ← all sheets
@@ -330,23 +403,89 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
             {/* The close — only a COMPLETE sheet closes (the zero-hole
                 law); the success face is the SERVER's own numbers. */}
             {detail.status === 'COUNTING' && (
-              <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900">
-                <button
-                  type="button"
-                  data-testid="stocktake-close-btn"
-                  disabled={detail.summary.uncountedLines > 0 || closeMutation.isPending}
-                  onClick={() => closeMutation.mutate()}
-                  className="w-full rounded-md bg-emerald-700 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-emerald-600 dark:hover:bg-emerald-700"
-                >
-                  {closeMutation.isPending
-                    ? 'closing the sheet…'
-                    : detail.summary.uncountedLines > 0
-                      ? `Close refused — ${detail.summary.uncountedLines} line${detail.summary.uncountedLines === 1 ? '' : 's'} still uncounted`
-                      : `Close sheet · apply ${detail.summary.countedLines} counts to the books`}
-                </button>
-                <p className="mt-1 text-[9px] text-slate-500 dark:text-slate-400">
-                  the close applies each line&apos;s counted − system delta to current stock (sales during the count are preserved) and records an ADJUSTMENT movement per changed line.
+              <div className="space-y-2">
+                <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900">
+                  <button
+                    type="button"
+                    data-testid="stocktake-close-btn"
+                    disabled={detail.summary.uncountedLines > 0 || closeMutation.isPending}
+                    onClick={() => closeMutation.mutate()}
+                    className="w-full rounded-md bg-emerald-700 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-emerald-600 dark:hover:bg-emerald-700"
+                  >
+                    {closeMutation.isPending
+                      ? 'closing the sheet…'
+                      : detail.summary.uncountedLines > 0
+                        ? `Close refused — ${detail.summary.uncountedLines} line${detail.summary.uncountedLines === 1 ? '' : 's'} still uncounted`
+                        : `Close sheet · apply ${detail.summary.countedLines} counts to the books`}
+                  </button>
+                  <p className="mt-1 text-[9px] text-slate-500 dark:text-slate-400">
+                    the close applies each line&apos;s counted − system delta to current stock (sales during the count are preserved) and records an ADJUSTMENT movement per changed line.
+                  </p>
+                </div>
+                {/* v2.220.0: the honest way out — a two-step cancel with an
+                    optional reason the sheet keeps. NO stock moves, NO
+                    movements: the books never hear a cancelled sheet. */}
+                <div data-testid="stocktake-cancel-zone" className="rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900">
+                  {!cancelArmed ? (
+                    <button
+                      type="button"
+                      data-testid="stocktake-cancel-arm"
+                      disabled={cancelMutation.isPending}
+                      onClick={() => setCancelArmed(true)}
+                      className="w-full rounded-md border border-red-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-500/30 dark:bg-slate-900 dark:text-red-400 dark:hover:bg-red-500/10"
+                    >
+                      Cancel sheet — count abandoned
+                    </button>
+                  ) : (
+                    <div className="space-y-1.5">
+                      <Input
+                        data-testid="stocktake-cancel-reason"
+                        value={cancelReason}
+                        onChange={(e) => setCancelReason(e.target.value)}
+                        placeholder="why is this count abandoned? (optional, kept on the sheet)"
+                        className="h-7 border-slate-200 bg-white text-xs dark:border-slate-600 dark:bg-slate-900"
+                      />
+                      <div className="flex gap-1.5">
+                        <button
+                          type="button"
+                          data-testid="stocktake-cancel-confirm"
+                          disabled={cancelMutation.isPending}
+                          onClick={() => cancelMutation.mutate()}
+                          className="flex-1 rounded-md bg-red-700 px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-600 dark:hover:bg-red-700"
+                        >
+                          {cancelMutation.isPending ? 'cancelling…' : 'Confirm cancel — no stock moves'}
+                        </button>
+                        <button
+                          type="button"
+                          data-testid="stocktake-cancel-disarm"
+                          onClick={() => {
+                            setCancelArmed(false);
+                            setCancelReason('');
+                          }}
+                          className="rounded-md border border-slate-200 px-3 py-1.5 text-[11px] font-semibold text-slate-600 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+                        >
+                          keep counting
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  <p className="mt-1 text-[9px] text-slate-500 dark:text-slate-400">
+                    a cancelled sheet is a void — no adjustments, no movements; the counts were practice.
+                  </p>
+                </div>
+              </div>
+            )}
+            {cancelledFace && (
+              <div data-testid="stocktake-cancelled-face" className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 dark:border-slate-600 dark:bg-slate-800/60">
+                <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Sheet cancelled — the books never heard it</p>
+                <p data-testid="stocktake-cancelled-summary" className="mt-1 text-[11px] tabular-nums text-slate-500 dark:text-slate-400">
+                  {cancelledFace.summary.totalLines} lines · no adjustments applied · no movements written
+                  {cancelledFace.closedByName ? ` · cancelled by ${cancelledFace.closedByName}` : ''}
+                  {cancelledFace.closedAt ? ` · ${new Date(cancelledFace.closedAt).toLocaleDateString()}` : ''}
                 </p>
+                {cancelledFace.notes && (
+                  <p className="mt-1 text-[10px] text-slate-500 dark:text-slate-400">{cancelledFace.notes}</p>
+                )}
               </div>
             )}
             {closedFace && (
@@ -398,6 +537,55 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                   placeholder="notes (optional) — e.g. month-end Juja count"
                   className="h-7 border-slate-200 bg-white text-xs dark:border-slate-600 dark:bg-slate-900"
                 />
+                {/* v2.220.0: the population picker — the sheet's scope
+                    speaks before it freezes. FULL is the honest default
+                    (every active product); ONE CATEGORY narrows the count
+                    to a named aisle, resolved server-side, its real row
+                    count read from the categories wire. */}
+                <div className="mt-1.5 flex items-center gap-1" role="group" aria-label="Sheet population">
+                  <button
+                    type="button"
+                    data-testid="stocktake-scope-full"
+                    aria-pressed={createScope === 'full'}
+                    onClick={() => setCreateScope('full')}
+                    className={`rounded px-2 py-1 text-[10px] font-semibold ring-1 ${createScope === 'full' ? 'bg-amber-700 text-white ring-amber-700 dark:bg-amber-600 dark:ring-amber-600' : 'bg-white text-slate-600 ring-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-600'}`}
+                  >
+                    Every active product
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="stocktake-scope-category"
+                    aria-pressed={createScope === 'category'}
+                    onClick={() => setCreateScope('category')}
+                    className={`inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-semibold ring-1 ${createScope === 'category' ? 'bg-amber-700 text-white ring-amber-700 dark:bg-amber-600 dark:ring-amber-600' : 'bg-white text-slate-600 ring-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-600'}`}
+                  >
+                    <FolderTree className="h-3 w-3" /> One category
+                  </button>
+                </div>
+                {createScope === 'category' && (
+                  <div className="mt-1.5">
+                    <select
+                      data-testid="stocktake-create-category"
+                      value={createCategoryId}
+                      onChange={(e) => setCreateCategoryId(e.target.value)}
+                      aria-label="Count sheet category"
+                      className="h-7 w-full rounded border border-slate-200 bg-white px-1.5 text-xs text-slate-700 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+                    >
+                      <option value="">pick a category…</option>
+                      {(categoriesQuery.data ?? []).map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name} · {c.productCount ?? 0} products
+                        </option>
+                      ))}
+                    </select>
+                    {categoriesQuery.isLoading && (
+                      <p data-testid="stocktake-categories-loading" className="mt-1 text-[9px] text-slate-500 dark:text-slate-400">reading the categories…</p>
+                    )}
+                    {categoriesQuery.isError && (
+                      <p data-testid="stocktake-categories-error" className="mt-1 text-[9px] text-red-700 dark:text-red-400">the categories wire failed — the full sheet is still one click away.</p>
+                    )}
+                  </div>
+                )}
                 <button
                   type="button"
                   data-testid="stocktake-create-confirm"
@@ -405,7 +593,13 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                   onClick={() => createMutation.mutate()}
                   className="mt-1.5 w-full rounded-md bg-amber-700 px-2 py-1.5 text-[11px] font-semibold text-white hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-amber-600 dark:hover:bg-amber-700"
                 >
-                  {createMutation.isPending ? 'freezing the snapshot…' : 'Open the sheet — freeze every active product'}
+                  {createMutation.isPending
+                    ? 'freezing the snapshot…'
+                    : createScope === 'category'
+                      ? pickedCategory
+                        ? `Open the sheet — freeze ${pickedCategory.productCount ?? 0} products in ${pickedCategory.name}`
+                        : 'Open the sheet — pick a category first'
+                      : 'Open the sheet — freeze every active product'}
                 </button>
                 <p className="mt-1 text-[9px] text-slate-500 dark:text-slate-400">
                   the snapshot freezes inside one transaction — the sheet counts against a moment, never a moving number.

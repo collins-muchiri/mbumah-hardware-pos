@@ -38,9 +38,10 @@
 // these roles already see in their own store debt views.
 
 import { rawDb, runWithoutTenant } from '@/lib/db';
-import { requireAuth } from '@/lib/auth';
+import { requireAuth, type AuthSession } from '@/lib/auth';
 import { withErrorBoundary } from '@/lib/logger';
 import { LogComponent } from '@/lib/types';
+import { hasFeaturePermission } from '@/lib/permissions';
 import { toDec, round2 } from '@/lib/utils/financialMath';
 
 export const dynamic = 'force-dynamic';
@@ -57,7 +58,7 @@ function maskPhone(phone: string | null | undefined): string | null {
   return `${digits.slice(0, 3)}***${digits.slice(-3)}`;
 }
 
-async function orgKpiSummaryHandler(): Promise<Response> {
+async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Promise<Response> {
   // v2.58.0: the org console aggregates ALL stores by contract — every read
 // below is org-wide (per-store loops / cross-store groupBys) guarded to
 // ORG_ROLES. The reads go through rawDb (the un-intercepted client) so the
@@ -313,6 +314,123 @@ async function orgKpiSummaryHandler(): Promise<Response> {
     const openPOs = poRows.length;
     const overduePOs = poRows.filter((p) => p.expectedDate && p.expectedDate < now).length;
 
+    // ── v2.220.0: the variance map — the org's count sheets ─────────────────
+    // The stocktake's org face (phase 2 of the arc): the branch sheets the
+    // floor already speaks, composed org-wide. THE COST LAW rides here too:
+    // variance UNITS are units (every org role hears them), but the ledger's
+    // SHILLINGS speak only past `inventory.view.cost` — the same gate the
+    // sheet detail and close routes apply; without it the fields arrive null
+    // and the face renders the honest absence, never a hidden zero. The
+    // window figure is the org's rolling-30-day ledger impact across every
+    // closed sheet (not just the named roster) — the money-voiced figure the
+    // variance map's indicative strip annotates.
+    const canViewCost = hasFeaturePermission(session.role, 'inventory.view.cost');
+    const [openSheetRows, recentSheetRows] = await Promise.all([
+      rawDb.stockTake.findMany({
+        where: { status: 'COUNTING' },
+        orderBy: { startedAt: 'desc' },
+        select: {
+          id: true, startedAt: true, notes: true,
+          startedBy: { select: { name: true } },
+          store: { select: { id: true, name: true, code: true } },
+          _count: { select: { lines: true } },
+        },
+      }),
+      rawDb.stockTake.findMany({
+        orderBy: { startedAt: 'desc' },
+        take: 12,
+        select: {
+          id: true, status: true, notes: true, startedAt: true, closedAt: true,
+          startedBy: { select: { name: true } },
+          closedBy: { select: { name: true } },
+          store: { select: { id: true, name: true, code: true } },
+          _count: { select: { lines: true } },
+        },
+      }),
+    ]);
+    // Counted progress per sheet — ONE grouped read over the union of the
+    // live sheets and the named roster (the same reduce-in-JS shape the
+    // store-level list route speaks).
+    const sheetIds = [...new Set([...openSheetRows.map((s) => s.id), ...recentSheetRows.map((s) => s.id)])];
+    const countedGroups = sheetIds.length
+      ? await rawDb.stockTakeLine.groupBy({
+          by: ['stockTakeId'],
+          where: { stockTakeId: { in: sheetIds }, countedQty: { not: null } },
+          _count: { _all: true },
+        })
+      : [];
+    const countedBySheet = new Map(countedGroups.map((g) => [g.stockTakeId, g._count._all]));
+    // Per-sheet variance for the roster's CLOSED rows — ONE grouped read
+    // (units always; the cost sum rides the same group and is gated below).
+    const closedRosterIds = recentSheetRows.filter((s) => s.status === 'CLOSED').map((s) => s.id);
+    const rosterVarianceGroups = closedRosterIds.length
+      ? await rawDb.stockTakeLine.groupBy({
+          by: ['stockTakeId'],
+          where: { stockTakeId: { in: closedRosterIds }, variance: { not: null } },
+          _sum: { variance: true, varianceCost: true },
+        })
+      : [];
+    const varianceBySheet = new Map(rosterVarianceGroups.map((g) => [
+      g.stockTakeId,
+      { units: toDec(g._sum.variance ?? 0).toNumber(), cost: round2(toDec(g._sum.varianceCost ?? 0).toNumber()) },
+    ]));
+    // The org's rolling-30-day ledger impact — EVERY closed sheet in the
+    // window, not just the roster the UI names (the strip's figure stays
+    // the whole truth; the roster is a window, and the cap note says so).
+    const windowStart = new Date(now.getTime() - 30 * DAY_MS);
+    const closed30dRows = await rawDb.stockTake.findMany({
+      where: { status: 'CLOSED', closedAt: { gte: windowStart } },
+      select: { id: true },
+    });
+    const closed30dIds = closed30dRows.map((s) => s.id);
+    const windowAgg = closed30dIds.length
+      ? await rawDb.stockTakeLine.aggregate({
+          where: { stockTakeId: { in: closed30dIds }, variance: { not: null } },
+          _sum: { variance: true, varianceCost: true },
+        })
+      : null;
+    const windowUnits = round2(toDec(windowAgg?._sum.variance ?? 0).toNumber());
+    const windowCost = round2(toDec(windowAgg?._sum.varianceCost ?? 0).toNumber());
+    const stockTakes = {
+      openCount: openSheetRows.length,
+      openSheets: openSheetRows.map((s) => ({
+        id: s.id,
+        storeId: s.store.id,
+        storeName: s.store.name,
+        storeCode: s.store.code,
+        notes: s.notes,
+        startedAt: s.startedAt.toISOString(),
+        startedByName: s.startedBy?.name ?? null,
+        lineCount: s._count.lines,
+        countedCount: countedBySheet.get(s.id) ?? 0,
+      })),
+      recentSheets: recentSheetRows.map((s) => {
+        const v = varianceBySheet.get(s.id) ?? null;
+        return {
+          id: s.id,
+          status: s.status,
+          notes: s.notes,
+          startedAt: s.startedAt.toISOString(),
+          closedAt: s.closedAt?.toISOString() ?? null,
+          startedByName: s.startedBy?.name ?? null,
+          closedByName: s.closedBy?.name ?? null,
+          storeId: s.store.id,
+          storeName: s.store.name,
+          storeCode: s.store.code,
+          lineCount: s._count.lines,
+          countedCount: countedBySheet.get(s.id) ?? 0,
+          varianceUnits: s.status === 'CLOSED' && v ? Math.round(v.units * 100) / 100 : null,
+          // The cost law: the shillings speak only past the gate.
+          varianceCost: canViewCost && s.status === 'CLOSED' && v ? v.cost : null,
+        };
+      }),
+      window30d: {
+        closedCount: closed30dIds.length,
+        varianceUnits: windowUnits,
+        varianceCostTotal: canViewCost ? windowCost : null,
+      },
+    };
+
     // ── M-Pesa (STK push ledger, phones masked) ─────────────────────────────
     const mpesaRows = await rawDb.mpesaTransaction.findMany({
       orderBy: { createdAt: 'desc' },
@@ -496,6 +614,10 @@ async function orgKpiSummaryHandler(): Promise<Response> {
           })),
         },
         etims: { pending: etimsPending, issued: etimsIssued },
+        // v2.220.0: the variance map's block — the org's count sheets
+        // (additive: an older cached answer simply renders the honest
+        // step-aside, never a crash).
+        stockTakes,
         system: {
           stores: storeCount,
           activeUsers,
