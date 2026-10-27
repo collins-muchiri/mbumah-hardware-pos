@@ -50,9 +50,9 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.227.0)', () => {
   it('package.json leads 2.227.0 (all three slots)', () => {
-    expect(version).toBe('2.227.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.227.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.227.0');
+    expect(version).toBe('2.228.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.228.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.228.0');
   });
 
   it('the changelog anchors the section ABOVE its ancestor (the structural pin — headers, never bare strings)', () => {
@@ -106,10 +106,11 @@ describe('the sheet drill paper (v2.227.0)', () => {
     expect(globals.includes('data-po-print-off')).toBe(true);
   });
 
-  it('the Print button exists, named for the ear, and is the whole machinery', () => {
+  it('the Print button exists, named for the ear, and is the whole machinery (v2.228.0: the aria grew the clipboard mode — both arms stay named)', () => {
     expect(sheetDrill.includes('data-testid="sheet-drill-print"')).toBe(true);
-    expect(sheetDrill.includes('aria-label={`Print all ${data.lines.length} lines of the count sheet at ${target.storeName}`}')).toBe(true);
-    expect(sheetDrill.includes('title="the sheet\'s paper — the face lays itself on the page; the controls stay off the paper"')).toBe(true);
+    // v2.228.0: the record face's arm of the mode-conditional (the clipboard's arm is the new round's pin).
+    expect(sheetDrill.includes('`Print all ${data.lines.length} lines of the count sheet at ${target.storeName}`')).toBe(true);
+    expect(sheetDrill.includes("the sheet's paper — the face lays itself on the page; the controls stay off the paper")).toBe(true);
     expect(sheetDrill.includes('onClick={() => window.print()}')).toBe(true);
   });
 
@@ -122,8 +123,8 @@ describe('the sheet drill paper (v2.227.0)', () => {
     expect(csvIdx).toBeGreaterThan(printIdx);
   });
 
-  it('the Print button wears the sheet drill\'s amber focus ring (the PO\'s keeps its sky)', () => {
-    const printBlock = sheetDrill.slice(sheetDrill.indexOf('data-testid="sheet-drill-print"'), sheetDrill.indexOf('data-testid="sheet-drill-print"') + 900);
+  it('the Print button wears the sheet drill\'s amber focus ring (the PO\'s keeps its sky; v2.228.0: the block reads to the CSV sibling — the conditional aria grew the window)', () => {
+    const printBlock = sheetDrill.slice(sheetDrill.indexOf('data-testid="sheet-drill-print"'), sheetDrill.indexOf('data-testid="sheet-drill-export"'));
     expect(printBlock.includes('focus:ring-amber-500/40')).toBe(true);
     expect(printBlock.includes('focus:ring-sky-500/40')).toBe(false);
   });
@@ -132,8 +133,8 @@ describe('the sheet drill paper (v2.227.0)', () => {
 // ── THE WATCHLIST STITCH ──────────────────────────────────────────────────
 
 describe('the watchlist stitch (v2.227.0)', () => {
-  it('the wire answers watchlistHints per row (additive; the cost law untouched)', () => {
-    expect(wire.includes('watchlistHints: result.hints.get(`${po.store.id}:${po.supplier.id}`) ?? 0,')).toBe(true);
+  it('the wire answers watchlistHints per row (additive; the cost law untouched; v2.228.0: the hint grew its speakers — the count reads the entry, never a bare map miss)', () => {
+    expect(wire.includes('watchlistHints: result.hints.get(`${po.store.id}:${po.supplier.id}`)?.count ?? 0,')).toBe(true);
     expect(wire.includes('totalAmount: canViewCost ? Number(po.totalAmount) : null,')).toBe(true);
   });
 
@@ -146,9 +147,9 @@ describe('the watchlist stitch (v2.227.0)', () => {
     expect(stitchStart).toBeLessThan(blockEnd);
   });
 
-  it('the candidates are catalog-bounded: active products of ONLY the window\'s stores', () => {
+  it('the candidates are catalog-bounded: active products of ONLY the window\'s stores (v2.228.0: name rode along — one cheap column, so the whisper can speak its speakers)', () => {
     expect(wire.includes('where: { storeId: { in: storeIds }, isActive: true },')).toBe(true);
-    expect(wire.includes('select: { id: true, storeId: true, quantityInStock: true, reorderLevel: true },')).toBe(true);
+    expect(wire.includes('select: { id: true, storeId: true, name: true, quantityInStock: true, reorderLevel: true },')).toBe(true);
   });
 
   it('the supplier of record is the branch watchlist\'s own derivation (most recent PO wins; newest-first, first sight pins)', () => {
@@ -165,10 +166,11 @@ describe('the watchlist stitch (v2.227.0)', () => {
     expect(wire.includes('const supplierIds = [...new Set(rows.map((po) => po.supplier.id))];')).toBe(true);
   });
 
-  it('the row wears the whisper: amber family, 3:1 both halves, tabular-nums, zero stays silent', () => {
+  it('the row wears the whisper: amber family, 3:1 both halves, tabular-nums, zero stays silent (v2.228.0: the chip became a trigger of its own — hover and focus joined the amber)', () => {
     expect(ledger.includes('{po.watchlistHints > 0 && (')).toBe(true);
     expect(ledger.includes('data-testid="po-ledger-watchlist-hint"')).toBe(true);
-    expect(ledger.includes('bg-amber-50 px-1.5 py-0.5 text-[9px] font-semibold tabular-nums text-amber-700 ring-1 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/30')).toBe(true);
+    expect(ledger.includes('bg-amber-50 px-1.5 py-0.5 text-[9px] font-semibold tabular-nums text-amber-700')).toBe(true);
+    expect(ledger.includes('dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/30')).toBe(true);
   });
 
   it('the chip\'s title speaks the whole sentence (branch named, row/rows and hint/hint honest plurals)', () => {

@@ -38,6 +38,19 @@
 // window.print() is the whole machinery. The twice-proven PO drill
 // pattern transplanted, the amber family's turn.
 //
+// v2.228.0 THE CLIPBOARD — the paper becomes the floor's TOOL: a
+// COUNTING sheet prints as a walk-list, not just a record. While the
+// sheet still counts, its paper grows three print-only fittings (the
+// base stylesheet keeps them off the screen — a screen face never
+// pretends to be a pen): a floor-copy note under the header, an EMPTY
+// COUNT BOX on every line (the shelf's ask — write what you see; a
+// line the system already heard still gets its box, because the walk
+// is the verification), and the signature rules at the foot (counted
+// by / checked by / date — a walk needs its witnesses). CLOSED and
+// CANCELLED sheets keep the v2.227 record face: chips, not boxes —
+// the paper answers to the sheet's status, never to a toggle. The
+// Print button's aria speaks the mode for the ear.
+//
 // THE LAWS IT INHERITS:
 // • the cost law: the wire's varianceValue and per-line varianceCost
 //   arrive null past the cost gate — the face renders the honest
@@ -162,6 +175,11 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
 
   if (!target) return null;
   const data = wire.data?.data;
+  // v2.228.0: the clipboard gate — the paper's mode IS the sheet's
+  // status (COUNTING walks, CLOSED/CANCELLED record). One derivation,
+  // read by the card's attribute, the line boxes, the foot and the
+  // Print button's aria — four faces, one law.
+  const isClipboard = data?.status === 'COUNTING';
 
   // v2.224.0: the copy — a download of the WHOLE sheet's lines (the
   // finder narrows the reading, never the export). The cost cell obeys
@@ -202,6 +220,7 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
     >
       <div
         data-sheet-print=""
+        {...(isClipboard ? { 'data-sheet-clipboard': '' } : {})}
         className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-700 dark:bg-slate-900"
         onClick={(e) => e.stopPropagation()}
       >
@@ -250,6 +269,14 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
 
         {data && (
           <>
+            {/* v2.228.0: the clipboard's floor-copy note — print-only
+                (the base stylesheet keeps it off the screen), it tells
+                the walk what this paper is and where the pens live. */}
+            {isClipboard && (
+              <p data-sheet-clipboard-note="" className="mt-3 rounded-lg border border-dashed border-amber-300 bg-amber-50/60 px-3 py-2 text-[11px] font-medium text-amber-800 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200">
+                floor copy — walk the shelves, write what you see; the branch app holds the pens.
+              </p>
+            )}
             {/* The summary tiles — units for every role, the shillings past the gate. */}
             <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
               <div className="rounded-xl border border-slate-100 p-2.5 dark:border-slate-700">
@@ -310,8 +337,12 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
                         type="button"
                         data-testid="sheet-drill-print"
                         data-sheet-print-off=""
-                        aria-label={`Print all ${data.lines.length} lines of the count sheet at ${target.storeName}`}
-                        title="the sheet's paper — the face lays itself on the page; the controls stay off the paper"
+                        aria-label={isClipboard
+                          ? `Print the floor's clipboard — ${data.lines.length} lines with empty count boxes`
+                          : `Print all ${data.lines.length} lines of the count sheet at ${target.storeName}`}
+                        title={isClipboard
+                          ? 'the clipboard — the paper walks the shelves with the floor; every line gets a box to write in'
+                          : "the sheet's paper — the face lays itself on the page; the controls stay off the paper"}
                         onClick={() => window.print()}
                         className="flex h-6 items-center gap-1 rounded-md border border-slate-200 bg-white px-1.5 text-[10px] font-semibold text-slate-600 transition-colors hover:bg-slate-50 focus:outline-none focus:ring-1 focus:ring-amber-500/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
                       >
@@ -390,6 +421,19 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
                           </span>
                         )}
                       </span>
+                      {isClipboard && (
+                        /* v2.228.0: THE COUNT BOX — the paper's ask. A
+                            ruled write-in for the pen, one per line,
+                            EVERY line (a line the system already heard
+                            still walks — the walk is the verification).
+                            Print-only: the base stylesheet keeps it off
+                            the screen, the print stylesheet lays it on
+                            the paper beside the line's snapshot. */
+                        <span data-sheet-count-box="" className="flex w-full items-center gap-2 sm:w-auto">
+                          <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">counted</span>
+                          <span aria-hidden="true" className="h-8 min-w-[8rem] flex-1 rounded border border-dashed border-slate-300 bg-white sm:flex-none sm:w-40 dark:border-slate-600" />
+                        </span>
+                      )}
                     </li>
                   );
                 })}
@@ -403,6 +447,25 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
                 <p data-testid="sheet-drill-lines-empty" className="mt-1.5 rounded-lg border border-dashed border-slate-200 bg-white/60 px-3 py-2 text-[11px] text-slate-500 dark:border-slate-600 dark:bg-slate-900/60 dark:text-slate-400">
                   the sheet froze no lines — nothing to count.
                 </p>
+              )}
+              {isClipboard && (
+                /* v2.228.0: the walk's witnesses — print-only signature
+                    rules at the foot of the clipboard. A walk needs its
+                    names on the record it produced. */
+                <div data-testid="sheet-drill-signatures" data-sheet-clipboard-signatures="" className="mt-4 flex items-end gap-4">
+                  <span className="flex-1">
+                    <span aria-hidden="true" className="block border-b border-slate-400" />
+                    <span className="mt-0.5 block text-[9px] uppercase tracking-wide text-slate-500">counted by</span>
+                  </span>
+                  <span className="flex-1">
+                    <span aria-hidden="true" className="block border-b border-slate-400" />
+                    <span className="mt-0.5 block text-[9px] uppercase tracking-wide text-slate-500">checked by</span>
+                  </span>
+                  <span className="w-28">
+                    <span aria-hidden="true" className="block border-b border-slate-400" />
+                    <span className="mt-0.5 block text-[9px] uppercase tracking-wide text-slate-500">date</span>
+                  </span>
+                </div>
               )}
               <p data-testid="sheet-drill-read-only" className="mt-1.5 text-[9px] text-slate-500 dark:text-slate-400">
                 read-only — the branch sheet keeps the pens; this face watches the floor&apos;s truth.

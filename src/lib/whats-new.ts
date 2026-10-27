@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.228.0',
+    title: 'The clipboard',
+    bullets: [
+      'A counting sheet now prints as the floor’s tool, not just the record: every line gets an empty count box to write in, the paper names itself a floor copy, and the foot carries signature rules — counted by, checked by, date. The paper walks the shelves with the floor.',
+      'The procurement ledger’s watchlist whisper now speaks its names: click the amber chip and the low rows themselves appear — each with its stock and floor level, the same numbers the branch’s own watchlist reads. Zero new fetches; the names rode along.',
+      'Closed and cancelled sheets keep their record face — chips, not boxes. The paper answers to the sheet’s status: still counting, it is a tool; closed, it is the record.',
+    ],
+  },
+  {
     version: '2.227.0',
     title: 'The sheet’s paper',
     bullets: [
