@@ -2,6 +2,19 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.216.0] The second shelf
+
+The topology arc completes both org shells wide. v2.215.0 moved the rates cache's supply into the console shell; this round gives the org desk the same treatment and the strip's third consumer — the desk's slice modals were the last money-voiced org surface the family hadn't reached.
+
+### Added
+- **The org desk banner gains the display-currency switcher** (`org-desk-currency-switcher`): /org/dashboard is its own boot (the shells full-navigate), so without a shelf of its own the desk's strips would repeat the v2.214.0 architecture-silence the console shelf fixed. The trigger wears the banner's own light voices (this banner is `bg-background` — no dark overrides needed, unlike the console's dark banner) and sits as the Badge/Global Chat group's first sibling.
+- **The desk slice modal's indicative strip — the third consumer** (`BranchSliceModal`): the SAME observer (a pure cache watcher, `enabled: false`, the queryFn exists only to say so — the zero-fetch law holds three surfaces wide), the SAME guards (KES pivot, missing or non-finite rate, unknown code → silent), the SAME visual family (slate strip, dark half from birth). The figure converts the tile's own total through the wire rate, and the aria tail names the metric's own noun so the honesty sentence stays exact: "this strip does not change what the revenue is."
+- **The count law, made structural**: only the money-voiced metrics (revenue, debt — `unit === 'money'`) convert; the four count-voiced metrics (transactions, lowStock, overdueRentals, pendingMpesa) stay count-voiced BY LAW — a count converted to shillings would be nonsense. The gate rides FIRST in the guard chain, on the wire's own units, not adjacency.
+
+### Measured
+- `scripts/contrast-math-desk-strip-v2216.mjs` — the strip's voices on the desk modal's REAL grounds (white/70 over the WHITE body — a brighter ground than the kpi-row panels' slate-50; slate-800/60 over slate-900 dark), 6/6 PASS.
+- `src/tests/desk-strip-v2216.test.ts` (20 source pins) + `scripts/verify-v2-216-0.mjs` wired as `verify:v2-216-0` (38 checks).
+
 ## [2.215.0] The strip reaches its shelf
 
 The topology round. v2.214.0 shipped the indicative strip with an honest contingency: the react-query cache is per-boot, and the QA drive could not make the strip speak within a single console session. This round proves WHY on the real surfaces — the strip-bearing modals live on the org console, the cache's only supply lived in the POS workspace, and the shells full-navigate between each other by design — then fixes it by TOPOLOGY, not by a law amendment: the supply moves into the shell where the consumers live.

@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.216.0',
+    title: 'The second shelf',
+    bullets: [
+      'The organization desk (/org/dashboard) gains the display-currency switcher in its own banner \u2014 the supply lives where the consumers live, both org shells wide.',
+      'The desk\u2019s slice modals (revenue, debt) gain the indicative strip: the tile\u2019s figure shows its approximate value in the active display currency, provenance included, while the ledger stays in KES.',
+      'Count-voiced surfaces (transactions, low stock, overdue rentals, pending M-Pesa) stay count-voiced by law \u2014 a count converted to shillings would be nonsense.',
+    ],
+  },
+  {
     version: '2.215.0',
     title: 'The strip reaches its shelf',
     bullets: [
