@@ -45,6 +45,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { StockTakePanel } from '@/components/inventory/stock-take-panel';
 
 const CATEGORY_COLORS: Record<string, string> = {
   'Cement & Building': '#6B7280',
@@ -1491,6 +1492,14 @@ export default function InventoryTab() {
           )}
         </CardContent>
       </Card>
+
+      {/* v2.219.0 THE STOCKTAKE — the cycle count's floor face. The
+          biggest confirmed feature gap gets its branch UI: open a sheet
+          (the snapshot freezes), count against it (re-countable until
+          close), close it (the variance speaks into the ledger). The
+          cost gate rides the same inventory.view.cost permission the
+          products API applies — a cashier counts units. */}
+      <StockTakePanel storeId={currentStoreId} canViewCost={canViewCost} />
 
       {/* Stock Movement History with Filters */}
       <Card className="backdrop-blur-sm shadow-sm">

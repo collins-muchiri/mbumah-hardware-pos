@@ -2,6 +2,23 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.219.0] The stocktake
+
+The biggest confirmed feature gap gets its arc's first half. Every worklog since the bridge has named it: no model, no API, no UI for the cycle count — the floor counts on paper and the books guess. This round ships the count sheet end to end: the snapshot freezes, the floor counts against it, and the close speaks the variance into the ledger with the same ADJUSTMENT voice the manual adjustment flow has always used.
+
+### Added
+- **The models** (`StockTake`, `StockTakeLine` — schema + postgres migration `20261027230000_add_stock_takes`): a sheet belongs to ONE store, freezes its lines' `snapshotQty` inside a single transaction (one coherent moment — a sheet whose lines read different moments would count against a moving number), and carries the floor's `countedQty`/`variance` per line. Statuses follow the PO convention (free-text uppercase strings — Prisma enums are unsupported on SQLite and the provider flip is house law).
+- **The wire** (`/api/stock-takes` list + create, `/[id]` detail, `/[id]/count`, `/[id]/close`, all `requireStoreAccess`-scoped): the ONE-OPEN-SHEET LAW (a store with a COUNTING sheet refuses a second — 409 with the live sheet's id); the zero law on counts (0 is a count, negatives are a lie); the close laws (EVERY line counted or 409 naming the holes; the COUNTING→CLOSED claim atomic inside the transaction so a double-click close cannot double-apply; each non-zero-variance line writes ONE ADJUSTMENT StockMovement with the session's actor and applies the counted − snapshot DELTA to current stock — sales during the count are preserved; `varianceCost` = variance × cost price ON THE CLOSE DAY, stored per line).
+- **The branch UI** (`src/components/inventory/stock-take-panel.tsx`, mounted on the inventory tab): the list face (status chips, progress, resume/view), the create flow (optional notes — "open the sheet — freeze every active product"), the sheet face (progress bar, per-line count inputs with the snapshot as placeholder, variance chips exact/over/short, re-countable until close), the close gate ("Close refused — N lines still uncounted"), and the success face reading the SERVER's own numbers.
+- **The cost gate**: variance VALUE (KES) speaks only to roles holding `inventory.view.cost` (the same gate the products API applies to costPrice) — a cashier counts units; the shillings stay off the wire for eyes without the permission. Units are units — every role hears the floor's arithmetic.
+
+### Styled
+- The panel wears the house inventory family: amber accents on light, dark halves from birth (`dark:bg-slate-900` panels), the muted family (`slate-500` / `dark:slate-400`) on every sub-line, emerald-700 close / red-700-short / emerald-700-over chips (the 3:1 contrast law), tabular-nums on every figure, the progress bar amber while counting and emerald complete.
+- Count entry is edits-only state (the v2.218 derivation law's sibling): the input holds the floor's typing, a recorded count lands on the wire, the sheet refetches — no seed state to churn.
+
+### Measured
+- `src/tests/stocktake-v2219.test.ts` (source pins: the models' shape, the one-open-sheet law, the snapshot-in-transaction, the count zero law, the close laws — holes, atomic claim, delta arithmetic, ADJUSTMENT movements, session actor, close-day pricing, the cost gate, the UI's honest states) + `scripts/verify-v2-219-0.mjs` wired as `verify:v2-219-0`.
+
 ## [2.218.0] The full restock
 
 The bridge learns the whole branch. v2.217.0's reorder bridge drafted from the org answer's NAMED rows — the loudest twelve items org-wide, the wire's honest window. A branch whose shortage outruns the cap could only draft the rows the answer happened to carry. This round gives the dialog a scope: the named rows (zero fetch) or the branch's OWN low-stock wire (one fetch, uncapped) — the restock story now covers every item at or below its level, and the modal discloses the cap instead of leaving it implied.
