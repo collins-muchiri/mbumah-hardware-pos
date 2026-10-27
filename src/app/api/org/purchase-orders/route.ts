@@ -46,12 +46,33 @@
 // A row whose supplier holds no low rows carries 0 — the chip stays
 // silent (absence stays absent). The roster CSV keeps its seven
 // columns: the stitch is a live whisper, not a row of the file.
+//
+// v2.228.0 THE WHISPER SPEAKS ITS NAMES — the count alone made the
+// org ask "WHICH rows?"; the stitch now answers. The same candidates
+// query (already carrying the two decimals) grows ONE cheap column
+// (name — catalog-bounded, not history-bounded), and the per-(store,
+// supplier) hint carries its first THREE speakers beside the count —
+// name + stock / level pairs, the SAME numbers the branch's own
+// watchlist face reads (the org sees the branch's truth, never a
+// second derivation). A cap, disclosed: the full roster lives on the
+// branch's watchlist face — the org wire stays a whisper, not a
+// second watchlist. Zero still answers an empty array — absence
+// stays absent.
 
 import { type NextRequest } from 'next/server';
 import { rawDb, runWithoutTenant } from '@/lib/db';
 import { withErrorBoundary } from '@/lib/logger';
 import { requireAuth, type AuthSession } from '@/lib/auth';
 import { hasFeaturePermission } from '@/lib/permissions';
+
+// v2.228.0: the whisper names at most THREE speakers — a cap,
+// disclosed (the full roster lives on the branch's own watchlist
+// face; the org wire stays a whisper, not a second watchlist).
+const WATCHLIST_NAMES_CAP = 3;
+
+// The hint's shape: the count answers every speaker; the rows carry
+// the first WATCHLIST_NAMES_CAP with the numbers the branch reads.
+export type WatchlistHint = { count: number; rows: Array<{ name: string; stock: number; level: number }> };
 
 export const dynamic = 'force-dynamic';
 
@@ -123,12 +144,17 @@ async function orgPurchaseOrdersHandler(request: NextRequest, session: AuthSessi
     // Two bounded queries, same org-wide law as the rows above.
     const storeIds = [...new Set(rows.map((po) => po.store.id))];
     const supplierIds = [...new Set(rows.map((po) => po.supplier.id))];
-    const hints = new Map<string, number>();
+    // v2.228.0: the hint carries its speakers beside the count (first
+    // WATCHLIST_NAMES_CAP as name + stock/level pairs, the cap
+    // disclosed on the face).
+    const hints = new Map<string, WatchlistHint>();
     if (storeIds.length > 0 && supplierIds.length > 0) {
       // The candidates: active products of the window's stores only.
+      // v2.228.0: name rides along (one cheap column) so the whisper
+      // can speak its speakers' names, not just their number.
       const candidates = await rawDb.product.findMany({
         where: { storeId: { in: storeIds }, isActive: true },
-        select: { id: true, storeId: true, quantityInStock: true, reorderLevel: true },
+        select: { id: true, storeId: true, name: true, quantityInStock: true, reorderLevel: true },
       });
       const low = candidates.filter((p) => Number(p.quantityInStock) <= Number(p.reorderLevel));
       if (low.length > 0) {
@@ -147,10 +173,21 @@ async function orgPurchaseOrdersHandler(request: NextRequest, session: AuthSessi
             supplierByProduct.set(item.productId, item.purchaseOrder.supplierId);
           }
         }
+        const nameById = new Map(low.map((p) => [p.id, p]));
         for (const [productId, supplierId] of supplierByProduct) {
           if (!supplierIds.includes(supplierId)) continue;
           const key = `${storeByProduct.get(productId)}:${supplierId}`;
-          hints.set(key, (hints.get(key) ?? 0) + 1);
+          const entry = hints.get(key) ?? { count: 0, rows: [] };
+          entry.count += 1;
+          if (entry.rows.length < WATCHLIST_NAMES_CAP) {
+            const p = nameById.get(productId);
+            entry.rows.push({
+              name: p?.name ?? 'a low row',
+              stock: Number(p?.quantityInStock ?? 0),
+              level: Number(p?.reorderLevel ?? 0),
+            });
+          }
+          hints.set(key, entry);
         }
       }
     }
@@ -183,7 +220,11 @@ async function orgPurchaseOrdersHandler(request: NextRequest, session: AuthSessi
         notes: po.notes,
         // v2.227.0: the branch's whisper — the low rows at this store
         // that last spoke to this supplier (0 stays silent on the face).
-        watchlistHints: result.hints.get(`${po.store.id}:${po.supplier.id}`) ?? 0,
+        // v2.228.0: the whisper speaks its speakers (first three — the
+        // cap is the wire's law, WATCHLIST_NAMES_CAP; zero answers an
+        // empty array, absence stays absent).
+        watchlistHints: result.hints.get(`${po.store.id}:${po.supplier.id}`)?.count ?? 0,
+        watchlist: result.hints.get(`${po.store.id}:${po.supplier.id}`)?.rows ?? [],
         // The shillings speak only past the cost gate (null otherwise —
         // the face renders the honest absence, never a hidden zero).
         totalAmount: canViewCost ? Number(po.totalAmount) : null,

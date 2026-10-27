@@ -29,7 +29,7 @@
 
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronRight, ClipboardList, Download } from 'lucide-react';
+import { ChevronRight, ClipboardList, Download, TriangleAlert } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -37,6 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { PoDrill, poStatusChip, type PoDrillTarget } from './po-drill';
 import { csvCell } from './sheet-drill';
 import { num, timeAgo, type StoreRow } from './primitives';
@@ -87,6 +88,10 @@ interface PoLedgerWire {
       // v2.227.0: the branch's whisper — low rows at this store whose
       // supplier of record is this row's supplier (0 = silence).
       watchlistHints: number;
+      // v2.228.0: the whisper's speakers — the first three (the wire's
+      // WATCHLIST_NAMES_CAP) as the branch's own numbers (stock/level);
+      // empty when the count is zero (absence stays absent).
+      watchlist: Array<{ name: string; stock: number; level: number }>;
       totalAmount: number | null;
     }>;
   };
@@ -286,12 +291,17 @@ export function ProcurementLedger({ stores }: { stores: StoreRow[] }) {
           ) : (
             <ul data-testid="po-ledger-rows" className="mt-1.5 max-h-[42vh] space-y-1.5 overflow-y-auto pr-1">
               {shownRows.map((po) => (
-                <li key={po.id} data-testid="po-ledger-row" className="rounded-lg border border-slate-100 bg-white/70 px-2.5 py-2 dark:border-slate-700 dark:bg-slate-800/60">
+                <li key={po.id} data-testid="po-ledger-row" className="relative flex flex-wrap items-center gap-2 rounded-lg border border-slate-100 bg-white/70 px-2.5 py-2 dark:border-slate-700 dark:bg-slate-800/60">
+                  {/* v2.228.0: the whisper moved OUT of the door button —
+                      a door inside a door is a lie the DOM refuses (the
+                      chip is now its own trigger, the drill stays the
+                      row's only navigation). Everything else rides the
+                      door exactly as before. */}
                   <button
                     type="button"
                     data-testid={`po-ledger-open-${po.id}`}
                     onClick={() => setDrill({ id: po.id, poNumber: po.poNumber, status: po.status })}
-                    className="flex w-full flex-wrap items-center justify-between gap-2 rounded text-left hover:bg-slate-50 dark:hover:bg-slate-800"
+                    className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-2 rounded text-left hover:bg-slate-50 dark:hover:bg-slate-800"
                   >
                     <span className="flex min-w-0 flex-wrap items-center gap-1.5">
                       <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide ring-1 ${poStatusChip(po.status)}`}>
@@ -299,22 +309,6 @@ export function ProcurementLedger({ stores }: { stores: StoreRow[] }) {
                       </span>
                       <span className="font-mono text-xs font-semibold tabular-nums text-slate-800 dark:text-slate-100">{po.poNumber}</span>
                       <span className="truncate text-xs text-slate-600 dark:text-slate-300">{po.supplierName}</span>
-                      {po.watchlistHints > 0 && (
-                        /* v2.227.0 THE WATCHLIST STITCH — the row wears
-                            its branch's whisper: the low rows at this
-                            store whose supplier of record is THIS row's
-                            supplier. Amber (the watchlist's own family,
-                            3:1 on both halves); the title speaks the
-                            whole sentence; zero stays silent — absence
-                            stays absent, never a padded chip. */
-                        <span
-                          data-testid="po-ledger-watchlist-hint"
-                          title={`${po.watchlistHints} ${po.watchlistHints === 1 ? 'row' : 'rows'} on ${po.store.name}'s watchlist ${po.watchlistHints === 1 ? 'hints' : 'hint'} at this supplier — the shelf will want a restock soon.`}
-                          className="inline-flex items-center rounded bg-amber-50 px-1.5 py-0.5 text-[9px] font-semibold tabular-nums text-amber-700 ring-1 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/30"
-                        >
-                          {po.watchlistHints} on the watchlist
-                        </span>
-                      )}
                       <span className="text-[9px] font-semibold text-slate-400 dark:text-slate-500">{po.store.code ?? po.store.name}</span>
                       <ChevronRight className="h-3 w-3 shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true" />
                     </span>
@@ -327,6 +321,57 @@ export function ProcurementLedger({ stores }: { stores: StoreRow[] }) {
                       </span>
                     </span>
                   </button>
+                  {po.watchlistHints > 0 && (
+                    /* v2.227.0 THE WATCHLIST STITCH / v2.228.0 THE WHISPER
+                        SPEAKS ITS NAMES — the row wears its branch's
+                        whisper on a trigger of its own: amber (the
+                        watchlist's own family, 3:1 on both halves), the
+                        count on the face, the SPEAKERS one door away in
+                        a read-only popover over the SAME wire response
+                        (zero new fetch — the names rode along). Zero
+                        stays silent: absence stays absent, never a
+                        padded chip; the trigger itself is absent then. */
+                    <Popover>
+                      <PopoverTrigger
+                        data-testid="po-ledger-watchlist-hint"
+                        title={`${po.watchlistHints} ${po.watchlistHints === 1 ? 'row' : 'rows'} on ${po.store.name}'s watchlist ${po.watchlistHints === 1 ? 'hints' : 'hint'} at this supplier — open the names.`}
+                        className="inline-flex shrink-0 items-center gap-1 rounded bg-amber-50 px-1.5 py-0.5 text-[9px] font-semibold tabular-nums text-amber-700 ring-1 ring-amber-200 transition-colors hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/30 dark:hover:bg-amber-500/20"
+                      >
+                        <TriangleAlert className="h-2.5 w-2.5" aria-hidden="true" />
+                        {po.watchlistHints} on the watchlist
+                      </PopoverTrigger>
+                      <PopoverContent
+                        data-testid="po-ledger-watchlist-popover"
+                        align="end"
+                        sideOffset={6}
+                        role="dialog"
+                        aria-label={`The ${po.watchlistHints} low ${po.watchlistHints === 1 ? 'row' : 'rows'} at ${po.store.name} hinting at ${po.supplierName}`}
+                        className="w-80 rounded-xl border border-amber-200 bg-amber-50 p-3 shadow-lg dark:border-amber-500/30 dark:bg-slate-900"
+                      >
+                        <p className="text-[11px] font-semibold text-amber-800 dark:text-amber-200">
+                          {po.watchlistHints} {po.watchlistHints === 1 ? 'row' : 'rows'} on {po.store.name}&apos;s watchlist {po.watchlistHints === 1 ? 'speaks' : 'speak'} to {po.supplierName}.
+                        </p>
+                        <ul className="mt-2 space-y-1">
+                          {po.watchlist.map((w) => (
+                            <li key={w.name} data-testid="po-ledger-watchlist-speaker" className="flex items-center justify-between gap-2 rounded-lg border border-amber-100 bg-white/80 px-2 py-1.5 dark:border-amber-500/20 dark:bg-slate-800/60">
+                              <span className="min-w-0 truncate text-[11px] font-medium text-slate-700 dark:text-slate-200">{w.name}</span>
+                              <span className="shrink-0 whitespace-nowrap text-[10px] tabular-nums text-slate-500 dark:text-slate-400">
+                                {num(w.stock)} on shelf / {num(w.level)} floor
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                        {po.watchlistHints > po.watchlist.length && (
+                          <p className="mt-1.5 text-[9px] text-amber-700 dark:text-amber-300">
+                            +{num(po.watchlistHints - po.watchlist.length)} more on the branch&apos;s own watchlist face — the whisper names three.
+                          </p>
+                        )}
+                        <p className="mt-1.5 text-[9px] text-slate-500 dark:text-slate-400">
+                          supplier of record = the most recent PO that carried the row — the branch&apos;s own derivation, read from up here.
+                        </p>
+                      </PopoverContent>
+                    </Popover>
+                  )}
                 </li>
               ))}
             </ul>

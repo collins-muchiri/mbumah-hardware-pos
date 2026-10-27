@@ -1812,4 +1812,51 @@
     max-height: none !important;
     overflow: visible !important;
   }
+  /* v2.228.0: paper hygiene — a line and its count box never split
+     across pages (the floor writes on one page, not two). */
+  body.sheet-printing [data-sheet-print] [data-testid="sheet-drill-lines-list"] > li {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+/* v2.228.0 THE CLIPBOARD — a COUNTING sheet's paper is the floor's
+   TOOL, not just its record: the walk-list. While the sheet still
+   counts, its paper grows three print-only fittings — a floor-copy
+   note under the header, an EMPTY COUNT BOX on every line (the
+   shelf's ask: write what you see), and the signature rules at the
+   foot (counted by / checked by / date). The SCREEN never shows them
+   (a screen face never pretends to be a pen — the base rule below
+   keeps them display:none), only the paper does. CLOSED and
+   CANCELLED sheets carry no clipboard attribute: their paper stays
+   the v2.227 record face — the mode IS the sheet's status, never a
+   toggle. */
+[data-sheet-clipboard] [data-sheet-count-box],
+[data-sheet-clipboard] [data-sheet-clipboard-note],
+[data-sheet-clipboard] [data-sheet-clipboard-signatures] { display: none; }
+@media print {
+  body.sheet-printing [data-sheet-clipboard] [data-sheet-clipboard-note] {
+    display: block !important;
+  }
+  body.sheet-printing [data-sheet-clipboard] [data-sheet-count-box] {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+  }
+  /* the write-in spans the line's remaining width on paper — a pen
+     needs room, a fixed 10rem box does not give it */
+  body.sheet-printing [data-sheet-clipboard] [data-sheet-count-box] > span:last-child {
+    flex: 1 1 auto !important;
+    width: auto !important;
+    min-width: 6rem !important;
+    border: 1px dashed #94a3b8 !important;
+    background: #ffffff !important;
+  }
+  body.sheet-printing [data-sheet-clipboard] [data-sheet-clipboard-signatures] {
+    display: flex !important;
+    align-items: flex-end !important;
+    gap: 1rem !important;
+    margin-top: 1rem !important;
+  }
 }
