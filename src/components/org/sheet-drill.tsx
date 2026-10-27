@@ -27,6 +27,17 @@
 // uncounted); the button hides on a sheet that froze no lines (an
 // absent control never lies).
 //
+// v2.227.0 THE SHEET'S PAPER — the ring binder's paper to the CSV's
+// file: while a sheet drill is open the body carries the sheet-
+// printing class, and the print stylesheet (globals.css) silences the
+// shell and lays the open sheet on the page — header, tiles, notes,
+// lines with their variance chips. The controls (close, finder, CSV/
+// Print, N-of-M) stay off the paper — a control is a screen thing.
+// The Print button mounts only once the sheet has loaded AND froze
+// lines (the CSV sibling law: an absent control never lies);
+// window.print() is the whole machinery. The twice-proven PO drill
+// pattern transplanted, the amber family's turn.
+//
 // THE LAWS IT INHERITS:
 // • the cost law: the wire's varianceValue and per-line varianceCost
 //   arrive null past the cost gate — the face renders the honest
@@ -41,8 +52,8 @@
 //   the 3:1 contrast law on every chip.
 
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
-import { ClipboardCheck, Download, Search, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ClipboardCheck, Download, Printer, Search, X } from 'lucide-react';
 import { num, timeAgo } from './primitives';
 
 const fmtKes = (v: number) =>
@@ -138,6 +149,17 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
     },
   });
 
+  // v2.227.0: THE SHEET'S PAPER's gate — while the drill is open, the
+  // body carries the class the print stylesheet reads (the shell falls
+  // silent, the sheet becomes the page). A mount/unmount lifecycle
+  // effect: the class lives exactly as long as the door does. It rides
+  // ABOVE the null guard — hooks never ride a conditional (the v2.226
+  // lesson bank, applied before it could bite here too).
+  useEffect(() => {
+    document.body.classList.add('sheet-printing');
+    return () => document.body.classList.remove('sheet-printing');
+  }, []);
+
   if (!target) return null;
   const data = wire.data?.data;
 
@@ -172,12 +194,14 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
   return (
     <div
       data-testid="sheet-drill"
+      data-sheet-print-overlay=""
       role="dialog"
       aria-label={`Count sheet at ${target.storeName}`}
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 dark:bg-slate-950/70"
       onClick={onClose}
     >
       <div
+        data-sheet-print=""
         className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-700 dark:bg-slate-900"
         onClick={(e) => e.stopPropagation()}
       >
@@ -204,6 +228,7 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
           <button
             type="button"
             data-testid="sheet-drill-close"
+            data-sheet-print-off=""
             aria-label="Close the sheet drill"
             onClick={onClose}
             className="rounded p-1 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
@@ -274,23 +299,44 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">the lines</p>
                 <div className="flex items-center gap-1.5">
                   {data && data.lines.length > 0 && (
-                    /* v2.224.0: THE SHEET'S COPY — the whole sheet, one
-                        file. Absent on a line-less sheet (an absent
-                        control never lies); the aria names the whole-
-                        sheet law so the ear reads the same contract. */
-                    <button
-                      type="button"
-                      data-testid="sheet-drill-export"
-                      aria-label={`Download all ${data.lines.length} lines as CSV`}
-                      title="the whole sheet, one file — the finder narrows the reading, never the export"
-                      onClick={exportLines}
-                      className="flex h-6 items-center gap-1 rounded-md border border-slate-200 bg-white px-1.5 text-[10px] font-semibold text-slate-600 transition-colors hover:bg-slate-50 focus:outline-none focus:ring-1 focus:ring-amber-500/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
-                    >
-                      <Download className="h-3 w-3" aria-hidden="true" />
-                      CSV
-                    </button>
+                    <>
+                      {/* v2.227.0: THE SHEET'S PAPER — the print act,
+                          named for the ear. The stylesheet lays the
+                          sheet on the page; this button only names it.
+                          Mounts beside the CSV under the SAME gate (a
+                          sheet that froze no lines prints nothing but
+                          silence — an absent control never lies). */}
+                      <button
+                        type="button"
+                        data-testid="sheet-drill-print"
+                        data-sheet-print-off=""
+                        aria-label={`Print all ${data.lines.length} lines of the count sheet at ${target.storeName}`}
+                        title="the sheet's paper — the face lays itself on the page; the controls stay off the paper"
+                        onClick={() => window.print()}
+                        className="flex h-6 items-center gap-1 rounded-md border border-slate-200 bg-white px-1.5 text-[10px] font-semibold text-slate-600 transition-colors hover:bg-slate-50 focus:outline-none focus:ring-1 focus:ring-amber-500/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+                      >
+                        <Printer className="h-3 w-3" aria-hidden="true" />
+                        Print
+                      </button>
+                      {/* v2.224.0: THE SHEET'S COPY — the whole sheet, one
+                          file. Absent on a line-less sheet (an absent
+                          control never lies); the aria names the whole-
+                          sheet law so the ear reads the same contract. */}
+                      <button
+                        type="button"
+                        data-testid="sheet-drill-export"
+                        data-sheet-print-off=""
+                        aria-label={`Download all ${data.lines.length} lines as CSV`}
+                        title="the whole sheet, one file — the finder narrows the reading, never the export"
+                        onClick={exportLines}
+                        className="flex h-6 items-center gap-1 rounded-md border border-slate-200 bg-white px-1.5 text-[10px] font-semibold text-slate-600 transition-colors hover:bg-slate-50 focus:outline-none focus:ring-1 focus:ring-amber-500/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+                      >
+                        <Download className="h-3 w-3" aria-hidden="true" />
+                        CSV
+                      </button>
+                    </>
                   )}
-                  <span className="relative">
+                  <span className="relative" data-sheet-print-off="">
                     <Search className="pointer-events-none absolute left-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400 dark:text-slate-500" aria-hidden="true" />
                     <input
                       type="text"
@@ -314,7 +360,7 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
                     )}
                   </span>
                   {data && (
-                    <span data-testid="sheet-drill-finder-count" className="whitespace-nowrap text-[10px] tabular-nums text-slate-500 dark:text-slate-400">
+                    <span data-testid="sheet-drill-finder-count" data-sheet-print-off="" className="whitespace-nowrap text-[10px] tabular-nums text-slate-500 dark:text-slate-400">
                       {num(shownLines.length)} of {num(data.lines.length)}
                     </span>
                   )}

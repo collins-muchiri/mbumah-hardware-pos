@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.227.0',
+    title: 'The sheet’s paper',
+    bullets: [
+      'The count sheet drill grew its own Print button: while a sheet is open, printing lays the sheet itself on the page — header, tiles, notes, lines with their variance chips — with every control staying off the paper. The CSV was the ring binder’s file; this is its paper.',
+      'The procurement ledger’s rows now wear their branch’s whisper: a chip that counts the low-stock rows at that branch whose supplier of record is the row’s supplier — the watchlist hinting at the order before it is even raised. Zero stays silent.',
+      'The whisper reads the branch’s own watchlist law: the same supplier-of-record derivation the Low-Stock Alert Panel speaks, so the chip’s number is the number the branch would group.',
+    ],
+  },
+  {
     version: '2.226.0',
     title: 'The paper trail',
     bullets: [

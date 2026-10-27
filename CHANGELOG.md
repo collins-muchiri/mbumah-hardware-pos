@@ -2,6 +2,18 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.227.0] The sheet's paper
+
+The ring binder's paper reaches the second shelf. The v2.224.0 sheet drill grew the count's file (CSV); this round the sheet grows its PAPER — while a drill is open, printing lays the count itself on the page. And the procurement ledger's rows learn to whisper: each row wears its branch's watchlist count against the row's own supplier, the floor hinting at the order before anyone raises it.
+
+### Added
+- **The sheet's print face** (`src/app/globals.css` + `src/components/org/sheet-drill.tsx`): while a count-sheet drill is open, the body carries the `sheet-printing` class (a mount/unmount lifecycle effect riding ABOVE the null guard — hooks never ride a conditional), and the print stylesheet silences the shell and lays the open sheet on the page: header, summary tiles, notes, lines with their variance chips — chips keep their colors (`print-color-adjust: exact`). The controls (close, finder, CSV/Print buttons, the N-of-M count) stay off the paper via `data-sheet-print-off` — a control is a screen thing. Without an open drill the class is absent and printing behaves exactly as before; the v2.226 PO paper is untouched (the two faces are mutually exclusive by construction — one drill door at a time).
+- **The sheet's Print button** (`sheet-drill.tsx`): named for the ear (`data-testid="sheet-drill-print"`, aria-label "Print all N lines of the count sheet at …", title speaking the law); mounts beside the CSV under the SAME gate — a sheet that froze no lines prints nothing but silence. `window.print()` is the whole machinery; the stylesheet does the work.
+- **The watchlist stitch** (`GET /api/org/purchase-orders` + `src/components/org/po-ledger.tsx`): the ledger wire now answers, per row, `watchlistHints` — how many products at or below their reorder level at the row's OWN store last spoke to the row's supplier (the branch low-stock wire's own supplier-of-record derivation: the most recent PO that carried the product wins). Two bounded queries ride inside the same `runWithoutTenant` (candidates: the active products of the window's stores, three cheap columns; items: PO history of the low candidates only) and the stitch answers for the narrowing — a branch filter narrows the candidates. The row wears the count on an amber chip (the watchlist's own family) with the whole sentence on its title; zero stays silent — absence stays absent, never a padded chip. The roster CSV keeps its seven columns: the stitch is a live whisper, not a row of the file.
+
+### Styled
+- The Print button wears the sheet drill's house border family with the AMBER focus ring (the sheet's hue — the PO drill's print button keeps its sky); the watchlist chip is the amber family at 3:1 on both halves (amber-50/amber-700 light, amber-500/10/amber-300 dark, amber ring), tabular-nums on the count; the paper face inherits the sheet's tiles, notes and variance chips with exact color reproduction; dark halves from birth on every new element.
+
 ## [2.226.0] The paper trail
 
 The ring binder gets its paper. The v2.225.0 drill grew the order's file (CSV); this round the order grows its SHEET — while a drill is open, printing lays the document itself on the page, and the lines carry the voices they always held in the database (their notes). And the ledger's window joins the portable family: one file for the whole roster.

@@ -84,6 +84,9 @@ interface PoLedgerWire {
       supplierName: string;
       raisedByName: string | null;
       notes: string | null;
+      // v2.227.0: the branch's whisper — low rows at this store whose
+      // supplier of record is this row's supplier (0 = silence).
+      watchlistHints: number;
       totalAmount: number | null;
     }>;
   };
@@ -296,6 +299,22 @@ export function ProcurementLedger({ stores }: { stores: StoreRow[] }) {
                       </span>
                       <span className="font-mono text-xs font-semibold tabular-nums text-slate-800 dark:text-slate-100">{po.poNumber}</span>
                       <span className="truncate text-xs text-slate-600 dark:text-slate-300">{po.supplierName}</span>
+                      {po.watchlistHints > 0 && (
+                        /* v2.227.0 THE WATCHLIST STITCH — the row wears
+                            its branch's whisper: the low rows at this
+                            store whose supplier of record is THIS row's
+                            supplier. Amber (the watchlist's own family,
+                            3:1 on both halves); the title speaks the
+                            whole sentence; zero stays silent — absence
+                            stays absent, never a padded chip. */
+                        <span
+                          data-testid="po-ledger-watchlist-hint"
+                          title={`${po.watchlistHints} ${po.watchlistHints === 1 ? 'row' : 'rows'} on ${po.store.name}'s watchlist ${po.watchlistHints === 1 ? 'hints' : 'hint'} at this supplier — the shelf will want a restock soon.`}
+                          className="inline-flex items-center rounded bg-amber-50 px-1.5 py-0.5 text-[9px] font-semibold tabular-nums text-amber-700 ring-1 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/30"
+                        >
+                          {po.watchlistHints} on the watchlist
+                        </span>
+                      )}
                       <span className="text-[9px] font-semibold text-slate-400 dark:text-slate-500">{po.store.code ?? po.store.name}</span>
                       <ChevronRight className="h-3 w-3 shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true" />
                     </span>
