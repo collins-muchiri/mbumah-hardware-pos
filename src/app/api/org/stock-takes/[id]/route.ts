@@ -152,6 +152,24 @@ async function orgStockTakeDetailHandler(_request: NextRequest, session: AuthSes
     aisleBand = await readCategoryBand(db, sheet.walkCategoryId, law, new Date());
   }
 
+  // v2.247.0 THE WALK'S MIRROR — the sheet's OWN spoken units in its
+  // aisle, beside the aisle's latest-window verdict (walkAisleUnits).
+  // The lib's own testament law mirrored back at the sheet itself: ONE
+  // bounded aggregate, indexed by the sheet's id, the same
+  // product-category join + variance-not-null shape readCategoryBand
+  // speaks. THE UNITS LAW: units are units — the cost gate is NOT
+  // involved; a perfect count speaks 0 — the shelf held this walk;
+  // nothing spoke (no counted lines on the aisle) → null, the honest
+  // absence, never a hidden zero.
+  let walkAisleSheetUnits: number | null = null;
+  if (sheet.walkCategoryId) {
+    const self = await db.stockTakeLine.aggregate({
+      where: { stockTakeId: id, product: { categoryId: sheet.walkCategoryId }, variance: { not: null } },
+      _sum: { variance: true },
+    });
+    walkAisleSheetUnits = self._sum.variance == null ? null : Math.round(Number(self._sum.variance) * 100) / 100;
+  }
+
   return Response.json({
     success: true,
     data: {
@@ -177,6 +195,13 @@ async function orgStockTakeDetailHandler(_request: NextRequest, session: AuthSes
       walkAisleBand: aisleBand?.band ?? null,
       walkAisleDaysSince: aisleBand?.daysSince ?? null,
       walkAisleUnits: aisleBand?.lastWalkUnits ?? null,
+      // v2.247.0 THE WALK'S MIRROR — the sheet's own aisle units ride
+      // beside the aisle's latest (additive + optional): when the two
+      // differ, the faces speak BOTH truths (this walk found X · the
+      // aisle's latest found Y); when they agree, the single verdict
+      // line keeps the floor's one voice. Null when not aisle-born or
+      // nothing spoke — the honest absence, never a hidden zero.
+      walkAisleSheetUnits,
       // v2.234.0 THE VERDICT — additive (the honest absence when no
       // child exists: null, never a hidden zero).
       recountedBy,
