@@ -32,7 +32,11 @@ import { ADMIN_CURRENCY_RATES_QUERY_KEY, RATE_SOURCE_PHRASE, type RatesWireBody 
 import { useCurrency } from '@/hooks/use-currency';
 import { CURRENCY_BY_CODE, formatCurrency } from '@/lib/currency-utils';
 import { SheetDrill, type SheetDrillTarget } from './sheet-drill';
-import { num, timeAgo, type KpiSummaryData, type StoreRow } from './primitives';
+import {
+  num, timeAgo,
+  parseSheetLineage, LineageChip,
+  type KpiSummaryData, type StoreRow,
+} from './primitives';
 
 const fmtKes = (v: number) =>
   `KES ${v.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -197,10 +201,27 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
                       <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700" role="img" aria-label={`${s.storeName}: counted ${s.countedCount} of ${s.lineCount} lines`}>
                         <span className="block h-full rounded-full bg-amber-500" style={{ width: `${pct}%` }} />
                       </div>
-                      <p className="mt-1 text-[10px] text-slate-500 dark:text-slate-400">
-                        opened {timeAgo(s.startedAt)}{s.startedByName ? ` by ${s.startedByName}` : ''}
-                        {s.notes ? ` · ${s.notes}` : ''}
-                      </p>
+                      {/* v2.233.0 THE LINEAGE — the live row reads its own
+                          note: a recount lineage wears the amber chip (the
+                          raw text would only murmur), a plain note keeps
+                          the verbatim murmur it always had. */}
+                      {(() => {
+                        const lineage = parseSheetLineage(s.notes);
+                        if (lineage?.kind === 'recount' && lineage.sourceSheetId) {
+                          return (
+                            <p className="mt-1 flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400">
+                              opened {timeAgo(s.startedAt)}{s.startedByName ? ` by ${s.startedByName}` : ''}
+                              <LineageChip lineage={lineage} testId={`variance-map-lineage-${s.id}`} />
+                            </p>
+                          );
+                        }
+                        return (
+                          <p className="mt-1 text-[10px] text-slate-500 dark:text-slate-400">
+                            opened {timeAgo(s.startedAt)}{s.startedByName ? ` by ${s.startedByName}` : ''}
+                            {s.notes ? ` · ${s.notes}` : ''}
+                          </p>
+                        );
+                      })()}
                     </li>
                   );
                 })}
@@ -220,6 +241,13 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
                 {block.recentSheets.map((s) => {
                   const chip = s.status === 'CLOSED' && s.varianceUnits != null ? varianceChip(s.varianceUnits) : null;
                   const branch = stores.find((st) => st.id === s.storeId);
+                  // v2.233.0 THE LINEAGE — the roster row reads its own
+                  // note (the wire already carries it — zero new fetch):
+                  // a recount lineage wears the amber chip beside the
+                  // status; a CANCELLED sheet with a reason speaks the
+                  // why on its own line (the audit trail, at a glance).
+                  const lineage = parseSheetLineage(s.notes);
+                  const whyLine = s.status === 'CANCELLED' && lineage?.kind === 'note' ? lineage.text : null;
                   return (
                     <li key={s.id} data-testid="variance-map-sheet-row" className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-100 bg-white/70 px-2.5 py-2 dark:border-slate-700 dark:bg-slate-800/60">
                       <button
@@ -231,6 +259,9 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
                         <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide ring-1 ${statusChip(s.status)}`}>
                           {s.status}
                         </span>
+                        {lineage?.kind === 'recount' && lineage.sourceSheetId && (
+                          <LineageChip lineage={lineage} testId={`variance-map-lineage-${s.id}`} />
+                        )}
                         <span className="truncate text-xs font-medium text-slate-700 dark:text-slate-200">{s.storeName}</span>
                         <span className="text-[9px] font-semibold text-slate-400 dark:text-slate-500">{branch?.code ?? s.storeCode ?? ''}</span>
                         <ChevronRight className="h-3 w-3 shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true" />
@@ -250,6 +281,15 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
                             : `opened ${timeAgo(s.startedAt)}`}
                         </span>
                       </span>
+                      {whyLine && (
+                        <p
+                          data-testid={`variance-map-why-${s.id}`}
+                          title={whyLine}
+                          className="w-full truncate border-t border-slate-100 pt-1 text-[10px] italic text-slate-500 dark:border-slate-800 dark:text-slate-400"
+                        >
+                          why: {whyLine}
+                        </p>
+                      )}
                     </li>
                   );
                 })}

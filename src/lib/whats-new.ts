@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.233.0',
+    title: 'The lineage',
+    bullets: [
+      'A sheet’s note is now read as a record: the recount’s “recount of sheet …” wears an amber lineage chip on the org map’s rosters, the branch roster, and the drill — the full source id on the hover and on the ear.',
+      'A cancelled sheet speaks its reason: the map’s roster grows a “why: …” line, the drill a “why the void” face, and the branch’s cancelled face names the reason it kept.',
+      'The walker sees it too: a recount sheet opened at the branch wears its lineage under the header — the whole source id, where the pens live.',
+      'Zero new fetches: the notes already rode the wires — this round only teaches the faces to read them.',
+    ],
+  },
+  {
     version: '2.232.0',
     title: 'The recount',
     bullets: [

@@ -96,7 +96,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { ArrowRight, ClipboardCheck, Download, Printer, Search, X } from 'lucide-react';
-import { num, timeAgo } from './primitives';
+import { num, timeAgo, parseSheetLineage } from './primitives';
 
 const fmtKes = (v: number) =>
   `KES ${v.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -377,11 +377,51 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
               </div>
             </div>
 
-            {data.notes && (
-              <p data-testid="sheet-drill-notes" className="mt-2 rounded-lg bg-slate-50 px-2.5 py-1.5 text-[10px] text-slate-500 dark:bg-slate-800/60 dark:text-slate-400">
-                {data.notes}
-              </p>
-            )}
+            {/* v2.233.0 THE LINEAGE — the note, read as a record. Three
+                faces, one law: the note speaks verbatim, the face only
+                decides HOW LOUD.
+                • a recount lineage wears the amber face: the full source
+                  id (the whole truth — the roster chip only whispers),
+                  any remainder, and the status-voiced line (what this
+                  sheet means in the loop);
+                • a CANCELLED sheet's note is the branch's reason — it
+                  earns the "why the void" face;
+                • any other note keeps the verbatim box it always had.
+                All three ride the paper (no print-off mark): a printed
+                record carries its own lineage. */}
+            {data.notes && (() => {
+              const lineage = parseSheetLineage(data.notes);
+              if (lineage?.kind === 'recount' && lineage.sourceSheetId) {
+                return (
+                  <div data-testid="sheet-drill-lineage" className="mt-2 rounded-lg border border-amber-200 bg-amber-50/60 px-2.5 py-1.5 text-[10px] text-amber-800 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200">
+                    <p className="font-semibold">
+                      recount of sheet <span className="tabular-nums">{lineage.sourceSheetId}</span>
+                    </p>
+                    {lineage.remainder && <p className="mt-0.5">{lineage.remainder}</p>}
+                    <p className="mt-0.5 text-[9px] text-amber-700 dark:text-amber-300/80">
+                      {data.status === 'COUNTING'
+                        ? 'the re-walk is on the floor — these lines were the last dispute.'
+                        : data.status === 'CLOSED'
+                          ? 'the dispute was re-walked — this sheet is the verdict.'
+                          : 'the re-walk was voided before it spoke.'}
+                    </p>
+                  </div>
+                );
+              }
+              if (data.status === 'CANCELLED') {
+                const why = lineage ? lineage.text : data.notes;
+                return (
+                  <p data-testid="sheet-drill-void-why" className="mt-2 rounded-lg bg-slate-50 px-2.5 py-1.5 text-[10px] italic text-slate-500 dark:bg-slate-800/60 dark:text-slate-400">
+                    why the void: {why}
+                  </p>
+                );
+              }
+              return (
+                <p data-testid="sheet-drill-notes" className="mt-2 rounded-lg bg-slate-50 px-2.5 py-1.5 text-[10px] text-slate-500 dark:bg-slate-800/60 dark:text-slate-400">
+                  {data.notes}
+                </p>
+              );
+            })()}
 
             {/* The lines — read-only. Uncounted first (the wire's order),
                 then alphabetical; the variance chip carries the meaning.
