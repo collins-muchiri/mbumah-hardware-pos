@@ -2,6 +2,23 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.250.0] The branch's gate
+
+The cost gate comes down to the branch: the org wires have spoken the shillings' law since v2.227.0 and the products wire since v2.12.2, but the branch purchase-order wires never grew the gate — every viewer with store access read the roster's totals, the document's financial block and every line's cost. This round the branch wires answer the same truth, every face wears the honest absence, and the birth strip learns the aisle's own cadence.
+
+### Added
+- **The branch list wire's gate** (`GET /api/purchase-orders`): `inventory.view.cost` governs the roster's shillings — `subTotal`/`taxAmount`/`totalAmount` speak `Number()` past the gate, `null` otherwise (never a hidden zero); the envelope grows `costGated` (the org wire's own flag — the faces branch on the truth the wire speaks, never on a role name guessed client-side).
+- **The branch detail wire's gate** (`GET /api/purchase-orders/[id]`): the document answers the same truth — the header's three money fields, the lines' `unitCost`/`totalCost`, the product's book cost — `null` past the gate, `Number()` past it.
+- **The aisle's band on the birth strip** (`GET /api/org/purchase-orders/[id]` + `po-drill.tsx`): the walk order's own cadence chip rides the violet strip — `readCategoryBand` (the census's single-aisle read, the stored law, one home) answers fresh/stale/beyond/never, and the chip wears `bandHouse`'s byte-identical classes. A read that fails is silence — never a guessed house.
+- **The ledger CSV's aisle column** (`rosterCsv`): the file grows `,aisle` beside `,birth` — the wire already carried the walk order's name (zero new fetch); a hand-raised row's aisle cell exports empty.
+
+### Fixed
+- **The create dialog's pre-gate pen** (`purchase-orders-tab.tsx`): the products wire has gated `costPrice` since v2.12.2, but the picker's stock line rendered `KES null` and the pen prefilled the string `"null"` for cost-blind roles. The pen now starts EMPTY (the user's own typed truth) and the stock line speaks units alone.
+- **The suppliers card's guarded sum** (`suppliers-tab.tsx`): the performance card's value reduce sums only what the wire carried — a masked row contributes its absence, never a NaN.
+
+### Styled
+- **The mask voices**: one shared law — the roster's money cell, the detail's Total Amount, the line cells and the KPI wear the muted em-dash with "the shillings stay with the cost-holders" on the title; the detail's financial block renders the dashed absence card ("the books hold this order's shillings — a cost-holder reads the total here.") instead of three formatted nulls; the money sort's arrow stands down when the gate is down (the label keeps its mask in the title, the toggle a backstop guard).
+
 ## [2.249.0] The birth's ledger
 
 The walk's answer went up to the org face: a restock born at a count sheet has worn the violet birth on the branch roster since v2.248.0, but the org's procurement ledger — the face that watches every branch's pipe — read every row the same. This round the ledger learns the birth, the drill names the sheet, and the door prices the hole.

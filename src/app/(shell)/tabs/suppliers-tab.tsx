@@ -235,7 +235,9 @@ function SupplierPOPerformanceCard({ purchaseOrders }: { purchaseOrders: Purchas
     return new Date(po.createdAt).getTime() <= new Date(po.expectedDate).getTime();
   });
   const fulfilledPOs = purchaseOrders.filter(po => po.status !== 'CANCELLED');
-  const _totalPOValue = purchaseOrders.filter(po => po.status !== 'CANCELLED').reduce((s, po) => s + po.totalAmount, 0);
+  // v2.250.0: the gate's guard — the reduce sums only what the wire
+  // carried (a masked row contributes its absence, never a NaN).
+  const _totalPOValue = purchaseOrders.filter(po => po.status !== 'CANCELLED').reduce((s, po) => s + (po.totalAmount ?? 0), 0);
 
   const onTimeRate = receivedPOs.length > 0 ? Math.round((onTimePOs.length / receivedPOs.length) * 100) : 0;
   const fulfillmentRate = purchaseOrders.length > 0 ? Math.round((fulfilledPOs.length / purchaseOrders.length) * 100) : 100;

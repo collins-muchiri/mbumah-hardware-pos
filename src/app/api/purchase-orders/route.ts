@@ -5,6 +5,9 @@ import { db } from '@/lib/db';
 import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { LogSeverity, LogComponent } from '@/lib/types';
 import { requireStoreAccess, type AuthSession } from '@/lib/auth';
+// v2.250.0: the gate's reader lives with the org wires' own (the auth
+// module never exported it — the build caught the import's address).
+import { hasFeaturePermission } from '@/lib/permissions';
 import { withSequenceRetry } from '@/lib/sequence';
 // Task 12-c: canonical financial math - line totalCost = round2(qty × unitCost)
 // computed in Decimal (HALF_UP). The old `Math.round(qty × unitCost × 100)/100`
@@ -22,9 +25,17 @@ const FALLBACK_VAT_RATE = 16;
 
 async function getPurchaseOrdersHandler(
   request: NextRequest,
-  _session: AuthSession,
+  session: AuthSession,
 ): Promise<Response> {
   const { searchParams } = new URL(request.url);
+
+  // v2.250.0 THE BRANCH'S GATE — the org wires have spoken the cost gate
+  // since v2.227.0 and the products wire since v2.12.2, but this wire
+  // never grew it: every viewer with store access read the roster's
+  // shillings. The law lands here (additive in shape — the same
+  // `costGated` flag the org wire speaks) and the faces render the
+  // honest absence, never a hidden zero.
+  const canViewCost = hasFeaturePermission(session.role, 'inventory.view.cost');
 
   const storeId = searchParams.get('storeId');
   if (!storeId) {
@@ -93,12 +104,26 @@ async function getPurchaseOrdersHandler(
 
   const result = purchaseOrders.map((po) => {
     const { _count, ...poData } = po as typeof po & { _count?: { items: number } };
-    return { ...poData, itemCount: _count?.items ?? 0 };
+    return {
+      ...poData,
+      itemCount: _count?.items ?? 0,
+      // v2.250.0 THE BRANCH'S GATE — the roster's shillings speak only
+      // past the gate (null otherwise — the face renders the honest
+      // absence, never a hidden zero; the units and the statuses stay
+      // every viewer's own truth).
+      subTotal: canViewCost ? Number(poData.subTotal) : null,
+      taxAmount: canViewCost ? Number(poData.taxAmount) : null,
+      totalAmount: canViewCost ? Number(poData.totalAmount) : null,
+    };
   });
 
   return Response.json({
     success: true,
     data: result,
+    // v2.250.0: the gate's own flag rides the envelope (the org wire's
+    // shape) — the faces branch on the truth the wire speaks, never on
+    // a role name guessed client-side.
+    costGated: !canViewCost,
     pagination: {
       page,
       limit,

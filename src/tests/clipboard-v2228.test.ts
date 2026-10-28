@@ -43,9 +43,9 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.228.0)', () => {
   it('package.json leads 2.228.0 (all three slots)', () => {
-    expect(version).toBe('2.249.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.249.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.249.0');
+    expect(version).toBe('2.250.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.250.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.250.0');
   });
 
   it('the changelog anchors the section ABOVE its ancestor (the structural pin — headers, never bare strings)', () => {
@@ -238,8 +238,8 @@ describe('the whisper\u2019s door (po-ledger.tsx)', () => {
     expect(card).toContain('dark:text-amber-200');
   });
 
-  it('the roster CSV keeps its whisper chip a live voice (the birth column rode the file at v2.249.0 — the whisper is still not a row of the file)', () => {
-    expect(ledger).toContain("const header = 'po_number,status,supplier,branch,lines,ordered_day,total_kes,birth';");
+  it('the roster CSV keeps its whisper chip a live voice (the birth column rode the file at v2.249.0, the aisle beside it at v2.250.0 — the whisper is still not a row of the file)', () => {
+    expect(ledger).toContain("const header = 'po_number,status,supplier,branch,lines,ordered_day,total_kes,birth,aisle';");
   });
 
   it('the door button keeps its testid and its drill (the row\u2019s only navigation)', () => {

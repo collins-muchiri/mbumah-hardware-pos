@@ -277,7 +277,10 @@ function CreatePODialog({
         name: product.name,
         sku: product.sku,
         quantity: '1',
-        unitCost: String(product.costPrice),
+        // v2.250.0: the products wire's own gate rides here — a
+        // cost-blind pen starts EMPTY (the user's own typed truth),
+        // never the string "null".
+        unitCost: product.costPrice != null ? String(product.costPrice) : '',
         currentStock: product.quantityInStock,
       },
     ]);
@@ -301,7 +304,8 @@ function CreatePODialog({
         name: p.name,
         sku: p.sku,
         quantity: String(Math.max(Math.ceil(p.reorderLevel * 2 - p.quantityInStock), 1)),
-        unitCost: String(p.costPrice),
+        // v2.250.0: the empty pen past the gate (never the "null" string).
+        unitCost: p.costPrice != null ? String(p.costPrice) : '',
         currentStock: p.quantityInStock,
       }));
       setPoItems([...poItems, ...newItems]);
@@ -576,7 +580,11 @@ function CreatePODialog({
                         <p className="text-xs text-muted-foreground font-mono">{product.sku}</p>
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        Stock: {product.quantityInStock} &middot; {formatKES(product.costPrice)}
+                        {/* v2.250.0: the picker's stock line — the book cost speaks
+                        only when the products wire carried it; a cost-blind
+                        viewer reads the units alone, never "KES null". */}
+                        Stock: {product.quantityInStock}
+                        {product.costPrice != null && <> &middot; {formatKES(product.costPrice)}</>}
                       </div>
                     </button>
                   ))
@@ -1157,26 +1165,51 @@ function PODetailView({
                 label="Expected Date"
                 value={detail.expectedDate ? formatDate(detail.expectedDate) : 'Not set'}
               />
-              <InfoItem icon={<Receipt className="h-4 w-4" />} label="Total Amount" value={formatKES(detail.totalAmount)} />
+              <InfoItem
+                icon={<Receipt className="h-4 w-4" />}
+                label="Total Amount"
+                // v2.250.0: the document's money face — the mask voice past
+                // the gate (the field's own absence is the truth the wire
+                // spoke; never a formatted null).
+                value={
+                  detail.totalAmount != null ? (
+                    formatKES(detail.totalAmount)
+                  ) : (
+                    <span className="text-muted-foreground/60" title="the shillings stay with the cost-holders">—</span>
+                  )
+                }
+              />
               <InfoItem icon={<Package className="h-4 w-4" />} label="Items" value={`${detail.items?.length ?? detail.itemCount ?? 0} line items`} />
             </div>
 
             {/* Financial Summary */}
-            <div className="p-3 bg-muted/30 rounded-lg border text-sm space-y-1.5">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Subtotal</span>
-                <span>{formatKES(detail.subTotal)}</span>
+            {detail.totalAmount == null ? (
+              // v2.250.0 THE BRANCH'S GATE — the financial block speaks the
+              // mask when the wire gated the shillings: one honest line in
+              // the dashed absence card, never three formatted nulls.
+              <div
+                className="p-3 bg-muted/20 rounded-lg border border-dashed text-sm text-muted-foreground"
+                title="the shillings stay with the cost-holders"
+              >
+                the books hold this order&apos;s shillings — a cost-holder reads the total here.
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Tax ({vatRate}% VAT)</span>
-                <span>{formatKES(detail.taxAmount)}</span>
+            ) : (
+              <div className="p-3 bg-muted/30 rounded-lg border text-sm space-y-1.5">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span>{formatKES(detail.subTotal)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Tax ({vatRate}% VAT)</span>
+                  <span>{formatKES(detail.taxAmount)}</span>
+                </div>
+                <Separator />
+                <div className="flex justify-between font-bold text-base">
+                  <span>Total</span>
+                  <span>{formatKES(detail.totalAmount)}</span>
+                </div>
               </div>
-              <Separator />
-              <div className="flex justify-between font-bold text-base">
-                <span>Total</span>
-                <span>{formatKES(detail.totalAmount)}</span>
-              </div>
-            </div>
+            )}
 
             {/* Audit Info */}
             <div className="grid grid-cols-2 gap-3 text-xs">
@@ -1268,9 +1301,21 @@ function PODetailView({
                             </div>
                           </TableCell>
                           <TableCell className="text-center text-sm">{formatQtyWithUnit(item.quantity, item.product?.unitType)}</TableCell>
-                          <TableCell className="text-right text-sm">{formatKES(item.unitCost)}</TableCell>
+                          <TableCell className="text-right text-sm">
+                            {/* v2.250.0: the line's money cells — the mask voice
+                            past the gate, never a formatted null. */}
+                            {item.unitCost != null ? (
+                              formatKES(item.unitCost)
+                            ) : (
+                              <span className="text-muted-foreground/60" title="the shillings stay with the cost-holders">—</span>
+                            )}
+                          </TableCell>
                           <TableCell className="text-right text-sm font-medium">
-                            {formatKES(item.totalCost)}
+                            {item.totalCost != null ? (
+                              formatKES(item.totalCost)
+                            ) : (
+                              <span className="text-muted-foreground/60" title="the shillings stay with the cost-holders">—</span>
+                            )}
                           </TableCell>
                           <TableCell className="text-center">
                             <div className="flex flex-col items-center gap-1">
@@ -1522,6 +1567,14 @@ export default function PurchaseOrdersTab() {
     [poData]
   );
   const pagination = poData?.pagination;
+  // v2.250.0 THE BRANCH'S GATE — the truth the wire speaks (never a
+  // role name guessed client-side): the roster's shillings and the
+  // detail's financial faces render the honest absence when the gate
+  // is down.
+  const costGated = poData?.costGated === true;
+  // the shillings' shared mask voice — the roster cell, the detail's
+  // money cells and the KPI all wear the same words (one law).
+  const COST_MASK = 'the shillings stay with the cost-holders';
 
   // Fetch suppliers for filter dropdown
   const { data: suppliersData } = useQuery({
@@ -1549,7 +1602,7 @@ export default function PurchaseOrdersTab() {
 
     const totalValue = all
       .filter((po) => po.status !== 'CANCELLED')
-      .reduce((s, po) => s + po.totalAmount, 0);
+      .reduce((s, po) => s + (po.totalAmount ?? 0), 0);
 
     return { totalPOs, pendingApproval, inTransit, receivedThisMonth, totalValue };
   }, [purchaseOrders]);
@@ -1569,7 +1622,10 @@ export default function PurchaseOrdersTab() {
       if (sortField === 'orderDate') {
         cmp = new Date(a.orderDate).getTime() - new Date(b.orderDate).getTime();
       } else if (sortField === 'totalAmount') {
-        cmp = a.totalAmount - b.totalAmount;
+        // v2.250.0: the gate's mask never sorts — a null row is an
+        // absence, and absences have no order (the toggle below never
+        // lands here when the gate is down).
+        cmp = (a.totalAmount ?? 0) - (b.totalAmount ?? 0);
       } else if (sortField === 'status') {
         cmp = a.status.localeCompare(b.status);
       }
@@ -1578,6 +1634,9 @@ export default function PurchaseOrdersTab() {
   }, [purchaseOrders, search, sortField, sortDir]);
 
   const toggleSort = (field: 'orderDate' | 'totalAmount' | 'status') => {
+    // v2.250.0: the money rung stops answering when the gate is down —
+    // the header's affordance is gone and this guard is the backstop.
+    if (field === 'totalAmount' && costGated) return;
     if (sortField === field) {
       setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
     } else {
@@ -1645,8 +1704,9 @@ export default function PurchaseOrdersTab() {
         <SummaryCard
           icon={<DollarSign className="h-5 w-5" />}
           label="Total Value"
-          value={formatKES(stats.totalValue)}
-          subValue="Excl. cancelled"
+          // v2.250.0: the gate's mask — an absence never sums.
+          value={costGated ? '—' : formatKES(stats.totalValue)}
+          subValue={costGated ? COST_MASK : 'Excl. cancelled'}
           iconBg="bg-purple-100 dark:bg-purple-900/30"
           iconColor="text-purple-600 dark:text-purple-400"
           borderLeftColor="border-l-purple-500"
@@ -1855,10 +1915,19 @@ export default function PurchaseOrdersTab() {
                       </TableHead>
                       <TableHead className="text-xs">Order Date</TableHead>
                       <TableHead className="text-xs">Expected Date</TableHead>
-                      <TableHead className="text-xs cursor-pointer select-none text-right" onClick={() => toggleSort('totalAmount')}>
+                      <TableHead
+                        className="text-xs text-right select-none"
+                        // v2.250.0: the money sort's affordance speaks only past
+                        // the gate — a gated header keeps its label and loses
+                        // the arrow, the mask in the title.
+                        onClick={costGated ? undefined : () => toggleSort('totalAmount')}
+                        title={costGated ? COST_MASK : undefined}
+                      >
                         <span className="flex items-center justify-end">
                           Total Amount
-                          <ArrowUpDown className={`h-3.5 w-3.5 ml-1 inline ${sortField === 'totalAmount' ? 'text-primary' : 'text-muted-foreground/40'}`} />
+                          {!costGated && (
+                            <ArrowUpDown className={`h-3.5 w-3.5 ml-1 inline ${sortField === 'totalAmount' ? 'text-primary' : 'text-muted-foreground/40'}`} />
+                          )}
                         </span>
                       </TableHead>
                       <TableHead className="text-xs text-center">Items</TableHead>
@@ -1923,7 +1992,13 @@ export default function PurchaseOrdersTab() {
                             {po.expectedDate ? formatDate(po.expectedDate) : '-'}
                           </TableCell>
                           <TableCell className="text-right font-medium text-sm">
-                            {formatKES(po.totalAmount)}
+                            {/* v2.250.0: the roster's money cell — the mask voice
+                            past the gate, never a formatted null. */}
+                            {po.totalAmount != null ? (
+                              formatKES(po.totalAmount)
+                            ) : (
+                              <span className="text-muted-foreground/60" title={COST_MASK}>—</span>
+                            )}
                           </TableCell>
                           <TableCell className="text-center text-sm">
                             {po.items?.length ?? po.itemCount ?? 0}
