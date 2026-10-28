@@ -885,8 +885,19 @@ export function SheetDrill({ target, onClose, onOpenSheet }: { target: SheetDril
                     door's family (the birth chip's own house). ANCHOR, not
                     a pen: this face stays read-only by law. Absent when
                     the sheet found no shrinkage, is not CLOSED, or the
-                    store has no slug — an absent control never lies. */
+                    store has no slug — an absent control never lies.
+                    v2.249.0 THE DOOR'S SHILLINGS — past the cost gate AND
+                    only when EVERY shrinkage line carries its own
+                    varianceCost, the door names the walk's book-cost
+                    price of the hole (the sum's absolute value — a
+                    partial sum would understate and lie, so an
+                    incomplete set keeps the units-only voice: the
+                    honest absence, never a hidden guess). */
                 const shrinkUnits = shrinkageLines.reduce((s, l) => s + Math.abs(l.variance ?? 0), 0);
+                const shrinkValueSpeaks = !costGated && shrinkageLines.every((l) => l.varianceCost != null);
+                const shrinkValue = shrinkValueSpeaks
+                  ? Math.abs(shrinkageLines.reduce((s, l) => s + (l.varianceCost ?? 0), 0))
+                  : null;
                 return (
                   <a
                     data-testid="sheet-drill-restock-door"
@@ -900,7 +911,9 @@ export function SheetDrill({ target, onClose, onOpenSheet }: { target: SheetDril
                         raise the restock for the {num(shrinkageLines.length)} shrinkage line{shrinkageLines.length === 1 ? '' : 's'} at {data.store.name}
                       </span>
                       <span className="mt-0.5 block text-[9px] font-medium text-violet-800/70 dark:text-violet-200/70">
-                        opens the branch&apos;s purchase orders — the PO is born wearing this sheet: {num(shrinkUnits)} unit{shrinkUnits === 1 ? '' : 's'} the shelf lost, pre-picked.
+                        opens the branch&apos;s purchase orders — the PO is born wearing this sheet: {num(shrinkUnits)} unit{shrinkUnits === 1 ? '' : 's'} the shelf lost, pre-picked{shrinkValue != null ? (
+                          <> · <span className="tabular-nums">{fmtKes(shrinkValue)}</span> at book cost</>
+                        ) : null}.
                       </span>
                     </span>
                     <ArrowRight className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />

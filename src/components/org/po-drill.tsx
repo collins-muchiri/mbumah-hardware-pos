@@ -100,6 +100,17 @@ interface PoDrillWire {
     cancelledByName: string | null;
     store: { id: string; name: string; code: string | null };
     supplierName: string;
+    // v2.249.0 THE BIRTH'S LEDGER — the document's birth (additive +
+    // optional): the sheet's id, its honest status, its closing, the
+    // aisle's name when the walk order wore one. A hand-raised PO
+    // answers null — the face renders the silent absence (the type
+    // check, never an assumption).
+    originStockTake: {
+      id: string;
+      status: string;
+      closedAt: string | null;
+      walkAisle: { name: string | null } | null;
+    } | null;
     summary: {
       lineCount: number;
       orderedUnits: number;
@@ -235,6 +246,35 @@ export function PoDrill({ target, onClose }: { target: PoDrillTarget; onClose: (
 
         {data && (
           <>
+            {/* v2.249.0 THE BIRTH'S LEDGER — the org drill names the
+                count sheet this PO was born from (the violet door
+                family, the SAME voice the branch record speaks): the
+                sheet's id, its aisle when it wore one, the honest
+                status voice — and, past the cost gate, the restock's
+                own shillings (the summary tile's gated total — the
+                answer's cost, spoken where the birth is spoken). An
+                older cached wire or a hand-raised PO renders the
+                silent absence (the type check, never an assumption). */}
+            {data.originStockTake && (
+              <div
+                data-testid="po-drill-birth-strip"
+                title={`born at count sheet ${data.originStockTake.id}${data.originStockTake.walkAisle?.name ? ` — the walk order named ${data.originStockTake.walkAisle.name}` : ''}`}
+                className="mt-2.5 rounded-lg border border-violet-200 bg-violet-50/60 px-3 py-2 text-[11px] text-violet-800 dark:border-violet-500/40 dark:bg-violet-500/10 dark:text-violet-200"
+              >
+                <p className="flex items-center gap-1 text-[9px] font-semibold uppercase tracking-wide text-violet-600 dark:text-violet-300">
+                  <ClipboardList className="h-3 w-3" aria-hidden="true" />
+                  born at a count sheet
+                </p>
+                <p className="mt-0.5 font-medium">
+                  this PO answers count sheet <span className="tabular-nums">{data.originStockTake.id}</span>
+                  {data.originStockTake.walkAisle?.name ? <> — the walk order named {data.originStockTake.walkAisle.name}</> : null}
+                  {data.originStockTake.status === 'CLOSED' ? ' (the books heard it).' : ` (${data.originStockTake.status.toLowerCase()}).`}
+                  {data.summary.totalAmount != null ? (
+                    <> The restock carries <span className="tabular-nums">{fmtKes(data.summary.totalAmount)}</span>.</>
+                  ) : null}
+                </p>
+              </div>
+            )}
             {/* The summary tiles — units for every role, the shillings past the gate. */}
             <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
               <div className="rounded-xl border border-slate-100 p-2.5 dark:border-slate-700">
