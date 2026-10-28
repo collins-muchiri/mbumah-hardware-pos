@@ -389,9 +389,12 @@ async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Pr
     // window, not just the roster the UI names (the strip's figure stays
     // the whole truth; the roster is a window, and the cap note says so).
     const windowStart = new Date(now.getTime() - 30 * DAY_MS);
+    // v2.235.0: the same read grows `closedAt` — the cadence face needs
+    // the sheet's own date to speak "days since last heard" (one read,
+    // two consumers; zero new queries for the map's headline).
     const closed30dRows = await rawDb.stockTake.findMany({
       where: { status: 'CLOSED', closedAt: { gte: windowStart } },
-      select: { id: true },
+      select: { id: true, closedAt: true },
     });
     const closed30dIds = closed30dRows.map((s) => s.id);
     const windowAgg = closed30dIds.length
@@ -402,6 +405,147 @@ async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Pr
       : null;
     const windowUnits = round2(toDec(windowAgg?._sum.variance ?? 0).toNumber());
     const windowCost = round2(toDec(windowAgg?._sum.varianceCost ?? 0).toNumber());
+
+    // ── v2.235.0: the cadence — WHEN each shelf was last heard ──────────
+    // The map has said WHAT walked since v2.220.0; the cadence says WHEN:
+    // per branch category, the days since a CLOSED sheet last touched it.
+    // THE WINDOW LAW: the read rides the SAME closed-30d sheets the
+    // headline figures speak (their ids are already in hand — zero new
+    // sheet queries), so every voice on the face is the window's own
+    // truth and the cap note holds. THE CATEGORY LAW: a line reaches its
+    // category through its product (lines carry no categoryId of their
+    // own), so the composition is three bounded grouped reads — the
+    // window's line pairs (bounded by the window's own sheets), the
+    // heard-ever product set (one groupBy over closed sheets, one row
+    // per distinct counted product), and the active catalog categories
+    // (tens, never thousands). THE FOUR VOICES: fresh (heard ≤ 7 days),
+    // stale (heard in the window, colder than 7), beyond (counted
+    // before, but not inside this window), never (no closed line has
+    // EVER touched it — the honest blind spot, never dressed as a date).
+    // A category with zero products speaks `productCount: 0` and still
+    // gets its row — an empty shelf is a real shelf, and the face says
+    // so instead of hiding it.
+    const CADENCE_FRESH_DAYS = 7;
+    type CadenceBand = 'fresh' | 'stale' | 'beyond' | 'never';
+    const [cadenceCategoryRows, cadenceWindowPairs] = await Promise.all([
+      rawDb.productCategory.findMany({
+        where: { isActive: true },
+        select: {
+          id: true, name: true, storeId: true,
+          store: { select: { name: true, code: true } },
+        },
+        orderBy: [{ name: 'asc' }],
+      }),
+      closed30dIds.length
+        ? rawDb.stockTakeLine.findMany({
+            where: { stockTakeId: { in: closed30dIds } },
+            select: { stockTakeId: true, productId: true },
+          })
+        : Promise.resolve([] as Array<{ stockTakeId: string; productId: string }>),
+    ]);
+    const cadenceCategoryIds = cadenceCategoryRows.map((c) => c.id);
+    const [heardEverGroups, productCountGroups] = await Promise.all([
+      cadenceCategoryIds.length
+        ? rawDb.stockTakeLine.groupBy({
+            by: ['productId'],
+            where: {
+              stockTake: { status: 'CLOSED' },
+              product: { categoryId: { in: cadenceCategoryIds } },
+            },
+          })
+        : Promise.resolve([] as Array<{ productId: string }>),
+      cadenceCategoryIds.length
+        ? rawDb.product.groupBy({
+            by: ['categoryId'],
+            where: { categoryId: { in: cadenceCategoryIds }, isActive: true },
+            _count: { _all: true },
+          })
+        : Promise.resolve([] as Array<{ categoryId: string | null; _count: { _all: number } }>),
+    ]);
+    const heardEverProductIds = heardEverGroups.map((g) => g.productId);
+    const cadenceProductRows = heardEverProductIds.length
+      ? await rawDb.product.findMany({
+          where: { id: { in: heardEverProductIds } },
+          select: { id: true, categoryId: true },
+        })
+      : [];
+    const categoryOfProduct = new Map(cadenceProductRows.map((p) => [p.id, p.categoryId]));
+    const productCountByCategory = new Map(
+      productCountGroups
+        .filter((g): g is typeof g & { categoryId: string } => g.categoryId != null)
+        .map((g) => [g.categoryId, g._count._all]),
+    );
+    const closedAtById = new Map(closed30dRows.map((s) => [s.id, s.closedAt]));
+    // Per category: the window sheets whose LINES touched it (through the
+    // product→category map — the only bridge a line has to its shelf).
+    const heardSheetsByCategory = new Map<string, Set<string>>();
+    for (const pair of cadenceWindowPairs) {
+      const categoryId = categoryOfProduct.get(pair.productId);
+      if (!categoryId) continue;
+      const set = heardSheetsByCategory.get(categoryId);
+      if (set) set.add(pair.stockTakeId);
+      else heardSheetsByCategory.set(categoryId, new Set([pair.stockTakeId]));
+    }
+    const heardEverByCategory = new Set<string>();
+    for (const productId of heardEverProductIds) {
+      const categoryId = categoryOfProduct.get(productId);
+      if (categoryId) heardEverByCategory.add(categoryId);
+    }
+    const cadenceCategories: Array<{
+      categoryId: string; name: string; storeId: string;
+      storeName: string; storeCode: string | null;
+      productCount: number; lastCountedAt: string | null;
+      daysSince: number | null; band: CadenceBand;
+    }> = cadenceCategoryRows.map((c) => {
+      const heardSheetIds = heardSheetsByCategory.get(c.id);
+      let lastCountedAt: Date | null = null;
+      if (heardSheetIds) {
+        for (const sheetId of heardSheetIds) {
+          const at = closedAtById.get(sheetId);
+          if (at && (!lastCountedAt || at > lastCountedAt)) lastCountedAt = at;
+        }
+      }
+      const daysSince = lastCountedAt
+        ? Math.max(0, Math.floor((now.getTime() - lastCountedAt.getTime()) / DAY_MS))
+        : null;
+      const band: CadenceBand = lastCountedAt
+        ? (daysSince ?? 0) <= CADENCE_FRESH_DAYS ? 'fresh' : 'stale'
+        : heardEverByCategory.has(c.id) ? 'beyond' : 'never';
+      return {
+        categoryId: c.id,
+        name: c.name,
+        storeId: c.storeId,
+        storeName: c.store.name,
+        storeCode: c.store.code,
+        productCount: productCountByCategory.get(c.id) ?? 0,
+        lastCountedAt: lastCountedAt ? lastCountedAt.toISOString() : null,
+        daysSince,
+        band,
+      };
+    });
+    // THE WALK ORDER — the face reads as the floor's to-do list: the
+    // blind spots first (never, heaviest shelf first), then the coldest
+    // heard shelves (beyond), then the stale window shelves (most
+    // neglected first), then the fresh (least fresh first).
+    const CADENCE_WALK_ORDER: Record<CadenceBand, number> = { never: 0, beyond: 1, stale: 2, fresh: 3 };
+    cadenceCategories.sort((a, b) => {
+      if (a.band !== b.band) return CADENCE_WALK_ORDER[a.band] - CADENCE_WALK_ORDER[b.band];
+      if (a.band === 'never' || a.band === 'beyond') return b.productCount - a.productCount;
+      return (b.daysSince ?? 0) - (a.daysSince ?? 0);
+    });
+    const cadence = {
+      generatedAt: now.toISOString(),
+      windowDays: 30,
+      freshDays: CADENCE_FRESH_DAYS,
+      counts: {
+        fresh: cadenceCategories.filter((c) => c.band === 'fresh').length,
+        stale: cadenceCategories.filter((c) => c.band === 'stale').length,
+        beyond: cadenceCategories.filter((c) => c.band === 'beyond').length,
+        never: cadenceCategories.filter((c) => c.band === 'never').length,
+        total: cadenceCategories.length,
+      },
+      categories: cadenceCategories,
+    };
     const stockTakes = {
       openCount: openSheetRows.length,
       openSheets: openSheetRows.map((s) => ({
@@ -440,6 +584,10 @@ async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Pr
         varianceUnits: windowUnits,
         varianceCostTotal: canViewCost ? windowCost : null,
       },
+      // v2.235.0 the cadence: additive + always present (the block reads
+      // the catalog, not the caller's gate — every org role hears WHEN a
+      // shelf was last heard; no cost field crosses this wire).
+      cadence,
     };
 
     // ── M-Pesa (STK push ledger, phones masked) ─────────────────────────────

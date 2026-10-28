@@ -392,10 +392,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.232.0: the recount entry joins the feed (+1 on every anchor → 123/124/125/156)
     // v2.233.0: the lineage entry joins the feed (+1 on every anchor → 124/125/126/157)
     // v2.234.0: the verdict entry joins the feed (+1 on every anchor → 125/126/127/158)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(125);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(126);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(127);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(158);
+    // v2.235.0: the cadence entry joins the feed (+1 on every anchor → 126/127/128/159)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(126);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(127);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(128);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(159);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 

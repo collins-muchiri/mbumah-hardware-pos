@@ -47,25 +47,25 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.230.0)', () => {
   it('package.json leads 2.230.0 (all three slots)', () => {
-    expect(version).toBe('2.234.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.234.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.234.0');
+    expect(version).toBe('2.235.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.235.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.235.0');
   });
 
   it('VERSION speaks 2.230.0 and the verify gate is wired', () => {
-    expect(read('VERSION').trim()).toBe('2.234.0');
+    expect(read('VERSION').trim()).toBe('2.235.0');
     expect(pkg.scripts['verify:v2-230-0']).toBe('node scripts/verify-v2-230-0.mjs');
   });
 
   it('the changelog anchors the section ABOVE its ancestor (the structural pin — headers, never bare strings)', () => {
-    expect(changelog.indexOf('## [2.234.0]')).toBeGreaterThanOrEqual(0);
-    expect(changelog.indexOf('## [2.234.0]')).toBeLessThan(changelog.indexOf('## [2.233.0]'));
+    expect(changelog.indexOf('## [2.235.0]')).toBeGreaterThanOrEqual(0);
+    expect(changelog.indexOf('## [2.235.0]')).toBeLessThan(changelog.indexOf('## [2.234.0]'));
   });
 
-  it('the whats-new feed leads the verdict entry (order pin: header-anchored, never a bare version string)', () => {
-    expect(feed.includes("version: '2.234.0',")).toBe(true);
-    expect(feed.indexOf("version: '2.234.0',")).toBeLessThan(feed.indexOf("version: '2.233.0',"));
-    expect(feed.includes("title: 'The verdict',")).toBe(true);
+  it('the whats-new feed leads the cadence entry (order pin: header-anchored, never a bare version string)', () => {
+    expect(feed.includes("version: '2.235.0',")).toBe(true);
+    expect(feed.indexOf("version: '2.235.0',")).toBeLessThan(feed.indexOf("version: '2.234.0',"));
+    expect(feed.includes("title: 'The cadence',")).toBe(true);
   });
 });
 
