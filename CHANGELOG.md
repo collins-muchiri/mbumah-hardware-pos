@@ -2,6 +2,18 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.236.0] The teeth
+
+The cadence's teeth. The org face has pointed since v2.235.0 — this round the branch picker listens: the stocktake create dialog's category picker wears the same four bands, so the walker knows WHICH aisles are stale before the walk starts. And the map's window row learns to answer "how much of the org did we actually hear?" — the coverage tile, one subtraction, zero new reads.
+
+### Added
+- **The teeth wire** (`GET /api/categories` → opt-in `includeCadence=true`): per category of THIS store, the same four bands the org map speaks — **fresh** (heard ≤ 7 days), **stale** (within the 30-day window, colder), **beyond** (counted before, not inside this window), **never** (no closed line has EVER touched it) — plus `daysSince`, `lastCountedAt`, and the thresholds the face speaks (`freshDays`, `windowDays`). THE STORE LAW: the reads ride the wire's own `storeId` — a branch hears its own shelves. THE OPT-IN LAW: the field rides only when asked — every other consumer of this wire reads the exact bytes it read yesterday. THE COST LAW: no cost field crosses the block — the cadence reads the catalog, not the caller's gate. THE VOICE-NOT-SORT LAW: the rows keep the categories' own order; the walk order belongs to the org map.
+- **The picker's cadence voice** (the stocktake create dialog): every option label speaks the days voice ("Cement · 4 products · never counted"); the legend (`data-testid="stocktake-cadence-legend"`) names the thresholds from the wire's own numbers, never a constant; and the picked aisle wears the strip (`data-testid="stocktake-pick-cadence"`) — the band chip, the days voice, and the heat bar under the org face's own length law (capped at the window, 4% floor, the dashed track reserved for never).
+- **The coverage tile** (the variance map's window row): a FIFTH tile — "Heard · 30d" (`data-testid="variance-map-coverage"`) — the share of branch categories the window heard (fresh + stale of total) from the cadence counts the payload already carries: zero new reads, zero new fetches. The honest absences speak: an older cached answer says "the cadence has not spoken yet"; an org with no categories says "no shelves to hear"; the dashed track is the absence's track, never a drawn zero.
+
+### Styled
+- The picker's strip inherits the cadence's whole house at the pens' own scale: the four band families copied verbatim (fresh emerald, stale amber, beyond orange at 70%, never the muted slate), the 9px semibold uppercase chip, the `h-1 rounded-full` bar on the same slate track, `tabular-nums` on every figure, dark halves from birth, and the aria naming the aisle, the voice, and the weight. The coverage tile rides the map's tile house (`rounded-xl`, the 10px uppercase label, the bold tabular figure) and the cadence's bar language — the emerald books-heard fill, the dashed track when the cadence has not spoken.
+
 ## [2.235.0] The cadence
 
 The map has said WHAT walked since v2.220.0 — this round it says WHEN. The variance map grows the cadence: per branch category, the days since a CLOSED count sheet last touched its shelf, in the walk order the floor should follow — blind spots first. Three bounded grouped reads compose it on the wire the console already polls; the face renders, it never re-sorts, and an empty shelf is a real shelf (a category with zero products still gets its row).
