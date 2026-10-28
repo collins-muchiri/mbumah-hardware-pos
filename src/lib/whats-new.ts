@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.237.0',
+    title: 'The walk\u2019s door',
+    bullets: [
+      'The org cadence\u2019s rows are now doors: click \u201cwalk\u201d on a blind-spot aisle and the branch\u2019s count sheet opens with that aisle already picked \u2014 the org face points, the branch face counts.',
+      'The walked aisle wears its arrival whisper: \u201cthe org\u2019s walk order sent you here\u201d \u2014 gone the moment your own hand takes over.',
+      'The cadence exports itself: one \u201cwalk order\u201d CSV in the wire\u2019s own order, blind spots first \u2014 the floor\u2019s clipboard for the day.',
+    ],
+  },
+  {
     version: '2.236.0',
     title: 'The teeth',
     bullets: [

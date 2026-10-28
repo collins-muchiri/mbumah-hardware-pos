@@ -44,13 +44,13 @@ const feed = read('src/lib/whats-new.ts');
 
 describe('the round of record (v2.222.0)', () => {
   it('package.json leads 2.222.0 (all three slots)', () => {
-    expect(pkg.version).toBe('2.236.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.236.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.236.0');
+    expect(pkg.version).toBe('2.237.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.237.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.237.0');
   });
 
   it('VERSION speaks the same truth', () => {
-    expect(read('VERSION').trim()).toBe('2.236.0');
+    expect(read('VERSION').trim()).toBe('2.237.0');
   });
 
   it('the changelog of record speaks the round', () => {
@@ -156,7 +156,7 @@ describe('the drill face is read-only and honest (v2.222.0)', () => {
 
 describe('the variance map grows doors (v2.222.0)', () => {
   it('the map imports and mounts the drill', () => {
-    expect(map.includes("import { SheetDrill, type SheetDrillTarget } from './sheet-drill';")).toBe(true);
+    expect(map.includes("import { SheetDrill, type SheetDrillTarget } from './sheet-drill';") || map.includes("import { SheetDrill, csvCell, type SheetDrillTarget } from './sheet-drill';")).toBe(true); // v2.237.0 re-pin: the map grew the walk's-paper import (the cadence's CSV rides csvCell)
     // v2.223.0: the mount is keyed per SHEET — a fresh door is a fresh
     // MOUNT, so the line finder's needle starts empty by construction.
     expect(map.includes('key={drill.id}')).toBe(true);
