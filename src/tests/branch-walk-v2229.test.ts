@@ -49,13 +49,13 @@ const watcher = read('src/tests/a11y-shell-v2148.test.ts');
 
 describe('the round of record (v2.229.0)', () => {
   it('package.json leads 2.229.0 (all three slots)', () => {
-    expect(version).toBe('2.230.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.230.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.230.0');
+    expect(version).toBe('2.231.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.231.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.231.0');
   });
 
   it('VERSION speaks 2.229.0 and the verify gate is wired', () => {
-    expect(read('VERSION').trim()).toBe('2.230.0');
+    expect(read('VERSION').trim()).toBe('2.231.0');
     expect(pkg.scripts['verify:v2-229-0']).toBe('node scripts/verify-v2-229-0.mjs');
   });
 
@@ -71,16 +71,16 @@ describe('the round of record (v2.229.0)', () => {
   });
 
   it('the treadmill bumped the version pins (the watchers track the head)', () => {
-    expect(watcher).toContain("expect(pkg.version).toBe('2.230.0');");
-    expect(watcher).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(121);");
+    expect(watcher).toContain("expect(pkg.version).toBe('2.231.0');");
+    expect(watcher).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(122);");
   });
 
   it('the counter family rides +1 (120/121/122/153 — the trail names the round)', () => {
     const counter = read('src/tests/console-changelog.test.ts');
-    expect(counter).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(121);");
-    expect(counter).toContain("expect(whatsNewUnreadCount('2.109.0')).toBe(122);");
-    expect(counter).toContain("expect(whatsNewUnreadCount('2.108.0')).toBe(123);");
-    expect(counter).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(154);");
+    expect(counter).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(122);");
+    expect(counter).toContain("expect(whatsNewUnreadCount('2.109.0')).toBe(123);");
+    expect(counter).toContain("expect(whatsNewUnreadCount('2.108.0')).toBe(124);");
+    expect(counter).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(155);");
     expect(counter).toContain('// v2.229.0: the branch-walk entry joins the feed (+1 on every anchor → 120/121/122/153)');
   });
 });
@@ -160,7 +160,13 @@ describe('the branch walk (the clipboard\u2019s branch-side twin)', () => {
 
   it('the file speaks the WHOLE sheet and names the branch (the drill\u2019s filename law)', () => {
     expect(panel).toContain("const name = `count-sheet-${detail.store.code ?? detail.store.name}-${stamp}-${detail.status.toLowerCase()}.csv`;");
-    expect(panel.includes('shownLines')).toBe(false);
+    // v2.231.0 RE-PIN (the head round evolved the shared surface): the
+    // branch face now speaks `shownLines` — the walk's instruments
+    // narrow the READING. The law this pin always guarded is the FILE:
+    // the export reads the WHOLE sheet (detail.lines), never the
+    // narrowed list — the reading narrows, the sheet never does.
+    expect(panel.includes('sheetLinesCsv(detail.lines,')).toBe(true);
+    expect(panel.includes('sheetLinesCsv(shownLines')).toBe(false);
   });
 
   it('the branch cost gate is the panel\u2019s own prop (absence, never a hidden zero)', () => {

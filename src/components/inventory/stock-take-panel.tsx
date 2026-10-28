@@ -44,7 +44,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { ClipboardCheck, Download, FolderTree, History, Loader2, Printer } from 'lucide-react';
+import { ClipboardCheck, Download, FolderTree, History, Loader2, Printer, Search, X } from 'lucide-react';
 import { authorizedFetchJson } from '@/lib/api';
 import { num } from '@/components/org/primitives';
 // v2.229.0: the CSV law's one voice — the SAME pure builders the org
@@ -69,6 +69,11 @@ type SheetLine = {
   name: string;
   sku: string;
   unitType: string;
+  // v2.231.0: the shelf name the branch lens reads — optional in the
+  // TYPE (the same law the drill's line type reads); the branch wire
+  // now always fills it. A product that never joined a category reads
+  // null — the face's honest "uncategorized" bucket.
+  category?: string | null;
   snapshotQty: number;
   countedQty: number | null;
   variance: number | null;
@@ -144,6 +149,14 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
   // the input renders its own session value while typing; a recorded
   // count lands on the wire and the sheet refetches.
   const [drafts, setDrafts] = useState<Record<string, string>>({});
+  // v2.231.0 THE BRANCH LENS: the walk's instruments — the same two
+  // needles the drill reads (a category lens + a name/SKU finder),
+  // composed over the lines the branch face ALREADY holds. State of
+  // the DOOR, not of the sheet: every door-opening resets both (the
+  // drill's per-door law — a fresh sheet reads "all categories" and
+  // an empty needle by construction, never by effect).
+  const [needle, setNeedle] = useState('');
+  const [categoryNeedle, setCategoryNeedle] = useState('all');
 
   const listQuery = useQuery({
     queryKey: ['stock-takes', storeId],
@@ -215,6 +228,8 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
       setCreateScope('full');
       setCreateCategoryId('');
       invalidateSheets();
+      setNeedle('');
+      setCategoryNeedle('all');
       setOpenSheetId(data.id);
     },
     onError: (err: unknown) => {
@@ -291,6 +306,34 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
   // reads, consumed by the face's attribute, the count boxes, the
   // signatures and the Print button's aria. Four faces, one law.
   const isClipboard = detail?.status === 'COUNTING';
+  // v2.231.0: the lens's buckets — the sheet's OWN categories, derived
+  // from the lines the branch face ALREADY holds (the drill's own
+  // derivation). "uncategorized" is a real bucket and sorts LAST
+  // (named shelves first); the control mounts only when the sheet
+  // spans MORE THAN ONE bucket — a one-shelf sheet has nothing to
+  // lens (an absent control never lies).
+  const categoryBuckets = detail
+    ? Array.from(new Set(detail.lines.map((l) => l.category ?? 'uncategorized'))).sort(
+        (a, b) => (a === 'uncategorized' ? 1 : 0) - (b === 'uncategorized' ? 1 : 0) || a.localeCompare(b),
+      )
+    : [];
+  const lensActive = categoryBuckets.length > 1;
+  // v2.231.0: the combined reading — the lens narrows the shelf, the
+  // needle narrows the line, both over the SAME held lines. The law of
+  // the branch face is the law of the drill: the instruments narrow
+  // the READING, never the sheet — the progress bar and the summary
+  // keep the whole-sheet truth, the Print aria names the whole count,
+  // and the CSV keeps the whole file (seven columns, unchanged).
+  const cleanNeedle = needle.trim().toLowerCase();
+  const shownLines = detail
+    ? detail.lines.filter(
+        (l) =>
+          (categoryNeedle === 'all' || (l.category ?? 'uncategorized') === categoryNeedle) &&
+          (!cleanNeedle ||
+            l.name.toLowerCase().includes(cleanNeedle) ||
+            l.sku.toLowerCase().includes(cleanNeedle)),
+      )
+    : [];
   // v2.229.0 THE BRANCH WALK's gate — while the sheet face is open the
   // body carries the class the print stylesheet reads (the shell falls
   // silent, the sheet becomes the page). The boolean derivation keeps
@@ -419,6 +462,8 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                     data-testid="stocktake-back"
                     onClick={() => {
                       setOpenSheetId(null);
+                      setNeedle('');
+                      setCategoryNeedle('all');
                       setCancelArmed(false);
                       setCancelReason('');
                     }}
@@ -461,13 +506,76 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
               </p>
             )}
 
+            {/* v2.231.0: THE WALK'S INSTRUMENTS — the drill's two needles
+                brought to the face where the floor actually walks. The
+                lens narrows by shelf, the finder by name/SKU; both
+                compose over the lines the face ALREADY holds. Controls:
+                the whole row stays off the paper (the printed walk is
+                the WHOLE sheet — the instruments narrow the reading,
+                never the paper). The row mounts only when the sheet
+                froze lines — an absent control never lies. */}
+            {detail.lines.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5" data-sheet-print-off="">
+                {lensActive && (
+                  <select
+                    data-testid="stocktake-lens"
+                    aria-label="Filter the lines by category"
+                    title="the walk's lens — narrow the reading by shelf; the progress and the paper keep the whole sheet's truth"
+                    value={categoryNeedle}
+                    onChange={(e) => setCategoryNeedle(e.target.value)}
+                    className="h-7 max-w-[10rem] rounded-md border border-slate-200 bg-white px-1.5 text-[11px] font-medium text-slate-700 transition-colors focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+                  >
+                    <option value="all">all categories</option>
+                    {categoryBuckets.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                )}
+                <span className="relative">
+                  <Search className="pointer-events-none absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400 dark:text-slate-500" aria-hidden="true" />
+                  <input
+                    type="text"
+                    data-testid="stocktake-finder"
+                    aria-label="Find a line by name or SKU"
+                    placeholder="find a line — name or SKU"
+                    value={needle}
+                    onChange={(e) => setNeedle(e.target.value)}
+                    className="h-7 w-44 rounded-md border border-slate-200 bg-white pl-7 pr-6 text-[11px] text-slate-700 placeholder:text-slate-400 focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:placeholder:text-slate-500"
+                  />
+                  {needle !== '' && (
+                    <button
+                      type="button"
+                      data-testid="stocktake-finder-clear"
+                      aria-label="Clear the line finder"
+                      onClick={() => setNeedle('')}
+                      className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded p-0.5 text-slate-400 transition-colors hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  )}
+                </span>
+                <span data-testid="stocktake-finder-count" className="whitespace-nowrap text-[10px] tabular-nums text-slate-500 dark:text-slate-400">
+                  {num(shownLines.length)} of {num(detail.lines.length)}
+                </span>
+                {categoryNeedle !== 'all' && (
+                  <span data-testid="stocktake-lens-count" className="whitespace-nowrap text-[10px] font-semibold tabular-nums text-amber-700 dark:text-amber-300">
+                    in {categoryNeedle}
+                  </span>
+                )}
+              </div>
+            )}
+
             {/* The lines — count against the frozen snapshot. Zero is a
                 count; the latest count is the truth. v2.229.0: the
                 container wears the shared lines mark so the print law
                 releases its scroll clamp — a 29-line walk is several
-                pages of paper, never a 46vh window of it. */}
+                pages of paper, never a 46vh window of it. v2.231.0:
+                the list reads the INSTRUMENTS' narrowed reading; the
+                paper (Print/CSV) keeps the whole sheet. */}
             <div data-sheet-lines="" className="max-h-[46vh] space-y-1.5 overflow-y-auto pr-1">
-              {detail.lines.map((line) => {
+              {shownLines.map((line) => {
                 const chip = line.variance != null ? varianceChip(line.variance) : null;
                 return (
                   <div
@@ -483,7 +591,17 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                         {canViewCost && line.varianceCost != null && line.varianceCost !== 0 ? ` · ${fmtKes(line.varianceCost)}` : ''}
                       </span>
                     </span>
-                    <span className="flex shrink-0 items-center gap-1.5">
+                    <span className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
+                      {lensActive && (
+                        /* v2.231.0: the line's shelf whisper — each line
+                            names its category while the sheet spans more
+                            than one (context for the lens AND for the
+                            paper: a printed walk reads its shelves). It
+                            PRINTS — no print-off mark. */
+                        <span data-testid="stocktake-line-shelf" className="text-[9px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
+                          {line.category ?? 'uncategorized'}
+                        </span>
+                      )}
                       {chip && (
                         <span
                           data-testid={`stocktake-variance-${line.sku}`}
@@ -538,6 +656,21 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                 );
               })}
             </div>
+
+            {/* v2.231.0: the instruments' empty face — honest variants,
+                the drill's own template brought to the walk. A lensed
+                shelf names itself; a needle that answered nothing is
+                told so; the sheet's whole count rides every variant
+                (the reading came back empty, the sheet did not). */}
+            {(cleanNeedle !== '' || categoryNeedle !== 'all') && shownLines.length === 0 && (
+              <p data-testid="stocktake-finder-empty" className="rounded-lg border border-dashed border-slate-200 bg-white/60 px-3 py-2 text-[11px] text-slate-500 dark:border-slate-600 dark:bg-slate-900/60 dark:text-slate-400">
+                {cleanNeedle !== ''
+                  ? categoryNeedle !== 'all'
+                    ? `no line in “${categoryNeedle}” answers “${needle.trim()}” — the sheet holds ${num(detail.lines.length)} ${detail.lines.length === 1 ? 'line' : 'lines'}.`
+                    : `no line answers “${needle.trim()}” — the sheet holds ${num(detail.lines.length)} ${detail.lines.length === 1 ? 'line' : 'lines'}.`
+                  : `the lens came back empty — the sheet holds ${num(detail.lines.length)} ${detail.lines.length === 1 ? 'line' : 'lines'}.`}
+              </p>
+            )}
 
             {isClipboard && (
               /* v2.229.0: the walk's witnesses — print-only signature
@@ -799,7 +932,15 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                   <button
                     type="button"
                     data-testid={`stocktake-open-${sheet.id}`}
-                    onClick={() => setOpenSheetId(sheet.id)}
+                    onClick={() => {
+                      // v2.231.0: the fresh-door law — every door-opening
+                      // resets the instruments (the drill's per-door
+                      // state law; a fresh sheet reads "all" and an
+                      // empty needle by construction).
+                      setNeedle('');
+                      setCategoryNeedle('all');
+                      setOpenSheetId(sheet.id);
+                    }}
                     className="flex shrink-0 items-center gap-1 rounded border border-slate-200 px-2 py-1 text-[10px] font-semibold text-slate-600 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
                   >
                     <History className="h-3 w-3" /> {sheet.status === 'COUNTING' ? 'Resume' : 'View'}

@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.231.0',
+    title: 'The branch lens',
+    bullets: [
+      'The branch count sheet learns the drill’s instruments: a category lens picks a shelf and the walk reads only that shelf, and a name/SKU finder jumps straight to a line — the count stays an honest N of M, and the progress bar, the print and the CSV keep the whole sheet’s truth.',
+      'The lens mounts only when a sheet actually spans more than one category; products without a category read as “uncategorized” — a real bucket, never a hidden grouping.',
+      'Every line whispers its shelf while the sheet spans categories — on screen and on the printed paper, so the walk knows which aisle it is counting.',
+      'Opening a sheet always starts fresh — the lens and finder reset with every door, so a stale reading can’t leak from one count into the next.',
+    ],
+  },
+  {
     version: '2.230.0',
     title: "The sheet's lens",
     bullets: [

@@ -2,6 +2,20 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.231.0] The branch lens
+
+The walk reads its shelves. The v2.230.0 lens taught the org drill to narrow a sheet by category; this round the branch stocktake face — the panel the floor actually walks — grows the same instruments: a category lens AND the name/SKU finder the drill has kept since v2.223.0, composed over the lines the face already holds. The reading narrows; the sheet never does.
+
+### Added
+- **The line names its shelf, at branch level** (`GET /api/stock-takes/[id]`): the branch detail wire's per-line product select grows the same additive `category` join the org drill's wire grew in v2.230.0 (the product's own `ProductCategory` name, `null` when the product never joined one). One query, zero new fetches — the lens's raw material rides the fetch the panel already makes. The client type stays optional (`category?: string | null`), the same law the drill's line type reads.
+- **The walk's instruments** (`src/components/inventory/stock-take-panel.tsx`): the sheet face grows a controls row (`data-sheet-print-off` — controls stay off the paper) between the header card and the lines: a category `<select>` (`data-testid="stocktake-lens"`, aria "Filter the lines by category") whose options are the sheet's OWN buckets — named shelves alphabetical, `uncategorized` a real bucket sorted last — mounted only when the sheet spans MORE THAN ONE bucket (an absent control never lies); a name/SKU finder (`data-testid="stocktake-finder"` with its clear button) the branch face never had; the honest N-of-M count (`data-testid="stocktake-finder-count"`); and the amber shelf name (`data-testid="stocktake-lens-count"`, "in Iron Sheets") when a shelf is lensed. The law of the instruments is the law of the drill: they narrow the READING, never the sheet — the progress bar and summary keep the whole-sheet truth, the Print aria names the whole count, and the CSV keeps the whole file (seven columns, unchanged).
+- **The composed reading** (`stock-take-panel.tsx`): lens and needle filter the SAME held lines in one clause; the lines list renders the narrowed reading while every printed/exported byte stays whole-sheet. The empty face grows the drill's honest variants (`data-testid="stocktake-finder-empty"`): needle only, shelf + needle, or shelf alone (impossible by construction — buckets derive FROM the lines — but the fallback stays honest).
+- **The fresh-door law** (`stock-take-panel.tsx`): the instruments are STATE of the door, not of the sheet — every door-opening (roster View/Resume, a fresh create, the back door) resets the lens to "all categories" and the needle to empty by construction, never by effect. A stale reading can't leak into the next sheet.
+- **The shelf whisper, on the walk** (`stock-take-panel.tsx`): while the sheet spans buckets, every line wears its category (`data-testid="stocktake-line-shelf"`, 9px uppercase tracking-wide in the muted slate family) at the head of its right cluster — and the whisper PRINTS (no print-off mark): a printed walk reads its shelves, the clipboard's count boxes and the shelf names on one paper.
+
+### Styled
+- The lens and finder wear the drill's house: h-7 compact controls (the branch face's own scale), the slate border family with the AMBER focus ring (the sheet's hue), the finder's inset search glyph and `placeholder` in the muted family, `max-w-[10rem]` on the lens so a long shelf name truncates instead of shoving the row; the lens-count span the amber family at weight 600 with tabular-nums; the empty face the house dashed-border family; the line's right cluster grows `flex-wrap justify-end` so whisper + chip + cost + controls lay out cleanly on narrow screens and on paper; dark halves from birth on every new element.
+
 ## [2.230.0] The sheet's lens
 
 The drill learns to read by shelf. The v2.223.0 line finder narrowed the reading by name and SKU; this round the drill grows its twin — a category lens over the same held lines, backed by an additive wire growth that lets every line speak its shelf.
