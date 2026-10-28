@@ -42,30 +42,30 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.239.0)', () => {
   it('package.json leads 2.239.0 (all three slots)', () => {
-    expect(version).toBe('2.240.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.240.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.240.0');
+    expect(version).toBe('2.241.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.241.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.241.0');
   });
 
   it('VERSION speaks 2.239.0 and the verify gate is wired (previous gate still wired)', () => {
-    expect(read('VERSION').trim()).toBe('2.240.0');
+    expect(read('VERSION').trim()).toBe('2.241.0');
     expect(pkg.scripts['verify:v2-239-0']).toBe('node scripts/verify-v2-239-0.mjs');
     expect(pkg.scripts['verify:v2-238-0']).toBe('node scripts/verify-v2-238-0.mjs');
   });
 
   it('the whats-new feed leads the yard\u2019s-answer entry (order pin: header-anchored, never a bare version string)', () => {
-    expect(feed.includes("version: '2.240.0',")).toBe(true);
-    expect(feed.indexOf("version: '2.240.0',")).toBeLessThan(feed.indexOf("version: '2.239.0',"));
+    expect(feed.includes("version: '2.241.0',")).toBe(true);
+    expect(feed.indexOf("version: '2.241.0',")).toBeLessThan(feed.indexOf("version: '2.240.0',"));
     expect(feed.includes("title: 'The yard\\u2019s answer',")).toBe(true);
   });
 
   it('the changelog anchors the section above its ancestor (headers, never bare strings)', () => {
-    expect(changelog.indexOf('## [2.240.0]')).toBeGreaterThanOrEqual(0);
-    expect(changelog.indexOf('## [2.240.0]')).toBeLessThan(changelog.indexOf('## [2.239.0]'));
+    expect(changelog.indexOf('## [2.241.0]')).toBeGreaterThanOrEqual(0);
+    expect(changelog.indexOf('## [2.241.0]')).toBeLessThan(changelog.indexOf('## [2.240.0]'));
   });
 
   it('the changelog speaks the wire, the chip, and the drill\u2019s birth', () => {
-    const body = changelog.slice(changelog.indexOf('## [2.239.0]'), changelog.indexOf('## [2.238.0]'));
+    const body = changelog.slice(changelog.indexOf('## [2.240.0]'), changelog.indexOf('## [2.238.0]'));
     expect(body).toContain('### Added');
     expect(body).toContain('### Styled');
     expect(body).toContain('doorBornByStore');
@@ -74,14 +74,14 @@ describe('the round of record (v2.239.0)', () => {
   });
 
   it('the counters ride +1 (the door\u2019s-census entry joined; the yard\u2019s answer joins)', () => {
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(131);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.109.0')).toBe(132);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.108.0')).toBe(133);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(164);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(132);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.109.0')).toBe(133);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.108.0')).toBe(134);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(165);");
   });
 
   it('the meta-pin family rides +1 with the counter source', () => {
-    expect(metaPin).toContain("expect(counter).toContain(\"expect(whatsNewUnreadCount('2.110.0')).toBe(131);\");");
+    expect(metaPin).toContain("expect(counter).toContain(\"expect(whatsNewUnreadCount('2.110.0')).toBe(132);\");");
   });
 });
 
@@ -125,7 +125,7 @@ describe('the yard\u2019s-answer chip (variance-map.tsx)', () => {
 
   it('the chip carries its own law on the title (the row aria stays the coverage voice)', () => {
     expect(map).toContain('title="sheets whose origin the create wire allowlisted as walk-door — the org face pointed, this yard answered"');
-    expect(map).toContain('aria-label={`${s.name}: ${s.heard} of ${s.total} shelves heard in the 30-day window.`}');
+    expect(map).toContain('aria-label={`${s.name}: ${s.heard} of ${s.total} shelves heard in the ${lawWindowDays}-day window.`}');
   });
 
   it('the disclosure pair is complete (aria-controls + the flyout\u2019s id)', () => {
@@ -141,7 +141,7 @@ describe('the yard\u2019s-answer chip (variance-map.tsx)', () => {
 
   it('the census line wears the door\u2019s own glass (decorative, the family named)', () => {
     expect(map).toContain('<DoorOpen className="h-2.5 w-2.5 shrink-0 text-violet-500 dark:text-violet-400" aria-hidden="true" />');
-    expect(map).toContain("import { ClipboardCheck, ChevronDown, ChevronRight, DoorOpen, Download, History } from 'lucide-react';");
+    expect(map).toContain("import { ClipboardCheck, ChevronDown, ChevronRight, DoorOpen, Download, History, Scale, X } from 'lucide-react';");
   });
 });
 

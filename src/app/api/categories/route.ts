@@ -5,6 +5,7 @@ import { db } from '@/lib/db';
 import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { LogSeverity, LogComponent } from '@/lib/types';
 import { withSessionAuth, MANAGER_PLUS_ROLES } from '@/lib/auth';
+import { readCadenceLaw } from '@/lib/cadence-law';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,8 +24,10 @@ export const dynamic = 'force-dynamic';
 // cadence reads the catalog, not the caller's gate. THE VOICE-NOT-SORT
 // LAW: the rows keep the categories' own sortOrder; the cadence is a
 // voice on each option, and the walk order belongs to the org map.
-const CADENCE_FRESH_DAYS = 7;
-const CADENCE_WINDOW_DAYS = 30;
+// v2.241.0 THE WALK'S LAW: the constants are gone — the thresholds are
+// read from the org's stored law (src/lib/cadence-law.ts, one bounded
+// read; the defaults 7/30 are the floor). The org map and the branch
+// teeth speak the SAME pair because they READ the same pair.
 const CADENCE_DAY_MS = 86_400_000;
 
 type CadenceBand = 'fresh' | 'stale' | 'beyond' | 'never';
@@ -36,7 +39,10 @@ async function cadenceByCategory(
   const out = new Map<string, { band: CadenceBand; daysSince: number | null; lastCountedAt: string | null; freshDays: number; windowDays: number }>();
   if (categoryIds.length === 0) return out;
   const now = new Date();
-  const windowStart = new Date(now.getTime() - CADENCE_WINDOW_DAYS * CADENCE_DAY_MS);
+  // THE LAW'S OWN WINDOW (v2.241.0): the teeth's window is the org's
+  // stored law — one read per request, the same pair the map speaks.
+  const law = await readCadenceLaw(db);
+  const windowStart = new Date(now.getTime() - law.windowDays * CADENCE_DAY_MS);
 
   // Three bounded reads (the org cadence's composition, store-scoped):
   // (1) this store's closed sheets inside the window (ids + closedAt),
@@ -103,14 +109,14 @@ async function cadenceByCategory(
       ? Math.max(0, Math.floor((now.getTime() - lastCountedAt.getTime()) / CADENCE_DAY_MS))
       : null;
     const band: CadenceBand = lastCountedAt
-      ? (daysSince ?? 0) <= CADENCE_FRESH_DAYS ? 'fresh' : 'stale'
+      ? (daysSince ?? 0) <= law.freshDays ? 'fresh' : 'stale'
       : heardEverByCategory.has(categoryId) ? 'beyond' : 'never';
     out.set(categoryId, {
       band,
       daysSince,
       lastCountedAt: lastCountedAt ? lastCountedAt.toISOString() : null,
-      freshDays: CADENCE_FRESH_DAYS,
-      windowDays: CADENCE_WINDOW_DAYS,
+      freshDays: law.freshDays,
+      windowDays: law.windowDays,
     });
   }
   return out;

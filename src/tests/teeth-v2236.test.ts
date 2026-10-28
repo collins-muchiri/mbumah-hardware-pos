@@ -38,25 +38,25 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.236.0)', () => {
   it('package.json leads 2.236.0 (all three slots)', () => {
-    expect(version).toBe('2.240.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.240.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.240.0');
+    expect(version).toBe('2.241.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.241.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.241.0');
   });
 
   it('VERSION speaks 2.236.0 and the verify gate is wired', () => {
-    expect(read('VERSION').trim()).toBe('2.240.0');
+    expect(read('VERSION').trim()).toBe('2.241.0');
     expect(pkg.scripts['verify:v2-236-0']).toBe('node scripts/verify-v2-236-0.mjs');
   });
 
   it('the whats-new feed leads the teeth entry (order pin: header-anchored, never a bare version string)', () => {
-    expect(feed.includes("version: '2.240.0',")).toBe(true);
-    expect(feed.indexOf("version: '2.240.0',")).toBeLessThan(feed.indexOf("version: '2.239.0',"));
+    expect(feed.includes("version: '2.241.0',")).toBe(true);
+    expect(feed.indexOf("version: '2.241.0',")).toBeLessThan(feed.indexOf("version: '2.240.0',"));
     expect(feed.includes("title: 'The teeth',")).toBe(true);
   });
 
   it('the changelog anchors the section above its ancestor (headers, never bare strings)', () => {
-    expect(changelog.indexOf('## [2.240.0]')).toBeGreaterThanOrEqual(0);
-    expect(changelog.indexOf('## [2.240.0]')).toBeLessThan(changelog.indexOf('## [2.239.0]'));
+    expect(changelog.indexOf('## [2.241.0]')).toBeGreaterThanOrEqual(0);
+    expect(changelog.indexOf('## [2.241.0]')).toBeLessThan(changelog.indexOf('## [2.240.0]'));
   });
 
   it('the changelog speaks the wire, the picker voice, and the coverage tile', () => {
@@ -88,15 +88,16 @@ describe('the teeth wire (GET /api/categories)', () => {
   });
 
   it('the four bands speak the org cadence\u2019s voices', () => {
-    expect(wire.includes("? (daysSince ?? 0) <= CADENCE_FRESH_DAYS ? 'fresh' : 'stale'")).toBe(true);
+    expect(wire.includes("? (daysSince ?? 0) <= law.freshDays ? 'fresh' : 'stale'")).toBe(true);
     expect(wire.includes(": heardEverByCategory.has(categoryId) ? 'beyond' : 'never'")).toBe(true);
   });
 
-  it('the payload carries the thresholds the face speaks (never a constant)', () => {
-    expect(wire.includes('freshDays: CADENCE_FRESH_DAYS,')).toBe(true);
-    expect(wire.includes('windowDays: CADENCE_WINDOW_DAYS,')).toBe(true);
-    expect(wire.includes('const CADENCE_FRESH_DAYS = 7;')).toBe(true);
-    expect(wire.includes('const CADENCE_WINDOW_DAYS = 30;')).toBe(true);
+  it('the payload carries the thresholds the face speaks (the law\u2019s own pair, never a constant)', () => {
+    expect(wire.includes('freshDays: law.freshDays,')).toBe(true);
+    expect(wire.includes('windowDays: law.windowDays,')).toBe(true);
+    expect(wire.includes('const law = await readCadenceLaw(db);')).toBe(true);
+    expect(wire.includes('const CADENCE_FRESH_DAYS = 7;')).toBe(false);
+    expect(wire.includes('const CADENCE_WINDOW_DAYS = 30;')).toBe(false);
   });
 
   it('the daysSince is floored, non-negative, from the sheet\u2019s own closedAt', () => {
@@ -204,11 +205,15 @@ describe('the coverage tile (variance-map)', () => {
   });
 
   it('the tile\u2019s aria names the voice and the window', () => {
-    expect(map.includes('aria-label={`Coverage: ${voice}${pct != null ? ` (${heard} of ${total} branch categories heard in the 30-day window)` : \'\'}`}')).toBe(true);
+    expect(map.includes('aria-label={`Coverage: ${voice}${pct != null ? ` (${heard} of ${total} branch categories heard in the ${lawWindowDays}-day window)` : \'\'}`}')).toBe(true);
   });
 
-  it('the label says Heard · 30d (the window law on the face)', () => {
-    expect(map.includes('Heard · 30d')).toBe(true);
+  it('the label says Heard · the law\u2019s own days (the window law on the face)', () => {
+    expect(map.includes('Heard · {lawWindowDays}d')).toBe(true);
+    expect(map.includes('Closed · {lawWindowDays}d')).toBe(true);
+    expect(map.includes('Net variance · {lawWindowDays}d')).toBe(true);
+    expect(map.includes('Ledger impact · {lawWindowDays}d')).toBe(true);
+    expect(map.includes('Heard · 30d')).toBe(false);
   });
 });
 
@@ -227,9 +232,10 @@ describe('the fossil guards (the older instruments still speak)', () => {
     expect(panel.includes('freeze ${pickedCategory.productCount ?? 0} products in ${pickedCategory.name}')).toBe(true);
   });
 
-  it('the kpi-summary cadence wire is untouched (the org face\u2019s source of truth)', () => {
+  it('the kpi-summary cadence wire reads the same law (one pair, every voice)', () => {
     const kpi = read('src/app/api/org/kpi-summary/route.ts');
-    expect(kpi.includes('const CADENCE_FRESH_DAYS = 7;')).toBe(true);
-    expect(kpi.includes('cadenceCategories.sort((a, b) => {')).toBe(true);
+    expect(kpi.includes('const cadenceLaw = await readCadenceLaw(rawDb);')).toBe(true);
+    expect(kpi.includes('windowDays: cadenceLaw.windowDays,')).toBe(true);
+    expect(kpi.includes('freshDays: cadenceLaw.freshDays,')).toBe(true);
   });
 });

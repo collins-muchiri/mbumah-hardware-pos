@@ -43,25 +43,25 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.238.0)', () => {
   it('package.json leads 2.238.0 (all three slots)', () => {
-    expect(version).toBe('2.240.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.240.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.240.0');
+    expect(version).toBe('2.241.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.241.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.241.0');
   });
 
   it('VERSION speaks 2.238.0 and the verify gate is wired', () => {
-    expect(read('VERSION').trim()).toBe('2.240.0');
+    expect(read('VERSION').trim()).toBe('2.241.0');
     expect(pkg.scripts['verify:v2-238-0']).toBe('node scripts/verify-v2-238-0.mjs');
   });
 
   it('the whats-new feed leads the door\u2019s-census entry (order pin: header-anchored, never a bare version string)', () => {
-    expect(feed.includes("version: '2.240.0',")).toBe(true);
-    expect(feed.indexOf("version: '2.240.0',")).toBeLessThan(feed.indexOf("version: '2.239.0',"));
+    expect(feed.includes("version: '2.241.0',")).toBe(true);
+    expect(feed.indexOf("version: '2.241.0',")).toBeLessThan(feed.indexOf("version: '2.240.0',"));
     expect(feed.includes("title: 'The door\\u2019s census',")).toBe(true);
   });
 
   it('the changelog anchors the section above its ancestor (headers, never bare strings)', () => {
-    expect(changelog.indexOf('## [2.240.0]')).toBeGreaterThanOrEqual(0);
-    expect(changelog.indexOf('## [2.240.0]')).toBeLessThan(changelog.indexOf('## [2.239.0]'));
+    expect(changelog.indexOf('## [2.241.0]')).toBeGreaterThanOrEqual(0);
+    expect(changelog.indexOf('## [2.241.0]')).toBeLessThan(changelog.indexOf('## [2.240.0]'));
   });
 
   it('the changelog speaks the column, the census, and the breakdown', () => {
@@ -168,14 +168,14 @@ describe('the coverage breakdown (variance-map.tsx)', () => {
   it('the tile\u2019s label becomes a toggle when the cadence speaks (stale payload keeps the plain label)', () => {
     expect(map).toContain('data-testid="coverage-breakdown-toggle"');
     expect(map).toContain('aria-expanded={coverageOpen}');
-    expect(map).toContain('>Heard · 30d<');
+    expect(map).toContain('>Heard · {lawWindowDays}d<');
   });
 
   it('the breakdown renders per-branch bars with the full voice on the aria', () => {
     expect(map).toContain('data-testid="coverage-breakdown"');
     expect(map).toContain('data-testid={`coverage-row-${s.storeId}`}');
-    expect(map).toContain('aria-label={`${s.name}: ${s.heard} of ${s.total} shelves heard in the 30-day window.`}');
-    expect(map).toContain('the silent shelves lead — each branch&apos;s share of aisles the 30-day window heard.');
+    expect(map).toContain('aria-label={`${s.name}: ${s.heard} of ${s.total} shelves heard in the ${lawWindowDays}-day window.`}');
+    expect(map).toContain('the silent shelves lead — each branch&apos;s share of aisles the {lawWindowDays}-day window heard.');
   });
 
   it('the flyout hides when nothing to break down (absent control never lies)', () => {

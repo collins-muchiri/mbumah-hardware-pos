@@ -2,6 +2,19 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.241.0] The walk's law
+
+The cadence has spoken the same pair since v2.235.0 — 7 fresh days, a 30-day window — but it spoke them as CONSTANTS, duplicated across two wires. This round the pair becomes the org's own: the owner writes the law once, and every voice that names a threshold (the org map's cadence block, the window figures, the coverage breakdown, the branch picker's teeth) reads the SAME stored pair. The law changes on the record, or not at all.
+
+### Added
+- **The law library** (`src/lib/cadence-law.ts`): the single home the duplicated constants become. `readCadenceLaw` reads the pair as ONE read (two keyed rows in SystemConfig: `cadence.freshDays`, `cadence.windowDays`), each key validated independently against the bands, the PAIR coherence-checked — and the FALLBACK LAW: an absent key, a malformed value, or an incoherent pair (freshDays >= windowDays) reads as the defaults 7/30, yesterday's truth, whole. The reader never throws into a request. THE BOUNDS: freshDays 1–14 (a week's shape), windowDays 14–90.
+- **The law wire** (`GET/PUT /api/org/cadence`): GET returns the stored law + its bounds (manager-plus reads); PUT writes it as ONE pair from the owner's hand (SUPER_ADMIN / STORE_OWNER — a branch manager walks the floor, the owner writes the law). THE PAIR LAW: the body must be a coherent pair — half a law is rejected whole (400, the bands named in the error). THE AUDIT LAW: every write lands in the tamper-evident trail (CONFIG_CHANGE on SystemConfig/cadence, old pair and new pair hashed) — the law changes on the record.
+- **The wires obey** (`/api/org/kpi-summary` + `/api/categories?includeCadence=true`): the duplicated constants are GONE — both wires read the law once per request, and the law's window governs the whole 30d-shaped family (the window figures, the cadence bands, the door-born census, the coverage). The payload rides the law's own numbers (`cadence.freshDays/windowDays`, additive `window30d.windowDays`) so an older cached answer keeps yesterday's silence (optional in the type, never assumed).
+- **The law's face** (`src/components/org/variance-map.tsx`, `data-testid="cadence-law"`): the cadence block NAMES the pair ("the law: fresh ≤ 7d · window 30d — the pair every voice here speaks"), and the governor's hand grows the pen (`cadence-law-pen`, only for SUPER_ADMIN/STORE_OWNER — the FACE-BEFORE-CONTROL LAW: every reader sees the law named, only the governor sees the pen). The editor (`cadence-law-editor`) is two labelled number inputs with the client mirroring the wire's bands before the round trip; the wire's 400 body speaks into the error line verbatim (`cadence-law-error`, role=alert); a written law closes the editor, toasts the pair, and asks the page's own loader for the refetch (the map renders, it never re-sorts — the wire re-walks).
+
+### Styled
+- The law face rides the map's tile house: the Scale glyph as the law's aria-hidden glass, the muted 10px voice with `tabular-nums` on every figure, the amber focus ring on inputs and pens, the emerald verdict family on the save pen (disabled state while writing), the muted family on cancel, the red family on the error line — dark halves from birth on every element. THE WINDOW SPEAKS ITS NUMBER: every hardcoded "30-day"/"30 days" label in the map (the coverage tile's aria, the breakdown's note, the roster's cap note, the cadence bars' cap and aria, the cadence cap note) now says the law's own number — the labels are the wire's, never a constant.
+
 ## [2.240.0] The birth, everywhere
 
 The yard's answer shipped the per-branch census (v2.239.0) — this round the birth is nameable at EVERY altitude of the map: roster rows wear the chip, and the branch face echoes it. One violet family, four altitudes: census → breakdown → roster → drill — and the branch's own glass.
