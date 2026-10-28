@@ -311,7 +311,18 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
           per SHEET — a fresh door is a fresh MOUNT, so the line finder's
           needle starts empty by construction (state of the drill, not
           of the map; no effect ever resets it). */}
-      {drill && <SheetDrill key={drill.id} target={drill} onClose={() => setDrill(null)} />}
+      {/* v2.234.0 THE VERDICT — the drill's re-walk button re-keys
+          this door onto the child: a fresh drill (the key remounts,
+          the instruments reset by construction), one deliberate
+          fetch for the sheet the user OPENED. */}
+      {drill && (
+        <SheetDrill
+          key={drill.id}
+          target={drill}
+          onClose={() => setDrill(null)}
+          onOpenSheet={(next) => setDrill(next)}
+        />
+      )}
     </div>
   );
 }

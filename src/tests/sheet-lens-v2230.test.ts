@@ -47,25 +47,25 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.230.0)', () => {
   it('package.json leads 2.230.0 (all three slots)', () => {
-    expect(version).toBe('2.233.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.233.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.233.0');
+    expect(version).toBe('2.234.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.234.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.234.0');
   });
 
   it('VERSION speaks 2.230.0 and the verify gate is wired', () => {
-    expect(read('VERSION').trim()).toBe('2.233.0');
+    expect(read('VERSION').trim()).toBe('2.234.0');
     expect(pkg.scripts['verify:v2-230-0']).toBe('node scripts/verify-v2-230-0.mjs');
   });
 
   it('the changelog anchors the section ABOVE its ancestor (the structural pin — headers, never bare strings)', () => {
-    expect(changelog.indexOf('## [2.233.0]')).toBeGreaterThanOrEqual(0);
-    expect(changelog.indexOf('## [2.233.0]')).toBeLessThan(changelog.indexOf('## [2.232.0]'));
+    expect(changelog.indexOf('## [2.234.0]')).toBeGreaterThanOrEqual(0);
+    expect(changelog.indexOf('## [2.234.0]')).toBeLessThan(changelog.indexOf('## [2.233.0]'));
   });
 
-  it('the whats-new feed leads the lineage entry (order pin: header-anchored, never a bare version string)', () => {
-    expect(feed.includes("version: '2.233.0',")).toBe(true);
-    expect(feed.indexOf("version: '2.233.0',")).toBeLessThan(feed.indexOf("version: '2.232.0',"));
-    expect(feed.includes("title: 'The lineage',")).toBe(true);
+  it('the whats-new feed leads the verdict entry (order pin: header-anchored, never a bare version string)', () => {
+    expect(feed.includes("version: '2.234.0',")).toBe(true);
+    expect(feed.indexOf("version: '2.234.0',")).toBeLessThan(feed.indexOf("version: '2.233.0',"));
+    expect(feed.includes("title: 'The verdict',")).toBe(true);
   });
 });
 
@@ -129,7 +129,7 @@ describe("the sheet's lens (the finder's twin)", () => {
 
   it('the lens is STATE of the drill, not of the sheet (a fresh door reads "all" — the map keys per sheet)', () => {
     expect(drill.includes("const [categoryNeedle, setCategoryNeedle] = useState('all');")).toBe(true);
-    expect(map.includes('<SheetDrill key={drill.id}')).toBe(true);
+    expect(map.includes('key={drill.id}')).toBe(true); // v2.234.0 re-pin: the mount is multi-line now (the verdict door joined) — the key law is the pin, not the line shape
   });
 });
 
@@ -214,7 +214,7 @@ describe('the laws that stand (the lens narrows the reading, never the sheet)', 
   });
 
   it('the map still keys the drill per sheet (the fresh-door law for BOTH needles)', () => {
-    expect(map.includes('<SheetDrill key={drill.id}')).toBe(true);
+    expect(map.includes('key={drill.id}')).toBe(true); // v2.234.0 re-pin: the mount is multi-line now (the verdict door joined) — the key law is the pin, not the line shape
     expect(map.includes('onClose={() => setDrill(null)}')).toBe(true);
   });
 });
