@@ -179,6 +179,12 @@ export interface KpiSummaryData {
     // sheets were BORN at a walk door (the create wire's allowlisted
     // origin; births, not closes).
     doorBorn30d?: number;
+    // v2.239.0 the yard's answer: additive + optional — the same census
+    // per branch (one row per store that heard a door). A store ABSENT
+    // from the array answered nothing; an older cached answer predating
+    // the field renders the silent absence (the face checks the field,
+    // never assumes).
+    doorBornByStore?: Array<{ storeId: string; doorBorn: number }>;
     // v2.235.0 the cadence: additive + optional so an older cached answer
     // renders the honest step-aside, never a crash. WHEN each shelf (branch
     // category) was last heard — the four bands and the walk order the

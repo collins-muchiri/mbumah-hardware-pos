@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.239.0',
+    title: 'The yard\u2019s answer',
+    bullets: [
+      'The census speaks per branch: the coverage breakdown now names which yards answer their doors \u2014 \u201cN born at a door\u201d on the branches the walk reached.',
+      'A door-born sheet wears its birth on its record face too: open any count sheet and the violet chip says \u201cborn at a walk door.\u201d',
+      'Branches that answered nothing wear the honest silence \u2014 the census counts doors, never guesses.',
+    ],
+  },
+  {
     version: '2.238.0',
     title: 'The door\u2019s census',
     bullets: [

@@ -134,6 +134,12 @@ async function orgStockTakeDetailHandler(_request: NextRequest, session: AuthSes
       id: sheet.id,
       status: sheet.status,
       notes: sheet.notes,
+      // v2.239.0 THE DRILL’S BIRTH CHIP — the sheet's own origin rides
+      // the record face (additive + one column the row already holds;
+      // zero new reads). The allowlist law means this is 'walk-door' or
+      // nothing: a hand-raised sheet carries null, the face renders the
+      // silence, and the census never grows a guess.
+      origin: sheet.origin,
       // v2.234.0 THE VERDICT — additive (the honest absence when no
       // child exists: null, never a hidden zero).
       recountedBy,

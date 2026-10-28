@@ -406,6 +406,25 @@ async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Pr
     const doorBorn30d = await rawDb.stockTake.count({
       where: { origin: 'walk-door', startedAt: { gte: windowStart } },
     });
+    // v2.239.0 THE YARD'S ANSWER — the census learns to speak PER BRANCH:
+    // which yards answer their doors. One grouped read over the SAME
+    // window births the headline count already speaks (the same
+    // where-shape, births not closes), one row per store the census
+    // heard (stores are five, never thousands — bounded by the catalog,
+    // not the ledger). Additive + always present alongside doorBorn30d;
+    // an older cached answer renders the silent absence (the face
+    // checks the field, never assumes). A store ABSENT from the array
+    // answered nothing — the breakdown's silence is the honest zero,
+    // never a drawn one.
+    const doorBornByStoreGroups = await rawDb.stockTake.groupBy({
+      by: ['storeId'],
+      where: { origin: 'walk-door', startedAt: { gte: windowStart } },
+      _count: { _all: true },
+    });
+    const doorBornByStore = doorBornByStoreGroups.map((g) => ({
+      storeId: g.storeId,
+      doorBorn: g._count._all,
+    }));
     const windowAgg = closed30dIds.length
       ? await rawDb.stockTakeLine.aggregate({
           where: { stockTakeId: { in: closed30dIds }, variance: { not: null } },
@@ -596,6 +615,10 @@ async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Pr
       // v2.238.0 the door's census: additive + always present (births in
       // the window whose origin the create wire allowed).
       doorBorn30d,
+      // v2.239.0 the yard's answer: additive + always present — the same
+      // census per branch. A store absent from the array answered
+      // nothing; the face renders the silence as the honest zero.
+      doorBornByStore,
       // v2.235.0 the cadence: additive + always present (the block reads
       // the catalog, not the caller's gate — every org role hears WHEN a
       // shelf was last heard; no cost field crosses this wire).
