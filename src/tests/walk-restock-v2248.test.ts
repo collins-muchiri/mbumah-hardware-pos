@@ -144,7 +144,8 @@ describe('the restock\u2019s landing + pre-pick \u2014 the PO tab (v2.248.0)', (
     expect(poTab).toContain('const variance = l?.variance == null ? null : Number(l.variance);');
     expect(poTab).toContain('if (variance == null || !Number.isFinite(variance) || variance >= 0) continue;');
     expect(poTab).toContain('const lost = Math.abs(variance);');
-    expect(poTab).toContain('unitCost: String(l.product?.costPrice ?? 0),');
+    expect(poTab).toContain('name: l.name || \'Unknown product\',');
+    expect(poTab).toContain("unitCost: l.bookCost != null ? String(l.bookCost) : '0',");
   });
 
   it('a refusing or un-CLOSED birth sheet speaks its refusal \u2014 the birth stays off the record', () => {
@@ -186,7 +187,7 @@ describe('the laws named \u2014 the ride-along (v2.248.0)', () => {
 
 describe('the release face (v2.248.0)', () => {
   it('package.json speaks 2.248.0', () => {
-    expect(version).toBe('2.248.0');
+    expect(version).toBe('2.248.1');
   });
 
   it('the door\u2019s answer rides the changelog', () => {
@@ -198,8 +199,8 @@ describe('the release face (v2.248.0)', () => {
 
   it('whats-new speaks the door\u2019s answer first', () => {
     const whatsNew = read('src/lib/whats-new.ts');
-    expect(whatsNew).toContain("version: '2.248.0',");
+    expect(whatsNew).toContain("version: '2.248.1',");
     expect(whatsNew).toContain('The door\\u2019s answer');
-    expect(whatsNew.indexOf("version: '2.248.0',")).toBeLessThan(whatsNew.indexOf("version: '2.247.0',"));
+    expect(whatsNew.indexOf("version: '2.248.1',")).toBeLessThan(whatsNew.indexOf("version: '2.248.0',"));
   });
 });

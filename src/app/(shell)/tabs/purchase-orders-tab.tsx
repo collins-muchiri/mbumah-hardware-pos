@@ -193,8 +193,11 @@ function POStatusTimeline({ status }: { status: string }) {
 // v2.248.0 THE RESTOCK'S BIRTH SHEET — the shape the pre-pick reads off
 // the sheet detail wire (GET /api/stock-takes/[id]): the status voice, the
 // aisle's name when the sheet wore one, and the lines (productId + the
-// variance + the product's own cost price). Numbers may ride as strings
-// (Decimal.read on sqlite) — the pre-pick Number()s everything it sums.
+// variance + the line's own BOOK COST — the wire's gated cost voice; a
+// viewer without inventory.view.cost reads null and fills the shillings
+// by hand — the units are the truth, the cost follows the gate). Numbers
+// may ride as strings (Decimal.read on sqlite) — the pre-pick Number()s
+// everything it sums.
 interface RestockBirthSheet {
   id?: string;
   status?: string;
@@ -202,7 +205,7 @@ interface RestockBirthSheet {
   lines?: Array<{
     productId?: string;
     variance?: number | string | null;
-    product?: { name?: string | null; sku?: string | null; costPrice?: number | string | null } | null;
+    bookCost?: number | string | null;
   }> | null;
 }
 
@@ -317,7 +320,8 @@ function CreatePODialog({
   // v2.248.0 THE RESTOCK'S PRE-PICK — one fetch of the sheet the door
   // named (the SAME wire the branch stock-take face reads), then the
   // shrinkage lines pre-pick themselves: qty = the units the shelf lost
-  // (|variance|), cost = the product's own cost price riding the wire.
+  // (|variance|), cost = the line's own gated BOOK COST (the wire's voice —
+  // null past the cost gate, the pen fills it by hand).
   // THE SHAPE LAWS: only NEGATIVE lines (a surplus needs no restock —
   // the shelf held more than the books said); a line the floor never
   // counted stays silent (variance null); the products the sheet's
@@ -359,10 +363,14 @@ function CreatePODialog({
           units += lost;
           picks.push({
             productId: l.productId,
-            name: l.product?.name || 'Unknown product',
-            sku: l.product?.sku || '',
+            name: l.name || 'Unknown product',
+            sku: l.sku || '',
             quantity: String(Math.round(lost)),
-            unitCost: String(l.product?.costPrice ?? 0),
+            // v2.248.0 THE COST GATE: the wire's bookCost is the line's own
+            // gated voice — null past inventory.view.cost, and the input
+            // stays empty for the pen (the units are the truth; the
+            // shillings follow the gate, never a guessed zero).
+            unitCost: l.bookCost != null ? String(l.bookCost) : '0',
             currentStock: 0,
           });
         }

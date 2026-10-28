@@ -80,6 +80,14 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.248.1',
+    title: 'The restock\u2019s honest shillings',
+    bullets: [
+      'Fixed: a restock raised from a count sheet pre-picked its lines at zero cost \u2014 it now reads each line\u2019s own book cost (KES 750 on the pickaxe, not 0), so the totals and supplier spend speak the truth.',
+      'A viewer without cost permission still gets the units pre-picked \u2014 the shillings stay behind the gate, to be filled by hand.',
+    ],
+  },
+  {
     version: '2.248.0',
     title: 'The door\u2019s answer',
     bullets: [
