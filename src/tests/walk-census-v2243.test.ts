@@ -23,6 +23,8 @@ import { describe, it, expect } from 'vitest';
 const read = (p: string) => readFileSync(join(process.cwd(), p), 'utf8');
 
 const map = read('src/components/org/variance-map.tsx');
+// v2.246.0 hand-pass: the verdict's voice moved to its one home — the lib.
+const band = read('src/lib/cadence-band.ts');
 const kpi = read('src/app/api/org/kpi-summary/route.ts');
 const primitives = read('src/components/org/primitives.tsx');
 const createWire = read('src/app/api/stock-takes/route.ts');
@@ -36,20 +38,20 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.243.0)', () => {
   it('package.json leads 2.243.0 (all three slots)', () => {
-    expect(version).toBe('2.245.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.245.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.245.0');
+    expect(version).toBe('2.246.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.246.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.246.0');
   });
 
   it('VERSION speaks 2.243.0 and the verify gate is wired (previous gate still wired)', () => {
-    expect(read('VERSION').trim()).toBe('2.245.0');
+    expect(read('VERSION').trim()).toBe('2.246.0');
     expect(pkg.scripts['verify:v2-243-0']).toBe('node scripts/verify-v2-243-0.mjs');
     expect(pkg.scripts['verify:v2-242-0']).toBe('node scripts/verify-v2-242-0.mjs');
   });
 
   it('the whats-new feed leads the aisle\u2019s-verdict entry (order pin: header-anchored)', () => {
-    expect(feed.includes("version: '2.245.0',")).toBe(true);
-    expect(feed.indexOf("version: '2.245.0',")).toBeLessThan(feed.indexOf("version: '2.244.0',"));
+    expect(feed.includes("version: '2.246.0',")).toBe(true);
+    expect(feed.indexOf("version: '2.246.0',")).toBeLessThan(feed.indexOf("version: '2.245.0',"));
     expect(feed.includes("title: 'The aisle\\u2019s verdict',")).toBe(true);
   });
 
@@ -69,10 +71,10 @@ describe('the round of record (v2.243.0)', () => {
   });
 
   it('the counters ride +1 again (the aisle\u2019s verdict joined)', () => {
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(136);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.109.0')).toBe(137);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.108.0')).toBe(138);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(169);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(137);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.109.0')).toBe(138);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.108.0')).toBe(139);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(170);");
   });
 });
 
@@ -120,13 +122,18 @@ describe('the verdict\u2019s face (the map)', () => {
   });
 
   it('a perfect count says so (the shelf held — the census never dresses a zero)', () => {
-    expect(map).toContain("'the count held — 0 units'");
+    // v2.246.0 hand-pass: the voice's TRUTH moved to the lib's one home
+    // (findingsVoice); the map speaks through it — intent preserved.
+    expect(band).toContain("'the count held — 0 units'");
+    expect(map).toContain('findingsVoice(a.varianceUnits)');
   });
 
   it('the verdict rides the drill\u2019s own three families (exact slate, surplus emerald, shrinkage red)', () => {
-    expect(map).toContain("'text-slate-500 dark:text-slate-400'");
-    expect(map).toContain("'text-emerald-600 dark:text-emerald-400'");
-    expect(map).toContain("'text-red-600 dark:text-red-400'");
+    // v2.246.0 hand-pass: the families live in the lib's one home now.
+    expect(band).toContain("'text-slate-500 dark:text-slate-400'");
+    expect(band).toContain("'text-emerald-600 dark:text-emerald-400'");
+    expect(band).toContain("'text-red-600 dark:text-red-400'");
+    expect(map).toContain('findingsVoice(a.varianceUnits)');
   });
 
   it('the band chip rides the name line in the walk order\u2019s four houses', () => {

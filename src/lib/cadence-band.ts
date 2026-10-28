@@ -24,6 +24,25 @@
 // than the window it would be measured against, so the honest number is
 // the absence (null), exactly the kpi's own shape; never has no date at
 // all.
+//
+// ── v2.246.0 THE AISLE'S TESTAMENT ──────────────────────────────────────
+// The verdict voice moves here too (the anti-duplication law applied to
+// the FINDINGS itself): the census's three families (exact slate /
+// surplus emerald / shrinkage red) had lived as two copies (the map's
+// inline verdict and the pick strip's local voice) — one home now, every
+// face the same words, the same colours. And the single-aisle read
+// grows `lastWalkUnits`: WHAT the aisle's latest window walk FOUND
+// there, the categories wire's own law (the latest SPEAKING walk — a
+// line with variance non-null; line-level attribution — the units its
+// lines in THIS category landed; a perfect count speaks 0 — the shelf
+// held; null when no window walk spoke — beyond/never/a silent window —
+// the honest absence, never a hidden zero). THE READ CLASS: the band's
+// one line read stays first; the testament adds TWO bounded reads, in
+// the window only — the latest speaking line (findFirst) and that
+// sheet's spoken units in the aisle (one aggregate). The fallback law
+// holds per read: a band that fails is no band (null, as before); a
+// testament that fails under a living band is silence (units null, the
+// band keeps its truth).
 
 import type { PrismaClient } from '@prisma/client';
 import type { CadenceLaw } from '@/lib/cadence-law';
@@ -59,6 +78,27 @@ export function chipLabel(band: string): string {
   return band === 'never' ? 'never' : band;
 }
 
+/** The verdict voice's own shape — the words and the family colour. */
+export interface FindingsVoice {
+  text: string;
+  cls: string;
+}
+
+/**
+ * v2.246.0 THE FINDINGS VOICE — the census's own three families, ONE
+ * home (this lib). exact = muted slate "the count held — 0 units",
+ * surplus = emerald "+N units found", shrinkage = red "−N units found"
+ * (the negative number renders its own minus). The map's verdict rows,
+ * the pick strip's verdict line and the detail faces' testament lines
+ * all speak through this — one law, every face the same words, the
+ * same colours.
+ */
+export function findingsVoice(units: number): FindingsVoice {
+  if (units === 0) return { text: 'the count held — 0 units', cls: 'text-slate-500 dark:text-slate-400' };
+  if (units > 0) return { text: `+${units} units found`, cls: 'text-emerald-600 dark:text-emerald-400' };
+  return { text: `${units} units found`, cls: 'text-red-600 dark:text-red-400' };
+}
+
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 /**
@@ -75,7 +115,7 @@ export async function readCategoryBand(
   categoryId: string,
   law: CadenceLaw,
   now: Date,
-): Promise<{ band: CadenceBand; daysSince: number | null } | null> {
+): Promise<{ band: CadenceBand; daysSince: number | null; lastWalkUnits: number | null } | null> {
   try {
     const last = await client.stockTakeLine.findFirst({
       where: {
@@ -86,13 +126,41 @@ export async function readCategoryBand(
       select: { stockTake: { select: { closedAt: true } } },
     });
     const closedAt = last?.stockTake.closedAt ?? null;
-    if (!closedAt) return { band: 'never', daysSince: null };
+    if (!closedAt) return { band: 'never', daysSince: null, lastWalkUnits: null };
     const windowStartMs = now.getTime() - law.windowDays * DAY_MS;
     if (closedAt.getTime() >= windowStartMs) {
       const daysSince = Math.max(0, Math.floor((now.getTime() - closedAt.getTime()) / DAY_MS));
-      return { band: daysSince <= law.freshDays ? 'fresh' : 'stale', daysSince };
+      const band: CadenceBand = daysSince <= law.freshDays ? 'fresh' : 'stale';
+      // v2.246.0 THE AISLE'S TESTAMENT — what the aisle's latest window
+      // walk FOUND here, the categories wire's own law mirrored for one
+      // aisle: the latest SPEAKING line in the window (a line with
+      // variance non-null — a line the floor never counted stays
+      // silent), then that sheet's spoken units in THIS category (the
+      // aggregate rides the same product-category join the band read
+      // uses — line-level attribution, the shelf's own truth). A
+      // perfect count speaks 0 — the shelf held; no speaking walk in
+      // the window → null (the honest absence, never a hidden zero).
+      // Beyond/never never ask — their verdict is already the silence.
+      const spoken = await client.stockTakeLine.findFirst({
+        where: {
+          product: { categoryId },
+          variance: { not: null },
+          stockTake: { status: 'CLOSED', closedAt: { gte: new Date(windowStartMs) } },
+        },
+        orderBy: { stockTake: { closedAt: 'desc' } },
+        select: { stockTakeId: true },
+      });
+      let lastWalkUnits: number | null = null;
+      if (spoken) {
+        const agg = await client.stockTakeLine.aggregate({
+          where: { stockTakeId: spoken.stockTakeId, product: { categoryId }, variance: { not: null } },
+          _sum: { variance: true },
+        });
+        lastWalkUnits = agg._sum.variance == null ? null : Math.round(Number(agg._sum.variance) * 100) / 100;
+      }
+      return { band, daysSince, lastWalkUnits };
     }
-    return { band: 'beyond', daysSince: null };
+    return { band: 'beyond', daysSince: null, lastWalkUnits: null };
   } catch {
     // A band that cannot be read is no band — the face wears the
     // silence (the name-only echo), never a guessed house.

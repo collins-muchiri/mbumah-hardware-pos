@@ -36,7 +36,7 @@ import { SheetDrill, csvCell, type SheetDrillTarget } from './sheet-drill';
 // their voices moved to the lib (the drill + the branch face wear the
 // aisle's own band chip this round, and the anti-duplication law allows
 // exactly one home). The call sites below stay byte-identical.
-import { bandHouse, chipLabel, daysVoice } from '@/lib/cadence-band';
+import { bandHouse, chipLabel, daysVoice, findingsVoice } from '@/lib/cadence-band';
 import {
   num, timeAgo,
   parseSheetLineage, LineageChip,
@@ -692,18 +692,16 @@ export function VarianceMap({ data, stores, canGovern = false, onLawSaved, onToa
                         // predating the enrichment renders the
                         // birth-only row (the type check, never an
                         // assumption).
-                        const verdictText = a.varianceUnits == null
-                          ? null
-                          : a.varianceUnits === 0
-                            ? 'the count held — 0 units'
-                            : `${a.varianceUnits > 0 ? '+' : ''}${a.varianceUnits} units found`;
-                        const verdictCls = a.varianceUnits == null
-                          ? ''
-                          : a.varianceUnits === 0
-                            ? 'text-slate-500 dark:text-slate-400'
-                            : a.varianceUnits > 0
-                              ? 'text-emerald-600 dark:text-emerald-400'
-                              : 'text-red-600 dark:text-red-400';
+                        // v2.246.0 THE AISLE'S TESTAMENT — the verdict's
+                        // words and colours live in ONE home now (the
+                        // lib's findingsVoice): the census speaks the
+                        // same families the pick strip and the detail
+                        // faces speak — one law, every face the same
+                        // truth. The honest absences stay: no units →
+                        // no verdict line (null, never a hidden zero).
+                        const verdict = a.varianceUnits == null ? null : findingsVoice(a.varianceUnits);
+                        const verdictText = verdict?.text ?? null;
+                        const verdictCls = verdict?.cls ?? '';
                         const bandVoice = a.band ? daysVoice({ band: a.band, daysSince: a.daysSince ?? null }) : null;
                         return (
                           <li

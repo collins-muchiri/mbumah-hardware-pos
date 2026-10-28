@@ -97,7 +97,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { ArrowRight, ClipboardCheck, DoorOpen, Download, Printer, Search, X } from 'lucide-react';
 import { num, timeAgo, parseSheetLineage } from './primitives';
-import { bandHouse, chipLabel, daysVoice } from '@/lib/cadence-band';
+import { bandHouse, chipLabel, daysVoice, findingsVoice } from '@/lib/cadence-band';
 
 const fmtKes = (v: number) =>
   `KES ${v.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -162,6 +162,11 @@ interface DrillWire {
     // a guessed house).
     walkAisleBand?: 'fresh' | 'stale' | 'beyond' | 'never' | null;
     walkAisleDaysSince?: number | null;
+    // v2.246.0 THE AISLE'S TESTAMENT: the aisle's own window verdict
+    // (additive + optional — null when no window walk spoke for the
+    // aisle, beyond/never, or the testament read fell back; the honest
+    // absence, never a hidden zero).
+    walkAisleUnits?: number | null;
     // v2.234.0 THE VERDICT — the lineage backwards: when a LATER sheet
     // was spawned from this one (the notes signature), the wire names
     // it and, once that child CLOSED, its variance units. Optional in
@@ -381,6 +386,28 @@ export function SheetDrill({ target, onClose, onOpenSheet }: { target: SheetDril
                 {data.status === 'CANCELLED' ? ' · a void — no adjustments, no movements' : ''}
               </p>
             )}
+            {/* v2.246.0 THE AISLE'S TESTAMENT — the drill's aisle line
+                says what the aisle's latest window walk FOUND there:
+                the census's own three families (one home — the lib's
+                findingsVoice), tabular-nums on the figure, the shelf's
+                own truth on the title. A sibling line, never a rewrite
+                of the chip row (the v2.242.0 law); absent when the wire
+                carried no units (beyond/never, a silent window, an
+                older cached answer, a fallen-back read) — the silence
+                is the honest state. */}
+            {(() => {
+              if (data?.origin !== 'walk-door' || !data?.walkAisle || data?.walkAisleUnits == null) return null;
+              const fv = findingsVoice(data.walkAisleUnits);
+              return (
+                <p
+                  data-testid="sheet-drill-origin-aisle-verdict"
+                  title="the aisle's latest walk found this — the shelf's own truth"
+                  className={`text-[10px] font-medium tabular-nums ${fv.cls}`}
+                >
+                  {fv.text}
+                </p>
+              );
+            })()}
           </div>
           <button
             type="button"
