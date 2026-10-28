@@ -70,9 +70,9 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.223.0)', () => {
   it('package.json leads 2.223.0 (all three slots)', () => {
-    expect(version).toBe('2.233.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.233.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.233.0');
+    expect(version).toBe('2.234.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.234.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.234.0');
   });
 
   it('the changelog anchors the section ABOVE its ancestor (the structural pin — headers, never bare strings)', () => {
@@ -258,7 +258,8 @@ describe('the drill grows a line finder (v2.223.0)', () => {
   });
 
   it('a fresh door is an empty needle — the map keys the drill per sheet (no effect ever resets it)', () => {
-    expect(varianceMap.includes('{drill && <SheetDrill key={drill.id} target={drill} onClose={() => setDrill(null)} />}')).toBe(true);
+    expect(varianceMap.includes('key={drill.id}')).toBe(true);
+    expect(varianceMap.includes('onOpenSheet={(next) => setDrill(next)}')).toBe(true); // v2.234.0 re-pin: the mount grew the verdict door (the re-key law)
   });
 });
 

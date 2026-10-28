@@ -86,6 +86,41 @@ async function orgStockTakeDetailHandler(_request: NextRequest, session: AuthSes
 
   const canViewCost = hasFeaturePermission(session.role, 'inventory.view.cost');
 
+  // v2.234.0 THE VERDICT — the lineage BACKWARDS. v2.233.0 taught the
+  // faces to read a sheet's note (a child knows its parent); this round
+  // the parent learns its child: one bounded read over the notes the
+  // spawn signs (the exact signature, or the signature with a trailing
+  // space — a cuid can never prefix-collide with a sibling of the same
+  // length, but the clause stays exact anyway). Latest child first;
+  // the child's variance units ride the SAME read (its lines come with
+  // it — bounded by the child's own line count). Units are units: the
+  // number only speaks once the child is CLOSED (a counting child has
+  // not spoken; a voided child never will). The cost gate is NOT
+  // involved — this is the units law, not the shillings law.
+  const recountedByRow = await db.stockTake.findFirst({
+    where: {
+      OR: [{ notes: { equals: `recount of sheet ${id}` } }, { notes: { startsWith: `recount of sheet ${id} ` } }],
+    },
+    orderBy: { startedAt: 'desc' },
+    select: {
+      id: true,
+      status: true,
+      closedAt: true,
+      lines: { where: { variance: { not: null } }, select: { variance: true } },
+    },
+  });
+  const recountedBy = recountedByRow
+    ? {
+        id: recountedByRow.id,
+        status: recountedByRow.status,
+        closedAt: recountedByRow.closedAt?.toISOString() ?? null,
+        varianceUnits:
+          recountedByRow.status === 'CLOSED'
+            ? Math.round(recountedByRow.lines.reduce((acc, l) => acc + Number(l.variance ?? 0), 0) * 100) / 100
+            : null,
+      }
+    : null;
+
   const counted = sheet.lines.filter((l) => l.countedQty != null);
   const varianceUnits = counted.reduce((acc, l) => acc + Number(l.variance ?? 0), 0);
   const varianceValueEstimate = counted.reduce(
@@ -99,6 +134,9 @@ async function orgStockTakeDetailHandler(_request: NextRequest, session: AuthSes
       id: sheet.id,
       status: sheet.status,
       notes: sheet.notes,
+      // v2.234.0 THE VERDICT — additive (the honest absence when no
+      // child exists: null, never a hidden zero).
+      recountedBy,
       startedAt: sheet.startedAt.toISOString(),
       closedAt: sheet.closedAt?.toISOString() ?? null,
       startedByName: sheet.startedBy?.name ?? null,

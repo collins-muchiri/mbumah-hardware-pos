@@ -105,6 +105,9 @@ type SheetDetail = {
   id: string;
   status: string;
   notes: string | null;
+  // v2.234.0 THE VERDICT — the lineage backwards (optional in the type;
+  // the honest absence: null = no child, no verdict).
+  recountedBy?: { id: string; status: string; closedAt: string | null; varianceUnits: number | null } | null;
   startedAt: string;
   closedAt: string | null;
   startedByName: string | null;
@@ -583,6 +586,32 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                   <p data-testid="stocktake-sheet-lineage" className="mt-1.5 rounded-lg border border-amber-200 bg-amber-50/60 px-2 py-1 text-[10px] text-amber-800 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200">
                     recount of sheet <span className="font-semibold tabular-nums">{lineage.sourceSheetId}</span>
                     {lineage.remainder ? ` · ${lineage.remainder}` : ''}
+                  </p>
+                );
+              })()}
+              {/* v2.234.0 THE VERDICT — the lineage BACKWARDS at the
+                  pens: a sheet that was re-walked learns it under the
+                  header — the child's full id and its voice (units once
+                  the child closed; honest waiting/void voices
+                  otherwise). A LINE, never a nav control: the roster's
+                  own View button already reaches the child. Rides the
+                  paper — a printed record carries its verdict. */}
+              {detail.recountedBy && (() => {
+                const child = detail.recountedBy;
+                const childVoice =
+                  child.status === 'CLOSED'
+                    ? child.varianceUnits != null && child.varianceUnits === 0
+                      ? 'the re-walk found the shelf true'
+                      : child.varianceUnits != null
+                        ? `the re-walk found ${num(child.varianceUnits)} units`
+                        : 'the re-walk closed'
+                    : child.status === 'COUNTING'
+                      ? 'the re-walk is on the floor — the verdict waits'
+                      : 'the re-walk was voided before it spoke';
+                return (
+                  <p data-testid="stocktake-recounted-by" className="mt-1.5 rounded-lg border border-emerald-200 bg-emerald-50/60 px-2 py-1 text-[10px] text-emerald-800 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-200">
+                    re-walked by sheet <span className="font-semibold tabular-nums">{child.id}</span>
+                    {' · '}{childVoice}
                   </p>
                 );
               })()}

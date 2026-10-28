@@ -59,6 +59,37 @@ async function getStockTakeHandler(_request: NextRequest, session: AuthSession, 
 
   const canViewCost = hasFeaturePermission(session.role, 'inventory.view.cost');
 
+  // v2.234.0 THE VERDICT — the lineage BACKWARDS, at the branch face
+  // too: a sheet that was re-walked learns WHO re-walked it and WHAT
+  // the re-walk found. One bounded read over the notes the spawn
+  // signs (the exact signature, or with a trailing space — the clause
+  // stays exact); latest child first; the child's variance units ride
+  // the SAME read. Units are units — the number only speaks once the
+  // child is CLOSED. The cost gate is NOT involved (the units law).
+  const recountedByRow = await db.stockTake.findFirst({
+    where: {
+      OR: [{ notes: { equals: `recount of sheet ${id}` } }, { notes: { startsWith: `recount of sheet ${id} ` } }],
+    },
+    orderBy: { startedAt: 'desc' },
+    select: {
+      id: true,
+      status: true,
+      closedAt: true,
+      lines: { where: { variance: { not: null } }, select: { variance: true } },
+    },
+  });
+  const recountedBy = recountedByRow
+    ? {
+        id: recountedByRow.id,
+        status: recountedByRow.status,
+        closedAt: recountedByRow.closedAt?.toISOString() ?? null,
+        varianceUnits:
+          recountedByRow.status === 'CLOSED'
+            ? Math.round(recountedByRow.lines.reduce((acc, l) => acc + Number(l.variance ?? 0), 0) * 100) / 100
+            : null,
+      }
+    : null;
+
   const counted = sheet.lines.filter((l) => l.countedQty != null);
   const varianceUnits = counted.reduce((acc, l) => acc + Number(l.variance ?? 0), 0);
   // The open-sheet estimate rides the BOOK cost joined here; the close
@@ -79,6 +110,8 @@ async function getStockTakeHandler(_request: NextRequest, session: AuthSession, 
       store: { id: sheet.store.id, name: sheet.store.name, code: sheet.store.code },
       status: sheet.status,
       notes: sheet.notes,
+      // v2.234.0 THE VERDICT — additive (null when no child exists).
+      recountedBy,
       startedAt: sheet.startedAt,
       closedAt: sheet.closedAt,
       startedByName: sheet.startedBy?.name ?? null,

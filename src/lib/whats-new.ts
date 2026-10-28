@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.234.0',
+    title: 'The verdict',
+    bullets: [
+      'The lineage reads backwards now: a sheet that was re-walked wears the verdict — the re-walk sheet’s full id, and once that re-walk closed, the units it found (“the shelf true — the dispute settled at zero”).',
+      'The org drill’s verdict face carries a door: one button re-keys the drill onto the re-walk sheet — a fresh read of the child, the instruments reset by the key.',
+      'The branch face learns it too: the walker opening an older disputed sheet sees who re-walked it and what the books heard.',
+      'Both detail wires grew one bounded read over the spawn’s own notes signature — additive, units only, the cost gate untouched.',
+    ],
+  },
+  {
     version: '2.233.0',
     title: 'The lineage',
     bullets: [

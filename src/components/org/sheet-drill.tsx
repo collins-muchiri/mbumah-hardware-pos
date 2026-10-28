@@ -146,6 +146,11 @@ interface DrillWire {
     id: string;
     status: string;
     notes: string | null;
+    // v2.234.0 THE VERDICT — the lineage backwards: when a LATER sheet
+    // was spawned from this one (the notes signature), the wire names
+    // it and, once that child CLOSED, its variance units. Optional in
+    // the type (the honest absence: null = no child, no verdict).
+    recountedBy?: { id: string; status: string; closedAt: string | null; varianceUnits: number | null } | null;
     startedAt: string;
     closedAt: string | null;
     startedByName: string | null;
@@ -175,7 +180,7 @@ interface DrillWire {
   };
 }
 
-export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onClose: () => void }) {
+export function SheetDrill({ target, onClose, onOpenSheet }: { target: SheetDrillTarget; onClose: () => void; onOpenSheet?: (next: { id: string; storeName: string; status: string }) => void }) {
   // v2.223.0: the needle — the finder's state, reset by the map's per-
   // sheet key (a fresh door is an empty needle), never an effect.
   const [needle, setNeedle] = useState('');
@@ -420,6 +425,58 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
                 <p data-testid="sheet-drill-notes" className="mt-2 rounded-lg bg-slate-50 px-2.5 py-1.5 text-[10px] text-slate-500 dark:bg-slate-800/60 dark:text-slate-400">
                   {data.notes}
                 </p>
+              );
+            })()}
+
+            {/* v2.234.0 THE VERDICT — the lineage BACKWARDS. A sheet that
+                was re-walked learns it here: the child's full id, its
+                status voice, and (once the child CLOSED) the units the
+                re-walk found — the loop read from the parent's side.
+                The child button is NAVIGATION, never a pen: it re-keys
+                this drill onto the child (the map's own door law — a
+                fresh door, one fetch, the instruments reset by the
+                key). The same store by construction: the spawn posts to
+                the branch's own wire, so the parent's storeName rides.
+                The FACE rides the paper (a printed record carries its
+                verdict); the open-child BUTTON is a control and stays
+                off it (data-sheet-print-off — a control is a screen
+                thing). */}
+            {data.recountedBy && (() => {
+              const child = data.recountedBy;
+              const childVoice =
+                child.status === 'CLOSED'
+                  ? child.varianceUnits != null && child.varianceUnits === 0
+                    ? 'the re-walk found the shelf true — the dispute settled at zero.'
+                    : child.varianceUnits != null
+                      ? `the re-walk spoke — ${num(child.varianceUnits)} units between book and shelf.`
+                      : 'the re-walk closed.'
+                  : child.status === 'COUNTING'
+                    ? 'the re-walk is on the floor — the verdict waits.'
+                    : 'the re-walk was voided before it spoke.';
+              return (
+                <div data-testid="sheet-drill-verdict" className="mt-2 rounded-lg border border-emerald-200 bg-emerald-50/60 px-2.5 py-1.5 text-[10px] text-emerald-800 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-200">
+                  <div className="flex flex-wrap items-center justify-between gap-1.5">
+                    <p className="font-semibold">
+                      re-walked by sheet <span className="tabular-nums">{child.id}</span>
+                      {child.status === 'CLOSED' && child.varianceUnits != null ? (
+                        <span className="ml-1.5 tabular-nums">· {num(child.varianceUnits)} units</span>
+                      ) : null}
+                    </p>
+                    {onOpenSheet && (
+                      <button
+                        type="button"
+                        data-testid="sheet-drill-verdict-open"
+                        data-sheet-print-off=""
+                        onClick={() => onOpenSheet({ id: child.id, storeName: target.storeName, status: child.status })}
+                        className="inline-flex shrink-0 items-center gap-1 rounded border border-emerald-300 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-800 hover:bg-emerald-100 dark:border-emerald-500/40 dark:text-emerald-200 dark:hover:bg-emerald-500/20"
+                        aria-label={`Open the re-walk sheet ${child.id} in this drill`}
+                      >
+                        <ArrowRight className="h-3 w-3" aria-hidden="true" /> open the re-walk
+                      </button>
+                    )}
+                  </div>
+                  <p className="mt-0.5 text-[9px] text-emerald-700 dark:text-emerald-300/80">{childVoice}</p>
+                </div>
               );
             })()}
 
