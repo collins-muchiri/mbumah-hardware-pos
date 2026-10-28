@@ -70,6 +70,18 @@ async function getPurchaseOrdersHandler(
         approvedBy: {
           select: { id: true, name: true },
         },
+        // v2.248.0 THE RESTOCK'S BIRTH — the sheet a PO was born from rides
+        // the list (additive + optional): the faces wear the violet birth
+        // chip when the wire carries one; a hand-raised PO reads null and
+        // renders the silent absence (the type check, never an assumption).
+        originStockTake: {
+          select: {
+            id: true,
+            status: true,
+            closedAt: true,
+            walkAisle: { select: { name: true } },
+          },
+        },
         _count: { select: { items: true } },
       },
       orderBy: { createdAt: 'desc' },
@@ -102,7 +114,16 @@ async function createPurchaseOrderHandler(
 ): Promise<Response> {
   const body = await request.json();
 
-  const { storeId, supplierId, items, notes, expectedDate } = body;
+  const { storeId, supplierId, items, notes, expectedDate, originStockTakeId } = body as {
+    storeId?: string;
+    supplierId?: string;
+    items?: unknown;
+    notes?: string;
+    expectedDate?: string;
+    // v2.248.0 THE RESTOCK'S BIRTH — the drill's restock door is the only
+    // writer; the wire never guesses a birth the caller did not name.
+    originStockTakeId?: string;
+  };
 
   if (!storeId || !supplierId) {
     return Response.json(
@@ -146,6 +167,30 @@ async function createPurchaseOrderHandler(
   }
 
   const productMap = new Map(products.map((p) => [p.id, p]));
+
+  // v2.248.0 THE BIRTH ALLOWLIST — an origin is EXPLICIT intent, so a bad
+  // one is a REJECTION, never a silent null (the aisle answer's silent law
+  // serves inference; this is a named address). The sheet must exist,
+  // belong to the SAME store, and be CLOSED — a PO raised against a live
+  // count would freeze a number the floor is still disputing.
+  if (originStockTakeId != null && originStockTakeId !== '') {
+    const birthSheet = await db.stockTake.findUnique({
+      where: { id: originStockTakeId },
+      select: { id: true, storeId: true, status: true },
+    });
+    if (!birthSheet || birthSheet.storeId !== storeId) {
+      return Response.json(
+        { success: false, error: 'originStockTakeId does not name a count sheet in this store.' },
+        { status: 400 }
+      );
+    }
+    if (birthSheet.status !== 'CLOSED') {
+      return Response.json(
+        { success: false, error: 'originStockTakeId names a sheet that is not CLOSED — the books have not heard it yet.' },
+        { status: 400 }
+      );
+    }
+  }
 
   // F1-5 remediation: validate quantities/costs BEFORE computing totals.
   // Negative/zero/NaN/Infinity values used to flow straight into Decimal
@@ -219,6 +264,10 @@ async function createPurchaseOrderHandler(
         totalAmount,
         notes: notes || null,
         expectedDate: expectedDate ? new Date(expectedDate) : null,
+        // v2.248.0: the birth rides only when the allowlist passed — a
+        // hand-raised PO stores no origin (the faces count births, never
+        // infer them).
+        originStockTakeId: originStockTakeId != null && originStockTakeId !== '' ? originStockTakeId : null,
         // F1-3/SYS-2: creator identity from the session, not the body.
         createdById: session.userId,
         items: {
@@ -245,7 +294,7 @@ async function createPurchaseOrderHandler(
     severity: LogSeverity.INFO,
     message: `Purchase Order ${poNumber} created for supplier "${supplier.name}"`,
     storeId,
-    metadata: { poId: purchaseOrder.id, poNumber, supplierId, totalAmount, subTotal, taxAmount, itemCount: items.length },
+    metadata: { poId: purchaseOrder.id, poNumber, supplierId, totalAmount, subTotal, taxAmount, itemCount: items.length, originStockTakeId: originStockTakeId ?? null },
   });
 
   return Response.json({ success: true, data: purchaseOrder }, { status: 201 });

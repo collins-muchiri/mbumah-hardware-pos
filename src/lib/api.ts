@@ -2769,6 +2769,10 @@ export interface PurchaseOrderListItem {
   cancelledBy?: { id: string; name: string } | null;
   items?: PurchaseOrderItemDetail[];
   itemCount?: number;
+  // v2.248.0 THE RESTOCK'S BIRTH — the sheet a PO was born from (additive
+  // + optional; the list + detail wires carry it, a hand-raised PO reads
+  // null and the faces render the silent absence).
+  originStockTake?: { id: string; status: string; closedAt: string | null; walkAisle: { name: string } | null } | null;
 }
 
 export interface PurchaseOrderItemDetail {
@@ -2883,6 +2887,9 @@ export const purchaseOrdersApi = {
     notes?: string;
     expectedDate?: string;
     createdById?: string;
+    // v2.248.0: the birth — the drill's restock door names the CLOSED
+    // sheet this PO answers; the wire validates and stores it.
+    originStockTakeId?: string;
   }) => {
     return request<PurchaseOrderListItem>('/purchase-orders', {
       method: 'POST',

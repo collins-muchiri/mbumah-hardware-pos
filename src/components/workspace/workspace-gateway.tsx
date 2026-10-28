@@ -30,6 +30,7 @@ import { ChangePasswordScreen } from '@/components/change-password-screen';
 import { MainApp } from '@/components/app/main-app';
 import { useAppStore, useAuthStore } from '@/lib/stores';
 import { useWorkspaceStore, type WorkspaceStoreRef } from '@/lib/workspace/workspace-store';
+import { tabFromWorkspacePath } from '@/lib/workspace/links';
 
 interface StoreContextResponse {
   success: boolean;
@@ -111,7 +112,15 @@ function GatewayMessage({
   );
 }
 
-export function WorkspaceGateway({ slug }: { slug: string | null }) {
+export function WorkspaceGateway({
+  slug,
+  rest,
+}: {
+  slug: string | null;
+  // v2.248.0 THE DOOR'S LANDING — the catch-all segments the workspace page
+  // forwarded (the first one names the tab the URL points at).
+  rest?: string[];
+}) {
   const [phase, setPhase] = useState<GatewayPhase>('loading');
   const [deniedReason, setDeniedReason] = useState<string>('');
   // Stable client-safe cause for the not-found / denied views (v2.18.0.0).
@@ -127,6 +136,23 @@ export function WorkspaceGateway({ slug }: { slug: string | null }) {
   // every render (early returns below must not skip this subscription).
   const workspaceStore = useWorkspaceStore((s) => s.store);
   const bootedRef = useRef(false);
+  // v2.248.0 THE DOOR'S LANDING — applied once per gateway mount (a door is
+  // a hard navigation, so every arrival remounts; in-workspace tab switches
+  // never re-fire it).
+  const landingSyncedRef = useRef(false);
+
+  // The door's landing: the URL's first segment names the tab — set it once
+  // the shell is ready to render. An unknown or absent segment leaves the
+  // persisted tab standing (the segment-less workspace root's old behavior,
+  // byte for byte).
+  useEffect(() => {
+    if (phase !== 'ready' || landingSyncedRef.current) return;
+    landingSyncedRef.current = true;
+    const tab = tabFromWorkspacePath(rest);
+    if (tab && useAppStore.getState().activeTab !== tab) {
+      useAppStore.getState().setActiveTab(tab);
+    }
+  }, [phase, rest]);
 
   // Same boot sequence as the root page (storage hydration is idempotent).
   useEffect(() => {

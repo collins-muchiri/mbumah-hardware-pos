@@ -708,7 +708,7 @@ export function VarianceMap({ data, stores, canGovern = false, onLawSaved, onToa
                             key={a.categoryId}
                             data-testid={`cadence-door-aisle-${a.categoryId}`}
                             aria-label={`${a.name}: ${voice}${bandVoice ? ` — ${bandVoice}` : ''}${verdictText ? ` — ${verdictText}` : ''} this window.`}
-                            title="the walk order pointed here — the floor answered through this aisle"
+                            title="the walk order pointed here — the floor answered through this aisle; the verdict sums every closed sheet born here this window (the sheet's own drill speaks the latest walk)"
                             className="rounded border border-violet-100 bg-white/70 px-1.5 py-1 dark:border-violet-500/20 dark:bg-slate-800/60"
                           >
                             <div className="flex items-center justify-between gap-2">

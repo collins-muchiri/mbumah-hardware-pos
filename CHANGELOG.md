@@ -2,7 +2,21 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.248.0] The door's answer
+
+Two doors, one law: a door must land where it points, and a finding must be answerable. This round fixes the first with the workspace's tab landing (a real bug: every branch-workspace door anchored to whatever tab localStorage had persisted), and builds the second — the restock's birth, the walk lifecycle's missing closure: the shrinkage a walk found can now be ANSWERED by a purchase order born wearing the sheet's name.
+
+### Added
+- **The restock's birth (schema)**: `PurchaseOrder.originStockTakeId` (nullable, indexed, `SetNull` on the sheet's deletion) + the `StockTake.restockOrders` read-side relation. A deleted sheet nulls the column — the PO never speaks ghosts. A hand-raised PO carries no birth at all.
+- **The restock's wire** (`POST /api/purchase-orders`): the create wire grows the BIRTH ALLOWLIST — `originStockTakeId` is stored ONLY when the sheet exists, belongs to the SAME store, and is CLOSED; a bad address is a 400 REJECTION, never a silent null (an origin is explicit intent, not inference). The list + detail wires grow `originStockTake` (additive + optional: id, status, closedAt, the aisle's name).
+- **The restock door** (`sheet-drill.tsx`): a CLOSED sheet that found shrinkage (lines whose count came in BELOW the snapshot) wears a violet anchor beside the recount door — "raise the restock for the N shrinkage lines" — into `/stores/{slug}/purchase-orders?restockFrom={sheetId}`. Violet = the door's family (the birth chip's own house). Absent when the sheet found no shrinkage, is not CLOSED, or has no slug — an absent control never lies.
+- **The restock's landing + pre-pick** (`purchase-orders-tab.tsx`): the tab reads `?restockFrom=` ONE time at mount (the count sheet door's own one-time law), auto-opens the create dialog, and pre-picks exactly the shrinkage lines (qty = the units the shelf lost, cost = the product's own cost price riding the sheet wire). The violet BIRTH STRIP speaks while building; a refusing sheet speaks its refusal — the birth stays off the record.
+- **The birth's faces**: the PO roster wears the violet birth chip beside the number, the PO's own record wears the birth strip (sheet id, aisle, honest status voice) — for life.
+- **The doors' landing (bug fix)**: the workspace page forwards its catch-all segments; the gateway maps the first through `tabFromWorkspacePath` (src/lib/workspace/links.ts) and sets the tab once at ready. `/stores/{slug}/inventory` OPENS inventory — the walk doors, the recount door and the restock door are deterministic for every browser, not just the ones whose persisted tab happened to agree. An unknown or absent segment leaves the persisted tab standing (the old behavior, byte for byte).
+- **The laws named (ride-along)**: the census row's title says its verdict sums every closed sheet born here this window; the walk picker's findings title says the LATEST walk's own truth — the two faces can no longer be mistaken for each other.
+
 ## [2.247.0] The walk's mirror
+
 
 An older door-born sheet could wear its aisle's latest verdict without saying so — the v2.246.0 line spoke the AISLE's truth under THIS sheet's header, and a reader could mistake it for the sheet's own finding. This round the sheet's own walk speaks first: when this paper's walk found something DIFFERENT from what the aisle's latest window walk found, both truths ride the drill and the branch face. When they agree, the single honest line stays — a duplicate would say nothing new.
 
