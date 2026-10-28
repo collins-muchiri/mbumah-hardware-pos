@@ -97,6 +97,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { ArrowRight, ClipboardCheck, DoorOpen, Download, Printer, Search, X } from 'lucide-react';
 import { num, timeAgo, parseSheetLineage } from './primitives';
+import { bandHouse, chipLabel, daysVoice } from '@/lib/cadence-band';
 
 const fmtKes = (v: number) =>
   `KES ${v.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -155,6 +156,12 @@ interface DrillWire {
     // opened (the aisle's own name, the wire's truth). An older cached
     // wire or an aisle-less birth renders the silent absence.
     walkAisle?: string | null;
+    // v2.244.0 THE AISLE'S ECHO: the aisle's own cadence band + the days
+    // voice (additive + optional — null when the birth named no aisle or
+    // the band read fell back; the face wears the name-only echo, never
+    // a guessed house).
+    walkAisleBand?: 'fresh' | 'stale' | 'beyond' | 'never' | null;
+    walkAisleDaysSince?: number | null;
     // v2.234.0 THE VERDICT — the lineage backwards: when a LATER sheet
     // was spawned from this one (the notes signature), the wire names
     // it and, once that child CLOSED, its variance units. Optional in
@@ -345,6 +352,22 @@ export function SheetDrill({ target, onClose, onOpenSheet }: { target: SheetDril
                 >
                   <DoorOpen className="h-2.5 w-2.5" aria-hidden="true" />
                   the walk order named {data.walkAisle}
+                </span>
+              )}
+              {/* v2.244.0 THE AISLE'S ECHO — the aisle's own cadence chip:
+                  the band houses the map speaks (one home now — the lib),
+                  the days voice on the title. A sibling span, never a
+                  rewrite of the name chip (the v2.242.0 law); absent when
+                  the wire carried no band (an aisle-less birth, an older
+                  cached answer, a fallen-back read) — the silence is the
+                  honest state. */}
+              {data?.origin === 'walk-door' && data?.walkAisle && data?.walkAisleBand && (
+                <span
+                  data-testid="sheet-drill-origin-aisle-band"
+                  title={`the aisle's own cadence — ${daysVoice({ band: data.walkAisleBand, daysSince: data.walkAisleDaysSince ?? null })}`}
+                  className={`inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide ring-1 tabular-nums ${bandHouse(data.walkAisleBand).chip}`}
+                >
+                  {chipLabel(data.walkAisleBand)}
                 </span>
               )}
               <span className="truncate text-xs font-medium text-slate-700 dark:text-slate-200">{target.storeName}</span>

@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.244.0',
+    title: 'The aisle\u2019s echo',
+    bullets: [
+      'Open a door-born count sheet and its aisle now says WHEN it was last heard: the aisle\u2019s own cadence chip rides the sheet, org drill and branch face alike.',
+      'The four band houses \u2014 fresh, stale, beyond, never \u2014 now live in one home, so every face wears the exact same truth.',
+      'No band to speak? The sheet wears the name-only echo, honestly silent \u2014 never a guessed colour.',
+    ],
+  },
+  {
     version: '2.243.0',
     title: 'The aisle\u2019s verdict',
     bullets: [

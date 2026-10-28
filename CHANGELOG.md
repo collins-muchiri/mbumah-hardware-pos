@@ -2,6 +2,18 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.244.0] The aisle's echo
+
+The aisle's row on the map has testified since v2.243.0 — this round the sheet itself carries the echo home: open a door-born count sheet (org drill or branch face) and its origin-aisle line learns the aisle's own cadence band. WHERE the door opened (v2.242.0) now says WHEN its aisle was last heard. And the four band houses move into their one home — the anti-duplication law applied to the band itself.
+
+### Added
+- **The band's one home** (`src/lib/cadence-band.ts`): the four houses (fresh emerald / stale amber / beyond orange / never slate), the days voice, and the chip label move from the variance map's local closures to a shared lib — byte-identical classes, the map's call sites unchanged. The lib also grows `readCategoryBand`: ONE aisle's band, read the map's way (the latest CLOSED line touching a product currently on the aisle; no line → never; in-window → fresh/stale by THE LAW'S OWN boundary; older → beyond). THE FALLBACK LAW: a failed read returns null — never a thrown request, never a guessed house.
+- **The echo wire** (`GET /api/stock-takes/[id]` + `GET /api/org/stock-takes/[id]`): both detail wires grow `walkAisleBand` + `walkAisleDaysSince` (additive + optional), read only for an aisle-born sheet (two bounded reads: the stored law + the ONE latest CLOSED line). The `walkAisle` name line stays byte-identical (the v2.242.0 pins keep speaking).
+- **The echo's face** (`sheet-drill.tsx` + `stock-take-panel.tsx`): a sibling band chip after the name chip on both faces — `sheet-drill-origin-aisle-band` / `stocktake-sheet-origin-aisle-band`, the house's classes, the days voice on the title, `tabular-nums` on the figure. SIBLING SPANS, NEVER REWRITES: the name chips and the birth chip stay byte-identical. Absent when the wire carried no band — the silence is the honest state.
+
+### Styled
+- The band chips wear the exact houses the cadence rail has spoken since v2.235.0 (8px, uppercase, ring-1, dark halves from birth) — one home now, so the drill, the branch face and the map can never drift apart. The name chip keeps the violet door family untouched; the band chip is the aisle's own truth, not the door's paint.
+
 ## [2.243.0] The aisle's verdict
 
 The census named the aisles the doors opened onto (v2.242.0) — this round the aisle's row speaks the walk's own VERDICT: the variance units the window's closed door-born sheets found, and the aisle's current cadence band (did the walk move the needle?). The arc completes its sentence: the door points, the floor answers, the aisle is heard — and now the aisle testifies.

@@ -30,6 +30,9 @@ const read = (p: string) => readFileSync(join(process.cwd(), p), 'utf8');
 
 const wire = read('src/app/api/org/kpi-summary/route.ts');
 const map = read('src/components/org/variance-map.tsx');
+// v2.244.0 hand-pass: the band's houses + voices moved to the one home
+// (the map imports them now) — the pins re-point at the lib's source.
+const bandLib = read('src/lib/cadence-band.ts');
 const primitives = read('src/components/org/primitives.tsx');
 const pkg = JSON.parse(read('package.json'));
 const feed = read('src/lib/whats-new.ts');
@@ -40,13 +43,13 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.235.0)', () => {
   it('package.json leads 2.235.0 (all three slots)', () => {
-    expect(version).toBe('2.243.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.243.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.243.0');
+    expect(version).toBe('2.244.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.244.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.244.0');
   });
 
   it('VERSION speaks 2.235.0 and the verify gate is wired', () => {
-    expect(read('VERSION').trim()).toBe('2.243.0');
+    expect(read('VERSION').trim()).toBe('2.244.0');
     expect(pkg.scripts['verify:v2-235-0']).toBe('node scripts/verify-v2-235-0.mjs');
   });
 
@@ -186,10 +189,11 @@ describe('the cadence face (variance-map)', () => {
   });
 
   it('the days voice answers every state honestly', () => {
-    expect(map.includes("if (c.band === 'never') return 'never heard';")).toBe(true);
-    expect(map.includes("if (c.band === 'beyond') return 'last heard beyond the window';")).toBe(true);
-    expect(map.includes("if (c.daysSince === 0) return 'counted today';")).toBe(true);
-    expect(map.includes("if (c.daysSince === 1) return '1 day ago';")).toBe(true);
+    // v2.244.0: the voice lives in @/lib/cadence-band now (one home).
+    expect(bandLib.includes("if (c.band === 'never') return 'never heard';")).toBe(true);
+    expect(bandLib.includes("if (c.band === 'beyond') return 'last heard beyond the window';")).toBe(true);
+    expect(bandLib.includes("if (c.daysSince === 0) return 'counted today';")).toBe(true);
+    expect(bandLib.includes("if (c.daysSince === 1) return '1 day ago';")).toBe(true);
   });
 
   it('the heat bar length always means time since last heard (capped at the window, 4% floor)', () => {
@@ -201,9 +205,10 @@ describe('the cadence face (variance-map)', () => {
   });
 
   it('the band houses keep the chip family dark halves from birth', () => {
-    expect(map.includes("'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/30'")).toBe(true);
-    expect(map.includes("'bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/30'")).toBe(true);
-    expect(map.includes("'bg-orange-50 text-orange-700 ring-orange-200 dark:bg-orange-500/10 dark:text-orange-300 dark:ring-orange-500/30'")).toBe(true);
+    // v2.244.0: the houses live in @/lib/cadence-band now (one home).
+    expect(bandLib.includes("'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/30'")).toBe(true);
+    expect(bandLib.includes("'bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/30'")).toBe(true);
+    expect(bandLib.includes("'bg-orange-50 text-orange-700 ring-orange-200 dark:bg-orange-500/10 dark:text-orange-300 dark:ring-orange-500/30'")).toBe(true);
   });
 
   it('the row aria names the shelf, the voice, and the weight', () => {
