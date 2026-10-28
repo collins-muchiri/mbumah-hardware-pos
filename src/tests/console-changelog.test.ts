@@ -387,10 +387,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.227.0: the sheet's-paper entry joins the feed (+1 on every anchor → 117/118/119/150)
     // v2.228.0: the clipboard entry joins the feed (+1 on every anchor → 118/119/120/151 → 119/120/121/152)
     // v2.229.0: the branch-walk entry joins the feed (+1 on every anchor → 120/121/122/153)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(120);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(121);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(122);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(153);
+    // v2.230.0: the sheet's-lens entry joins the feed (+1 on every anchor → 121/122/123/154)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(121);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(122);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(123);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(154);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 

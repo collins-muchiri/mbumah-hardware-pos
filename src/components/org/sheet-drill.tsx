@@ -51,6 +51,20 @@
 // the paper answers to the sheet's status, never to a toggle. The
 // Print button's aria speaks the mode for the ear.
 //
+// v2.230.0 THE SHEET'S LENS — the category needle the finder's twin:
+// a big sheet walks many shelves, so the drill grows a category lens
+// over the lines it ALREADY holds (the wire grew each line's category
+// — zero new fetch on the client). The law of the lens is the law of
+// the finder: it narrows the READING, never the sheet — the tiles
+// keep the whole sheet's arithmetic, the CSV keeps the whole sheet's
+// file, and the count line stays an honest N of M. "uncategorized" is
+// a real bucket (a product that never joined a category still walked);
+// the lens mounts only when the sheet spans MORE THAN ONE bucket (a
+// one-shelf sheet has nothing to lens — an absent control never lies);
+// and like the needle it is STATE of the drill, not of the sheet: the
+// map keys the drill per sheet, so a fresh door opens the lens at
+// "all categories" by construction.
+//
 // THE LAWS IT INHERITS:
 // • the cost law: the wire's varianceValue and per-line varianceCost
 //   arrive null past the cost gate — the face renders the honest
@@ -134,6 +148,10 @@ interface DrillWire {
       name: string;
       sku: string;
       unitType: string;
+      // v2.230.0: the shelf name the lens reads — optional in the TYPE
+      // so the branch panel's own SheetLine (imported sheetLinesCsv's
+      // other caller) stays assignable; the org wire always fills it.
+      category?: string | null;
       snapshotQty: number;
       countedQty: number | null;
       variance: number | null;
@@ -146,6 +164,9 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
   // v2.223.0: the needle — the finder's state, reset by the map's per-
   // sheet key (a fresh door is an empty needle), never an effect.
   const [needle, setNeedle] = useState('');
+  // v2.230.0: the lens — the category needle, the same per-door law
+  // (the map keys the drill per sheet; a fresh door reads "all").
+  const [categoryNeedle, setCategoryNeedle] = useState('all');
   const wire = useQuery<DrillWire>({
     queryKey: ['org-sheet-drill', target?.id],
     enabled: !!target?.id,
@@ -203,10 +224,29 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
   // the SHEET's truth — the finder narrows the reading, never the
   // arithmetic).
   const cleanNeedle = needle.trim().toLowerCase();
+  // v2.230.0: the lens's buckets — the sheet's own categories, derived
+  // from the lines the drill ALREADY holds. "uncategorized" is a real
+  // bucket and sorts LAST (named shelves first); the control mounts
+  // only when the sheet spans MORE THAN ONE bucket — a one-shelf sheet
+  // has nothing to lens (an absent control never lies).
+  const categoryBuckets = data
+    ? Array.from(new Set(data.lines.map((l) => l.category ?? 'uncategorized'))).sort(
+        (a, b) => (a === 'uncategorized' ? 1 : 0) - (b === 'uncategorized' ? 1 : 0) || a.localeCompare(b),
+      )
+    : [];
+  const lensActive = categoryBuckets.length > 1;
+  // The combined reading: the lens narrows the shelf, the needle
+  // narrows the line — both client-side over the SAME held lines, both
+  // answered by the one honest N-of-M count. The tiles never hear of
+  // either (the sheet's truth stays whole).
   const shownLines = data
-    ? (cleanNeedle
-        ? data.lines.filter((l) => l.name.toLowerCase().includes(cleanNeedle) || l.sku.toLowerCase().includes(cleanNeedle))
-        : data.lines)
+    ? data.lines.filter(
+        (l) =>
+          (categoryNeedle === 'all' || (l.category ?? 'uncategorized') === categoryNeedle) &&
+          (!cleanNeedle ||
+            l.name.toLowerCase().includes(cleanNeedle) ||
+            l.sku.toLowerCase().includes(cleanNeedle)),
+      )
     : [];
 
   return (
@@ -367,6 +407,29 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
                       </button>
                     </>
                   )}
+                  {/* v2.230.0: THE SHEET'S LENS — the category needle,
+                      the finder's twin. Mounts only when the sheet
+                      spans more than one bucket; narrows the reading,
+                      never the sheet (the tiles keep the whole-sheet
+                      arithmetic, the CSV keeps the whole file). */}
+                  {lensActive && (
+                    <select
+                      data-testid="sheet-drill-lens"
+                      data-sheet-print-off=""
+                      aria-label="Filter the lines by category"
+                      title="the sheet's lens — narrow the reading by shelf; the tiles keep the whole sheet's truth"
+                      value={categoryNeedle}
+                      onChange={(e) => setCategoryNeedle(e.target.value)}
+                      className="h-6 max-w-[10rem] rounded-md border border-slate-200 bg-white px-1.5 text-[10px] font-medium text-slate-700 transition-colors focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+                    >
+                      <option value="all">all categories</option>
+                      {categoryBuckets.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                   <span className="relative" data-sheet-print-off="">
                     <Search className="pointer-events-none absolute left-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400 dark:text-slate-500" aria-hidden="true" />
                     <input
@@ -395,6 +458,14 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
                       {num(shownLines.length)} of {num(data.lines.length)}
                     </span>
                   )}
+                  {/* v2.230.0: the lens names the shelf it reads — a
+                      separate span beside the honest count (the count
+                      itself already answers to BOTH instruments). */}
+                  {data && categoryNeedle !== 'all' && (
+                    <span data-testid="sheet-drill-lens-count" data-sheet-print-off="" className="whitespace-nowrap text-[10px] font-semibold tabular-nums text-amber-700 dark:text-amber-300">
+                      in {categoryNeedle}
+                    </span>
+                  )}
                 </div>
               </div>
               {/* v2.229.0: the shared lines mark — the branch walk's
@@ -412,6 +483,17 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
                         <span className="block truncate text-[10px] text-slate-500 dark:text-slate-400">{l.sku}</span>
                       </span>
                       <span className="flex flex-wrap items-center gap-2">
+                        {/* v2.230.0: the line's shelf whisper — each line
+                            names its category while the sheet spans more
+                            than one (context for the lens AND for the
+                            paper: a printed walk reads its shelves). It
+                            PRINTS — no print-off mark — the paper keeps
+                            the shelf names. */}
+                        {lensActive && (
+                          <span data-testid="sheet-drill-line-category" className="text-[9px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
+                            {l.category ?? 'uncategorized'}
+                          </span>
+                        )}
                         <span className="text-[10px] tabular-nums text-slate-500 dark:text-slate-400">
                           snapshot {num(l.snapshotQty)} → {l.countedQty != null ? `counted ${num(l.countedQty)}` : 'uncounted'}
                         </span>
@@ -443,9 +525,13 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
                   );
                 })}
               </ul>
-              {data && cleanNeedle !== '' && shownLines.length === 0 && (
+              {data && (cleanNeedle !== '' || categoryNeedle !== 'all') && shownLines.length === 0 && (
                 <p data-testid="sheet-drill-finder-empty" className="mt-1.5 rounded-lg border border-dashed border-slate-200 bg-white/60 px-3 py-2 text-[11px] text-slate-500 dark:border-slate-600 dark:bg-slate-900/60 dark:text-slate-400">
-                  no line answers “{needle.trim()}” — the sheet holds {num(data.lines.length)} {data.lines.length === 1 ? 'line' : 'lines'}.
+                  {cleanNeedle !== ''
+                    ? categoryNeedle !== 'all'
+                      ? `no line in “${categoryNeedle}” answers “${needle.trim()}” — the sheet holds ${num(data.lines.length)} ${data.lines.length === 1 ? 'line' : 'lines'}.`
+                      : `no line answers “${needle.trim()}” — the sheet holds ${num(data.lines.length)} ${data.lines.length === 1 ? 'line' : 'lines'}.`
+                    : `the lens came back empty — the sheet holds ${num(data.lines.length)} ${data.lines.length === 1 ? 'line' : 'lines'}.`}
                 </p>
               )}
               {data && data.lines.length === 0 && (

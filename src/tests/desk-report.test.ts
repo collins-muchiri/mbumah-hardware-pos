@@ -1597,7 +1597,7 @@ describe('release metadata - v2.78.0', () => {
     expect(WN.indexOf("version: '2.78.0'")).toBeGreaterThan(-1);
     expect(WN.indexOf("version: '2.78.0'")).toBeLessThan(WN.indexOf("version: '2.77.0'"));
     expect(WN).toContain('The scope speaks the keyboard');
-    expect(WN).toContain('All branches \\u2014 report re-keyed.');
+    expect(WN).toContain('All branches — report re-keyed.');  // the feed speaks the REAL dash (the literal \u2014 garbage was normalized at v2.230.0)
   });
 
   it('keeps every prior surface intact (walk, announcer, drawers, roving neighbors)', () => {
