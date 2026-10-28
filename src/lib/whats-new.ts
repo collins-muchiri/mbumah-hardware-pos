@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.245.0',
+    title: 'The walk\u2019s findings',
+    bullets: [
+      'Pick an aisle for a new count and the picker now says what the last walk FOUND there \u2014 the units, in the census\u2019s own colours.',
+      'A perfect count says so: \u201cthe count held \u2014 0 units.\u201d A shelf no window walk spoke for stays honestly silent.',
+      'Fixed: the picker\u2019s \u201cnot heard in 30 days\u201d line now reads the org\u2019s own stored window \u2014 no more magic number.',
+    ],
+  },
+  {
     version: '2.244.0',
     title: 'The aisle\u2019s echo',
     bullets: [

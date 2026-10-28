@@ -35,8 +35,8 @@ type CadenceBand = 'fresh' | 'stale' | 'beyond' | 'never';
 async function cadenceByCategory(
   storeId: string,
   categoryIds: string[],
-): Promise<Map<string, { band: CadenceBand; daysSince: number | null; lastCountedAt: string | null; freshDays: number; windowDays: number }>> {
-  const out = new Map<string, { band: CadenceBand; daysSince: number | null; lastCountedAt: string | null; freshDays: number; windowDays: number }>();
+): Promise<Map<string, { band: CadenceBand; daysSince: number | null; lastCountedAt: string | null; freshDays: number; windowDays: number; lastWalkUnits: number | null }>> {
+  const out = new Map<string, { band: CadenceBand; daysSince: number | null; lastCountedAt: string | null; freshDays: number; windowDays: number; lastWalkUnits: number | null }>();
   if (categoryIds.length === 0) return out;
   const now = new Date();
   // THE LAW'S OWN WINDOW (v2.241.0): the teeth's window is the org's
@@ -68,9 +68,13 @@ async function cadenceByCategory(
     windowSheetIds.length
       ? db.stockTakeLine.findMany({
           where: { stockTakeId: { in: windowSheetIds } },
-          select: { stockTakeId: true, productId: true },
+          // v2.245.0 THE WALK'S FINDINGS — the variance rides the read the
+          // cadence already makes (one added column, zero new queries):
+          // the pick face can now say what the last walk FOUND, not just
+          // when the shelf was last heard.
+          select: { stockTakeId: true, productId: true, variance: true },
         })
-      : Promise.resolve([] as Array<{ stockTakeId: string; productId: string }>),
+      : Promise.resolve([] as Array<{ stockTakeId: string; productId: string; variance: number | null }>),
     heardEverGroups.length
       ? db.product.findMany({
           where: { id: { in: heardEverGroups.map((g) => g.productId) } },
@@ -96,6 +100,31 @@ async function cadenceByCategory(
     const categoryId = categoryOfProduct.get(productId);
     if (categoryId) heardEverByCategory.add(categoryId);
   }
+  // v2.245.0 THE WALK'S FINDINGS — per shelf, the LATEST window walk
+  // that actually SPOKE for it (a line with variance non-null; a line
+  // the floor never counted stays silent, and a sheet whose lines in
+  // this category were all uncounted has no findings here — the honest
+  // absence, never a hidden zero), and the units its lines in THIS
+  // category landed (line-level attribution — the shelf's own truth,
+  // not the whole sheet's). THE UNITS LAW: units are units — every
+  // role hears them; the shillings gate is NOT involved. A perfect
+  // count speaks 0 — the shelf held. THE ZERO-NEW-QUERIES LAW: the
+  // attribution rides the pairs already in hand (the variance column
+  // above) — no second read, no product join beyond the map above.
+  const lastSpokenByCategory = new Map<string, { sheetKey: string; closedAt: Date; units: number }>();
+  for (const pair of windowLines) {
+    if (pair.variance == null) continue;
+    const categoryId = categoryOfProduct.get(pair.productId);
+    if (!categoryId) continue;
+    const closedAt = closedAtById.get(pair.stockTakeId);
+    if (!closedAt) continue;
+    const cur = lastSpokenByCategory.get(categoryId);
+    if (!cur || closedAt > cur.closedAt) {
+      lastSpokenByCategory.set(categoryId, { sheetKey: pair.stockTakeId, closedAt, units: Number(pair.variance) });
+    } else if (pair.stockTakeId === cur.sheetKey) {
+      cur.units += Number(pair.variance);
+    }
+  }
   for (const categoryId of categoryIds) {
     const heardSheetIds = heardSheetsByCategory.get(categoryId);
     let lastCountedAt: Date | null = null;
@@ -117,6 +146,14 @@ async function cadenceByCategory(
       lastCountedAt: lastCountedAt ? lastCountedAt.toISOString() : null,
       freshDays: law.freshDays,
       windowDays: law.windowDays,
+      // v2.245.0: the latest speaking walk's units in THIS category
+      // (rounded like the census speaks) — null when no window walk
+      // spoke here (beyond/never/a silent latest), the shelf's own
+      // honest absence.
+      lastWalkUnits: (() => {
+        const spoken = lastSpokenByCategory.get(categoryId);
+        return spoken ? Math.round(spoken.units * 100) / 100 : null;
+      })(),
     });
   }
   return out;

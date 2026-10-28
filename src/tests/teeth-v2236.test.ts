@@ -38,19 +38,19 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.236.0)', () => {
   it('package.json leads 2.236.0 (all three slots)', () => {
-    expect(version).toBe('2.244.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.244.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.244.0');
+    expect(version).toBe('2.245.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.245.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.245.0');
   });
 
   it('VERSION speaks 2.236.0 and the verify gate is wired', () => {
-    expect(read('VERSION').trim()).toBe('2.244.0');
+    expect(read('VERSION').trim()).toBe('2.245.0');
     expect(pkg.scripts['verify:v2-236-0']).toBe('node scripts/verify-v2-236-0.mjs');
   });
 
   it('the whats-new feed leads the teeth entry (order pin: header-anchored, never a bare version string)', () => {
-    expect(feed.includes("version: '2.244.0',")).toBe(true);
-    expect(feed.indexOf("version: '2.244.0',")).toBeLessThan(feed.indexOf("version: '2.243.0',"));
+    expect(feed.includes("version: '2.245.0',")).toBe(true);
+    expect(feed.indexOf("version: '2.245.0',")).toBeLessThan(feed.indexOf("version: '2.244.0',"));
     expect(feed.includes("title: 'The teeth',")).toBe(true);
   });
 
@@ -135,7 +135,9 @@ describe('the picker\u2019s cadence voice (stock-take-panel)', () => {
 
   it('the days voice answers every state honestly', () => {
     expect(panel.includes("if (c.band === 'never') return 'never counted';")).toBe(true);
-    expect(panel.includes("if (c.band === 'beyond') return 'not heard in 30 days';")).toBe(true);
+    // v2.245.0 hand-pass: the beyond voice reads the WIRE'S OWN window now
+    // (the v2.241.0 law — the hardcoded "30 days" was a retired constant).
+    expect(panel.includes("if (c.band === 'beyond') return `not heard in ${c.windowDays} days`;")).toBe(true);
     expect(panel.includes("if (c.daysSince === 0) return 'counted today';")).toBe(true);
     expect(panel.includes("if (c.daysSince === 1) return '1 day ago';")).toBe(true);
   });
@@ -173,7 +175,9 @@ describe('the picker\u2019s cadence voice (stock-take-panel)', () => {
   });
 
   it('the strip\u2019s aria names the aisle, the voice, and the weight', () => {
-    expect(panel.includes('aria-label={`${picked.name}: ${voice || \'the cadence has not spoken yet\'}, ${picked.productCount ?? 0} products.`}')).toBe(true);
+    // v2.245.0 hand-pass: the aria grew the findings interpolation (the
+    // verdict line's voice rides it when the wire carried one).
+    expect(panel.includes('aria-label={`${picked.name}: ${voice || \'the cadence has not spoken yet\'}${findings ? `, ${findings.text}` : \'\'}, ${picked.productCount ?? 0} products.`}')).toBe(true);
   });
 });
 
