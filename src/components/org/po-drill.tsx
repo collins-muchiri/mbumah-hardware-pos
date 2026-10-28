@@ -41,6 +41,10 @@ import { useEffect, useState } from 'react';
 import { ClipboardList, Download, Printer, Search, X } from 'lucide-react';
 import { csvCell } from './sheet-drill';
 import { num, timeAgo } from './primitives';
+// v2.250.0 THE AISLE'S BAND — the strip's chip wears the census's own
+// four houses (one home, byte-identical classes — never a second
+// constant).
+import { bandHouse, chipLabel, daysVoice } from '@/lib/cadence-band';
 
 const fmtKes = (v: number) =>
   `KES ${v.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -109,7 +113,9 @@ interface PoDrillWire {
       id: string;
       status: string;
       closedAt: string | null;
-      walkAisle: { name: string | null } | null;
+      // v2.250.0: the aisle grows its band (additive + optional — a
+      // failed read answers null and the strip keeps its today voice).
+      walkAisle: { name: string | null; band: string | null; daysSince: number | null } | null;
     } | null;
     summary: {
       lineCount: number;
@@ -269,6 +275,20 @@ export function PoDrill({ target, onClose }: { target: PoDrillTarget; onClose: (
                   this PO answers count sheet <span className="tabular-nums">{data.originStockTake.id}</span>
                   {data.originStockTake.walkAisle?.name ? <> — the walk order named {data.originStockTake.walkAisle.name}</> : null}
                   {data.originStockTake.status === 'CLOSED' ? ' (the books heard it).' : ` (${data.originStockTake.status.toLowerCase()}).`}
+                  {/* v2.250.0 THE AISLE'S BAND — the walk order's own cadence
+                  chip: the variance map's four houses (fresh/stale/beyond/
+                  never) read the census's way; the chip's title speaks the
+                  days voice, the word the chipLabel names. A band the read
+                  could not answer stays absent — never a guessed house. */}
+                  {data.originStockTake.walkAisle?.band ? (
+                    <span
+                      data-testid="po-drill-aisle-band"
+                      className={`ml-1.5 inline-flex translate-y-[-0.5px] items-center rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide ring-1 ring-inset ${bandHouse(data.originStockTake.walkAisle.band).chip}`}
+                      title={daysVoice({ band: data.originStockTake.walkAisle.band as 'fresh' | 'stale' | 'beyond' | 'never', daysSince: data.originStockTake.walkAisle.daysSince })}
+                    >
+                      {chipLabel(data.originStockTake.walkAisle.band)}
+                    </span>
+                  ) : null}
                   {data.summary.totalAmount != null ? (
                     <> The restock carries <span className="tabular-nums">{fmtKes(data.summary.totalAmount)}</span>.</>
                   ) : null}

@@ -80,6 +80,17 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.250.0',
+    title: 'The branch\u2019s gate',
+    bullets: [
+      'The cost gate finally comes down to the branch purchase orders: the roster\u2019s shillings, the document\u2019s totals and the lines\u2019 costs now speak only to cost-holders \u2014 the same law the org wires have spoken all along.',
+      'Past the gate nothing pretends: masked cells wear an honest dash, the financial block says the books hold the shillings, and the money sort stands down \u2014 never a zero dressed as a number.',
+      'Raising an order past the gate starts with an empty pen \u2014 you type your own costs \u2014 and the product picker reads units alone.',
+      'A sheet-born order\u2019s birth strip now wears the aisle\u2019s cadence chip \u2014 fresh, stale, beyond or never \u2014 the same four houses the variance map speaks.',
+      'The ledger\u2019s CSV grows an aisle column beside the birth column, so the file sorts the walk\u2019s answers by the aisle that spoke.',
+    ],
+  },
+  {
     version: '2.249.0',
     title: 'The birth\u2019s ledger',
     bullets: [

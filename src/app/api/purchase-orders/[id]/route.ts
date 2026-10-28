@@ -7,6 +7,9 @@ import { LogSeverity, LogComponent } from '@/lib/types';
 import { calculateWeightedAverageCost, recordGoodsReceiptEntry } from '@/lib/account-helper';
 import { isPostgres } from '@/lib/sequence';
 import { requireStoreAccess, type AuthSession } from '@/lib/auth';
+// v2.250.0: the gate's reader lives with the org wires' own (the auth
+// module never exported it — the build caught the import's address).
+import { hasFeaturePermission } from '@/lib/permissions';
 import { getVatRatePercent } from '@/lib/vat-settings';
 
 export const dynamic = 'force-dynamic';
@@ -17,7 +20,7 @@ interface RouteContext {
 
 async function getPurchaseOrderHandler(
   _request: NextRequest,
-  _session: AuthSession,
+  session: AuthSession,
   context: RouteContext,
 ): Promise<Response> {
   const { id } = await context.params;
@@ -66,7 +69,35 @@ async function getPurchaseOrderHandler(
     );
   }
 
-  return Response.json({ success: true, data: purchaseOrder });
+  // v2.250.0 THE BRANCH'S GATE — the org detail wire has spoken this law
+  // since v2.227.0; the branch document now answers the same truth. The
+  // shillings (the header's three money fields, the lines' unitCost /
+  // totalCost, the product's book cost) speak only past the cost gate —
+  // null otherwise, the honest absence the faces render, never a hidden
+  // zero and never a guessed number. Units, statuses and names stay
+  // every viewer's own truth.
+  const canViewCost = hasFeaturePermission(session.role, 'inventory.view.cost');
+
+  return Response.json({
+    success: true,
+    // v2.250.0: the gate's own flag rides the envelope (the org wire's
+    // shape) — the faces branch on the truth the wire speaks.
+    costGated: !canViewCost,
+    data: {
+      ...purchaseOrder,
+      subTotal: canViewCost ? Number(purchaseOrder.subTotal) : null,
+      taxAmount: canViewCost ? Number(purchaseOrder.taxAmount) : null,
+      totalAmount: canViewCost ? Number(purchaseOrder.totalAmount) : null,
+      items: purchaseOrder.items.map((it) => ({
+        ...it,
+        unitCost: canViewCost ? Number(it.unitCost) : null,
+        totalCost: canViewCost ? Number(it.totalCost) : null,
+        product: it.product
+          ? { ...it.product, costPrice: canViewCost ? Number(it.product.costPrice) : null }
+          : it.product,
+      })),
+    },
+  });
 }
 
 async function updatePurchaseOrderHandler(

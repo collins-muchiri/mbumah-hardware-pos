@@ -68,7 +68,7 @@ describe('the org wire\u2019s birth \u2014 the roster rides the violet (v2.249.0
 
 describe('the org detail wire\u2019s birth (v2.249.0)', () => {
   it('originStockTake rides the read (additive + optional, the same shape)', () => {
-    expect(orgDetailWire).toContain('originStockTake: {\n          select: {\n            id: true,\n            status: true,\n            closedAt: true,\n            walkAisle: { select: { name: true } },\n          },\n        },');
+    expect(orgDetailWire).toContain("closedAt: true,\n            // v2.250.0: the aisle's id rides so the wire can read the\n            // aisle's own band (the census's single-aisle read \u2014 the\n            // name alone could never ask the shelf when it was heard).\n            walkAisle: { select: { id: true, name: true } },"); // v2.250.0: the aisle grew its id — the band's read asks the shelf, not the name
     expect(orgDetailWire).toContain('originStockTake: po.originStockTake');
     expect(orgDetailWire).toContain('closedAt: po.originStockTake.closedAt?.toISOString() ?? null,');
   });
@@ -113,14 +113,14 @@ describe('the ledger\u2019s birth rungs + chips (v2.249.0)', () => {
   });
 
   it('the roster\u2019s copy grows the birth column \u2014 a file speaks the word for every row', () => {
-    expect(ledger).toContain("const header = 'po_number,status,supplier,branch,lines,ordered_day,total_kes,birth';");
+    expect(ledger).toContain("const header = 'po_number,status,supplier,branch,lines,ordered_day,total_kes,birth,aisle';");
     expect(ledger).toContain("r.originStockTakeId != null ? 'sheet' : 'hand',");
   });
 });
 
 describe('the org drill\u2019s birth strip (v2.249.0)', () => {
   it('the wire type grows the birth (additive + optional)', () => {
-    expect(poDrill).toContain('originStockTake: {\n      id: string;\n      status: string;\n      closedAt: string | null;\n      walkAisle: { name: string | null } | null;\n    } | null;');
+    expect(poDrill).toContain('walkAisle: { name: string | null; band: string | null; daysSince: number | null } | null;'); // v2.250.0: the aisle grew its band — the strip's chip wears the census's houses
   });
 
   it('the violet strip names the sheet, its aisle, and the honest status voice', () => {
@@ -154,7 +154,7 @@ describe('the restock door\u2019s shillings (v2.249.0)', () => {
 
 describe('the release face (v2.249.0)', () => {
   it('package.json speaks 2.249.0', () => {
-    expect(version).toBe('2.249.0');
+    expect(version).toBe('2.250.0');
   });
 
   it('the birth\u2019s ledger rides the changelog', () => {
@@ -166,8 +166,8 @@ describe('the release face (v2.249.0)', () => {
 
   it('whats-new speaks the birth\u2019s ledger first', () => {
     const whatsNew = read('src/lib/whats-new.ts');
-    expect(whatsNew).toContain("version: '2.249.0',");
+    expect(whatsNew).toContain("version: '2.250.0',");
     expect(whatsNew).toContain('The birth\\u2019s ledger');
-    expect(whatsNew.indexOf("version: '2.249.0',")).toBeLessThan(whatsNew.indexOf("version: '2.248.1',"));
+    expect(whatsNew.indexOf("version: '2.250.0',")).toBeLessThan(whatsNew.indexOf("version: '2.249.0',"));
   });
 });

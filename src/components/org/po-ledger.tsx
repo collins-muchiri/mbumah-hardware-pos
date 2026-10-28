@@ -66,7 +66,11 @@ export function rosterCsv(rows: PoLedgerWire['data']['rows'], opts: { costGated:
   // silence would be an absence, and a hand-raised PO is a known
   // state, not a missing one (the face's silent-absence law is a
   // screen law, not a file law).
-  const header = 'po_number,status,supplier,branch,lines,ordered_day,total_kes,birth';
+  // v2.250.0: the AISLE column rides beside it — the walk order's own
+  // address, the wire already carries the name (zero new fetch). A
+  // hand-raised row's aisle cell exports EMPTY (the absence, never a
+  // guessed word).
+  const header = 'po_number,status,supplier,branch,lines,ordered_day,total_kes,birth,aisle';
   const rowsOut = rows.map((r) =>
     [
       csvCell(r.poNumber),
@@ -77,6 +81,7 @@ export function rosterCsv(rows: PoLedgerWire['data']['rows'], opts: { costGated:
       r.orderDate.slice(0, 10),
       !opts.costGated && r.totalAmount != null ? r.totalAmount : '',
       r.originStockTakeId != null ? 'sheet' : 'hand',
+      r.originStockTake?.walkAisle?.name ?? '',
     ].join(','),
   );
   return `\ufeff${[header, ...rowsOut].join('\r\n')}`;

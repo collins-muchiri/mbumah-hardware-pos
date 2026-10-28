@@ -33,6 +33,11 @@ import { rawDb, runWithoutTenant } from '@/lib/db';
 import { withErrorBoundary } from '@/lib/logger';
 import { requireAuth, type AuthSession } from '@/lib/auth';
 import { hasFeaturePermission } from '@/lib/permissions';
+// v2.250.0 THE AISLE'S BAND — the strip's chip reads the census's own
+// houses (one home, byte-identical classes) and the stored cadence law
+// (one reader — the band never re-derives the thresholds).
+import { readCategoryBand, type CadenceBand } from '@/lib/cadence-band';
+import { readCadenceLaw } from '@/lib/cadence-law';
 
 export const dynamic = 'force-dynamic';
 
@@ -79,7 +84,10 @@ async function orgPurchaseOrderDetailHandler(_request: NextRequest, session: Aut
             id: true,
             status: true,
             closedAt: true,
-            walkAisle: { select: { name: true } },
+            // v2.250.0: the aisle's id rides so the wire can read the
+            // aisle's own band (the census's single-aisle read — the
+            // name alone could never ask the shelf when it was heard).
+            walkAisle: { select: { id: true, name: true } },
           },
         },
         items: {
@@ -105,6 +113,19 @@ async function orgPurchaseOrderDetailHandler(_request: NextRequest, session: Aut
   }
 
   const canViewCost = hasFeaturePermission(session.role, 'inventory.view.cost');
+
+  // v2.250.0 THE AISLE'S BAND — the strip names the sheet's walk order;
+  // now it also says WHEN that aisle was last heard, the variance
+  // map's own four houses read the census's way (one aisle, one read;
+  // a read that fails is no band — the chip's silence, never a guessed
+  // house). The band is not a cost: it rides for every org role.
+  const walkCategoryId = po.originStockTake?.walkAisle?.id ?? null;
+  let aisleBand: { band: CadenceBand; daysSince: number | null } | null = null;
+  if (walkCategoryId) {
+    const law = await readCadenceLaw(rawDb);
+    const band = await readCategoryBand(rawDb, walkCategoryId, law, new Date());
+    if (band) aisleBand = { band: band.band, daysSince: band.daysSince };
+  }
 
   const orderedUnits = po.items.reduce((acc, l) => acc + Number(l.quantity), 0);
   const receivedUnits = po.items.reduce((acc, l) => acc + Number(l.receivedQty), 0);
@@ -136,7 +157,14 @@ async function orgPurchaseOrderDetailHandler(_request: NextRequest, session: Aut
             status: po.originStockTake.status,
             closedAt: po.originStockTake.closedAt?.toISOString() ?? null,
             walkAisle: po.originStockTake.walkAisle
-              ? { name: po.originStockTake.walkAisle.name }
+              ? {
+                  name: po.originStockTake.walkAisle.name,
+                  // v2.250.0: the aisle's band (additive + optional — a
+                  // failed read answers null and the strip keeps its
+                  // today voice, the honest silence).
+                  band: aisleBand?.band ?? null,
+                  daysSince: aisleBand?.daysSince ?? null,
+                }
               : null,
           }
         : null,

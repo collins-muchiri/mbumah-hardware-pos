@@ -80,6 +80,11 @@ interface ApiResponse<T = unknown> {
   data?: T;
   error?: string;
   message?: string;
+  // v2.250.0 THE BRANCH'S GATE — the branch PO list wire's envelope
+  // carries the gate's own flag (the org wire's shape): the faces
+  // branch on the truth the wire speaks, never on a role name guessed
+  // client-side. Additive — every other wire answers undefined.
+  costGated?: boolean;
   pagination?: {
     page: number;
     limit: number;
@@ -2750,9 +2755,12 @@ export interface PurchaseOrderListItem {
   status: string;
   orderDate: string;
   expectedDate: string | null;
-  subTotal: number;
-  taxAmount: number;
-  totalAmount: number;
+  // v2.250.0 THE BRANCH'S GATE — the shillings speak only past the
+  // cost gate (the wires null them otherwise; the faces render the
+  // honest absence, never a hidden zero).
+  subTotal: number | null;
+  taxAmount: number | null;
+  totalAmount: number | null;
   notes: string | null;
   createdById: string | null;
   approvedById: string | null;
@@ -2781,8 +2789,10 @@ export interface PurchaseOrderItemDetail {
   productId: string;
   productName: string;
   quantity: number;
-  unitCost: number;
-  totalCost: number;
+  // v2.250.0 THE BRANCH'S GATE — the line's shillings speak only past
+  // the cost gate (the detail wire nulls them otherwise).
+  unitCost: number | null;
+  totalCost: number | null;
   receivedQty: number;
   notes: string | null;
   product?: { id: string; name: string; sku: string; unitType: string; quantityInStock?: number; costPrice?: number };
