@@ -107,14 +107,17 @@ async function getStockTakeHandler(_request: NextRequest, session: AuthSession, 
 
   // v2.244.0 THE AISLE'S ECHO — the aisle's own cadence band rides the
   // branch face too: WHERE the door opened (v2.242.0) now says WHEN its
-  // aisle was last heard. THE READ CLASS: two bounded reads, only for
-  // an aisle-born sheet — the stored law (two keyed rows) and the ONE
-  // latest CLOSED line touching the aisle (readCategoryBand, the map's
-  // own band semantics, single-category). The fallback law: a read that
-  // fails returns null and the face wears the name-only echo (the
-  // v2.242.0 face, byte-identical) — never a guessed house, never a
-  // thrown request.
-  let aisleBand: { band: CadenceBand; daysSince: number | null } | null = null;
+  // aisle was last heard. v2.246.0 THE AISLE'S TESTAMENT — the aisle's
+  // own window verdict rides too: WHAT its latest window walk FOUND
+  // there (lastWalkUnits, the categories wire's own law, read in the
+  // lib). THE READ CLASS: bounded reads, only for an aisle-born sheet —
+  // the stored law (two keyed rows) and the lib's single-aisle read
+  // (the ONE latest CLOSED line touching the aisle for the band, then —
+  // in the window only — the latest speaking line and one aggregate for
+  // the testament). The fallback law: a read that fails returns null
+  // and the face wears the name-only echo (the v2.242.0 face,
+  // byte-identical) — never a guessed house, never a thrown request.
+  let aisleBand: { band: CadenceBand; daysSince: number | null; lastWalkUnits: number | null } | null = null;
   if (sheet.walkCategoryId) {
     const law = await readCadenceLaw(db);
     aisleBand = await readCategoryBand(db, sheet.walkCategoryId, law, new Date());
@@ -143,9 +146,13 @@ async function getStockTakeHandler(_request: NextRequest, session: AuthSession, 
       // v2.244.0 THE AISLE'S ECHO — the aisle's own cadence band + the
       // days voice (additive + optional; null when the birth named no
       // aisle or the band read fell back — the face wears the silence,
-      // never a guessed house).
+      // never a guessed house). v2.246.0: the aisle's window verdict
+      // rides too (walkAisleUnits — null when no window walk spoke,
+      // beyond/never, or the testament read fell back; the honest
+      // absence, never a hidden zero).
       walkAisleBand: aisleBand?.band ?? null,
       walkAisleDaysSince: aisleBand?.daysSince ?? null,
+      walkAisleUnits: aisleBand?.lastWalkUnits ?? null,
       // v2.234.0 THE VERDICT — additive (null when no child exists).
       recountedBy,
       startedAt: sheet.startedAt,

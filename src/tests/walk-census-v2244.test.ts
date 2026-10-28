@@ -63,9 +63,12 @@ describe('the band lib (one home)', () => {
     expect(band).toContain("stockTake: { status: 'CLOSED', closedAt: { not: null } },");
     expect(band).toContain("orderBy: { stockTake: { closedAt: 'desc' } },");
     // the four voices: no line → never; in-window → fresh/stale by THE LAW'S OWN boundary; older → beyond
-    expect(band).toContain("if (!closedAt) return { band: 'never', daysSince: null };");
-    expect(band).toContain("return { band: daysSince <= law.freshDays ? 'fresh' : 'stale', daysSince };");
-    expect(band).toContain("return { band: 'beyond', daysSince: null };");
+    // (v2.246.0 hand-pass: the read grew the aisle's testament — lastWalkUnits
+    // rides every voice now; beyond/never's units ride the silence)
+    expect(band).toContain("if (!closedAt) return { band: 'never', daysSince: null, lastWalkUnits: null };");
+    expect(band).toContain('const band: CadenceBand = daysSince <= law.freshDays ? \'fresh\' : \'stale\';');
+    expect(band).toContain('return { band, daysSince, lastWalkUnits };');
+    expect(band).toContain("return { band: 'beyond', daysSince: null, lastWalkUnits: null };");
     // the fallback law: a failed read is null, never a thrown request
     expect(band).toContain('} catch {');
     expect(band).toContain('return null;');
@@ -73,15 +76,18 @@ describe('the band lib (one home)', () => {
 
   it('beyond + never carry no days number (the honest absence, the kpi\u2019s own shape)', () => {
     // beyond: daysSince null (the read itself returns it so)
-    expect(band).toContain("return { band: 'beyond', daysSince: null };");
+    // (v2.246.0 hand-pass: the testament rides — beyond/never's
+    // lastWalkUnits is null too, the honest silence; the DAYS law is
+    // the pin's intent and stays byte-true)
+    expect(band).toContain("return { band: 'beyond', daysSince: null, lastWalkUnits: null };");
     // never: daysSince null
-    expect(band).toContain("return { band: 'never', daysSince: null };");
+    expect(band).toContain("return { band: 'never', daysSince: null, lastWalkUnits: null };");
   });
 });
 
 describe('the map obeys the one home', () => {
   it('the map imports the houses (the closures are gone)', () => {
-    expect(map).toContain("import { bandHouse, chipLabel, daysVoice } from '@/lib/cadence-band';");
+    expect(map).toContain("import { bandHouse, chipLabel, daysVoice, findingsVoice } from '@/lib/cadence-band';");
     expect(map).not.toContain('const bandHouse = (band:');
     expect(map).not.toContain('const daysVoice = (c:');
     expect(map).not.toContain("const chipLabel = (band: string)");

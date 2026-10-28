@@ -28,6 +28,8 @@ const read = (p: string) => readFileSync(join(process.cwd(), p), 'utf8');
 
 const wire = read('src/app/api/categories/route.ts');
 const panel = read('src/components/inventory/stock-take-panel.tsx');
+// v2.246.0 hand-pass: the findings voice moved to its one home — the lib.
+const band = read('src/lib/cadence-band.ts');
 const map = read('src/components/org/variance-map.tsx');
 const pkg = JSON.parse(read('package.json'));
 const feed = read('src/lib/whats-new.ts');
@@ -39,21 +41,21 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.245.0)', () => {
   it('package.json leads 2.245.0 (all three slots)', () => {
-    expect(version).toBe('2.245.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.245.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.245.0');
+    expect(version).toBe('2.246.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.246.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.246.0');
   });
 
   it('VERSION + the gates ride', () => {
-    expect(read('VERSION').trim()).toBe('2.245.0');
+    expect(read('VERSION').trim()).toBe('2.246.0');
     expect(pkg.scripts['verify:v2-245-0']).toBe('node scripts/verify-v2-245-0.mjs');
     expect(pkg.scripts['verify:v2-244-0']).toBe('node scripts/verify-v2-244-0.mjs');
   });
 
   it('whats-new leads with the walk\u2019s findings', () => {
-    expect(feed).toContain("version: '2.245.0',");
+    expect(feed).toContain("version: '2.246.0',");
     expect(feed).toContain("title: 'The walk\\u2019s findings',");
-    expect(feed.indexOf("version: '2.245.0',")).toBeLessThan(feed.indexOf("version: '2.244.0',"));
+    expect(feed.indexOf("version: '2.246.0',")).toBeLessThan(feed.indexOf("version: '2.245.0',"));
   });
 
   it('changelog anchors the section above its ancestor', () => {
@@ -62,8 +64,8 @@ describe('the round of record (v2.245.0)', () => {
   });
 
   it('the counters ride +1 in the counter test', () => {
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(136);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(169);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(137);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(170);");
   });
 });
 
@@ -102,9 +104,13 @@ describe('the findings face (the pick strip says what the last walk found)', () 
 
   it('the verdict line rides the census\u2019s own three families', () => {
     expect(panel).toContain("data-testid=\"stocktake-pick-cadence-verdict\"");
-    expect(panel).toContain("if (units === 0) return { text: 'the count held — 0 units', cls: 'text-slate-500 dark:text-slate-400' };");
-    expect(panel).toContain("if (units > 0) return { text: `+${units} units found`, cls: 'text-emerald-600 dark:text-emerald-400' };");
-    expect(panel).toContain("return { text: `${units} units found`, cls: 'text-red-600 dark:text-red-400' };");
+    // v2.246.0 hand-pass: the voice's TRUTH moved to the lib's one home
+    // (findingsVoice); the pick strip speaks through it — intent
+    // preserved (the same words, the same colours).
+    expect(band).toContain("if (units === 0) return { text: 'the count held — 0 units', cls: 'text-slate-500 dark:text-slate-400' };");
+    expect(band).toContain("if (units > 0) return { text: `+${units} units found`, cls: 'text-emerald-600 dark:text-emerald-400' };");
+    expect(band).toContain("return { text: `${units} units found`, cls: 'text-red-600 dark:text-red-400' };");
+    expect(panel).toContain('findingsVoice(picked.cadence.lastWalkUnits)');
     expect(panel).toContain('tabular-nums ${findings.cls}');
   });
 
@@ -117,9 +123,12 @@ describe('the findings face (the pick strip says what the last walk found)', () 
     expect(panel).toContain("${findings ? `, ${findings.text}` : ''}, ${picked.productCount ?? 0} products.`}");
   });
 
-  it('the census\u2019s own voice strings stay byte-identical (one law, three faces)', () => {
-    expect(map).toContain("'the count held — 0 units'");
-    expect(panel).toContain("'the count held — 0 units'");
+  it('the census\u2019s own voice strings stay byte-identical (one law, four faces)', () => {
+    // v2.246.0 hand-pass: ONE home (the lib), every face speaks through
+    // it — the map, the pick strip, the drill and the branch face.
+    expect(band).toContain("'the count held — 0 units'");
+    expect(map).toContain('findingsVoice(a.varianceUnits)');
+    expect(panel).toContain('findingsVoice(picked.cadence.lastWalkUnits)');
   });
 });
 

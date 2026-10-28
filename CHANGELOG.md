@@ -2,6 +2,21 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.246.0] The aisle's testament
+
+The sheet's aisle has said WHEN it was last heard since v2.244.0 — this round it says what its latest window walk FOUND there: the aisle's testament rides the detail wires, and the drill and branch faces wear the verdict line. The walk lifecycle's faces now all speak the same truth: the pick strip says it before (v2.245.0), the census says it org-side (v2.243.0), and the sheet itself carries it after. And the verdict's words and colours move into their one home — the anti-duplication law applied to the findings voice itself.
+
+### Added
+- **The testament's read** (`src/lib/cadence-band.ts`): `readCategoryBand` grows `lastWalkUnits` — the categories wire's own law mirrored for one aisle. The latest SPEAKING line in the window (a line with variance non-null; a line the floor never counted stays silent), then that sheet's spoken units in THIS category (one aggregate, the same product-category join — line-level attribution, the shelf's own truth). THE UNITS LAW: units are units (the shillings gate is NOT involved). A perfect count speaks 0 — the shelf held. Null when no window walk spoke (beyond / never / a silent window) — the honest absence, never a hidden zero. THE READ CLASS: the band's one line read stays first; the testament adds two bounded reads, in the window only. THE FALLBACK LAW per read: a band that fails is no band (null, as before); a testament that fails under a living band is silence (units null, the band keeps its truth).
+- **The testament's wire** (`GET /api/stock-takes/[id]` + `GET /api/org/stock-takes/[id]`): both detail wires grow `walkAisleUnits` (additive + optional), read only for an aisle-born sheet. The band + days lines stay byte-identical (the v2.244.0 pins keep speaking).
+- **The testament's faces** (`sheet-drill.tsx` + `stock-take-panel.tsx`): a verdict line under the sheet's when-line on both faces — `sheet-drill-origin-aisle-verdict` / `stocktake-sheet-origin-aisle-verdict`, the census's own three families via the lib, `tabular-nums` on the figure, the shelf's own truth on the title. SIBLING LINES, NEVER REWRITES: the chip row stays byte-identical. Absent when the wire carried no units — the silence is the honest state.
+
+### Changed
+- **The findings voice's one home** (`findingsVoice` in `src/lib/cadence-band.ts`): the census's three families (exact = muted slate "the count held — 0 units", surplus = emerald "+N units found", shrinkage = red "−N units found") had lived as two copies — the map's inline verdict and the pick strip's local voice. One home now: the map's verdict rows, the pick strip's verdict line and the detail faces' testament lines all speak through the lib. The v2.243/v2.245 pins rode the move (the documented hand-pass — their TRUTH moved, their intent preserved).
+
+### Styled
+- The verdict lines ride the census's exact families and voices — one law, four faces (the map's aisle rows, the pick strip, now the drill and the branch face), `tabular-nums` on every figure, dark halves from birth, no new paint. The honest absences hold: a beyond/never aisle wears band but no verdict; an aisle-less birth wears neither.
+
 ## [2.245.0] The walk's findings
 
 The pick face has said WHEN a shelf was last heard since v2.236.0 — this round it says what the last walk FOUND there: the units the latest window walk's lines in that category landed, in the census's own three families. The decision moment gets the full truth: blind spot or fresh, and what the last count landed. Plus one real bug fix: the picker's beyond voice had kept a hardcoded "30 days" — a constant the v2.241.0 law retired.

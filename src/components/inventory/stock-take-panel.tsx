@@ -67,7 +67,7 @@ import { Input } from '@/components/ui/input';
 import { ClipboardCheck, DoorOpen, Download, FolderTree, History, Loader2, Printer, RotateCcw, Search, X } from 'lucide-react';
 import { authorizedFetchJson } from '@/lib/api';
 import { num, parseSheetLineage, LineageChip } from '@/components/org/primitives';
-import { bandHouse, chipLabel, daysVoice } from '@/lib/cadence-band';
+import { bandHouse, chipLabel, daysVoice, findingsVoice } from '@/lib/cadence-band';
 // v2.229.0: the CSV law's one voice — the SAME pure builders the org
 // drill exports (csvCell's quoting, sheetLinesCsv's BOM + CRLF + the
 // cost-gated empty). Imported, never re-invented: the file a branch
@@ -120,6 +120,11 @@ type SheetDetail = {
   // guessed house).
   walkAisleBand?: 'fresh' | 'stale' | 'beyond' | 'never' | null;
   walkAisleDaysSince?: number | null;
+  // v2.246.0 THE AISLE'S TESTAMENT: the aisle's own window verdict
+  // (additive + optional — null when no window walk spoke for the
+  // aisle, beyond/never, or the testament read fell back; the honest
+  // absence, never a hidden zero).
+  walkAisleUnits?: number | null;
   // v2.234.0 THE VERDICT — the lineage backwards (optional in the type;
   // the honest absence: null = no child, no verdict).
   recountedBy?: { id: string; status: string; closedAt: string | null; varianceUnits: number | null } | null;
@@ -200,16 +205,15 @@ const pickDaysVoice = (c: PickCadence) => {
   return `${c.daysSince} days ago`;
 };
 
-// v2.245.0 THE FINDINGS VOICE — the drill's own three families (the
-// census's verdict law, worded the same): exact = muted slate "the count
-// held — 0 units", surplus = emerald "+N units found", shrinkage = red
-// "−N units found". Null when the wire carried no findings (no window
-// walk spoke for this shelf) — the silence is the honest state.
-const pickFindingsVoice = (units: number) => {
-  if (units === 0) return { text: 'the count held — 0 units', cls: 'text-slate-500 dark:text-slate-400' };
-  if (units > 0) return { text: `+${units} units found`, cls: 'text-emerald-600 dark:text-emerald-400' };
-  return { text: `${units} units found`, cls: 'text-red-600 dark:text-red-400' };
-};
+// v2.245.0 THE FINDINGS VOICE — the census's own three families.
+// v2.246.0 THE AISLE'S TESTAMENT — the voice moved to its ONE home
+// (@/lib/cadence-band's findingsVoice): the map's verdict rows, the
+// pick strip's verdict line and the detail faces' testament lines all
+// speak through the lib now — one law, every face the same words, the
+// same colours. (exact = muted slate "the count held — 0 units",
+// surplus = emerald "+N units found", shrinkage = red "−N units
+// found"; null when the wire carried no findings — the silence is the
+// honest state.)
 
 const fmtKes = (v: number) =>
   `Ksh ${v.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -686,6 +690,28 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                     {detail.startedByName ? ` · by ${detail.startedByName}` : ''}
                   </span>
                 </div>
+                {/* v2.246.0 THE AISLE'S TESTAMENT — the branch face says
+                    what the sheet's aisle's latest window walk FOUND
+                    there: the census's own three families (one home —
+                    the lib's findingsVoice), tabular-nums on the figure,
+                    the shelf's own truth on the title. A sibling line,
+                    never a rewrite of the chip row (the v2.242.0 law);
+                    absent when the wire carried no units (beyond/never,
+                    a silent window, an older cached answer, a
+                    fallen-back read) — the silence is the honest state. */}
+                {(() => {
+                  if (detail.origin !== 'walk-door' || !detail.walkAisle || detail.walkAisleUnits == null) return null;
+                  const fv = findingsVoice(detail.walkAisleUnits);
+                  return (
+                    <p
+                      data-testid="stocktake-sheet-origin-aisle-verdict"
+                      title="the aisle's latest walk found this — the shelf's own truth"
+                      className={`text-[10px] font-medium tabular-nums ${fv.cls}`}
+                    >
+                      {fv.text}
+                    </p>
+                  );
+                })()}
                 {/* v2.229.0: the sheet's two doors — the paper (Print)
                     and the file (CSV), mounted under the SAME gate (a
                     sheet that froze no lines prints and exports nothing
@@ -1294,7 +1320,7 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                       // walk) — the silence is the honest state.
                       const findings = picked.cadence.lastWalkUnits == null
                         ? null
-                        : pickFindingsVoice(picked.cadence.lastWalkUnits);
+                        : findingsVoice(picked.cadence.lastWalkUnits);
                       // THE LENGTH LAW — the org face's own: length always
                       // means time since last heard (capped at the window,
                       // 4% floor); beyond wears the full bar at 70% (its
