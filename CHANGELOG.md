@@ -2,6 +2,20 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.245.0] The walk's findings
+
+The pick face has said WHEN a shelf was last heard since v2.236.0 — this round it says what the last walk FOUND there: the units the latest window walk's lines in that category landed, in the census's own three families. The decision moment gets the full truth: blind spot or fresh, and what the last count landed. Plus one real bug fix: the picker's beyond voice had kept a hardcoded "30 days" — a constant the v2.241.0 law retired.
+
+### Added
+- **The findings wire** (`GET /api/categories?includeCadence=true`): the cadence map grows `lastWalkUnits` per category — the LATEST window walk that actually SPOKE for the shelf (a line with variance non-null; a line the floor never counted stays silent), and the units its lines in THIS category landed (line-level attribution — the shelf's own truth, not the whole sheet's). THE ZERO-NEW-QUERIES LAW: the attribution rides the pairs the cadence already reads — the `variance` column added to the existing `windowLines` read, nothing else. THE UNITS LAW: units are units (the shillings gate is NOT involved). A perfect count speaks 0 — the shelf held. Null when no window walk spoke (beyond / never / a silent latest) — the honest absence, never a hidden zero.
+- **The findings face** (`stock-take-panel.tsx`, the pick strip): a verdict line under the band chip + days voice — `stocktake-pick-cadence-verdict`, the drill's own three families (exact = muted slate "the count held — 0 units", surplus = emerald "+N units found", shrinkage = red "−N units found"), `tabular-nums`, the shelf's own truth on the title. The block's aria carries the findings. Absent when the wire carried none — the silence is the honest state.
+
+### Fixed
+- **The beyond voice reads the stored law** (`pickDaysVoice`): "not heard in 30 days" hardcoded a window the v2.241.0 law made governable — the line now says `not heard in {windowDays} days` from the wire's own number (the demo law speaks 5/45, so the face now says 45). The teeth-v2236 pin rode the truth change (the documented hand-pass).
+
+### Styled
+- The verdict line reuses the census's exact voice strings and families — one law, three faces (the map's aisle rows, the drill's line chips, now the pick strip), tabular-nums throughout, dark halves from birth, no new paint.
+
 ## [2.244.0] The aisle's echo
 
 The aisle's row on the map has testified since v2.243.0 — this round the sheet itself carries the echo home: open a door-born count sheet (org drill or branch face) and its origin-aisle line learns the aisle's own cadence band. WHERE the door opened (v2.242.0) now says WHEN its aisle was last heard. And the four band houses move into their one home — the anti-duplication law applied to the band itself.

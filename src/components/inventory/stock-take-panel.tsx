@@ -162,6 +162,12 @@ type PickCadence = {
   lastCountedAt: string | null;
   freshDays: number;
   windowDays: number;
+  // v2.245.0 THE WALK'S FINDINGS: the latest window walk that SPOKE for
+  // this shelf, and the units its lines in THIS category landed (additive
+  // + optional — an older cached answer keeps the picker working, it just
+  // stays silent; null when no window walk spoke here — the honest
+  // absence, never a hidden zero; 0 = the count held).
+  lastWalkUnits?: number | null;
 };
 type CategoryRow = { id: string; name: string; productCount?: number; cadence?: PickCadence };
 
@@ -180,15 +186,29 @@ const pickBandHouse = (band: PickCadence['band']) => {
 
 // THE DAYS VOICE — the same honest five the org face speaks, worded for
 // the picker: "counted today" / "1 day ago" / "N days ago" / "not heard
-// in 30 days" / "never counted". Empty when the cadence has not spoken
+// in N days" / "never counted". Empty when the cadence has not spoken
 // (an older cached answer) — the label just stays a name and a count.
+// v2.245.0 BUG FIX: the beyond line used to hardcode "30 days" — a
+// constant the v2.241.0 law retired (the stored law's own window rides
+// the wire; the face says what the wire says, never a magic number).
 const pickDaysVoice = (c: PickCadence) => {
   if (c.band === 'never') return 'never counted';
-  if (c.band === 'beyond') return 'not heard in 30 days';
+  if (c.band === 'beyond') return `not heard in ${c.windowDays} days`;
   if (c.daysSince == null) return '';
   if (c.daysSince === 0) return 'counted today';
   if (c.daysSince === 1) return '1 day ago';
   return `${c.daysSince} days ago`;
+};
+
+// v2.245.0 THE FINDINGS VOICE — the drill's own three families (the
+// census's verdict law, worded the same): exact = muted slate "the count
+// held — 0 units", surplus = emerald "+N units found", shrinkage = red
+// "−N units found". Null when the wire carried no findings (no window
+// walk spoke for this shelf) — the silence is the honest state.
+const pickFindingsVoice = (units: number) => {
+  if (units === 0) return { text: 'the count held — 0 units', cls: 'text-slate-500 dark:text-slate-400' };
+  if (units > 0) return { text: `+${units} units found`, cls: 'text-emerald-600 dark:text-emerald-400' };
+  return { text: `${units} units found`, cls: 'text-red-600 dark:text-red-400' };
 };
 
 const fmtKes = (v: number) =>
@@ -1266,6 +1286,15 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                       if (!picked?.cadence) return null;
                       const house = pickBandHouse(picked.cadence.band);
                       const voice = pickDaysVoice(picked.cadence);
+                      // v2.245.0 THE WALK'S FINDINGS — the pick face says
+                      // what the last walk FOUND here (the census's own
+                      // three families — exact slate, surplus emerald,
+                      // shrinkage red; units are units). Absent when the
+                      // wire carried none (beyond/never/a silent latest
+                      // walk) — the silence is the honest state.
+                      const findings = picked.cadence.lastWalkUnits == null
+                        ? null
+                        : pickFindingsVoice(picked.cadence.lastWalkUnits);
                       // THE LENGTH LAW — the org face's own: length always
                       // means time since last heard (capped at the window,
                       // 4% floor); beyond wears the full bar at 70% (its
@@ -1277,7 +1306,7 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                       return (
                         <div
                           data-testid="stocktake-pick-cadence"
-                          aria-label={`${picked.name}: ${voice || 'the cadence has not spoken yet'}, ${picked.productCount ?? 0} products.`}
+                          aria-label={`${picked.name}: ${voice || 'the cadence has not spoken yet'}${findings ? `, ${findings.text}` : ''}, ${picked.productCount ?? 0} products.`}
                           className="mt-1.5 rounded-lg border border-slate-200 bg-white/70 px-2 py-1.5 dark:border-slate-600 dark:bg-slate-800/60"
                         >
                           <div className="flex flex-wrap items-center justify-between gap-1.5">
@@ -1291,6 +1320,15 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                               {voice || '—'}
                             </span>
                           </div>
+                          {findings && (
+                            <p
+                              data-testid="stocktake-pick-cadence-verdict"
+                              title={`the last walk that counted here found this — the shelf's own truth`}
+                              className={`mt-0.5 text-[9px] font-medium tabular-nums ${findings.cls}`}
+                            >
+                              {findings.text}
+                            </p>
+                          )}
                           <div className="mt-1 flex items-center gap-2">
                             <div
                               className="h-1 flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700"
