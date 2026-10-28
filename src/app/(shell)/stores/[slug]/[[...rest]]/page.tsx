@@ -37,6 +37,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function StoreWorkspacePage({ params }: PageProps) {
-  const { slug } = await params;
-  return <WorkspaceGateway slug={slug.toLowerCase()} />;
+  const { slug, rest } = await params;
+  // v2.248.0 THE DOOR'S LANDING: the catch-all segments ride down to the
+  // gateway so the first segment can name the tab the URL points at
+  // (the doors are hard anchors — /stores/{slug}/inventory must OPEN
+  // inventory, not the persisted tab).
+  return <WorkspaceGateway slug={slug.toLowerCase()} rest={rest} />;
 }

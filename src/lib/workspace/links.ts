@@ -10,6 +10,7 @@
 // relative path links (never throws).
 
 import { parseHost, resolveWorkspaceHostMode } from './config';
+import type { AppTab } from '../stores';
 
 export interface StoreWorkspaceRef {
   id: string;
@@ -271,4 +272,31 @@ export function postLoginRedirect(user: PostLoginUser | null | undefined): strin
   }
 
   return null;
+}
+
+// v2.248.0 THE DOOR'S LANDING — a workspace URL's first path segment IS a
+// tab address. The doors (the map's walk doors, the drill's recount and
+// restock doors) are HARD ANCHOR navigations: the browser loads
+// /stores/{slug}/inventory (or /purchase-orders) fresh, and until this
+// round the SPA rendered whatever tab localStorage had persisted — a door
+// that pointed at inventory could land on the dashboard. This maps the
+// segment to the AppTab it names; an unknown segment (or no segment) maps
+// to null — the persisted tab stands, exactly the old behavior for
+// segment-less workspace roots.
+export function tabFromWorkspacePath(rest: readonly string[] | null | undefined): AppTab | null {
+  const segment = rest?.[0];
+  if (!segment) return null;
+  // The guard list IS the AppTab union's members (src/lib/stores.ts) —
+  // kebab-case segments match tab ids one for one ('purchase-orders',
+  // 'people-payroll', ...). Type-only import: no runtime stores.ts bytes.
+  const TAB_SEGMENTS: ReadonlySet<AppTab> = new Set([
+    'dashboard', 'pos', 'catalog', 'inventory', 'customers', 'rentals',
+    'financial', 'reports', 'transactions', 'suppliers', 'gift-cards',
+    'admin', 'vouchers', 'invoices', 'delivery', 'credits', 'messaging',
+    'transfers', 'banking', 'loyalty', 'security', 'payroll',
+    'people-payroll', 'etims', 'debt-management', 'debt-plans',
+    'conversations', 'purchase-orders', 'analytics', 'data-exports',
+    'shift-scheduling', 'system-health',
+  ]);
+  return TAB_SEGMENTS.has(segment) ? segment : null;
 }

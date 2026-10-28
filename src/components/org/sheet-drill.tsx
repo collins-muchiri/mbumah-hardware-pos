@@ -288,6 +288,11 @@ export function SheetDrill({ target, onClose, onOpenSheet }: { target: SheetDril
   // already wears is this lens's vocabulary.
   const varianceLines = data ? data.lines.filter((l) => l.variance != null && l.variance !== 0) : [];
   const variancesActive = varianceLines.length > 0;
+  // v2.248.0 THE RESTOCK'S RAW MATERIAL — the shrinkage lines (the count
+  // found LESS than the snapshot believed): the hole the restock answers.
+  // A surplus line (found more) needs no restock — the shelf held more
+  // than the books said — so the door speaks only when something LEFT.
+  const shrinkageLines = data ? data.lines.filter((l) => l.variance != null && l.variance < 0) : [];
   // The combined reading: the lens narrows the shelf, the needle
   // narrows the line, the variances-only chip narrows to the disputed
   // lines — all client-side over the SAME held lines, all answered by
@@ -864,6 +869,44 @@ export function SheetDrill({ target, onClose, onOpenSheet }: { target: SheetDril
                   <ArrowRight className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                 </a>
               )}
+              {data.status === 'CLOSED' && shrinkageLines.length > 0 && data.store.slug && (() => {
+                /* v2.248.0 THE RESTOCK DOOR — the sheet's ANSWER. The
+                    recount door disputes a number; this door ANSWERS one:
+                    when the walk found shrinkage (lines whose count came
+                    in BELOW the snapshot — something left the shelf), the
+                    floor can raise the restock born at THIS sheet. The
+                    door is a hard anchor into the branch's purchase-orders
+                    tab (the door's landing law — the URL's segment opens
+                    the tab), carrying the sheet's id; the create dialog
+                    reads ?restockFrom= one time, pre-picks exactly these
+                    shrinkage lines (qty = the units the shelf lost, cost =
+                    the product's own cost price), and the PO wears the
+                    violet birth for the rest of its life. Violet = the
+                    door's family (the birth chip's own house). ANCHOR, not
+                    a pen: this face stays read-only by law. Absent when
+                    the sheet found no shrinkage, is not CLOSED, or the
+                    store has no slug — an absent control never lies. */
+                const shrinkUnits = shrinkageLines.reduce((s, l) => s + Math.abs(l.variance ?? 0), 0);
+                return (
+                  <a
+                    data-testid="sheet-drill-restock-door"
+                    data-sheet-print-off=""
+                    href={`/stores/${data.store.slug}/purchase-orders?restockFrom=${encodeURIComponent(data.id)}`}
+                    title="open the branch's purchase orders with this sheet attached — the restock is born wearing this sheet's name"
+                    className="mt-2 flex items-center justify-between gap-2 rounded-xl border border-dashed border-violet-300 bg-violet-50/60 px-3 py-2 text-[11px] font-semibold text-violet-800 transition-colors hover:bg-violet-100/70 focus:outline-none focus:ring-1 focus:ring-violet-500/40 dark:border-violet-500/40 dark:bg-violet-500/10 dark:text-violet-200 dark:hover:bg-violet-500/20"
+                  >
+                    <span className="min-w-0">
+                      <span className="block">
+                        raise the restock for the {num(shrinkageLines.length)} shrinkage line{shrinkageLines.length === 1 ? '' : 's'} at {data.store.name}
+                      </span>
+                      <span className="mt-0.5 block text-[9px] font-medium text-violet-800/70 dark:text-violet-200/70">
+                        opens the branch&apos;s purchase orders — the PO is born wearing this sheet: {num(shrinkUnits)} unit{shrinkUnits === 1 ? '' : 's'} the shelf lost, pre-picked.
+                      </span>
+                    </span>
+                    <ArrowRight className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                  </a>
+                );
+              })()}
               <p data-testid="sheet-drill-read-only" className="mt-1.5 text-[9px] text-slate-500 dark:text-slate-400">
                 read-only — the branch sheet keeps the pens; this face watches the floor&apos;s truth.
               </p>

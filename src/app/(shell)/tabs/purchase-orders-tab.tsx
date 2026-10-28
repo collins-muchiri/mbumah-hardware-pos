@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
@@ -17,7 +17,7 @@ import { useAppStore } from '@/lib/stores';
 import { useAuthStore } from '@/lib/stores';
 import { useVatRate } from '@/hooks/use-vat-rate';
 import {
-  purchaseOrdersApi, suppliersApi, productsApi,
+  purchaseOrdersApi, suppliersApi, productsApi, authorizedFetchJson,
   formatKES, formatDate,
   type PurchaseOrderListItem,
   type SupplierItem,
@@ -190,14 +190,37 @@ function POStatusTimeline({ status }: { status: string }) {
 
 // Create PO Dialog
 
+// v2.248.0 THE RESTOCK'S BIRTH SHEET — the shape the pre-pick reads off
+// the sheet detail wire (GET /api/stock-takes/[id]): the status voice, the
+// aisle's name when the sheet wore one, and the lines (productId + the
+// variance + the product's own cost price). Numbers may ride as strings
+// (Decimal.read on sqlite) — the pre-pick Number()s everything it sums.
+interface RestockBirthSheet {
+  id?: string;
+  status?: string;
+  walkAisle?: { name?: string | null } | null;
+  lines?: Array<{
+    productId?: string;
+    variance?: number | string | null;
+    product?: { name?: string | null; sku?: string | null; costPrice?: number | string | null } | null;
+  }> | null;
+}
+
 function CreatePODialog({
   open,
   onOpenChange,
   storeId,
+  restockSheetId,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   storeId: string;
+  // v2.248.0 THE RESTOCK'S BIRTH — the sheet id the drill's restock door
+  // named (?restockFrom=, read one time by the tab). When present and the
+  // dialog opens, the sheet's shrinkage lines PRE-PICK themselves (qty =
+  // the units the shelf lost, cost = the product's own cost price) and the
+  // created PO carries originStockTakeId — the violet birth, for life.
+  restockSheetId?: string | null;
 }) {
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
@@ -212,6 +235,14 @@ function CreatePODialog({
   >([]);
   const [productSearch, setProductSearch] = useState('');
   const [lowStockLoading, setLowStockLoading] = useState(false);
+  // v2.248.0: the birth's reading — the sheet's own truth for the provenance
+  // strip (its aisle when it wore one, the units it found gone), plus the
+  // pre-pick's loading/error faces. THE SILENCE LAW: a sheet that refused
+  // to open (a dead id, a cross-store guess) sets restockError — the strip
+  // speaks the refusal, never a fake birth.
+  const [restockVoice, setRestockVoice] = useState<{ aisle: string | null; units: number; lines: number } | null>(null);
+  const [restockLoading, setRestockLoading] = useState(false);
+  const [restockError, setRestockError] = useState<string | null>(null);
 
   // Fetch active suppliers
   const { data: suppliersData } = useQuery({
@@ -283,6 +314,69 @@ function CreatePODialog({
     setPoItems(poItems.filter((_, i) => i !== index));
   };
 
+  // v2.248.0 THE RESTOCK'S PRE-PICK — one fetch of the sheet the door
+  // named (the SAME wire the branch stock-take face reads), then the
+  // shrinkage lines pre-pick themselves: qty = the units the shelf lost
+  // (|variance|), cost = the product's own cost price riding the wire.
+  // THE SHAPE LAWS: only NEGATIVE lines (a surplus needs no restock —
+  // the shelf held more than the books said); a line the floor never
+  // counted stays silent (variance null); the products the sheet's
+  // wire no longer joins (a since-deleted product) are skipped, never
+  // guessed. A sheet that refuses to open or is not CLOSED sets the
+  // strip's refusal — the user can still build the PO by hand; the
+  // birth is NOT stored unless the sheet was real (the wire re-checks).
+  useEffect(() => {
+    if (!open || !restockSheetId) return;
+    let cancelled = false;
+    setRestockLoading(true);
+    setRestockError(null);
+    setRestockVoice(null);
+    (async () => {
+      try {
+        const res = await authorizedFetchJson(`/api/stock-takes/${encodeURIComponent(restockSheetId)}`);
+        if (cancelled) return;
+        if (!res.ok || !res.json?.success) {
+          setRestockError('the sheet refused to open — build the restock by hand; the birth stays off the record.');
+          return;
+        }
+        const sheet = res.json.data as RestockBirthSheet | null;
+        if (!sheet) {
+          setRestockError('the sheet refused to open — build the restock by hand; the birth stays off the record.');
+          return;
+        }
+        if (sheet.status !== 'CLOSED') {
+          setRestockError('this sheet is not CLOSED yet — the books have not heard it; the birth stays off the record.');
+          return;
+        }
+        const lines = Array.isArray(sheet.lines) ? sheet.lines : [];
+        const picks: { productId: string; name: string; sku: string; quantity: string; unitCost: string; currentStock: number }[] = [];
+        let units = 0;
+        for (const l of lines) {
+          const variance = l?.variance == null ? null : Number(l.variance);
+          if (variance == null || !Number.isFinite(variance) || variance >= 0) continue;
+          if (!l?.productId) continue;
+          const lost = Math.abs(variance);
+          units += lost;
+          picks.push({
+            productId: l.productId,
+            name: l.product?.name || 'Unknown product',
+            sku: l.product?.sku || '',
+            quantity: String(Math.round(lost)),
+            unitCost: String(l.product?.costPrice ?? 0),
+            currentStock: 0,
+          });
+        }
+        if (picks.length > 0) setPoItems(picks);
+        setRestockVoice({ aisle: sheet.walkAisle?.name ?? null, units: Math.round(units), lines: picks.length });
+      } catch {
+        if (!cancelled) setRestockError('the sheet refused to open — build the restock by hand; the birth stays off the record.');
+      } finally {
+        if (!cancelled) setRestockLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [open, restockSheetId]);
+
   const updateItem = (index: number, field: 'quantity' | 'unitCost', value: string) => {
     const updated = [...poItems];
     updated[index] = { ...updated[index], [field]: value };
@@ -304,6 +398,9 @@ function CreatePODialog({
         expectedDate: expectedDate || undefined,
         notes: notes || undefined,
         createdById: user?.id || undefined,
+        // v2.248.0: the birth rides the named sheet (the wire re-validates:
+        // same store + CLOSED — the only births it ever stores).
+        originStockTakeId: restockSheetId || undefined,
         items: poItems
           .filter((item) => item.productId && parseFloat(item.quantity) > 0)
           .map((item) => ({
@@ -360,6 +457,45 @@ function CreatePODialog({
       }
     >
       <div className="space-y-5">
+        {/* v2.248.0 THE BIRTH STRIP — the violet door family's reading: the
+            dialog says WHICH sheet this restock answers, what its walk
+            found gone, and (when the sheet wore one) the aisle's address.
+            The loading and refusal faces live here too — a sheet that
+            refuses to open speaks its refusal; the birth stays off the
+            record (the wire re-checks everything this strip claims). */}
+        {restockSheetId && (
+          <div
+            data-testid="po-restock-provenance"
+            aria-label={restockError
+              ? 'the birth sheet refused to open — the restock builds by hand'
+              : restockVoice
+                ? `born at count sheet ${restockSheetId}${restockVoice.aisle ? `, the walk order named ${restockVoice.aisle}` : ''} — ${restockVoice.units} units the shelf lost, ${restockVoice.lines} ${restockVoice.lines === 1 ? 'line' : 'lines'} pre-picked.`
+                : 'reading the birth sheet'}
+            className="rounded-lg border border-violet-200 bg-violet-50/60 px-2.5 py-2 text-[11px] text-violet-800 dark:border-violet-500/40 dark:bg-violet-500/10 dark:text-violet-200"
+          >
+            {restockLoading ? (
+              <p className="flex items-center gap-1.5 font-medium">
+                <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />
+                reading the birth sheet…
+              </p>
+            ) : restockError ? (
+              <p data-testid="po-restock-provenance-error" className="font-medium text-red-700 dark:text-red-300">
+                {restockError}
+              </p>
+            ) : restockVoice ? (
+              <>
+                <p className="flex items-center gap-1 text-[9px] font-semibold uppercase tracking-wide text-violet-600 dark:text-violet-300">
+                  <PackageCheck className="h-3 w-3" aria-hidden="true" />
+                  born at a count sheet
+                </p>
+                <p className="mt-0.5 font-medium">
+                  restocking what the walk found gone{restockVoice.aisle ? ` — the walk order named ${restockVoice.aisle}` : ''}: {restockVoice.units} unit{restockVoice.units === 1 ? '' : 's'} on {restockVoice.lines} line{restockVoice.lines === 1 ? '' : 's'}, pre-picked below.
+                </p>
+              </>
+            ) : null}
+          </div>
+        )}
+
         {/* Supplier & Date */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -962,6 +1098,29 @@ function PODetailView({
           </div>
         ) : (
           <div className="space-y-5">
+            {/* v2.248.0 THE BIRTH STRIP — the detail face names the sheet
+                this PO was born from (the violet door family): the sheet's
+                id, its aisle when it wore one, the honest status voice.
+                An older cached wire or a hand-raised PO renders the silent
+                absence (the type check, never an assumption). */}
+            {detail.originStockTake && (
+              <div
+                data-testid="po-detail-birth-strip"
+                title={`born at count sheet ${detail.originStockTake.id}${detail.originStockTake.walkAisle?.name ? ` — the walk order named ${detail.originStockTake.walkAisle.name}` : ''}`}
+                className="rounded-lg border border-violet-200 bg-violet-50/60 px-3 py-2 text-[11px] text-violet-800 dark:border-violet-500/40 dark:bg-violet-500/10 dark:text-violet-200"
+              >
+                <p className="flex items-center gap-1 text-[9px] font-semibold uppercase tracking-wide text-violet-600 dark:text-violet-300">
+                  <ClipboardList className="h-3 w-3" aria-hidden="true" />
+                  born at a count sheet
+                </p>
+                <p className="mt-0.5 font-medium">
+                  this PO answers count sheet <span className="tabular-nums">{detail.originStockTake.id}</span>
+                  {detail.originStockTake.walkAisle?.name ? <> — the walk order named {detail.originStockTake.walkAisle.name}</> : null}
+                  {detail.originStockTake.status === 'CLOSED' ? ' (the books heard it).' : ` (${detail.originStockTake.status.toLowerCase()}).`}
+                </p>
+              </div>
+            )}
+
             {/* Status Timeline */}
             <div className="p-4 bg-muted/30 rounded-lg border">
               <POStatusTimeline status={detail.status} />
@@ -1305,6 +1464,21 @@ export default function PurchaseOrdersTab() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [createOpen, setCreateOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
+  // v2.248.0 THE RESTOCK DOOR'S LANDING — the tab reads ?restockFrom= ONE
+  // time at mount (the drill's restock door is a HARD anchor navigation;
+  // the same one-time law the count sheet door speaks), auto-opens the
+  // create dialog with the sheet attached, then cleans the address so a
+  // manual "New PO" never inherits the birth by accident.
+  const [restockFrom] = useState(() =>
+    typeof window === 'undefined' ? '' : new URLSearchParams(window.location.search).get('restockFrom') ?? ''
+  );
+  useEffect(() => {
+    if (!restockFrom) return;
+    setCreateOpen(true);
+    if (typeof window !== 'undefined') window.history.replaceState(null, '', window.location.pathname + window.location.hash);
+    // ONE time: the door is a hard navigation, the tab remounts for it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [selectedPO, setSelectedPO] = useState<PurchaseOrderListItem | null>(null);
   const [filtersVisible, setFiltersVisible] = useState(false);
 
@@ -1702,6 +1876,22 @@ export default function PurchaseOrdersTab() {
                               <span className="font-mono font-semibold text-sm text-primary">
                                 {po.poNumber}
                               </span>
+                              {/* v2.248.0 THE BIRTH CHIP — the violet door
+                                  family, on the roster: a PO born at a
+                                  count sheet wears its birth beside the
+                                  number (the aisle's name rides the title
+                                  when the sheet wore one). A hand-raised
+                                  PO renders the silent absence. */}
+                              {po.originStockTake && (
+                                <Badge
+                                  data-testid="po-row-birth-chip"
+                                  title={`born at count sheet ${po.originStockTake.id}${po.originStockTake.walkAisle?.name ? ` — the walk order named ${po.originStockTake.walkAisle.name}` : ''}`}
+                                  className="text-[9px] bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300 gap-0.5"
+                                >
+                                  <ClipboardList className="h-3 w-3" />
+                                  BORN AT A COUNT SHEET
+                                </Badge>
+                              )}
                               {isOverdue && (
                                 <Badge className="text-[9px] bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 gap-0.5">
                                   <AlertTriangle className="h-3 w-3" /> Overdue
@@ -1806,7 +1996,7 @@ export default function PurchaseOrdersTab() {
       </Card>
 
       {/* ── Create PO Dialog ── */}
-      <CreatePODialog open={createOpen} onOpenChange={setCreateOpen} storeId={currentStoreId} />
+      <CreatePODialog open={createOpen} onOpenChange={setCreateOpen} storeId={currentStoreId} restockSheetId={restockFrom || null} />
 
       {/* ── PO Detail Dialog ── */}
       <PODetailView po={selectedPO} open={detailOpen} onOpenChange={setDetailOpen} />

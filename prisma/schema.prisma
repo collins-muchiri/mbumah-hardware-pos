@@ -480,6 +480,10 @@ model StockTake {
 
   store     Store            @relation(fields: [storeId], references: [id])
   lines     StockTakeLine[]
+  // v2.248.0 THE RESTOCK'S BIRTH — the POs this sheet spawned (the drill's
+  // restock door is the only writer). Read-side only: the census counts
+  // sheets, the PO faces wear the birth.
+  restockOrders PurchaseOrder[]
   walkAisle ProductCategory? @relation(fields: [walkCategoryId], references: [id], onDelete: SetNull)
   startedBy User?            @relation("StockTakeStartedBy", fields: [startedById], references: [id])
   closedBy  User?            @relation("StockTakeClosedBy", fields: [closedById], references: [id])
@@ -1050,6 +1054,15 @@ model PurchaseOrder {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
+  // v2.248.0 THE RESTOCK'S BIRTH — where a PO was born. Nullable; stored
+  // ONLY when the create wire's allowlist passed (the sheet exists, belongs
+  // to the SAME store, and is CLOSED — a DRAFT PO from a live count is a
+  // guess, and the wire never guesses). A deleted sheet nulls the column
+  // (optional relation, SetNull) — the PO never speaks ghosts. A
+  // hand-raised PO carries no birth at all — the faces count births,
+  // never infer them.
+  originStockTakeId   String?
+
   store       Store               @relation(fields: [storeId], references: [id])
   supplier    Supplier            @relation(fields: [supplierId], references: [id])
   items       PurchaseOrderItem[]
@@ -1057,6 +1070,10 @@ model PurchaseOrder {
   approvedBy  User?               @relation("POApprovedBy", fields: [approvedById], references: [id])
   receivedBy  User?               @relation("POReceivedBy", fields: [receivedById], references: [id])
   cancelledBy User?               @relation("POCancelledBy", fields: [cancelledById], references: [id])
+  // v2.248.0: the birth's reading — the sheet this PO answers (the drill's
+  // restock door is the only writer; the faces read the aisle's name off
+  // it when the sheet wore one).
+  originStockTake StockTake?      @relation(fields: [originStockTakeId], references: [id], onDelete: SetNull)
 
   @@unique([storeId, poNumber]) // F1-6: per-store PO number uniqueness
   @@index([storeId])
@@ -1064,6 +1081,7 @@ model PurchaseOrder {
   @@index([status])
   @@index([storeId, status])
   @@index([orderDate])
+  @@index([originStockTakeId])
   @@map("purchase_orders")
 }
 

@@ -43,20 +43,20 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.242.0)', () => {
   it('package.json leads 2.242.0 (all three slots)', () => {
-    expect(version).toBe('2.247.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.247.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.247.0');
+    expect(version).toBe('2.248.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.248.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.248.0');
   });
 
   it('VERSION speaks 2.242.0 and the verify gate is wired (previous gate still wired)', () => {
-    expect(read('VERSION').trim()).toBe('2.247.0');
+    expect(read('VERSION').trim()).toBe('2.248.0');
     expect(pkg.scripts['verify:v2-242-0']).toBe('node scripts/verify-v2-242-0.mjs');
     expect(pkg.scripts['verify:v2-241-0']).toBe('node scripts/verify-v2-241-0.mjs');
   });
 
   it('the whats-new feed leads the aisle\u2019s-answer entry (order pin: header-anchored)', () => {
-    expect(feed.includes("version: '2.247.0',")).toBe(true);
-    expect(feed.indexOf("version: '2.247.0',")).toBeLessThan(feed.indexOf("version: '2.246.0',"));
+    expect(feed.includes("version: '2.248.0',")).toBe(true);
+    expect(feed.indexOf("version: '2.248.0',")).toBeLessThan(feed.indexOf("version: '2.247.0',"));
     expect(feed.includes("title: 'The aisle\\u2019s answer',")).toBe(true);
   });
 
@@ -77,10 +77,10 @@ describe('the round of record (v2.242.0)', () => {
   });
 
   it('the counters ride +1 again (the aisle\u2019s answer joined)', () => {
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(138);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.109.0')).toBe(139);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.108.0')).toBe(140);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(171);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(139);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.109.0')).toBe(140);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.108.0')).toBe(141);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(172);");
   });
 });
 
@@ -147,7 +147,9 @@ describe('the aisle\u2019s face (the map)', () => {
 
   it('each row wears the aisle\u2019s testid, aria, and title (the census speaking, never a control)', () => {
     expect(map).toContain('data-testid={`cadence-door-aisle-${a.categoryId}`}');
-    expect(map).toContain('title="the walk order pointed here — the floor answered through this aisle"');
+    // v2.248.0: the title grew the row's own LAW (the window-sum voice) —
+    // the original "the walk order pointed here" clause still leads it.
+    expect(map).toContain('title="the walk order pointed here — the floor answered through this aisle; the verdict sums every closed sheet born here this window');
   });
 
   it('the headline names the aisles (the census learns WHERE)', () => {

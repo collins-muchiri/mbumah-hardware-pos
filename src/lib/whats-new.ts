@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.248.0',
+    title: 'The door\u2019s answer',
+    bullets: [
+      'Doors now land where they point: opening a branch workspace at /inventory, /purchase-orders or any tab address opens THAT tab \u2014 no more landing on yesterday\u2019s tab.',
+      'A closed count sheet that found shrinkage gains a violet door: \u201craise the restock\u201d \u2014 the branch\u2019s purchase-order form opens with the sheet\u2019s lost units pre-picked.',
+      'A purchase order born at a count sheet wears the violet birth for life \u2014 on the roster, on its own record, and in the create form while you build it.',
+      'The census row and the walk picker now name their own laws: one sums every closed sheet this window, the other speaks the latest walk \u2014 no more mixing the two.',
+    ],
+  },
+  {
     version: '2.247.0',
     title: 'The walk\u2019s mirror',
     bullets: [

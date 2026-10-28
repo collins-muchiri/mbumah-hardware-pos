@@ -1383,7 +1383,7 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                           {findings && (
                             <p
                               data-testid="stocktake-pick-cadence-verdict"
-                              title={`the last walk that counted here found this — the shelf's own truth`}
+                              title={`the latest walk that counted here found this — one walk's own truth (the org census row sums every closed sheet this window)`}
                               className={`mt-0.5 text-[9px] font-medium tabular-nums ${findings.cls}`}
                             >
                               {findings.text}

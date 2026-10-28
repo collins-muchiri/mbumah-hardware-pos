@@ -44,6 +44,18 @@ async function getPurchaseOrderHandler(
       approvedBy: { select: { id: true, name: true } },
       receivedBy: { select: { id: true, name: true } },
       cancelledBy: { select: { id: true, name: true } },
+      // v2.248.0 THE RESTOCK'S BIRTH — the detail face names the sheet a
+      // PO was born from (additive + optional; a hand-raised PO reads
+      // null and renders the silent absence). The aisle's name rides so
+      // the strip speaks the walk order's address when the sheet wore one.
+      originStockTake: {
+        select: {
+          id: true,
+          status: true,
+          closedAt: true,
+          walkAisle: { select: { name: true } },
+        },
+      },
     },
   });
 
