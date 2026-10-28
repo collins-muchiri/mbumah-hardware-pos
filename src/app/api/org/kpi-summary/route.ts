@@ -342,6 +342,10 @@ async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Pr
         orderBy: { startedAt: 'desc' },
         select: {
           id: true, startedAt: true, notes: true,
+          // v2.240.0 THE ROSTER’S BIRTH: the sheet's origin rides the
+          // live rows (one column the row already holds — zero new
+          // reads; the allowlist law means 'walk-door' or nothing).
+          origin: true,
           startedBy: { select: { name: true } },
           store: { select: { id: true, name: true, code: true } },
           _count: { select: { lines: true } },
@@ -352,6 +356,9 @@ async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Pr
         take: 12,
         select: {
           id: true, status: true, notes: true, startedAt: true, closedAt: true,
+          // v2.240.0 THE ROSTER’S BIRTH: the same column on the named
+          // roster — the birth speaks on every row the map renders.
+          origin: true,
           startedBy: { select: { name: true } },
           closedBy: { select: { name: true } },
           store: { select: { id: true, name: true, code: true } },
@@ -582,6 +589,8 @@ async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Pr
         storeName: s.store.name,
         storeCode: s.store.code,
         notes: s.notes,
+        // v2.240.0 the roster’s birth: additive (the silence when null).
+        origin: s.origin,
         startedAt: s.startedAt.toISOString(),
         startedByName: s.startedBy?.name ?? null,
         lineCount: s._count.lines,
@@ -593,6 +602,8 @@ async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Pr
           id: s.id,
           status: s.status,
           notes: s.notes,
+          // v2.240.0 the roster’s birth: additive (the silence when null).
+          origin: s.origin,
           startedAt: s.startedAt.toISOString(),
           closedAt: s.closedAt?.toISOString() ?? null,
           startedByName: s.startedBy?.name ?? null,

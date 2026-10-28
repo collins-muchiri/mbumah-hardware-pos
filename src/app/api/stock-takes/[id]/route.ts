@@ -110,6 +110,12 @@ async function getStockTakeHandler(_request: NextRequest, session: AuthSession, 
       store: { id: sheet.store.id, name: sheet.store.name, code: sheet.store.code },
       status: sheet.status,
       notes: sheet.notes,
+      // v2.240.0 THE BRANCH’S ECHO — the sheet's own origin rides the
+      // branch detail wire (additive, one column the row already holds;
+      // zero new reads; the allowlist law means 'walk-door' or nothing).
+      // The branch face wears the same violet birth chip the org drill
+      // speaks — one family, both sides of the glass.
+      origin: sheet.origin,
       // v2.234.0 THE VERDICT — additive (null when no child exists).
       recountedBy,
       startedAt: sheet.startedAt,

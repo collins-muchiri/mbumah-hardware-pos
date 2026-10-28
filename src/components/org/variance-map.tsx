@@ -80,6 +80,23 @@ const varianceChip = (v: number) => {
   return { text: `${num(v)} short`, cls: 'bg-red-50 text-red-700 ring-red-200 dark:bg-red-500/10 dark:text-red-300 dark:ring-red-500/30' };
 };
 
+// v2.240.0 THE ROSTER'S BIRTH — the violet door chip the breakdown's
+// answering rows and the drill's record face already wear, now on every
+// roster row a door-born sheet holds. The allowlist law means the chip
+// speaks 'walk-door' or nothing; a hand-raised sheet wears silence (the
+// parent renders only on the allowlisted origin — the chip itself is a
+// pure face). One family, one house, three faces.
+const BirthChip = ({ testId }: { testId: string }) => (
+  <span
+    data-testid={testId}
+    title="born at a walk door — the org face pointed, the floor answered (the census counts it)"
+    className="inline-flex shrink-0 items-center gap-0.5 rounded bg-violet-50 px-1.5 py-0.5 text-[9px] font-semibold tabular-nums text-violet-700 ring-1 ring-violet-200 dark:bg-violet-500/10 dark:text-violet-300 dark:ring-violet-500/30"
+  >
+    <DoorOpen className="h-2.5 w-2.5" aria-hidden="true" />
+    born at a door
+  </span>
+);
+
 export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: StoreRow[] }) {
   const block = data.stockTakes ?? null;
   // v2.222.0 THE SHEET DRILL — a roster row (or a live row) is a door:
@@ -363,6 +380,10 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
                           className="flex min-w-0 flex-1 items-center gap-1.5 rounded text-left hover:bg-slate-50 dark:hover:bg-slate-800"
                         >
                           <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide ring-1 ring-amber-200 bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/30">COUNTING</span>
+                          {/* v2.240.0: the live row wears the birth — a door
+                              answered THIS floor, and the roster says so
+                              before the drill even opens. */}
+                          {s.origin === 'walk-door' && <BirthChip testId={`variance-map-live-origin-${s.id}`} />}
                           <span className="truncate text-xs font-medium text-slate-700 dark:text-slate-200">{s.storeName}</span>
                           {s.storeCode && <span className="text-[9px] font-semibold text-slate-400 dark:text-slate-500">{s.storeCode}</span>}
                           <ChevronRight className="h-3 w-3 shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true" />
@@ -371,9 +392,12 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
                           {s.countedCount}/{s.lineCount} counted · {pct}%
                         </span>
                       </div>
-                      {/* The live progress — amber while the floor speaks. */}
+                      {/* The live progress — amber while the floor speaks.
+                          v2.240.0: the width transition rides the SAME bar
+                          language the breakdown's bars grew — one motion
+                          across the map. */}
                       <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700" role="img" aria-label={`${s.storeName}: counted ${s.countedCount} of ${s.lineCount} lines`}>
-                        <span className="block h-full rounded-full bg-amber-500" style={{ width: `${pct}%` }} />
+                        <span className="block h-full rounded-full bg-amber-500 transition-[width] duration-500" style={{ width: `${pct}%` }} />
                       </div>
                       {/* v2.233.0 THE LINEAGE — the live row reads its own
                           note: a recount lineage wears the amber chip (the
@@ -436,6 +460,11 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
                         {lineage?.kind === 'recount' && lineage.sourceSheetId && (
                           <LineageChip lineage={lineage} testId={`variance-map-lineage-${s.id}`} />
                         )}
+                        {/* v2.240.0: the roster row wears the birth — the
+                            same chip the live row speaks, so a door-born
+                            sheet is nameable at EVERY altitude of the map
+                            (census → breakdown → roster → drill). */}
+                        {s.origin === 'walk-door' && <BirthChip testId={`variance-map-row-origin-${s.id}`} />}
                         <span className="truncate text-xs font-medium text-slate-700 dark:text-slate-200">{s.storeName}</span>
                         <span className="text-[9px] font-semibold text-slate-400 dark:text-slate-500">{branch?.code ?? s.storeCode ?? ''}</span>
                         <ChevronRight className="h-3 w-3 shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true" />

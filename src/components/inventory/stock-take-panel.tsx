@@ -64,7 +64,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { ClipboardCheck, Download, FolderTree, History, Loader2, Printer, RotateCcw, Search, X } from 'lucide-react';
+import { ClipboardCheck, DoorOpen, Download, FolderTree, History, Loader2, Printer, RotateCcw, Search, X } from 'lucide-react';
 import { authorizedFetchJson } from '@/lib/api';
 import { num, parseSheetLineage, LineageChip } from '@/components/org/primitives';
 // v2.229.0: the CSV law's one voice — the SAME pure builders the org
@@ -105,6 +105,10 @@ type SheetDetail = {
   id: string;
   status: string;
   notes: string | null;
+  // v2.240.0 THE BRANCH'S ECHO: additive + optional — the sheet's own
+  // origin as the create wire stored it (the allowlist law means
+  // 'walk-door' or nothing). An older cached wire renders the silence.
+  origin?: string | null;
   // v2.234.0 THE VERDICT — the lineage backwards (optional in the type;
   // the honest absence: null = no child, no verdict).
   recountedBy?: { id: string; status: string; closedAt: string | null; varianceUnits: number | null } | null;
@@ -592,6 +596,21 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                   >
                     {detail.status}
                   </span>
+                  {/* v2.240.0 THE BRANCH'S ECHO — a door-born sheet wears
+                      its birth on the branch face too: the same violet
+                      family the org drill speaks, the DoorOpen glass, the
+                      law on the title. A hand-raised sheet wears nothing —
+                      the silence is the honest state. */}
+                  {detail.origin === 'walk-door' && (
+                    <span
+                      data-testid="stocktake-sheet-origin"
+                      title="this sheet was born at a walk door — the org face pointed, the floor answered (the census counts it)"
+                      className="inline-flex items-center gap-1 rounded bg-violet-50 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-violet-700 ring-1 ring-violet-200 dark:bg-violet-500/10 dark:text-violet-300 dark:ring-violet-500/30"
+                    >
+                      <DoorOpen className="h-2.5 w-2.5" aria-hidden="true" />
+                      born at a walk door
+                    </span>
+                  )}
                   <span className="text-[10px] text-slate-500 dark:text-slate-400">
                     {/* v2.229.0: the paper names its branch — the wire's
                         own store block, never a client-side guess (a

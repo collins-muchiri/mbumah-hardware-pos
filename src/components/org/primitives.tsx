@@ -164,6 +164,9 @@ export interface KpiSummaryData {
       id: string; storeId: string; storeName: string; storeCode: string | null;
       notes: string | null; startedAt: string; startedByName: string | null;
       lineCount: number; countedCount: number;
+      // v2.240.0 the roster's birth: additive + optional (an older cached
+      // answer renders the silence — the chip speaks 'walk-door' or nothing).
+      origin?: string | null;
     }>;
     recentSheets: Array<{
       id: string; status: string; notes: string | null;
@@ -172,6 +175,8 @@ export interface KpiSummaryData {
       storeId: string; storeName: string; storeCode: string | null;
       lineCount: number; countedCount: number;
       varianceUnits: number | null; varianceCost: number | null;
+      // v2.240.0 the roster's birth: additive + optional (the silence).
+      origin?: string | null;
     }>;
     window30d: { closedCount: number; varianceUnits: number; varianceCostTotal: number | null };
     // v2.238.0 the door's census: additive + optional so an older cached

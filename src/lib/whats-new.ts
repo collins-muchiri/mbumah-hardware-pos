@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.240.0',
+    title: 'The birth, everywhere',
+    bullets: [
+      'Door-born sheets are now nameable at every altitude of the org map: the live counts and the recent-sheets roster wear the violet "born at a door" chip \u2014 census, breakdown, roster, drill.',
+      'The branch face wears it too: open a door-born sheet at the branch and the same violet chip sits beside its status.',
+      'The live progress bars move like the breakdown\u2019s now \u2014 one motion across the map.',
+    ],
+  },
+  {
     version: '2.239.0',
     title: 'The yard\u2019s answer',
     bullets: [

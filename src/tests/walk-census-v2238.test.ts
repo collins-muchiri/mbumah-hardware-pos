@@ -43,25 +43,25 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.238.0)', () => {
   it('package.json leads 2.238.0 (all three slots)', () => {
-    expect(version).toBe('2.239.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.239.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.239.0');
+    expect(version).toBe('2.240.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.240.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.240.0');
   });
 
   it('VERSION speaks 2.238.0 and the verify gate is wired', () => {
-    expect(read('VERSION').trim()).toBe('2.239.0');
+    expect(read('VERSION').trim()).toBe('2.240.0');
     expect(pkg.scripts['verify:v2-238-0']).toBe('node scripts/verify-v2-238-0.mjs');
   });
 
   it('the whats-new feed leads the door\u2019s-census entry (order pin: header-anchored, never a bare version string)', () => {
-    expect(feed.includes("version: '2.239.0',")).toBe(true);
-    expect(feed.indexOf("version: '2.239.0',")).toBeLessThan(feed.indexOf("version: '2.238.0',"));
+    expect(feed.includes("version: '2.240.0',")).toBe(true);
+    expect(feed.indexOf("version: '2.240.0',")).toBeLessThan(feed.indexOf("version: '2.239.0',"));
     expect(feed.includes("title: 'The door\\u2019s census',")).toBe(true);
   });
 
   it('the changelog anchors the section above its ancestor (headers, never bare strings)', () => {
-    expect(changelog.indexOf('## [2.239.0]')).toBeGreaterThanOrEqual(0);
-    expect(changelog.indexOf('## [2.239.0]')).toBeLessThan(changelog.indexOf('## [2.238.0]'));
+    expect(changelog.indexOf('## [2.240.0]')).toBeGreaterThanOrEqual(0);
+    expect(changelog.indexOf('## [2.240.0]')).toBeLessThan(changelog.indexOf('## [2.239.0]'));
   });
 
   it('the changelog speaks the column, the census, and the breakdown', () => {
