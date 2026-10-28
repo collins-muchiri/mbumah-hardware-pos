@@ -32,6 +32,11 @@ import { ADMIN_CURRENCY_RATES_QUERY_KEY, RATE_SOURCE_PHRASE, type RatesWireBody 
 import { useCurrency } from '@/hooks/use-currency';
 import { CURRENCY_BY_CODE, formatCurrency } from '@/lib/currency-utils';
 import { SheetDrill, csvCell, type SheetDrillTarget } from './sheet-drill';
+// v2.244.0 THE AISLE'S ECHO — the band's one home: the four houses and
+// their voices moved to the lib (the drill + the branch face wear the
+// aisle's own band chip this round, and the anti-duplication law allows
+// exactly one home). The call sites below stay byte-identical.
+import { bandHouse, chipLabel, daysVoice } from '@/lib/cadence-band';
 import {
   num, timeAgo,
   parseSheetLineage, LineageChip,
@@ -571,21 +576,9 @@ export function VarianceMap({ data, stores, canGovern = false, onLawSaved, onToa
                 </p>
               );
             }
-            const bandHouse = (band: 'fresh' | 'stale' | 'beyond' | 'never') => {
-              if (band === 'fresh') return { chip: 'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/30', rail: 'bg-emerald-500', bar: 'bg-emerald-500' };
-              if (band === 'stale') return { chip: 'bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/30', rail: 'bg-amber-500', bar: 'bg-amber-500' };
-              if (band === 'beyond') return { chip: 'bg-orange-50 text-orange-700 ring-orange-200 dark:bg-orange-500/10 dark:text-orange-300 dark:ring-orange-500/30', rail: 'bg-orange-500', bar: 'bg-orange-400' };
-              return { chip: 'bg-slate-100 text-slate-600 ring-slate-200 dark:bg-slate-500/10 dark:text-slate-300 dark:ring-slate-500/30', rail: 'bg-slate-300 dark:bg-slate-600', bar: null };
-            };
-            const daysVoice = (c: { band: 'fresh' | 'stale' | 'beyond' | 'never'; daysSince: number | null }) => {
-              if (c.band === 'never') return 'never heard';
-              if (c.band === 'beyond') return 'last heard beyond the window';
-              if (c.daysSince == null) return '—';
-              if (c.daysSince === 0) return 'counted today';
-              if (c.daysSince === 1) return '1 day ago';
-              return `${c.daysSince} days ago`;
-            };
-            const chipLabel = (band: string) => band === 'never' ? 'never' : band;
+            // v2.244.0: bandHouse / daysVoice / chipLabel live in
+            // @/lib/cadence-band now — one home, the same classes, the
+            // call sites below unchanged.
             return (
               <div data-testid="cadence-block">
                 <div className="flex flex-wrap items-center justify-between gap-2">

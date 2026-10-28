@@ -12,6 +12,8 @@ import { db } from '@/lib/db';
 import { withErrorBoundary } from '@/lib/logger';
 import { requireStoreAccess, type AuthSession } from '@/lib/auth';
 import { hasFeaturePermission } from '@/lib/permissions';
+import { readCadenceLaw } from '@/lib/cadence-law';
+import { readCategoryBand, type CadenceBand } from '@/lib/cadence-band';
 
 export const dynamic = 'force-dynamic';
 
@@ -103,6 +105,21 @@ async function getStockTakeHandler(_request: NextRequest, session: AuthSession, 
     0,
   );
 
+  // v2.244.0 THE AISLE'S ECHO — the aisle's own cadence band rides the
+  // branch face too: WHERE the door opened (v2.242.0) now says WHEN its
+  // aisle was last heard. THE READ CLASS: two bounded reads, only for
+  // an aisle-born sheet — the stored law (two keyed rows) and the ONE
+  // latest CLOSED line touching the aisle (readCategoryBand, the map's
+  // own band semantics, single-category). The fallback law: a read that
+  // fails returns null and the face wears the name-only echo (the
+  // v2.242.0 face, byte-identical) — never a guessed house, never a
+  // thrown request.
+  let aisleBand: { band: CadenceBand; daysSince: number | null } | null = null;
+  if (sheet.walkCategoryId) {
+    const law = await readCadenceLaw(db);
+    aisleBand = await readCategoryBand(db, sheet.walkCategoryId, law, new Date());
+  }
+
   return Response.json({
     success: true,
     data: {
@@ -123,6 +140,12 @@ async function getStockTakeHandler(_request: NextRequest, session: AuthSession, 
       // v2.242.0 THE AISLE'S ECHO — WHERE the door opened (the aisle's
       // own name, additive; null when the birth named no aisle).
       walkAisle: sheet.walkAisle?.name ?? null,
+      // v2.244.0 THE AISLE'S ECHO — the aisle's own cadence band + the
+      // days voice (additive + optional; null when the birth named no
+      // aisle or the band read fell back — the face wears the silence,
+      // never a guessed house).
+      walkAisleBand: aisleBand?.band ?? null,
+      walkAisleDaysSince: aisleBand?.daysSince ?? null,
       // v2.234.0 THE VERDICT — additive (null when no child exists).
       recountedBy,
       startedAt: sheet.startedAt,

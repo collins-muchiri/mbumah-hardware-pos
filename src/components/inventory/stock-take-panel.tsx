@@ -67,6 +67,7 @@ import { Input } from '@/components/ui/input';
 import { ClipboardCheck, DoorOpen, Download, FolderTree, History, Loader2, Printer, RotateCcw, Search, X } from 'lucide-react';
 import { authorizedFetchJson } from '@/lib/api';
 import { num, parseSheetLineage, LineageChip } from '@/components/org/primitives';
+import { bandHouse, chipLabel, daysVoice } from '@/lib/cadence-band';
 // v2.229.0: the CSV law's one voice — the SAME pure builders the org
 // drill exports (csvCell's quoting, sheetLinesCsv's BOM + CRLF + the
 // cost-gated empty). Imported, never re-invented: the file a branch
@@ -113,6 +114,12 @@ type SheetDetail = {
   // opened (the aisle's own name, the wire's truth). An older cached
   // wire or an aisle-less birth renders the silent absence.
   walkAisle?: string | null;
+  // v2.244.0 THE AISLE'S ECHO: the aisle's own cadence band + the days
+  // voice (additive + optional — null when the birth named no aisle or
+  // the band read fell back; the face wears the name-only echo, never a
+  // guessed house).
+  walkAisleBand?: 'fresh' | 'stale' | 'beyond' | 'never' | null;
+  walkAisleDaysSince?: number | null;
   // v2.234.0 THE VERDICT — the lineage backwards (optional in the type;
   // the honest absence: null = no child, no verdict).
   recountedBy?: { id: string; status: string; closedAt: string | null; varianceUnits: number | null } | null;
@@ -630,6 +637,24 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                     >
                       <DoorOpen className="h-2.5 w-2.5" aria-hidden="true" />
                       the walk order named {detail.walkAisle}
+                    </span>
+                  )}
+                  {/* v2.244.0 THE AISLE'S ECHO — the aisle's own cadence
+                      chip on the branch face too: the same band houses
+                      the map speaks (one home — the lib), the days voice
+                      on the title, tabular-nums on the figure. A sibling
+                      span, never a rewrite of the name chip (the
+                      v2.242.0 law); absent when the wire carried no band
+                      (an aisle-less birth, an older cached answer, a
+                      fallen-back read) — the silence is the honest
+                      state. */}
+                  {detail.origin === 'walk-door' && detail.walkAisle && detail.walkAisleBand && (
+                    <span
+                      data-testid="stocktake-sheet-origin-aisle-band"
+                      title={`the aisle's own cadence — ${daysVoice({ band: detail.walkAisleBand, daysSince: detail.walkAisleDaysSince ?? null })}`}
+                      className={`inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide ring-1 tabular-nums ${bandHouse(detail.walkAisleBand).chip}`}
+                    >
+                      {chipLabel(detail.walkAisleBand)}
                     </span>
                   )}
                   <span className="text-[10px] text-slate-500 dark:text-slate-400">
