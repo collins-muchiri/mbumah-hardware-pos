@@ -395,10 +395,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.235.0: the cadence entry joins the feed (+1 on every anchor → 126/127/128/159)
     // v2.236.0: the teeth entry joins the feed (+1 on every anchor → 127/128/129/160)
     // v2.237.0: the walk's-door entry joins the feed (+1 on every anchor → 128/129/130/161)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(128);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(129);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(130);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(161);
+    // v2.238.0: the door's-census entry joins the feed (+1 on every anchor → 129/130/131/162)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(129);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(130);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(131);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(162);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 

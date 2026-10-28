@@ -25,9 +25,9 @@
 // • the panel-owns-its-dark-half law: dark halves from birth; the muted
 //   family (slate-500 / dark:slate-400) carries every sub-line.
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ClipboardCheck, ChevronRight, Download, History } from 'lucide-react';
+import { ClipboardCheck, ChevronDown, ChevronRight, Download, History } from 'lucide-react';
 import { ADMIN_CURRENCY_RATES_QUERY_KEY, RATE_SOURCE_PHRASE, type RatesWireBody } from '@/components/currency-switcher';
 import { useCurrency } from '@/hooks/use-currency';
 import { CURRENCY_BY_CODE, formatCurrency } from '@/lib/currency-utils';
@@ -86,6 +86,25 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
   // clicking it opens the sheet's lines org-side (the ONE deliberate
   // fetch the map itself never makes; the DRILL owns it).
   const [drill, setDrill] = useState<SheetDrillTarget>(null);
+
+  // v2.238.0 THE COVERAGE BREAKDOWN — per-branch coverage, derived from
+  // the cadence rows the payload already carries (zero new reads: the
+  // rows the map renders ARE the rows the breakdown speaks). Least
+  // heard first — the org's silent branches lead the list, the walk
+  // order's own spirit. Derived, never an effect.
+  const [coverageOpen, setCoverageOpen] = useState(false);
+  const coverageByStore = useMemo(() => {
+    const cad = block?.cadence;
+    if (!cad) return [];
+    const byStore = new Map<string, { storeId: string; name: string; heard: number; total: number }>();
+    for (const c of cad.categories) {
+      const e = byStore.get(c.storeId) ?? { storeId: c.storeId, name: c.storeName, heard: 0, total: 0 };
+      e.total += 1;
+      if (c.band === 'fresh' || c.band === 'stale') e.heard += 1;
+      byStore.set(c.storeId, e);
+    }
+    return [...byStore.values()].sort((a, b) => (a.heard / a.total) - (b.heard / b.total) || b.total - a.total);
+  }, [block]);
 
   // THE FIFTH CONSUMER of the indicative wire — the same pure OBSERVER
   // the debt/revenue/desk/restock strips speak: a cache watcher that
@@ -205,7 +224,26 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
                   : `${heard} of ${total} shelves heard`;
               return (
                 <div data-testid="variance-map-coverage" className="rounded-xl border border-slate-100 p-3 dark:border-slate-700">
-                  <p className="text-[10px] uppercase tracking-wide text-slate-500 dark:text-slate-400">Heard · 30d</p>
+                  {/* v2.238.0: the tile learns to OPEN — the label is a
+                      toggle when the cadence speaks (a stale payload has
+                      nothing to break down, and the plain label stays).
+                      The breakdown renders beneath the window row: the
+                      org's silent branches lead, one bar per branch. */}
+                  {cad ? (
+                    <button
+                      type="button"
+                      data-testid="coverage-breakdown-toggle"
+                      aria-expanded={coverageOpen}
+                      onClick={() => setCoverageOpen((v) => !v)}
+                      title="which branches the window actually heard"
+                      className="flex w-full items-center justify-between gap-1 text-[10px] uppercase tracking-wide text-slate-500 transition-colors hover:text-slate-700 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-amber-500 dark:text-slate-400 dark:hover:text-slate-200"
+                    >
+                      Heard · 30d
+                      <ChevronDown className={`h-3 w-3 transition-transform ${coverageOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
+                    </button>
+                  ) : (
+                    <p className="text-[10px] uppercase tracking-wide text-slate-500 dark:text-slate-400">Heard · 30d</p>
+                  )}
                   <p className="text-sm font-bold tabular-nums text-slate-800 dark:text-slate-100">
                     {pct != null ? `${pct}%` : '—'}
                   </p>
@@ -226,6 +264,35 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
             })()}
           </div>
 
+          {/* ── v2.238.0 THE COVERAGE BREAKDOWN — the tile's room ─────────── */}
+          {/* The org share on the tile becomes doors into the branch
+              truth: one bar per branch, the silent shelves leading.
+              Derived from the cadence rows the payload already carries —
+              zero new reads, the same numbers the tile speaks. */}
+          {coverageOpen && coverageByStore.length > 0 && (
+            <div data-testid="coverage-breakdown" className="rounded-xl border border-slate-200 bg-white/70 p-3 dark:border-slate-700 dark:bg-slate-800/60">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">The breakdown — branch by branch</p>
+              <p className="mt-0.5 text-[10px] text-slate-500 dark:text-slate-400">the silent shelves lead — each branch&apos;s share of aisles the 30-day window heard.</p>
+              <ul className="mt-2 space-y-1.5">
+                {coverageByStore.map((s) => {
+                  const pct = s.total > 0 ? Math.round((s.heard / s.total) * 100) : 0;
+                  return (
+                    <li key={s.storeId} data-testid={`coverage-row-${s.storeId}`} aria-label={`${s.name}: ${s.heard} of ${s.total} shelves heard in the 30-day window.`} className="flex items-center gap-2">
+                      <span className="w-32 shrink-0 truncate text-[11px] font-medium text-slate-700 dark:text-slate-200">{s.name}</span>
+                      <div
+                        className="h-1 flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700"
+                        role="img"
+                        aria-label={`${s.name}: ${pct}% heard`}
+                      >
+                        <span className="block h-full rounded-full bg-emerald-500" style={{ width: `${pct}%` }} />
+                      </div>
+                      <span className="shrink-0 text-[9px] tabular-nums text-slate-500 dark:text-slate-400">{s.heard}/{s.total}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
           {/* THE FIFTH CONSUMER — the indicative strip on the org's ledger
               impact. Same visual family, same three-part voice, same
               silence law as the debt/revenue/desk/restock strips. */}
@@ -465,6 +532,18 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
                 <p className="mt-0.5 text-[10px] text-slate-500 dark:text-slate-400">
                   when each shelf was last heard — the walk order for the floor, blind spots first.
                 </p>
+                {/* v2.238.0 THE DOOR'S CENSUS — the wire counts the
+                    window's door-born sheets (origin='walk-door', the
+                    allowlisted value). Births, not closes. The census
+                    speaks its zero honestly: a face may say nothing
+                    happened; only a CONTROL must hide. An older cached
+                    answer that predates the field renders the silent
+                    absence (the type check, never an assumption). */}
+                {typeof block.doorBorn30d === 'number' && (
+                  <p data-testid="cadence-door-census" className="mt-1 text-[10px] tabular-nums text-slate-500 dark:text-slate-400">
+                    {block.doorBorn30d === 1 ? '1 sheet' : `${block.doorBorn30d} sheets`} this window started at a walk door — the org face pointed, the floor answered.
+                  </p>
+                )}
                 <ul className="mt-1.5 space-y-1.5">
                   {cadence.categories.map((c) => {
                     const house = bandHouse(c.band);

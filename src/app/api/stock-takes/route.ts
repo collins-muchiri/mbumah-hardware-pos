@@ -80,6 +80,14 @@ async function createStockTakeHandler(request: NextRequest, session: AuthSession
     return Response.json({ success: false, error: 'storeId is required.' }, { status: 400 });
   }
   const notes = typeof body?.notes === 'string' && body.notes.trim() ? body.notes.trim().slice(0, 500) : null;
+  // v2.238.0 THE DOOR'S CENSUS — how the sheet was born. THE ALLOWLIST
+  // LAW: the wire stores exactly ONE origin value ('walk-door', the
+  // org cadence's anchor doors); anything else — a forged string, a
+  // stale client, a future caller — reads as a hand-raised sheet. A
+  // free-text origin would be a census anyone could edit; a closed
+  // vocabulary is a census the ledger can trust.
+  const SHEET_ORIGIN_ALLOWLIST = ['walk-door'] as const;
+  const origin = SHEET_ORIGIN_ALLOWLIST.includes(body?.origin) ? body.origin : null;
   const productIds = Array.isArray(body?.productIds)
     ? body.productIds.filter((v: unknown): v is string => typeof v === 'string' && v.length > 0)
     : null;
@@ -135,7 +143,7 @@ async function createStockTakeHandler(request: NextRequest, session: AuthSession
   // moving number).
   const sheet = await db.$transaction(async (tx) => {
     const created = await tx.stockTake.create({
-      data: { storeId, status: 'COUNTING', notes, startedById: session.userId },
+      data: { storeId, status: 'COUNTING', notes, startedById: session.userId, origin },
     });
     const products = await tx.product.findMany({
       where: { storeId, isActive: true, id: { in: population.map((p) => p.id) } },

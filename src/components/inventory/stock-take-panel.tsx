@@ -214,6 +214,12 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
   const [doorParam] = useState(() => (typeof window === 'undefined' ? '' : new URLSearchParams(window.location.search).get('countSheet') ?? ''));
   const doorConsumed = useRef(false);
   const [doorVoice, setDoorVoice] = useState<string | null>(null);
+  // v2.238.0 THE DOOR'S CENSUS — the sheet remembers HOW it was born.
+  // doorBorn rides the SAME life as the whisper (set by the door's
+  // consume, silenced by the user's own hand): only a sheet whose AISLE
+  // the door actually aimed counts in the census — a hand-diverted
+  // drawer is a hand-raised sheet, and the ledger never guesses.
+  const [doorBorn, setDoorBorn] = useState(false);
   // v2.220.0: the cancel flow — armed two-step (the same intent law a
   // destructive action owes), with an optional reason the sheet keeps.
   const [cancelArmed, setCancelArmed] = useState(false);
@@ -292,6 +298,7 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
           setCreateCategoryId(hit.id);
           setCreateOpen(true);
           setDoorVoice(`${hit.name} · ${hit.cadence ? pickDaysVoice(hit.cadence) : 'the aisle waits'}`);
+          setDoorBorn(true);
         } else {
           // A foreign id never pre-arms: the door quietly returns the
           // face to its own state — the picker never lies.
@@ -328,6 +335,10 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
           storeId,
           ...(createNotes.trim() ? { notes: createNotes.trim() } : {}),
           ...(createScope === 'category' && createCategoryId ? { categoryId: createCategoryId } : {}),
+          // v2.238.0 THE DOOR'S CENSUS — the sheet carries its birth only
+          // when the DOOR aimed it (the allowlisted origin; the wire
+          // stores 'walk-door' or nothing at all).
+          ...(doorBorn ? { origin: 'walk-door' } : {}),
         }),
       });
       if (!res.ok || !res.json?.success) throw new Error(res.json?.error ?? `the sheet was refused (${res.status})`);
@@ -339,6 +350,8 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
       setCreateOpen(false);
       setCreateScope('full');
       setCreateCategoryId('');
+      setDoorBorn(false);
+      setDoorVoice(null);
       invalidateSheets();
       setNeedle('');
       setCategoryNeedle('all');
@@ -1121,7 +1134,7 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                     type="button"
                     data-testid="stocktake-scope-full"
                     aria-pressed={createScope === 'full'}
-                    onClick={() => { setCreateScope('full'); setDoorVoice(null); }}
+                    onClick={() => { setCreateScope('full'); setDoorVoice(null); setDoorBorn(false); }}
                     className={`rounded px-2 py-1 text-[10px] font-semibold ring-1 ${createScope === 'full' ? 'bg-amber-700 text-white ring-amber-700 dark:bg-amber-600 dark:ring-amber-600' : 'bg-white text-slate-600 ring-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-600'}`}
                   >
                     Every active product
@@ -1130,7 +1143,7 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                     type="button"
                     data-testid="stocktake-scope-category"
                     aria-pressed={createScope === 'category'}
-                    onClick={() => { setCreateScope('category'); setDoorVoice(null); }}
+                    onClick={() => { setCreateScope('category'); setDoorVoice(null); setDoorBorn(false); }}
                     className={`inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-semibold ring-1 ${createScope === 'category' ? 'bg-amber-700 text-white ring-amber-700 dark:bg-amber-600 dark:ring-amber-600' : 'bg-white text-slate-600 ring-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-600'}`}
                   >
                     <FolderTree className="h-3 w-3" /> One category
@@ -1153,7 +1166,7 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                     <select
                       data-testid="stocktake-create-category"
                       value={createCategoryId}
-                      onChange={(e) => { setCreateCategoryId(e.target.value); setDoorVoice(null); }}
+                      onChange={(e) => { setCreateCategoryId(e.target.value); setDoorVoice(null); setDoorBorn(false); }}
                       aria-label="Count sheet category"
                       className="h-7 w-full rounded border border-slate-200 bg-white px-1.5 text-xs text-slate-700 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
                     >

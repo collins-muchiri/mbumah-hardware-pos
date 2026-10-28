@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.238.0',
+    title: 'The door\u2019s census',
+    bullets: [
+      'The walk\u2019s doors can now be counted: a sheet born at a door carries its birth (origin \u201cwalk-door\u201d, the only value the wire allows), and the cadence speaks the window\u2019s census \u2014 \u201cN sheets this window started at a walk door.\u201d',
+      'The coverage tile opens: one bar per branch, the silent shelves leading \u2014 which yards the 30-day window actually heard.',
+      'Hand-raised sheets carry no origin at all \u2014 the census counts doors, never guesses.',
+    ],
+  },
+  {
     version: '2.237.0',
     title: 'The walk\u2019s door',
     bullets: [

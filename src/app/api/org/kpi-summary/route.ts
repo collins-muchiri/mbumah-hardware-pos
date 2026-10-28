@@ -397,6 +397,15 @@ async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Pr
       select: { id: true, closedAt: true },
     });
     const closed30dIds = closed30dRows.map((s) => s.id);
+    // v2.238.0 THE DOOR'S CENSUS — how many of the window's sheets were
+    // BORN at a walk door (origin='walk-door', the one allowlisted value
+    // the create wire stores). Births, not closes: a counting door-born
+    // sheet is still a walk answered. One bounded count; the field rides
+    // the block additively — an older cached answer renders the silent
+    // absence (the face checks the type, never assumes).
+    const doorBorn30d = await rawDb.stockTake.count({
+      where: { origin: 'walk-door', startedAt: { gte: windowStart } },
+    });
     const windowAgg = closed30dIds.length
       ? await rawDb.stockTakeLine.aggregate({
           where: { stockTakeId: { in: closed30dIds }, variance: { not: null } },
@@ -584,6 +593,9 @@ async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Pr
         varianceUnits: windowUnits,
         varianceCostTotal: canViewCost ? windowCost : null,
       },
+      // v2.238.0 the door's census: additive + always present (births in
+      // the window whose origin the create wire allowed).
+      doorBorn30d,
       // v2.235.0 the cadence: additive + always present (the block reads
       // the catalog, not the caller's gate — every org role hears WHEN a
       // shelf was last heard; no cost field crosses this wire).

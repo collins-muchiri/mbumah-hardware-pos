@@ -174,6 +174,11 @@ export interface KpiSummaryData {
       varianceUnits: number | null; varianceCost: number | null;
     }>;
     window30d: { closedCount: number; varianceUnits: number; varianceCostTotal: number | null };
+    // v2.238.0 the door's census: additive + optional so an older cached
+    // answer renders the silent absence — how many of the window's
+    // sheets were BORN at a walk door (the create wire's allowlisted
+    // origin; births, not closes).
+    doorBorn30d?: number;
     // v2.235.0 the cadence: additive + optional so an older cached answer
     // renders the honest step-aside, never a crash. WHEN each shelf (branch
     // category) was last heard — the four bands and the walk order the
