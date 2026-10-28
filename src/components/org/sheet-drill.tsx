@@ -151,6 +151,10 @@ interface DrillWire {
     // 'walk-door' or nothing). An older cached wire renders the silent
     // absence (the face checks the value, never assumes).
     origin?: string | null;
+    // v2.242.0 THE AISLE'S ECHO: additive + optional — WHERE the door
+    // opened (the aisle's own name, the wire's truth). An older cached
+    // wire or an aisle-less birth renders the silent absence.
+    walkAisle?: string | null;
     // v2.234.0 THE VERDICT — the lineage backwards: when a LATER sheet
     // was spawned from this one (the notes signature), the wire names
     // it and, once that child CLOSED, its variance units. Optional in
@@ -324,6 +328,23 @@ export function SheetDrill({ target, onClose, onOpenSheet }: { target: SheetDril
                 >
                   <DoorOpen className="h-2.5 w-2.5" aria-hidden="true" />
                   born at a walk door
+                </span>
+              )}
+              {/* v2.242.0 THE AISLE'S ECHO — the drill names WHERE the door
+                  opened: the aisle's own name rides the wire, the chip
+                  speaks it in the door's violet house (tabular-nums never
+                  needed — a name, not a figure). The echo is a sibling
+                  span, never a rewrite of the birth chip: the chip's law
+                  ('walk-door' or nothing) stays byte-identical, and an
+                  aisle-less birth wears no echo (the silence is honest). */}
+              {data?.origin === 'walk-door' && data?.walkAisle && (
+                <span
+                  data-testid="sheet-drill-origin-aisle"
+                  title="the walk order named this aisle — the census knows where the door opened"
+                  className="inline-flex items-center gap-1 rounded bg-violet-50 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-violet-700 ring-1 ring-violet-200 dark:bg-violet-500/10 dark:text-violet-300 dark:ring-violet-500/30"
+                >
+                  <DoorOpen className="h-2.5 w-2.5" aria-hidden="true" />
+                  the walk order named {data.walkAisle}
                 </span>
               )}
               <span className="truncate text-xs font-medium text-slate-700 dark:text-slate-200">{target.storeName}</span>

@@ -97,6 +97,25 @@ async function createStockTakeHandler(request: NextRequest, session: AuthSession
   // cross-store leak).
   const categoryId = typeof body?.categoryId === 'string' && body.categoryId.length > 0 ? body.categoryId : null;
 
+  // v2.242.0 THE AISLE'S ANSWER — WHERE the door opened. THE AISLE LAW:
+  // the aisle rides ONLY when the sheet was born at a walk door AND the
+  // birth named one category — the walk order's address, never a shelf
+  // the caller claims after the fact. A hand-raised sheet carries NO
+  // aisle even when it names a category (the census counts doors that
+  // named aisles, never shelves), and a door-born sheet whose floor
+  // flipped to the full sheet speaks no aisle (the birth sent none).
+  // THE GHOST LAW: the id is resolved server-side against THIS store —
+  // a dead or cross-store category reads as no aisle, so the census can
+  // never speak an aisle that does not exist.
+  let walkCategoryId: string | null = null;
+  if (origin === 'walk-door' && categoryId) {
+    const aisle = await db.productCategory.findUnique({
+      where: { id: categoryId },
+      select: { storeId: true },
+    });
+    if (aisle && aisle.storeId === storeId) walkCategoryId = categoryId;
+  }
+
   // THE ONE-OPEN-SHEET LAW: a COUNTING sheet on this store refuses a
   // second (the floor can only count against one frozen snapshot).
   const openSheet = await db.stockTake.findFirst({
@@ -140,10 +159,11 @@ async function createStockTakeHandler(request: NextRequest, session: AuthSession
 
   // The snapshot is taken INSIDE the transaction (one coherent moment —
   // a sheet whose lines read different moments would count against a
-  // moving number).
+  // moving number). v2.242.0: the aisle rides the birth (the walk
+  // order's address — the census's WHERE, validated above).
   const sheet = await db.$transaction(async (tx) => {
     const created = await tx.stockTake.create({
-      data: { storeId, status: 'COUNTING', notes, startedById: session.userId, origin },
+      data: { storeId, status: 'COUNTING', notes, startedById: session.userId, origin, walkCategoryId },
     });
     const products = await tx.product.findMany({
       where: { storeId, isActive: true, id: { in: population.map((p) => p.id) } },

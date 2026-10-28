@@ -307,6 +307,10 @@ model ProductCategory {
   store         Store         @relation(fields: [storeId], references: [id], onDelete: Cascade)
   products      Product[]
   subcategories SubCategory[]
+  // v2.242.0 the aisle's answer: the sheets whose walk DOOR opened onto
+  // this aisle (optional SetNull on the sheet's side — a deleted aisle
+  // never strands a sheet).
+  walkDoorSheets StockTake[]
 
   @@index([storeId])
   @@map("product_categories")
@@ -463,10 +467,20 @@ model StockTake {
   // 'walk-door'); a hand-raised sheet carries no origin at all — the
   // census counts doors, never guesses.
   origin      String?
+  // v2.242.0 THE AISLE'S ANSWER — WHERE the door opened. The aisle the
+  // DOOR named (the walk order's address), stored ONLY when the sheet
+  // was born at a walk door AND the birth named one category, resolved
+  // server-side against this store (a dead or cross-store id reads as
+  // no aisle — the census never guesses). A deleted aisle nulls the
+  // column (optional relation, SetNull) — the census never speaks
+  // ghosts. A hand-raised sheet carries no aisle even when it names a
+  // category: the census counts doors that named aisles, never shelves.
+  walkCategoryId String?
   updatedAt   DateTime  @updatedAt
 
   store     Store            @relation(fields: [storeId], references: [id])
   lines     StockTakeLine[]
+  walkAisle ProductCategory? @relation(fields: [walkCategoryId], references: [id], onDelete: SetNull)
   startedBy User?            @relation("StockTakeStartedBy", fields: [startedById], references: [id])
   closedBy  User?            @relation("StockTakeClosedBy", fields: [closedById], references: [id])
 

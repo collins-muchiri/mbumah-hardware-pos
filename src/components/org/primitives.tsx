@@ -193,6 +193,12 @@ export interface KpiSummaryData {
     // the field renders the silent absence (the face checks the field,
     // never assumes).
     doorBornByStore?: Array<{ storeId: string; doorBorn: number }>;
+    // v2.242.0 the aisle's answer: additive + optional — WHERE the doors
+    // opened (the top 3, the census is a headline). An aisle ABSENT from
+    // the array opened no door; an older cached answer predating the
+    // field renders the silent absence (the face checks the field,
+    // never assumes).
+    doorBornByAisle?: Array<{ categoryId: string; name: string; doorBorn: number }>;
     // v2.235.0 the cadence: additive + optional so an older cached answer
     // renders the honest step-aside, never a crash. WHEN each shelf (branch
     // category) was last heard — the four bands and the walk order the

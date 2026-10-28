@@ -45,6 +45,10 @@ async function getStockTakeHandler(_request: NextRequest, session: AuthSession, 
       },
       startedBy: { select: { name: true } },
       closedBy: { select: { name: true } },
+      // v2.242.0 THE AISLE'S ECHO — the door's aisle name rides the detail
+      // (one join the sheet already holds a column for; a hand-raised or
+      // aisle-less sheet reads null — the echo speaks only the truth).
+      walkAisle: { select: { name: true } },
       // v2.229.0 THE BRANCH WALK: the paper names its branch. The sheet's
       // own store rides the detail wire (id/name/code — the drill's org
       // wire speaks the same shape), so the branch face's print act lays
@@ -116,6 +120,9 @@ async function getStockTakeHandler(_request: NextRequest, session: AuthSession, 
       // The branch face wears the same violet birth chip the org drill
       // speaks — one family, both sides of the glass.
       origin: sheet.origin,
+      // v2.242.0 THE AISLE'S ECHO — WHERE the door opened (the aisle's
+      // own name, additive; null when the birth named no aisle).
+      walkAisle: sheet.walkAisle?.name ?? null,
       // v2.234.0 THE VERDICT — additive (null when no child exists).
       recountedBy,
       startedAt: sheet.startedAt,

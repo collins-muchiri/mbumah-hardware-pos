@@ -436,6 +436,35 @@ async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Pr
       storeId: g.storeId,
       doorBorn: g._count._all,
     }));
+    // v2.242.0 THE AISLE'S ANSWER — the census learns WHERE the doors
+    // opened. One grouped read over the SAME window births (the census's
+    // own where-shape, aisle-named only), one row per aisle a door named;
+    // the names ride ONE catalog read (the ids bounded by the group) and
+    // the face speaks the TOP 3 — the census is a headline, not a ledger.
+    // Additive + always present alongside doorBorn30d; an older cached
+    // answer renders the silent absence (the face checks the field,
+    // never assumes). A deleted aisle nulls its sheets' column (SetNull)
+    // — the census never speaks ghosts.
+    const doorBornByAisleGroups = await rawDb.stockTake.groupBy({
+      by: ['walkCategoryId'],
+      where: { origin: 'walk-door', startedAt: { gte: windowStart }, walkCategoryId: { not: null } },
+      _count: { _all: true },
+    });
+    const aisleIds = doorBornByAisleGroups
+      .map((g) => g.walkCategoryId)
+      .filter((v): v is string => typeof v === 'string' && v.length > 0);
+    const aisleRows = aisleIds.length
+      ? await rawDb.productCategory.findMany({ where: { id: { in: aisleIds } }, select: { id: true, name: true } })
+      : [];
+    const aisleNames = new Map(aisleRows.map((c) => [c.id, c.name]));
+    const doorBornByAisle = doorBornByAisleGroups
+      .map((g) => ({
+        categoryId: g.walkCategoryId as string,
+        name: aisleNames.get(g.walkCategoryId as string) ?? 'a named aisle',
+        doorBorn: g._count._all,
+      }))
+      .sort((a, b) => b.doorBorn - a.doorBorn)
+      .slice(0, 3);
     const windowAgg = closed30dIds.length
       ? await rawDb.stockTakeLine.aggregate({
           where: { stockTakeId: { in: closed30dIds }, variance: { not: null } },
@@ -638,6 +667,11 @@ async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Pr
       // census per branch. A store absent from the array answered
       // nothing; the face renders the silence as the honest zero.
       doorBornByStore,
+      // v2.242.0 the aisle's answer: additive + always present — WHERE
+      // the doors opened (top 3, the census is a headline). An aisle
+      // absent from the array opened no door; an older cached answer
+      // renders the silent absence.
+      doorBornByAisle,
       // v2.235.0 the cadence: additive + always present (the block reads
       // the catalog, not the caller's gate — every org role hears WHEN a
       // shelf was last heard; no cost field crosses this wire).

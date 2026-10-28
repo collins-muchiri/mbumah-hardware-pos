@@ -661,6 +661,55 @@ export function VarianceMap({ data, stores, canGovern = false, onLawSaved, onToa
                     </span>
                   </p>
                 )}
+                {/* v2.242.0 THE AISLE'S ANSWER — the census learns WHERE
+                    the doors opened: the top aisles the walk order pointed
+                    at, one violet row each (the door's own house), the
+                    share bar speaking the row's slice of the window's
+                    births. THE SILENCE LAW: an aisle absent from the array
+                    opened no door — the face renders nothing new (the
+                    census line above already spoke the count); an older
+                    cached answer predating the field renders the silent
+                    absence (the type check, never an assumption). A
+                    DELETED aisle nulls its sheets' column (SetNull) — the
+                    census never speaks ghosts. The face is READ-ONLY: the
+                    aisle's answer is the census speaking, never a control. */}
+                {Array.isArray(block.doorBornByAisle) && block.doorBornByAisle.length > 0 && (
+                  <div data-testid="cadence-door-aisles" className="mt-1.5 rounded-lg border border-violet-100 bg-violet-50/40 px-2 py-1.5 dark:border-violet-500/20 dark:bg-violet-500/10">
+                    <p className="flex items-center gap-1 text-[9px] font-semibold uppercase tracking-wide text-violet-600 dark:text-violet-300">
+                      <DoorOpen className="h-2.5 w-2.5" aria-hidden="true" />
+                      the aisles the doors opened onto
+                    </p>
+                    <ul className="mt-1 space-y-1">
+                      {block.doorBornByAisle.map((a) => {
+                        const total = block.doorBorn30d ?? 0;
+                        const sharePct = total > 0 ? Math.round((a.doorBorn / total) * 100) : 100;
+                        const share = Math.max(8, sharePct);
+                        const voice = a.doorBorn === 1 ? '1 sheet born here' : `${a.doorBorn} sheets born here`;
+                        return (
+                          <li
+                            key={a.categoryId}
+                            data-testid={`cadence-door-aisle-${a.categoryId}`}
+                            aria-label={`${a.name}: ${voice} this window.`}
+                            title="the walk order pointed here — the floor answered through this aisle"
+                            className="rounded border border-violet-100 bg-white/70 px-1.5 py-1 dark:border-violet-500/20 dark:bg-slate-800/60"
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="truncate text-[10px] font-medium text-violet-700 dark:text-violet-200">{a.name}</span>
+                              <span className="shrink-0 text-[9px] tabular-nums text-violet-600 dark:text-violet-300">{voice}</span>
+                            </div>
+                            <div
+                              className="mt-0.5 h-0.5 overflow-hidden rounded-full bg-violet-100 dark:bg-violet-500/20"
+                              role="img"
+                              aria-label={`${a.name}: ${sharePct} percent of this window's door births`}
+                            >
+                              <span className="block h-full rounded-full bg-violet-400 transition-[width] duration-500 dark:bg-violet-400/80" style={{ width: `${share}%` }} />
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                )}
                 {/* v2.241.0 THE WALK'S LAW — the thresholds stop being
                     constants and become the org's own: the face NAMES the
                     pair (the wire's own numbers, tabular-nums), and the

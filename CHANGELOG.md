@@ -2,6 +2,18 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.242.0] The aisle's answer
+
+The census has counted HOW MANY sheets were born at a walk door since v2.238.0, and per branch since v2.239.0 — this round it learns WHERE: the walk order pointed at an aisle, and now the census names the aisles the doors actually opened onto. The door arc's final altitude: the point, the floor, the yard, and now the aisle — one violet family, five altitudes.
+
+### Added
+- **The aisle's answer** (`POST /api/stock-takes` + `prisma/schema.prisma`): a door-born sheet remembers the aisle its walk order named. `StockTake.walkCategoryId` (nullable, additive; migration `20261028230000_add_stock_take_walk_category`) rides ONLY when the sheet was born at a walk door AND the birth named one category — THE AISLE LAW: a hand-raised sheet carries no aisle even when it names a category (the census counts doors that named aisles, never shelves), and a door-born sheet whose floor flipped to the full sheet speaks no aisle (the birth sent none). THE GHOST LAW: the id is resolved server-side against THIS store — a dead or cross-store category reads as no aisle — and a deleted aisle nulls its sheets' column (optional relation, SetNull): the census never speaks ghosts.
+- **The census per aisle** (`GET /api/org/kpi-summary`): one grouped read over the SAME window births the headline already speaks (aisle-named only), names via ONE catalog read (ids bounded by the group), and the face speaks the TOP 3 — the census is a headline, not a ledger. `doorBornByAisle` rides the payload additively (an older cached answer renders the silent absence).
+- **The aisle's echo** (`GET /api/stock-takes/[id]` + `GET /api/org/stock-takes/[id]`): the detail wires grow the door's aisle name (`walkAisle` — the aisle's own name, additive; null when the birth named no aisle), and both faces speak it beside the birth chip.
+
+### Styled
+- **The aisle rows** (`src/components/org/variance-map.tsx`, `data-testid="cadence-door-aisles"`): the aisles the doors opened onto wear the door's violet house — a bordered block under the census line, one row per aisle (`cadence-door-aisle-{categoryId}`, aria-label speaking the aisle + its births), the aisle's name in violet, the count in `tabular-nums` ("1 sheet born here" / "N sheets born here"), and a slim share bar (`role="img"`, aria speaking the percent of the window's door births) with the same width transition the map's other bars wear. Dark halves from birth on every element; the echo chips (`sheet-drill-origin-aisle`, `stocktake-sheet-origin-aisle`) wear the exact violet family the birth chips speak — sibling spans, never rewrites (the chip law stays byte-identical).
+
 ## [2.241.0] The walk's law
 
 The cadence has spoken the same pair since v2.235.0 — 7 fresh days, a 30-day window — but it spoke them as CONSTANTS, duplicated across two wires. This round the pair becomes the org's own: the owner writes the law once, and every voice that names a threshold (the org map's cadence block, the window figures, the coverage breakdown, the branch picker's teeth) reads the SAME stored pair. The law changes on the record, or not at all.
