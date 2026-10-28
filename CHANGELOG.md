@@ -2,6 +2,19 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.237.0] The walk
+
+The teeth's follow-through: the sheet itself now walks blind spots first. The cadence pointed (the map says WHEN), the picker listened (v2.236.0 says which aisles are stale) — this round the SHEET'S OWN LINES walk in the cadence's order: the uncounted pool reads never → beyond → stale → fresh, most neglected first, so a count sheet's line order is the floor's path through the shelf.
+
+### Added
+- **The shared cadence lib** (`src/lib/stocktake-cadence.ts`): the store-scoped composition (the teeth wire's three bounded reads, the four bands, the thresholds) moves to ONE home spoken verbatim by the categories wire and — new this round — both count-sheet detail wires. THE STORE LAW, THE COST LAW, and the honest four voices ride unchanged. Beside it: the **walk rank** (never 0 → beyond 1 → stale 2 → fresh 3, an uncategorized line after every banded sibling) and the **walk comparator** — a stable-sort helper whose ties return 0 so the caller's base order survives.
+- **The walk wires** (`GET /api/stock-takes/[id]` + `GET /api/org/stock-takes/[id]`): each detail fetch now computes the sheet's own shelves' cadence (one store-scoped composition, bounded by the sheet's category count) and re-speaks the UNCOUNTED pool blind-spots-first; the worklist law stands (uncounted before counted; counted keep their name order; ties keep the fetch's base order). Every line then carries its `cadenceBand` + `cadenceDaysSince` (additive, optional in the types, null when the product never joined a category — no cost field crosses). THE READ-TIME LAW: the path adapts as other sheets cool or warm a shelf, and sheets created before the walk speak it too.
+- **The walk notes** (`stocktake-walk-note` + `sheet-drill-walk-note`): beneath each sheet's header (branch) and lines list (drill), the Footprints-marked note speaks the path in FIVE honest voices computed from the lines in hand — the lead band's weight ("the uncounted lines walk blind spots first — N on never-counted aisles lead the way."), the beyond/stale leads, the nearly-home voice when only fresh aisles remain, the all-spoken voice on a fully counted sheet, and the honest step-aside when no line holds a shelf voice. Rides the paper.
+- **The line band chips**: while the lens is active, each line's shelf whisper grows its band chip (`stocktake-line-band-{sku}` + `sheet-drill-line-band-{sku}`) — the same four families the picker strip speaks, at 8px.
+
+### Styled
+- The walk notes inherit the map's caption house at the pens' scale: the muted family (slate-500 / dark:slate-400) at 10px with the Footprints mark in slate-400 — a law line, not a shout — and both rooms (branch sheet + org drill) wear the SAME note verbatim. The chips keep the cadence's ring-1 house at 8px so a lens-active walk reads shelf + band + weight in one glance; dark halves from birth; the paper keeps every word (the print walks its shelves and explains its own order).
+
 ## [2.236.0] The teeth
 
 The cadence's teeth. The org face has pointed since v2.235.0 — this round the branch picker listens: the stocktake create dialog's category picker wears the same four bands, so the walker knows WHICH aisles are stale before the walk starts. And the map's window row learns to answer "how much of the org did we actually hear?" — the coverage tile, one subtraction, zero new reads.

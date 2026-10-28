@@ -34,6 +34,14 @@ import { withErrorBoundary } from '@/lib/logger';
 import { requireAuth, type AuthSession } from '@/lib/auth';
 import { hasFeaturePermission } from '@/lib/permissions';
 
+// v2.237.0 THE WALK — the drill's lines walk blind spots first, the SAME
+// law the branch detail wire speaks: the shared lib's cadence ranks the
+// UNCOUNTED lines never → beyond → stale → fresh (most neglected
+// first). Read-only by law — the walk REORDERS the truth, it never
+// writes it. The worklist law stands; the walk only re-speaks the
+// uncounted pool.
+import { cadenceByCategory, walkCompare } from '@/lib/stocktake-cadence';
+
 export const dynamic = 'force-dynamic';
 
 const ORG_ROLES = ['SUPER_ADMIN', 'STORE_OWNER', 'BRANCH_MANAGER'];
@@ -71,7 +79,7 @@ async function orgStockTakeDetailHandler(_request: NextRequest, session: AuthSes
               costPrice: true,
               // v2.230.0: the lens's raw material — the category's name
               // rides the product the line already joins.
-              category: { select: { name: true } },
+              category: { select: { id: true, name: true } },
             },
           },
         },
@@ -85,6 +93,32 @@ async function orgStockTakeDetailHandler(_request: NextRequest, session: AuthSes
   }
 
   const canViewCost = hasFeaturePermission(session.role, 'inventory.view.cost');
+
+  // v2.237.0 THE WALK — the sheet's own shelves through the shared lib
+  // (bounded by the sheet's category count), then the stable walk sort:
+  // the comparator re-speaks only the UNCOUNTED pool (blind spots
+  // first); ties return 0 so the fetch's base order (name asc)
+  // survives. Each line then carries its band + days (additive; no
+  // cost field crosses — the units law) so the drill can speak the
+  // path without a second read.
+  const walkCategoryIds = Array.from(
+    new Set(sheet.lines.map((l) => l.product.category?.id).filter((v): v is string => typeof v === 'string')),
+  );
+  const walkCadence = await cadenceByCategory(sheet.storeId, walkCategoryIds);
+  sheet.lines.sort((a, b) =>
+    walkCompare(
+      {
+        countedQty: a.countedQty != null ? Number(a.countedQty) : null,
+        band: (a.product.category && walkCadence.get(a.product.category.id)?.band) || null,
+        daysSince: (a.product.category && walkCadence.get(a.product.category.id)?.daysSince) ?? null,
+      },
+      {
+        countedQty: b.countedQty != null ? Number(b.countedQty) : null,
+        band: (b.product.category && walkCadence.get(b.product.category.id)?.band) || null,
+        daysSince: (b.product.category && walkCadence.get(b.product.category.id)?.daysSince) ?? null,
+      },
+    ),
+  );
 
   // v2.234.0 THE VERDICT — the lineage BACKWARDS. v2.233.0 taught the
   // faces to read a sheet's note (a child knows its parent); this round
@@ -161,6 +195,10 @@ async function orgStockTakeDetailHandler(_request: NextRequest, session: AuthSes
         // joined a category (the face reads that as "uncategorized",
         // an honest bucket, never a hidden grouping).
         category: l.product.category?.name ?? null,
+        // v2.237.0 THE WALK: the line's band + days ride the SAME read
+        // (additive; null when the product never joined a category).
+        cadenceBand: (l.product.category && walkCadence.get(l.product.category.id)?.band) || null,
+        cadenceDaysSince: (l.product.category && walkCadence.get(l.product.category.id)?.daysSince) ?? null,
         snapshotQty: Number(l.snapshotQty),
         countedQty: l.countedQty != null ? Number(l.countedQty) : null,
         variance: l.variance != null ? Number(l.variance) : null,

@@ -12,6 +12,15 @@ import { db } from '@/lib/db';
 import { withErrorBoundary } from '@/lib/logger';
 import { requireStoreAccess, type AuthSession } from '@/lib/auth';
 import { hasFeaturePermission } from '@/lib/permissions';
+import { cadenceByCategory, walkCompare } from '@/lib/stocktake-cadence';
+// v2.237.0 THE WALK — the sheet's lines walk blind spots first: the
+// store-scoped cadence (the shared lib) ranks the UNCOUNTED lines
+// never → beyond → stale → fresh (most neglected first), so the sheet's
+// own order is the floor's path through the shelf. The worklist law
+// stands (uncounted before counted; counted keep their name order); the
+// walk only re-speaks the uncounted pool. Computed at READ time — the
+// path adapts as other sheets cool or warm a shelf, and OLD sheets
+// (created before the walk) speak it too.
 
 export const dynamic = 'force-dynamic';
 
@@ -40,7 +49,7 @@ async function getStockTakeHandler(_request: NextRequest, session: AuthSession, 
           // fetches: the lens's raw material rides the fetch the panel
           // already makes. A product that never joined a category reads
           // null — the face's honest "uncategorized" bucket.
-          product: { select: { name: true, sku: true, unitType: true, costPrice: true, category: { select: { name: true } } } },
+          product: { select: { name: true, sku: true, unitType: true, costPrice: true, category: { select: { id: true, name: true } } } },
         },
       },
       startedBy: { select: { name: true } },
@@ -58,6 +67,33 @@ async function getStockTakeHandler(_request: NextRequest, session: AuthSession, 
   }
 
   const canViewCost = hasFeaturePermission(session.role, 'inventory.view.cost');
+
+  // v2.237.0 THE WALK — the cadence for the sheet's own shelves, one
+  // store-scoped composition (bounded by the sheet's category count,
+  // tens at most), then the stable walk sort over the lines the fetch
+  // already ordered (countedQty nulls first, name asc): the comparator
+  // only re-speaks the UNCOUNTED pool (blind spots first), ties return 0
+  // so the base order survives. Each line then carries its band + days
+  // (additive, units-law safe: no cost field crosses) so the faces can
+  // speak the path without a second read.
+  const walkCategoryIds = Array.from(
+    new Set(sheet.lines.map((l) => l.product.category?.id).filter((v): v is string => typeof v === 'string')),
+  );
+  const walkCadence = await cadenceByCategory(sheet.storeId, walkCategoryIds);
+  sheet.lines.sort((a, b) =>
+    walkCompare(
+      {
+        countedQty: a.countedQty != null ? Number(a.countedQty) : null,
+        band: (a.product.category && walkCadence.get(a.product.category.id)?.band) || null,
+        daysSince: (a.product.category && walkCadence.get(a.product.category.id)?.daysSince) ?? null,
+      },
+      {
+        countedQty: b.countedQty != null ? Number(b.countedQty) : null,
+        band: (b.product.category && walkCadence.get(b.product.category.id)?.band) || null,
+        daysSince: (b.product.category && walkCadence.get(b.product.category.id)?.daysSince) ?? null,
+      },
+    ),
+  );
 
   // v2.234.0 THE VERDICT — the lineage BACKWARDS, at the branch face
   // too: a sheet that was re-walked learns WHO re-walked it and WHAT
@@ -135,6 +171,11 @@ async function getStockTakeHandler(_request: NextRequest, session: AuthSession, 
         // v2.231.0: the shelf name rides the line (the drill wire's own
         // shape) — null stays null, never a hidden grouping.
         category: l.product.category?.name ?? null,
+        // v2.237.0 THE WALK: the line's band + days ride the SAME read
+        // (additive, optional in the type; a line whose product never
+        // joined a category reads null — the honest "no shelf voice").
+        cadenceBand: (l.product.category && walkCadence.get(l.product.category.id)?.band) || null,
+        cadenceDaysSince: (l.product.category && walkCadence.get(l.product.category.id)?.daysSince) ?? null,
         snapshotQty: Number(l.snapshotQty),
         countedQty: l.countedQty != null ? Number(l.countedQty) : null,
         variance: l.variance != null ? Number(l.variance) : null,

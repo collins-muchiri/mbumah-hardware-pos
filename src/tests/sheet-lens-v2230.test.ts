@@ -47,25 +47,25 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.230.0)', () => {
   it('package.json leads 2.230.0 (all three slots)', () => {
-    expect(version).toBe('2.236.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.236.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.236.0');
+    expect(version).toBe('2.237.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.237.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.237.0');
   });
 
   it('VERSION speaks 2.230.0 and the verify gate is wired', () => {
-    expect(read('VERSION').trim()).toBe('2.236.0');
+    expect(read('VERSION').trim()).toBe('2.237.0');
     expect(pkg.scripts['verify:v2-230-0']).toBe('node scripts/verify-v2-230-0.mjs');
   });
 
   it('the changelog anchors the section ABOVE its ancestor (the structural pin — headers, never bare strings)', () => {
-    expect(changelog.indexOf('## [2.236.0]')).toBeGreaterThanOrEqual(0);
-    expect(changelog.indexOf('## [2.236.0]')).toBeLessThan(changelog.indexOf('## [2.235.0]'));
+    expect(changelog.indexOf('## [2.237.0]')).toBeGreaterThanOrEqual(0);
+    expect(changelog.indexOf('## [2.237.0]')).toBeLessThan(changelog.indexOf('## [2.236.0]'));
   });
 
-  it('the whats-new feed leads the teeth entry (order pin: header-anchored, never a bare version string)', () => {
-    expect(feed.includes("version: '2.236.0',")).toBe(true);
-    expect(feed.indexOf("version: '2.236.0',")).toBeLessThan(feed.indexOf("version: '2.235.0',"));
-    expect(feed.includes("title: 'The teeth',")).toBe(true);
+  it('the whats-new feed leads the walk entry (order pin: header-anchored, never a bare version string)', () => {
+    expect(feed.includes("version: '2.237.0',")).toBe(true);
+    expect(feed.indexOf("version: '2.237.0',")).toBeLessThan(feed.indexOf("version: '2.236.0',"));
+    expect(feed.includes("title: 'The walk',")).toBe(true);
   });
 });
 
@@ -73,7 +73,10 @@ describe('the round of record (v2.230.0)', () => {
 
 describe('the drill wire grows the category join (additive, one query)', () => {
   it('the product select joins the category name', () => {
-    expect(wire.includes('category: { select: { name: true } },')).toBe(true);
+    // v2.237.0 THE WALK: the join grew the category's id — the walk's
+    // cadence lookup reads the shelf by id; the name still rides for
+    // the lens. The pin follows the grown join.
+    expect(wire.includes('category: { select: { id: true, name: true } },')).toBe(true);
   });
 
   it('the line mapping speaks the shelf — null stays null, never a hidden grouping', () => {
