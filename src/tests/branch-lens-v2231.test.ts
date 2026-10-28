@@ -42,13 +42,13 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.231.0)', () => {
   it('package.json leads 2.231.0 (all three slots)', () => {
-    expect(version).toBe('2.231.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.231.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.231.0');
+    expect(version).toBe('2.232.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.232.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.232.0');
   });
 
   it('VERSION speaks 2.231.0 and the verify gate is wired', () => {
-    expect(read('VERSION').trim()).toBe('2.231.0');
+    expect(read('VERSION').trim()).toBe('2.232.0');
     expect(pkg.scripts['verify:v2-231-0']).toBe('node scripts/verify-v2-231-0.mjs');
   });
 
@@ -164,12 +164,15 @@ describe('the reading composes; the sheet never narrows', () => {
 // ── THE FRESH-DOOR LAW ───────────────────────────────────────────────────
 
 describe('every door-opening resets the instruments (by construction)', () => {
-  it('the roster door resets both', () => {
-    expect(panel.includes("setNeedle('');\n                      setCategoryNeedle('all');\n                      setOpenSheetId(sheet.id);")).toBe(true);
+  // v2.232.0: the variances-only lens joins the reset — the law grew
+  // from two instruments to three. Re-pinned to the GROWN law (the
+  // move is named; the fresh-door intent survives unchanged).
+  it('the roster door resets all three instruments', () => {
+    expect(panel.includes("setNeedle('');\n                      setCategoryNeedle('all');\n                      setVariancesOnly(false);\n                      setOpenSheetId(sheet.id);")).toBe(true);
   });
 
-  it('the create door resets both', () => {
-    expect(panel.includes("setNeedle('');\n      setCategoryNeedle('all');\n      setOpenSheetId(data.id);")).toBe(true);
+  it('the create door resets all three instruments', () => {
+    expect(panel.includes("setNeedle('');\n      setCategoryNeedle('all');\n      setVariancesOnly(false);\n      setOpenSheetId(data.id);")).toBe(true);
   });
 
   it('the back door resets both', () => {

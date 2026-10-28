@@ -48,7 +48,12 @@ async function orgStockTakeDetailHandler(_request: NextRequest, session: AuthSes
   const sheet = await db.stockTake.findUnique({
     where: { id },
     include: {
-      store: { select: { id: true, name: true, code: true } },
+      // v2.232.0: the recount door's address — the store's slug rides
+      // the store block the drill already holds (one cheap column,
+      // catalog-bounded; zero new fetches). The drill's CLOSED face
+      // links "recount the variances at the branch" — the org face
+      // POINTS, the branch face keeps the pens (the read-only law).
+      store: { select: { id: true, name: true, code: true, slug: true } },
       lines: {
         orderBy: [{ countedQty: { sort: 'asc', nulls: 'first' } }, { product: { name: 'asc' } }],
         select: {
@@ -98,7 +103,7 @@ async function orgStockTakeDetailHandler(_request: NextRequest, session: AuthSes
       closedAt: sheet.closedAt?.toISOString() ?? null,
       startedByName: sheet.startedBy?.name ?? null,
       closedByName: sheet.closedBy?.name ?? null,
-      store: { id: sheet.store.id, name: sheet.store.name, code: sheet.store.code },
+      store: { id: sheet.store.id, name: sheet.store.name, code: sheet.store.code, slug: sheet.store.slug },
       summary: {
         totalLines: sheet.lines.length,
         countedLines: counted.length,

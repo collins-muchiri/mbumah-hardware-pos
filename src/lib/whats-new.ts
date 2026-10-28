@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.232.0',
+    title: 'The recount',
+    bullets: [
+      'The loop closes: a closed sheet’s variances become the next sheet’s population — one button freezes a fresh count scoped to exactly the disputed lines, against a fresh snapshot.',
+      'A third reading lens joins the walk: “variances only” narrows the lines to those whose count answered differently — on the branch face and on the org drill alike, composing with the shelf lens and the name finder.',
+      'The org drill grows a door: a closed sheet with variances links straight to the branch’s stock-take face, where the pens live — the org face points, the branch face counts.',
+      'The one-open-sheet law keeps its teeth: while a sheet is counting, the recount waits — the face says so honestly, and the wire still refuses a second open sheet.',
+    ],
+  },
+  {
     version: '2.231.0',
     title: 'The branch lens',
     bullets: [

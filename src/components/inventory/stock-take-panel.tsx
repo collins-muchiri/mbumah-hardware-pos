@@ -23,6 +23,26 @@
 // re-invented): the whole sheet, one file; the branch's cost gate is
 // the panel's own canViewCost prop.
 //
+// v2.232.0 THE RECOUNT — the loop closes: a CLOSED sheet's variances
+// become the NEXT sheet's population. Two things grow on the pens'
+// face (the org drill points HERE — the read-only law keeps its pens
+// on the branch):
+// • the variances-only lens (the third instrument beside the finder
+//   and the category lens): an aria-pressed chip that narrows the
+//   reading to the lines whose counted ≠ snapshot — composing with
+//   the other two needles over the SAME held lines, the honest N-of-M
+//   answering all three, and the progress/Print/CSV keeping the
+//   whole-sheet truth;
+// • the recount spawn: on a CLOSED face holding at least one variance
+//   line, one button freezes a fresh COUNTING sheet scoped to exactly
+//   the variance lines' products (the create wire's explicit-list
+//   scope, re-validated server-side against THIS store's active
+//   products), notes = "recount of sheet {id}" — and the fresh door
+//   opens in the same panel (the floor keeps walking). While the
+//   roster holds a COUNTING sheet the zone speaks the one-open-sheet
+//   law honestly and the button is absent — the wire's 409 stays the
+//   backstop (surfaced as the toast, never swallowed).
+//
 // THE LAWS IT INHERITS:
 // • the one-open-sheet law: the branch's COUNTING sheet IS the sheet —
 //   the create button steps aside honestly while it lives.
@@ -44,7 +64,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { ClipboardCheck, Download, FolderTree, History, Loader2, Printer, Search, X } from 'lucide-react';
+import { ClipboardCheck, Download, FolderTree, History, Loader2, Printer, RotateCcw, Search, X } from 'lucide-react';
 import { authorizedFetchJson } from '@/lib/api';
 import { num } from '@/components/org/primitives';
 // v2.229.0: the CSV law's one voice — the SAME pure builders the org
@@ -157,6 +177,9 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
   // an empty needle by construction, never by effect).
   const [needle, setNeedle] = useState('');
   const [categoryNeedle, setCategoryNeedle] = useState('all');
+  // v2.232.0: the variances-only lens — the third instrument, the same
+  // per-door law (every door-opening resets it beside the other two).
+  const [variancesOnly, setVariancesOnly] = useState(false);
 
   const listQuery = useQuery({
     queryKey: ['stock-takes', storeId],
@@ -230,6 +253,7 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
       invalidateSheets();
       setNeedle('');
       setCategoryNeedle('all');
+      setVariancesOnly(false);
       setOpenSheetId(data.id);
     },
     onError: (err: unknown) => {
@@ -306,6 +330,58 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
   // reads, consumed by the face's attribute, the count boxes, the
   // signatures and the Print button's aria. Four faces, one law.
   const isClipboard = detail?.status === 'COUNTING';
+  // v2.232.0: the variance lines — the recount's raw material and the
+  // variances-only lens's population, derived from the lines the face
+  // ALREADY holds (zero new fetch). A line with a count that answers
+  // differently from its snapshot is a variance; the chip the line
+  // already wears is this lens's vocabulary. The recount freezes
+  // PRODUCTS (unique ids, sheet order) — a sheet has one line per
+  // product, but the explicit-list wire dedupes anyway.
+  const varianceLines = useMemo(
+    () => (detail ? detail.lines.filter((l) => l.variance != null && l.variance !== 0) : []),
+    [detail],
+  );
+  const variancesActive = varianceLines.length > 0;
+  const varianceProducts = useMemo(
+    () => Array.from(new Set(varianceLines.map((l) => l.productId))),
+    [varianceLines],
+  );
+  // v2.232.0: the recount spawn — a CLOSED face's way forward. The
+  // create wire's explicit-list scope (productIds validated against
+  // THIS store's active products server-side; an empty population
+  // refuses with the honest 400), notes name the sheet being
+  // re-walked. Success opens the fresh door in THIS panel (the floor
+  // keeps walking) under the fresh-door law: instruments reset, the
+  // roster and the tab's stock re-read. The wire's one-open-sheet 409
+  // stays the backstop — the zone below hides the button while the
+  // roster holds a COUNTING sheet, and a race that slips past still
+  // surfaces the server's error as the toast (never swallowed).
+  const recountMutation = useMutation({
+    mutationFn: async () => {
+      if (!detail) throw new Error('no sheet on this face');
+      const res = await authorizedFetchJson('/api/stock-takes', {
+        method: 'POST',
+        body: JSON.stringify({
+          storeId,
+          productIds: varianceProducts,
+          notes: `recount of sheet ${detail.id}`,
+        }),
+      });
+      if (!res.ok || !res.json?.success) throw new Error(res.json?.error ?? `the recount was refused (${res.status})`);
+      return res.json.data as { id: string; lineCount: number; scope?: string };
+    },
+    onSuccess: (data) => {
+      toast.success(`Recount open — ${data.lineCount} line${data.lineCount === 1 ? '' : 's'} to count`);
+      setNeedle('');
+      setCategoryNeedle('all');
+      setVariancesOnly(false);
+      invalidateSheets();
+      setOpenSheetId(data.id);
+    },
+    onError: (err: unknown) => {
+      toast.error(err instanceof Error ? err.message : 'the recount was refused');
+    },
+  });
   // v2.231.0: the lens's buckets — the sheet's OWN categories, derived
   // from the lines the branch face ALREADY holds (the drill's own
   // derivation). "uncategorized" is a real bucket and sorts LAST
@@ -318,20 +394,22 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
       )
     : [];
   const lensActive = categoryBuckets.length > 1;
-  // v2.231.0: the combined reading — the lens narrows the shelf, the
-  // needle narrows the line, both over the SAME held lines. The law of
+  const cleanNeedle = needle.trim().toLowerCase();
+  // v2.232.0: the combined reading — the lens narrows the shelf, the
+  // needle narrows the line, the variances-only chip narrows to the
+  // disputed lines; all three over the SAME held lines. The law of
   // the branch face is the law of the drill: the instruments narrow
   // the READING, never the sheet — the progress bar and the summary
   // keep the whole-sheet truth, the Print aria names the whole count,
   // and the CSV keeps the whole file (seven columns, unchanged).
-  const cleanNeedle = needle.trim().toLowerCase();
   const shownLines = detail
     ? detail.lines.filter(
         (l) =>
           (categoryNeedle === 'all' || (l.category ?? 'uncategorized') === categoryNeedle) &&
           (!cleanNeedle ||
             l.name.toLowerCase().includes(cleanNeedle) ||
-            l.sku.toLowerCase().includes(cleanNeedle)),
+            l.sku.toLowerCase().includes(cleanNeedle)) &&
+          (!variancesOnly || (l.variance != null && l.variance !== 0)),
       )
     : [];
   // v2.229.0 THE BRANCH WALK's gate — while the sheet face is open the
@@ -464,6 +542,7 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                       setOpenSheetId(null);
                       setNeedle('');
                       setCategoryNeedle('all');
+                      setVariancesOnly(false);
                       setCancelArmed(false);
                       setCancelReason('');
                     }}
@@ -532,6 +611,31 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                       </option>
                     ))}
                   </select>
+                )}
+                {/* v2.232.0: THE VARIANCES-ONLY LENS — the third
+                    instrument: an aria-pressed chip that narrows the
+                    reading to the disputed lines (counted ≠ snapshot).
+                    Composes with the lens and the finder over the SAME
+                    held lines; the progress, the Print aria and the CSV
+                    keep the whole-sheet truth. Mounts only when the
+                    sheet holds at least one variance — an absent
+                    control never lies. The h-7 scale is the branch
+                    face's own (one notch above the drill's h-6). */}
+                {variancesActive && (
+                  <button
+                    type="button"
+                    data-testid="stocktake-variances-only"
+                    aria-pressed={variancesOnly}
+                    title="the variances-only lens — read only the lines whose count answered differently; the progress and the paper keep the whole sheet's truth"
+                    onClick={() => setVariancesOnly((v) => !v)}
+                    className={`inline-flex h-7 items-center gap-1 rounded-md px-2 text-[11px] font-semibold ring-1 transition-colors focus:outline-none focus:ring-1 focus:ring-amber-500/40 ${
+                      variancesOnly
+                        ? 'bg-amber-700 text-white ring-amber-700 dark:bg-amber-600 dark:ring-amber-600'
+                        : 'bg-white text-slate-600 ring-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-600 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    variances only · {num(varianceLines.length)}
+                  </button>
                 )}
                 <span className="relative">
                   <Search className="pointer-events-none absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400 dark:text-slate-500" aria-hidden="true" />
@@ -662,13 +766,17 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                 shelf names itself; a needle that answered nothing is
                 told so; the sheet's whole count rides every variant
                 (the reading came back empty, the sheet did not). */}
-            {(cleanNeedle !== '' || categoryNeedle !== 'all') && shownLines.length === 0 && (
+            {(cleanNeedle !== '' || categoryNeedle !== 'all' || variancesOnly) && shownLines.length === 0 && (
               <p data-testid="stocktake-finder-empty" className="rounded-lg border border-dashed border-slate-200 bg-white/60 px-3 py-2 text-[11px] text-slate-500 dark:border-slate-600 dark:bg-slate-900/60 dark:text-slate-400">
                 {cleanNeedle !== ''
                   ? categoryNeedle !== 'all'
                     ? `no line in “${categoryNeedle}” answers “${needle.trim()}” — the sheet holds ${num(detail.lines.length)} ${detail.lines.length === 1 ? 'line' : 'lines'}.`
                     : `no line answers “${needle.trim()}” — the sheet holds ${num(detail.lines.length)} ${detail.lines.length === 1 ? 'line' : 'lines'}.`
-                  : `the lens came back empty — the sheet holds ${num(detail.lines.length)} ${detail.lines.length === 1 ? 'line' : 'lines'}.`}
+                  : categoryNeedle !== 'all'
+                    ? variancesOnly
+                      ? `no line with a variance in “${categoryNeedle}” — the sheet holds ${num(detail.lines.length)} ${detail.lines.length === 1 ? 'line' : 'lines'}, ${num(varianceLines.length)} of them with a variance.`
+                      : `the lens came back empty — the sheet holds ${num(detail.lines.length)} ${detail.lines.length === 1 ? 'line' : 'lines'}.`
+                    : `no line with a variance — the sheet holds ${num(detail.lines.length)} ${detail.lines.length === 1 ? 'line' : 'lines'}, ${num(varianceLines.length)} of them with a variance.`}
               </p>
             )}
 
@@ -794,6 +902,47 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                 <p className="mt-1 text-[9px] text-emerald-800/70 dark:text-emerald-300/70">
                   every changed line carries an ADJUSTMENT movement — the movement log below tells the same story.
                 </p>
+              </div>
+            )}
+            {closedFace && varianceLines.length > 0 && (
+              /* v2.232.0: THE RECOUNT ZONE — the closed face's way
+                  forward. One button freezes a fresh COUNTING sheet
+                  scoped to exactly the variance lines' products (the
+                  create wire's explicit-list scope, re-validated
+                  server-side); success opens the fresh door in THIS
+                  panel under the fresh-door law. While the roster
+                  holds a COUNTING sheet the zone speaks the
+                  one-open-sheet law and the button is ABSENT — the
+                  wire's 409 stays the backstop. A control stays off
+                  the paper. */
+              <div data-testid="stocktake-recount-zone" data-sheet-print-off="" className="rounded-xl border border-dashed border-amber-300 bg-amber-50/60 p-3 dark:border-amber-500/40 dark:bg-amber-500/10">
+                {openSheet ? (
+                  <p data-testid="stocktake-recount-blocked" className="text-[11px] font-medium text-slate-600 dark:text-slate-300">
+                    a sheet is already counting — the recount waits for the open sheet to close or cancel (the one-open-sheet law).
+                  </p>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      data-testid="stocktake-recount"
+                      disabled={recountMutation.isPending}
+                      onClick={() => recountMutation.mutate()}
+                      className="flex w-full items-center justify-center gap-1.5 rounded-md bg-amber-700 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-amber-500/40 dark:bg-amber-600 dark:hover:bg-amber-700"
+                    >
+                      {recountMutation.isPending ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+                      ) : (
+                        <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+                      )}
+                      {recountMutation.isPending
+                        ? 'freezing the recount…'
+                        : `Recount the variances — freeze ${num(varianceProducts.length)} product${varianceProducts.length === 1 ? '' : 's'}`}
+                    </button>
+                    <p className="mt-1 text-[9px] text-amber-900/70 dark:text-amber-200/70">
+                      opens a fresh count sheet scoped to exactly the {num(varianceLines.length)} variance line{varianceLines.length === 1 ? '' : 's'} (counted ≠ snapshot) — a fresh snapshot freezes at open; the new sheet&apos;s notes name the sheet being re-walked.
+                    </p>
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -936,9 +1085,11 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                       // v2.231.0: the fresh-door law — every door-opening
                       // resets the instruments (the drill's per-door
                       // state law; a fresh sheet reads "all" and an
-                      // empty needle by construction).
+                      // empty needle by construction). v2.232.0: the
+                      // variances-only lens joins the reset.
                       setNeedle('');
                       setCategoryNeedle('all');
+                      setVariancesOnly(false);
                       setOpenSheetId(sheet.id);
                     }}
                     className="flex shrink-0 items-center gap-1 rounded border border-slate-200 px-2 py-1 text-[10px] font-semibold text-slate-600 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
