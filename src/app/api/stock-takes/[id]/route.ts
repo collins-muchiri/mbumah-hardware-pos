@@ -39,6 +39,12 @@ async function getStockTakeHandler(_request: NextRequest, session: AuthSession, 
       },
       startedBy: { select: { name: true } },
       closedBy: { select: { name: true } },
+      // v2.229.0 THE BRANCH WALK: the paper names its branch. The sheet's
+      // own store rides the detail wire (id/name/code — the drill's org
+      // wire speaks the same shape), so the branch face's print act lays
+      // a sheet on the page that says WHICH yard walked it. Additive:
+      // zero new fetch, the response grows one block.
+      store: { select: { id: true, name: true, code: true } },
     },
   });
   if (!sheet) {
@@ -61,6 +67,10 @@ async function getStockTakeHandler(_request: NextRequest, session: AuthSession, 
     data: {
       id: sheet.id,
       storeId: sheet.storeId,
+      // v2.229.0: the branch's own name on the wire — the paper reads the
+      // wire's truth (the drill's law: data.store.code ?? data.store.name),
+      // never a client-side guess.
+      store: { id: sheet.store.id, name: sheet.store.name, code: sheet.store.code },
       status: sheet.status,
       notes: sheet.notes,
       startedAt: sheet.startedAt,

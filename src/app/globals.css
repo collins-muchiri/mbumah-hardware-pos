@@ -1831,6 +1831,31 @@
    CANCELLED sheets carry no clipboard attribute: their paper stays
    the v2.227 record face — the mode IS the sheet's status, never a
    toggle. */
+/* v2.229.0 THE BRANCH WALK — the clipboard's branch-side twin. The
+   branch stocktake face is where the floor actually walks, so IT now
+   lays the sheet on the page: the panel's card carries the SAME
+   vocabulary (data-sheet-print-overlay / data-sheet-print /
+   data-sheet-print-off / data-sheet-clipboard) under the SAME
+   body.sheet-printing class (the class lives exactly as long as the
+   sheet face does — while it is absent, printing behaves as before).
+   These rules are ADDITIVE: the drill's own testid-keyed selectors
+   above stay; both faces now also answer the shared [data-sheet-lines]
+   mark, so one scroll-clamp release and one line-hygiene law serve
+   every sheet's paper — org drill and branch walk alike. */
+@media print {
+  body.sheet-printing [data-sheet-print] [data-sheet-lines] {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  /* the branch face's lines are divs (the drill's are li) — the same
+     hygiene, the row's own element: a line and its count box never
+     split across pages */
+  body.sheet-printing [data-sheet-print] [data-sheet-lines] > div {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
 [data-sheet-clipboard] [data-sheet-count-box],
 [data-sheet-clipboard] [data-sheet-clipboard-note],
 [data-sheet-clipboard] [data-sheet-clipboard-signatures] { display: none; }

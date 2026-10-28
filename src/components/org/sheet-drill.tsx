@@ -397,7 +397,12 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
                   )}
                 </div>
               </div>
-              <ul data-testid="sheet-drill-lines-list" className="mt-1.5 max-h-[40vh] space-y-1 overflow-y-auto pr-1">
+              {/* v2.229.0: the shared lines mark — the branch walk's
+                  face wears the same vocabulary, so the print law (the
+                  scroll-clamp release) reads ONE attribute on BOTH
+                  faces. The testid below stays the org face's own
+                  door; the print CSS keys both. */}
+              <ul data-testid="sheet-drill-lines-list" data-sheet-lines="" className="mt-1.5 max-h-[40vh] space-y-1 overflow-y-auto pr-1">
                 {shownLines.map((l) => {
                   const chip = l.variance != null ? varianceChip(l.variance) : null;
                   return (
