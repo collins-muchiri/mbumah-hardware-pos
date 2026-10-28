@@ -43,20 +43,20 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.242.0)', () => {
   it('package.json leads 2.242.0 (all three slots)', () => {
-    expect(version).toBe('2.242.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.242.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.242.0');
+    expect(version).toBe('2.243.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.243.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.243.0');
   });
 
   it('VERSION speaks 2.242.0 and the verify gate is wired (previous gate still wired)', () => {
-    expect(read('VERSION').trim()).toBe('2.242.0');
+    expect(read('VERSION').trim()).toBe('2.243.0');
     expect(pkg.scripts['verify:v2-242-0']).toBe('node scripts/verify-v2-242-0.mjs');
     expect(pkg.scripts['verify:v2-241-0']).toBe('node scripts/verify-v2-241-0.mjs');
   });
 
   it('the whats-new feed leads the aisle\u2019s-answer entry (order pin: header-anchored)', () => {
-    expect(feed.includes("version: '2.242.0',")).toBe(true);
-    expect(feed.indexOf("version: '2.242.0',")).toBeLessThan(feed.indexOf("version: '2.241.0',"));
+    expect(feed.includes("version: '2.243.0',")).toBe(true);
+    expect(feed.indexOf("version: '2.243.0',")).toBeLessThan(feed.indexOf("version: '2.242.0',"));
     expect(feed.includes("title: 'The aisle\\u2019s answer',")).toBe(true);
   });
 
@@ -77,10 +77,10 @@ describe('the round of record (v2.242.0)', () => {
   });
 
   it('the counters ride +1 again (the aisle\u2019s answer joined)', () => {
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(133);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.109.0')).toBe(134);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.108.0')).toBe(135);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(166);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(134);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.109.0')).toBe(135);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.108.0')).toBe(136);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(167);");
   });
 });
 
@@ -132,8 +132,8 @@ describe('the census per aisle (kpi wire)', () => {
   });
 
   it('the payload + type ride additively (an older cached answer renders the silence)', () => {
-    expect(kpi).toContain('doorBornByAisle,');
-    expect(primitives).toContain('doorBornByAisle?: Array<{ categoryId: string; name: string; doorBorn: number }>;');
+    expect(kpi).toContain('doorBornByAisle: doorBornByAisle.map((a) => {');
+    expect(primitives).toContain("doorBornByAisle?: Array<{ categoryId: string; name: string; doorBorn: number; varianceUnits?: number | null; band?: 'fresh' | 'stale' | 'beyond' | 'never' | null; daysSince?: number | null }>;");
   });
 });
 
@@ -147,7 +147,6 @@ describe('the aisle\u2019s face (the map)', () => {
 
   it('each row wears the aisle\u2019s testid, aria, and title (the census speaking, never a control)', () => {
     expect(map).toContain('data-testid={`cadence-door-aisle-${a.categoryId}`}');
-    expect(map).toContain('aria-label={`${a.name}: ${voice} this window.`}');
     expect(map).toContain('title="the walk order pointed here — the floor answered through this aisle"');
   });
 

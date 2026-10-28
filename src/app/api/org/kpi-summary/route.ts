@@ -614,6 +614,43 @@ async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Pr
       },
       categories: cadenceCategories,
     };
+    // ── v2.243.0: the aisle's verdict — WHAT the walks found ────────────
+    // The census counted the births (v2.238.0), per branch (v2.239.0),
+    // per aisle (v2.242.0); this round the aisle's row speaks the
+    // walk's own verdict: the variance UNITS the window's CLOSED
+    // door-born sheets found, attributed to the aisle the DOOR named
+    // (the sheet's own walkCategoryId — no product join, no guess), and
+    // the aisle's CURRENT cadence band (the map above already computed
+    // it — the join is two Maps, zero new queries). THE UNITS LAW:
+    // units are units (every org role hears them — the same law the
+    // roster speaks; the shillings gate is NOT involved). A counting
+    // sheet has not spoken; a sheet closed with a perfect count speaks
+    // 0 — the shelf held. Additive + optional per field (an older
+    // cached answer predating the enrichment renders the birth-only
+    // row).
+    const closedDoorBornRows = await rawDb.stockTake.findMany({
+      where: { origin: 'walk-door', startedAt: { gte: windowStart }, status: 'CLOSED' },
+      select: { id: true, walkCategoryId: true },
+    });
+    const closedDoorBornIds = closedDoorBornRows.map((s) => s.id);
+    const verdictLines = closedDoorBornIds.length
+      ? await rawDb.stockTakeLine.findMany({
+          where: { stockTakeId: { in: closedDoorBornIds }, variance: { not: null } },
+          select: { stockTakeId: true, variance: true },
+        })
+      : [];
+    const verdictUnitsBySheet = new Map<string, number>();
+    for (const l of verdictLines) {
+      verdictUnitsBySheet.set(l.stockTakeId, (verdictUnitsBySheet.get(l.stockTakeId) ?? 0) + Number(l.variance ?? 0));
+    }
+    const verdictUnitsByAisle = new Map<string, number>();
+    for (const s of closedDoorBornRows) {
+      if (!s.walkCategoryId) continue;
+      const u = verdictUnitsBySheet.get(s.id) ?? 0;
+      verdictUnitsByAisle.set(s.walkCategoryId, (verdictUnitsByAisle.get(s.walkCategoryId) ?? 0) + u);
+    }
+    const bandByCategory = new Map(cadenceCategories.map((c) => [c.categoryId, c.band]));
+    const daysByCategory = new Map(cadenceCategories.map((c) => [c.categoryId, c.daysSince]));
     const stockTakes = {
       openCount: openSheetRows.length,
       openSheets: openSheetRows.map((s) => ({
@@ -667,11 +704,23 @@ async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Pr
       // census per branch. A store absent from the array answered
       // nothing; the face renders the silence as the honest zero.
       doorBornByStore,
-      // v2.242.0 the aisle's answer: additive + always present — WHERE
-      // the doors opened (top 3, the census is a headline). An aisle
-      // absent from the array opened no door; an older cached answer
-      // renders the silent absence.
-      doorBornByAisle,
+      // v2.242.0 the aisle's answer + v2.243.0 the aisle's verdict: the
+      // rows speak WHERE the doors opened (top 3, the census is a
+      // headline) and WHAT the walks found (the closed door-born
+      // sheets' variance units, attributed to the aisle the door named)
+      // + the aisle's own cadence band + days (the map's join, zero new
+      // queries). Additive + optional per field — an aisle absent from
+      // the array opened no door; an older cached answer renders the
+      // birth-only row.
+      doorBornByAisle: doorBornByAisle.map((a) => {
+        const u = verdictUnitsByAisle.get(a.categoryId);
+        return {
+          ...a,
+          varianceUnits: u == null ? null : round2(u),
+          band: bandByCategory.get(a.categoryId) ?? null,
+          daysSince: daysByCategory.get(a.categoryId) ?? null,
+        };
+      }),
       // v2.235.0 the cadence: additive + always present (the block reads
       // the catalog, not the caller's gate — every org role hears WHEN a
       // shelf was last heard; no cost field crosses this wire).

@@ -685,16 +685,54 @@ export function VarianceMap({ data, stores, canGovern = false, onLawSaved, onToa
                         const sharePct = total > 0 ? Math.round((a.doorBorn / total) * 100) : 100;
                         const share = Math.max(8, sharePct);
                         const voice = a.doorBorn === 1 ? '1 sheet born here' : `${a.doorBorn} sheets born here`;
+                        // v2.243.0 THE AISLE'S VERDICT — the row speaks
+                        // WHAT the walk found: the closed door-born
+                        // sheets' variance units in the drill's own
+                        // three families (exact slate, surplus emerald,
+                        // shrinkage red), and the aisle's own cadence
+                        // band (the wire's join — the same four houses
+                        // the walk order speaks). THE HONEST ABSENCES:
+                        // no closed door-born sheet yet → no verdict
+                        // line (the walk is out, the shelf has not been
+                        // heard); no band (an aisle the cadence never
+                        // knew) → no chip; an older cached answer
+                        // predating the enrichment renders the
+                        // birth-only row (the type check, never an
+                        // assumption).
+                        const verdictText = a.varianceUnits == null
+                          ? null
+                          : a.varianceUnits === 0
+                            ? 'the count held — 0 units'
+                            : `${a.varianceUnits > 0 ? '+' : ''}${a.varianceUnits} units found`;
+                        const verdictCls = a.varianceUnits == null
+                          ? ''
+                          : a.varianceUnits === 0
+                            ? 'text-slate-500 dark:text-slate-400'
+                            : a.varianceUnits > 0
+                              ? 'text-emerald-600 dark:text-emerald-400'
+                              : 'text-red-600 dark:text-red-400';
+                        const bandVoice = a.band ? daysVoice({ band: a.band, daysSince: a.daysSince ?? null }) : null;
                         return (
                           <li
                             key={a.categoryId}
                             data-testid={`cadence-door-aisle-${a.categoryId}`}
-                            aria-label={`${a.name}: ${voice} this window.`}
+                            aria-label={`${a.name}: ${voice}${bandVoice ? ` — ${bandVoice}` : ''}${verdictText ? ` — ${verdictText}` : ''} this window.`}
                             title="the walk order pointed here — the floor answered through this aisle"
                             className="rounded border border-violet-100 bg-white/70 px-1.5 py-1 dark:border-violet-500/20 dark:bg-slate-800/60"
                           >
                             <div className="flex items-center justify-between gap-2">
-                              <span className="truncate text-[10px] font-medium text-violet-700 dark:text-violet-200">{a.name}</span>
+                              <span className="flex min-w-0 items-center gap-1.5">
+                                <span className="truncate text-[10px] font-medium text-violet-700 dark:text-violet-200">{a.name}</span>
+                                {a.band && (
+                                  <span
+                                    data-testid={`cadence-aisle-band-${a.categoryId}`}
+                                    title={`the aisle's own cadence: ${a.band}${bandVoice ? ` — ${bandVoice}` : ''}`}
+                                    className={`inline-flex shrink-0 items-center rounded px-1 py-0.5 text-[8px] font-semibold uppercase tracking-wide ring-1 ${bandHouse(a.band).chip}`}
+                                  >
+                                    {chipLabel(a.band)}
+                                  </span>
+                                )}
+                              </span>
                               <span className="shrink-0 text-[9px] tabular-nums text-violet-600 dark:text-violet-300">{voice}</span>
                             </div>
                             <div
@@ -704,6 +742,11 @@ export function VarianceMap({ data, stores, canGovern = false, onLawSaved, onToa
                             >
                               <span className="block h-full rounded-full bg-violet-400 transition-[width] duration-500 dark:bg-violet-400/80" style={{ width: `${share}%` }} />
                             </div>
+                            {verdictText && (
+                              <p data-testid={`cadence-aisle-verdict-${a.categoryId}`} className={`mt-0.5 text-right text-[9px] font-medium tabular-nums ${verdictCls}`}>
+                                {verdictText}
+                              </p>
+                            )}
                           </li>
                         );
                       })}
