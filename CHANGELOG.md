@@ -2,6 +2,14 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.247.0] The walk's mirror
+
+An older door-born sheet could wear its aisle's latest verdict without saying so — the v2.246.0 line spoke the AISLE's truth under THIS sheet's header, and a reader could mistake it for the sheet's own finding. This round the sheet's own walk speaks first: when this paper's walk found something DIFFERENT from what the aisle's latest window walk found, both truths ride the drill and the branch face. When they agree, the single honest line stays — a duplicate would say nothing new.
+
+### Added
+- **The mirror's read** (`GET /api/stock-takes/[id]` + `GET /api/org/stock-takes/[id]`): both detail wires grow `walkAisleSheetUnits` (additive + optional) — the sheet's OWN spoken units in its aisle, the lib's own testament law mirrored back at the sheet itself: ONE bounded aggregate, indexed by the sheet's id, the same product-category join + variance-not-null shape `readCategoryBand` speaks. THE UNITS LAW: units are units (the cost gate is NOT involved); a perfect count speaks 0 — the shelf held this walk; nothing spoke (no counted lines on the aisle) → null, the honest absence, never a hidden zero.
+- **The mirror's faces** (`sheet-drill.tsx` + `stock-take-panel.tsx`): when both truths are present AND differ, the faces speak this walk's own verdict FIRST (`sheet-drill-origin-aisle-self` / `stocktake-sheet-origin-aisle-self`, the lib's `findingsVoice` — the same three families and colours as the census — `tabular-nums`, the paper's own truth on the title), with the aisle's latest beneath it. SIBLING LINES, NEVER REWRITES: the v2.246.0 verdict line stays byte-identical. Absent when either truth is absent, or when the two agree — the silence is the honest state.
+
 ## [2.246.0] The aisle's testament
 
 The sheet's aisle has said WHEN it was last heard since v2.244.0 — this round it says what its latest window walk FOUND there: the aisle's testament rides the detail wires, and the drill and branch faces wear the verdict line. The walk lifecycle's faces now all speak the same truth: the pick strip says it before (v2.245.0), the census says it org-side (v2.243.0), and the sheet itself carries it after. And the verdict's words and colours move into their one home — the anti-duplication law applied to the findings voice itself.

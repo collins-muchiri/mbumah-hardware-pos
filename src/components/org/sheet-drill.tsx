@@ -167,6 +167,7 @@ interface DrillWire {
     // aisle, beyond/never, or the testament read fell back; the honest
     // absence, never a hidden zero).
     walkAisleUnits?: number | null;
+    walkAisleSheetUnits?: number | null;
     // v2.234.0 THE VERDICT — the lineage backwards: when a LATER sheet
     // was spawned from this one (the notes signature), the wire names
     // it and, once that child CLOSED, its variance units. Optional in
@@ -386,6 +387,37 @@ export function SheetDrill({ target, onClose, onOpenSheet }: { target: SheetDril
                 {data.status === 'CANCELLED' ? ' · a void — no adjustments, no movements' : ''}
               </p>
             )}
+            {/* v2.247.0 THE WALK'S MIRROR — when this sheet's OWN walk
+                found something DIFFERENT from what the aisle's latest
+                window walk found, the drill says both truths: this
+                walk's own verdict first (the lib's findingsVoice, the
+                same three families, tabular-nums), then the aisle's
+                latest beneath it (the v2.246.0 line, byte-identical).
+                When they agree, the single line keeps the floor's one
+                voice — a duplicate would say nothing new. Absent when
+                either truth is absent (an aisle-less birth, beyond/
+                never, a silent window, an older cached answer, a
+                fallen-back read) — the silence is the honest state. */}
+            {(() => {
+              if (
+                data?.origin !== 'walk-door' ||
+                !data?.walkAisle ||
+                data?.walkAisleSheetUnits == null ||
+                data?.walkAisleUnits == null ||
+                data.walkAisleSheetUnits === data.walkAisleUnits
+              )
+                return null;
+              const fv = findingsVoice(data.walkAisleSheetUnits);
+              return (
+                <p
+                  data-testid="sheet-drill-origin-aisle-self"
+                  title="this sheet's own walk — the aisle's shelf as this paper found it"
+                  className={`text-[10px] font-medium tabular-nums ${fv.cls}`}
+                >
+                  this walk: {fv.text}
+                </p>
+              );
+            })()}
             {/* v2.246.0 THE AISLE'S TESTAMENT — the drill's aisle line
                 says what the aisle's latest window walk FOUND there:
                 the census's own three families (one home — the lib's

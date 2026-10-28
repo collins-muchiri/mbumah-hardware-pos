@@ -125,6 +125,7 @@ type SheetDetail = {
   // aisle, beyond/never, or the testament read fell back; the honest
   // absence, never a hidden zero).
   walkAisleUnits?: number | null;
+  walkAisleSheetUnits?: number | null;
   // v2.234.0 THE VERDICT — the lineage backwards (optional in the type;
   // the honest absence: null = no child, no verdict).
   recountedBy?: { id: string; status: string; closedAt: string | null; varianceUnits: number | null } | null;
@@ -690,6 +691,39 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                     {detail.startedByName ? ` · by ${detail.startedByName}` : ''}
                   </span>
                 </div>
+                {/* v2.247.0 THE WALK'S MIRROR — when this sheet's OWN
+                    walk found something DIFFERENT from what the aisle's
+                    latest window walk found, the branch face says both
+                    truths: this walk's own verdict first (the lib's
+                    findingsVoice, the same three families,
+                    tabular-nums), then the aisle's latest beneath it
+                    (the v2.246.0 line, byte-identical). When they agree,
+                    the single line keeps the floor's one voice — a
+                    duplicate would say nothing new. Absent when either
+                    truth is absent (an aisle-less birth, beyond/never,
+                    a silent window, an older cached answer, a
+                    fallen-back read) — the silence is the honest
+                    state. */}
+                {(() => {
+                  if (
+                    detail.origin !== 'walk-door' ||
+                    !detail.walkAisle ||
+                    detail.walkAisleSheetUnits == null ||
+                    detail.walkAisleUnits == null ||
+                    detail.walkAisleSheetUnits === detail.walkAisleUnits
+                  )
+                    return null;
+                  const fv = findingsVoice(detail.walkAisleSheetUnits);
+                  return (
+                    <p
+                      data-testid="stocktake-sheet-origin-aisle-self"
+                      title="this sheet's own walk — the aisle's shelf as this paper found it"
+                      className={`text-[10px] font-medium tabular-nums ${fv.cls}`}
+                    >
+                      this walk: {fv.text}
+                    </p>
+                  );
+                })()}
                 {/* v2.246.0 THE AISLE'S TESTAMENT — the branch face says
                     what the sheet's aisle's latest window walk FOUND
                     there: the census's own three families (one home —

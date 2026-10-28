@@ -399,10 +399,10 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.239.0: the yard's-answer entry joins the feed (+1 on every anchor → 130/131/132/163)
     // v2.240.0: the birth-everywhere entry joins the feed (+1 on every anchor → 131/132/133/164)
     // v2.241.0: the walk's-law entry joins the feed (+1 on every anchor → 132/133/134/165)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(137);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(138);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(139);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(170);
+    expect(whatsNewUnreadCount('2.110.0')).toBe(138);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(139);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(140);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(171);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 

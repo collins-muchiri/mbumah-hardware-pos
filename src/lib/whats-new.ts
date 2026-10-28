@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.247.0',
+    title: 'The walk\u2019s mirror',
+    bullets: [
+      'An older door-born sheet now admits when the aisle moved on: if THIS walk found something different from the aisle\u2019s latest, the drill and the branch face say both truths.',
+      'This walk\u2019s own verdict speaks first \u2014 same three families, same colours as the census \u2014 with the aisle\u2019s latest beneath it.',
+      'When the two agree, the sheet keeps its single honest line \u2014 a duplicate would say nothing new.',
+    ],
+  },
+  {
     version: '2.246.0',
     title: 'The aisle\u2019s testament',
     bullets: [
