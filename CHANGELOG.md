@@ -2,6 +2,18 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.239.0] The yard's answer
+
+The census shipped counting (v2.238.0) — this round it answers PER BRANCH: which yards actually answer their doors. The coverage breakdown grows the door-born chip; the drill's record face echoes a sheet's birth; and the census's faces name one violet family. The census counts doors, never guesses.
+
+### Added
+- **The yard's-answer wire** (`GET /api/org/kpi-summary` → `stockTakes.doorBornByStore`): one grouped read over the SAME window births the headline census already speaks (`origin='walk-door'`, `startedAt >= windowStart` — the same where-shape, zero new sheet queries), one row per store the census heard (`{ storeId, doorBorn }`; stores are five, never thousands — bounded by the catalog, not the ledger). Additive + optional in the type so an older cached answer renders the silent absence. A store ABSENT from the array answered nothing — the breakdown's silence is the honest zero, never a drawn one.
+- **The yard's-answer chip** (`src/components/org/variance-map.tsx`, `data-testid="coverage-row-door-born-{storeId}"`): each breakdown row that ANSWERED wears the violet door chip — "{N} born at a door", the law on the title ("the org face pointed, this yard answered"). THE SILENCE LAW: the chip speaks only when the payload carries the census AND the count is > 0 — the org-level census already spoke the org's zero, so a zero branch wears the silence, never a drawn zero. The row's aria stays the coverage voice; the chip carries its own (one element, one voice).
+- **The drill's birth chip** (`src/components/org/sheet-drill.tsx`, `data-testid="sheet-drill-origin"`): the org drill's wire grows the sheet's own `origin` (additive, one column the row already holds — zero new reads; the allowlist law means 'walk-door' or nothing), and a door-born sheet wears its birth beside the status chip: the DoorOpen glass + "born at a walk door", the law on the title. A hand-raised sheet wears nothing — the silence is the honest state.
+
+### Styled
+- The violet door family is born: the coverage chip and the drill's birth chip share one house (violet-50 / violet-700 / ring-violet-200, dark halves at the 500/10+300 family, 9px semibold, `tabular-nums` on the count) — distinct from the emerald books-heard, the amber pens, the red shorts. The census line wears the same DoorOpen glass (aria-hidden, decorative); the breakdown rows grow the hover surface (rounded-lg + slate-50/dark:slate-800/60 transition) and the bars gain the inner shadow track with a width transition; the toggle now names its flyout (`aria-controls="coverage-breakdown"`) and the flyout answers with its `id` — the disclosure pair complete. Dark halves from birth on every new face.
+
 ## [2.238.0] The door's census
 
 The walk's doors shipped pointing (v2.237.0) — this round they can be COUNTED. A sheet born at a door carries its birth; the org's cadence speaks the window's census; and the coverage tile opens into the branch truth. The census counts doors, never guesses.

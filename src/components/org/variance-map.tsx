@@ -27,7 +27,7 @@
 
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ClipboardCheck, ChevronDown, ChevronRight, Download, History } from 'lucide-react';
+import { ClipboardCheck, ChevronDown, ChevronRight, DoorOpen, Download, History } from 'lucide-react';
 import { ADMIN_CURRENCY_RATES_QUERY_KEY, RATE_SOURCE_PHRASE, type RatesWireBody } from '@/components/currency-switcher';
 import { useCurrency } from '@/hooks/use-currency';
 import { CURRENCY_BY_CODE, formatCurrency } from '@/lib/currency-utils';
@@ -96,9 +96,25 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
   const coverageByStore = useMemo(() => {
     const cad = block?.cadence;
     if (!cad) return [];
-    const byStore = new Map<string, { storeId: string; name: string; heard: number; total: number }>();
+    // v2.239.0 THE YARD'S ANSWER: the door-born census joins the SAME
+    // derivation — the per-branch counts ride the rows the payload
+    // already carries (zero new reads). When an older cached answer
+    // predates the field, the rows simply do not speak it (the optional
+    // absence); a store the census never heard wears NO chip — the
+    // org-level census already spoke the org's zero, and the branch chip
+    // marks only the yards that ANSWERED.
+    const bornByStore = new Map(
+      (block?.doorBornByStore ?? []).map((d) => [d.storeId, d.doorBorn]),
+    );
+    const byStore = new Map<string, { storeId: string; name: string; heard: number; total: number; doorBorn: number | null }>();
     for (const c of cad.categories) {
-      const e = byStore.get(c.storeId) ?? { storeId: c.storeId, name: c.storeName, heard: 0, total: 0 };
+      const e = byStore.get(c.storeId) ?? {
+        storeId: c.storeId,
+        name: c.storeName,
+        heard: 0,
+        total: 0,
+        doorBorn: block?.doorBornByStore ? bornByStore.get(c.storeId) ?? 0 : null,
+      };
       e.total += 1;
       if (c.band === 'fresh' || c.band === 'stale') e.heard += 1;
       byStore.set(c.storeId, e);
@@ -234,6 +250,7 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
                       type="button"
                       data-testid="coverage-breakdown-toggle"
                       aria-expanded={coverageOpen}
+                      aria-controls="coverage-breakdown"
                       onClick={() => setCoverageOpen((v) => !v)}
                       title="which branches the window actually heard"
                       className="flex w-full items-center justify-between gap-1 text-[10px] uppercase tracking-wide text-slate-500 transition-colors hover:text-slate-700 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-amber-500 dark:text-slate-400 dark:hover:text-slate-200"
@@ -270,23 +287,40 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
               Derived from the cadence rows the payload already carries —
               zero new reads, the same numbers the tile speaks. */}
           {coverageOpen && coverageByStore.length > 0 && (
-            <div data-testid="coverage-breakdown" className="rounded-xl border border-slate-200 bg-white/70 p-3 dark:border-slate-700 dark:bg-slate-800/60">
+            <div id="coverage-breakdown" data-testid="coverage-breakdown" className="rounded-xl border border-slate-200 bg-white/70 p-3 dark:border-slate-700 dark:bg-slate-800/60">
               <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">The breakdown — branch by branch</p>
               <p className="mt-0.5 text-[10px] text-slate-500 dark:text-slate-400">the silent shelves lead — each branch&apos;s share of aisles the 30-day window heard.</p>
               <ul className="mt-2 space-y-1.5">
                 {coverageByStore.map((s) => {
                   const pct = s.total > 0 ? Math.round((s.heard / s.total) * 100) : 0;
                   return (
-                    <li key={s.storeId} data-testid={`coverage-row-${s.storeId}`} aria-label={`${s.name}: ${s.heard} of ${s.total} shelves heard in the 30-day window.`} className="flex items-center gap-2">
+                    <li key={s.storeId} data-testid={`coverage-row-${s.storeId}`} aria-label={`${s.name}: ${s.heard} of ${s.total} shelves heard in the 30-day window.`} className="flex items-center gap-2 rounded-lg px-1.5 py-1 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/60">
                       <span className="w-32 shrink-0 truncate text-[11px] font-medium text-slate-700 dark:text-slate-200">{s.name}</span>
                       <div
-                        className="h-1 flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700"
+                        className="h-1 flex-1 overflow-hidden rounded-full bg-slate-200 shadow-inner dark:bg-slate-700"
                         role="img"
                         aria-label={`${s.name}: ${pct}% heard`}
                       >
-                        <span className="block h-full rounded-full bg-emerald-500" style={{ width: `${pct}%` }} />
+                        <span className="block h-full rounded-full bg-emerald-500 shadow-sm transition-[width] duration-500" style={{ width: `${pct}%` }} />
                       </div>
                       <span className="shrink-0 text-[9px] tabular-nums text-slate-500 dark:text-slate-400">{s.heard}/{s.total}</span>
+                      {/* v2.239.0 THE YARD'S ANSWER: the branch chip speaks
+                          only when the yard ANSWERED (count > 0) and the
+                          payload carries the census (field != null) — the
+                          org-level census already spoke the org's zero, so
+                          a zero branch wears the silence, never a drawn
+                          zero. The violet is the door's family (the drill's
+                          birth chip wears the same), distinct from the
+                          emerald books-heard and the amber pens. */}
+                      {s.doorBorn != null && s.doorBorn > 0 && (
+                        <span
+                          data-testid={`coverage-row-door-born-${s.storeId}`}
+                          title="sheets whose origin the create wire allowlisted as walk-door — the org face pointed, this yard answered"
+                          className="shrink-0 rounded bg-violet-50 px-1.5 py-0.5 text-[9px] font-semibold tabular-nums text-violet-700 ring-1 ring-violet-200 dark:bg-violet-500/10 dark:text-violet-300 dark:ring-violet-500/30"
+                        >
+                          {s.doorBorn} born at a door
+                        </span>
+                      )}
                     </li>
                   );
                 })}
@@ -540,8 +574,15 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
                     answer that predates the field renders the silent
                     absence (the type check, never an assumption). */}
                 {typeof block.doorBorn30d === 'number' && (
-                  <p data-testid="cadence-door-census" className="mt-1 text-[10px] tabular-nums text-slate-500 dark:text-slate-400">
-                    {block.doorBorn30d === 1 ? '1 sheet' : `${block.doorBorn30d} sheets`} this window started at a walk door — the org face pointed, the floor answered.
+                  <p data-testid="cadence-door-census" className="mt-1 flex items-center gap-1 text-[10px] tabular-nums text-slate-500 dark:text-slate-400">
+                    {/* v2.239.0: the census wears the door's own glyph — a
+                        decorative glass (aria-hidden), the same DoorOpen the
+                        drill's birth chip speaks, so the two faces name one
+                        family. */}
+                    <DoorOpen className="h-2.5 w-2.5 shrink-0 text-violet-500 dark:text-violet-400" aria-hidden="true" />
+                    <span>
+                      {block.doorBorn30d === 1 ? '1 sheet' : `${block.doorBorn30d} sheets`} this window started at a walk door — the org face pointed, the floor answered.
+                    </span>
                   </p>
                 )}
                 <ul className="mt-1.5 space-y-1.5">

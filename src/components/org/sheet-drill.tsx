@@ -95,7 +95,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { ArrowRight, ClipboardCheck, Download, Printer, Search, X } from 'lucide-react';
+import { ArrowRight, ClipboardCheck, DoorOpen, Download, Printer, Search, X } from 'lucide-react';
 import { num, timeAgo, parseSheetLineage } from './primitives';
 
 const fmtKes = (v: number) =>
@@ -146,6 +146,11 @@ interface DrillWire {
     id: string;
     status: string;
     notes: string | null;
+    // v2.239.0 THE DRILL'S BIRTH CHIP: additive + optional — the sheet's
+    // own origin as the create wire stored it (the allowlist law means
+    // 'walk-door' or nothing). An older cached wire renders the silent
+    // absence (the face checks the value, never assumes).
+    origin?: string | null;
     // v2.234.0 THE VERDICT — the lineage backwards: when a LATER sheet
     // was spawned from this one (the notes signature), the wire names
     // it and, once that child CLOSED, its variance units. Optional in
@@ -305,6 +310,22 @@ export function SheetDrill({ target, onClose, onOpenSheet }: { target: SheetDril
               <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide ring-1 ${statusChip(target.status)}`}>
                 {target.status}
               </span>
+              {/* v2.239.0 THE DRILL'S BIRTH CHIP — a door-born sheet wears
+                  its birth on the record face: the violet door family (the
+                  coverage breakdown's chip wears the same), the DoorOpen
+                  glass, the law on the title. A hand-raised sheet wears
+                  nothing — the silence is the honest state, and a census
+                  never grows a guess. */}
+              {data?.origin === 'walk-door' && (
+                <span
+                  data-testid="sheet-drill-origin"
+                  title="this sheet was born at a walk door — the org face pointed, the floor answered (the census counts it)"
+                  className="inline-flex items-center gap-1 rounded bg-violet-50 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-violet-700 ring-1 ring-violet-200 dark:bg-violet-500/10 dark:text-violet-300 dark:ring-violet-500/30"
+                >
+                  <DoorOpen className="h-2.5 w-2.5" aria-hidden="true" />
+                  born at a walk door
+                </span>
+              )}
               <span className="truncate text-xs font-medium text-slate-700 dark:text-slate-200">{target.storeName}</span>
             </h3>
             {data && (
