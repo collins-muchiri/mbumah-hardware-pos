@@ -174,6 +174,22 @@ export interface KpiSummaryData {
       varianceUnits: number | null; varianceCost: number | null;
     }>;
     window30d: { closedCount: number; varianceUnits: number; varianceCostTotal: number | null };
+    // v2.235.0 the cadence: additive + optional so an older cached answer
+    // renders the honest step-aside, never a crash. WHEN each shelf (branch
+    // category) was last heard — the four bands and the walk order the
+    // wire already sorted; the face renders, it never re-sorts.
+    cadence?: {
+      generatedAt: string;
+      windowDays: number;
+      freshDays: number;
+      counts: { fresh: number; stale: number; beyond: number; never: number; total: number };
+      categories: Array<{
+        categoryId: string; name: string; storeId: string;
+        storeName: string; storeCode: string | null;
+        productCount: number; lastCountedAt: string | null;
+        daysSince: number | null; band: 'fresh' | 'stale' | 'beyond' | 'never';
+      }>;
+    };
   };
   system: { stores: number; activeUsers: number; chatMessages: number; notificationsUnread: number };
   alerts: ConsoleAlert[];

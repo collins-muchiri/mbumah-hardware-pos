@@ -27,7 +27,7 @@
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ClipboardCheck, ChevronRight } from 'lucide-react';
+import { ClipboardCheck, ChevronRight, History } from 'lucide-react';
 import { ADMIN_CURRENCY_RATES_QUERY_KEY, RATE_SOURCE_PHRASE, type RatesWireBody } from '@/components/currency-switcher';
 import { useCurrency } from '@/hooks/use-currency';
 import { CURRENCY_BY_CODE, formatCurrency } from '@/lib/currency-utils';
@@ -303,6 +303,123 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
               the window figures read every closed sheet in 30 days — this roster names the 12 most recent, any status.
             </p>
           </div>
+
+          {/* ── v2.235.0 THE CADENCE — when each shelf was last heard ─────── */}
+          {/* The map has said WHAT walked since v2.220.0; the cadence says
+              WHEN: per branch category, the days since a CLOSED sheet last
+              touched it, in the wire's own walk order (the face renders,
+              it never re-sorts). Same laws as the map itself: zero new
+              fetches (the block rides `data.stockTakes`), an older cached
+              answer renders the honest step-aside, dark halves from birth,
+              the muted family carries every sub-line. */}
+          {(() => {
+            const cadence = block.cadence ?? null;
+            if (!cadence) {
+              return (
+                <p data-testid="cadence-stale" className="rounded-lg border border-dashed border-slate-200 bg-slate-50/60 px-3 py-2 text-[11px] text-slate-500 dark:border-slate-600 dark:bg-slate-800/40 dark:text-slate-400">
+                  this answer predates the cadence — refresh the console data and the shelves say when they were last heard.
+                </p>
+              );
+            }
+            const bandHouse = (band: 'fresh' | 'stale' | 'beyond' | 'never') => {
+              if (band === 'fresh') return { chip: 'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/30', rail: 'bg-emerald-500', bar: 'bg-emerald-500' };
+              if (band === 'stale') return { chip: 'bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/30', rail: 'bg-amber-500', bar: 'bg-amber-500' };
+              if (band === 'beyond') return { chip: 'bg-orange-50 text-orange-700 ring-orange-200 dark:bg-orange-500/10 dark:text-orange-300 dark:ring-orange-500/30', rail: 'bg-orange-500', bar: 'bg-orange-400' };
+              return { chip: 'bg-slate-100 text-slate-600 ring-slate-200 dark:bg-slate-500/10 dark:text-slate-300 dark:ring-slate-500/30', rail: 'bg-slate-300 dark:bg-slate-600', bar: null };
+            };
+            const daysVoice = (c: { band: 'fresh' | 'stale' | 'beyond' | 'never'; daysSince: number | null }) => {
+              if (c.band === 'never') return 'never heard';
+              if (c.band === 'beyond') return 'last heard beyond the window';
+              if (c.daysSince == null) return '—';
+              if (c.daysSince === 0) return 'counted today';
+              if (c.daysSince === 1) return '1 day ago';
+              return `${c.daysSince} days ago`;
+            };
+            const chipLabel = (band: string) => band === 'never' ? 'never' : band;
+            return (
+              <div data-testid="cadence-block">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                    <History className="h-3 w-3 text-slate-400 dark:text-slate-500" aria-hidden="true" />
+                    The cadence
+                  </p>
+                  <span className="flex flex-wrap items-center gap-1.5">
+                    {(['fresh', 'stale', 'beyond', 'never'] as const).map((band) => {
+                      const house = bandHouse(band);
+                      const count = cadence.counts[band];
+                      return (
+                        <span
+                          key={band}
+                          data-testid={`cadence-chip-${band}`}
+                          className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-semibold tabular-nums ring-1 ${count > 0 ? house.chip : 'bg-white text-slate-400 ring-slate-200 opacity-60 dark:bg-slate-900 dark:text-slate-500 dark:ring-slate-700'}`}
+                        >
+                          {count} {chipLabel(band)}
+                        </span>
+                      );
+                    })}
+                  </span>
+                </div>
+                <p className="mt-0.5 text-[10px] text-slate-500 dark:text-slate-400">
+                  when each shelf was last heard — the walk order for the floor, blind spots first.
+                </p>
+                <ul className="mt-1.5 space-y-1.5">
+                  {cadence.categories.map((c) => {
+                    const house = bandHouse(c.band);
+                    const pct = c.daysSince != null ? Math.max(4, Math.round((Math.min(c.daysSince, 30) / 30) * 100)) : 100;
+                    const voice = daysVoice(c);
+                    return (
+                      <li
+                        key={c.categoryId}
+                        data-testid={`cadence-row-${c.categoryId}`}
+                        aria-label={`${c.name} in ${c.storeName}: ${voice}, ${c.productCount} products on the shelf.`}
+                        className="flex items-stretch gap-2 overflow-hidden rounded-lg border border-slate-100 bg-white/70 dark:border-slate-700 dark:bg-slate-800/60"
+                      >
+                        <span aria-hidden="true" className={`w-1 shrink-0 ${house.rail}`} />
+                        <div className="min-w-0 flex-1 px-1 py-1.5 pr-2.5">
+                          <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
+                            <span className="flex min-w-0 items-center gap-1.5">
+                              <span className="truncate text-xs font-medium text-slate-700 dark:text-slate-200">{c.name}</span>
+                              <span className="text-[9px] font-semibold text-slate-400 dark:text-slate-500">{c.storeCode ?? c.storeName}</span>
+                            </span>
+                            <span className="flex items-center gap-1.5">
+                              <span
+                                data-testid={`cadence-band-${c.categoryId}`}
+                                className={`inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide ring-1 ${house.chip}`}
+                              >
+                                {c.band}
+                              </span>
+                              <span data-testid={`cadence-days-${c.categoryId}`} className="text-[10px] tabular-nums text-slate-500 dark:text-slate-400">
+                                {voice}
+                              </span>
+                            </span>
+                          </div>
+                          <div className="mt-1 flex items-center gap-2">
+                            <div
+                              className="h-1 flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700"
+                              role="img"
+                              aria-label={`${c.name}: ${voice}${c.daysSince != null ? ` (${c.daysSince} of 30 days)` : ''}`}
+                            >
+                              {house.bar ? (
+                                <span className={`block h-full rounded-full ${house.bar} ${c.band === 'beyond' ? 'opacity-70' : ''}`} style={{ width: `${pct}%` }} />
+                              ) : (
+                                <span className="block h-full w-full border-b border-dashed border-slate-400/70 dark:border-slate-500/70" />
+                              )}
+                            </div>
+                            <span className="shrink-0 text-[9px] tabular-nums text-slate-400 dark:text-slate-500">
+                              {c.productCount} {c.productCount === 1 ? 'SKU' : 'SKUs'}
+                            </span>
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+                <p className="mt-1.5 text-[9px] text-slate-500 dark:text-slate-400" data-testid="cadence-cap-note">
+                  the cadence reads the same 30-day window the map speaks — a shelf absent from it has not been heard in 30 days; a never-counted shelf has no closed line at all. fresh is {cadence.freshDays} days or less.
+                </p>
+              </div>
+            );
+          })()}
         </div>
       )}
 

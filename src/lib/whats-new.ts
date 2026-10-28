@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.235.0',
+    title: 'The cadence',
+    bullets: [
+      "The variance map now says WHEN, not just WHAT: every branch category shows the days since a closed count last touched its shelf — fresh (≤ 7 days), stale, not heard in 30 days, or never counted.",
+      "The list reads as the floor's to-do list: blind spots first, then the coldest shelves, then the stale — with a heat bar whose length is always time since last heard.",
+      "Band chips count each voice at a glance; an empty shelf still gets its row, and the cap note keeps the 30-day window honest.",
+    ],
+  },
+  {
     version: '2.234.0',
     title: 'The verdict',
     bullets: [
