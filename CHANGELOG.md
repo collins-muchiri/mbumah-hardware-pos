@@ -2,6 +2,17 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.240.0] The birth, everywhere
+
+The yard's answer shipped the per-branch census (v2.239.0) — this round the birth is nameable at EVERY altitude of the map: roster rows wear the chip, and the branch face echoes it. One violet family, four altitudes: census → breakdown → roster → drill — and the branch's own glass.
+
+### Added
+- **The roster's birth** (`GET /api/org/kpi-summary`): the live-sheets and recent-sheets queries grow `origin` (one column each row already holds — zero new reads; the allowlist law means 'walk-door' or nothing), and the map's roster rows wear the chip (`data-testid="variance-map-live-origin-{id}"` on a live row, `data-testid="variance-map-row-origin-{id}"` on a roster row) — a door-born sheet is nameable BEFORE the drill opens. Additive + optional in the type so an older cached answer renders the silence.
+- **The branch's echo** (`GET /api/stock-takes/[id]` + the branch sheet face): the branch detail wire grows the sheet's own `origin` (additive, one column the row already holds — zero new reads), and the branch face renders `data-testid="stocktake-sheet-origin"` beside the status chip — the same violet house, the DoorOpen glass, the law on the title. A hand-raised sheet wears nothing, both sides of the glass.
+
+### Styled
+- The BirthChip becomes a named face in the map (one component, one house — the drill's chip and the branch's echo wear the same classes): violet-50/700, ring-violet-200, dark 500/10+300, 9px semibold, `tabular-nums`, the aria-hidden DoorOpen glass. The live progress bars grow the width transition (duration-500) the breakdown's bars wear — one motion across the map. Dark halves from birth on every new face.
+
 ## [2.239.0] The yard's answer
 
 The census shipped counting (v2.238.0) — this round it answers PER BRANCH: which yards actually answer their doors. The coverage breakdown grows the door-born chip; the drill's record face echoes a sheet's birth; and the census's faces name one violet family. The census counts doors, never guesses.
