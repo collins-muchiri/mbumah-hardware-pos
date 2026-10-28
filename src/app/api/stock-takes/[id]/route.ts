@@ -34,7 +34,13 @@ async function getStockTakeHandler(_request: NextRequest, session: AuthSession, 
           countedQty: true,
           variance: true,
           varianceCost: true,
-          product: { select: { name: true, sku: true, unitType: true, costPrice: true } },
+          // v2.231.0 THE BRANCH LENS: the line names its shelf — the same
+          // additive category join the org drill's wire grew in v2.230.0,
+          // now on the branch's own detail wire. One query, zero new
+          // fetches: the lens's raw material rides the fetch the panel
+          // already makes. A product that never joined a category reads
+          // null — the face's honest "uncategorized" bucket.
+          product: { select: { name: true, sku: true, unitType: true, costPrice: true, category: { select: { name: true } } } },
         },
       },
       startedBy: { select: { name: true } },
@@ -93,6 +99,9 @@ async function getStockTakeHandler(_request: NextRequest, session: AuthSession, 
         name: l.product.name,
         sku: l.product.sku,
         unitType: l.product.unitType,
+        // v2.231.0: the shelf name rides the line (the drill wire's own
+        // shape) — null stays null, never a hidden grouping.
+        category: l.product.category?.name ?? null,
         snapshotQty: Number(l.snapshotQty),
         countedQty: l.countedQty != null ? Number(l.countedQty) : null,
         variance: l.variance != null ? Number(l.variance) : null,
