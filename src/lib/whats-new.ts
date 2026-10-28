@@ -80,6 +80,17 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.249.0',
+    title: 'The birth\u2019s ledger',
+    bullets: [
+      'The org\u2019s procurement ledger now reads the birth: a purchase order born at a count sheet wears the violet chip on the roster \u2014 the walk\u2019s answer, visible from above.',
+      'Two new rungs filter the pipe honestly: \u201cborn at sheets\u201d and \u201chand-raised\u201d carry their real counts, and pressing one keeps the other\u2019s number.',
+      'Opening a sheet-born order from up here names the sheet it answers \u2014 its aisle, its status, and (past the cost gate) the shillings the restock carries.',
+      'The restock door on a shrinkage sheet now speaks the hole\u2019s book-cost price too \u2014 KES on the units, only when every line\u2019s cost has spoken.',
+      'The ledger\u2019s CSV export grows a birth column \u2014 every row says sheet or hand, so the file sorts the walk\u2019s answers from the pens.',
+    ],
+  },
+  {
     version: '2.248.1',
     title: 'The restock\u2019s honest shillings',
     bullets: [

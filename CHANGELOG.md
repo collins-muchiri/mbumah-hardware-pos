@@ -2,6 +2,22 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.249.0] The birth's ledger
+
+The walk's answer went up to the org face: a restock born at a count sheet has worn the violet birth on the branch roster since v2.248.0, but the org's procurement ledger — the face that watches every branch's pipe — read every row the same. This round the ledger learns the birth, the drill names the sheet, and the door prices the hole.
+
+### Added
+- **The org wire's birth** (`GET /api/org/purchase-orders`): the rows grow `originStockTakeId` + `originStockTake` (additive + optional — the SAME shape the branch wire speaks: id, status, closedAt, the aisle's name). A hand-raised PO answers null and renders the silent absence. The wire grows the BIRTH RUNGS: `births: { sheet, hand }` beside the status ladder — two indexed counts over the rung-LESS narrowing (status + branch), so pressing one rung keeps its sibling's real number (a rung that zeroed its sibling would trap the reader). The `origin` param narrows the rows: `sheet` / `hand`; anything else is a REFUSED filter (the same 400 law as status — an unknown rung never silently means "all").
+- **The org detail wire's birth** (`GET /api/org/purchase-orders/[id]`): `originStockTake` rides the read (additive + optional, the same shape) — the drill names the sheet.
+- **The ledger's birth rungs** (`po-ledger.tsx`): a second rung row — "born at sheets N" (the violet family, the birth chip's own house) and "hand-raised M" (the slate family) — `aria-pressed`, the toggle law the status rungs speak, the query key carries the rung (a rung change IS a refetch).
+- **The ledger's birth chips**: each sheet-born row wears the violet chip beside the PO number ("born at a sheet", the aisle's name on the title); a hand-raised PO renders the silent absence — the type check, never an assumption.
+- **The org drill's birth strip** (`po-drill.tsx`): a sheet-born document opens wearing the violet strip — the sheet's id, its aisle when it wore one, the honest status voice — and, past the cost gate, the restock's own shillings (the summary tile's gated total, spoken where the birth is spoken). A hand-raised PO renders the silent absence.
+- **The restock door's shillings** (`sheet-drill.tsx`): past the cost gate AND only when EVERY shrinkage line carries its own `varianceCost`, the door names the hole's book-cost price (`KES 2,250.00 at book cost` on the pickaxe's sheet). A partial sum would understate and lie — an incomplete set keeps the units-only voice.
+- **The roster's birth column** (`rosterCsv`): the file grows `,birth` — every row speaks `sheet` or `hand`. A FILE has no chips, so the word speaks for every row; a file's silence would be an absence, and a hand-raised PO is a known state, not a missing one.
+
+### Styled
+- The violet family grows its org faces: the rung's pressed half (`bg-violet-600` / dark `bg-violet-300` on `violet-950`), its hover half, the chip's 3:1-on-both-halves rings, the strip's border families — `tabular-nums` on every figure, focus rings in the rung's own house (violet for the sheet rung, sky for the slate rung), dark halves from birth.
+
 ## [2.248.1] The restock's honest shillings
 
 The E2E birth caught its own bug: the create dialog's pre-pick read `l.product?.costPrice` — a field the sheet detail wire has NEVER carried (the wire maps each line's gated cost to `bookCost`, and no nested product rides the lines). Every pre-picked restock line landed at unitCost 0.

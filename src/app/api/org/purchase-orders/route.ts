@@ -58,6 +58,22 @@
 // branch's watchlist face — the org wire stays a whisper, not a
 // second watchlist. Zero still answers an empty array — absence
 // stays absent.
+//
+// v2.249.0 THE BIRTH'S LEDGER — the org face learns the birth (the
+// walk's answer, read from above). The rows carry originStockTakeId
+// + originStockTake (additive + optional — the SAME shape the branch
+// wire speaks: id / status / closedAt / the aisle's name), so the
+// roster wears the violet birth chip; a hand-raised PO reads null
+// and renders the silent absence (the type check, never an
+// assumption). The wire grows the BIRTH RUNGS: two counts beside the
+// status ladder — how many of the pipe's orders were BORN AT A COUNT
+// SHEET vs HAND-RAISED — computed over the SAME narrowing the status
+// ladder answers (status + branch), but NEVER over the birth rung
+// itself (pressing one rung keeps the other's real number — a rung
+// that zeroes its sibling would trap the reader). The `origin` param
+// narrows the rows: `sheet` → born at a count sheet, `hand` →
+// hand-raised; anything else is a REFUSED filter (the same 400 law
+// as status — an unknown rung never silently means "all").
 
 import { type NextRequest } from 'next/server';
 import { rawDb, runWithoutTenant } from '@/lib/db';
@@ -103,6 +119,9 @@ async function orgPurchaseOrdersHandler(request: NextRequest, session: AuthSessi
   const url = new URL(request.url);
   const statusParam = url.searchParams.get('status') ?? '';
   const storeId = url.searchParams.get('storeId') ?? '';
+  // v2.249.0: the birth rung — 'sheet' (born at a count sheet) or
+  // 'hand' (hand-raised). Empty means all. Anything else is refused.
+  const originParam = url.searchParams.get('origin') ?? '';
   const takeParam = Number(url.searchParams.get('take') ?? '30');
   const take = Number.isFinite(takeParam) ? Math.min(100, Math.max(1, Math.trunc(takeParam))) : 30;
 
@@ -111,13 +130,28 @@ async function orgPurchaseOrdersHandler(request: NextRequest, session: AuthSessi
   if (statusParam !== '' && !status) {
     return Response.json({ success: false, error: 'unknown purchase-order status.' }, { status: 400 });
   }
+  // v2.249.0: an out-of-family birth rung is a refused filter too —
+  // an unknown rung never silently means "all".
+  if (originParam !== '' && originParam !== 'sheet' && originParam !== 'hand') {
+    return Response.json({ success: false, error: 'unknown purchase-order birth filter.' }, { status: 400 });
+  }
 
-  const where: { status?: string; storeId?: string } = {};
+  const where: { status?: string; storeId?: string; originStockTakeId?: { not: null } | null } = {};
   if (status) where.status = status;
   if (storeId) where.storeId = storeId;
+  // The birth rung narrows the ROWS only — the birth counts below
+  // read the rung-less where, so both rungs keep their real numbers
+  // while one is pressed.
+  if (originParam === 'sheet') where.originStockTakeId = { not: null };
+  if (originParam === 'hand') where.originStockTakeId = null;
+  // The birth counts' own narrowing: status + branch, never the
+  // birth rung.
+  const birthWhere: { status?: string; storeId?: string } = {};
+  if (status) birthWhere.status = status;
+  if (storeId) birthWhere.storeId = storeId;
 
   const result = await runWithoutTenant(async () => {
-    const [rows, grouped] = await Promise.all([
+    const [rows, grouped, bornAtSheets, handRaised] = await Promise.all([
       rawDb.purchaseOrder.findMany({
         where,
         orderBy: [{ orderDate: 'desc' }, { createdAt: 'desc' }],
@@ -134,9 +168,28 @@ async function orgPurchaseOrdersHandler(request: NextRequest, session: AuthSessi
           supplier: { select: { id: true, name: true } },
           createdBy: { select: { name: true } },
           _count: { select: { items: true } },
+          // v2.249.0 THE BIRTH'S LEDGER — the row's birth rides the
+          // roster (additive + optional): the id + the sheet's own
+          // voices, the SAME shape the branch wire speaks. A
+          // hand-raised PO reads null and renders the silent absence.
+          originStockTakeId: true,
+          originStockTake: {
+            select: {
+              id: true,
+              status: true,
+              closedAt: true,
+              walkAisle: { select: { name: true } },
+            },
+          },
         },
       }),
       rawDb.purchaseOrder.groupBy({ by: ['status'], where, _count: { _all: true } }),
+      // v2.249.0: the BIRTH RUNGS — two counts over the rung-less
+      // narrowing (both indexed reads; originStockTakeId has carried
+      // its index since v2.248.0). A rung pressed keeps its sibling's
+      // real number.
+      rawDb.purchaseOrder.count({ where: { ...birthWhere, originStockTakeId: { not: null } } }),
+      rawDb.purchaseOrder.count({ where: { ...birthWhere, originStockTakeId: null } }),
     ]);
 
     // v2.227.0 THE WATCHLIST STITCH — per (store, supplier-of-record):
@@ -192,7 +245,7 @@ async function orgPurchaseOrdersHandler(request: NextRequest, session: AuthSessi
       }
     }
 
-    return { rows, grouped, hints };
+    return { rows, grouped, hints, births: { sheet: bornAtSheets, hand: handRaised } };
   });
 
   const canViewCost = hasFeaturePermission(session.role, 'inventory.view.cost');
@@ -207,6 +260,9 @@ async function orgPurchaseOrdersHandler(request: NextRequest, session: AuthSessi
       costGated: !canViewCost,
       take,
       counts: PO_STATUSES.map((s) => ({ status: s, count: countByStatus.get(s) ?? 0 })),
+      // v2.249.0: the birth rungs' real numbers (the rung-less
+      // narrowing — status + branch; never the rung itself).
+      births: result.births,
       rows: result.rows.map((po) => ({
         id: po.id,
         poNumber: po.poNumber,
@@ -225,6 +281,19 @@ async function orgPurchaseOrdersHandler(request: NextRequest, session: AuthSessi
         // empty array, absence stays absent).
         watchlistHints: result.hints.get(`${po.store.id}:${po.supplier.id}`)?.count ?? 0,
         watchlist: result.hints.get(`${po.store.id}:${po.supplier.id}`)?.rows ?? [],
+        // v2.249.0: the row's birth (additive + optional — the SAME
+        // shape the branch wire speaks; a hand-raised PO answers null).
+        originStockTakeId: po.originStockTakeId,
+        originStockTake: po.originStockTake
+          ? {
+              id: po.originStockTake.id,
+              status: po.originStockTake.status,
+              closedAt: po.originStockTake.closedAt?.toISOString() ?? null,
+              walkAisle: po.originStockTake.walkAisle
+                ? { name: po.originStockTake.walkAisle.name }
+                : null,
+            }
+          : null,
         // The shillings speak only past the cost gate (null otherwise —
         // the face renders the honest absence, never a hidden zero).
         totalAmount: canViewCost ? Number(po.totalAmount) : null,

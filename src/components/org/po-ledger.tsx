@@ -26,10 +26,18 @@
 //   muted family (slate-500 / dark:slate-400) on every sub-line; the
 //   3:1 contrast law on every chip; tabular-nums on every figure;
 // • READ-ONLY BY LAW — the branch workspace keeps the only pens.
+//
+// v2.249.0 THE BIRTH'S LEDGER — the org face learns the birth: each
+// row wears the violet birth chip when the PO was born at a count
+// sheet (a hand-raised PO renders the silent absence); the BIRTH
+// RUNGS narrow the pipe honestly (born at sheets / hand-raised, REAL
+// counts over the rung-less narrowing — a pressed rung keeps its
+// sibling's truth); the roster's copy grows the birth column (a file
+// speaks the word — 'sheet' | 'hand' — where a face may stay silent).
 
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronRight, ClipboardList, Download, TriangleAlert } from 'lucide-react';
+import { Baby, ChevronRight, ClipboardList, Download, TriangleAlert } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -53,7 +61,12 @@ const fmtKes = (v: number) =>
 // zero); the BOM so Excel opens UTF-8 honestly; CRLF joins; the boring
 // quoting law reused verbatim from the sheet drill's pure builder.
 export function rosterCsv(rows: PoLedgerWire['data']['rows'], opts: { costGated: boolean }): string {
-  const header = 'po_number,status,supplier,branch,lines,ordered_day,total_kes';
+  // v2.249.0: the birth column rides the file — a FILE has no chips,
+  // so the word speaks for every row ('sheet' | 'hand'): a file's
+  // silence would be an absence, and a hand-raised PO is a known
+  // state, not a missing one (the face's silent-absence law is a
+  // screen law, not a file law).
+  const header = 'po_number,status,supplier,branch,lines,ordered_day,total_kes,birth';
   const rowsOut = rows.map((r) =>
     [
       csvCell(r.poNumber),
@@ -63,6 +76,7 @@ export function rosterCsv(rows: PoLedgerWire['data']['rows'], opts: { costGated:
       r.lineCount,
       r.orderDate.slice(0, 10),
       !opts.costGated && r.totalAmount != null ? r.totalAmount : '',
+      r.originStockTakeId != null ? 'sheet' : 'hand',
     ].join(','),
   );
   return `\ufeff${[header, ...rowsOut].join('\r\n')}`;
@@ -74,6 +88,10 @@ interface PoLedgerWire {
     costGated: boolean;
     take: number;
     counts: Array<{ status: string; count: number }>;
+    // v2.249.0: the birth rungs' real numbers — the wire answers them
+    // over the rung-less narrowing (status + branch), so a pressed
+    // rung keeps its sibling's truth.
+    births: { sheet: number; hand: number };
     rows: Array<{
       id: string;
       poNumber: string;
@@ -92,6 +110,17 @@ interface PoLedgerWire {
       // WATCHLIST_NAMES_CAP) as the branch's own numbers (stock/level);
       // empty when the count is zero (absence stays absent).
       watchlist: Array<{ name: string; stock: number; level: number }>;
+      // v2.249.0 THE BIRTH'S LEDGER — the row's birth (additive +
+      // optional): the sheet's id + its own voices when the PO was
+      // born at a count sheet; null for a hand-raised PO (the silent
+      // absence, never a fabricated chip).
+      originStockTakeId: string | null;
+      originStockTake: {
+        id: string;
+        status: string;
+        closedAt: string | null;
+        walkAisle: { name: string | null } | null;
+      } | null;
       totalAmount: number | null;
     }>;
   };
@@ -103,18 +132,26 @@ export function ProcurementLedger({ stores }: { stores: StoreRow[] }) {
   // (the counts come back honest for the narrowing too).
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [branchId, setBranchId] = useState<string>('ALL');
+  // v2.249.0 THE BIRTH'S LEDGER — the birth rung (the walk's answer,
+  // read from above): 'ALL' stands for the whole pipe; 'sheet' and
+  // 'hand' narrow it. State of the surface, carried in the query key —
+  // a rung change IS a refetch (the counts answer for the narrowing).
+  const [originFilter, setOriginFilter] = useState<'ALL' | 'sheet' | 'hand'>('ALL');
   const [drill, setDrill] = useState<PoDrillTarget>(null);
   // The finder's needle — client-side over the loaded window, the
   // sheet drill's law: the reading narrows, the fetch never does.
   const [needle, setNeedle] = useState('');
 
   const wire = useQuery<PoLedgerWire>({
-    queryKey: ['org-po-ledger', statusFilter, branchId],
+    queryKey: ['org-po-ledger', statusFilter, branchId, originFilter],
     staleTime: 15_000,
     queryFn: async () => {
       const params = new URLSearchParams();
       if (statusFilter !== 'ALL') params.set('status', statusFilter);
       if (branchId !== 'ALL') params.set('storeId', branchId);
+      // v2.249.0: the birth rung rides the fetch (the wire refuses an
+      // unknown rung — the face only ever sends the family's own).
+      if (originFilter !== 'ALL') params.set('origin', originFilter);
       const res = await fetch(`/api/org/purchase-orders?${params.toString()}`);
       if (!res.ok) {
         const body = await res.json().catch(() => null);
@@ -223,6 +260,41 @@ export function ProcurementLedger({ stores }: { stores: StoreRow[] }) {
         </div>
       )}
 
+      {/* v2.249.0 THE BIRTH'S LEDGER — the birth rungs, the walk's
+          answer read from above: how many of the pipe's orders were
+          BORN AT A COUNT SHEET (the violet family — the birth chip's
+          own house) vs HAND-RAISED (the slate family). The wire
+          answers both counts over the rung-less narrowing, so a
+          pressed rung keeps its sibling's real number — a rung that
+          zeroed its sibling would trap the reader. aria-pressed
+          carries the rung's state; a click on the pressed rung stands
+          it down (the status rungs' own toggle law). */}
+      {data && (
+        <div data-testid="po-ledger-birth-row" className="mt-1.5 flex flex-wrap items-center gap-1.5">
+          <button
+            type="button"
+            data-testid="po-ledger-origin-sheet"
+            aria-pressed={originFilter === 'sheet'}
+            onClick={() => setOriginFilter(originFilter === 'sheet' ? 'ALL' : 'sheet')}
+            title={`born at a count sheet — ${data.births.sheet} ${data.births.sheet === 1 ? 'order' : 'orders'} the walk's answer raised`}
+            className={`inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-[10px] font-semibold tabular-nums ring-1 transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500/40 ${originFilter === 'sheet' ? 'bg-violet-600 text-white ring-violet-600 dark:bg-violet-300 dark:text-violet-950 dark:ring-violet-300' : 'bg-white text-violet-700 ring-violet-200 hover:bg-violet-50 dark:bg-slate-900 dark:text-violet-300 dark:ring-violet-500/40 dark:hover:bg-violet-500/20'}`}
+          >
+            <Baby className="h-2.5 w-2.5" aria-hidden="true" />
+            born at sheets <span className="opacity-70">{num(data.births.sheet)}</span>
+          </button>
+          <button
+            type="button"
+            data-testid="po-ledger-origin-hand"
+            aria-pressed={originFilter === 'hand'}
+            onClick={() => setOriginFilter(originFilter === 'hand' ? 'ALL' : 'hand')}
+            title={`hand-raised — ${data.births.hand} ${data.births.hand === 1 ? 'order' : 'orders'} raised by a pen, no walk behind it`}
+            className={`inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-[10px] font-semibold tabular-nums ring-1 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500/40 ${originFilter === 'hand' ? 'bg-slate-800 text-white ring-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:ring-slate-100' : 'bg-white text-slate-600 ring-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-600 dark:hover:bg-slate-800'}`}
+          >
+            hand-raised <span className="opacity-70">{num(data.births.hand)}</span>
+          </button>
+        </div>
+      )}
+
       {wire.isLoading && (
         <p data-testid="po-ledger-loading" className="mt-3 rounded-lg border border-dashed border-slate-200 bg-slate-50/60 px-3 py-2 text-[11px] text-slate-500 dark:border-slate-600 dark:bg-slate-800/40 dark:text-slate-400">
           reading the pipeline — one fetch of the roster…
@@ -307,6 +379,22 @@ export function ProcurementLedger({ stores }: { stores: StoreRow[] }) {
                       <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide ring-1 ${poStatusChip(po.status)}`}>
                         {po.status.replaceAll('_', ' ')}
                       </span>
+                      {/* v2.249.0: the violet birth chip — the walk's
+                          answer wears its family on the roster, the
+                          SAME chip the branch roster and the variance
+                          map speak. A hand-raised PO renders the
+                          silent absence (the type check, never an
+                          assumption). */}
+                      {po.originStockTakeId != null && (
+                        <span
+                          data-testid="po-ledger-row-birth-chip"
+                          title={po.originStockTake?.walkAisle?.name ? `born at a count sheet — the walk order named ${po.originStockTake.walkAisle.name}` : 'born at a count sheet'}
+                          className="inline-flex shrink-0 items-center gap-0.5 rounded bg-violet-50 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-violet-700 ring-1 ring-violet-200 dark:bg-violet-500/10 dark:text-violet-300 dark:ring-violet-500/30"
+                        >
+                          <Baby className="h-2.5 w-2.5" aria-hidden="true" />
+                          born at a sheet
+                        </span>
+                      )}
                       <span className="font-mono text-xs font-semibold tabular-nums text-slate-800 dark:text-slate-100">{po.poNumber}</span>
                       <span className="truncate text-xs text-slate-600 dark:text-slate-300">{po.supplierName}</span>
                       <span className="text-[9px] font-semibold text-slate-400 dark:text-slate-500">{po.store.code ?? po.store.name}</span>

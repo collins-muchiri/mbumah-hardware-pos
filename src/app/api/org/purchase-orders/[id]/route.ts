@@ -21,7 +21,12 @@
 //     answer for all eight rungs of the ladder;
 //   • the drill is a DELIBERATE act (the user opened a document), so
 //     ONE fetch is the contract, disclosed by the loading face — the
-//     same exception the sheet drill carries.
+//     same exception the sheet drill carries;
+//   • v2.249.0 THE BIRTH'S LEDGER: the document's birth rides the
+//     read (additive + optional) — the org face names the count sheet
+//     a restock was born from, exactly as the branch detail wire has
+//     since v2.248.0. A hand-raised PO answers null; the face renders
+//     the silent absence, never a fabricated strip.
 
 import { type NextRequest } from 'next/server';
 import { rawDb, runWithoutTenant } from '@/lib/db';
@@ -63,6 +68,20 @@ async function orgPurchaseOrderDetailHandler(_request: NextRequest, session: Aut
         approvedBy: { select: { name: true } },
         receivedBy: { select: { name: true } },
         cancelledBy: { select: { name: true } },
+        // v2.249.0 THE BIRTH'S LEDGER — the document's birth rides the
+        // detail (additive + optional): the sheet's id, its honest
+        // status, its closing, and the aisle's name when the walk
+        // order wore one — the SAME shape the branch detail wire
+        // speaks. A hand-raised PO reads null and renders the silent
+        // absence (the type check, never an assumption).
+        originStockTake: {
+          select: {
+            id: true,
+            status: true,
+            closedAt: true,
+            walkAisle: { select: { name: true } },
+          },
+        },
         items: {
           orderBy: [{ productName: 'asc' }],
           select: {
@@ -109,6 +128,18 @@ async function orgPurchaseOrderDetailHandler(_request: NextRequest, session: Aut
       cancelledByName: po.cancelledBy?.name ?? null,
       store: { id: po.store.id, name: po.store.name, code: po.store.code },
       supplierName: po.supplier.name,
+      // v2.249.0: the document's birth (additive + optional — a
+      // hand-raised PO answers null, the face renders the absence).
+      originStockTake: po.originStockTake
+        ? {
+            id: po.originStockTake.id,
+            status: po.originStockTake.status,
+            closedAt: po.originStockTake.closedAt?.toISOString() ?? null,
+            walkAisle: po.originStockTake.walkAisle
+              ? { name: po.originStockTake.walkAisle.name }
+              : null,
+          }
+        : null,
       summary: {
         lineCount: po.items.length,
         // Units are units — every org role hears the pipeline's weight.

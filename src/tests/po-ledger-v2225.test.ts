@@ -56,9 +56,9 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.225.0)', () => {
   it('package.json leads 2.225.0 (all three slots)', () => {
-    expect(version).toBe('2.248.1');
-    expect(pkg.mbumah.releaseVersion).toBe('2.248.1');
-    expect(pkg.mbumah.baseVersion).toBe('2.248.1');
+    expect(version).toBe('2.249.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.249.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.249.0');
   });
 
   it('the changelog anchors the section ABOVE its ancestor (the structural pin — headers, never bare strings)', () => {
@@ -160,8 +160,8 @@ describe('the procurement ledger', () => {
       .toBeGreaterThan(consolePage.indexOf('<VarianceMap data={kpi} stores={stores} />'));
   });
 
-  it('carries the filters in the query key (a filter change IS a refetch)', () => {
-    expect(ledger).toContain("queryKey: ['org-po-ledger', statusFilter, branchId],");
+  it('carries the filters in the query key (a filter change IS a refetch; the birth rung rode the key at v2.249.0)', () => {
+    expect(ledger).toContain("queryKey: ['org-po-ledger', statusFilter, branchId, originFilter],");
   });
 
   it('renders the status rungs with aria-pressed and REAL counts', () => {

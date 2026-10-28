@@ -45,9 +45,9 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.226.0)', () => {
   it('package.json leads 2.226.0 (all three slots)', () => {
-    expect(version).toBe('2.248.1');
-    expect(pkg.mbumah.releaseVersion).toBe('2.248.1');
-    expect(pkg.mbumah.baseVersion).toBe('2.248.1');
+    expect(version).toBe('2.249.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.249.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.249.0');
   });
 
   it('the changelog anchors the section ABOVE its ancestor (the structural pin — headers, never bare strings)', () => {
@@ -141,8 +141,8 @@ describe('the roster\u2019s copy', () => {
     expect(ledger).toContain("export function rosterCsv(rows: PoLedgerWire['data']['rows'], opts: { costGated: boolean }): string {");
   });
 
-  it('speaks the seven columns', () => {
-    expect(ledger).toContain("'po_number,status,supplier,branch,lines,ordered_day,total_kes'");
+  it('speaks the columns (the birth column rode the file at v2.249.0)', () => {
+    expect(ledger).toContain("'po_number,status,supplier,branch,lines,ordered_day,total_kes,birth'");
   });
 
   it('rides the cost gate IN THE FILE', () => {
