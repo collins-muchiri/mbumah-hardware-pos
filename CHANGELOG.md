@@ -2,6 +2,20 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.238.0] The door's census
+
+The walk's doors shipped pointing (v2.237.0) — this round they can be COUNTED. A sheet born at a door carries its birth; the org's cadence speaks the window's census; and the coverage tile opens into the branch truth. The census counts doors, never guesses.
+
+### Added
+- **The origin column** (prisma: `stock_takes.origin`, nullable TEXT + migration): how a sheet was born. Additive + nullable — every existing sheet reads as hand-raised, which is exactly the truth. THE ALLOWLIST LAW (`POST /api/stock-takes`): the wire stores exactly ONE origin value (`walk-door`); anything else — a forged string, a stale client, a future caller — reads as a hand-raised sheet. A free-text origin would be a census anyone could edit; a closed vocabulary is a census the ledger can trust.
+- **The birth rides the drawer** (`src/components/inventory/stock-take-panel.tsx`): `doorBorn` shares the whisper's life — set by the door's consume (a hit), silenced by the user's own hand (either scope button or the category select), cleared on success. Only a sheet whose AISLE the door actually aimed carries `origin: 'walk-door'` in its create payload — a hand-diverted drawer is a hand-raised sheet.
+- **The census wire** (`GET /api/org/kpi-summary` → `stockTakes.doorBorn30d`): one bounded count — sheets BORN in the rolling 30-day window whose origin the create wire allowed. Births, not closes: a counting door-born sheet is still a walk answered. Additive + optional in the type so an older cached answer renders the silent absence (the face checks the type, never assumes).
+- **The census face** (`src/components/org/variance-map.tsx`, `data-testid="cadence-door-census"`): beneath the cadence's tagline — "N sheets this window started at a walk door — the org face pointed, the floor answered." The census SPEAKS ITS ZERO honestly: a face may say nothing happened; only a CONTROL must hide.
+- **The coverage breakdown** (`src/components/org/variance-map.tsx`): the coverage tile's label becomes a toggle (`data-testid="coverage-breakdown-toggle"`, aria-expanded, the ChevronDown turning) when the cadence speaks — a stale payload keeps the plain label. Open, it renders the branch truth beneath the window row (`data-testid="coverage-breakdown"`): one bar per branch (`data-testid="coverage-row-{storeId}"`), heard of total with the emerald books-heard fill, THE SILENT SHELVES LEADING (least heard first, heaviest roster as the tiebreak — the walk order's own spirit). Derived from the cadence rows the payload already carries — zero new reads: the rows the map renders ARE the rows the breakdown speaks.
+
+### Styled
+- The census line rides the cadence's muted voice at 10px with `tabular-nums` on the count; the breakdown toggle inherits the tile's uppercase label scale with the amber focus ring and the rotating chevron; the breakdown rows carry the map's tile house (rounded-xl, the emerald h-1 bars on the slate track, `tabular-nums` on every figure, the branch name truncated with its full voice on the aria). Dark halves from birth on every new face.
+
 ## [2.237.0] The walk's door
 
 The cadence has said WHERE and WHEN since v2.235.0 — this round it grows HANDS. The org face's walk order becomes a set of doors: one click on a blind-spot aisle opens the branch's count sheet with that aisle already picked, the arrival whispered. And the walk order exports itself — one honest file, the floor's clipboard for the day. The org face points, the branch face counts, and the paper rides along.

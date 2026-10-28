@@ -458,6 +458,11 @@ model StockTake {
   startedAt   DateTime  @default(now())
   closedAt    DateTime?
   createdAt   DateTime  @default(now())
+  // v2.238.0 THE DOOR'S CENSUS — how a sheet was born. Nullable, and the
+  // create wire ALLOWLISTS it (the only value it ever stores is
+  // 'walk-door'); a hand-raised sheet carries no origin at all — the
+  // census counts doors, never guesses.
+  origin      String?
   updatedAt   DateTime  @updatedAt
 
   store     Store            @relation(fields: [storeId], references: [id])
