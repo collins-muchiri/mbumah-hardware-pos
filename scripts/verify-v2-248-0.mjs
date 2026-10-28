@@ -82,7 +82,7 @@ console.log('— the landing + pre-pick —');
 ok('the tab reads ?restockFrom= ONE time + cleans the address', poTab.includes("new URLSearchParams(window.location.search).get('restockFrom') ?? ''") && poTab.includes("window.history.replaceState(null, '', window.location.pathname + window.location.hash);"));
 ok('the dialog receives the birth', poTab.includes('restockSheetId={restockFrom || null}') && poTab.includes('originStockTakeId: restockSheetId || undefined,'));
 ok('the pre-pick takes shrinkage only (variance < 0)', poTab.includes('if (variance == null || !Number.isFinite(variance) || variance >= 0) continue;') && poTab.includes('const lost = Math.abs(variance);'));
-ok('the pre-pick costs at the product\u2019s own cost price', poTab.includes('unitCost: String(l.product?.costPrice ?? 0),'));
+ok('the pre-pick costs at the line\u2019s gated bookCost', poTab.includes("unitCost: l.bookCost != null ? String(l.bookCost) : '0',"));
 ok('a refusing sheet speaks its refusal (the birth stays off the record)', poTab.includes("sheet.status !== 'CLOSED'") && poTab.includes('the birth stays off the record.'));
 ok('the violet birth strip rides the dialog', poTab.includes('data-testid="po-restock-provenance"') && poTab.includes('born at a count sheet'));
 

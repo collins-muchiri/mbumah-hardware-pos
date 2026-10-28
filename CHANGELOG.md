@@ -2,6 +2,13 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.248.1] The restock's honest shillings
+
+The E2E birth caught its own bug: the create dialog's pre-pick read `l.product?.costPrice` — a field the sheet detail wire has NEVER carried (the wire maps each line's gated cost to `bookCost`, and no nested product rides the lines). Every pre-picked restock line landed at unitCost 0.
+
+### Fixed
+- **The pre-pick's cost** (`purchase-orders-tab.tsx`): the pre-pick reads the line's own `bookCost` — the wire's gated cost voice. A viewer holding `inventory.view.cost` gets the real shillings pre-filled; a viewer without it gets the units pre-picked and the cost left for the pen (the units are the truth, the shillings follow the gate — never a guessed zero).
+
 ## [2.248.0] The door's answer
 
 Two doors, one law: a door must land where it points, and a finding must be answerable. This round fixes the first with the workspace's tab landing (a real bug: every branch-workspace door anchored to whatever tab localStorage had persisted), and builds the second — the restock's birth, the walk lifecycle's missing closure: the shrinkage a walk found can now be ANSWERED by a purchase order born wearing the sheet's name.
