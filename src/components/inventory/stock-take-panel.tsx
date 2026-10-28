@@ -66,7 +66,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ClipboardCheck, Download, FolderTree, History, Loader2, Printer, RotateCcw, Search, X } from 'lucide-react';
 import { authorizedFetchJson } from '@/lib/api';
-import { num } from '@/components/org/primitives';
+import { num, parseSheetLineage, LineageChip } from '@/components/org/primitives';
 // v2.229.0: the CSV law's one voice — the SAME pure builders the org
 // drill exports (csvCell's quoting, sheetLinesCsv's BOM + CRLF + the
 // cost-gated empty). Imported, never re-invented: the file a branch
@@ -571,6 +571,21 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                   book-cost estimate {fmtKes(detail.summary.varianceValueEstimate)} — the close face speaks the server&apos;s own numbers.
                 </p>
               )}
+              {/* v2.233.0 THE LINEAGE — the walker's own record: a sheet
+                  spawned by the recount wears its lineage under the
+                  header (the full source id — the face where the pens
+                  live speaks the whole truth). Rides the paper (no
+                  print-off mark): a printed walk carries its lineage. */}
+              {(() => {
+                const lineage = parseSheetLineage(detail.notes);
+                if (lineage?.kind !== 'recount' || !lineage.sourceSheetId) return null;
+                return (
+                  <p data-testid="stocktake-sheet-lineage" className="mt-1.5 rounded-lg border border-amber-200 bg-amber-50/60 px-2 py-1 text-[10px] text-amber-800 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200">
+                    recount of sheet <span className="font-semibold tabular-nums">{lineage.sourceSheetId}</span>
+                    {lineage.remainder ? ` · ${lineage.remainder}` : ''}
+                  </p>
+                );
+              })()}
             </div>
 
             {/* v2.229.0: the clipboard's floor-copy note — print-only
@@ -887,7 +902,7 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                   {cancelledFace.closedAt ? ` · ${new Date(cancelledFace.closedAt).toLocaleDateString()}` : ''}
                 </p>
                 {cancelledFace.notes && (
-                  <p className="mt-1 text-[10px] text-slate-500 dark:text-slate-400">{cancelledFace.notes}</p>
+                  <p data-testid="stocktake-cancelled-why" className="mt-1 text-[10px] italic text-slate-500 dark:text-slate-400">why: {cancelledFace.notes}</p>
                 )}
               </div>
             )}
@@ -1076,7 +1091,24 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                         {new Date(sheet.startedAt).toLocaleDateString()} · {sheet.countedCount}/{sheet.lineCount} counted
                       </span>
                     </span>
-                    {sheet.notes && <span className="block truncate text-[10px] text-slate-500 dark:text-slate-400">{sheet.notes}</span>}
+                    {(() => {
+                      // v2.233.0 THE LINEAGE — the branch roster reads its
+                      // own notes too: a recount lineage wears the amber
+                      // chip (the walker sees the lineage before the pens
+                      // open), a plain note keeps the verbatim line.
+                      const lineage = parseSheetLineage(sheet.notes);
+                      if (lineage?.kind === 'recount' && lineage.sourceSheetId) {
+                        return (
+                          <span className="mt-0.5 flex items-center gap-1.5">
+                            <LineageChip lineage={lineage} testId={`stocktake-lineage-${sheet.id}`} />
+                          </span>
+                        );
+                      }
+                      if (sheet.notes) {
+                        return <span className="block truncate text-[10px] text-slate-500 dark:text-slate-400">{sheet.notes}</span>;
+                      }
+                      return null;
+                    })()}
                   </span>
                   <button
                     type="button"

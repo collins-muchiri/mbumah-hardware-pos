@@ -263,6 +263,64 @@ export const timeAgo = (iso: string): string => {
   return `${Math.floor(s / 86400)}d ago`;
 };
 
+// ── v2.233.0 THE LINEAGE — the sheet note, read as a record ─────────────────
+// The recount spawn (v2.232.0) signs its sheets `recount of sheet {id}` and
+// the cancel path appends the branch's reason; until now both arrived as raw
+// text the faces merely echoed. This parser is the org's READER: it turns a
+// note into a lineage (what a sheet re-walks, or why a sheet was voided) so
+// the rosters and drills can wear it as a chip instead of a murmur. PURE by law:
+// no fetch, no side effect, so the pins can read it directly:
+// • `recount of sheet <id>` (case-insensitive, id = [\w-]+, optional
+//   remainder) → { kind: 'recount', sourceSheetId, remainder } — the
+//   remainder rides verbatim (a spawn may one day sign more than the id);
+// • any other non-empty note → { kind: 'note', text } — the plain record
+//   (a cancel reason, a month-end remark);
+// • null / empty / whitespace → null — the honest absence (no note, no
+//   lineage, no chip: an absent control never lies).
+export interface SheetLineage {
+  kind: 'recount' | 'note';
+  sourceSheetId: string | null;
+  text: string;
+  remainder: string;
+}
+
+export function parseSheetLineage(notes: string | null | undefined): SheetLineage | null {
+  const trimmed = (notes ?? '').trim();
+  if (!trimmed) return null;
+  const m = trimmed.match(/^recount of sheet\s+([\w-]+)\s*(.*)$/i);
+  if (m) return { kind: 'recount', sourceSheetId: m[1], text: trimmed, remainder: m[2] ?? '' };
+  return { kind: 'note', sourceSheetId: null, text: trimmed, remainder: '' };
+}
+
+// The chip's voice: a cuid runs long, so the roster chip abbreviates to the
+// last six characters with a leading ellipsis; the FULL id always rides the
+// chip's title (and the drill's lineage face speaks it whole — the chip is a
+// whisper, the drill is the record).
+export const lineageShortId = (id: string | null): string =>
+  id ? (id.length > 6 ? `…${id.slice(-6)}` : id) : '';
+
+// The lineage CHIP — one house style for every face that wears a lineage
+// (the map's live + recent rosters, the branch roster): the amber family
+// (the sheet's hue), tabular id, the full id on the title AND the
+// aria-label (the eye gets the whisper, the ear gets the record). Rendered
+// ONLY for a parsed recount lineage — the caller guards, the chip renders.
+export function LineageChip({ lineage, testId }: {
+  lineage: SheetLineage & { kind: 'recount'; sourceSheetId: string };
+  testId: string;
+}) {
+  const voice = `recount of sheet ${lineage.sourceSheetId}`;
+  return (
+    <span
+      data-testid={testId}
+      title={voice}
+      aria-label={voice}
+      className="inline-flex items-center rounded bg-amber-50 px-1.5 py-0.5 text-[9px] font-semibold tabular-nums text-amber-800 ring-1 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-200 dark:ring-amber-500/30"
+    >
+      recount of {lineageShortId(lineage.sourceSheetId)}
+    </span>
+  );
+}
+
 // ── CountUp (0 -> target over 1s) ────────────────────────────────────────────
 export function CountUp({ value, format = num, duration = 1000, className }: {
   value: number; format?: (v: number) => string; duration?: number; className?: string;
