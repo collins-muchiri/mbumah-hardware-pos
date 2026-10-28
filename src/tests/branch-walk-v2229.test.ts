@@ -49,38 +49,38 @@ const watcher = read('src/tests/a11y-shell-v2148.test.ts');
 
 describe('the round of record (v2.229.0)', () => {
   it('package.json leads 2.229.0 (all three slots)', () => {
-    expect(version).toBe('2.229.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.229.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.229.0');
+    expect(version).toBe('2.230.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.230.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.230.0');
   });
 
   it('VERSION speaks 2.229.0 and the verify gate is wired', () => {
-    expect(read('VERSION').trim()).toBe('2.229.0');
+    expect(read('VERSION').trim()).toBe('2.230.0');
     expect(pkg.scripts['verify:v2-229-0']).toBe('node scripts/verify-v2-229-0.mjs');
   });
 
   it('the changelog anchors the section ABOVE its ancestor (the structural pin — headers, never bare strings)', () => {
-    expect(changelog.indexOf('## [2.229.0]')).toBeGreaterThanOrEqual(0);
-    expect(changelog.indexOf('## [2.229.0]')).toBeLessThan(changelog.indexOf('## [2.228.0]'));
+    expect(changelog.indexOf('## [2.230.0]')).toBeGreaterThanOrEqual(0);
+    expect(changelog.indexOf('## [2.230.0]')).toBeLessThan(changelog.indexOf('## [2.229.0]'));
   });
 
-  it('the whats-new feed leads the branch-walk entry (order pin: header-anchored, never a bare version string)', () => {
-    expect(feed.includes("version: '2.229.0',")).toBe(true);
-    expect(feed.indexOf("version: '2.229.0',")).toBeLessThan(feed.indexOf("version: '2.228.0',"));
-    expect(feed.includes("title: 'The branch walk',")).toBe(true);
+  it('the whats-new feed leads the sheet-lens entry (order pin: header-anchored, never a bare version string)', () => {
+    expect(feed.includes("version: '2.230.0',")).toBe(true);
+    expect(feed.indexOf("version: '2.230.0',")).toBeLessThan(feed.indexOf("version: '2.229.0',"));
+    expect(feed.includes('title: "The sheet\u0027s lens",')).toBe(true);
   });
 
   it('the treadmill bumped the version pins (the watchers track the head)', () => {
-    expect(watcher).toContain("expect(pkg.version).toBe('2.229.0');");
-    expect(watcher).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(120);");
+    expect(watcher).toContain("expect(pkg.version).toBe('2.230.0');");
+    expect(watcher).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(121);");
   });
 
   it('the counter family rides +1 (120/121/122/153 — the trail names the round)', () => {
     const counter = read('src/tests/console-changelog.test.ts');
-    expect(counter).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(120);");
-    expect(counter).toContain("expect(whatsNewUnreadCount('2.109.0')).toBe(121);");
-    expect(counter).toContain("expect(whatsNewUnreadCount('2.108.0')).toBe(122);");
-    expect(counter).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(153);");
+    expect(counter).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(121);");
+    expect(counter).toContain("expect(whatsNewUnreadCount('2.109.0')).toBe(122);");
+    expect(counter).toContain("expect(whatsNewUnreadCount('2.108.0')).toBe(123);");
+    expect(counter).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(154);");
     expect(counter).toContain('// v2.229.0: the branch-walk entry joins the feed (+1 on every anchor → 120/121/122/153)');
   });
 });

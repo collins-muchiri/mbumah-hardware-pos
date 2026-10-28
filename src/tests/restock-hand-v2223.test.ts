@@ -70,9 +70,9 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.223.0)', () => {
   it('package.json leads 2.223.0 (all three slots)', () => {
-    expect(version).toBe('2.229.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.229.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.229.0');
+    expect(version).toBe('2.230.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.230.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.230.0');
   });
 
   it('the changelog anchors the section ABOVE its ancestor (the structural pin — headers, never bare strings)', () => {
@@ -231,8 +231,10 @@ describe('the drill grows a line finder (v2.223.0)', () => {
     expect(drill.includes('placeholder="find a line — name or SKU"')).toBe(true);
   });
 
-  it('the needle filters name OR SKU, case-insensitive', () => {
-    expect(drill.includes('data.lines.filter((l) => l.name.toLowerCase().includes(cleanNeedle) || l.sku.toLowerCase().includes(cleanNeedle))')).toBe(true);
+  it('the needle filters name OR SKU, case-insensitive (now composed with the lens over the SAME held lines)', () => {
+    expect(drill.includes('data.lines.filter(')).toBe(true);
+    expect(drill.includes('l.name.toLowerCase().includes(cleanNeedle) ||')).toBe(true);
+    expect(drill.includes('l.sku.toLowerCase().includes(cleanNeedle)),')).toBe(true);
   });
 
   it('the count is honest — N of M, and the summary tiles stay whole-sheet', () => {
@@ -242,7 +244,7 @@ describe('the drill grows a line finder (v2.223.0)', () => {
 
   it('the empty face names the needle and the sheet\'s truth', () => {
     expect(drill.includes('data-testid="sheet-drill-finder-empty"')).toBe(true);
-    expect(drill.includes('no line answers “{needle.trim()}” — the sheet holds {num(data.lines.length)}')).toBe(true);
+    expect(drill.includes('no line answers “${needle.trim()}” — the sheet holds ${num(data.lines.length)}')).toBe(true);
   });
 
   it('the finder carries a clear (×) that returns the full list', () => {

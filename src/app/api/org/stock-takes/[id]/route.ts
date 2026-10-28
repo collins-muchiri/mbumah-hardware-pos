@@ -21,7 +21,12 @@
 //   • every status drills: a COUNTING sheet shows its progress lines,
 //     a CLOSED sheet its variance chips and the stored close-day cost,
 //     a CANCELLED sheet its void (the lines froze, the books never
-//     heard it).
+//     heard it);
+//   • v2.230.0 THE SHEET'S LENS: every line names its category (the
+//     product's own ProductCategory name, null when the product never
+//     joined one — "uncategorized" is the face's honest bucket). The
+//     lens is a READING instrument on the client; the wire only tells
+//     the truth it already holds — one query, zero new fetches.
 
 import { type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
@@ -53,7 +58,17 @@ async function orgStockTakeDetailHandler(_request: NextRequest, session: AuthSes
           countedQty: true,
           variance: true,
           varianceCost: true,
-          product: { select: { name: true, sku: true, unitType: true, costPrice: true } },
+          product: {
+            select: {
+              name: true,
+              sku: true,
+              unitType: true,
+              costPrice: true,
+              // v2.230.0: the lens's raw material — the category's name
+              // rides the product the line already joins.
+              category: { select: { name: true } },
+            },
+          },
         },
       },
       startedBy: { select: { name: true } },
@@ -99,6 +114,10 @@ async function orgStockTakeDetailHandler(_request: NextRequest, session: AuthSes
         name: l.product.name,
         sku: l.product.sku,
         unitType: l.product.unitType,
+        // v2.230.0: the line's shelf name — null when the product never
+        // joined a category (the face reads that as "uncategorized",
+        // an honest bucket, never a hidden grouping).
+        category: l.product.category?.name ?? null,
         snapshotQty: Number(l.snapshotQty),
         countedQty: l.countedQty != null ? Number(l.countedQty) : null,
         variance: l.variance != null ? Number(l.variance) : null,

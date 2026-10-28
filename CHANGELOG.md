@@ -2,6 +2,19 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.230.0] The sheet's lens
+
+The drill learns to read by shelf. The v2.223.0 line finder narrowed the reading by name and SKU; this round the drill grows its twin — a category lens over the same held lines, backed by an additive wire growth that lets every line speak its shelf.
+
+### Added
+- **The line names its shelf** (`GET /api/org/stock-takes/[id]`): the drill wire's per-line product select grows an additive `category` join (the product's own `ProductCategory` name, `null` when the product never joined one). One query, zero new fetches — the lens's raw material rides the fetch the drill already makes. The line type on the client is optional (`category?: string | null`) so the branch panel's own `SheetLine` — the other caller of the exported `sheetLinesCsv` — stays assignable untouched.
+- **The sheet's lens** (`src/components/org/sheet-drill.tsx`): the drill's controls row grows a category `<select>` (`data-testid="sheet-drill-lens"`, aria "Filter the lines by category") beside the finder. Its options are the sheet's OWN buckets, derived client-side from the lines the drill already holds — named categories alphabetical, and `uncategorized` a real bucket that sorts last (named shelves first). The law of the lens is the law of the finder: it narrows the READING, never the sheet — the summary tiles keep the whole sheet's arithmetic, the CSV keeps the whole sheet's file (seven columns, unchanged), and the count line stays an honest N of M that answers to BOTH instruments. The lens mounts only when the sheet spans MORE THAN ONE bucket — a one-shelf sheet has nothing to lens (an absent control never lies). Like the needle, the lens is STATE of the drill, not of the sheet: the map keys the drill per sheet, so a fresh door opens at "all categories" by construction.
+- **The combined reading** (`sheet-drill.tsx`): lens and needle compose — the lens narrows the shelf, the needle narrows the line, and one filter answers to both. When a shelf is lensed, a separate amber span (`data-testid="sheet-drill-lens-count"`) names it beside the count ("in Iron Sheets"); the empty face grows honest variants — needle only, shelf + needle, or shelf alone (impossible by construction, but the fallback stays honest).
+- **The shelf whisper** (`sheet-drill.tsx`): while the sheet spans more than one bucket, every line wears its category (`data-testid="sheet-drill-line-category"`, 9px uppercase in the muted family) beside its snapshot arithmetic — context for the lens on screen AND for the paper: the whisper carries NO print-off mark, so a printed walk reads its shelves.
+
+### Styled
+- The lens select wears the finder's house: h-6, 10px, the slate border family with the AMBER focus ring (the sheet's hue), `max-w-[10rem]` so a long category name truncates instead of shoving the row; dark halves from birth. The lens-count span is the amber family at weight 600 with tabular-nums; the shelf whisper is 9px uppercase tracking-wide in the muted slate family; every new element carries its dark half and the print vocabulary (`data-sheet-print-off` on the instruments, nothing on the whisper).
+
 ## [2.229.0] The branch walk
 
 The clipboard reaches the branch — the face where the floor actually walks. The v2.228.0 clipboard made a counting sheet's paper a TOOL on the org drill; this round the branch stocktake face (the panel the floor opens, counts in, closes) prints the same walk-list under the same law. And the sheet's file reaches the branch too: the CSV the org ledger keeps, the branch keeps as well — one builder, never re-invented.
