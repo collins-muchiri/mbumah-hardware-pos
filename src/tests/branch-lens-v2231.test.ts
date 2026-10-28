@@ -42,13 +42,13 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.231.0)', () => {
   it('package.json leads 2.231.0 (all three slots)', () => {
-    expect(version).toBe('2.236.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.236.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.236.0');
+    expect(version).toBe('2.237.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.237.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.237.0');
   });
 
   it('VERSION speaks 2.231.0 and the verify gate is wired', () => {
-    expect(read('VERSION').trim()).toBe('2.236.0');
+    expect(read('VERSION').trim()).toBe('2.237.0');
     expect(pkg.scripts['verify:v2-231-0']).toBe('node scripts/verify-v2-231-0.mjs');
   });
 
@@ -68,7 +68,10 @@ describe('the round of record (v2.231.0)', () => {
 
 describe('the branch wire grows the category join (additive, one query)', () => {
   it('the product select joins the category name', () => {
-    expect(branchWire.includes('category: { select: { name: true } }')).toBe(true);
+    // v2.237.0 THE WALK: the join grew the category's id — the walk's
+    // cadence lookup reads the shelf by id; the name still rides for
+    // the lens. The pin follows the grown join.
+    expect(branchWire.includes('category: { select: { id: true, name: true } }')).toBe(true);
   });
 
   it('the line mapping speaks the shelf — null stays null, never a hidden grouping', () => {

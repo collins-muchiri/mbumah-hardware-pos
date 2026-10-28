@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.237.0',
+    title: 'The walk',
+    bullets: [
+      'A count sheet\u2019s lines now walk blind spots first: the uncounted lines order themselves never-counted \u2192 coldest \u2192 stale \u2192 fresh \u2014 the floor\u2019s path through the shelf.',
+      'The sheet header names the path: \u201cthe uncounted lines walk blind spots first \u2014 12 on never-counted aisles lead the way.\u201d',
+      'With the lens on, every line wears its aisle\u2019s band \u2014 the same fresh/stale/beyond/never voice the org map speaks.',
+    ],
+  },
+  {
     version: '2.236.0',
     title: 'The teeth',
     bullets: [

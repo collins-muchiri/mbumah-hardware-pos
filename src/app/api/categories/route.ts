@@ -5,116 +5,13 @@ import { db } from '@/lib/db';
 import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { LogSeverity, LogComponent } from '@/lib/types';
 import { withSessionAuth, MANAGER_PLUS_ROLES } from '@/lib/auth';
+// v2.237.0 THE WALK: the store-scoped cadence composition moved to the
+// shared lib (src/lib/stocktake-cadence.ts) — this wire and both count-
+// sheet detail wires now speak ONE law. The route keeps the OPT-IN LAW:
+// the cadence rides only when the caller asks (`includeCadence=true`).
+import { cadenceByCategory } from '@/lib/stocktake-cadence';
 
 export const dynamic = 'force-dynamic';
-
-// ── v2.236.0 THE TEETH ───────────────────────────────────────────────────
-// The cadence's branch-side voice (the org face POINTS, the branch pens
-// walk): when the picker asks (`includeCadence=true`), every category of
-// THIS store learns WHEN a closed count sheet last touched its shelf —
-// the same four bands the org map speaks (fresh ≤ freshDays, stale within
-// the window, beyond = counted before but not inside this window, never =
-// no closed line has EVER touched it). THE STORE LAW: the reads are
-// scoped to the wire's own storeId — a branch hears its own shelves, and
-// a branch walker without org eyes still gets the truth. THE OPT-IN LAW:
-// the field rides only when asked — every other consumer of this wire
-// (catalog pickers, filters, admin surfaces) reads the exact bytes it
-// read yesterday. THE COST LAW: no cost field crosses this block — the
-// cadence reads the catalog, not the caller's gate. THE VOICE-NOT-SORT
-// LAW: the rows keep the categories' own sortOrder; the cadence is a
-// voice on each option, and the walk order belongs to the org map.
-const CADENCE_FRESH_DAYS = 7;
-const CADENCE_WINDOW_DAYS = 30;
-const CADENCE_DAY_MS = 86_400_000;
-
-type CadenceBand = 'fresh' | 'stale' | 'beyond' | 'never';
-
-async function cadenceByCategory(
-  storeId: string,
-  categoryIds: string[],
-): Promise<Map<string, { band: CadenceBand; daysSince: number | null; lastCountedAt: string | null; freshDays: number; windowDays: number }>> {
-  const out = new Map<string, { band: CadenceBand; daysSince: number | null; lastCountedAt: string | null; freshDays: number; windowDays: number }>();
-  if (categoryIds.length === 0) return out;
-  const now = new Date();
-  const windowStart = new Date(now.getTime() - CADENCE_WINDOW_DAYS * CADENCE_DAY_MS);
-
-  // Three bounded reads (the org cadence's composition, store-scoped):
-  // (1) this store's closed sheets inside the window (ids + closedAt),
-  // (2) their line pairs (bounded by the window's own sheets), and
-  // (3) the heard-ever product set — one groupBy over the store's CLOSED
-  // sheets through the category bridge (lines carry no categoryId of
-  // their own; the product→category map is the only bridge a line has).
-  const [windowSheets, heardEverGroups] = await Promise.all([
-    db.stockTake.findMany({
-      where: { storeId, status: 'CLOSED', closedAt: { gte: windowStart } },
-      select: { id: true, closedAt: true },
-    }),
-    db.stockTakeLine.groupBy({
-      by: ['productId'],
-      where: {
-        stockTake: { storeId, status: 'CLOSED' },
-        product: { categoryId: { in: categoryIds } },
-      },
-    }),
-  ]);
-  const windowSheetIds = windowSheets.map((s) => s.id);
-  const [windowLines, productRows] = await Promise.all([
-    windowSheetIds.length
-      ? db.stockTakeLine.findMany({
-          where: { stockTakeId: { in: windowSheetIds } },
-          select: { stockTakeId: true, productId: true },
-        })
-      : Promise.resolve([] as Array<{ stockTakeId: string; productId: string }>),
-    heardEverGroups.length
-      ? db.product.findMany({
-          where: { id: { in: heardEverGroups.map((g) => g.productId) } },
-          select: { id: true, categoryId: true },
-        })
-      : Promise.resolve([] as Array<{ id: string; categoryId: string | null }>),
-  ]);
-
-  const categoryOfProduct = new Map(
-    productRows.filter((p) => p.categoryId != null).map((p) => [p.id, p.categoryId as string]),
-  );
-  const closedAtById = new Map(windowSheets.map((s) => [s.id, s.closedAt]));
-  const heardSheetsByCategory = new Map<string, Set<string>>();
-  for (const pair of windowLines) {
-    const categoryId = categoryOfProduct.get(pair.productId);
-    if (!categoryId) continue;
-    const set = heardSheetsByCategory.get(categoryId);
-    if (set) set.add(pair.stockTakeId);
-    else heardSheetsByCategory.set(categoryId, new Set([pair.stockTakeId]));
-  }
-  const heardEverByCategory = new Set<string>();
-  for (const productId of heardEverGroups.map((g) => g.productId)) {
-    const categoryId = categoryOfProduct.get(productId);
-    if (categoryId) heardEverByCategory.add(categoryId);
-  }
-  for (const categoryId of categoryIds) {
-    const heardSheetIds = heardSheetsByCategory.get(categoryId);
-    let lastCountedAt: Date | null = null;
-    if (heardSheetIds) {
-      for (const sheetId of heardSheetIds) {
-        const at = closedAtById.get(sheetId);
-        if (at && (!lastCountedAt || at > lastCountedAt)) lastCountedAt = at;
-      }
-    }
-    const daysSince = lastCountedAt
-      ? Math.max(0, Math.floor((now.getTime() - lastCountedAt.getTime()) / CADENCE_DAY_MS))
-      : null;
-    const band: CadenceBand = lastCountedAt
-      ? (daysSince ?? 0) <= CADENCE_FRESH_DAYS ? 'fresh' : 'stale'
-      : heardEverByCategory.has(categoryId) ? 'beyond' : 'never';
-    out.set(categoryId, {
-      band,
-      daysSince,
-      lastCountedAt: lastCountedAt ? lastCountedAt.toISOString() : null,
-      freshDays: CADENCE_FRESH_DAYS,
-      windowDays: CADENCE_WINDOW_DAYS,
-    });
-  }
-  return out;
-}
 
 async function getCategoriesHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;

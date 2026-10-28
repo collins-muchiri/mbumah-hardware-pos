@@ -95,7 +95,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { ArrowRight, ClipboardCheck, Download, Printer, Search, X } from 'lucide-react';
+import { ArrowRight, ClipboardCheck, Download, Footprints, Printer, Search, X } from 'lucide-react';
 import { num, timeAgo, parseSheetLineage } from './primitives';
 
 const fmtKes = (v: number) =>
@@ -172,6 +172,13 @@ interface DrillWire {
       // so the branch panel's own SheetLine (imported sheetLinesCsv's
       // other caller) stays assignable; the org wire always fills it.
       category?: string | null;
+      // v2.237.0 THE WALK: the line's shelf band + days — optional (an
+      // older cached answer keeps the drill working, it just reads
+      // name-order); the wire sorts the uncounted pool blind-spots-
+      // first; the drill renders the order and the chips, it never
+      // re-sorts.
+      cadenceBand?: 'fresh' | 'stale' | 'beyond' | 'never' | null;
+      cadenceDaysSince?: number | null;
       snapshotQty: number;
       countedQty: number | null;
       variance: number | null;
@@ -623,6 +630,50 @@ export function SheetDrill({ target, onClose, onOpenSheet }: { target: SheetDril
                   faces. The testid below stays the org face's own
                   door; the print CSS keys both. */}
               <ul data-testid="sheet-drill-lines-list" data-sheet-lines="" className="mt-1.5 max-h-[40vh] space-y-1 overflow-y-auto pr-1">
+                {/* v2.237.0 THE WALK — the drill's note names the path:
+                    the wire sorted the UNCOUNTED pool blind-spots-first;
+                    the note speaks the lead band's weight from the
+                    lines in hand (never a constant). Same five honest
+                    voices, same Footprints mark as the branch face —
+                    one law, both rooms. Rides the paper. */}
+                {(() => {
+                  const un = (data?.lines ?? []).filter((l) => l.countedQty == null);
+                  if (data && un.length === 0) {
+                    return (
+                      <li className="list-none">
+                        <p data-testid="sheet-drill-walk-note" className="mb-1 flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400">
+                          <Footprints className="h-3 w-3 shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true" />
+                          every line has spoken — the sheet waits for the close.
+                        </p>
+                      </li>
+                    );
+                  }
+                  if (!data) return null;
+                  const bands: Record<'fresh' | 'stale' | 'beyond' | 'never', number> = { fresh: 0, stale: 0, beyond: 0, never: 0 };
+                  let unbanded = 0;
+                  for (const l of un) {
+                    if (l.cadenceBand && l.cadenceBand in bands) bands[l.cadenceBand] += 1;
+                    else unbanded += 1;
+                  }
+                  const lead = (['never', 'beyond', 'stale', 'fresh'] as const).find((b) => bands[b] > 0);
+                  const voice = !lead
+                    ? `the uncounted lines wait — ${unbanded} line${unbanded === 1 ? '' : 's'} hold no shelf voice.`
+                    : lead === 'never'
+                      ? `the uncounted lines walk blind spots first — ${bands.never} on never-counted aisle${bands.never === 1 ? '' : 's'} lead the way.`
+                      : lead === 'beyond'
+                        ? `the uncounted lines walk blind spots first — ${bands.beyond} not heard in 30 days lead the way.`
+                        : lead === 'stale'
+                          ? `the uncounted lines walk blind spots first — ${bands.stale} on stale aisle${bands.stale === 1 ? '' : 's'} lead the way.`
+                          : 'the uncounted lines walk the freshest aisles first — the sheet is nearly home.';
+                  return (
+                    <li className="list-none">
+                      <p data-testid="sheet-drill-walk-note" className="mb-1 flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400">
+                        <Footprints className="h-3 w-3 shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true" />
+                        {voice}
+                      </p>
+                    </li>
+                  );
+                })()}
                 {shownLines.map((l) => {
                   const chip = l.variance != null ? varianceChip(l.variance) : null;
                   return (
@@ -640,6 +691,25 @@ export function SheetDrill({ target, onClose, onOpenSheet }: { target: SheetDril
                             the shelf names. */}
                         {lensActive && (
                           <span data-testid="sheet-drill-line-category" className="text-[9px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
+                            {/* v2.237.0: the line's band chip rides the
+                                whisper — the same four families the
+                                branch face speaks, at 8px. */}
+                            {l.cadenceBand && (
+                              <span
+                                data-testid={`sheet-drill-line-band-${l.sku}`}
+                                className={`mr-1 inline-flex items-center rounded px-1 py-0 text-[8px] font-semibold uppercase ring-1 ${
+                                  l.cadenceBand === 'fresh'
+                                    ? 'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/30'
+                                    : l.cadenceBand === 'stale'
+                                      ? 'bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/30'
+                                      : l.cadenceBand === 'beyond'
+                                        ? 'bg-orange-50 text-orange-700 ring-orange-200 dark:bg-orange-500/10 dark:text-orange-300 dark:ring-orange-500/30'
+                                        : 'bg-slate-100 text-slate-600 ring-slate-200 dark:bg-slate-500/10 dark:text-slate-300 dark:ring-slate-500/30'
+                                }`}
+                              >
+                                {l.cadenceBand}
+                              </span>
+                            )}
                             {l.category ?? 'uncategorized'}
                           </span>
                         )}

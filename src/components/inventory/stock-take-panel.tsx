@@ -64,7 +64,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { ClipboardCheck, Download, FolderTree, History, Loader2, Printer, RotateCcw, Search, X } from 'lucide-react';
+import { ClipboardCheck, Download, FolderTree, Footprints, History, Loader2, Printer, RotateCcw, Search, X } from 'lucide-react';
 import { authorizedFetchJson } from '@/lib/api';
 import { num, parseSheetLineage, LineageChip } from '@/components/org/primitives';
 // v2.229.0: the CSV law's one voice — the SAME pure builders the org
@@ -94,6 +94,13 @@ type SheetLine = {
   // now always fills it. A product that never joined a category reads
   // null — the face's honest "uncategorized" bucket.
   category?: string | null;
+  // v2.237.0 THE WALK: the line's shelf band + days — optional (an
+  // older cached answer keeps the sheet working, it just walks name-
+  // order); null when the product never joined a category. The wire
+  // sorts the uncounted pool blind-spots-first; the face renders the
+  // order and the chips, it never re-sorts.
+  cadenceBand?: 'fresh' | 'stale' | 'beyond' | 'never' | null;
+  cadenceDaysSince?: number | null;
   snapshotQty: number;
   countedQty: number | null;
   variance: number | null;
@@ -611,6 +618,50 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                   book-cost estimate {fmtKes(detail.summary.varianceValueEstimate)} — the close face speaks the server&apos;s own numbers.
                 </p>
               )}
+              {/* v2.237.0 THE WALK — the sheet's own order speaks: the
+                  wire sorts the UNCOUNTED pool blind-spots-first (never
+                  → beyond → stale → fresh, most neglected first), so
+                  the note names the path the floor is already walking.
+                  FIVE HONEST VOICES, computed from the lines in hand
+                  (never a constant): the lead band's weight, the
+                  nearly-home voice when only fresh aisles remain, the
+                  all-spoken voice when the sheet is fully counted, and
+                  the honest step-aside when no line holds a shelf
+                  voice. Rides the paper — a printed walk explains its
+                  own order. */}
+              {(() => {
+                const un = detail.lines.filter((l) => l.countedQty == null);
+                if (un.length === 0) {
+                  return (
+                    <p data-testid="stocktake-walk-note" className="mt-1.5 flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400">
+                      <Footprints className="h-3 w-3 shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true" />
+                      every line has spoken — the sheet waits for the close.
+                    </p>
+                  );
+                }
+                const bands: Record<'fresh' | 'stale' | 'beyond' | 'never', number> = { fresh: 0, stale: 0, beyond: 0, never: 0 };
+                let unbanded = 0;
+                for (const l of un) {
+                  if (l.cadenceBand && l.cadenceBand in bands) bands[l.cadenceBand] += 1;
+                  else unbanded += 1;
+                }
+                const lead = (['never', 'beyond', 'stale', 'fresh'] as const).find((b) => bands[b] > 0);
+                const voice = !lead
+                  ? `the uncounted lines wait — ${unbanded} line${unbanded === 1 ? '' : 's'} hold no shelf voice.`
+                  : lead === 'never'
+                    ? `the uncounted lines walk blind spots first — ${bands.never} on never-counted aisle${bands.never === 1 ? '' : 's'} lead the way.`
+                    : lead === 'beyond'
+                      ? `the uncounted lines walk blind spots first — ${bands.beyond} not heard in 30 days lead the way.`
+                      : lead === 'stale'
+                        ? `the uncounted lines walk blind spots first — ${bands.stale} on stale aisle${bands.stale === 1 ? '' : 's'} lead the way.`
+                        : 'the uncounted lines walk the freshest aisles first — the sheet is nearly home.';
+                return (
+                  <p data-testid="stocktake-walk-note" className="mt-1.5 flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400">
+                    <Footprints className="h-3 w-3 shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true" />
+                    {voice}
+                  </p>
+                );
+              })()}
               {/* v2.233.0 THE LINEAGE — the walker's own record: a sheet
                   spawned by the recount wears its lineage under the
                   header (the full source id — the face where the pens
@@ -782,8 +833,20 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                             names its category while the sheet spans more
                             than one (context for the lens AND for the
                             paper: a printed walk reads its shelves). It
-                            PRINTS — no print-off mark. */
+                            PRINTS — no print-off mark. v2.237.0: the
+                            line's band chip rides the whisper (the
+                            same four families the picker strip speaks,
+                            at 8px — the walk's voice on the shelf's
+                            own name). */
                         <span data-testid="stocktake-line-shelf" className="text-[9px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
+                          {line.cadenceBand && (
+                            <span
+                              data-testid={`stocktake-line-band-${line.sku}`}
+                              className={`mr-1 inline-flex items-center rounded px-1 py-0 text-[8px] font-semibold uppercase ring-1 ${pickBandHouse(line.cadenceBand).chip}`}
+                            >
+                              {line.cadenceBand}
+                            </span>
+                          )}
                           {line.category ?? 'uncategorized'}
                         </span>
                       )}

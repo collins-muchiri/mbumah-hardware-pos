@@ -27,6 +27,10 @@ import { describe, it, expect } from 'vitest';
 const read = (p: string) => readFileSync(join(process.cwd(), p), 'utf8');
 
 const wire = read('src/app/api/categories/route.ts');
+// v2.237.0 THE WALK: the composition moved to the shared lib — the
+// pins follow the source of record (the route keeps the OPT-IN law;
+// the lib speaks the composition).
+const cadenceLib = read('src/lib/stocktake-cadence.ts');
 const panel = read('src/components/inventory/stock-take-panel.tsx');
 const map = read('src/components/org/variance-map.tsx');
 const pkg = JSON.parse(read('package.json'));
@@ -38,13 +42,13 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.236.0)', () => {
   it('package.json leads 2.236.0 (all three slots)', () => {
-    expect(version).toBe('2.236.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.236.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.236.0');
+    expect(version).toBe('2.237.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.237.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.237.0');
   });
 
   it('VERSION speaks 2.236.0 and the verify gate is wired', () => {
-    expect(read('VERSION').trim()).toBe('2.236.0');
+    expect(read('VERSION').trim()).toBe('2.237.0');
     expect(pkg.scripts['verify:v2-236-0']).toBe('node scripts/verify-v2-236-0.mjs');
   });
 
@@ -75,43 +79,41 @@ describe('the teeth wire (GET /api/categories)', () => {
   it('the cadence rides ONLY when the picker asks (the opt-in law)', () => {
     expect(wire.includes("searchParams.get('includeCadence') === 'true'")).toBe(true);
     expect(wire.includes('const cadence = includeCadence')).toBe(true);
+    // v2.237.0: the composition is imported — one law, two wires.
+    expect(wire.includes("import { cadenceByCategory } from '@/lib/stocktake-cadence';")).toBe(true);
   });
 
-  it('the composition is store-scoped (the store law)', () => {
-    expect(wire.includes('where: { storeId, status: \'CLOSED\', closedAt: { gte: windowStart } }')).toBe(true);
-    expect(wire.includes('stockTake: { storeId, status: \'CLOSED\' }')).toBe(true);
+  it('the composition is store-scoped (the store law — now in the shared lib)', () => {
+    expect(cadenceLib.includes('where: { storeId, status: \'CLOSED\', closedAt: { gte: windowStart } }')).toBe(true);
+    expect(cadenceLib.includes('stockTake: { storeId, status: \'CLOSED\' }')).toBe(true);
   });
 
   it('the category bridge is the only bridge a line has (product→category)', () => {
-    expect(wire.includes('product: { categoryId: { in: categoryIds } }')).toBe(true);
-    expect(wire.includes("select: { id: true, categoryId: true }")).toBe(true);
+    expect(cadenceLib.includes('product: { categoryId: { in: categoryIds } }')).toBe(true);
+    expect(cadenceLib.includes("select: { id: true, categoryId: true }")).toBe(true);
   });
 
   it('the four bands speak the org cadence\u2019s voices', () => {
-    expect(wire.includes("? (daysSince ?? 0) <= CADENCE_FRESH_DAYS ? 'fresh' : 'stale'")).toBe(true);
-    expect(wire.includes(": heardEverByCategory.has(categoryId) ? 'beyond' : 'never'")).toBe(true);
+    expect(cadenceLib.includes("? (daysSince ?? 0) <= CADENCE_FRESH_DAYS ? 'fresh' : 'stale'")).toBe(true);
+    expect(cadenceLib.includes(": heardEverByCategory.has(categoryId) ? 'beyond' : 'never'")).toBe(true);
   });
 
   it('the payload carries the thresholds the face speaks (never a constant)', () => {
-    expect(wire.includes('freshDays: CADENCE_FRESH_DAYS,')).toBe(true);
-    expect(wire.includes('windowDays: CADENCE_WINDOW_DAYS,')).toBe(true);
-    expect(wire.includes('const CADENCE_FRESH_DAYS = 7;')).toBe(true);
-    expect(wire.includes('const CADENCE_WINDOW_DAYS = 30;')).toBe(true);
+    expect(cadenceLib.includes('freshDays: CADENCE_FRESH_DAYS,')).toBe(true);
+    expect(cadenceLib.includes('windowDays: CADENCE_WINDOW_DAYS,')).toBe(true);
+    expect(cadenceLib.includes('export const CADENCE_FRESH_DAYS = 7;')).toBe(true);
+    expect(cadenceLib.includes('export const CADENCE_WINDOW_DAYS = 30;')).toBe(true);
   });
 
   it('the daysSince is floored, non-negative, from the sheet\u2019s own closedAt', () => {
-    expect(wire.includes('Math.max(0, Math.floor((now.getTime() - lastCountedAt.getTime()) / CADENCE_DAY_MS))')).toBe(true);
+    expect(cadenceLib.includes('Math.max(0, Math.floor((now.getTime() - lastCountedAt.getTime()) / CADENCE_DAY_MS))')).toBe(true);
   });
 
-  it('NO cost field crosses the block (the cost law — slice-checked, not whole-file)', () => {
-    const start = wire.indexOf('v2.236.0 THE TEETH');
-    const end = wire.indexOf('async function createCategoryHandler');
-    expect(start).toBeGreaterThanOrEqual(0);
-    expect(end).toBeGreaterThan(start);
-    const slice = wire.slice(start, end);
-    expect(slice).toContain('cadenceByCategory');
-    expect(slice.includes('varianceCost')).toBe(false);
-    expect(/cost\w*\s*:/.test(slice)).toBe(false);
+  it('NO cost field crosses the composition (the cost law — the lib is slice-checked whole)', () => {
+    expect(cadenceLib.includes('cadenceByCategory')).toBe(true);
+    expect(cadenceLib.includes('varianceCost')).toBe(false);
+    expect(/cost\w*\s*:/.test(cadenceLib)).toBe(false);
+    expect(wire.includes('varianceCost')).toBe(false);
   });
 });
 
