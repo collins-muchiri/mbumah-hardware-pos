@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.229.0',
+    title: 'The branch walk',
+    bullets: [
+      'The branch stocktake face now prints the same clipboard the org drill proved: while a sheet is open the paper lays itself on the page — and while it still counts, every line gets an empty count box, the paper names itself a floor copy, and the foot carries signature rules. Closed sheets keep their record face.',
+      'The printed sheet now names its branch: the count sheet says which yard walked it, straight from the wire — a ring binder holds five branches’ walks.',
+      'The branch grows the sheet’s file too: one CSV of the whole sheet, the same builder the org ledger keeps — BOM, CRLF, and where your role can’t see shillings, the cost cells export empty.',
+    ],
+  },
+  {
     version: '2.228.0',
     title: 'The clipboard',
     bullets: [

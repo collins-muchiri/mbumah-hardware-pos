@@ -6,6 +6,23 @@
 // until close — the latest count is the truth), and close the sheet so
 // the variance speaks into the ledger.
 //
+// v2.229.0 THE BRANCH WALK — the clipboard's branch-side twin (the org
+// drill proved the print pattern; THIS face is where the floor actually
+// walks). While the sheet face is open the body carries `sheet-printing`
+// — the SAME class the org drill reads — and the sheet lays itself on
+// the page: the header (now naming its branch, straight off the detail
+// wire's store block), the progress, the lines with their variance
+// chips. While the sheet still COUNTS, its paper grows the clipboard's
+// three print-only fittings (the floor-copy note, an EMPTY COUNT BOX on
+// every line, the signature rules at the foot) — the paper is the
+// floor's TOOL, not just its record. CLOSED/CANCELLED sheets keep the
+// record face: chips, not boxes. The controls (back, print, CSV, count
+// inputs, record buttons, close/cancel zones, the result faces) stay
+// off the paper via data-sheet-print-off — a control is a screen thing.
+// The CSV rides the SAME sheetLinesCsv the drill exports (never
+// re-invented): the whole sheet, one file; the branch's cost gate is
+// the panel's own canViewCost prop.
+//
 // THE LAWS IT INHERITS:
 // • the one-open-sheet law: the branch's COUNTING sheet IS the sheet —
 //   the create button steps aside honestly while it lives.
@@ -20,16 +37,21 @@
 //   birth; the muted family (slate-500 / dark:slate-400) carries every
 //   sub-line.
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { ClipboardCheck, FolderTree, History, Loader2 } from 'lucide-react';
+import { ClipboardCheck, Download, FolderTree, History, Loader2, Printer } from 'lucide-react';
 import { authorizedFetchJson } from '@/lib/api';
 import { num } from '@/components/org/primitives';
+// v2.229.0: the CSV law's one voice — the SAME pure builders the org
+// drill exports (csvCell's quoting, sheetLinesCsv's BOM + CRLF + the
+// cost-gated empty). Imported, never re-invented: the file a branch
+// keeps must read exactly like the file the org ledger keeps.
+import { sheetLinesCsv } from '@/components/org/sheet-drill';
 
 type SheetRow = {
   id: string;
@@ -62,6 +84,9 @@ type SheetDetail = {
   closedAt: string | null;
   startedByName: string | null;
   closedByName: string | null;
+  // v2.229.0: the branch's own name rides the wire — the paper says
+  // WHICH yard walked it (a ring binder holds five branches' walks).
+  store: { id: string; name: string; code: string | null };
   summary: {
     totalLines: number;
     countedLines: number;
@@ -261,6 +286,42 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
   // NOT happen (no stock moved), and the picker's chosen category keeps
   // its row count so the confirm button speaks the real freeze.
   const cancelledFace = detail?.status === 'CANCELLED' ? detail : null;
+  // v2.229.0: the paper's mode IS the sheet's status (COUNTING walks,
+  // CLOSED/CANCELLED record) — the same one-derivation law the drill
+  // reads, consumed by the face's attribute, the count boxes, the
+  // signatures and the Print button's aria. Four faces, one law.
+  const isClipboard = detail?.status === 'COUNTING';
+  // v2.229.0 THE BRANCH WALK's gate — while the sheet face is open the
+  // body carries the class the print stylesheet reads (the shell falls
+  // silent, the sheet becomes the page). The boolean derivation keeps
+  // the effect stable across refetches (the class lives exactly as
+  // long as the FACE does, not as long as one wire result). It rides
+  // ABOVE the early return — hooks never ride a conditional (the
+  // v2.226 lesson bank, applied before it could bite here too).
+  const sheetPaperOpen = !!(openSheetId && detail);
+  useEffect(() => {
+    if (!sheetPaperOpen) return;
+    document.body.classList.add('sheet-printing');
+    return () => document.body.classList.remove('sheet-printing');
+  }, [sheetPaperOpen]);
+  // v2.229.0: the sheet's copy at branch level — the SAME pure builder
+  // the drill exports, the SAME whole-sheet law (the file speaks every
+  // line, never a narrowed reading). The branch's cost gate is the
+  // panel's own prop: past it the cost cells export EMPTY (absence,
+  // never a hidden zero).
+  const sheetCostGated = !canViewCost;
+  const exportLines = () => {
+    if (!detail) return;
+    const csv = sheetLinesCsv(detail.lines, { costGated: sheetCostGated });
+    const stamp = detail.startedAt.slice(0, 10);
+    const name = `count-sheet-${detail.store.code ?? detail.store.name}-${stamp}-${detail.status.toLowerCase()}.csv`;
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
   const pickedCategory = useMemo(
     () => categoriesQuery.data?.find((c) => c.id === createCategoryId) ?? null,
     [categoriesQuery.data, createCategoryId],
@@ -280,8 +341,12 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
   if (!storeId) return null;
 
   return (
-    <Card data-testid="stocktake-panel" className="border-slate-200 dark:border-slate-700">
-      <CardHeader className="pb-3">
+    // v2.229.0: the overlay mark — on paper (body.sheet-printing) the
+    // card IS the page; the CardHeader chrome below stays off it. With
+    // the sheet face closed the body class is absent and printing
+    // behaves as before.
+    <Card data-testid="stocktake-panel" data-sheet-print-overlay="" className="border-slate-200 dark:border-slate-700">
+      <CardHeader className="pb-3" data-sheet-print-off="">
         <CardTitle className="flex items-center gap-2 text-base">
           <ClipboardCheck className="h-4 w-4 text-amber-600" /> Stock take
           <span className="text-[10px] font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">cycle count</span>
@@ -289,8 +354,12 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
       </CardHeader>
       <CardContent className="space-y-3">
         {openSheetId && detail ? (
-          /* ── THE SHEET FACE ─────────────────────────────────────────── */
-          <div className="space-y-3">
+          /* ── THE SHEET FACE — the paper ───────────────────────────── */
+          <div
+            data-sheet-print=""
+            {...(isClipboard ? { 'data-sheet-clipboard': '' } : {})}
+            className="space-y-3"
+          >
             <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
@@ -301,22 +370,63 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                     {detail.status}
                   </span>
                   <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                    {detail.summary.totalLines} lines · started {new Date(detail.startedAt).toLocaleDateString()}
+                    {/* v2.229.0: the paper names its branch — the wire's
+                        own store block, never a client-side guess (a
+                        ring binder holds five branches' walks). */}
+                    <span data-testid="stocktake-store-name" className="font-semibold text-slate-700 dark:text-slate-200">{detail.store.name}</span>
+                    {' · '}{detail.summary.totalLines} lines · started {new Date(detail.startedAt).toLocaleDateString()}
                     {detail.startedByName ? ` · by ${detail.startedByName}` : ''}
                   </span>
                 </div>
-                <button
-                  type="button"
-                  data-testid="stocktake-back"
-                  onClick={() => {
-                    setOpenSheetId(null);
-                    setCancelArmed(false);
-                    setCancelReason('');
-                  }}
-                  className="text-[10px] font-semibold text-slate-500 underline-offset-2 hover:underline dark:text-slate-400"
-                >
-                  ← all sheets
-                </button>
+                {/* v2.229.0: the sheet's two doors — the paper (Print)
+                    and the file (CSV), mounted under the SAME gate (a
+                    sheet that froze no lines prints and exports nothing
+                    but silence — an absent control never lies). Both
+                    are controls: both stay off the paper. */}
+                <span className="flex shrink-0 items-center gap-1.5" data-sheet-print-off="">
+                  {detail.lines.length > 0 && (
+                    <>
+                      <button
+                        type="button"
+                        data-testid="stocktake-print"
+                        aria-label={isClipboard
+                          ? `Print the floor's clipboard — ${detail.lines.length} lines with empty count boxes`
+                          : `Print all ${detail.lines.length} lines of the count sheet at ${detail.store.name}`}
+                        title={isClipboard
+                          ? 'the clipboard — the paper walks the shelves with the floor; every line gets a box to write in'
+                          : "the sheet's paper — the face lays itself on the page; the controls stay off the paper"}
+                        onClick={() => window.print()}
+                        className="flex h-6 items-center gap-1 rounded-md border border-slate-200 bg-white px-1.5 text-[10px] font-semibold text-slate-600 transition-colors hover:bg-slate-50 focus:outline-none focus:ring-1 focus:ring-amber-500/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+                      >
+                        <Printer className="h-3 w-3" aria-hidden="true" />
+                        Print
+                      </button>
+                      <button
+                        type="button"
+                        data-testid="stocktake-export"
+                        aria-label={`Download all ${detail.lines.length} lines as CSV`}
+                        title="the whole sheet, one file — the walk's copy for the ring binder"
+                        onClick={exportLines}
+                        className="flex h-6 items-center gap-1 rounded-md border border-slate-200 bg-white px-1.5 text-[10px] font-semibold text-slate-600 transition-colors hover:bg-slate-50 focus:outline-none focus:ring-1 focus:ring-amber-500/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+                      >
+                        <Download className="h-3 w-3" aria-hidden="true" />
+                        CSV
+                      </button>
+                    </>
+                  )}
+                  <button
+                    type="button"
+                    data-testid="stocktake-back"
+                    onClick={() => {
+                      setOpenSheetId(null);
+                      setCancelArmed(false);
+                      setCancelReason('');
+                    }}
+                    className="text-[10px] font-semibold text-slate-500 underline-offset-2 hover:underline dark:text-slate-400"
+                  >
+                    ← all sheets
+                  </button>
+                </span>
               </div>
               {/* The progress bar — counted against the sheet's own total;
                   the hue is the family's amber while counting, emerald
@@ -339,16 +449,31 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
               )}
             </div>
 
+            {/* v2.229.0: the clipboard's floor-copy note — print-only
+                (the base stylesheet keeps it off the screen), it tells
+                the walk what this paper is and where the pens live. */}
+            {isClipboard && (
+              <p
+                data-sheet-clipboard-note=""
+                className="rounded-lg border border-dashed border-amber-300 bg-amber-50/60 px-3 py-2 text-[11px] font-medium text-amber-800 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200"
+              >
+                floor copy — walk the shelves, write what you see; this app holds the pens when you&apos;re back.
+              </p>
+            )}
+
             {/* The lines — count against the frozen snapshot. Zero is a
-                count; the latest count is the truth. */}
-            <div className="max-h-[46vh] space-y-1.5 overflow-y-auto pr-1">
+                count; the latest count is the truth. v2.229.0: the
+                container wears the shared lines mark so the print law
+                releases its scroll clamp — a 29-line walk is several
+                pages of paper, never a 46vh window of it. */}
+            <div data-sheet-lines="" className="max-h-[46vh] space-y-1.5 overflow-y-auto pr-1">
               {detail.lines.map((line) => {
                 const chip = line.variance != null ? varianceChip(line.variance) : null;
                 return (
                   <div
                     key={line.id}
                     data-testid={`stocktake-line-${line.sku}`}
-                    className="flex items-center justify-between gap-2 rounded-lg border border-slate-100 bg-white/70 px-2.5 py-2 dark:border-slate-700 dark:bg-slate-800/60"
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-100 bg-white/70 px-2.5 py-2 dark:border-slate-700 dark:bg-slate-800/60"
                   >
                     <span className="min-w-0">
                       <span className="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">{line.name}</span>
@@ -368,7 +493,7 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                         </span>
                       )}
                       {detail.status === 'COUNTING' && (
-                        <span className="flex items-center gap-1">
+                        <span className="flex items-center gap-1" data-sheet-print-off="">
                           <input
                             type="number"
                             min={0}
@@ -395,15 +520,52 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                         </span>
                       )}
                     </span>
+                    {isClipboard && (
+                      /* v2.229.0: THE COUNT BOX — the paper's ask, the
+                          drill's own law brought to the branch's walk:
+                          a ruled write-in for the pen, one per line,
+                          EVERY line (a line the system already heard
+                          still walks — the walk IS the verification).
+                          Print-only: the base stylesheet keeps it off
+                          the screen, the print stylesheet lays it on
+                          the paper beside the line's snapshot. */
+                      <span data-sheet-count-box="" className="flex w-full items-center gap-2 sm:w-auto">
+                        <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">counted</span>
+                        <span aria-hidden="true" className="h-8 min-w-[8rem] flex-1 rounded border border-dashed border-slate-300 bg-white sm:flex-none sm:w-40 dark:border-slate-600" />
+                      </span>
+                    )}
                   </div>
                 );
               })}
             </div>
 
+            {isClipboard && (
+              /* v2.229.0: the walk's witnesses — print-only signature
+                  rules at the foot of the clipboard (the drill's own
+                  foot). A walk needs its names on the record it
+                  produced. */
+              <div data-testid="stocktake-signatures" data-sheet-clipboard-signatures="" className="mt-4 flex items-end gap-4">
+                <span className="flex-1">
+                  <span aria-hidden="true" className="block border-b border-slate-400" />
+                  <span className="mt-0.5 block text-[9px] uppercase tracking-wide text-slate-500">counted by</span>
+                </span>
+                <span className="flex-1">
+                  <span aria-hidden="true" className="block border-b border-slate-400" />
+                  <span className="mt-0.5 block text-[9px] uppercase tracking-wide text-slate-500">checked by</span>
+                </span>
+                <span className="w-28">
+                  <span aria-hidden="true" className="block border-b border-slate-400" />
+                  <span className="mt-0.5 block text-[9px] uppercase tracking-wide text-slate-500">date</span>
+                </span>
+              </div>
+            )}
+
             {/* The close — only a COMPLETE sheet closes (the zero-hole
-                law); the success face is the SERVER's own numbers. */}
+                law); the success face is the SERVER's own numbers.
+                v2.229.0: the whole zone is a control — it stays off
+                the paper. */}
             {detail.status === 'COUNTING' && (
-              <div className="space-y-2">
+              <div className="space-y-2" data-sheet-print-off="">
                 <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900">
                   <button
                     type="button"
@@ -476,7 +638,7 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
               </div>
             )}
             {cancelledFace && (
-              <div data-testid="stocktake-cancelled-face" className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 dark:border-slate-600 dark:bg-slate-800/60">
+              <div data-testid="stocktake-cancelled-face" data-sheet-print-off="" className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 dark:border-slate-600 dark:bg-slate-800/60">
                 <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Sheet cancelled — the books never heard it</p>
                 <p data-testid="stocktake-cancelled-summary" className="mt-1 text-[11px] tabular-nums text-slate-500 dark:text-slate-400">
                   {cancelledFace.summary.totalLines} lines · no adjustments applied · no movements written
@@ -489,7 +651,7 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
               </div>
             )}
             {closedFace && (
-              <div data-testid="stocktake-close-success" className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3 dark:border-emerald-500/30 dark:bg-emerald-500/10">
+              <div data-testid="stocktake-close-success" data-sheet-print-off="" className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3 dark:border-emerald-500/30 dark:bg-emerald-500/10">
                 <p className="text-xs font-semibold text-emerald-800 dark:text-emerald-300">Sheet closed — the books hold the floor&apos;s numbers</p>
                 <p data-testid="stocktake-close-summary" className="mt-1 text-[11px] tabular-nums text-emerald-900/80 dark:text-emerald-200/80">
                   {closedFace.summary.totalLines} lines · {closedFace.summary.countedLines} counted · variance {num(closedFace.summary.varianceUnits)} units
