@@ -27,7 +27,7 @@
 
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ClipboardCheck, ChevronDown, ChevronRight, DoorOpen, Download, History } from 'lucide-react';
+import { ClipboardCheck, ChevronDown, ChevronRight, DoorOpen, Download, History, Scale, X } from 'lucide-react';
 import { ADMIN_CURRENCY_RATES_QUERY_KEY, RATE_SOURCE_PHRASE, type RatesWireBody } from '@/components/currency-switcher';
 import { useCurrency } from '@/hooks/use-currency';
 import { CURRENCY_BY_CODE, formatCurrency } from '@/lib/currency-utils';
@@ -97,8 +97,55 @@ const BirthChip = ({ testId }: { testId: string }) => (
   </span>
 );
 
-export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: StoreRow[] }) {
+export function VarianceMap({ data, stores, canGovern = false, onLawSaved, onToast }: { data: KpiSummaryData; stores: StoreRow[]; canGovern?: boolean; onLawSaved?: () => void; onToast?: (msg: string) => void }) {
   const block = data.stockTakes ?? null;
+  // v2.241.0 THE WALK'S LAW — the window number the face says is the
+  // WIRE'S OWN number (an older cached answer that predates the field
+  // keeps yesterday's 30 — the silence falls back, never a crash). The
+  // law is a FACE before it is a CONTROL: the pair is named; the pen
+  // rides only for the governor (canGovern — the page's session role).
+  const lawWindowDays = block?.window30d?.windowDays ?? 30;
+  // v2.241.0 the law editor's own state (hooks live HERE, at the
+  // component's top — the cadence block renders through an IIFE and
+  // hooks never live in a loop or a nested call).
+  const [lawEditing, setLawEditing] = useState(false);
+  const [lawDraftFresh, setLawDraftFresh] = useState('');
+  const [lawDraftWindow, setLawDraftWindow] = useState('');
+  const [lawSaving, setLawSaving] = useState(false);
+  const [lawError, setLawError] = useState<string | null>(null);
+  // THE WRITE — one PUT, the pair or nothing. The client mirrors the
+  // wire's bands first (a round trip the face can spare), the wire's
+  // 400 body speaks into the error line verbatim, and a written law
+  // closes the editor, toasts the pair, and asks the page for the
+  // refetch (the map renders, it never re-sorts — the wire re-walks).
+  const saveLaw = async () => {
+    const fresh = Number(lawDraftFresh);
+    const win = Number(lawDraftWindow);
+    if (!Number.isInteger(fresh) || fresh < 1 || fresh > 14) { setLawError('fresh days must be a whole number between 1 and 14.'); return; }
+    if (!Number.isInteger(win) || win < 14 || win > 90) { setLawError('window days must be a whole number between 14 and 90.'); return; }
+    if (fresh >= win) { setLawError('the fresh boundary must sit inside the window — fresh days below window days.'); return; }
+    setLawSaving(true);
+    setLawError(null);
+    try {
+      const res = await fetch('/api/org/cadence', {
+        method: 'PUT',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ law: { freshDays: fresh, windowDays: win } }),
+      });
+      const j = await res.json().catch(() => null);
+      if (res.ok && j?.success) {
+        setLawEditing(false);
+        onToast?.(`the walk's law is written — fresh ≤ ${j.data.freshDays}d · window ${j.data.windowDays}d`);
+        onLawSaved?.();
+      } else {
+        setLawError(j?.error ?? 'the law wire refused the write — try again.');
+      }
+    } catch {
+      setLawError('the law wire is unreachable — try again.');
+    } finally {
+      setLawSaving(false);
+    }
+  };
   // v2.222.0 THE SHEET DRILL — a roster row (or a live row) is a door:
   // clicking it opens the sheet's lines org-side (the ONE deliberate
   // fetch the map itself never makes; the DRILL owns it).
@@ -213,19 +260,19 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
               </p>
             </div>
             <div data-testid="variance-map-closed" className="rounded-xl border border-slate-100 p-3 dark:border-slate-700">
-              <p className="text-[10px] uppercase tracking-wide text-slate-500 dark:text-slate-400">Closed · 30d</p>
+              <p className="text-[10px] uppercase tracking-wide text-slate-500 dark:text-slate-400">Closed · {lawWindowDays}d</p>
               <p className="text-sm font-bold tabular-nums text-emerald-700 dark:text-emerald-400">{num(block.window30d.closedCount)}</p>
               <p className="text-[10px] text-slate-500 dark:text-slate-400">sheets the books heard</p>
             </div>
             <div data-testid="variance-map-units" className="rounded-xl border border-slate-100 p-3 dark:border-slate-700">
-              <p className="text-[10px] uppercase tracking-wide text-slate-500 dark:text-slate-400">Net variance · 30d</p>
+              <p className="text-[10px] uppercase tracking-wide text-slate-500 dark:text-slate-400">Net variance · {lawWindowDays}d</p>
               <p className="text-sm font-bold tabular-nums text-slate-800 dark:text-slate-100">
                 {block.window30d.varianceUnits > 0 ? '+' : ''}{num(block.window30d.varianceUnits)}
               </p>
               <p className="text-[10px] text-slate-500 dark:text-slate-400">units across every line</p>
             </div>
             <div data-testid="variance-map-impact" className="rounded-xl border border-slate-100 p-3 dark:border-slate-700">
-              <p className="text-[10px] uppercase tracking-wide text-slate-500 dark:text-slate-400">Ledger impact · 30d</p>
+              <p className="text-[10px] uppercase tracking-wide text-slate-500 dark:text-slate-400">Ledger impact · {lawWindowDays}d</p>
               <p className="text-sm font-bold tabular-nums text-slate-800 dark:text-slate-100">
                 {block.window30d.varianceCostTotal != null ? fmtKes(block.window30d.varianceCostTotal) : '—'}
               </p>
@@ -272,11 +319,11 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
                       title="which branches the window actually heard"
                       className="flex w-full items-center justify-between gap-1 text-[10px] uppercase tracking-wide text-slate-500 transition-colors hover:text-slate-700 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-amber-500 dark:text-slate-400 dark:hover:text-slate-200"
                     >
-                      Heard · 30d
+                      Heard · {lawWindowDays}d
                       <ChevronDown className={`h-3 w-3 transition-transform ${coverageOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
                     </button>
                   ) : (
-                    <p className="text-[10px] uppercase tracking-wide text-slate-500 dark:text-slate-400">Heard · 30d</p>
+                    <p className="text-[10px] uppercase tracking-wide text-slate-500 dark:text-slate-400">Heard · {lawWindowDays}d</p>
                   )}
                   <p className="text-sm font-bold tabular-nums text-slate-800 dark:text-slate-100">
                     {pct != null ? `${pct}%` : '—'}
@@ -284,7 +331,7 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
                   <div
                     className="mt-1 h-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700"
                     role="img"
-                    aria-label={`Coverage: ${voice}${pct != null ? ` (${heard} of ${total} branch categories heard in the 30-day window)` : ''}`}
+                    aria-label={`Coverage: ${voice}${pct != null ? ` (${heard} of ${total} branch categories heard in the ${lawWindowDays}-day window)` : ''}`}
                   >
                     {pct != null ? (
                       <span className="block h-full rounded-full bg-emerald-500" style={{ width: `${pct}%` }} />
@@ -306,12 +353,12 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
           {coverageOpen && coverageByStore.length > 0 && (
             <div id="coverage-breakdown" data-testid="coverage-breakdown" className="rounded-xl border border-slate-200 bg-white/70 p-3 dark:border-slate-700 dark:bg-slate-800/60">
               <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">The breakdown — branch by branch</p>
-              <p className="mt-0.5 text-[10px] text-slate-500 dark:text-slate-400">the silent shelves lead — each branch&apos;s share of aisles the 30-day window heard.</p>
+              <p className="mt-0.5 text-[10px] text-slate-500 dark:text-slate-400">the silent shelves lead — each branch&apos;s share of aisles the {lawWindowDays}-day window heard.</p>
               <ul className="mt-2 space-y-1.5">
                 {coverageByStore.map((s) => {
                   const pct = s.total > 0 ? Math.round((s.heard / s.total) * 100) : 0;
                   return (
-                    <li key={s.storeId} data-testid={`coverage-row-${s.storeId}`} aria-label={`${s.name}: ${s.heard} of ${s.total} shelves heard in the 30-day window.`} className="flex items-center gap-2 rounded-lg px-1.5 py-1 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/60">
+                    <li key={s.storeId} data-testid={`coverage-row-${s.storeId}`} aria-label={`${s.name}: ${s.heard} of ${s.total} shelves heard in the ${lawWindowDays}-day window.`} className="flex items-center gap-2 rounded-lg px-1.5 py-1 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/60">
                       <span className="w-32 shrink-0 truncate text-[11px] font-medium text-slate-700 dark:text-slate-200">{s.name}</span>
                       <div
                         className="h-1 flex-1 overflow-hidden rounded-full bg-slate-200 shadow-inner dark:bg-slate-700"
@@ -503,7 +550,7 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
                 (any status). The window stays the truth; the roster is a
                 window — and the note says so. */}
             <p className="mt-1.5 text-[9px] text-slate-500 dark:text-slate-400" data-testid="variance-map-cap-note">
-              the window figures read every closed sheet in 30 days — this roster names the 12 most recent, any status.
+              the window figures read every closed sheet in {lawWindowDays} days — this roster names the 12 most recent, any status.
             </p>
           </div>
 
@@ -614,10 +661,108 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
                     </span>
                   </p>
                 )}
+                {/* v2.241.0 THE WALK'S LAW — the thresholds stop being
+                    constants and become the org's own: the face NAMES the
+                    pair (the wire's own numbers, tabular-nums), and the
+                    governor's hand (canGovern — SUPER_ADMIN/STORE_OWNER)
+                    grows the pen. THE FACE-BEFORE-CONTROL LAW: every
+                    reader of the map sees the law named; only the
+                    governor sees the pen — a control that does not apply
+                    to you never lies. THE PAIR LAW (the wire's, mirrored):
+                    freshDays 1–14, windowDays 14–90, fresh < window —
+                    half a law is rejected whole. The editor rides the
+                    map's tile house: the amber focus ring, the emerald
+                    verdict save, the muted cancel, dark halves from
+                    birth, tabular-nums on every figure. */}
+                {canGovern && lawEditing ? (
+                  <div data-testid="cadence-law-editor" className="mt-1.5 rounded-lg border border-slate-200 bg-slate-50/80 px-2.5 py-2 dark:border-slate-600 dark:bg-slate-800/60">
+                        <p className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                          <Scale className="h-3 w-3 text-slate-400 dark:text-slate-500" aria-hidden="true" />
+                          write the law
+                        </p>
+                        <div className="mt-1.5 flex flex-wrap items-end gap-2">
+                          <label className="flex flex-col gap-0.5">
+                            <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">fresh days</span>
+                            <input
+                              type="number"
+                              min={1}
+                              max={14}
+                              value={lawDraftFresh}
+                              onChange={(e) => { setLawDraftFresh(e.target.value); setLawError(null); }}
+                              aria-label="fresh days — the fresh and stale boundary, 1 to 14"
+                              data-testid="cadence-law-input-fresh"
+                              className="w-20 rounded-lg border border-slate-300 bg-white px-2 py-1 text-[11px] tabular-nums text-slate-700 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+                            />
+                          </label>
+                          <label className="flex flex-col gap-0.5">
+                            <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">window days</span>
+                            <input
+                              type="number"
+                              min={14}
+                              max={90}
+                              value={lawDraftWindow}
+                              onChange={(e) => { setLawDraftWindow(e.target.value); setLawError(null); }}
+                              aria-label="window days — the rolling window the whole block speaks, 14 to 90"
+                              data-testid="cadence-law-input-window"
+                              className="w-20 rounded-lg border border-slate-300 bg-white px-2 py-1 text-[11px] tabular-nums text-slate-700 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            data-testid="cadence-law-save"
+                            disabled={lawSaving}
+                            aria-label={`write the law — fresh ${lawDraftFresh || '?'} days, window ${lawDraftWindow || '?'} days`}
+                            onClick={saveLaw}
+                            className="inline-flex items-center gap-1 rounded border border-emerald-200 bg-emerald-50 px-2 py-1 text-[9px] font-semibold text-emerald-700 transition-colors hover:border-emerald-300 hover:bg-emerald-100 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-amber-500 disabled:cursor-not-allowed disabled:opacity-60 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300 dark:hover:border-emerald-500/50 dark:hover:bg-emerald-500/20"
+                          >
+                            <Scale className="h-3 w-3" aria-hidden="true" />
+                            {lawSaving ? 'writing…' : 'write the law'}
+                          </button>
+                          <button
+                            type="button"
+                            data-testid="cadence-law-cancel"
+                            aria-label="close the law editor without writing"
+                            onClick={() => { setLawEditing(false); setLawError(null); }}
+                            className="inline-flex items-center gap-1 rounded border border-slate-200 px-2 py-1 text-[9px] font-semibold text-slate-500 transition-colors hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-amber-500 dark:border-slate-700 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:bg-slate-800"
+                          >
+                            <X className="h-3 w-3" aria-hidden="true" />
+                            cancel
+                          </button>
+                        </div>
+                        {lawError && (
+                          <p data-testid="cadence-law-error" role="alert" className="mt-1.5 text-[10px] font-medium text-red-600 dark:text-red-400">
+                            {lawError}
+                          </p>
+                        )}
+                  </div>
+                ) : (
+                  <p data-testid="cadence-law-line" className="flex items-center gap-1 text-[10px] tabular-nums text-slate-500 dark:text-slate-400">
+                    <Scale className="h-2.5 w-2.5 shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true" />
+                    <span>
+                      the law: fresh ≤ {cadence.freshDays}d · window {cadence.windowDays}d — the pair every voice here speaks.
+                    </span>
+                    {/* THE FACE-BEFORE-CONTROL LAW: the law is named for
+                        every reader of the map; the pen rides only for the
+                        governor — a control that does not apply to you
+                        never lies. */}
+                    {canGovern && (
+                      <button
+                        type="button"
+                        data-testid="cadence-law-pen"
+                        aria-label={`edit the walk\u2019s law — currently fresh ${cadence.freshDays} days, window ${cadence.windowDays} days`}
+                        title="the law is the owner's to write — open the editor"
+                        onClick={() => { setLawDraftFresh(String(cadence.freshDays)); setLawDraftWindow(String(cadence.windowDays)); setLawError(null); setLawEditing(true); }}
+                        className="inline-flex items-center gap-0.5 self-center rounded border border-slate-200 px-1.5 py-0.5 text-[9px] font-semibold text-slate-500 transition-colors hover:border-slate-300 hover:bg-slate-50 hover:text-slate-700 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-amber-500 dark:border-slate-700 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+                      >
+                        edit
+                      </button>
+                    )}
+                  </p>
+                )}
                 <ul className="mt-1.5 space-y-1.5">
                   {cadence.categories.map((c) => {
                     const house = bandHouse(c.band);
-                    const pct = c.daysSince != null ? Math.max(4, Math.round((Math.min(c.daysSince, 30) / 30) * 100)) : 100;
+                    const pct = c.daysSince != null ? Math.max(4, Math.round((Math.min(c.daysSince, cadence.windowDays) / cadence.windowDays) * 100)) : 100;
                     const voice = daysVoice(c);
                     // v2.237.0 THE WALK'S DOOR — the cadence row becomes
                     // a door: the org face POINTS, the branch face
@@ -659,7 +804,7 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
                             <div
                               className="h-1 flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700"
                               role="img"
-                              aria-label={`${c.name}: ${voice}${c.daysSince != null ? ` (${c.daysSince} of 30 days)` : ''}`}
+                              aria-label={`${c.name}: ${voice}${c.daysSince != null ? ` (${c.daysSince} of ${cadence.windowDays} days)` : ''}`}
                             >
                               {house.bar ? (
                                 <span className={`block h-full rounded-full ${house.bar} ${c.band === 'beyond' ? 'opacity-70' : ''}`} style={{ width: `${pct}%` }} />
@@ -689,7 +834,7 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
                   })}
                 </ul>
                 <p className="mt-1.5 text-[9px] text-slate-500 dark:text-slate-400" data-testid="cadence-cap-note">
-                  the cadence reads the same 30-day window the map speaks — a shelf absent from it has not been heard in 30 days; a never-counted shelf has no closed line at all. fresh is {cadence.freshDays} days or less.
+                  the cadence reads the same {cadence.windowDays}-day window the map speaks — a shelf absent from it has not been heard in {cadence.windowDays} days; a never-counted shelf has no closed line at all. fresh is {cadence.freshDays} days or less.
                 </p>
               </div>
             );

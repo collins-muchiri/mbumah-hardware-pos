@@ -40,13 +40,13 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.235.0)', () => {
   it('package.json leads 2.235.0 (all three slots)', () => {
-    expect(version).toBe('2.240.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.240.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.240.0');
+    expect(version).toBe('2.241.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.241.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.241.0');
   });
 
   it('VERSION speaks 2.235.0 and the verify gate is wired', () => {
-    expect(read('VERSION').trim()).toBe('2.240.0');
+    expect(read('VERSION').trim()).toBe('2.241.0');
     expect(pkg.scripts['verify:v2-235-0']).toBe('node scripts/verify-v2-235-0.mjs');
   });
 
@@ -78,8 +78,10 @@ describe('the cadence wire (kpi-summary)', () => {
     expect(wire.includes('select: { id: true, closedAt: true },')).toBe(true);
   });
 
-  it('the fresh threshold is a named constant at 7 days', () => {
-    expect(wire.includes('const CADENCE_FRESH_DAYS = 7;')).toBe(true);
+  it('the fresh threshold is the law\u2019s own (v2.241.0: no more constants)', () => {
+    expect(wire.includes('const cadenceLaw = await readCadenceLaw(rawDb);')).toBe(true);
+    expect(wire.includes("import { readCadenceLaw } from '@/lib/cadence-law';")).toBe(true);
+    expect(wire.includes('const CADENCE_FRESH_DAYS = 7;')).toBe(false);
   });
 
   it('the categories read is active-only with the store join', () => {
@@ -191,7 +193,7 @@ describe('the cadence face (variance-map)', () => {
   });
 
   it('the heat bar length always means time since last heard (capped at the window, 4% floor)', () => {
-    expect(map.includes('Math.max(4, Math.round((Math.min(c.daysSince, 30) / 30) * 100))')).toBe(true);
+    expect(map.includes('Math.max(4, Math.round((Math.min(c.daysSince, cadence.windowDays) / cadence.windowDays) * 100))')).toBe(true);
   });
 
   it('the dashed track is reserved for never (an absence is never drawn as a value)', () => {
@@ -234,6 +236,6 @@ describe('the fossil guards (the map still speaks)', () => {
   });
 
   it('the type additions ride the stockTakes block (window30d untouched)', () => {
-    expect(primitives.includes('window30d: { closedCount: number; varianceUnits: number; varianceCostTotal: number | null };')).toBe(true);
+    expect(primitives.includes('window30d: { windowDays?: number; closedCount: number; varianceUnits: number; varianceCostTotal: number | null };')).toBe(true);
   });
 });

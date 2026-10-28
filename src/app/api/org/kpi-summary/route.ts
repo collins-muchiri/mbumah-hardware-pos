@@ -38,6 +38,7 @@
 // these roles already see in their own store debt views.
 
 import { rawDb, runWithoutTenant } from '@/lib/db';
+import { readCadenceLaw } from '@/lib/cadence-law';
 import { requireAuth, type AuthSession } from '@/lib/auth';
 import { withErrorBoundary } from '@/lib/logger';
 import { LogComponent } from '@/lib/types';
@@ -392,10 +393,13 @@ async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Pr
       g.stockTakeId,
       { units: toDec(g._sum.variance ?? 0).toNumber(), cost: round2(toDec(g._sum.varianceCost ?? 0).toNumber()) },
     ]));
-    // The org's rolling-30-day ledger impact — EVERY closed sheet in the
-    // window, not just the roster the UI names (the strip's figure stays
-    // the whole truth; the roster is a window, and the cap note says so).
-    const windowStart = new Date(now.getTime() - 30 * DAY_MS);
+    // The org's rolling ledger impact window — the LAW'S OWN window
+    // (v2.241.0: the law is read once here and governs every 30d-shaped
+    // voice in the block — the window figures, the cadence bands, the
+    // door-born census, the coverage. The defaults 7/30 are the floor,
+    // never a thrown request).
+    const cadenceLaw = await readCadenceLaw(rawDb);
+    const windowStart = new Date(now.getTime() - cadenceLaw.windowDays * DAY_MS);
     // v2.235.0: the same read grows `closedAt` — the cadence face needs
     // the sheet's own date to speak "days since last heard" (one read,
     // two consumers; zero new queries for the map's headline).
@@ -453,14 +457,14 @@ async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Pr
     // window's line pairs (bounded by the window's own sheets), the
     // heard-ever product set (one groupBy over closed sheets, one row
     // per distinct counted product), and the active catalog categories
-    // (tens, never thousands). THE FOUR VOICES: fresh (heard ≤ 7 days),
-    // stale (heard in the window, colder than 7), beyond (counted
+    // (tens, never thousands). THE FOUR VOICES: fresh (heard ≤ freshDays
+    // — THE LAW'S OWN boundary, v2.241.0), stale (heard in the window,
+    // colder than fresh), beyond (counted
     // before, but not inside this window), never (no closed line has
     // EVER touched it — the honest blind spot, never dressed as a date).
     // A category with zero products speaks `productCount: 0` and still
     // gets its row — an empty shelf is a real shelf, and the face says
     // so instead of hiding it.
-    const CADENCE_FRESH_DAYS = 7;
     type CadenceBand = 'fresh' | 'stale' | 'beyond' | 'never';
     const [cadenceCategoryRows, cadenceWindowPairs] = await Promise.all([
       rawDb.productCategory.findMany({
@@ -544,7 +548,7 @@ async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Pr
         ? Math.max(0, Math.floor((now.getTime() - lastCountedAt.getTime()) / DAY_MS))
         : null;
       const band: CadenceBand = lastCountedAt
-        ? (daysSince ?? 0) <= CADENCE_FRESH_DAYS ? 'fresh' : 'stale'
+        ? (daysSince ?? 0) <= cadenceLaw.freshDays ? 'fresh' : 'stale'
         : heardEverByCategory.has(c.id) ? 'beyond' : 'never';
       return {
         categoryId: c.id,
@@ -570,8 +574,8 @@ async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Pr
     });
     const cadence = {
       generatedAt: now.toISOString(),
-      windowDays: 30,
-      freshDays: CADENCE_FRESH_DAYS,
+      windowDays: cadenceLaw.windowDays,
+      freshDays: cadenceLaw.freshDays,
       counts: {
         fresh: cadenceCategories.filter((c) => c.band === 'fresh').length,
         stale: cadenceCategories.filter((c) => c.band === 'stale').length,
@@ -619,6 +623,10 @@ async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Pr
         };
       }),
       window30d: {
+        // v2.241.0 the law rides the window block: the face labels the
+        // figures with the law's own number (additive + optional in the
+        // type so an older cached answer keeps yesterday's silence).
+        windowDays: cadenceLaw.windowDays,
         closedCount: closed30dIds.length,
         varianceUnits: windowUnits,
         varianceCostTotal: canViewCost ? windowCost : null,

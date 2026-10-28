@@ -373,7 +373,20 @@ export default function OrgConsolePage() {
               annotates). Composes the SAME kpi payload — zero new fetches. */}
           <div id="variance-map">
             <SectionErrorBoundary sectionName="Variance map">
-              {kpi ? <VarianceMap data={kpi} stores={stores} /> : null}
+              {kpi ? (
+                <VarianceMap
+                  data={kpi}
+                  stores={stores}
+                  /* v2.241.0 THE WALK'S LAW: the pen rides the session's
+                     role (owner-or-above writes the law; every reader
+                     sees the law named), a written law asks THIS page's
+                     own loader for the refetch, and the toast speaks the
+                     house's voice. */
+                  canGovern={session?.role === 'SUPER_ADMIN' || session?.role === 'STORE_OWNER'}
+                  onLawSaved={load}
+                  onToast={onToast}
+                />
+              ) : null}
             </SectionErrorBoundary>
           </div>
 

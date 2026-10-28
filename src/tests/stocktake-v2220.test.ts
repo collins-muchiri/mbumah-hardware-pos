@@ -78,7 +78,7 @@ describe('the kpi-summary wire speaks the count sheets (v2.220.0)', () => {
 
   it('the type of record carries the optional block (an older cached answer steps aside)', () => {
     expect(primitives.includes('stockTakes?: {')).toBe(true);
-    expect(primitives.includes('window30d: { closedCount: number; varianceUnits: number; varianceCostTotal: number | null };')).toBe(true);
+    expect(primitives.includes('window30d: { windowDays?: number; closedCount: number; varianceUnits: number; varianceCostTotal: number | null };')).toBe(true);
   });
 });
 
@@ -125,7 +125,7 @@ describe('the variance map wears the strip family\u2019s fifth consumer (v2.220.
   it('the map exists as a component and mounts on the console', () => {
     expect(map.includes('export function VarianceMap')).toBe(true);
     expect(page.includes('import { VarianceMap } from \'@/components/org/variance-map\';')).toBe(true);
-    expect(page.includes('{kpi ? <VarianceMap data={kpi} stores={stores} /> : null}')).toBe(true);
+    expect(page.includes("canGovern={session?.role === 'SUPER_ADMIN' || session?.role === 'STORE_OWNER'}")).toBe(true);
     expect(page.includes('<SectionErrorBoundary sectionName="Variance map">')).toBe(true);
   });
 
@@ -220,13 +220,13 @@ describe('the branch panel grows the scope and the way out (v2.220.0)', () => {
 
 describe('the round of record (v2.220.0)', () => {
   it('package.json leads 2.220.0 (all three slots)', () => {
-    expect(pkg.version).toBe('2.240.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.240.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.240.0');
+    expect(pkg.version).toBe('2.241.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.241.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.241.0');
   });
 
   it('VERSION speaks the same truth', () => {
-    expect(version).toBe('2.240.0');
+    expect(version).toBe('2.241.0');
   });
 
   it('whats-new entry at the head', () => {

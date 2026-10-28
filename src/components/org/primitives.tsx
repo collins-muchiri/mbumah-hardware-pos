@@ -178,7 +178,10 @@ export interface KpiSummaryData {
       // v2.240.0 the roster's birth: additive + optional (the silence).
       origin?: string | null;
     }>;
-    window30d: { closedCount: number; varianceUnits: number; varianceCostTotal: number | null };
+    // v2.241.0 the law rides the window block: the face labels the
+    // window figures with the law's own number (additive + optional so
+    // an older cached answer keeps yesterday's silence).
+    window30d: { windowDays?: number; closedCount: number; varianceUnits: number; varianceCostTotal: number | null };
     // v2.238.0 the door's census: additive + optional so an older cached
     // answer renders the silent absence — how many of the window's
     // sheets were BORN at a walk door (the create wire's allowlisted

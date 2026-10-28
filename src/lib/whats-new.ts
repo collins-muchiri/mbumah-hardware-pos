@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.241.0',
+    title: 'The walk\u2019s law',
+    bullets: [
+      'The cadence\u2019s thresholds are no longer constants: the org\u2019s owner writes the law \u2014 fresh days (the fresh/stale boundary) and window days \u2014 and every voice speaks the same pair.',
+      'The law is named right on the org map\u2019s cadence block, and the branch picker\u2019s bands re-walk to the same stored truth.',
+      'The window figures, the bars, and every label now say the law\u2019s own number \u2014 the map never guesses.',
+      'Every write lands on the record: the tamper-evident audit trail carries the old pair and the new pair.',
+    ],
+  },
+  {
     version: '2.240.0',
     title: 'The birth, everywhere',
     bullets: [
