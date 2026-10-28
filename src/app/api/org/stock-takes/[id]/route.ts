@@ -78,6 +78,10 @@ async function orgStockTakeDetailHandler(_request: NextRequest, session: AuthSes
       },
       startedBy: { select: { name: true } },
       closedBy: { select: { name: true } },
+      // v2.242.0 THE AISLE'S ECHO — the door's aisle name rides the drill
+      // (one join the sheet already holds a column for; a hand-raised or
+      // aisle-less sheet reads null — the echo speaks only the truth).
+      walkAisle: { select: { name: true } },
     },
   });
   if (!sheet) {
@@ -140,6 +144,9 @@ async function orgStockTakeDetailHandler(_request: NextRequest, session: AuthSes
       // nothing: a hand-raised sheet carries null, the face renders the
       // silence, and the census never grows a guess.
       origin: sheet.origin,
+      // v2.242.0 THE AISLE'S ECHO — WHERE the door opened (the aisle's
+      // own name, additive; null when the birth named no aisle).
+      walkAisle: sheet.walkAisle?.name ?? null,
       // v2.234.0 THE VERDICT — additive (the honest absence when no
       // child exists: null, never a hidden zero).
       recountedBy,

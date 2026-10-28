@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.242.0',
+    title: 'The aisle\u2019s answer',
+    bullets: [
+      'The door census now names WHERE the doors opened: the map wears the top aisles the walk order pointed at, counts and share bars included.',
+      'A door-born count sheet remembers the aisle it was born for \u2014 the drill and the branch sheet both speak it.',
+      'The aisle rows wear the door\u2019s violet, and honest silence when nothing walked \u2014 the census never guesses, never speaks a ghost.',
+    ],
+  },
+  {
     version: '2.241.0',
     title: 'The walk\u2019s law',
     bullets: [

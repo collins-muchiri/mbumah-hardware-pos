@@ -109,6 +109,10 @@ type SheetDetail = {
   // origin as the create wire stored it (the allowlist law means
   // 'walk-door' or nothing). An older cached wire renders the silence.
   origin?: string | null;
+  // v2.242.0 THE AISLE'S ECHO: additive + optional — WHERE the door
+  // opened (the aisle's own name, the wire's truth). An older cached
+  // wire or an aisle-less birth renders the silent absence.
+  walkAisle?: string | null;
   // v2.234.0 THE VERDICT — the lineage backwards (optional in the type;
   // the honest absence: null = no child, no verdict).
   recountedBy?: { id: string; status: string; closedAt: string | null; varianceUnits: number | null } | null;
@@ -609,6 +613,23 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                     >
                       <DoorOpen className="h-2.5 w-2.5" aria-hidden="true" />
                       born at a walk door
+                    </span>
+                  )}
+                  {/* v2.242.0 THE AISLE'S ECHO — the branch face names WHERE
+                      the door opened too: the aisle's own name rides the
+                      detail wire, the span speaks it in the door's violet
+                      house. A sibling span, never a rewrite of the birth
+                      chip (the chip's law stays byte-identical); an
+                      aisle-less birth wears no echo — the silence is the
+                      honest state. */}
+                  {detail.origin === 'walk-door' && detail.walkAisle && (
+                    <span
+                      data-testid="stocktake-sheet-origin-aisle"
+                      title="the walk order named this aisle — the census knows where the door opened"
+                      className="inline-flex items-center gap-1 rounded bg-violet-50 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-violet-700 ring-1 ring-violet-200 dark:bg-violet-500/10 dark:text-violet-300 dark:ring-violet-500/30"
+                    >
+                      <DoorOpen className="h-2.5 w-2.5" aria-hidden="true" />
+                      the walk order named {detail.walkAisle}
                     </span>
                   )}
                   <span className="text-[10px] text-slate-500 dark:text-slate-400">
