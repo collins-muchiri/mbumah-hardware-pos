@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.243.0',
+    title: 'The aisle\u2019s verdict',
+    bullets: [
+      'The census aisles now speak what the walks found: the units each closed door-born sheet landed, on the aisle\u2019s own row.',
+      'Every aisle wears its own cadence band \u2014 the walk order\u2019s four houses \u2014 so you can watch the walk move the needle.',
+      'A perfect count says so: \u201cthe count held \u2014 0 units.\u201d The census never guesses, and a walk still out stays honestly silent.',
+    ],
+  },
+  {
     version: '2.242.0',
     title: 'The aisle\u2019s answer',
     bullets: [

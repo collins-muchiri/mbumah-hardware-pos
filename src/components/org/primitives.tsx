@@ -198,7 +198,13 @@ export interface KpiSummaryData {
     // the array opened no door; an older cached answer predating the
     // field renders the silent absence (the face checks the field,
     // never assumes).
-    doorBornByAisle?: Array<{ categoryId: string; name: string; doorBorn: number }>;
+    // v2.243.0 the aisle's verdict rides the same rows additively: the
+    // closed door-born sheets' variance units (UNITS ARE UNITS — no cost
+    // gate) attributed to the aisle the door named, and the aisle's own
+    // cadence band + days (the wire's join, zero new queries). Optional
+    // per field — an older cached answer predating the enrichment
+    // renders the birth-only row.
+    doorBornByAisle?: Array<{ categoryId: string; name: string; doorBorn: number; varianceUnits?: number | null; band?: 'fresh' | 'stale' | 'beyond' | 'never' | null; daysSince?: number | null }>;
     // v2.235.0 the cadence: additive + optional so an older cached answer
     // renders the honest step-aside, never a crash. WHEN each shelf (branch
     // category) was last heard — the four bands and the walk order the

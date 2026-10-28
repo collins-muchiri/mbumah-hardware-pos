@@ -2,6 +2,17 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.243.0] The aisle's verdict
+
+The census named the aisles the doors opened onto (v2.242.0) — this round the aisle's row speaks the walk's own VERDICT: the variance units the window's closed door-born sheets found, and the aisle's current cadence band (did the walk move the needle?). The arc completes its sentence: the door points, the floor answers, the aisle is heard — and now the aisle testifies.
+
+### Added
+- **The aisle's verdict** (`GET /api/org/kpi-summary`): the `doorBornByAisle` rows grow three additive fields — `varianceUnits` (the closed door-born sheets' variance UNITS, attributed to the aisle the DOOR named via the sheet's own `walkCategoryId` — no product join, no guess; two bounded reads: the closed door-born sheets, then their spoken lines), `band` + `daysSince` (the aisle's own cadence band, joined from the cadence the same wire already computes — two Maps, zero new queries). THE UNITS LAW: units are units (every org role hears them — the shillings gate is NOT involved). A counting sheet has not spoken; a sheet closed with a perfect count speaks 0 — the shelf held. Optional per field (an older cached answer renders the birth-only row).
+- **The verdict's face** (`variance-map.tsx`): each aisle row speaks its verdict under the share bar — `cadence-aisle-verdict-{categoryId}`, right-aligned, `tabular-nums`, in the drill's own three families (exact = muted slate "the count held — 0 units", surplus = emerald "+N units found", shrinkage = red "−N units found"); the aisle's band rides the name line — `cadence-aisle-band-{categoryId}`, the walk order's own four houses (fresh emerald / stale amber / beyond orange / never slate), the days voice on the chip's title; the row's aria-label carries the whole testimony (births, band voice, verdict).
+
+### Styled
+- The verdict line and the band chip ride the map's existing families, never new paints: the band chips are the `bandHouse` classes the cadence rail already speaks (8px, uppercase, ring-1, dark halves from birth), the verdict line mirrors the drill's `varianceChip` three-family law (slate/emerald/red, dark halves), and every figure stays `tabular-nums`. The honest absences hold: a walk still out (counting, not closed) wears band but no verdict line; an aisle the cadence never knew wears no chip.
+
 ## [2.242.0] The aisle's answer
 
 The census has counted HOW MANY sheets were born at a walk door since v2.238.0, and per branch since v2.239.0 — this round it learns WHERE: the walk order pointed at an aisle, and now the census names the aisles the doors actually opened onto. The door arc's final altitude: the point, the floor, the yard, and now the aisle — one violet family, five altitudes.
