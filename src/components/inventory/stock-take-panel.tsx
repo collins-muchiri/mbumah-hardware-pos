@@ -137,7 +137,44 @@ type CloseResult = {
 // v2.220.0: the create flow's category rows (the population picker's
 // options) — the categories wire's own includeProductCount face, so the
 // picker speaks the REAL frozen count before the sheet opens.
-type CategoryRow = { id: string; name: string; productCount?: number };
+// v2.236.0 THE TEETH: the picker's rows learn WHEN the aisle was last
+// heard — the org cadence's four bands riding the categories wire
+// (opt-in, store-scoped, no cost field). Optional: an older cached
+// answer keeps the picker working, it just stays silent.
+type PickCadence = {
+  band: 'fresh' | 'stale' | 'beyond' | 'never';
+  daysSince: number | null;
+  lastCountedAt: string | null;
+  freshDays: number;
+  windowDays: number;
+};
+type CategoryRow = { id: string; name: string; productCount?: number; cadence?: PickCadence };
+
+// THE BAND HOUSE — the same four families the org map's cadence rows
+// speak (fresh emerald, stale amber, beyond orange, never the muted
+// slate), copied at the pens' own scale. The chip renders only on the
+// picked aisle's strip; the option label speaks the days voice in text
+// (a native <option> cannot wear a chip). The dashed track stays
+// reserved for never — an absence is never drawn as a value.
+const pickBandHouse = (band: PickCadence['band']) => {
+  if (band === 'fresh') return { chip: 'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/30', bar: 'bg-emerald-500' };
+  if (band === 'stale') return { chip: 'bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/30', bar: 'bg-amber-500' };
+  if (band === 'beyond') return { chip: 'bg-orange-50 text-orange-700 ring-orange-200 dark:bg-orange-500/10 dark:text-orange-300 dark:ring-orange-500/30', bar: 'bg-orange-400' };
+  return { chip: 'bg-slate-100 text-slate-600 ring-slate-200 dark:bg-slate-500/10 dark:text-slate-300 dark:ring-slate-500/30', bar: null };
+};
+
+// THE DAYS VOICE — the same honest five the org face speaks, worded for
+// the picker: "counted today" / "1 day ago" / "N days ago" / "not heard
+// in 30 days" / "never counted". Empty when the cadence has not spoken
+// (an older cached answer) — the label just stays a name and a count.
+const pickDaysVoice = (c: PickCadence) => {
+  if (c.band === 'never') return 'never counted';
+  if (c.band === 'beyond') return 'not heard in 30 days';
+  if (c.daysSince == null) return '';
+  if (c.daysSince === 0) return 'counted today';
+  if (c.daysSince === 1) return '1 day ago';
+  return `${c.daysSince} days ago`;
+};
 
 const fmtKes = (v: number) =>
   `Ksh ${v.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -215,7 +252,7 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
     enabled: !!storeId && createOpen && createScope === 'category',
     staleTime: 30_000,
     queryFn: async () => {
-      const res = await authorizedFetchJson(`/api/categories?storeId=${encodeURIComponent(storeId ?? '')}&includeProductCount=true`);
+      const res = await authorizedFetchJson(`/api/categories?storeId=${encodeURIComponent(storeId ?? '')}&includeProductCount=true&includeCadence=true`);
       if (!res.ok || !res.json?.success) throw new Error(res.json?.error ?? `the categories wire failed (${res.status})`);
       return (res.json.data as CategoryRow[]).filter((c) => (c.productCount ?? 0) > 0);
     },
@@ -1062,10 +1099,78 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                       <option value="">pick a category…</option>
                       {(categoriesQuery.data ?? []).map((c) => (
                         <option key={c.id} value={c.id}>
-                          {c.name} · {c.productCount ?? 0} products
+                          {[c.name, `${c.productCount ?? 0} products`, c.cadence ? pickDaysVoice(c.cadence) : ''].filter(Boolean).join(' · ')}
                         </option>
                       ))}
                     </select>
+                    {/* v2.236.0 THE TEETH — the picker wears the org
+                        cadence's voice: the legend speaks the thresholds
+                        from the wire's own numbers (never a constant),
+                        and the picked aisle gets the band chip, the days
+                        voice, and the heat bar (the same length law as
+                        the org face — min(daysSince, window)/window, 4%
+                        floor, dashed track reserved for never). THE
+                        VOICE-NOT-SORT LAW: the options keep the
+                        categories' own order; the walk order belongs to
+                        the org map. */}
+                    {(() => {
+                      const cadenced = (categoriesQuery.data ?? []).find((c) => c.cadence);
+                      if (!cadenced?.cadence) return null;
+                      return (
+                        <p data-testid="stocktake-cadence-legend" className="mt-1 text-[9px] text-slate-500 dark:text-slate-400">
+                          aisles wear the org cadence&apos;s bands — fresh ≤ {cadenced.cadence.freshDays} days · stale within {cadenced.cadence.windowDays} · beyond the window · never counted.
+                        </p>
+                      );
+                    })()}
+                    {(() => {
+                      const picked = (categoriesQuery.data ?? []).find((c) => c.id === createCategoryId);
+                      if (!picked?.cadence) return null;
+                      const house = pickBandHouse(picked.cadence.band);
+                      const voice = pickDaysVoice(picked.cadence);
+                      // THE LENGTH LAW — the org face's own: length always
+                      // means time since last heard (capped at the window,
+                      // 4% floor); beyond wears the full bar at 70% (its
+                      // date is beyond the window, not unknown), and the
+                      // dashed track stays reserved for never.
+                      const pct = picked.cadence.daysSince != null
+                        ? Math.max(4, Math.round((Math.min(picked.cadence.daysSince, picked.cadence.windowDays) / picked.cadence.windowDays) * 100))
+                        : 100;
+                      return (
+                        <div
+                          data-testid="stocktake-pick-cadence"
+                          aria-label={`${picked.name}: ${voice || 'the cadence has not spoken yet'}, ${picked.productCount ?? 0} products.`}
+                          className="mt-1.5 rounded-lg border border-slate-200 bg-white/70 px-2 py-1.5 dark:border-slate-600 dark:bg-slate-800/60"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-1.5">
+                            <span
+                              data-testid="stocktake-pick-cadence-chip"
+                              className={`inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide ring-1 ${house.chip}`}
+                            >
+                              {picked.cadence.band}
+                            </span>
+                            <span data-testid="stocktake-pick-cadence-voice" className="text-[10px] tabular-nums text-slate-500 dark:text-slate-400">
+                              {voice || '—'}
+                            </span>
+                          </div>
+                          <div className="mt-1 flex items-center gap-2">
+                            <div
+                              className="h-1 flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700"
+                              role="img"
+                              aria-label={`${picked.name}: ${voice || 'not yet heard'}${picked.cadence.daysSince != null ? ` (${picked.cadence.daysSince} of ${picked.cadence.windowDays} days)` : ''}`}
+                            >
+                              {house.bar && pct != null ? (
+                                <span className={`block h-full rounded-full ${house.bar} ${picked.cadence.band === 'beyond' ? 'opacity-70' : ''}`} style={{ width: `${pct}%` }} />
+                              ) : (
+                                <span className="block h-full w-full border-b border-dashed border-slate-400/70 dark:border-slate-500/70" />
+                              )}
+                            </div>
+                            <span className="shrink-0 text-[9px] tabular-nums text-slate-400 dark:text-slate-500">
+                              {picked.productCount ?? 0} {picked.productCount === 1 ? 'SKU' : 'SKUs'}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })()}
                     {categoriesQuery.isLoading && (
                       <p data-testid="stocktake-categories-loading" className="mt-1 text-[9px] text-slate-500 dark:text-slate-400">reading the categories…</p>
                     )}

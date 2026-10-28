@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.236.0',
+    title: 'The teeth',
+    bullets: [
+      'The count sheet picker now wears the org cadence\u2019s bands: every aisle says when it was last counted \u2014 never counted, not heard in 30 days, or N days ago \u2014 before the walk starts.',
+      'Pick an aisle and its strip speaks: the band chip, the days voice, and a heat bar whose length is always time since last heard.',
+      'The variance map\u2019s window row grows a coverage tile: how many of the org\u2019s shelves the 30-day window actually heard.',
+    ],
+  },
+  {
     version: '2.235.0',
     title: 'The cadence',
     bullets: [

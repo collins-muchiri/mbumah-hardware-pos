@@ -120,7 +120,12 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
       ) : (
         <div className="mt-3 space-y-3">
           {/* ── The org window: the money-voiced headline ─────────────────── */}
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {/* v2.236.0: the window row grows the FIFTH tile — the
+              coverage. The cadence block already counts every band; the
+              tile speaks their sum's story (heard / total, 30d) with
+              ZERO new reads — one subtraction the face was born able to
+              make. */}
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
             <div data-testid="variance-map-open" className="rounded-xl border border-slate-100 p-3 dark:border-slate-700">
               <p className="text-[10px] uppercase tracking-wide text-slate-500 dark:text-slate-400">Counting now</p>
               <p className="text-sm font-bold tabular-nums text-amber-700 dark:text-amber-400">{num(block.openCount)}</p>
@@ -151,6 +156,47 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
                   : 'the shillings stay behind the cost gate'}
               </p>
             </div>
+            {/* v2.236.0 THE COVERAGE TILE — how much of the org the 30-day
+                window actually heard: (fresh + stale) of total, from the
+                cadence counts the payload already carries (zero new
+                reads, zero new fetches). The honest absences: an older
+                cached answer predating the cadence speaks 'the cadence
+                has not spoken yet'; an org with no categories speaks 'no
+                shelves to hear'. The fill rides the cadence's own bar
+                language (h-1 rounded-full, emerald — the books-heard
+                family); the dashed track is the honest absence's track,
+                never a drawn zero. */}
+            {(() => {
+              const cad = block.cadence;
+              const heard = cad ? cad.counts.fresh + cad.counts.stale : null;
+              const total = cad ? cad.counts.total : null;
+              const pct = cad && total != null && total > 0 ? Math.round(((heard ?? 0) / total) * 100) : null;
+              const voice = !cad
+                ? 'the cadence has not spoken yet'
+                : total === 0
+                  ? 'no shelves to hear'
+                  : `${heard} of ${total} shelves heard`;
+              return (
+                <div data-testid="variance-map-coverage" className="rounded-xl border border-slate-100 p-3 dark:border-slate-700">
+                  <p className="text-[10px] uppercase tracking-wide text-slate-500 dark:text-slate-400">Heard · 30d</p>
+                  <p className="text-sm font-bold tabular-nums text-slate-800 dark:text-slate-100">
+                    {pct != null ? `${pct}%` : '—'}
+                  </p>
+                  <div
+                    className="mt-1 h-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700"
+                    role="img"
+                    aria-label={`Coverage: ${voice}${pct != null ? ` (${heard} of ${total} branch categories heard in the 30-day window)` : ''}`}
+                  >
+                    {pct != null ? (
+                      <span className="block h-full rounded-full bg-emerald-500" style={{ width: `${pct}%` }} />
+                    ) : (
+                      <span className="block h-full w-full border-b border-dashed border-slate-400/70 dark:border-slate-500/70" />
+                    )}
+                  </div>
+                  <p className="mt-1 text-[10px] text-slate-500 dark:text-slate-400">{voice}</p>
+                </div>
+              );
+            })()}
           </div>
 
           {/* THE FIFTH CONSUMER — the indicative strip on the org's ledger
