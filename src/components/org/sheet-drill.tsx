@@ -65,6 +65,21 @@
 // map keys the drill per sheet, so a fresh door opens the lens at
 // "all categories" by construction.
 //
+// v2.231.0 THE BRANCH LENS — the lens's twin walks the branch face.
+//
+// v2.232.0 THE RECOUNT — the loop closes: a CLOSED sheet's variances
+// become the NEXT sheet's population. Two instruments grow:
+// • the variances-only lens (the third instrument beside the finder
+//   and the category lens): an aria-pressed chip that narrows the
+//   reading to the lines whose counted ≠ snapshot — composing with
+//   the other two needles over the SAME held lines, the honest N-of-M
+//   answering all three, and the tiles keeping the whole-sheet truth;
+// • the recount DOOR (an anchor, never a button — this face stays
+//   READ-ONLY BY LAW: the branch face keeps the only pens): the
+//   drill wire's store block grew the store's slug (one cheap
+//   column, zero new fetches) and the CLOSED face links to the
+//   branch's stock-take face, where the recount spawn lives.
+//
 // THE LAWS IT INHERITS:
 // • the cost law: the wire's varianceValue and per-line varianceCost
 //   arrive null past the cost gate — the face renders the honest
@@ -80,7 +95,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { ClipboardCheck, Download, Printer, Search, X } from 'lucide-react';
+import { ArrowRight, ClipboardCheck, Download, Printer, Search, X } from 'lucide-react';
 import { num, timeAgo } from './primitives';
 
 const fmtKes = (v: number) =>
@@ -135,7 +150,7 @@ interface DrillWire {
     closedAt: string | null;
     startedByName: string | null;
     closedByName: string | null;
-    store: { id: string; name: string; code: string | null };
+    store: { id: string; name: string; code: string | null; slug?: string | null };
     summary: {
       totalLines: number;
       countedLines: number;
@@ -167,6 +182,10 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
   // v2.230.0: the lens — the category needle, the same per-door law
   // (the map keys the drill per sheet; a fresh door reads "all").
   const [categoryNeedle, setCategoryNeedle] = useState('all');
+  // v2.232.0: the variances-only lens — the third instrument, the same
+  // per-door law (the map keys the drill per sheet; a fresh door reads
+  // the whole sheet).
+  const [variancesOnly, setVariancesOnly] = useState(false);
   const wire = useQuery<DrillWire>({
     queryKey: ['org-sheet-drill', target?.id],
     enabled: !!target?.id,
@@ -235,17 +254,26 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
       )
     : [];
   const lensActive = categoryBuckets.length > 1;
+  // v2.232.0: the variance lines — the recount's raw material and the
+  // variances-only lens's population, derived from the lines the drill
+  // ALREADY holds (zero new fetch). A line with a count that answers
+  // differently from its snapshot is a variance; the chip the line
+  // already wears is this lens's vocabulary.
+  const varianceLines = data ? data.lines.filter((l) => l.variance != null && l.variance !== 0) : [];
+  const variancesActive = varianceLines.length > 0;
   // The combined reading: the lens narrows the shelf, the needle
-  // narrows the line — both client-side over the SAME held lines, both
-  // answered by the one honest N-of-M count. The tiles never hear of
-  // either (the sheet's truth stays whole).
+  // narrows the line, the variances-only chip narrows to the disputed
+  // lines — all client-side over the SAME held lines, all answered by
+  // the one honest N-of-M count. The tiles never hear of any of them
+  // (the sheet's truth stays whole).
   const shownLines = data
     ? data.lines.filter(
         (l) =>
           (categoryNeedle === 'all' || (l.category ?? 'uncategorized') === categoryNeedle) &&
           (!cleanNeedle ||
             l.name.toLowerCase().includes(cleanNeedle) ||
-            l.sku.toLowerCase().includes(cleanNeedle)),
+            l.sku.toLowerCase().includes(cleanNeedle)) &&
+          (!variancesOnly || (l.variance != null && l.variance !== 0)),
       )
     : [];
 
@@ -430,6 +458,30 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
                       ))}
                     </select>
                   )}
+                  {/* v2.232.0: THE VARIANCES-ONLY LENS — the third
+                      instrument: an aria-pressed chip that narrows the
+                      reading to the disputed lines (counted ≠ snapshot).
+                      It composes with the lens and the finder over the
+                      SAME held lines; the tiles keep the whole-sheet
+                      truth. Mounts only when the sheet holds at least
+                      one variance — an absent control never lies. */}
+                  {variancesActive && (
+                    <button
+                      type="button"
+                      data-testid="sheet-drill-variances-only"
+                      data-sheet-print-off=""
+                      aria-pressed={variancesOnly}
+                      title="the variances-only lens — read only the lines whose count answered differently; the tiles keep the whole sheet's truth"
+                      onClick={() => setVariancesOnly((v) => !v)}
+                      className={`inline-flex h-6 items-center gap-1 rounded-md px-2 text-[10px] font-semibold ring-1 transition-colors focus:outline-none focus:ring-1 focus:ring-amber-500/40 ${
+                        variancesOnly
+                          ? 'bg-amber-700 text-white ring-amber-700 dark:bg-amber-600 dark:ring-amber-600'
+                          : 'bg-white text-slate-600 ring-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-600 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      variances only · {num(varianceLines.length)}
+                    </button>
+                  )}
                   <span className="relative" data-sheet-print-off="">
                     <Search className="pointer-events-none absolute left-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400 dark:text-slate-500" aria-hidden="true" />
                     <input
@@ -525,13 +577,17 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
                   );
                 })}
               </ul>
-              {data && (cleanNeedle !== '' || categoryNeedle !== 'all') && shownLines.length === 0 && (
+              {data && (cleanNeedle !== '' || categoryNeedle !== 'all' || variancesOnly) && shownLines.length === 0 && (
                 <p data-testid="sheet-drill-finder-empty" className="mt-1.5 rounded-lg border border-dashed border-slate-200 bg-white/60 px-3 py-2 text-[11px] text-slate-500 dark:border-slate-600 dark:bg-slate-900/60 dark:text-slate-400">
                   {cleanNeedle !== ''
                     ? categoryNeedle !== 'all'
                       ? `no line in “${categoryNeedle}” answers “${needle.trim()}” — the sheet holds ${num(data.lines.length)} ${data.lines.length === 1 ? 'line' : 'lines'}.`
                       : `no line answers “${needle.trim()}” — the sheet holds ${num(data.lines.length)} ${data.lines.length === 1 ? 'line' : 'lines'}.`
-                    : `the lens came back empty — the sheet holds ${num(data.lines.length)} ${data.lines.length === 1 ? 'line' : 'lines'}.`}
+                    : categoryNeedle !== 'all'
+                      ? variancesOnly
+                        ? `no line with a variance in “${categoryNeedle}” — the sheet holds ${num(data.lines.length)} ${data.lines.length === 1 ? 'line' : 'lines'}, ${num(varianceLines.length)} of them with a variance.`
+                        : `the lens came back empty — the sheet holds ${num(data.lines.length)} ${data.lines.length === 1 ? 'line' : 'lines'}.`
+                      : `no line with a variance — the sheet holds ${num(data.lines.length)} ${data.lines.length === 1 ? 'line' : 'lines'}, ${num(varianceLines.length)} of them with a variance.`}
                 </p>
               )}
               {data && data.lines.length === 0 && (
@@ -557,6 +613,35 @@ export function SheetDrill({ target, onClose }: { target: SheetDrillTarget; onCl
                     <span className="mt-0.5 block text-[9px] uppercase tracking-wide text-slate-500">date</span>
                   </span>
                 </div>
+              )}
+              {data.status === 'CLOSED' && variancesActive && data.store.slug && (
+                /* v2.232.0: THE RECOUNT DOOR — the CLOSED face's way
+                    forward. An ANCHOR, never a button: this face stays
+                    read-only by law (the branch face keeps the only
+                    pens), so the org face POINTS — the door opens the
+                    branch's own stock-take face, where the recount
+                    spawn freezes exactly these variance products
+                    against a fresh snapshot. The address is the wire's
+                    OWN slug (v2.232.0's additive column) — never a
+                    client-side guess. A store without a slug holds no
+                    door (an absent control never lies). */
+                <a
+                  data-testid="sheet-drill-recount-door"
+                  data-sheet-print-off=""
+                  href={`/stores/${data.store.slug}/inventory`}
+                  title="open the branch's stock-take face — the recount spawn lives where the pens live"
+                  className="mt-2 flex items-center justify-between gap-2 rounded-xl border border-dashed border-amber-300 bg-amber-50/60 px-3 py-2 text-[11px] font-semibold text-amber-800 transition-colors hover:bg-amber-100/70 focus:outline-none focus:ring-1 focus:ring-amber-500/40 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200 dark:hover:bg-amber-500/20"
+                >
+                  <span className="min-w-0">
+                    <span className="block">
+                      recount the {num(varianceLines.length)} variance line{varianceLines.length === 1 ? '' : 's'} at {data.store.name}
+                    </span>
+                    <span className="mt-0.5 block text-[9px] font-medium text-amber-800/70 dark:text-amber-200/70">
+                      opens the branch&apos;s stock-take face — the recount freezes exactly these products against a fresh snapshot.
+                    </span>
+                  </span>
+                  <ArrowRight className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                </a>
               )}
               <p data-testid="sheet-drill-read-only" className="mt-1.5 text-[9px] text-slate-500 dark:text-slate-400">
                 read-only — the branch sheet keeps the pens; this face watches the floor&apos;s truth.
