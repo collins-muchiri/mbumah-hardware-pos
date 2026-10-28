@@ -27,11 +27,11 @@
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ClipboardCheck, ChevronRight, History } from 'lucide-react';
+import { ClipboardCheck, ChevronRight, Download, History } from 'lucide-react';
 import { ADMIN_CURRENCY_RATES_QUERY_KEY, RATE_SOURCE_PHRASE, type RatesWireBody } from '@/components/currency-switcher';
 import { useCurrency } from '@/hooks/use-currency';
 import { CURRENCY_BY_CODE, formatCurrency } from '@/lib/currency-utils';
-import { SheetDrill, type SheetDrillTarget } from './sheet-drill';
+import { SheetDrill, csvCell, type SheetDrillTarget } from './sheet-drill';
 import {
   num, timeAgo,
   parseSheetLineage, LineageChip,
@@ -46,6 +46,33 @@ const statusChip = (s: string) => {
   if (s === 'CLOSED') return 'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/30';
   return 'bg-slate-100 text-slate-600 ring-slate-200 dark:bg-slate-500/10 dark:text-slate-300 dark:ring-slate-500/30';
 };
+
+// v2.237.0 THE WALK'S PAPER — the cadence's own CSV: the walk order as
+// the wire speaks it (blind spots first), in one file for the floor's
+// clipboard. Rides the drill's CSV laws verbatim: csvCell's quoting,
+// the BOM so Excel opens UTF-8 honestly, CRLF joins. The honest
+// absences export as EMPTY cells — a never-heard shelf has no date,
+// and the file never invents one. Pure, so the pins can read it.
+export function cadenceWalkCsv(
+  rows: Array<{
+    name: string; storeCode: string | null; storeName: string;
+    band: string; daysSince: number | null; lastCountedAt: string | null;
+    productCount: number;
+  }>,
+): string {
+  const header = 'aisle,store,band,days_since,last_counted_at,skus';
+  const body = rows.map((r) =>
+    [
+      csvCell(r.name),
+      csvCell(r.storeCode ?? r.storeName),
+      csvCell(r.band),
+      r.daysSince != null ? r.daysSince : '',
+      r.lastCountedAt ?? '',
+      r.productCount,
+    ].join(','),
+  );
+  return `\uFEFF${[header, ...body].join('\r\n')}`;
+}
 
 const varianceChip = (v: number) => {
   if (v === 0) return { text: 'exact', cls: 'bg-slate-100 text-slate-600 ring-slate-200 dark:bg-slate-500/10 dark:text-slate-300 dark:ring-slate-500/30' };
@@ -390,6 +417,36 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
                     The cadence
                   </p>
                   <span className="flex flex-wrap items-center gap-1.5">
+                    {/* v2.237.0 THE WALK'S PAPER — the cadence exports
+                        itself: the whole walk order in the wire's own
+                        order, one honest file. Zero fetches — the rows
+                        the face renders are the rows the file speaks.
+                        The button hides on a shelf-less cadence: an
+                        absent control never lies. */}
+                    {cadence.categories.length > 0 && (
+                      <button
+                        type="button"
+                        data-testid="cadence-export"
+                        aria-label={`Download all ${cadence.categories.length} aisles as CSV — the walk order as the wire speaks it, blind spots first`}
+                        title="the walk order as a file — the floor's clipboard for the day"
+                        onClick={() => {
+                          const csv = cadenceWalkCsv(cadence.categories);
+                          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = `walk-order-${new Date().toISOString().slice(0, 10)}.csv`;
+                          document.body.appendChild(a);
+                          a.click();
+                          a.remove();
+                          URL.revokeObjectURL(url);
+                        }}
+                        className="inline-flex items-center gap-1 rounded border border-slate-200 px-1.5 py-0.5 text-[9px] font-semibold text-slate-600 transition-colors hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-amber-500 dark:border-slate-700 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:bg-slate-800"
+                      >
+                        <Download className="h-3 w-3" aria-hidden="true" />
+                        walk order
+                      </button>
+                    )}
                     {(['fresh', 'stale', 'beyond', 'never'] as const).map((band) => {
                       const house = bandHouse(band);
                       const count = cadence.counts[band];
@@ -413,6 +470,16 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
                     const house = bandHouse(c.band);
                     const pct = c.daysSince != null ? Math.max(4, Math.round((Math.min(c.daysSince, 30) / 30) * 100)) : 100;
                     const voice = daysVoice(c);
+                    // v2.237.0 THE WALK'S DOOR — the cadence row becomes
+                    // a door: the org face POINTS, the branch face
+                    // counts (the v2.232.0 anchor-door law, now carrying
+                    // the walk's order). The deep link pre-arms the
+                    // branch's count sheet with THIS aisle picked — one
+                    // read of the map becomes one open drawer. The door
+                    // rides the store's OWN slug from the stores prop
+                    // (never a guess); a slug-less store holds no door —
+                    // an absent control never lies.
+                    const doorSlug = stores.find((s) => s.id === c.storeId)?.slug ?? null;
                     return (
                       <li
                         key={c.categoryId}
@@ -456,6 +523,18 @@ export function VarianceMap({ data, stores }: { data: KpiSummaryData; stores: St
                             </span>
                           </div>
                         </div>
+                        {doorSlug && (
+                          <a
+                            data-testid={`cadence-door-${c.categoryId}`}
+                            href={`/stores/${doorSlug}/inventory?countSheet=${c.categoryId}`}
+                            title={`the org face points, the branch face counts — open ${c.name}'s count sheet at ${c.storeCode ?? c.storeName}`}
+                            aria-label={`start the walk on ${c.name} at ${c.storeCode ?? c.storeName} — opens the branch's count sheet with this aisle picked`}
+                            className="mr-2 flex shrink-0 items-center gap-0.5 self-center rounded border border-slate-200 px-1.5 py-1 text-[9px] font-semibold text-slate-500 transition-colors hover:border-slate-300 hover:bg-slate-50 hover:text-slate-700 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-amber-500 dark:border-slate-700 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+                          >
+                            walk
+                            <ChevronRight className="h-3 w-3" aria-hidden="true" />
+                          </a>
+                        )}
                       </li>
                     );
                   })}

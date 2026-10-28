@@ -57,7 +57,7 @@
 //   birth; the muted family (slate-500 / dark:slate-400) carries every
 //   sub-line.
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
@@ -201,6 +201,19 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
   // server-side; the UI never ships product ids across the wire).
   const [createScope, setCreateScope] = useState<'full' | 'category'>('full');
   const [createCategoryId, setCreateCategoryId] = useState('');
+  // v2.237.0 THE WALK'S DOOR — the org cadence's deep link. The door is
+  // a hard anchor navigation, so this panel mounts fresh WITH the query
+  // in the URL: one one-shot read at mount, consumed once the categories
+  // wire lands (the picker only ever pre-arms an aisle THIS store
+  // actually has — a foreign id is discarded, never guessed, and the
+  // face quietly returns to its own state). The URL is stripped after
+  // the consume so a refresh never re-haunts the drawer. The voice line
+  // describes the ARRIVAL — the user's own hand (scope or category)
+  // silences it, because a provenance whisper that outlives its moment
+  // would lie.
+  const [doorParam] = useState(() => (typeof window === 'undefined' ? '' : new URLSearchParams(window.location.search).get('countSheet') ?? ''));
+  const doorConsumed = useRef(false);
+  const [doorVoice, setDoorVoice] = useState<string | null>(null);
   // v2.220.0: the cancel flow — armed two-step (the same intent law a
   // destructive action owes), with an optional reason the sheet keeps.
   const [cancelArmed, setCancelArmed] = useState(false);
@@ -257,6 +270,42 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
       return (res.json.data as CategoryRow[]).filter((c) => (c.productCount ?? 0) > 0);
     },
   });
+
+  // v2.237.0 THE WALK'S DOOR — the consume. Pass one (mount): the drawer
+  // opens on the category scope BEFORE the wire lands — that is what
+  // enables the wire (the query's own gate). Pass two (data lands): the
+  // aisle is pre-picked only if THIS store owns it, the drawer speaks
+  // the arrival, and the URL goes quiet. One ref keeps the consume
+  // one-shot by construction — state of the mount, never of a reset.
+  // Deferred so no setState runs synchronously inside the effect (the
+  // react-hooks/set-state-in-effect rule — the same pattern the console
+  // chrome uses for its initial load); the cleanup cancels a pending
+  // pass when the deps move, so a stale body never speaks.
+  useEffect(() => {
+    if (!doorParam || doorConsumed.current) return;
+    const list = categoriesQuery.data;
+    const t = window.setTimeout(() => {
+      if (list) {
+        doorConsumed.current = true;
+        const hit = list.find((c) => c.id === doorParam);
+        if (hit) {
+          setCreateCategoryId(hit.id);
+          setCreateOpen(true);
+          setDoorVoice(`${hit.name} · ${hit.cadence ? pickDaysVoice(hit.cadence) : 'the aisle waits'}`);
+        } else {
+          // A foreign id never pre-arms: the door quietly returns the
+          // face to its own state — the picker never lies.
+          setCreateScope('full');
+          setCreateOpen(false);
+        }
+        if (typeof window !== 'undefined') window.history.replaceState(null, '', window.location.pathname + window.location.hash);
+      } else {
+        setCreateScope('category');
+        setCreateOpen(true);
+      }
+    }, 0);
+    return () => window.clearTimeout(t);
+  }, [doorParam, categoriesQuery.data]);
 
   const invalidateSheets = () => {
     queryClient.invalidateQueries({ queryKey: ['stock-takes', storeId] });
@@ -1072,7 +1121,7 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                     type="button"
                     data-testid="stocktake-scope-full"
                     aria-pressed={createScope === 'full'}
-                    onClick={() => setCreateScope('full')}
+                    onClick={() => { setCreateScope('full'); setDoorVoice(null); }}
                     className={`rounded px-2 py-1 text-[10px] font-semibold ring-1 ${createScope === 'full' ? 'bg-amber-700 text-white ring-amber-700 dark:bg-amber-600 dark:ring-amber-600' : 'bg-white text-slate-600 ring-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-600'}`}
                   >
                     Every active product
@@ -1081,18 +1130,30 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                     type="button"
                     data-testid="stocktake-scope-category"
                     aria-pressed={createScope === 'category'}
-                    onClick={() => setCreateScope('category')}
+                    onClick={() => { setCreateScope('category'); setDoorVoice(null); }}
                     className={`inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-semibold ring-1 ${createScope === 'category' ? 'bg-amber-700 text-white ring-amber-700 dark:bg-amber-600 dark:ring-amber-600' : 'bg-white text-slate-600 ring-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-600'}`}
                   >
                     <FolderTree className="h-3 w-3" /> One category
                   </button>
                 </div>
+                {/* v2.237.0 THE WALK'S DOOR — the arrival whisper: when
+                    the drawer opened because the ORG's walk order said
+                    so, the face says so. It rides the muted family (the
+                    cadence's own voice scale) and dies the moment the
+                    user's own hand touches scope or category — a
+                    provenance line that outlived its moment would lie. */}
+                {doorVoice && (
+                  <p data-testid="stocktake-door-prefill" className="mt-1 flex items-center gap-1 text-[9px] italic text-slate-500 dark:text-slate-400">
+                    <History className="h-3 w-3 shrink-0" aria-hidden="true" />
+                    <span>the org&apos;s walk order sent you here — {doorVoice}.</span>
+                  </p>
+                )}
                 {createScope === 'category' && (
                   <div className="mt-1.5">
                     <select
                       data-testid="stocktake-create-category"
                       value={createCategoryId}
-                      onChange={(e) => setCreateCategoryId(e.target.value)}
+                      onChange={(e) => { setCreateCategoryId(e.target.value); setDoorVoice(null); }}
                       aria-label="Count sheet category"
                       className="h-7 w-full rounded border border-slate-200 bg-white px-1.5 text-xs text-slate-700 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
                     >
