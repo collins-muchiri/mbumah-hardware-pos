@@ -10,6 +10,10 @@ import {
   type PayslipResult,
   type PayslipLine,
   type ResolvedRateTable,
+  // v2.263.0: the journal's types ride the block's own type-only law
+  // (the inline import('...') annotations retired — one import, one law).
+  type PayrollJournal,
+  type PayrollJournalLine,
 } from './types';
 
 // ── Rate resolution ─────────────────────────────────────────────────────────
@@ -291,8 +295,8 @@ export function buildPayrollJournal(
   payslip: PayslipResult,
   entryNumber: string,
   idempotencyKey: string,
-): import('./types').PayrollJournal {
-  const lines: import('./types').PayrollJournalLine[] = [];
+): PayrollJournal {
+  const lines: PayrollJournalLine[] = [];
   const A = PAYROLL_ACCOUNTS;
 
   const gross = payslip.grossCents;

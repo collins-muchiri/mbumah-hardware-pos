@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
@@ -11,7 +11,7 @@ import {
   MoreHorizontal,
   PackageCheck, PackageX, ShieldCheck, Stamp,
   Receipt, ShoppingBag, DollarSign,
-  ArrowUpRight,
+  ArrowUpRight, History,
 } from 'lucide-react';
 
 import { useAppStore } from '@/lib/stores';
@@ -46,6 +46,9 @@ import {
   type PoMetricKind,
   type PoMetricLens,
 } from '@/lib/po-metrics';
+// v2.263.0 THE LENS REMEMBERED — one home, never a copy (the ledger's
+// own memory wire; the needle never rides).
+import { readLensMemory, writeLensMemory } from '@/lib/lens-memory';
 import { SheetDrill, type SheetDrillTarget } from '@/components/org/sheet-drill';
 
 // v2.254.0 THE BRANCH'S LENS — the row's own band, read from above: the
@@ -1696,6 +1699,37 @@ export default function PurchaseOrdersTab() {
   // v2.257.0, one home); the door closes the detail and opens the sheet
   // (one dialog at a time, the ladder's own shape).
   const [sheetDrill, setSheetDrill] = useState<SheetDrillTarget>(null);
+  // v2.263.0 THE LENS REMEMBERED — the roster-memory candidate, defined
+  // at last (the ledger's own law, the same one home): the band house
+  // and the metric kind remember their press across navigation within
+  // the session; the needle never rides. Standing a lens down IS
+  // forgetting — the lifts write through like any other press.
+  const [remembered, setRemembered] = useState(false);
+  const firstWriteRef = useRef(true);
+  useEffect(() => {
+    const mem = readLensMemory('branch-po-roster');
+    if (!mem) return;
+    const BANDS = ['fresh', 'stale', 'beyond', 'never', 'silent'];
+    const METRICS = ['onTime', 'late', 'open'];
+    if (BANDS.includes(mem.band)) setBandLens(mem.band as 'ALL' | CadenceBand | 'silent');
+    if (METRICS.includes(mem.metric)) setMetricLens(mem.metric as PoMetricLens);
+    if (BANDS.includes(mem.band) || METRICS.includes(mem.metric)) {
+      setRemembered(true);
+    }
+  }, []);
+  useEffect(() => {
+    // the mount commit writes nothing (the ledger's own law — a
+    // default-envelope write here would wipe the memory the read side
+    // just consumed); every LATER run is a reader's press.
+    if (firstWriteRef.current) {
+      firstWriteRef.current = false;
+      return;
+    }
+    writeLensMemory('branch-po-roster', { band: bandLens, metric: metricLens });
+    // the chip's honest lifetime: quiet when the lens returns to the
+    // face's own default (the reader stood it down).
+    if (remembered && bandLens === 'ALL' && metricLens === 'all') setRemembered(false);
+  }, [bandLens, metricLens, remembered]);
 
   const limit = 20;
   const currentTime = useMemo(() => new Date().getTime(), []);
@@ -2144,6 +2178,20 @@ export default function PurchaseOrdersTab() {
               </button>
             );
           })}
+          {/* v2.263.0 THE REMEMBERED CHIP — the restoration's own notice
+              (the ledger's own chip, the branch's own address): it
+              speaks only until the reader's own hand moves an
+              instrument — a notice, not a stance. */}
+          {remembered && (
+            <span
+              data-testid="branch-po-lens-remembered"
+              title="your last lens returned with you — Escape, the clear-all button or a press stands it down"
+              className="inline-flex h-6 items-center gap-1 rounded-full bg-slate-100 px-2.5 text-[10px] font-semibold uppercase tracking-wide text-slate-600 ring-1 ring-slate-200 dark:bg-slate-500/10 dark:text-slate-300 dark:ring-slate-500/30"
+            >
+              <History className="h-2.5 w-2.5" aria-hidden="true" />
+              remembered
+            </span>
+          )}
         </div>
       )}
 

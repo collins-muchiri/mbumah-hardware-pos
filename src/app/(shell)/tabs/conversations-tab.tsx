@@ -576,7 +576,7 @@ function ConversationThread({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete conversation?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete "{title}" and all {conversation.messageCount ?? 0} message(s).
+              This will permanently delete &quot;{title}&quot; and all {conversation.messageCount ?? 0} message(s).
               This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -906,7 +906,7 @@ function NewConversationDialog({
             New Conversation
           </DialogTitle>
           <DialogDescription>
-            Start a new chat thread. You'll be added as a participant automatically.
+            Start a new chat thread. You&apos;ll be added as a participant automatically.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-2">

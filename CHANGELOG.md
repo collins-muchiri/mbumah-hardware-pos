@@ -2,6 +2,21 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.263.0] The lens remembered
+
+The roster-memory candidate, defined at last: a face's narrowing instruments — the band house and the metric kind — remember their press across navigation within the session. The reader returns and the lens is exactly as it was left. The needle never rides (a needle is a moment's question, not a stance), and standing a lens down IS forgetting — the lifts write through like any other press.
+
+### Added
+- **The one home of view memory** (`src/lib/lens-memory.ts`): `readLensMemory`/`writeLensMemory` — one envelope per surface (`{ band, metric }`) in sessionStorage (the memory lives as long as the tab does, never crosses tabs). SSR-safe reads, shape-checked envelopes, quota-swallowing writes: a memory that cannot be read or written is a face that simply forgets — never a crash.
+- **The ledger remembers** (`src/components/org/po-ledger.tsx`): the band house and the metric kind hydrate at arrival (the membership law — only values the face can name get pressed) and every press writes through, lifts included. The needle stays out of the memory by law.
+- **The branch remembers** (`src/app/(shell)/tabs/purchase-orders-tab.tsx`): the same wire on the branch roster, its own key, the same one home.
+
+### Styled
+- **The remembered chip**: a quiet "remembered" notice beside the metric rail (History icon, the honest title — "your last lens returned with you — Escape, the clear button or a press stands it down") speaks only until the reader's own hand moves an instrument — a notice, not a stance. Two surfaces, two addresses, one shape.
+
+### Tests
+- `src/tests/lens-memory-v2263.test.ts` (10 pins / 3 describes): the one home's bytes + RUNTIME roundtrip (a press remembered, a stranger refused, unparseable envelopes refused), the membership law on both faces, the needle's absence from the memory, the remembered chips, and the ancestors' bytes. The treadmill walked 315 ancestor pins across 71 files.
+
 ## [2.262.0] The branch's answer
 
 The why-strip's second surface: the ledger's drill answered why in v2.261.0, and now the branch's own detail does too — the roster's pressed metric rides the detail's door, and the document answers with its own facts. One home, two surfaces, zero new copies.
