@@ -112,6 +112,9 @@ describe('v2.41.0 dialog static contracts', () => {
   it('the submit button honors the readiness mirror and role hint', () => {
     expect(tab).toContain('disabled={!isCreateLinkFormReady(createForm) || busy}');
     expect(tab).toContain('Privileged roles (SUPER_ADMIN, ACCOUNTANT) are provisioned from Settings → Users.');
-    expect(tab).toContain("qc.invalidateQueries({ queryKey: ['portal-link-users', storeId] });");
+    // v2.267.0 re-point with the growth named: the picker's invalidate moved
+    // with its wire — the candidates read replaced the /api/users fetch, so
+    // the create-&-link success now invalidates the candidates key.
+    expect(tab).toContain("qc.invalidateQueries({ queryKey: ['portal-link-candidates'] });");
   });
 });

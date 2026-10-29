@@ -35,7 +35,7 @@ import {
   CheckCircle, XCircle, Clock3, FileText, User,
   IdCard, Building2, AlertTriangle, Calendar, PiggyBank, Play, UserX, Ban,
   CalendarPlus, UserCheck, Info,
-  UserCog, Link2, Unlink, ShieldCheck,
+  UserCog, Link2, Unlink, ShieldCheck, ShieldAlert,
   Copy, RefreshCw, Wand2,
   Paperclip, BadgeCheck, History,
 } from 'lucide-react';
@@ -48,7 +48,10 @@ import {
   generateTempPassword,
   PORTAL_CREATE_ROLE_OPTIONS,
   isCreateLinkFormReady,
+  canManagePortalLinks,
+  portalRoleTone,
   type CreateLinkFormState,
+  type PortalLinkCandidate,
 } from '@/lib/hr/portal-account';
 
 import { useAppStore, useAuthStore } from '@/lib/stores';
@@ -610,18 +613,9 @@ function EmployeesSubTab({ storeId }: { storeId: string }) {
   // v2.39.0: portal-link coverage — how many of the directory's employees
   // actually receive in-app notifications today.
   const portalLinkedCount = employees.filter((e) => e.userId).length;
-  // userIds currently bound to ANY employee — the picker greys these out
-  // (1:1 is enforced server-side; this mirrors it client-side). Deps stay on
-  // the raw query result (stable reference), not the conditional array.
-  const linkedUserIds = useMemo(
-    () =>
-      new Set(
-        (Array.isArray(employeesData) ? employeesData : [])
-          .map((e) => e.userId)
-          .filter(Boolean) as string[],
-      ),
-    [employeesData],
-  );
+  // v2.267.0: the picker's grey-out duty moved server-side — the candidates
+  // wire annotates every already-bound login with WHERE it is bound, so the
+  // client-side linkedUserIds mirror retired with the /api/users fetch.
   const monthlyPayroll = employees
     .filter((e) => e.status === 'ACTIVE')
     .reduce((sum, e) => sum + toNum(e.basicSalary) + toNum(e.houseAllowance) + toNum(e.transportAllowance) + toNum(e.medicalAllowance) + toNum(e.otherAllowances), 0);
@@ -903,7 +897,6 @@ function EmployeesSubTab({ storeId }: { storeId: string }) {
         open={!!linkTarget}
         employee={linkTarget}
         storeId={storeId}
-        linkedUserIds={linkedUserIds}
         onClose={() => setLinkTarget(null)}
       />
     </div>
@@ -914,11 +907,10 @@ function EmployeesSubTab({ storeId }: { storeId: string }) {
 // Employee through POST/DELETE /api/employees/[id]/portal-link. The leave
 // lifecycle (decision fan-out, on-behalf bells) resolves this link at fire
 // time, so linking is what turns "HR filed for me" into an actual bell row.
-function PortalLinkDialog({ open, employee, storeId, linkedUserIds, onClose }: {
+function PortalLinkDialog({ open, employee, storeId, onClose }: {
   open: boolean;
   employee: Employee | null;
   storeId: string;
-  linkedUserIds: Set<string>;
   onClose: () => void;
 }) {
   const qc = useQueryClient();
@@ -932,6 +924,11 @@ function PortalLinkDialog({ open, employee, storeId, linkedUserIds, onClose }: {
   // renders for SUPER_ADMIN; other linkers keep the Settings hint.
   const sessionUser = useAuthStore((s) => s.user);
   const canCreateAccounts = sessionUser?.role === 'SUPER_ADMIN';
+  // v2.267.0: the honest gate — the same trio the link route enforces. A
+  // BRANCH_MANAGER or ACCOUNTANT opening this dialog gets the denial voice
+  // instead of a silently empty picker (the old /api/users fetch 403'd for
+  // them and the empty list lied).
+  const canManageLinks = canManagePortalLinks(sessionUser?.role);
   const [mode, setMode] = useState<'link' | 'create'>('link');
   const [createForm, setCreateForm] = useState<CreateLinkFormState>({ name: '', email: '', role: '', phone: '', password: '', mustChangePassword: true });
   const [pwCopied, setPwCopied] = useState(false);
@@ -957,23 +954,30 @@ function PortalLinkDialog({ open, employee, storeId, linkedUserIds, onClose }: {
     }
   }
 
-  const { data: usersEnv, isLoading: usersLoading } = useQuery<
-    Array<{ id: string; name: string; email: string; role: string; isActive: boolean; store?: { name: string } | null }>
-  >({
-    queryKey: ['portal-link-users', storeId],
-    queryFn: () => apiFetch(`/api/users?storeId=${storeId}&isActive=true&limit=200`),
-    enabled: open && !!employee && !employee.userId,
+  // v2.267.0: the picker reads its OWN governed wire — the candidates
+  // endpoint (same trio gate as the link POST/DELETE, same-store ACTIVE
+  // users, already-bound logins annotated with where they are bound). The
+  // old fetch (GET /api/users) was the staff directory's law, not the
+  // picker's: silent empty lists for every role it refused.
+  const { data: candEnv, isLoading: usersLoading } = useQuery<{
+    employeeId: string;
+    candidates: PortalLinkCandidate[];
+  }>({
+    queryKey: ['portal-link-candidates', employee?.id],
+    queryFn: () => apiFetch(`/api/employees/${employee?.id}/portal-link/candidates`),
+    enabled: open && !!employee && !employee.userId && canManageLinks,
   });
-  const allUsers = Array.isArray(usersEnv) ? usersEnv : [];
-
   const candidates = useMemo(() => {
+    const all = candEnv?.candidates ?? [];
     const q = userSearch.trim().toLowerCase();
-    return (Array.isArray(usersEnv) ? usersEnv : []).filter((u) => {
-      if (linkedUserIds.has(u.id) && u.id !== employee?.userId) return false;
-      if (!q) return true;
-      return u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q) || u.role.toLowerCase().includes(q);
-    });
-  }, [usersEnv, linkedUserIds, userSearch, employee?.userId]);
+    if (!q) return all;
+    return all.filter(
+      (u) => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q) || u.role.toLowerCase().includes(q),
+    );
+  }, [candEnv, userSearch]);
+  // A row bound to ANOTHER employee renders disabled with its reason — the
+  // honest why, never a silent hide. Bound to nobody = selectable.
+  const selectableCandidates = candidates.filter((c) => !c.linkedToEmployeeName);
 
   const linkMutation = useMutation({
     mutationFn: async (userId: string): Promise<{ message?: string }> =>
@@ -1028,7 +1032,7 @@ function PortalLinkDialog({ open, employee, storeId, linkedUserIds, onClose }: {
       toast.success(res?.message || 'Account created and linked');
       qc.invalidateQueries({ queryKey: ['payroll-employees', storeId] });
       qc.invalidateQueries({ queryKey: ['payroll-leave-roster', storeId] });
-      qc.invalidateQueries({ queryKey: ['portal-link-users', storeId] });
+      qc.invalidateQueries({ queryKey: ['portal-link-candidates'] });
       onClose();
     },
     onError: (e: Error) => toast.error(e.message),
@@ -1053,12 +1057,7 @@ function PortalLinkDialog({ open, employee, storeId, linkedUserIds, onClose }: {
     }
   }
 
-  const roleTone = (role: string): string =>
-    role === 'SUPER_ADMIN' || role === 'STORE_OWNER'
-      ? 'bg-violet-50 text-violet-700 ring-violet-200 dark:bg-violet-950/40 dark:text-violet-300 dark:ring-violet-900'
-      : role === 'BRANCH_MANAGER' || role === 'HR_MANAGER'
-        ? 'bg-sky-50 text-sky-700 ring-sky-200 dark:bg-sky-950/40 dark:text-sky-300 dark:ring-sky-900'
-        : 'bg-muted text-muted-foreground ring-border';
+  const roleTone = portalRoleTone;
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
@@ -1092,16 +1091,21 @@ function PortalLinkDialog({ open, employee, storeId, linkedUserIds, onClose }: {
                       {employee.user.role.replace('_', ' ')}
                     </Badge>
                   </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    disabled={busy}
-                    onClick={handleUnlink}
-                    className="h-8 shrink-0 gap-1.5 border-rose-200 px-2.5 text-xs text-rose-600 hover:bg-rose-50 hover:text-rose-700 dark:border-rose-900 dark:text-rose-400 dark:hover:bg-rose-950/40"
-                  >
-                    {unlinkMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Unlink className="h-3.5 w-3.5" aria-hidden />}
-                    Unlink
-                  </Button>
+                  {/* v2.267.0: the unlink pen renders only for the trio — a
+                      read-only role sees the binding without a button whose
+                      only outcome is a 403 toast. */}
+                  {canManageLinks ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={busy}
+                      onClick={handleUnlink}
+                      className="h-8 shrink-0 gap-1.5 border-rose-200 px-2.5 text-xs text-rose-600 hover:bg-rose-50 hover:text-rose-700 dark:border-rose-900 dark:text-rose-400 dark:hover:bg-rose-950/40"
+                    >
+                      {unlinkMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Unlink className="h-3.5 w-3.5" aria-hidden />}
+                      Unlink
+                    </Button>
+                  ) : null}
                 </div>
                 <p className="mt-2 text-[11px] leading-relaxed text-emerald-800/80 dark:text-emerald-300/80">
                   This account gets a bell row whenever leave is filed for, decided on, or cancelled for {employee.firstName} — plus payroll run notifications.
@@ -1271,6 +1275,23 @@ function PortalLinkDialog({ open, employee, storeId, linkedUserIds, onClose }: {
                       </p>
                     </div>
                   </div>
+                ) : !canManageLinks ? (
+                  /* v2.267.0: the honest denial — a BRANCH_MANAGER or
+                     ACCOUNTANT sees WHY the picker is out of reach instead
+                     of the old silently empty list (the /api/users read
+                     refused them and the empty list lied). */
+                  <div
+                    className="rounded-lg border border-amber-200 bg-amber-50/60 p-3 dark:border-amber-900 dark:bg-amber-950/30"
+                    data-testid="portal-link-denied"
+                  >
+                    <p className="flex items-start gap-1.5 text-xs leading-relaxed text-amber-800 dark:text-amber-300">
+                      <ShieldAlert className="h-3.5 w-3.5 mt-px shrink-0" aria-hidden />
+                      <span>
+                        Your role can view this link but not change it — only store owners, HR managers and super admins manage portal
+                        account links. Ask one of them to bind a login to {employee?.firstName ?? 'this employee'}.
+                      </span>
+                    </p>
+                  </div>
                 ) : (
                   <div className="space-y-2">
                     <div className="relative">
@@ -1289,29 +1310,41 @@ function PortalLinkDialog({ open, employee, storeId, linkedUserIds, onClose }: {
                       </div>
                     ) : candidates.length === 0 ? (
                       <div className="rounded-lg border border-dashed p-4 text-center text-xs text-muted-foreground">
-                        {allUsers.length === 0
+                        {(candEnv?.candidates ?? []).length === 0
                           ? canCreateAccounts
                             ? 'No active users found for this store — switch to “Create new account” to provision one here.'
                             : 'No active users found for this store. Create user accounts first (Settings → Users).'
                           : canCreateAccounts
-                            ? 'Every active user in this store already has an employee record — unlink one first, or switch to “Create new account”.'
-                            : 'Every active user in this store already has an employee record. Unlink one first, or create a new user.'}
+                            ? 'No user matches that search — clear it, or switch to “Create new account”.'
+                            : 'No user matches that search. Clear it and try again.'}
+                      </div>
+                    ) : selectableCandidates.length === 0 ? (
+                      <div className="rounded-lg border border-dashed p-4 text-center text-xs text-muted-foreground">
+                        {canCreateAccounts
+                          ? 'Every active user in this store is already linked — unlink one first, or switch to “Create new account”.'
+                          : 'Every active user in this store is already linked to an employee. Unlink one first.'}
                       </div>
                     ) : (
                       <div className="max-h-56 space-y-1.5 overflow-y-auto custom-scrollbar pr-1" role="listbox" aria-label="Candidate portal users">
                         {candidates.map((u) => {
                           const selected = pickUserId === u.id;
+                          const taken = !!u.linkedToEmployeeName;
                           return (
                             <button
                               key={u.id}
                               type="button"
                               role="option"
                               aria-selected={selected}
+                              aria-disabled={taken}
+                              disabled={taken}
+                              title={taken ? `Already linked to ${u.linkedToEmployeeName} — unlink there first` : undefined}
                               onClick={() => setPickUserId(selected ? '' : u.id)}
                               className={`flex w-full items-center gap-2.5 rounded-lg border p-2.5 text-left transition-colors ${
-                                selected
-                                  ? 'border-violet-400 bg-violet-50 ring-1 ring-violet-300 dark:border-violet-700 dark:bg-violet-950/40 dark:ring-violet-800'
-                                  : 'border-border hover:bg-muted/50'
+                                taken
+                                  ? 'cursor-not-allowed border-border/60 opacity-55'
+                                  : selected
+                                    ? 'border-violet-400 bg-violet-50 ring-1 ring-violet-300 dark:border-violet-700 dark:bg-violet-950/40 dark:ring-violet-800'
+                                    : 'border-border hover:bg-muted/50'
                               }`}
                             >
                               <Avatar className="h-8 w-8">
@@ -1321,12 +1354,14 @@ function PortalLinkDialog({ open, employee, storeId, linkedUserIds, onClose }: {
                               </Avatar>
                               <div className="min-w-0 flex-1">
                                 <p className="truncate text-sm font-medium">{u.name}</p>
-                                <p className="truncate text-xs text-muted-foreground">{u.email}</p>
+                                <p className="truncate text-xs text-muted-foreground">
+                                  {taken ? `Linked to ${u.linkedToEmployeeName}` : u.email}
+                                </p>
                               </div>
                               <Badge variant="outline" className={`shrink-0 text-[10px] ring-1 ${roleTone(u.role)}`}>
                                 {u.role.replace('_', ' ')}
                               </Badge>
-                              {selected && <Check className="h-4 w-4 shrink-0 text-violet-600 dark:text-violet-400" aria-hidden />}
+                              {selected && !taken && <Check className="h-4 w-4 shrink-0 text-violet-600 dark:text-violet-400" aria-hidden />}
                             </button>
                           );
                         })}
@@ -1352,7 +1387,7 @@ function PortalLinkDialog({ open, employee, storeId, linkedUserIds, onClose }: {
               Create &amp; link account
             </Button>
           )}
-          {!employee?.userId && (mode === 'link' || !canCreateAccounts) && (
+          {!employee?.userId && (mode === 'link' || !canCreateAccounts) && canManageLinks && (
             <Button
               size="sm"
               disabled={!pickUserId || busy}

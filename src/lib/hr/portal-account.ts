@@ -111,3 +111,68 @@ export function isCreateLinkFormReady(form: CreateLinkFormState): boolean {
     form.password.length >= 6
   );
 }
+
+// ─── v2.267.0: the portal-link keystone's shared pure faces ─────────────
+//
+// Three additions that BOTH portal surfaces (the payroll tab's
+// PortalLinkDialog and the HR employee-detail Portal account card) now share
+// so the picker, the gate, and the role palette each live in ONE home:
+//
+//   PORTAL_LINK_ROLE_TRIO / canManagePortalLinks — the same privilege set
+//     the POST/DELETE /api/employees/[id]/portal-link route enforces
+//     (mirrors hr.employee.update). Client-safe mirror only: the server
+//     stays the source of truth; the client uses it to render the honest
+//     denial voice instead of a silent empty picker.
+//   portalRoleTone — the role chip palette (violet owners, sky managers,
+//     muted everyone else) so the dialog and the card dress their chips
+//     identically.
+//   buildPortalCandidates — the pure shaper behind GET
+//     /api/employees/[id]/portal-link/candidates: same-store active users
+//     annotated with WHERE they are already linked, so a picker row can be
+//     disabled with its reason instead of being silently hidden.
+
+/** The exact privilege set the portal-link POST/DELETE route enforces. */
+export const PORTAL_LINK_ROLE_TRIO = ['SUPER_ADMIN', 'STORE_OWNER', 'HR_MANAGER'] as const;
+
+/** Client-side mirror of the link route's role gate (the server re-checks
+ *  every request; this only decides whether the affordance or the honest
+ *  denial voice renders). */
+export function canManagePortalLinks(role: string | null | undefined): boolean {
+  return !!role && (PORTAL_LINK_ROLE_TRIO as readonly string[]).includes(role);
+}
+
+/** The role chip palette shared by the dialog and the employee-detail card. */
+export function portalRoleTone(role: string): string {
+  if (role === 'SUPER_ADMIN' || role === 'STORE_OWNER')
+    return 'bg-violet-50 text-violet-700 ring-violet-200 dark:bg-violet-950/40 dark:text-violet-300 dark:ring-violet-900';
+  if (role === 'BRANCH_MANAGER' || role === 'HR_MANAGER')
+    return 'bg-sky-50 text-sky-700 ring-sky-200 dark:bg-sky-950/40 dark:text-sky-300 dark:ring-sky-900';
+  return 'bg-muted text-muted-foreground ring-border';
+}
+
+/** One candidate row of the governed picker wire. */
+export interface PortalLinkCandidate {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  /** Set when this login is already bound to a DIFFERENT (non-deleted)
+   *  employee — the picker disables the row and says to whom. */
+  linkedToEmployeeName: string | null;
+}
+
+/** Pure shaper behind the candidates wire: annotate each same-store active
+ *  user with the name of the employee their login is bound to (absence =
+ *  free to link). Deterministic — the db reads stay in the service. */
+export function buildPortalCandidates(
+  users: Array<{ id: string; name: string | null; email: string; role: string }>,
+  linkedElsewhere: Map<string, string>,
+): PortalLinkCandidate[] {
+  return users.map((u) => ({
+    id: u.id,
+    name: u.name || u.email,
+    email: u.email,
+    role: u.role,
+    linkedToEmployeeName: linkedElsewhere.get(u.id) ?? null,
+  }));
+}
