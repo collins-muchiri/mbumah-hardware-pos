@@ -78,9 +78,9 @@ describe('the lens\u2019s ear \u2014 Escape stands the lens down (v2.256.0)', ()
     expect(ear).toContain("if (document.querySelector('[role=\"dialog\"]')) return;");
   });
 
-  it('the org face wears the ear \u2014 the same lift the clear buttons speak', () => {
+  it('the org face wears the ear \u2014 the same lift the clear buttons speak (v2.260.0: the ear grew the combined press + lift \u2014 the metric instrument joined the band house, one listener lifts both)', () => {
     expect(ledger).toContain("import { useLensEscape } from '@/lib/use-lens-escape';");
-    expect(ledger).toContain("useLensEscape(bandLens !== 'ALL', () => setBandLens('ALL'));");
+    expect(ledger).toContain("useLensEscape(bandLens !== 'ALL' || metricLens !== 'all', () => {");
     expect(ledger).toContain('Escape stands the lens down"');
   });
 
@@ -106,7 +106,7 @@ describe('the focus\u2019s honesty \u2014 the rings speak only to keyboards (v2.
 
   it('the chips wear focus-visible \u2014 every one of them (the ledger\u2019s rungs joined the law)', () => {
     const count = (s: string) => (s.match(/focus-visible:ring-2 focus-visible:ring-sky-500\/40/g) ?? []).length;
-    expect(count(ledger)).toBe(5); // 2 band + 2 status rungs + 1 origin rung
+    expect(count(ledger)).toBe(6); // 2 band + 2 status rungs + 1 origin rung + 1 metric rail (v2.260.0: the ledger's instruments joined the law — the rail's chips share one literal)
     expect(count(branch)).toBe(3); // the houses + the silence + the metrics' rail (v2.259.0: the metric chips joined the law)
     expect(count(suppliers)).toBe(2);
   });

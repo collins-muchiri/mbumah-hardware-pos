@@ -176,6 +176,12 @@ async function orgPurchaseOrdersHandler(request: NextRequest, session: AuthSessi
           poNumber: true,
           status: true,
           orderDate: true,
+          // v2.260.0 THE LEDGER'S INSTRUMENTS — the row's own created-at
+          // rides the roster (additive): the metric predicates' one home
+          // reads the SAME field the branch roster's rows carry — a rail
+          // count here and a card's rate cannot disagree by reading
+          // different clocks.
+          createdAt: true,
           expectedDate: true,
           totalAmount: true,
           notes: true,
@@ -310,6 +316,9 @@ async function orgPurchaseOrdersHandler(request: NextRequest, session: AuthSessi
         poNumber: po.poNumber,
         status: po.status,
         orderDate: po.orderDate.toISOString(),
+        // v2.260.0: the metric clock rides beside the ordered day (the
+        // predicates' own field — the branch roster's shape, mirrored).
+        createdAt: po.createdAt.toISOString(),
         expectedDate: po.expectedDate?.toISOString() ?? null,
         lineCount: po._count.items,
         store: { id: po.store.id, name: po.store.name, code: po.store.code },

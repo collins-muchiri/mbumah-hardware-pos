@@ -89,13 +89,13 @@ describe('the birth\u2019s dot on the branch face \u2014 the org\u2019s own law,
 });
 
 describe('the lens-empty\u2019s lift \u2014 the words\u2019 own promise, now a button (v2.254.0)', () => {
-  it('the org lens-empty face grows the clear-the-view control', () => {
+  it('the org lens-empty face grows the clear-the-view control (v2.260.0: the lift grew the metric\u2019s stand-down \u2014 all three, one click)', () => {
     expect(ledger).toContain('data-testid="po-ledger-lens-clear"');
-    expect(ledger).toContain("onClick={() => { setBandLens('ALL'); setNeedle(''); }}");
+    expect(ledger).toContain("onClick={() => { setBandLens('ALL'); setMetricLens('all'); setNeedle(''); }}");
   });
 
-  it('the lift\u2019s title speaks the law \u2014 the whole window returns, the fetch never moved', () => {
-    expect(ledger).toContain('title="stand the lens down and clear the finder — the whole window returns (the fetch never moved)"');
+  it('the lift\u2019s title speaks the law \u2014 the whole window returns, the fetch never moved (v2.260.0: the words name the metric\u2019s stand-down too)', () => {
+    expect(ledger).toContain('title="stand the lens down, stand the metric down and clear the finder — the whole window returns (the fetch never moved)"');
   });
 
   it('the empty face keeps its words \u2014 the lift rides beside them, never instead', () => {
