@@ -49,13 +49,13 @@ const watcher = read('src/tests/a11y-shell-v2148.test.ts');
 
 describe('the round of record (v2.229.0)', () => {
   it('package.json leads 2.229.0 (all three slots)', () => {
-    expect(version).toBe('2.252.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.252.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.252.0');
+    expect(version).toBe('2.253.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.253.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.253.0');
   });
 
   it('VERSION speaks 2.229.0 and the verify gate is wired', () => {
-    expect(read('VERSION').trim()).toBe('2.252.0');
+    expect(read('VERSION').trim()).toBe('2.253.0');
     expect(pkg.scripts['verify:v2-229-0']).toBe('node scripts/verify-v2-229-0.mjs');
   });
 
@@ -71,16 +71,16 @@ describe('the round of record (v2.229.0)', () => {
   });
 
   it('the treadmill bumped the version pins (the watchers track the head)', () => {
-    expect(watcher).toContain("expect(pkg.version).toBe('2.252.0');");
-    expect(watcher).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(144);");
+    expect(watcher).toContain("expect(pkg.version).toBe('2.253.0');");
+    expect(watcher).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(145);");
   });
 
   it('the counter family rides +1 (120/121/122/153 — the trail names the round)', () => {
     const counter = read('src/tests/console-changelog.test.ts');
-    expect(counter).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(144);");
-    expect(counter).toContain("expect(whatsNewUnreadCount('2.109.0')).toBe(145);");
-    expect(counter).toContain("expect(whatsNewUnreadCount('2.108.0')).toBe(146);");
-    expect(counter).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(177);");
+    expect(counter).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(145);");
+    expect(counter).toContain("expect(whatsNewUnreadCount('2.109.0')).toBe(146);");
+    expect(counter).toContain("expect(whatsNewUnreadCount('2.108.0')).toBe(147);");
+    expect(counter).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(178);");
     expect(counter).toContain('// v2.229.0: the branch-walk entry joins the feed (+1 on every anchor → 120/121/122/153)');
   });
 });

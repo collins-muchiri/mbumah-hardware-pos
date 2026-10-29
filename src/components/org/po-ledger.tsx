@@ -27,6 +27,15 @@
 //   3:1 contrast law on every chip; tabular-nums on every figure;
 // • READ-ONLY BY LAW — the branch workspace keeps the only pens.
 //
+// v2.253.0 THE LEDGER'S LENS — the band rail, the window's own lens: the
+// four houses the aisles speak (fresh/stale/beyond/never — bandHouse's
+// one home) + the silent absence (a hand-raised order, a read that fell
+// honest). Each chip answers with its REAL count over the rows the
+// ledger ALREADY holds — the finder's own law: the lens narrows the
+// reading, never the fetch (the rungs above stay the wire's; the CSV
+// speaks the whole window regardless). A pressed chip wears its house's
+// pressed face (the lib's new `pressed` — one home); the roster's birth
+// chips wear their aisle's band as a dot (the house's own rail colour).
 // v2.249.0 THE BIRTH'S LEDGER — the org face learns the birth: each
 // row wears the violet birth chip when the PO was born at a count
 // sheet (a hand-raised PO renders the silent absence); the BIRTH
@@ -51,7 +60,9 @@ import { csvCell } from './sheet-drill';
 import { num, timeAgo, type StoreRow } from './primitives';
 // v2.251.0 THE WALK'S WHEN — the roster chip's title speaks the aisle's
 // days voice (the same one home the drill's chip reads).
-import { daysVoice } from '@/lib/cadence-band';
+// v2.253.0: the houses + the label word join the import — the lens
+// rail and the birth chips' dots read the ONE home, never a copy.
+import { bandHouse, chipLabel, daysVoice, type CadenceBand } from '@/lib/cadence-band';
 
 const fmtKes = (v: number) =>
   `KES ${v.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -95,6 +106,17 @@ export function rosterCsv(rows: PoLedgerWire['data']['rows'], opts: { costGated:
   );
   return `\ufeff${[header, ...rowsOut].join('\r\n')}`;
 }
+
+// v2.253.0 THE LENS'S ARITHMETIC — the row's own band, read from above:
+// the family the wire's spoke wore, or the silent absence (a hand-raised
+// order, a failed read). The cast stays behind a membership check — a
+// string that is not one of the four houses IS the silence, never a
+// guessed family. Module-level: the memos read it clean (no deps).
+type PoLedgerRow = PoLedgerWire['data']['rows'][number];
+const rowBand = (r: PoLedgerRow): CadenceBand | null => {
+  const b = r.originStockTake?.walkAisle?.band;
+  return b === 'fresh' || b === 'stale' || b === 'beyond' || b === 'never' ? b : null;
+};
 
 interface PoLedgerWire {
   success: boolean;
@@ -158,6 +180,11 @@ export function ProcurementLedger({ stores }: { stores: StoreRow[] }) {
   // The finder's needle — client-side over the loaded window, the
   // sheet drill's law: the reading narrows, the fetch never does.
   const [needle, setNeedle] = useState('');
+  // v2.253.0 THE LEDGER'S LENS — the band rung: 'ALL' stands for the
+  // whole window; a house (or the silence) narrows the VIEW. State of
+  // the surface, never of the fetch — the rungs above stay the wire's
+  // (the query key carries only what the wire answers).
+  const [bandLens, setBandLens] = useState<'ALL' | CadenceBand | 'silent'>('ALL');
 
   const wire = useQuery<PoLedgerWire>({
     queryKey: ['org-po-ledger', statusFilter, branchId, originFilter],
@@ -184,16 +211,36 @@ export function ProcurementLedger({ stores }: { stores: StoreRow[] }) {
   // (PO number, supplier or branch name, case-insensitive); the tiles
   // and chips stay whole-pipeline (the counts come from the wire).
   const cleanNeedle = needle.trim().toLowerCase();
+  // v2.253.0: the lens's own counts — REAL numbers over the window's
+  // rows (every row lands in exactly one family; the sums read the
+  // window). A pressed house keeps its number — the counts read the
+  // rows, never the view.
+  const bandCounts = useMemo(() => {
+    const c = { fresh: 0, stale: 0, beyond: 0, never: 0, silent: 0 };
+    if (!data) return c;
+    for (const r of data.rows) {
+      const b = rowBand(r);
+      if (b) c[b] += 1;
+      else c.silent += 1;
+    }
+    return c;
+  }, [data]);
   const shownRows = useMemo(() => {
     if (!data) return [];
-    if (!cleanNeedle) return data.rows;
-    return data.rows.filter((r) =>
+    // The lens first (the house's own narrowing), then the needle —
+    // both are the reading; the fetch never moves.
+    const lensed =
+      bandLens === 'ALL'
+        ? data.rows
+        : data.rows.filter((r) => (bandLens === 'silent' ? rowBand(r) == null : rowBand(r) === bandLens));
+    if (!cleanNeedle) return lensed;
+    return lensed.filter((r) =>
       r.poNumber.toLowerCase().includes(cleanNeedle) ||
       r.supplierName.toLowerCase().includes(cleanNeedle) ||
       r.store.name.toLowerCase().includes(cleanNeedle) ||
       (r.store.code ?? '').toLowerCase().includes(cleanNeedle),
     );
-  }, [data, cleanNeedle]);
+  }, [data, cleanNeedle, bandLens]);
 
   const totalCount = data?.counts.reduce((acc, c) => acc + c.count, 0) ?? 0;
 
@@ -312,6 +359,54 @@ export function ProcurementLedger({ stores }: { stores: StoreRow[] }) {
         </div>
       )}
 
+      {/* v2.253.0 THE LEDGER'S LENS — the band rail, the window's own
+          lens: the four houses the aisles speak (the map's own families,
+          bandHouse's one home) + the silent absence (a hand-raised order,
+          a read that fell honest). Each chip answers with its REAL count
+          over the rows the ledger ALREADY holds — the finder's own law:
+          the lens narrows the reading, never the fetch. A pressed chip
+          wears its house's pressed face (the lib's own inversion — one
+          home); a click on the pressed chip stands it down (the rungs'
+          toggle law). The file exports the whole window regardless — the
+          lens is the screen's, never the file's. */}
+      {data && data.rows.length > 0 && (
+        <div
+          data-testid="po-ledger-band-row"
+          className="mt-1.5 flex flex-wrap items-center gap-1.5"
+          title="the window's own lens — the rungs above stay the wire's; the CSV speaks the whole window regardless"
+        >
+          {(['fresh', 'stale', 'beyond', 'never'] as const).map((b) => {
+            const house = bandHouse(b);
+            const pressed = bandLens === b;
+            const n = bandCounts[b];
+            return (
+              <button
+                key={b}
+                type="button"
+                data-testid={`po-ledger-band-${b}`}
+                aria-pressed={pressed}
+                onClick={() => setBandLens(pressed ? 'ALL' : b)}
+                title={`${chipLabel(b)} — ${n === 0 ? 'no order' : `${num(n)} ${n === 1 ? 'order' : 'orders'}`} in this window wears the house; a press narrows the view (the fetch stays)`}
+                className={`inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-[10px] font-semibold uppercase tracking-wide tabular-nums ring-1 transition-[filter] focus:outline-none focus:ring-2 focus:ring-sky-500/40 ${pressed ? house.pressed : house.chip} ${pressed ? '' : 'hover:brightness-[0.97] dark:hover:brightness-110'}`}
+              >
+                <span aria-hidden="true" className={`h-1.5 w-1.5 shrink-0 rounded-full ${pressed ? 'bg-white/80 dark:bg-slate-950/50' : house.rail}`} />
+                {chipLabel(b)} <span className="opacity-70">{num(n)}</span>
+              </button>
+            );
+          })}
+          <button
+            type="button"
+            data-testid="po-ledger-band-silent"
+            aria-pressed={bandLens === 'silent'}
+            onClick={() => setBandLens(bandLens === 'silent' ? 'ALL' : 'silent')}
+            title={`no band — ${bandCounts.silent === 0 ? 'no order' : `${num(bandCounts.silent)} ${bandCounts.silent === 1 ? 'order' : 'orders'}`} in this window keeps the silence (a hand-raised birth, or a read that fell honest)`}
+            className={`inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-[10px] font-semibold uppercase tracking-wide tabular-nums ring-1 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500/40 ${bandLens === 'silent' ? 'bg-slate-800 text-white ring-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:ring-slate-100' : 'bg-white text-slate-600 ring-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-600 dark:hover:bg-slate-800'}`}
+          >
+            no band <span className="opacity-70">{num(bandCounts.silent)}</span>
+          </button>
+        </div>
+      )}
+
       {wire.isLoading && (
         <p data-testid="po-ledger-loading" className="mt-3 rounded-lg border border-dashed border-slate-200 bg-slate-50/60 px-3 py-2 text-[11px] text-slate-500 dark:border-slate-600 dark:bg-slate-800/40 dark:text-slate-400">
           reading the pipeline — one fetch of the roster…
@@ -377,6 +472,14 @@ export function ProcurementLedger({ stores }: { stores: StoreRow[] }) {
                 ? 'no purchase order answers this filter — the branch restock dialog raises one when the shelf asks.'
                 : 'the filter narrowed the pipe to nothing — lift a rung and the orders return.'}
             </p>
+          ) : shownRows.length === 0 ? (
+            /* v2.253.0: the lens's own empty face — the window holds rows
+               but the lens (or the needle) narrowed the view to nothing.
+               A separate face: the pipe-empty words would lie about the
+               lens's own state (the rows are THERE, held behind the view). */
+            <p data-testid="po-ledger-lens-empty" className="mt-2 rounded-lg border border-dashed border-slate-200 bg-white/60 px-3 py-3 text-[11px] text-slate-500 dark:border-slate-600 dark:bg-slate-900/60 dark:text-slate-400">
+              the lens narrowed the window to nothing — lift a band house or clear the finder and the orders return.
+            </p>
           ) : (
             <ul data-testid="po-ledger-rows" className="mt-1.5 max-h-[42vh] space-y-1.5 overflow-y-auto pr-1">
               {shownRows.map((po) => (
@@ -408,6 +511,18 @@ export function ProcurementLedger({ stores }: { stores: StoreRow[] }) {
                           title={`born at a count sheet${po.originStockTake?.walkAisle?.name ? ` — the walk order named ${po.originStockTake.walkAisle.name}` : ''}${po.originStockTake?.walkAisle?.band ? ` — last heard ${daysVoice({ band: po.originStockTake.walkAisle.band as 'fresh' | 'stale' | 'beyond' | 'never', daysSince: po.originStockTake.walkAisle.daysSince })}` : ''}`}
                           className="inline-flex shrink-0 items-center gap-0.5 rounded bg-violet-50 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-violet-700 ring-1 ring-violet-200 dark:bg-violet-500/10 dark:text-violet-300 dark:ring-violet-500/30"
                         >
+                          {/* v2.253.0: the chip wears its aisle's band — the
+                              house's own rail colour as a dot (the ONE home;
+                              the map's rail classes verbatim). A row whose
+                              read fell silent keeps the plain violet — the
+                              honest absence, never a guessed colour. */}
+                          {po.originStockTake?.walkAisle?.band && (
+                            <span
+                              data-testid="po-ledger-row-band-dot"
+                              aria-hidden="true"
+                              className={`h-1.5 w-1.5 shrink-0 rounded-full ${bandHouse(po.originStockTake.walkAisle.band as CadenceBand).rail}`}
+                            />
+                          )}
                           <Baby className="h-2.5 w-2.5" aria-hidden="true" />
                           born at a sheet
                         </span>

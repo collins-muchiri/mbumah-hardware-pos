@@ -2,6 +2,18 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.253.0] The ledger's lens
+
+The when has arrived everywhere the birth is spoken — the org rows, the branch chips, the drill, the file — but the ledger could only SPEAK the houses, never ANSWER by them: an order born at a stale aisle sat invisible among the fresh ones. This round the procurement ledger grows the band rail (the window's own lens — the four houses plus the silent absence, real counts, a press narrows the view), the birth chips wear their aisle's band as a coloured dot, and the birth reaches its fifth face: the supplier's own purchase-order roster.
+
+### Added
+- **The ledger's band lens** (`po-ledger.tsx`): a rail under the birth rungs — fresh / stale / beyond / never (the map's own four families, `bandHouse`'s one home) + "no band" (a hand-raised order, or a read that fell honest). Each chip answers with its REAL count over the rows the ledger already holds — every row lands in exactly one family — and a press narrows the VIEW to that house (composed with the finder's needle; the wire's rungs stay the wire's). A pressed chip wears its house's pressed face; a click on the pressed chip stands it down. The lens has its own empty face ("the lens narrowed the window to nothing") — the pipe-empty words would lie about the view. The finder's own law holds: the lens narrows the reading, never the fetch — the CSV export speaks the whole window regardless.
+- **The birth's band dot** (`po-ledger.tsx`): the org roster's violet birth chip wears its aisle's band as the house's rail-coloured dot (`bandHouse(band).rail` — the map's own classes, one home). A row whose read fell silent keeps the plain violet — the honest absence, never a guessed colour.
+- **The birth's fifth face** (`suppliers-tab.tsx`): the supplier's purchase-order table wears the violet birth chip beside the PO number — the branch roster's own chip and title voice ("born at count sheet X — the walk order named Tools — last heard counted today"), its aisle's band as the same rail-coloured dot. A hand-raised PO renders the silent absence.
+
+### Styled
+- **The houses' pressed face** (`cadence-band.ts`): `CadenceBandHouse` grows the additive `pressed` field — the inversion (solid house colour, the words white on it) lives in the ONE home; every existing caller that reads chip/rail/bar renders byte-identical.
+
 ## [2.252.0] The walk's options
 
 The teeth family has dressed every face it owns — the legend, the chips, the heat bars, the verdicts — except one: the aisle picker's native `<option>` labels, plain text by the platform's own law ("a native option cannot wear a chip", the v2.236 comment's own words). This round the picker leaves the native select behind: a Radix listbox whose rows wear the walk's voices, and the branch roster's birth chips learn the days voice the org ledger spoke last visit.
