@@ -2,6 +2,18 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.266.0] The desk hears the release
+
+The last silent surface answered: `/org/dashboard` (the organization desk, where SUPER_ADMINs land post-login) never mounted the shared What's New dialog — a fresh release announced itself on every MainApp surface and (since v2.265.0) on the console, but never on the desk. Proven live in Task 242's E2E (the announcement skipped the desk while the flag was fresh) and re-proven this round at the v2.265.0 baseline.
+
+### Added
+- **The shared dialog on the desk** (`src/components/workspace/org-console.tsx`): the SAME `WhatsNewDialog` (one home, the same seen-flag law, the same SSR gate — never a copy) mounts beside the desk's overlays (after the Expert diagnostics dialog), so a fresh release announces itself to the desk's reader the same way every other surface announces.
+- **The desk's own archive** (`src/components/workspace/org-console.tsx`): the SAME `ChangelogModal` (`org/chrome`'s shared export — the console page is its only other consumer; a shared home, never a copy) mounts with the v2.73.0 jump target, so the announcement's hand lands the reader scrolled to the version it named.
+- **The header's door**: the desk banner grows a quiet "Release notes" button (ScrollText, the archive's own glyph; honest title "the release archive — every version's notes") — the full archive one click from the desk's reader without waiting for an announcement. Opens at the top (no jump — the jump is the announcement's own memory, not the door's).
+
+### Tests
+- `src/tests/org-desk-voice-v2266.test.ts`: the desk's imports + mounts + hand, the header door's bytes, the byte-order pins (archive state declared before the denied early return — the hook-order law; expert dialog → archive modal → the voice → shell close), the RUNTIME agreement (ChangelogModal is org/chrome's shared export; WHATS_NEW[0].version === APP_VERSION), and the ancestors' bytes on both faces.
+
 ## [2.265.0] The console hears the release
 
 The org console's reader alone never heard the release voice: the shared What's New dialog mounts on every surface whose shell wears MainApp (the home tabs shell, the branch workspaces) — but the console's own face never mounted it, while its release archive (the footer pill, the palette inbox, the modal) sat fully built beside the silence. Proven live: with the shared seen flag cleared, /console mounted with no announcement.
