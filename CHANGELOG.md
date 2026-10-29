@@ -2,6 +2,17 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.262.0] The branch's answer
+
+The why-strip's second surface: the ledger's drill answered why in v2.261.0, and now the branch's own detail does too — the roster's pressed metric rides the detail's door, and the document answers with its own facts. One home, two surfaces, zero new copies.
+
+### Added
+- **The detail's why-strip** (`src/app/(shell)/tabs/purchase-orders-tab.tsx`): `PODetailView` grew an optional `metric` prop (the drill's own target shape); the roster hands the pressed rule (`metric={metricLens === 'all' ? undefined : metricLens}`) and the strip (data-testid=po-detail-metric-why) speaks above the birth strip — the SAME voice (`poMetricWhyVoice`), the SAME family face (`poMetricFamily(metric).why`), the SAME label and title the drill's strip wears ("why this document answers" — the answer is the rule's, not the surface's).
+- **The honest gate, same law**: the gate is the predicate on the fresh wire's own row — a document that no longer answers the pressed rule keeps the strip silent; a detail opened of its own right answers nothing it was not asked.
+
+### Tests
+- `src/tests/branch-answer-v2262.test.ts` (14 pins across 2 describes): the door's metric hand, the one-home import, the fresh-wire gate (placed after the null guard), the strip's address + family, the SHARED words pinned across BOTH surfaces, the strip's placement above the birth strip, the roster's hand, and the ancestors' bytes (the drill's own strip, the one home's voice, the detail's door + chip, the rail + combined ear). One ancestor pin re-pointed with the growth named (branch-instruments-v2259's one-home import — the why voice + the kind joined it).
+
 ## [2.261.0] The document's answer
 
 The metric arc's completion: the tile answered with a count (v2.258.0), the rails answered with rows (v2.259.0, v2.260.0), and now the DOCUMENT answers with its own facts. Open an order's drill under a pressed metric and the drill speaks why — the one rule's own arithmetic, read from the fields the wire already carries.

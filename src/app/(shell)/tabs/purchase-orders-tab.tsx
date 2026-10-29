@@ -42,6 +42,8 @@ import {
   poMetricVoice,
   poMetricEmptyVoice,
   poMetricFamily,
+  poMetricWhyVoice,
+  type PoMetricKind,
   type PoMetricLens,
 } from '@/lib/po-metrics';
 import { SheetDrill, type SheetDrillTarget } from '@/components/org/sheet-drill';
@@ -900,6 +902,13 @@ function PODetailView({
   open,
   onOpenChange,
   onOpenSheet,
+  // v2.262.0 THE BRANCH'S ANSWER — the ledger drill's own law ported
+  // home: when the roster opens the detail under a pressed metric, the
+  // pressed rule rides the door (additive + optional) and the detail
+  // answers WHY with the document's own facts (the one home's voice,
+  // the fresh wire's own fields). A detail opened of its own right
+  // carries no metric — the honest absence, never an assumed lens.
+  metric,
 }: {
   po: PurchaseOrderListItem | null;
   open: boolean;
@@ -910,6 +919,9 @@ function PODetailView({
   // {id, storeName, status} — the SheetDrill's own contract. A face
   // without the callback keeps the plain strip (additive, never assumed).
   onOpenSheet?: (t: { id: string; storeName: string; status: string }) => void;
+  // v2.262.0 THE BRANCH'S ANSWER — the pressed rule the roster hands the
+  // detail's door (additive + optional — the drill's own target shape).
+  metric?: PoMetricKind;
 }) {
   const queryClient = useQueryClient();
   // v2.8.0: admin-controlled VAT rate for the stored-amount label.
@@ -1121,6 +1133,14 @@ function PODetailView({
   }, [detail]);
 
   if (!detail) return null;
+  // v2.262.0 THE BRANCH'S ANSWER — the gate is the ONE home's predicate
+  // on the FRESH wire's own row: a document that no longer answers the
+  // pressed rule (a stale lens, a row that moved between roster and
+  // detail) keeps the strip silent — a why that cannot be spoken is
+  // never guessed. The shape rides the type check (the item carries
+  // status + createdAt + expectedDate — the predicates' own fields).
+  const whyVoice = metric && detail ? poMetricWhyVoice(metric, detail) : null;
+  const whyFamily = metric ? poMetricFamily(metric) : null;
 
   const actions = getAvailableActions();
   const isCancelled = detail.status === 'CANCELLED';
@@ -1174,6 +1194,29 @@ function PODetailView({
           </div>
         ) : (
           <div className="space-y-5">
+            {/* v2.262.0 THE BRANCH'S ANSWER — the detail speaks WHY this
+                purchase order sits in the pressed set: the one rule's own
+                arithmetic (the ledger drill's own strip, the SAME voice
+                and family — one home, two surfaces). The gate is the
+                predicate on the fresh wire's own row; the words the voice
+                could not speak stay silent. The strip wears the metric's
+                own family — the pressed chip's colour, a rail-coloured
+                dot — never a new palette, never the pressed shout. */}
+            {whyVoice && metric && whyFamily && (
+              <div
+                data-testid="po-detail-metric-why"
+                title="the one rule — the Performance card, the rails and the tiles all read it; this document's own facts answer it here"
+                className={`rounded-lg border px-3 py-2 text-[11px] ${whyFamily.why}`}
+              >
+                <p className="flex items-center gap-1 text-[9px] font-semibold uppercase tracking-wide opacity-70">
+                  <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${whyFamily.rail}`} />
+                  why this document answers
+                </p>
+                <p data-testid="po-detail-metric-why-voice" className="mt-0.5 font-medium">
+                  {whyVoice}
+                </p>
+              </div>
+            )}
             {/* v2.248.0 THE BIRTH STRIP — the detail face names the sheet
                 this PO was born from (the violet door family): the sheet's
                 id, its aisle when it wore one, the honest status voice.
@@ -2371,6 +2414,12 @@ export default function PurchaseOrdersTab() {
         po={selectedPO}
         open={detailOpen}
         onOpenChange={setDetailOpen}
+        // v2.262.0 THE BRANCH'S ANSWER — the pressed rule rides the door:
+        // the detail's strip answers with the document's own facts (the
+        // one home's voice). Unpressed, the field stays absent — a
+        // detail opened of its own right answers nothing it was not
+        // asked (the honest absence).
+        metric={metricLens === 'all' ? undefined : metricLens}
         onOpenSheet={(t) => {
           // v2.259.0 THE BRANCH'S DOOR — the org ledger's own hand: the
           // detail closes BEFORE the sheet opens (one dialog at a time —
