@@ -277,7 +277,10 @@ describe('the caller contract - the summary payload rides, nothing is fetched', 
   });
 
   it('the call grew its fifth argument — the week rides the SAME download', () => {
-    expect(org).toContain('      trendRows,\n    );');
+    // v2.273.0 pin evolution (deliberate): the call grew its SIXTH argument —
+    // the portal section rides the same download as the fifth; the week's
+    // arg bytes are unchanged.
+    expect(org).toContain('      trendRows,\n      // v2.273.0: the portal section as the fifth');
   });
 
   it('NO second fetch — the block has ridden every summary response since v2.174.0', () => {
@@ -321,9 +324,9 @@ describe('the docs speak the fourth section', () => {
 describe('release surfaces', () => {
   it('package.json leads the current version in all three slots (re-anchored for 2.181.0) and the verify script is wired', () => {
     const pkg = JSON.parse(readRepo('package.json'));
-    expect(pkg.version).toBe('2.272.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.272.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.272.0');
+    expect(pkg.version).toBe('2.273.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.273.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.273.0');
     expect(pkg.scripts['verify:v2-178-0']).toBe('node scripts/verify-v2-178-0.mjs');
   });
 

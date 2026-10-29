@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.273.0',
+    title: 'The console hears the census',
+    bullets: [
+      'The organization console\u2019s People & payroll strip gains a Portal adoption tile \u2014 the census\u2019s own emerald, the rate up front, who is linked and who is not in the small print, and one click opens the full roll call.',
+      'People & payroll by branch grows a Portal column: linked logins over employees in scope, per branch \u2014 sortable by adoption rate, and every cell opens the census narrowed to that branch.',
+      'The branches CSV now files the portal numbers too \u2014 a fifth section that mirrors exactly what the table shows, rates computed for you and a branch with no employees left honestly blank.',
+    ],
+  },
+  {
     version: '2.272.0',
     title: 'The census carries its copy',
     bullets: [

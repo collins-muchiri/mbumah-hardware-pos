@@ -516,6 +516,38 @@ export async function statutoryLiabilityReport(
 
 // ── 7. Org-console HR summary (tiles) ───────────────────────────────────────
 
+/**
+ * v2.273.0: the console's census voice — the SAME five numbers the portal
+ * adoption census speaks, derived from THREE counts instead of a second
+ * full roll-call fetch. Pure (the RUNTIME-pin law: the arithmetic gets
+ * vitest pins, bytes never catch a lie). The honest derivations:
+ *   deactivated = linked − active   (a linked login that is not active is
+ *                                    the closed door — never below zero:
+ *                                    a corrupt payload clamps, it never
+ *                                    invents negative doors)
+ *   unlinked    = total − linked    (the honest dash, same clamp)
+ * The counts themselves ride the census's OWN where-shape (deletedAt null
+ * + scopeWhere) so the tile can never disagree with the report it opens.
+ */
+export function portalAdoptionCounts(input: { total: number; linked: number; active: number }) {
+  // Clamp in LADDER ORDER — each figure is bounded by the clamped figure
+  // before it, so the census's own invariant (linked = active +
+  // deactivated; scope = linked + unlinked) holds BY CONSTRUCTION and a
+  // corrupt payload can never smuggle an active login past its linked
+  // count (the RUNTIME pin caught exactly that: a clamp against the RAW
+  // linked let activeLogins exceed the clamped linked).
+  const total = Math.max(0, Math.round(input.total));
+  const linked = Math.min(Math.max(0, Math.round(input.linked)), total);
+  const activeLogins = Math.min(Math.max(0, Math.round(input.active)), linked);
+  return {
+    total,
+    linked,
+    activeLogins,
+    deactivatedLogins: linked - activeLogins,
+    unlinked: total - linked,
+  };
+}
+
 export async function hrSummaryForOrgConsole(session: Session, opts?: { storeId?: string | null }) {
   const scope = resolveReportScope(session);
   if (!scope) return null;
@@ -531,7 +563,7 @@ export async function hrSummaryForOrgConsole(session: Session, opts?: { storeId?
         ? { storeId: opts.storeId, store: { organizationId: session.organizationId } }
         : { store: { organizationId: session.organizationId } };
 
-  const [activeEmployees, monthDetails, absenceThisMonth, expiringDocs, overdueAssets, latestRun] = await Promise.all([
+  const [activeEmployees, monthDetails, absenceThisMonth, expiringDocs, overdueAssets, latestRun, portalTotal, portalLinked, portalActive] = await Promise.all([
     db.employee.count({ where: { status: 'ACTIVE', deletedAt: null, ...scopeWhere(session, scope, opts?.storeId) } }),
     db.payrollDetail.findMany({
       where: {
@@ -555,6 +587,18 @@ export async function hrSummaryForOrgConsole(session: Session, opts?: { storeId?
       orderBy: { createdAt: 'desc' },
       select: { status: true, createdAt: true, payrollPeriod: { select: { name: true } } },
     }),
+    // v2.273.0: the census rides the SAME Promise.all — three counts with
+    // the census's own where-shape (deletedAt null + scopeWhere), so the
+    // console tile and the report it opens speak one truth. Three COUNT
+    // queries, not a second roll call: the tile needs the numbers, never
+    // the names.
+    db.employee.count({ where: { deletedAt: null, ...scopeWhere(session, scope) } }),
+    db.employee.count({ where: { deletedAt: null, user: { isNot: null }, ...scopeWhere(session, scope) } }),
+    // isActive ALONE already means "linked AND active" for a to-one
+    // relation (existence implied) — `user: { isNot: null, isActive: true }`
+    // is INVALID Prisma (existence + field filters cannot share one object;
+    // the probe caught the throw the route's additive catch was hiding).
+    db.employee.count({ where: { deletedAt: null, user: { isActive: true }, ...scopeWhere(session, scope) } }),
   ]);
 
   const cost = monthDetails.reduce(
@@ -569,6 +613,9 @@ export async function hrSummaryForOrgConsole(session: Session, opts?: { storeId?
     headcountActive: activeEmployees,
     monthEmploymentCost: Math.round(cost * 100) / 100,
     monthAbsenceRatePct: recorded ? Math.round((absent / recorded) * 1000) / 10 : 0,
+    // v2.273.0: the tile's census numbers — the pure helper's honest
+    // derivations over the three counts (the where-shape the census keeps).
+    portalAdoption: portalAdoptionCounts({ total: portalTotal, linked: portalLinked, active: portalActive }),
     latestPayroll: latestRun
       ? { periodName: latestRun.payrollPeriod.name, status: latestRun.status, createdAt: latestRun.createdAt.toISOString() }
       : null,
@@ -591,6 +638,12 @@ export async function hrPerStoreForOrgConsole(
   headcountActive: number;
   monthEmploymentCost: number;
   monthAbsenceRatePct: number;
+  /** v2.273.0: the branch's census numbers — linked logins over employees
+   *  in scope (the census's OWN definition: non-deleted employees, status
+   *  unfiltered — never the ACTIVE-only headcount, a different denominator
+   *  would make the column disagree with the report it opens). */
+  portalLinked: number;
+  portalTotal: number;
   latestPayroll: { periodName: string; status: string; createdAt: string } | null;
   expiryAlerts: { documentsExpiring90Days: number; assetsOverdue: number };
 }> | null> {
@@ -611,7 +664,7 @@ export async function hrPerStoreForOrgConsole(
   // One grouped query for headcount + one for month cost; the per-store
   // absence/expiry/latest-payroll metrics stay small per-store counts so the
   // exact tile definitions are reused verbatim (no duplicate formulas).
-  const [headcountByStore, costRows] = await Promise.all([
+  const [headcountByStore, costRows, portalTotalByStore, portalLinkedByStore] = await Promise.all([
     db.employee.groupBy({
       by: ['storeId'],
       where: { status: 'ACTIVE', deletedAt: null, store: { organizationId: session.organizationId } },
@@ -624,9 +677,25 @@ export async function hrPerStoreForOrgConsole(
       },
       _sum: { grossPay: true, nssf: true, housingLevy: true },
     }),
+    // v2.273.0: the branch's census denominators — the census's OWN
+    // definition (non-deleted employees; linked = holds a user row),
+    // grouped per store. Two grouped queries, no names fetched.
+    db.employee.groupBy({
+      by: ['storeId'],
+      where: { deletedAt: null, store: { organizationId: session.organizationId } },
+      _count: { _all: true },
+    }),
+    db.employee.groupBy({
+      by: ['storeId'],
+      where: { deletedAt: null, user: { isNot: null }, store: { organizationId: session.organizationId } },
+      _count: { _all: true },
+    }),
   ]);
 
   const headcountMap = new Map(headcountByStore.map((r) => [r.storeId, r._count._all]));
+  // v2.273.0: the census maps — linked over in-scope, per store.
+  const portalTotalMap = new Map(portalTotalByStore.map((r) => [r.storeId, r._count._all]));
+  const portalLinkedMap = new Map(portalLinkedByStore.map((r) => [r.storeId, r._count._all]));
   const costMap = new Map(
     costRows.map((r) => [
       r.storeId,
@@ -655,6 +724,8 @@ export async function hrPerStoreForOrgConsole(
         headcountActive: headcountMap.get(store.id) ?? 0,
         monthEmploymentCost: costMap.get(store.id) ?? 0,
         monthAbsenceRatePct: recorded ? Math.round((absent / recorded) * 1000) / 10 : 0,
+        portalLinked: portalLinkedMap.get(store.id) ?? 0,
+        portalTotal: portalTotalMap.get(store.id) ?? 0,
         latestPayroll: latestRun
           ? {
               runId: latestRun.id,

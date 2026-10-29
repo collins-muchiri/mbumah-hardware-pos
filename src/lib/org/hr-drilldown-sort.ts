@@ -49,6 +49,10 @@ export interface HrDrillSortRow {
   headcountActive: number;
   monthEmploymentCost: number;
   monthAbsenceRatePct: number;
+  /** v2.273.0: the branch's census numbers (linked logins over employees
+   *  in scope) — the Portal column sorts the RATE the cell wears. */
+  portalLinked: number;
+  portalTotal: number;
   latestPayroll: { periodName: string; status: string; createdAt: string } | null;
   expiryAlerts: { documentsExpiring90Days: number; assetsOverdue: number };
 }
@@ -105,6 +109,13 @@ const NUMERIC_FIELD: Record<string, (r: HrDrillSortRow) => number> = {
  * (the caller's ColDef decides what is clickable; the lib stays total).
  */
 export function defaultDirFor(key: string): HrDrillSortDir {
+  // v2.273.0: the Portal column is a RATE column — it sorts loudest-first
+  // (the lead-adopters scan) through its OWN comparator branch below, but
+  // its fresh-click direction is the numeric family's desc. Kept OUT of
+  // HR_DRILL_NUMERIC_COLUMNS (that array is the plain-field family; the
+  // v2.183/v2.190 pins name its exact members) — the branch below is the
+  // one place the portal semantics live.
+  if (key === 'portal') return 'desc';
   return (HR_DRILL_NUMERIC_COLUMNS as readonly string[]).includes(key) ||
     (HR_DRILL_RANK_COLUMNS as readonly string[]).includes(key)
     ? 'desc'
@@ -169,6 +180,27 @@ export function sortHrDrillRows<T extends HrDrillSortRow>(
       // Same rank, same instant: the period name keeps its A→Z voice as
       // the final tie; the stable sort carries the rest.
       return mul * ra.periodName.localeCompare(rb.periodName);
+    });
+  }
+  if (key === 'portal') {
+    // v2.273.0: the adoption RATE the cell wears (linked over in-scope),
+    // with the payroll column's honest-absence rule carried over: a branch
+    // with NO employees in scope shows the dash, not a 0% — so it sorts
+    // LAST in BOTH directions (the rate of nothing is no comparison, the
+    // matrix's week rule). Ties inside one rate break directionally by the
+    // linked count (desc = the deeper roster first — same rate on a bigger
+    // roll is the louder adoption story; asc = the shallower first), then
+    // arrival order (stable).
+    return [...rows].sort((a, b) => {
+      const missingA = a.portalTotal === 0;
+      const missingB = b.portalTotal === 0;
+      if (missingA && missingB) return 0;
+      if (missingA) return 1;
+      if (missingB) return -1;
+      const ra = a.portalLinked / a.portalTotal;
+      const rb = b.portalLinked / b.portalTotal;
+      if (ra !== rb) return mul * (ra - rb);
+      return mul * (a.portalLinked - b.portalLinked);
     });
   }
   const get = NUMERIC_FIELD[key];

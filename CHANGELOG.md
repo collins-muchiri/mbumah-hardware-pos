@@ -2,6 +2,19 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.273.0] The console hears the census
+
+v2.271.0 rolled the roster's quiet bell up to a census, and v2.272.0 gave the census its own audited copy — but the census still lived one navigation away from the desk where adoption is actually decided. The organization console's People & payroll strip answered headcount, cost, absence, payroll and expiry — everything except the adoption story the leave and payslip emails assume. This round the console hears the census: the numbers ride the org wire, the drill-down wears the column, and the CSV files the fifth section.
+
+### Added
+- **The census on the org wire** (`src/lib/hr/reports.ts`): `hrSummaryForOrgConsole` fetches three counts in the census's OWN where-shape (deletedAt null + scopeWhere — the tile can never disagree with the report it opens) and derives the five census numbers through the pure `portalAdoptionCounts` (the RUNTIME-pin law: the vitest pin caught a clamp against the RAW linked that let an active login exceed the clamped linked — fixed at source with ladder-order clamping, the invariant holds by construction). `hrPerStoreForOrgConsole` groups the census denominators per store (linked = holds a user row; in scope = non-deleted — never the ACTIVE-only headcount, a different denominator would lie). Three COUNT queries and two groupBys — never a second roll call; the tile needs the numbers, not the names.
+- **The console's adoption tile** (`src/components/workspace/org-console.tsx`): a sixth "Portal adoption" StatCard in the People & payroll strip — the rate as the value, "N of M linked · K not linked" as the footer, one click to `/hr/reports?tab=portal` (report distance). A scope with no employees keeps the plain muted face.
+- **The drill-down's Portal column**: "People & payroll by branch" gains a sortable Portal column whose cell IS the door — `linked/total · rate%` opening `/hr/reports?tab=portal&storeId=…` (the drill-down law every cell keeps), the honest dash for a branch with no employees in scope. The comparator (`src/lib/org/hr-drilldown-sort.ts`) sorts the RATE the cell wears: loudest-first fresh click, directional linked-count tiebreak, and the payroll absence rule carried over — the rate of nothing is no comparison, so the dash sorts LAST in both directions. The column rides `defaultDirFor`'s own rule (the pinned plain-field family keeps its exact members).
+- **The CSV's fifth section** (`src/lib/org/branches-csv.ts`): `buildBranchesCsv` grows an optional `portal` section — the SAME sorted rows the table speaks (the file-mirrors-screen rule), the adoption % computed BY THE LIB from each row's own linked/total (round2 of ×100, the reviewer-share precedent), the honest empty rate cell for a scope of nothing, and a self-explanatory Note line. No portal rows → byte-silence: the file ends exactly where v2.177.0 ended. The export note counts the section it actually wrote.
+
+### Styled
+- **The tile wears the census's own emerald**: StatCard's tone vocabulary grows `'good'` — `text-emerald-700 dark:text-emerald-400`, the SAME pair the report tab's chips and meters speak (a color never means two things; warn stays amber). The adoption tile's small print keeps the 4.5:1 contrast law the amber label earned in v2.149.0. The drill-down header's enumeration now says what the table shows: "headcount, cost, absence, latest run, expiry alerts, portal adoption per branch".
+
 ## [2.272.0] The census carries its copy
 
 v2.271.0 gave the reports desk the adoption census — but a census you cannot file is a census you cannot take to the meeting. The digest export route refuses the roll call ON PURPOSE (a digest is aggregate-only by construction; the roll call is name-bearing), so a name-bearing file gets its OWN door: same guard, same scope law, its own audit action.

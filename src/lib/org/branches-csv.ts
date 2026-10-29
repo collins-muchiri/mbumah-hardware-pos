@@ -71,8 +71,7 @@ export interface BranchDeskCsvBlock {
   week?: { visits: number; reviewerRows?: ReadonlyArray<{ name: string; visits: number }> } | null;
 }
 
-/**
- * v2.178.0: one branch's week as the CSV's fourth section speaks it — the
+/** v2.178.0: one branch's week as the CSV's fourth section speaks it — the
  * pre-joined row the caller builds (the summary's perStoreTrend entry joined
  * to its branch name by storeId, the drill-down's own join). The change % is
  * NOT carried here: the lib computes it with the SAME weekDelta classifier
@@ -84,6 +83,21 @@ export interface BranchTrendCsvRow {
   weekTotal: number;
   /** Absent or ≤ 0 means NO comparison: the Change cell stays empty. */
   priorWeekTotal?: number;
+}
+
+/**
+ * v2.273.0: one branch's census numbers as the CSV's fifth section speaks
+ * them — the SAME rows the drill-down's Portal column wears, in the SAME
+ * (sorted) order the caller passes. The adoption % is NOT carried in: the
+ * lib computes it from the row's own linked/total (the wire is never
+ * trusted for a derived number — the reviewer-share precedent), and a
+ * branch with NO employees in scope prints the honest empty cell, never a
+ * fabricated 0% of nothing.
+ */
+export interface BranchPortalCsvRow {
+  storeName: string;
+  linked: number;
+  total: number;
 }
 
 /** RFC-4180 field quoting: wrap when the value carries , " \n or \r. */
@@ -123,6 +137,14 @@ export const BRANCHES_HR_CSV_COLUMNS = [
   'Expiry alerts (90d docs + overdue assets)',
 ] as const;
 
+/** v2.273.0: the portal section's own header — the drill-down's Portal column, as numbers. */
+export const BRANCHES_PORTAL_CSV_COLUMNS = [
+  'Branch',
+  'Linked logins',
+  'Employees in scope',
+  'Adoption (%)',
+] as const;
+
 /**
  * Build the branches CSV. Order is the table's own reading order. Numbers are
  * exported raw (no thousands separators) so the file re-imports into a
@@ -153,6 +175,7 @@ export function buildBranchesCsv(
   hrPerStore?: readonly BranchHrCsvRow[] | null,
   desk?: BranchDeskCsvBlock | null,
   trend?: readonly BranchTrendCsvRow[] | null,
+  portal?: readonly BranchPortalCsvRow[] | null,
 ): string {
   const header = BRANCHES_CSV_COLUMNS.join(',');
   const rows = stores.map((s) =>
@@ -295,6 +318,31 @@ export function buildBranchesCsv(
           .join(',');
       }),
       'Note,Branch week shapes are gross revenue — the org trend line and the expert console KPI agree (gross till face, reconciled v2.185.0)',
+      '',
+    );
+  }
+  if (portal && portal.length > 0) {
+    // v2.273.0: the portal adoption by branch — the drill-down's Portal
+    // column, offline. Rows ride in the CALLER'S order (the file mirrors
+    // what the owner sees, the v2.180.0 rule — no private re-sort). The
+    // adoption % is computed BY THE LIB from the row's own linked/total
+    // (round2 of ×100, the reviewer-share precedent); a branch with no
+    // employees in scope prints the honest empty rate cell — never a
+    // fabricated 0% of nothing.
+    lines.push(
+      'Portal adoption by branch',
+      BRANCHES_PORTAL_CSV_COLUMNS.join(','),
+      ...portal.map((p) =>
+        [
+          p.storeName,
+          p.linked,
+          p.total,
+          p.total > 0 ? Math.round((p.linked / p.total) * 10000) / 100 : '',
+        ]
+          .map(csvField)
+          .join(','),
+      ),
+      'Note,Adoption is linked logins over employees in scope — the point-in-time census the HR reports workspace answers',
       '',
     );
   }
