@@ -10,7 +10,7 @@ import {
   rejectPayrollRun,
   requestPayrollCorrection,
   submitPayrollRun,
-  PayrollLifecycleError,
+  type PayrollLifecycleError,
 } from '@/lib/hr/payroll/run-service';
 import { computePayslip } from '@/lib/hr/payroll/engine';
 import { createJournalEntry } from '@/lib/accounting-helpers';
@@ -86,7 +86,11 @@ vi.mock('@/lib/hr/attendance-service', () => ({
 }));
 
 vi.mock('@/lib/sequence', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/lib/sequence')>();
+  // v2.257.0 the lint audit: the `import()` type annotation is forbidden
+  // by consistent-type-imports — the spread never needed the module's
+  // exact shape (the test file imports the mocked members through the
+  // real module's own types; the factory only spreads + overrides).
+  const actual = await importOriginal<Record<string, unknown>>();
   let seq = 1;
   return {
     ...actual,

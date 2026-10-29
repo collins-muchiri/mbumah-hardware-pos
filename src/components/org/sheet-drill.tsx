@@ -97,6 +97,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { ArrowRight, ClipboardCheck, DoorOpen, Download, Printer, Search, X } from 'lucide-react';
 import { num, timeAgo, parseSheetLineage } from './primitives';
+import { useDrillEscape } from '@/lib/use-lens-escape';
 import { bandHouse, chipLabel, daysVoice, findingsVoice } from '@/lib/cadence-band';
 
 const fmtKes = (v: number) =>
@@ -203,6 +204,11 @@ interface DrillWire {
 }
 
 export function SheetDrill({ target, onClose, onOpenSheet }: { target: SheetDrillTarget; onClose: () => void; onOpenSheet?: (next: { id: string; storeName: string; status: string }) => void }) {
+  // v2.257.0 THE ESCAPE LADDER — the sheet drill's own Escape rung: it
+  // closes when it is the tree's only dialog (a ladder over the lens —
+  // the drill closes first, the next Escape stands the lens down), and
+  // yields to whatever rides above it. One home, never a copy.
+  useDrillEscape(onClose);
   // v2.223.0: the needle — the finder's state, reset by the map's per-
   // sheet key (a fresh door is an empty needle), never an effect.
   const [needle, setNeedle] = useState('');
@@ -446,13 +452,21 @@ export function SheetDrill({ target, onClose, onOpenSheet }: { target: SheetDril
               );
             })()}
           </div>
+          <span
+            data-testid="sheet-drill-esc-hint"
+            aria-hidden="true"
+            className="hidden items-center rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-slate-400 sm:inline-flex dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-500"
+          >
+            esc
+          </span>
           <button
             type="button"
             data-testid="sheet-drill-close"
             data-sheet-print-off=""
             aria-label="Close the sheet drill"
+            title="Escape closes this drill"
             onClick={onClose}
-            className="rounded p-1 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+            className="rounded p-1 text-slate-500 hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/60 dark:text-slate-400 dark:hover:bg-slate-800"
           >
             <X className="h-4 w-4" />
           </button>

@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.257.0',
+    title: 'The escape ladder',
+    bullets: [
+      'The purchase-order drill and the count-sheet drill learned Escape: a press closes the drill you are reading \u2014 the same close the overlay click and the \u00d7 button already speak, now in the keyboard\u2019s hand.',
+      'The ladder climbs one rung per press: a drill over a pressed lens gives Escape \u2192 the drill closes, Escape again \u2192 the lens stands down. And when another dialog rides above a drill, the topmost dialog\u2019s own law speaks first.',
+      'Each drill\u2019s header wears a quiet esc chip beside the close button, and the close button says the words (\u201cEscape closes this drill\u201d) \u2014 the law is discoverable, not a guess.',
+      'The close buttons\u2019 rings joined the focus-visible law (violet for the order drill, amber for the sheet), and a type-only import cleanup landed across seven files \u2014 no behavior moved.',
+    ],
+  },
+  {
     version: '2.256.0',
     title: 'The birth\u2019s door + the lens\u2019s ear',
     bullets: [

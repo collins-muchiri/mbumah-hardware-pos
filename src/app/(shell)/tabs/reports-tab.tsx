@@ -21,7 +21,7 @@ import {
   reportsApi, dashboardApi,
   customersApi, rentalsApi, transactionsApi,
   formatKES,
-  FastMovingReportData,
+  type FastMovingReportData,
 } from '@/lib/api';
 import { handleError } from '@/lib/error-handler';
 import {

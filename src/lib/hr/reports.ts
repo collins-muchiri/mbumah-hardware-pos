@@ -9,7 +9,7 @@
 //     PayrollDetail columns (posted runs only) - nothing is recomputed.
 //   - Exports are audit logged (DATA_EXPORT) with field-name-only metadata.
 
-import { Prisma } from '@prisma/client';
+import { type Prisma } from '@prisma/client';
 import { db } from '@/lib/db';
 import { hrAudit, HrEntityType } from './audit';
 import { toCSV } from '@/lib/report-utils';

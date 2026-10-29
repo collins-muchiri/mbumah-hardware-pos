@@ -23,7 +23,7 @@ import { db } from '@/lib/db';
 import { systemLog } from '@/lib/logger';
 import { LogSeverity, LogComponent } from '@/lib/types';
 import {
-  UserRole,
+  type UserRole,
   PERMISSION_MATRIX,
   hasPermission,
 } from '@/lib/types';
