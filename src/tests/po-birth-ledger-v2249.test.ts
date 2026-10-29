@@ -154,7 +154,7 @@ describe('the restock door\u2019s shillings (v2.249.0)', () => {
 
 describe('the release face (v2.249.0)', () => {
   it('package.json speaks 2.249.0', () => {
-    expect(version).toBe('2.269.0');
+    expect(version).toBe('2.270.0');
   });
 
   it('the birth\u2019s ledger rides the changelog', () => {
@@ -166,8 +166,8 @@ describe('the release face (v2.249.0)', () => {
 
   it('whats-new speaks the birth\u2019s ledger first', () => {
     const whatsNew = read('src/lib/whats-new.ts');
-    expect(whatsNew).toContain("version: '2.269.0',");
+    expect(whatsNew).toContain("version: '2.270.0',");
     expect(whatsNew).toContain('The birth\\u2019s ledger');
-    expect(whatsNew.indexOf("version: '2.269.0',")).toBeLessThan(whatsNew.indexOf("version: '2.268.0',"));
+    expect(whatsNew.indexOf("version: '2.270.0',")).toBeLessThan(whatsNew.indexOf("version: '2.269.0',"));
   });
 });

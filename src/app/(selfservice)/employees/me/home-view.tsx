@@ -12,7 +12,7 @@
 // both a fix and a consistency guarantee between server and client renders.
 
 import Link from 'next/link';
-import { ArrowRight, CalendarClock, Palmtree, Wallet, Target, UserRound, BadgeCheck, HandCoins } from 'lucide-react';
+import { ArrowRight, BellRing, CalendarClock, Palmtree, Wallet, Target, UserRound, BadgeCheck, HandCoins } from 'lucide-react';
 import { EmptyState, ProgressMeter, StatusBadge } from '@/components/hr/self-service-ui';
 // v2.24.0: formatters come from the DIRECTIVE-FREE module - a server
 // component may not call functions exported from a 'use client' module.
@@ -62,7 +62,25 @@ function eatTime(iso: string): string {
   });
 }
 
-export function HomeView({ data, payslipNotices = [] }: { data: HomeDashboardDto; payslipNotices?: PayslipNoticeItem[] }) {
+/** v2.270.0: the hero's linked-login voice — the session's own identity, spoken
+ *  at roster distance. The roster's Portal column shows the same link from the
+ *  HR side (emerald chip, BellRing); the hero answers from the employee's side
+ *  in the SAME emerald (a color never means two things), naming the login that
+ *  opens this workspace and where the notices land. */
+export interface LinkedLoginVoice {
+  email: string;
+  role: string;
+}
+
+export function HomeView({
+  data,
+  payslipNotices = [],
+  linkedLogin,
+}: {
+  data: HomeDashboardDto;
+  payslipNotices?: PayslipNoticeItem[];
+  linkedLogin?: LinkedLoginVoice;
+}) {
   const { profile } = data;
   const initials = `${profile.firstName?.[0] ?? ''}${profile.lastName?.[0] ?? ''}`.toUpperCase();
   const primaryLeave = data.leave.balances[0];
@@ -159,6 +177,28 @@ export function HomeView({ data, payslipNotices = [] }: { data: HomeDashboardDto
               <StatusBadge status={profile.status} />
             </div>
           </div>
+          {/* v2.270.0: the linked-login voice — the keystone's audit fact (only HR
+              can link a login) spoken on the surface the login actually opens.
+              A hairline under the hero's name block, the emerald chip matching
+              the roster's Portal column, and the words land where they are true. */}
+          {linkedLogin ? (
+            <div
+              className="mt-3 flex items-center gap-2 border-t border-black/5 pt-2.5 dark:border-white/10"
+              data-testid="selfservice-hero-linked"
+            >
+              <span
+                className="inline-flex shrink-0 items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-300"
+                title="This profile is linked to your sign-in by HR — the same link the roster's Portal column shows."
+              >
+                <BellRing className="h-3 w-3" aria-hidden />
+                linked login
+              </span>
+              <p className="min-w-0 truncate text-[11px] text-muted-foreground">
+                {linkedLogin.email} · {linkedLogin.role.replace(/_/g, ' ').toLowerCase()} — the login HR linked to
+                this profile; leave and payroll notices land here.
+              </p>
+            </div>
+          ) : null}
         </div>
       </section>
 
