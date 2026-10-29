@@ -217,7 +217,13 @@ describe('compliance-calendar surface laws (byte pins)', () => {
   });
 
   it("the card's copy keeps the honest face — the ledger's business stays the ledger's", () => {
-    expect(pageSrc).toContain("whether a window was filed is the ledger&apos;s business");
+    // v2.276.0 evolution (deliberate, the law COMPLETED): the ledger this
+    // sentence deferred to now EXISTS — the filing ledger's table, route
+    // and receipt dialog landed — so the footer speaks both halves: the
+    // clock speaks deadlines, the ledger speaks receipts. The words still
+    // never CLAIM a filing the ledger does not hold (the chip and the dot
+    // read the ledger's own rows, never the money).
+    expect(pageSrc).toContain('The clock speaks deadlines; the ledger speaks receipts');
     expect(pageSrc).toContain("weekends do not extend it");
   });
 });

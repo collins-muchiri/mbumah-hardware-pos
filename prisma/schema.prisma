@@ -49,6 +49,8 @@ model Organization {
   hrSettings           HrSetting[]
   // EMS v2.22.0: scheduled HR report email digests.
   hrReportSchedules    HrReportSchedule[]
+  // v2.276.0: the filing ledger — the compliance evidence rows.
+  statutoryFilings     StatutoryFiling[]
 
   stores   Store[]
   users    User[]
@@ -251,6 +253,7 @@ model User {
   createdDebtPaymentPlans DebtPaymentPlan[]   @relation("DebtPlanCreatedBy")
   approvedDebtPaymentPlans DebtPaymentPlan[]  @relation("DebtPlanApprovedBy")
   createdDataExports      DataExport[]        @relation("DataExportCreatedBy")
+  filedStatutoryFilings   StatutoryFiling[]
   shiftSchedules          ShiftSchedule[]
 
   @@index([organizationId])
@@ -4034,4 +4037,36 @@ model HrReportSchedule {
   @@index([organizationId, active])
   @@index([active, lastRunAt])
   @@map("hr_report_schedules")
+}
+
+/// v2.276.0: the filing ledger — the compliance evidence surface. The
+/// calendar (v2.274.0) speaks the CLOCK and v2.275.0 put the clock beside
+/// the money, but "whether a window was filed" had no ledger face: the
+/// card's own footer law deferred to a ledger that did not exist. This
+/// table IS that ledger — one row per (organization, obligation kind,
+/// payroll month), written from the Statutory desk when the return or
+/// payment goes in. The receipt is an assertion the filer makes, never a
+/// guess the system makes: no surface derives a filing from money moved
+/// (the journal carries the charge; the ledger carries the receipt — the
+/// two never borrow each other's words). kind + periodMonth are the
+/// calendar's own vocabulary (the 9th-of-the-following-month family;
+/// periodMonth is the "YYYY-MM" monthKey shape the monthly rows speak).
+model StatutoryFiling {
+  id             String   @id @default(cuid())
+  organizationId String
+  kind           String // PAYE | NSSF | SHIF | AHL — the calendar's obligation kinds
+  periodMonth    String // "YYYY-MM" — the payroll month the filing covers (the calendar's period, NOT the deadline's month)
+  filedAt        DateTime // when the return/payment was actually made (the filer's assertion, validated not-future)
+  reference      String? // optional payment/return reference (KRA voucher, bank slip) — spoken in titles only
+  note           String? // optional note (≤ 500 chars)
+  filedByUserId  String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  filedBy      User?        @relation(fields: [filedByUserId], references: [id], onDelete: SetNull)
+
+  @@unique([organizationId, kind, periodMonth])
+  @@index([organizationId, periodMonth])
+  @@map("statutory_filings")
 }

@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.276.0',
+    title: 'The ledger takes the receipt',
+    bullets: [
+      'The filing calendar gains the receipt half: when a return or payment goes in, mark the obligation filed \u2014 the chip remembers what was filed, when, and by whom, with an optional reference.',
+      'One receipt per obligation per payroll month: recording again amends it, every write lands in the audit trail, and a deleted account never erases the evidence.',
+      'The monthly statutory figures\u2019 Due dates now speak the composition too \u2014 a month with all four receipts wears the emerald check, and the small print counts what is filed.',
+    ],
+  },
+  {
     version: '2.275.0',
     title: 'The expert hears the census',
     bullets: [
