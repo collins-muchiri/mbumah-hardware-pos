@@ -64,8 +64,8 @@ describe('the suppliers\u2019 lens \u2014 the third face of the proven arc (v2.2
     expect(tab).toContain('${pressed ? house.pressed : house.chip}');
   });
 
-  it('the disclosure rides the rail \u2014 the wire\u2019s rungs stay the wire\u2019s', () => {
-    expect(tab).toContain('title="the roster\'s own lens — a press narrows the view (the fetch stays)"');
+  it('the disclosure rides the rail \u2014 the wire\u2019s rungs stay the wire\u2019s (v2.256.0: the ear\u2019s words joined the title)', () => {
+    expect(tab).toContain('title="the roster\'s own lens — a press narrows the view (the fetch stays); Escape stands the lens down"');
   });
 
   it('the houses ride the ONE home \u2014 the tab imports the lib, never a copy (chipLabel joins)', () => {

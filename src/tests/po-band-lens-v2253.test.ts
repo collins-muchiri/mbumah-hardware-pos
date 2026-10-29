@@ -94,8 +94,8 @@ describe('the ledger\u2019s lens \u2014 the window\u2019s own rung (v2.253.0)', 
     expect(ledger).toContain("${pressed ? 'bg-white/80 dark:bg-slate-950/50' : house.rail}");
   });
 
-  it('the disclosure rides the rail \u2014 the rungs stay the wire\u2019s; the CSV speaks the whole window', () => {
-    expect(ledger).toContain('title="the window\'s own lens — the rungs above stay the wire\'s; the CSV speaks the whole window regardless"');
+  it('the disclosure rides the rail \u2014 the rungs stay the wire\u2019s; the CSV speaks the whole window (v2.256.0: the ear\u2019s words joined the title)', () => {
+    expect(ledger).toContain('title="the window\'s own lens — the rungs above stay the wire\'s; the CSV speaks the whole window regardless; Escape stands the lens down"');
   });
 
   it('the lens has its own empty face \u2014 the pipe-empty words would lie about the view', () => {

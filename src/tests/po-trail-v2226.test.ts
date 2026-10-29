@@ -45,9 +45,9 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.226.0)', () => {
   it('package.json leads 2.226.0 (all three slots)', () => {
-    expect(version).toBe('2.255.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.255.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.255.0');
+    expect(version).toBe('2.256.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.256.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.256.0');
   });
 
   it('the changelog anchors the section ABOVE its ancestor (the structural pin — headers, never bare strings)', () => {
@@ -153,8 +153,8 @@ describe('the roster\u2019s copy', () => {
     expect(ledger).toContain('`\\ufeff${[header, ...rowsOut].join(\'\\r\\n\')}`');
   });
 
-  it('reuses the boring quoting law verbatim (csvCell — never re-invented)', () => {
-    expect(ledger).toContain("import { csvCell } from './sheet-drill';");
+  it('reuses the boring quoting law verbatim (csvCell — never re-invented; v2.256.0: the import grew the SheetDrill \u2014 the birth\u2019s door rides the same line)', () => {
+    expect(ledger).toContain("import { SheetDrill, csvCell, type SheetDrillTarget } from './sheet-drill';");
     expect(sheetDrill).toContain('export function csvCell(v: string | number | null | undefined): string {');
   });
 

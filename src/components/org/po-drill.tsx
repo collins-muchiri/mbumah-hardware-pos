@@ -38,7 +38,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { ClipboardList, Download, Printer, Search, X } from 'lucide-react';
+import { ArrowUpRight, ClipboardList, Download, Printer, Search, X } from 'lucide-react';
 import { csvCell } from './sheet-drill';
 import { num, timeAgo } from './primitives';
 // v2.250.0 THE AISLE'S BAND — the strip's chip wears the census's own
@@ -137,7 +137,18 @@ interface PoDrillWire {
   };
 }
 
-export function PoDrill({ target, onClose }: { target: PoDrillTarget; onClose: () => void }) {
+// • v2.256.0 THE BIRTH'S DOOR — the strip's words grew a control: when
+//   the parent hands the drill an `onOpenSheet`, the birth strip grows a
+//   "open the sheet" button (data-testid=po-drill-birth-door) that
+//   hands the parent {id, storeName, status} — the SheetDrill's own
+//   target shape, read from data the wire ALREADY carries (the sheet's
+//   id + status ride the birth; the store name rides the PO's store —
+//   a birth happens at the document's own yard). The parent closes the
+//   PO drill as the sheet opens: ONE drill at a time, the reading
+//   moves, nothing fetches twice. A face that cannot open the sheet
+//   (no callback) keeps the strip's words — the door is additive,
+//   never assumed.
+export function PoDrill({ target, onClose, onOpenSheet }: { target: PoDrillTarget; onClose: () => void; onOpenSheet?: (t: { id: string; storeName: string; status: string }) => void }) {
   // The finder's needle — the sheet drill's v2.223.0 law: state of the
   // drill, not of the ledger (the ledger keys the drill per document,
   // so a fresh door opens with an empty needle by construction).
@@ -169,6 +180,12 @@ export function PoDrill({ target, onClose }: { target: PoDrillTarget; onClose: (
 
   if (!target) return null;
   const data = wire.data?.data;
+  // v2.256.0 THE BIRTH'S DOOR — the target captured once (no non-null
+  // assertions inside the JSX closure: the narrowing dies at the arrow,
+  // the house keeps its warning baseline).
+  const birthTarget = data?.originStockTake && data.store
+    ? { id: data.originStockTake.id, storeName: data.store.name, status: data.originStockTake.status }
+    : null;
 
   const costGated = data?.summary.totalAmount == null;
   const exportLines = () => {
@@ -293,6 +310,25 @@ export function PoDrill({ target, onClose }: { target: PoDrillTarget; onClose: (
                     <> The restock carries <span className="tabular-nums">{fmtKes(data.summary.totalAmount)}</span>.</>
                   ) : null}
                 </p>
+                {/* v2.256.0 THE BIRTH'S DOOR — the words' own control: one
+                    button that hands the parent the SheetDrill's target
+                    shape and lets the reading move to the sheet. The id
+                    above stays text (the words keep their truth); the
+                    door is the affordance. Focus rings speak only to
+                    keyboards (focus-visible — a mouse press leaves no
+                    ring), the same law the lens chips wear this round. */}
+                {onOpenSheet && birthTarget && (
+                  <button
+                    type="button"
+                    data-testid="po-drill-birth-door"
+                    onClick={() => onOpenSheet(birthTarget)}
+                    title={`open count sheet ${birthTarget.id} — the drill's reading moves to the sheet that birthed this order (this drill closes; the roster's door reopens it)`}
+                    className="mt-1.5 inline-flex h-6 items-center gap-1 rounded-full bg-violet-100 px-2.5 text-[10px] font-semibold uppercase tracking-wide text-violet-800 ring-1 ring-inset ring-violet-300 transition-[filter] hover:brightness-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/60 dark:bg-violet-500/20 dark:text-violet-100 dark:ring-violet-500/40"
+                  >
+                    <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+                    open the sheet
+                  </button>
+                )}
               </div>
             )}
             {/* The summary tiles — units for every role, the shillings past the gate. */}

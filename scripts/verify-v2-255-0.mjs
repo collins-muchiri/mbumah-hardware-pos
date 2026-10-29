@@ -36,7 +36,7 @@ ok('the counts are REAL numbers over the roster’s rows', tab.includes('const c
 ok('the lens first — the roster’s only reading control, the fetch never moves', tab.includes("bandLens === 'silent' ? supplierPoBand(po) == null : supplierPoBand(po) === bandLens") && tab.includes('[purchaseOrders, bandLens]'));
 ok('the rail wears the five families', tab.includes('data-testid="supplier-po-band-row"') && tab.includes('data-testid={`supplier-po-band-${b}`}') && tab.includes('data-testid="supplier-po-band-silent"'));
 ok('the toggle law rides (pressed face from the one home)', tab.includes("onClick={() => setBandLens(pressed ? 'ALL' : b)}") && tab.includes("onClick={() => setBandLens(bandLens === 'silent' ? 'ALL' : 'silent')}") && tab.includes('${pressed ? house.pressed : house.chip}'));
-ok('the disclosure rides the rail', tab.includes('title="the roster\'s own lens — a press narrows the view (the fetch stays)"'));
+ok('the disclosure rides the rail (v2.256.0: the ear\u2019s words joined the title)', tab.includes('title="the roster\'s own lens — a press narrows the view (the fetch stays); Escape stands the lens down"'));
 ok('the houses ride the ONE home (chipLabel joined the import)', tab.includes("import { bandHouse, chipLabel, daysVoice, type CadenceBand } from '@/lib/cadence-band';"));
 
 console.log('— the lens’s own empty face + the lift —');

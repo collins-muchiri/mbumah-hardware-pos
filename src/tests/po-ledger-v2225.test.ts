@@ -56,9 +56,9 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.225.0)', () => {
   it('package.json leads 2.225.0 (all three slots)', () => {
-    expect(version).toBe('2.255.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.255.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.255.0');
+    expect(version).toBe('2.256.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.256.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.256.0');
   });
 
   it('the changelog anchors the section ABOVE its ancestor (the structural pin — headers, never bare strings)', () => {
@@ -200,8 +200,12 @@ describe('the procurement ledger', () => {
     expect(ledger).toContain('read-only — the branch workspace keeps the pens');
   });
 
-  it('keys the drill per document (a fresh door is an empty needle by construction)', () => {
-    expect(ledger).toContain('<PoDrill key={drill.id} target={drill} onClose={() => setDrill(null)} />');
+  it('keys the drill per document (a fresh door is an empty needle by construction; v2.256.0: the mount grew the birth\u2019s door \u2014 onOpenSheet closes this drill as the sheet opens)', () => {
+    expect(ledger).toContain('<PoDrill');
+    expect(ledger).toContain('key={drill.id}');
+    expect(ledger).toContain('target={drill}');
+    expect(ledger).toContain('onClose={() => setDrill(null)}');
+    expect(ledger).toContain('onOpenSheet={(t) => {');
   });
 });
 

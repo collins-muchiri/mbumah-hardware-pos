@@ -2,6 +2,20 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.256.0] The birth's door + the lens's ear
+
+The org PO drill has named its birth since v2.249.0 — the violet strip speaking the count sheet an order was born from — but the name was only ever words. This round the words grow their control, the three lens faces learn the keyboard, and the chips' focus rings learn honesty.
+
+### Added
+- **The birth's door** (`po-drill.tsx` + `po-ledger.tsx`): the birth strip's "open the sheet" button hands the parent the SheetDrill's own target shape — `{id, storeName, status}` read from data the wire already carries (the sheet rides the birth, the store name rides the PO's own store) — and the ledger opens the sheet drill as the PO drill closes (ONE drill at a time; the reading moves, nothing fetches twice). A face without the callback keeps the strip's words; the door is additive, never assumed.
+- **The lens's ear** (`src/lib/use-lens-escape.ts`, one home): Escape stands a pressed lens down on all three faces — the org ledger, the branch's purchase-order page, the supplier's roster — the same lift the clear buttons speak, now in the keyboard's hand. A dialog's Escape belongs to the dialog: the guard reads the live tree (`[role="dialog"]`) at the moment of the keypress, never a cached answer. The ear sleeps while the lens is down.
+- **The focus's honesty** (all three faces + the door): the band chips' rings speak only to keyboards — `focus:` becomes `focus-visible:` on every chip (the ledger's status and origin rungs joined the law), so a mouse press leaves no ring behind and keyboard users still see exactly where they are. The door wears the same law in its own violet.
+- **The rails say it aloud**: all three lens rails' disclosure titles grew the ear's words — "Escape stands the lens down."
+
+### Tests
+- `src/tests/birth-door-v2256.test.ts` (12 pins across 3 describes): the door's additive signature, the target shape read from the carried data, the keyboard-only ring, the SheetDrill mount, the one-drill law, the ear's sleep/wake/dialog-guard, the three faces' wiring, the bare-ring extinction, the per-face focus-visible census.
+- The treadmill walked **315 ancestor pins across 70 files** (pkg faces 229, feed leads 28, feed pairs 14, counters 44), self-file excluded, pairs re-aligned at the new birth.
+
 ## [2.255.0] The suppliers' lens
 
 The lens has been proven twice — the org ledger learned it at v2.253.0, the branch's own purchase-order page at v2.254.0 — but the supplier's orders tab, where the birth reached its fifth face, could only SPEAK the families on its chips, never answer by them. This round the lens crosses to the third face: the supplier's roster grows the same band rail over the rows it already holds, the pressed house that empties the view gets an honest answer and a lift, and the roster's date read stops reordering the fetched list under the hood.

@@ -68,8 +68,8 @@ describe('the branch\u2019s lens \u2014 the org\u2019s own law ported (v2.254.0)
     expect(tab).toContain('${pressed ? house.pressed : house.chip}');
   });
 
-  it('the disclosure rides the rail \u2014 the wire\u2019s rungs stay the wire\u2019s', () => {
-    expect(tab).toContain('title="the page\'s own lens — the filters above stay the wire\'s; a press narrows the view (the fetch stays)"');
+  it('the disclosure rides the rail \u2014 the wire\u2019s rungs stay the wire\u2019s (v2.256.0: the ear\u2019s words joined the title)', () => {
+    expect(tab).toContain('title="the page\'s own lens — the filters above stay the wire\'s; a press narrows the view (the fetch stays); Escape stands the lens down"');
   });
 
   it('the houses ride the ONE home \u2014 the tab imports the lib, never a copy', () => {

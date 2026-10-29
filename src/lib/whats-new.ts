@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.256.0',
+    title: 'The birth\u2019s door + the lens\u2019s ear',
+    bullets: [
+      'The purchase-order drill\u2019s birth strip grew its own door: when an order was born at a count sheet, one \u201copen the sheet\u201d button takes you to that sheet \u2014 the drill\u2019s reading moves, nothing is fetched twice, and the roster\u2019s door brings you back.',
+      'The band lenses learned the keyboard: press Escape and a pressed lens stands down \u2014 on the org ledger, the branch\u2019s purchase-order page and the supplier\u2019s roster alike. A dialog\u2019s Escape still belongs to the dialog.',
+      'The chips\u2019 focus rings now speak only to keyboards \u2014 mouse presses no longer leave a ring behind, and keyboard users still see exactly where they are.',
+      'The lens rails\u2019 titles say it aloud: \u201cEscape stands the lens down.\u201d',
+    ],
+  },
+  {
     version: '2.255.0',
     title: 'The suppliers\u2019 lens',
     bullets: [

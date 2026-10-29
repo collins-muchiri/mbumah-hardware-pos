@@ -40,7 +40,7 @@ ok('the counts are REAL numbers over the window\u2019s rows', ledger.includes('c
 ok('the lens first, then the needle (the fetch never moves)', ledger.includes("data.rows.filter((r) => (bandLens === 'silent' ? rowBand(r) == null : rowBand(r) === bandLens));"));
 ok('the rail wears the five families', ledger.includes('data-testid="po-ledger-band-row"') && ledger.includes('data-testid={`po-ledger-band-${b}`}') && ledger.includes('data-testid="po-ledger-band-silent"'));
 ok('the toggle law rides (pressed stands down, pressed face from the one home)', ledger.includes("onClick={() => setBandLens(pressed ? 'ALL' : b)}") && ledger.includes("onClick={() => setBandLens(bandLens === 'silent' ? 'ALL' : 'silent')}") && ledger.includes('${pressed ? house.pressed : house.chip}'));
-ok('the disclosure rides the rail (the rungs stay the wire\u2019s; the CSV the whole window)', ledger.includes('title="the window\'s own lens — the rungs above stay the wire\'s; the CSV speaks the whole window regardless"'));
+ok('the disclosure rides the rail (the rungs stay the wire\u2019s; the CSV the whole window; v2.256.0: the ear\u2019s words joined the title)', ledger.includes('title="the window\'s own lens — the rungs above stay the wire\'s; the CSV speaks the whole window regardless; Escape stands the lens down"'));
 ok('the lens has its own empty face', ledger.includes('data-testid="po-ledger-lens-empty"') && ledger.includes('the lens narrowed the window to nothing — lift a band house or clear the finder and the orders return.'));
 ok('the export law holds (the file speaks the whole window)', ledger.includes('const csv = rosterCsv(data.rows, { costGated: data.costGated });'));
 
@@ -52,7 +52,7 @@ console.log('— the birth\u2019s fifth face (the supplier\u2019s roster) —');
 ok('the supplier\u2019s PO rows wear the violet birth chip', suppliersTab.includes('data-testid="supplier-po-birth-chip"') && suppliersTab.includes('BORN AT A COUNT SHEET'));
 ok('the chip wears its aisle\u2019s band as the same rail-coloured dot', suppliersTab.includes('data-testid="supplier-po-band-dot"') && suppliersTab.includes('${bandHouse(po.originStockTake.walkAisle.band as CadenceBand).rail}'));
 ok('the chip\u2019s title speaks the full voice (sheet, aisle, days)', suppliersTab.includes("title={`born at count sheet ${po.originStockTake.id}") && suppliersTab.includes("daysVoice({ band: po.originStockTake.walkAisle.band as CadenceBand, daysSince: po.originStockTake.walkAisle.daysSince ?? null })"));
-ok('the houses ride the ONE home', suppliersTab.includes("import { bandHouse, daysVoice, type CadenceBand } from '@/lib/cadence-band';"));
+ok('the houses ride the ONE home (the import grew chipLabel at v2.255.0 \u2014 the lens\u2019s own words)', suppliersTab.includes("import { bandHouse, chipLabel, daysVoice, type CadenceBand } from '@/lib/cadence-band';"));
 
 console.log('— the release face —');
 ok('package.json version + mbumah metadata speak 2.253.0', pkg.version === '2.253.0' && pkg.mbumah?.releaseVersion === '2.253.0' && pkg.mbumah?.baseVersion === '2.253.0');
