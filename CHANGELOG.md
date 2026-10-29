@@ -2,6 +2,18 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.274.0] The calendar keeps the clock
+
+The statutory desk has always spoken the money — the liability totals and the monthly figures say what was charged — but it never said WHEN: Kenya's monthly payroll obligations fall due on the 9th of the following month, and that clock lived in nobody's head but the filing officer's. This round the desk keeps the clock: a filing calendar derived from the server's own time, one row per obligation, the window state up front and the weekend warning when a 9th lands on a Saturday or a Sunday.
+
+### Added
+- **The pure calendar** (`src/lib/hr/compliance-calendar.ts`): `complianceCalendar(now)` derives the four monthly obligations (PAYE, NSSF, SHIF, housing levy — the 9th-of-the-following-month family) as a pure function of a point in time. The census's UTC-midnight floor law computes the day differences (a 25-hour gap is 1 day, never 2); the window law reads on-or-before-the-9th as the previous payroll month's open window and after-the-9th as NOT_YET_OPEN with the clock rolled to the next deadline; the weekend law cites the weekday when a 9th lands on a Saturday or Sunday — the statute does not wait. The calendar cites its instruments and never claims a receipt: whether a window was actually filed is the ledger's business, and the payload's spoken words cannot say otherwise (pinned).
+- **The read route** (`src/app/api/hr/reports/compliance-calendar/route.ts`): the same `hrGuard('hr.report.branch')` drill-down roles, no period params (the clock is not period-scoped), no storeId (the statute does not vary by branch), no audit (reads ride the guard alone) — the payload is one `asOf` instant, the point-in-time law the census reports by.
+- **The filing calendar card** (`src/app/(shell)/hr/reports/page.tsx`, Statutory tab): the clock renders ABOVE the money — a calendar-page tile per obligation (day over month), the period and due date spoken plain, a window arc showing how much of the 1st–9th window has burned, and the status chip carrying the page's own family: rose acts now (due today / due tomorrow), amber warns (2–4 days), sky informs (open), and the unopened window stays muted — an unopened window is not an emergency and never borrows one's colors. The card owns an INDEPENDENT load (`loadCalendar`, the loadErasure pattern): a period-report failure darkens the money, never the clock.
+
+### Tests
+- `src/tests/compliance-calendar-v2274.test.ts` — 13 pins: the RUNTIME window law (mid-window, the 1st edge, DUE_TODAY at the 9th, the clock roll past it, the December→January year roll, the census floor law at 23:59), the four obligations sharing the statute's day while keeping their own names and instruments, the weekend law (derived Saturday/Sunday months from a fixed anchor, with the Monday-9th silence pinned), and the surface laws (a guard-riding read with no audit, the independent load, the family tones).
+
 ## [2.273.0] The console hears the census
 
 v2.271.0 rolled the roster's quiet bell up to a census, and v2.272.0 gave the census its own audited copy — but the census still lived one navigation away from the desk where adoption is actually decided. The organization console's People & payroll strip answered headcount, cost, absence, payroll and expiry — everything except the adoption story the leave and payslip emails assume. This round the console hears the census: the numbers ride the org wire, the drill-down wears the column, and the CSV files the fifth section.

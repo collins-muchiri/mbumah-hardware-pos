@@ -194,6 +194,30 @@ interface StatutoryDto extends Period {
   totals: { paye: Money; nssf: Money; shif: Money; housingLevy: Money; payeArrears: Money; total: Money };
   monthly: Array<{ month: string; label: string; paye: Money; nssf: Money; shif: Money; housingLevy: Money; payeArrears: Money }>;
 }
+// v2.274.0: the filing clock — DERIVED, not stored. The calendar speaks the
+// statute's own deadlines (the 9th-of-the-following-month family) for the
+// four monthly obligations the statutory desk already counts; whether a
+// past window was actually filed is the ledger's business and this DTO
+// never claims it. windowElapsedPct is null when the window has not opened
+// — a rail for a window that does not exist would be a guess.
+interface CalendarDto {
+  asOf: string;
+  obligations: Array<{
+    kind: string;
+    label: string;
+    instrument: string;
+    dueDay: number;
+    periodLabel: string;
+    dueDate: string;
+    dueLabel: string;
+    daysRemaining: number;
+    status: 'NOT_YET_OPEN' | 'OPEN' | 'DUE_SOON' | 'DUE_TOMORROW' | 'DUE_TODAY';
+    statusWord: string;
+    windowElapsedPct: number | null;
+    windowWord: string | null;
+    weekendNote: string | null;
+  }>;
+}
 interface P10Dto {
   year: number;
   scope: string;
@@ -321,6 +345,39 @@ function utilRailTone(committedPct: number): string {
   if (committedPct >= 100) return 'bg-rose-500';
   if (committedPct >= 80) return 'bg-amber-500';
   return 'bg-emerald-500';
+}
+
+/**
+ * v2.274.0: chip tone for the filing clock's window state. The family is
+ * the page's own — rose acts now, amber warns, sky informs, and a window
+ * that has not opened stays muted (the honest quiet — an unopened window
+ * is not an emergency and must never borrow one's colors).
+ */
+function calendarStatusTone(status: string): string {
+  switch (status) {
+    case 'DUE_TODAY':
+    case 'DUE_TOMORROW':
+      return 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300';
+    case 'DUE_SOON':
+      return 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300';
+    case 'NOT_YET_OPEN':
+      return 'border-border bg-muted text-muted-foreground';
+    default:
+      return 'border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-900 dark:bg-sky-950/40 dark:text-sky-300';
+  }
+}
+
+/** v2.274.0: fill tone for the window arc — solid, chip-free, same family. */
+function calendarFillTone(status: string): string {
+  switch (status) {
+    case 'DUE_TODAY':
+    case 'DUE_TOMORROW':
+      return 'bg-rose-500 dark:bg-rose-400';
+    case 'DUE_SOON':
+      return 'bg-amber-500 dark:bg-amber-400';
+    default:
+      return 'bg-sky-500 dark:bg-sky-400';
+  }
 }
 
 /** v2.36.0: chip tone for leave request statuses in the drill-down history. */
@@ -466,6 +523,12 @@ export default function HrReportsPage() {
   const [turnover, setTurnover] = useState<TurnoverDto | null>(null);
   const [tth, setTth] = useState<TimeToHireDto | null>(null);
   const [statutory, setStatutory] = useState<StatutoryDto | null>(null);
+  // v2.274.0: the filing clock rides its OWN load — it is derived from the
+  // server's clock, not the report period, so a period-report failure must
+  // never darken it (independent resilience, the loadErasure pattern).
+  const [calendar, setCalendar] = useState<CalendarDto | null>(null);
+  const [calendarFailed, setCalendarFailed] = useState(false);
+  const [calendarBusy, setCalendarBusy] = useState(false);
   const [p10, setP10] = useState<P10Dto | null>(null);
   const [erasure, setErasure] = useState<ErasureDto | null>(null);
   // v2.130.0: the Privacy tab speaks its failures — a failed load renders an
@@ -614,6 +677,23 @@ export default function HrReportsPage() {
       setP10Failed(true); // v2.131.0: speak the failure on the tab itself
     } finally {
       setP10Busy(false);
+    }
+  }, []);
+
+  const loadCalendar = useCallback(async () => {
+    // v2.274.0: the busy face paints one microtask late — the yield keeps the
+    // first setState out of the effect's synchronous path (the lint family
+    // law: the 57-strong set-state-in-effect family must not grow).
+    await Promise.resolve();
+    setCalendarBusy(true);
+    try {
+      setCalendar(await apiGet<CalendarDto>('/api/hr/reports/compliance-calendar'));
+      setCalendarFailed(false);
+    } catch {
+      setCalendar(null);
+      setCalendarFailed(true); // the clock speaks its own failure — never a spin forever
+    } finally {
+      setCalendarBusy(false);
     }
   }, []);
 
@@ -828,6 +908,14 @@ export default function HrReportsPage() {
   useEffect(() => {
     void loadErasure();
   }, [loadErasure]);
+  // v2.274.0: the clock loads once per mount — the deadlines are calendar
+  // law, not period data; a reload re-reads the server's own now(). The
+  // first tick defers a microtask: the effect body itself never touches
+  // state (the lint family law — the set-state-in-effect family must not
+  // grow), while the fetch keeps its own independent state and failure strip.
+  useEffect(() => {
+    queueMicrotask(() => void loadCalendar());
+  }, [loadCalendar]);
   useEffect(() => {
     void loadConsent();
   }, [loadConsent]);
@@ -1981,6 +2069,83 @@ export default function HrReportsPage() {
           ) : (
             <>
               <UpdatedStamp testId="hr-reports-updated-statutory" at={aggregateLoadedAt} />
+              {/* v2.274.0: the filing clock — the calendar above the money.
+                  The clock is the statute's own; the amounts below are what
+                  was charged. Two faces, one desk. */}
+              {calendarFailed ? (
+                <ReportFailureStrip
+                  testId="hr-compliance-calendar-error"
+                  copy="The filing calendar could not be loaded — the clock stays dark rather than guess."
+                  retryLabel="Retry loading the filing calendar"
+                  onRetry={() => void loadCalendar()}
+                  busy={calendarBusy}
+                />
+              ) : !calendar ? (
+                <Skeleton className="h-28 w-full" data-testid="hr-compliance-calendar-skeleton" />
+              ) : (
+                <Card data-testid="hr-compliance-calendar">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="flex items-center gap-2 text-sm">
+                      <CalendarClock className="h-4 w-4 text-sky-700 dark:text-sky-400" aria-hidden /> Filing calendar
+                      <span className="ml-auto text-xs font-normal tabular-nums text-muted-foreground" data-testid="hr-compliance-calendar-asof">
+                        as of {new Date(calendar.asOf).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </CardTitle>
+                    <CardDescription>
+                      Kenya&apos;s monthly payroll obligations fall due on the 9th of the following month — the clock is the statute&apos;s own, weekends do not extend it.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="divide-y divide-border">
+                      {calendar.obligations.map((o) => (
+                        <div key={o.kind} data-testid={`hr-cal-row-${o.kind.toLowerCase()}`} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+                          {/* the calendar page tile — day over month, tabular, quiet border */}
+                          <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-lg border bg-card" aria-hidden>
+                            <span className="text-lg font-semibold leading-none tabular-nums">{o.dueDate.slice(8, 10)}</span>
+                            <span className="mt-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">{o.dueLabel.split(' ')[1].slice(0, 3)}</span>
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                              <span className="text-sm font-medium">{o.label}</span>
+                              <span className="text-xs text-muted-foreground">for {o.periodLabel}</span>
+                            </div>
+                            <div className="mt-0.5 text-xs text-muted-foreground">
+                              due {o.dueLabel} · {o.daysRemaining === 1 ? '1 day' : `${o.daysRemaining} days`} remaining
+                            </div>
+                            {o.windowElapsedPct != null && o.windowWord ? (
+                              <div className="mt-1.5 flex items-center gap-2" title={o.windowWord}>
+                                <span className="relative h-1.5 w-24 overflow-hidden rounded-full bg-muted" aria-hidden>
+                                  <span
+                                    className={`absolute inset-y-0 left-0 rounded-full ${calendarFillTone(o.status)}`}
+                                    style={{ width: `${Math.min(100, Math.max(0, o.windowElapsedPct))}%` }}
+                                  />
+                                </span>
+                                <span className="text-[11px] tabular-nums text-muted-foreground">{o.windowWord}</span>
+                              </div>
+                            ) : o.windowWord ? (
+                              <div className="mt-1 text-[11px] text-muted-foreground">{o.windowWord}</div>
+                            ) : null}
+                            {o.weekendNote ? (
+                              <p className="mt-1 flex items-start gap-1 text-[11px] text-amber-700 dark:text-amber-400">
+                                <AlertTriangle className="mt-0.5 h-3 w-3 shrink-0" aria-hidden /> {o.weekendNote}
+                              </p>
+                            ) : null}
+                          </div>
+                          <span
+                            data-testid={`hr-cal-status-${o.kind.toLowerCase()}`}
+                            className={`inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${calendarStatusTone(o.status)}`}
+                          >
+                            {o.statusWord}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="mt-2 border-t pt-2 text-[11px] text-muted-foreground">
+                      The clock speaks deadlines only — whether a window was filed is the ledger&apos;s business. Instruments: {calendar.obligations[0]?.instrument ?? '—'}; the same 9th governs NSSF, SHIF and the housing levy.
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
               <div className="grid grid-cols-2 gap-3 md:grid-cols-6">
                 <Stat label="PAYE" value={formatKes(statutory.totals.paye)} />
                 <Stat label="NSSF" value={formatKes(statutory.totals.nssf)} />
