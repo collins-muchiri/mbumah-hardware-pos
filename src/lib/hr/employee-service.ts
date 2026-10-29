@@ -139,7 +139,12 @@ export async function listEmployees(params: ListEmployeesParams): Promise<HrEmpl
   const rows = await db.employee.findMany({
     where,
     orderBy: [{ firstName: 'asc' }, { lastName: 'asc' }],
-    include: { store: { select: { name: true } } },
+    // v2.268.0: the linked login rides the list include — role + active state
+    // only (the shaper below strips the relation; the email never leaves).
+    include: {
+      store: { select: { name: true } },
+      user: { select: { role: true, isActive: true } },
+    },
   });
   // summaries never carry PII fields (the expiry annotations are counts and
   // dates only — no document names, types, or contents)
@@ -150,6 +155,12 @@ export async function listEmployees(params: ListEmployeesParams): Promise<HrEmpl
       ...(hit
         ? { expiringDocuments: hit.count, nearestExpiry: toIso(hit.nearest) }
         : {}),
+      // v2.268.0: the roster's quiet bell — the raw relation is destructured
+      // OUT of the spread; only the shaped presence/role/active bits leave
+      // (the detail wire's own shaping law, spoken at roster distance).
+      portalLinked: e.user != null,
+      portalRole: e.user?.role ?? null,
+      portalActive: e.user ? e.user.isActive : null,
     };
   });
 }

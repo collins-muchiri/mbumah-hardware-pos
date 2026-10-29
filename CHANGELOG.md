@@ -2,6 +2,18 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.268.0] The roster's quiet bell
+
+v2.267.0 linked logins to employees on the detail card, but the roster — the face every HR role lands on — stayed deaf: which hires hold portal access was a one-detail-at-a-time question, answered by opening each record in turn. This round the roster itself answers, and the detail card's picker learns the affordance its styling always implied.
+
+### Added
+- **The bell rides the wire** (`src/lib/hr/employee-service.ts`): `listEmployees` includes the linked login (role + active state only — the email never rides the list), and the raw relation is destructured OUT of the spread: `portalLinked` / `portalRole` / `portalActive` are the shaped bits that leave, the detail wire's own shaping law spoken at roster distance. Role is not PII — the payroll tab's own picker already speaks it.
+- **The chip** (`src/app/(shell)/hr/employees/page.tsx`): the roster wears the ConsentChip's own vocabulary law — emerald "portal" on a linked, active login; amber "portal off" when the linked login is deactivated (the detail card's own words ride the title); the honest dash when no login is linked, never a look-alike chip. The desktop table grows its Portal column between Status and the consent view; the mobile cards wear the compact chip beside the status badge.
+- **The count answers REAL numbers** (same file): the toolbar grows "N of M linked" — the count reads the roster's own rows (the counts' law: it reads the rows, never the view), so a filter narrows it with the list.
+
+### Styled
+- **The picker's chevron** (`src/app/(shell)/hr/employees/[id]/page.tsx`): the candidates select is `appearance-none` by design — but an invisible affordance is a closed door painted to look like a text field. A quiet ChevronDown moves in (pointer-events-none, clear of the text by `pr-8`), and the honest dropdown finally looks like one.
+
 ## [2.267.0] The portal's keystone
 
 Linking a login to an employee — the keystone the whole self-service phase stands on — got its honest faces. The QA walk found the gap at the wire: the portal-link POST/DELETE route admits SUPER_ADMIN, STORE_OWNER and HR_MANAGER, but the payroll tab (visible to all of MGMT_ROLES) fetched its picker from GET /api/users, a route that only ever answers the first two tiers. A BRANCH_MANAGER or ACCOUNTANT opening the link dialog got a 403 they never saw — the list rendered empty and the empty list lied ("No active users found for this store").
