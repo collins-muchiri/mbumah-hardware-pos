@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.259.0',
+    title: 'The branch\u2019s instruments + the branch\u2019s door',
+    bullets: [
+      'The branch\u2019s purchase-order page grows the metric rail: on time, arrived late and in flight chips answer with their real counts over the page\u2019s own rows \u2014 a press narrows the view composed with the band and the search (AND, never OR), and the fetch never moves.',
+      'Two instruments, one ear: the face\u2019s clear-all and a single Escape stand both lenses down together \u2014 the combined-ear law the supplier\u2019s roster taught, now worn by the branch\u2019s page too.',
+      'The birth strip\u2019s door: a purchase order born at a count sheet wears an "open the sheet" button \u2014 the detail closes, the sheet drill opens, and Escape closes it back (the ladder\u2019s rung, already worn).',
+      'The empty answer names the pressed metric ("No order on this page arrived late") and offers its own stand-down beside the band\u2019s \u2014 the honest silence, with a way back.',
+    ],
+  },
+  {
     version: '2.258.0',
     title: 'The metrics\u2019 answer',
     bullets: [

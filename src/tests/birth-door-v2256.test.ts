@@ -84,9 +84,9 @@ describe('the lens\u2019s ear \u2014 Escape stands the lens down (v2.256.0)', ()
     expect(ledger).toContain('Escape stands the lens down"');
   });
 
-  it('the branch face wears the ear \u2014 the words ride the disclosure title', () => {
+  it('the branch face wears the ear \u2014 the words ride the disclosure title (v2.259.0: the ear grew the combined press + lift \u2014 the metric instrument joined, one listener lifts both)', () => {
     expect(branch).toContain("import { useLensEscape } from '@/lib/use-lens-escape';");
-    expect(branch).toContain("useLensEscape(bandLens !== 'ALL', () => setBandLens('ALL'));");
+    expect(branch).toContain("useLensEscape(bandLens !== 'ALL' || metricLens !== 'all', () => {");
     expect(branch).toContain('Escape stands the lens down"');
   });
 
@@ -107,7 +107,7 @@ describe('the focus\u2019s honesty \u2014 the rings speak only to keyboards (v2.
   it('the chips wear focus-visible \u2014 every one of them (the ledger\u2019s rungs joined the law)', () => {
     const count = (s: string) => (s.match(/focus-visible:ring-2 focus-visible:ring-sky-500\/40/g) ?? []).length;
     expect(count(ledger)).toBe(5); // 2 band + 2 status rungs + 1 origin rung
-    expect(count(branch)).toBe(2); // the houses + the silence
+    expect(count(branch)).toBe(3); // the houses + the silence + the metrics' rail (v2.259.0: the metric chips joined the law)
     expect(count(suppliers)).toBe(2);
   });
 });

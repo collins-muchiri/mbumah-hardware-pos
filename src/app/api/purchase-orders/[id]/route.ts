@@ -53,6 +53,12 @@ async function getPurchaseOrderHandler(
       approvedBy: { select: { id: true, name: true } },
       receivedBy: { select: { id: true, name: true } },
       cancelledBy: { select: { id: true, name: true } },
+      // v2.259.0 THE BRANCH'S DOOR — the order's own store rides the
+      // detail wire (additive + optional): the birth strip's door speaks
+      // the sheet's address with the store's name (the sheet and the
+      // order share the store — the birth's own law), and the response's
+      // spread carries it without a second mapping.
+      store: { select: { id: true, name: true, code: true } },
       // v2.248.0 THE RESTOCK'S BIRTH — the detail face names the sheet a
       // PO was born from (additive + optional; a hand-raised PO reads
       // null and renders the silent absence). The aisle's name rides so

@@ -2781,6 +2781,11 @@ export interface PurchaseOrderListItem {
   // + optional; the list + detail wires carry it, a hand-raised PO reads
   // null and the faces render the silent absence).
   originStockTake?: { id: string; status: string; closedAt: string | null; walkAisle: { name: string; band?: string | null; daysSince?: number | null } | null } | null;
+  // v2.259.0 THE BRANCH'S DOOR — the order's own store (additive + optional;
+  // the detail wire carries it, the birth strip's door speaks the sheet's
+  // address with it. A stale cached row reads undefined and keeps the
+  // honest absence — no name, no door).
+  store?: { id: string; name: string; code?: string | null } | null;
 }
 
 export interface PurchaseOrderItemDetail {

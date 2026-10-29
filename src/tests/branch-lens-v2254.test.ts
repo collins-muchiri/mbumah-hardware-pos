@@ -44,15 +44,15 @@ describe('the branch\u2019s lens \u2014 the org\u2019s own law ported (v2.254.0)
     expect(tab).toContain('else c.silent += 1;');
   });
 
-  it('the lens first, then the needle, then the sort \u2014 the reading narrows, the fetch never moves', () => {
+  it('the lens first, then the needle, then the sort \u2014 the reading narrows, the fetch never moves (v2.259.0: the memos compose \u2014 bandOrders, then the metric\u2019s lensedOrders, then the needle, then the sort)', () => {
     expect(tab).toContain("bandLens === 'ALL'");
     expect(tab).toContain("bandLens === 'silent' ? poRowBand(po) == null : poRowBand(po) === bandLens");
-    expect(tab).toContain('}, [purchaseOrders, search, sortField, sortDir, bandLens]);');
+    expect(tab).toContain('}, [lensedOrders, search, sortField, sortDir]);');
   });
 
-  it('the face\u2019s own clear-all lifts the lens \u2014 the honest clear, never a partial one', () => {
+  it('the face\u2019s own clear-all lifts the lens \u2014 the honest clear, never a partial one (v2.259.0: both instruments lift)', () => {
     expect(tab).toContain('    setBandLens(\'ALL\');');
-    expect(tab).toContain('search || statusFilter !== \'ALL\' || supplierFilter !== \'ALL\' || dateFrom || dateTo || bandLens !== \'ALL\'');
+    expect(tab).toContain('search || statusFilter !== \'ALL\' || supplierFilter !== \'ALL\' || dateFrom || dateTo || bandLens !== \'ALL\' || metricLens !== \'all\'');
   });
 
   it('the rail wears the five families \u2014 the four houses + the silent absence', () => {
