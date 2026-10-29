@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Eye, EyeOff, FilePlus2, Link2, Loader2, ShieldAlert, ShieldCheck, Unlink } from 'lucide-react';
+import { ChevronDown, Eye, EyeOff, FilePlus2, Link2, Loader2, ShieldAlert, ShieldCheck, Unlink } from 'lucide-react';
 import { useAuthStore } from '@/lib/stores';
 import { canManagePortalLinks, portalRoleTone, type PortalLinkCandidate } from '@/lib/hr/portal-account';
 
@@ -466,13 +466,16 @@ function PortalAccountCard({ employee, onMutated }: {
             ) : (
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                 <div className="relative sm:flex-1">
+                  {/* v2.268.0: the picker wears its own chevron — the select is
+                      appearance-none by design, but an invisible affordance is
+                      a closed door painted to look like a text field. */}
                   <select
                     value={pickUserId}
                     onChange={(e) => setPickUserId(e.target.value)}
                     disabled={busy}
                     data-testid="portal-candidates-select"
                     aria-label="Candidate portal users"
-                    className="h-9 w-full appearance-none rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    className="h-9 w-full appearance-none rounded-md border border-input bg-background pl-3 pr-8 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <option value="">Pick an account to link…</option>
                     {candidates.map((c) => (
@@ -482,6 +485,10 @@ function PortalAccountCard({ employee, onMutated }: {
                       </option>
                     ))}
                   </select>
+                  <ChevronDown
+                    className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+                    aria-hidden="true"
+                  />
                 </div>
                 <Button
                   size="sm"

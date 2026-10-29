@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.268.0',
+    title: 'The roster\u2019s quiet bell',
+    bullets: [
+      'The employees roster now answers which hires hold portal access at a glance — an emerald bell chip on every linked row, an amber "portal off" when the linked login is deactivated, and the honest dash when no login is linked.',
+      'The toolbar counts what the rows hold: "N of M linked" reads the roster\u2019s own rows, so a filter narrows the count with the list — never a stale number from another view.',
+      'The link picker grew its own chevron: an appearance-none select without an arrow is a closed door painted to look like a text field.',
+    ],
+  },
+  {
     version: '2.267.0',
     title: 'The portal\u2019s keystone',
     bullets: [

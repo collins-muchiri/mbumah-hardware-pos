@@ -27,6 +27,16 @@ export interface HrEmployeeSummary {
    * a count + a date, never document contents (spec: PII minimized). */
   expiringDocuments?: number;
   nearestExpiry?: string | null;
+  /** v2.268.0: the roster's quiet bell — the linked login's presence, its role
+   * and its active state. Role is not PII (the payroll tab's own picker speaks
+   * it); the email and the raw relation never ride the list. portalLinked
+   * false / portalRole null answers the honest silence — no linked login. */
+  portalLinked?: boolean;
+  portalRole?: string | null;
+  /** v2.268.0: null when no login is linked; when linked, the login's active
+   * state — a deactivated login keeps the chip but wears the closed voice
+   * (the detail card's own words, spoken at roster distance). */
+  portalActive?: boolean | null;
 }
 
 /** v2.267.0: the linked portal account, shaped for the detail wire. The

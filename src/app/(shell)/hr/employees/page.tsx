@@ -35,6 +35,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
+  BellRing,
   CalendarClock,
   ExternalLink,
   RefreshCw,
@@ -91,6 +92,49 @@ const CONSENT_CHIP: Record<
   },
 };
 
+/**
+ * v2.268.0: the portal chip ("the roster's quiet bell") — the roster answers
+ * at a glance which employees hold self-service portal access. Tones follow
+ * the ConsentChip's own vocabulary law (emerald open / amber closed — a color
+ * never means two things) and the detail card's own words ride the titles.
+ * The unlinked face is the silent dash — the honest absence, never a
+ * look-alike chip.
+ */
+const PORTAL_CHIP: Record<'linked' | 'off', { label: string; className: string; title: (name: string, role: string) => string }> = {
+  linked: {
+    label: 'portal',
+    className:
+      'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-300',
+    title: (name, role) =>
+      `${name} opens the self-service portal through a ${role} login — leave and payroll notifications land in the app.`,
+  },
+  off: {
+    label: 'portal off',
+    className:
+      'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950/50 dark:text-amber-300',
+    title: (name) =>
+      `${name}'s linked login is deactivated — the portal stays closed until the account is reactivated in Settings → Users.`,
+  },
+};
+
+function PortalChip({ row, compact = false }: { row: Pick<EmployeeRow, 'firstName' | 'lastName' | 'portalLinked' | 'portalRole' | 'portalActive'>; compact?: boolean }) {
+  if (!row.portalLinked) return null; // an unlinked row never renders a look-alike
+  const chip = PORTAL_CHIP[row.portalActive === false ? 'off' : 'linked'];
+  const role = (row.portalRole ?? 'linked').replace('_', ' ').toLowerCase();
+  return (
+    <span
+      data-testid="hr-employees-portal-chip"
+      title={chip.title(`${row.firstName} ${row.lastName}`, role)}
+      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${chip.className} ${
+        compact ? 'px-1.5' : ''
+      }`}
+    >
+      <BellRing className="h-3 w-3" aria-hidden="true" />
+      {chip.label}
+    </span>
+  );
+}
+
 function ConsentChip({ status, compact = false }: { status?: RosterConsentRow['status']; compact?: boolean }) {
   const chip = status ? CONSENT_CHIP[status] : undefined;
   if (!chip) return null; // an unknown or absent status never renders a look-alike
@@ -120,6 +164,11 @@ interface EmployeeRow {
   storeName?: string;
   expiringDocuments?: number;
   nearestExpiry?: string | null;
+  // v2.268.0: the roster's quiet bell — the wire's own shaped bits (role is
+  // not PII; the email never rides the list). portalActive null = not linked.
+  portalLinked?: boolean;
+  portalRole?: string | null;
+  portalActive?: boolean | null;
 }
 
 const STATUS_OPTIONS = ['ALL', 'ACTIVE', 'ON_LEAVE', 'SUSPENDED', 'TERMINATED'] as const;
@@ -479,6 +528,16 @@ export default function EmployeesPage() {
         )}
         {!loading && rows && (
           <div className="ml-auto flex items-center gap-3">
+            <span
+              data-testid="hr-employees-portal-count"
+              title="Linked logins answer in-app leave and payroll notifications — the count reads this roster’s rows."
+              className="text-xs tabular-nums text-slate-400 dark:text-slate-500"
+            >
+              <span className="font-semibold text-emerald-700 dark:text-emerald-400">
+                {rows.filter((r) => r.portalLinked).length}
+              </span>{' '}
+              of {rows.length} linked
+            </span>
             {consentLedger && (
               <span
                 data-testid="hr-employees-consent-counts"
@@ -532,6 +591,9 @@ export default function EmployeesPage() {
                     <TableHead>Job title</TableHead>
                     <TableHead>Type</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead data-testid="hr-employees-portal-col" className="whitespace-nowrap">
+                      Portal
+                    </TableHead>
                     {consentLedger && (
                       <TableHead data-testid="hr-employees-consent-col" className="whitespace-nowrap">
                         Payroll consent
@@ -564,6 +626,19 @@ export default function EmployeesPage() {
                       </TableCell>
                       <TableCell>
                         <StatusBadge status={r.status} />
+                      </TableCell>
+                      <TableCell>
+                        {r.portalLinked ? (
+                          <PortalChip row={r} />
+                        ) : (
+                          <span
+                            data-testid="hr-employees-portal-silent"
+                            className="text-xs text-slate-300 dark:text-slate-600"
+                            title="No linked login — the self-service portal stays behind the HR desk."
+                          >
+                            —
+                          </span>
+                        )}
                       </TableCell>
                       {consentLedger && (
                         <TableCell>
@@ -628,6 +703,7 @@ export default function EmployeesPage() {
                     {r.firstName} {r.lastName}
                   </a>
                   <StatusBadge status={r.status} />
+                  <PortalChip row={r} compact />
                   {consentLedger && consentLedger.byId.has(r.id) && (
                     <ConsentChip status={consentLedger.byId.get(r.id)} compact />
                   )}
