@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.275.0',
+    title: 'The expert hears the census',
+    bullets: [
+      'People & payroll by branch \u2014 on the Expert Console and the Finance tab alike \u2014 now carries the Portal adoption column: linked logins over employees in scope, the rate in emerald, one click opening the census narrowed to that branch.',
+      'The monthly statutory figures name the deadline beside the money: each payroll month\u2019s due date is the statute\u2019s own 9th of the following month, with a weekend flagged before you plan the filing.',
+      'The scheduled digest and its CSV carry the same \u201CDue by\u201D dates, so the clock travels with the numbers to whoever is waiting for them.',
+    ],
+  },
+  {
     version: '2.274.0',
     title: 'The calendar keeps the clock',
     bullets: [

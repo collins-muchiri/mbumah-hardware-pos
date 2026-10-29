@@ -195,6 +195,29 @@ export function buildAbsenceReportHref(storeId: string): string {
 }
 
 /**
+ * v2.275.0: the People & Payroll surfaces' portal door — a branch's census
+ * cell (linked over employees in scope) opens the HR reports desk on the
+ * portal tab, narrowed to that branch. The destination's contract is the
+ * census's own established deep link (the `portal` tab key the reports page
+ * has served since v2.271.0; `storeId` is the v2.23.0 per-branch drill
+ * down), so this builder composes what already exists — no wire change, no
+ * destination change. It is the ONE writer of this href: the org console's
+ * drill-down cell (v2.273.0) and the shared People & Payroll panel's
+ * PortalCell (v2.275.0) both speak through it, so the two doors can never
+ * disagree about where the census lives. Every viewer of the three surfaces
+ * (ORG_SUMMARY_ROLES) passes the reports API's guard (SUPER_ADMIN via the
+ * hrGuard bypass, STORE_OWNER, ACCOUNTANT and BRANCH_MANAGER are
+ * REPORT_ROLES members), so the door never renders where it would 403.
+ * Pure: URLSearchParams-encoded, relative, never throws.
+ */
+export function buildPortalReportHref(storeId: string): string {
+  const params = new URLSearchParams();
+  params.set('tab', 'portal');
+  params.set('storeId', storeId || '');
+  return `/hr/reports?${params.toString()}`;
+}
+
+/**
  * The configured workspace mode as a safe hint string (v2.18.1). Pure and
  * env-derived: 'path' | 'subdomain' | 'auto' | 'off'. The actual per-request
  * decision (path fallback on localhost and raw IPs) always happens in the

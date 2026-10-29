@@ -197,3 +197,67 @@ const OBLIGATION_SPECS: ReadonlyArray<{
   { kind: 'SHIF', label: 'SHIF', instrument: 'Social Health Insurance Act 2023 — monthly contributions', dueDay: 9 },
   { kind: 'AHL', label: 'Housing levy', instrument: 'Affordable Housing Act 2024 — monthly levy', dueDay: 9 },
 ];
+
+/**
+ * A payroll month's statutory deadline (v2.275.0 "the expert hears the
+ * census"). The calendar above speaks the clock for the NEXT window at a
+ * point in time; this helper speaks the clock for ANY payroll month — the
+ * same 9th-of-the-following-month statute, derived purely from the month
+ * key the statutory desk's monthly rows already carry ("YYYY-MM", the
+ * `monthKey` shape of reports.ts). The ledger's rows gain the deadline
+ * without a wire change: the desk already holds the month, the statute
+ * already holds the day.
+ *
+ * The document's-answer law rides along: the helper says when the window
+ * CLOSED (its due date, and whether the 9th lands on a weekend — the
+ * statute does not wait). It never claims a filing — whether a past window
+ * was actually filed is the ledger's business, and the columns that speak
+ * this helper are named "Due", never "Filed".
+ */
+export interface StatutoryDue {
+  /** The payroll month the deadline covers, exactly as asked, e.g. "2026-10". */
+  month: string;
+  /** The deadline's ISO date, e.g. "2026-11-09". */
+  dueDate: string;
+  /** The deadline spoken plainly, e.g. "9 November 2026". */
+  dueLabel: string;
+  /** Non-null only when the 9th lands on a Saturday or a Sunday. */
+  weekendNote: string | null;
+}
+
+/**
+ * The deadline for one payroll month, pure and total: anything that is not
+ * a well-formed "YYYY-MM" month key returns null (an honest absence, never
+ * a guessed date). December rolls the year (2026-12 → 9 January 2027).
+ * The arithmetic is the calendar's own: Date.UTC on the NEXT month index,
+ * the same construction complianceCalendar uses, so a card and a row can
+ * never disagree about a deadline.
+ */
+export function statutoryDueForPeriod(month: string): StatutoryDue | null {
+  const m = /^(\d{4})-(\d{2})$/.exec(month ?? '');
+  if (!m) return null;
+  const year = Number(m[1]);
+  const month1 = Number(m[2]); // 1-based payroll month
+  if (!Number.isFinite(year) || month1 < 1 || month1 > 12) return null;
+
+  // month1 as a 0-BASED index is exactly the following month; December's 12
+  // rolls into the next January by Date.UTC's own carry.
+  const dueMs = Date.UTC(year, month1, 9);
+  const due = new Date(dueMs);
+  const dueYear = due.getUTCFullYear();
+  const dueMonthIndex = due.getUTCMonth();
+
+  const weekday = due.getUTCDay();
+  let weekendNote: string | null = null;
+  if (weekday === 0 || weekday === 6) {
+    const day = WEEKDAYS[weekday];
+    weekendNote = `9 ${MONTHS[dueMonthIndex]} falls on a ${day} — the statute does not wait; settle before the weekend.`;
+  }
+
+  return {
+    month,
+    dueDate: due.toISOString().slice(0, 10),
+    dueLabel: `9 ${MONTHS[dueMonthIndex]} ${dueYear}`,
+    weekendNote,
+  };
+}

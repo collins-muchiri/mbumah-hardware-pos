@@ -219,7 +219,14 @@ describe('the console wears the census (source of record)', () => {
 
   it('the cell IS the door — the census narrowed to the branch, the dash for nothing', () => {
     expect(consoleSrc).toContain('data-testid="org-console-hr-portal-door"');
-    expect(consoleSrc).toContain('href={`/hr/reports?tab=portal&storeId=${row.storeId}`}');
+    // v2.275.0 MOVED the href's writer BY DESIGN: the links lib's ONE writer
+    // (buildPortalReportHref) now serves BOTH doors — this cell and the
+    // shared People & Payroll panel's PortalCell — so the two can never
+    // disagree about where the census lives. The composed bytes are
+    // identical (`/hr/reports?tab=portal&storeId=…`); the ancestor byte
+    // moved by design, not by accident, and the builder's own pin in
+    // panel-portal-v2275 holds the composed shape.
+    expect(consoleSrc).toContain('href={buildPortalReportHref(row.storeId)}');
     expect(consoleSrc).toContain('font-semibold text-emerald-700 dark:text-emerald-400');
     expect(consoleSrc).toContain('title="No employees in scope for this branch"');
     // aria speaks the composition aloud, AT gets what the eye gets

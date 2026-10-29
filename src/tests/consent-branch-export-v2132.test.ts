@@ -210,12 +210,15 @@ describe('the columns bend — resizable columns, the spec\'s last table afforda
     const s = page();
     const elements = (s.match(/<TableHead(?!er)/g) ?? []).length;
     const spreads = (s.match(/\{\.\.\.head\('[a-z0-9-]+'\)\}/g) ?? []).length;
-    // 68 elements: 64 resizable + 4 mini heads (two 2-column headcount
+    // 69 elements: 65 resizable + 4 mini heads (two 2-column headcount
     // breakdowns a resize affordance would only noise up). v2.271.0 grew
     // both numbers by 5 — the portal roll call's heads ride the SAME law
     // (the spec's last table affordance, kept on the new desk).
-    expect(elements).toBe(68);
-    expect(spreads).toBe(64);
+    // v2.275.0 grew both again by 1 — the statutory monthly figures' "Due"
+    // column rides the SAME law (the clock beside the money, resizable
+    // like every other full column on the desk).
+    expect(elements).toBe(69);
+    expect(spreads).toBe(65);
     expect(elements - spreads).toBe(4);
   });
 
