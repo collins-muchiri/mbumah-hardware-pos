@@ -10,6 +10,7 @@ import { db } from '@/lib/db';
 import { hrAudit, HrEntityType } from './audit';
 import { shapeEmployeeDetail, stripEmployeePii } from './pii';
 import type { HrEmployeeDetail, HrEmployeeSummary } from './types';
+import { buildPortalCandidates, type PortalLinkCandidate } from './portal-account';
 
 function toNumber(value: unknown): number {
   if (value == null) return 0;
@@ -172,13 +173,19 @@ export async function getEmployeeDetail(
   storeId: string,
   options: { includePii: boolean },
 ): Promise<HrEmployeeDetail | null> {
+  // v2.267.0: the linked portal account rides the detail wire (additive,
+  // optional) so the HR employee-detail page can wear its Portal account
+  // card without a second round trip. The raw relation key is destructured
+  // OUT of the spread — only the shaped portalUser DTO leaves the server.
   const employee = await db.employee.findFirst({
     where: { id: employeeId, storeId, deletedAt: null },
+    include: { user: { select: { id: true, email: true, name: true, role: true, isActive: true } } },
   });
   if (!employee) return null;
+  const { user, ...employeeRow } = employee;
 
   const raw = {
-    ...summarize({ ...employee, store: null }),
+    ...summarize({ ...employeeRow, store: null }),
     basicSalary: toNumber(employee.basicSalary),
     houseAllowance: toNumber(employee.houseAllowance),
     transportAllowance: toNumber(employee.transportAllowance),
@@ -195,6 +202,7 @@ export async function getEmployeeDetail(
     nssfExempt: employee.nssfExempt,
     nhifExempt: employee.nhifExempt,
     notes: employee.notes,
+    portalUser: user ?? null,
   };
   return shapeEmployeeDetail(raw, options.includePii);
 }
@@ -600,5 +608,51 @@ export async function unlinkPortalAccount(input: {
     alreadyInPlace: false,
     message:
       'Portal account unlinked. The employee will no longer receive in-app leave or payroll notifications.',
+  };
+}
+
+// ─── v2.267.0: the candidates wire ──────────────────────────────────────
+//
+// GET /api/employees/[id]/portal-link/candidates — the picker's own governed
+// read. Before this wire the ONLY user-list source was GET /api/users (the
+// staff directory, SUPER_ADMIN/STORE_OWNER by law), so a BRANCH_MANAGER or
+// ACCOUNTANT opening the link dialog got a silent empty list: the read was
+// refused and the refusal was never spoken. The candidates wire is gated by
+// the portal-link route's OWN privilege set (the same trio as POST/DELETE),
+// scopes to the employee's store, and annotates every already-bound login
+// with WHERE it is bound so the picker can disable a row with its reason
+// instead of hiding it. The db reads live here (spec rule 15); the shaping
+// is the pure buildPortalCandidates in portal-account.ts.
+
+export async function listPortalLinkCandidates(employeeId: string): Promise<{
+  employeeId: string;
+  candidates: PortalLinkCandidate[];
+}> {
+  const employee = await loadEmployeeForPortalLink(employeeId);
+  if (!employee) {
+    throw new PortalLinkError(404, 'EMPLOYEE_NOT_FOUND', 'Employee not found.');
+  }
+
+  const users = await db.user.findMany({
+    where: { storeId: employee.storeId, isActive: true },
+    select: { id: true, name: true, email: true, role: true },
+    orderBy: [{ name: 'asc' }, { email: 'asc' }],
+  });
+
+  const ids = users.map((u) => u.id);
+  const links = ids.length
+    ? await db.employee.findMany({
+        where: { userId: { in: ids }, deletedAt: null, id: { not: employee.id } },
+        select: { userId: true, firstName: true, lastName: true },
+      })
+    : [];
+  const linkedElsewhere = new Map<string, string>();
+  for (const l of links) {
+    if (l.userId) linkedElsewhere.set(l.userId, [l.firstName, l.lastName].filter(Boolean).join(' ') || 'another employee');
+  }
+
+  return {
+    employeeId: employee.id,
+    candidates: buildPortalCandidates(users, linkedElsewhere),
   };
 }

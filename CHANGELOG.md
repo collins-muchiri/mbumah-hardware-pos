@@ -2,6 +2,19 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.267.0] The portal's keystone
+
+Linking a login to an employee — the keystone the whole self-service phase stands on — got its honest faces. The QA walk found the gap at the wire: the portal-link POST/DELETE route admits SUPER_ADMIN, STORE_OWNER and HR_MANAGER, but the payroll tab (visible to all of MGMT_ROLES) fetched its picker from GET /api/users, a route that only ever answers the first two tiers. A BRANCH_MANAGER or ACCOUNTANT opening the link dialog got a 403 they never saw — the list rendered empty and the empty list lied ("No active users found for this store").
+
+### Added
+- **The candidates wire** — `GET /api/employees/[id]/portal-link/candidates`: the picker's own governed read, gated by the link route's own trio, scoped to the employee's store, ACTIVE accounts only, ordered by name. Every login already bound to another employee is annotated with where it is bound (`linkedToEmployeeName`), so the picker disables the row with its reason instead of silently hiding it. Reads live in the employee service (spec rule 15); the route is a thin honest voice.
+- **The detail wire grows `portalUser`** (additive, optional): `getEmployeeDetail` includes the linked account through the shaped `HrPortalUserDto` — the raw relation key is destructured out of the spread, only the DTO leaves the server.
+- **The Portal account card** on the HR employee detail page: the binding (name, mono email, role chip in the shared palette, active state) with its Unlink pen for the trio, the honest amber absence with a candidates picker + Link pen, the audit footnote, and the service's own messages verbatim (role=status / role=alert).
+
+### Fixed
+- **The silent empty list** (payroll tab): the dialog's picker now reads the candidates wire; roles without the trio get the honest denial panel ("Your role can view this link but not change it — only store owners, HR managers and super admins manage portal account links") instead of "No active users found". The Unlink button renders only for the trio — a read-only role no longer gets a button whose only outcome is a 403 toast.
+- **One palette, one gate, one shaper**: `portalRoleTone`, `canManagePortalLinks`/`PORTAL_LINK_ROLE_TRIO` and `buildPortalCandidates` live in `src/lib/hr/portal-account.ts` (client-safe) and both surfaces share them; the client-side `linkedUserIds` mirror retired with the old fetch.
+
 ## [2.266.0] The desk hears the release
 
 The last silent surface answered: `/org/dashboard` (the organization desk, where SUPER_ADMINs land post-login) never mounted the shared What's New dialog — a fresh release announced itself on every MainApp surface and (since v2.265.0) on the console, but never on the desk. Proven live in Task 242's E2E (the announcement skipped the desk while the flag was fresh) and re-proven this round at the v2.265.0 baseline.

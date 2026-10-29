@@ -47,6 +47,13 @@ const READ_KEY_BY_ROLE: Record<string, HrPermissionKey> = {
   HR_MANAGER: 'hr.employee.read.all',
   BRANCH_MANAGER: 'hr.employee.read.own_branch',
   STORE_OWNER: 'hr.employee.read.all',
+  // v2.267.0 (the walk's own find): the top role could not list employees at
+  // all — the missing key made readKey undefined and the `!readKey` check
+  // 403'd BEFORE the documented hasHrPermission bypass could ever run, while
+  // the DETAIL route explicitly serves SUPER_ADMIN (resolveStore) and
+  // EMPLOYEE_LIST_READ_ROLES names it as a role the list answers. The map
+  // entry routes the bypass through the same 'all' key as the owner.
+  SUPER_ADMIN: 'hr.employee.read.all',
 };
 
 export const GET = requireStoreAccess(

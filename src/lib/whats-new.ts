@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.267.0',
+    title: 'The portal\u2019s keystone',
+    bullets: [
+      'Linking a login to an employee finally speaks everywhere: the picker got its own governed wire (candidates for the employee\u2019s store, already-bound accounts named with where they are bound), so a branch manager or accountant no longer opens the dialog to a silently empty list.',
+      'The HR employee record now wears a Portal account card — the binding, its role, and the honest absence — with the link and unlink pens for the trio that holds them, and the denial voice for everyone else.',
+      'Every link and unlink still lands in the HR audit trail; the service\u2019s own words now reach the screen verbatim.',
+    ],
+  },
+  {
     version: '2.266.0',
     title: 'The desk hears the release',
     bullets: [

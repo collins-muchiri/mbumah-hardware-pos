@@ -29,6 +29,16 @@ export interface HrEmployeeSummary {
   nearestExpiry?: string | null;
 }
 
+/** v2.267.0: the linked portal account, shaped for the detail wire. The
+ *  relation itself never leaves the server — only this DTO does. */
+export interface HrPortalUserDto {
+  id: string;
+  email: string;
+  name: string | null;
+  role: string;
+  isActive: boolean;
+}
+
 export interface HrEmployeeDetail extends HrEmployeeSummary {
   basicSalary?: number;
   houseAllowance?: number;
@@ -47,6 +57,9 @@ export interface HrEmployeeDetail extends HrEmployeeSummary {
   nssfExempt?: boolean;
   nhifExempt?: boolean;
   notes?: string | null;
+  /** v2.267.0: the login bound to this employee (null = unlinked — the
+   *  self-service portal has no door for them yet). */
+  portalUser?: HrPortalUserDto | null;
 }
 
 export interface HrDocumentDto {
