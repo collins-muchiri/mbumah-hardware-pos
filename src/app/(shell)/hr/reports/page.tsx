@@ -349,6 +349,52 @@ function BalanceChip({ label, value, hint, tone }: { label: string; value: strin
   );
 }
 
+// v2.271.0: the reports desk’s pure presentational family hoisted to module level —
+// the in-render definitions warned (react-hooks/static-components) on EVERY usage
+// across every tab; these four are prop-driven and closure-free, so the hoist is a
+// zero-behavior change that retires the warnings at the source.
+// v2.131.0: ONE strip family for the whole reports surface — the rose frame
+// the Privacy tab earned in v2.130.0, now shared by every report tab, with
+// a warning glyph and an in-flight retry. Loads speak here; the shared
+// ErrorNote above the tabs stays reserved for actions.
+const ReportFailureStrip = ({ testId, copy, retryLabel, onRetry, busy }: { testId: string; copy: string; retryLabel: string; onRetry: () => void; busy?: boolean }) => (
+  <div
+    data-testid={testId}
+    role="status"
+    className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-rose-200 bg-rose-50 px-3 py-2 dark:border-rose-900 dark:bg-rose-950/40"
+  >
+    <p className="flex items-center gap-2 text-xs text-rose-700 dark:text-rose-300">
+      <AlertTriangle className="h-3.5 w-3.5 shrink-0" aria-hidden /> {copy}
+    </p>
+    <Button variant="outline" size="sm" onClick={onRetry} disabled={busy} aria-label={retryLabel}>
+      {busy ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" aria-hidden /> : null}
+      Retry
+    </Button>
+  </div>
+);
+
+// v2.131.0: the honesty stamp — a loaded report says WHEN its numbers were
+// fetched (tabular, muted, 24-hour clock). No stamp = not fetched yet.
+const formatStamp = (d: Date) => d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+const UpdatedStamp = ({ testId, at }: { testId: string; at: Date | null }) =>
+  at ? (
+    <p data-testid={testId} className="text-[11px] tabular-nums text-muted-foreground">Updated {formatStamp(at)}</p>
+  ) : null;
+
+const Stat = ({ label, value, hint, tone }: { label: string; value: string; hint?: string; tone?: 'warn' | 'good' }) => (
+  <div className="rounded-xl border bg-card p-3.5 shadow-sm print:shadow-none">
+    <p className="text-xs font-medium text-muted-foreground">{label}</p>
+    <p
+      className={`mt-1 text-xl font-bold tabular-nums ${
+        tone === 'warn' ? 'text-amber-700 dark:text-amber-400' : tone === 'good' ? 'text-emerald-700 dark:text-emerald-400' : ''
+      }`}
+    >
+      {value}
+    </p>
+    {hint ? <p className="text-[11px] text-muted-foreground">{hint}</p> : null}
+  </div>
+);
+
 export default function HrReportsPage() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -745,7 +791,6 @@ export default function HrReportsPage() {
     void loadRetention();
   }, [loadRetention]);
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- the census rides the page's established loader-family pattern (the same shape load/loadP10/loadErasure run); the busy flag inside the callback flips on the first tick by design
     void loadPortal();
   }, [loadPortal]);
   // v2.36.0: resolve one report row into the governed correction surface.
@@ -956,48 +1001,6 @@ export default function HrReportsPage() {
       setTableBusy(null);
     }
   }, [from, to, leaveYear, storeId, tableBusy]);
-
-  // v2.131.0: ONE strip family for the whole reports surface — the rose frame
-  // the Privacy tab earned in v2.130.0, now shared by every report tab, with
-  // a warning glyph and an in-flight retry. Loads speak here; the shared
-  // ErrorNote above the tabs stays reserved for actions.
-  const ReportFailureStrip = ({ testId, copy, retryLabel, onRetry, busy }: { testId: string; copy: string; retryLabel: string; onRetry: () => void; busy?: boolean }) => (
-    <div
-      data-testid={testId}
-      role="status"
-      className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-rose-200 bg-rose-50 px-3 py-2 dark:border-rose-900 dark:bg-rose-950/40"
-    >
-      <p className="flex items-center gap-2 text-xs text-rose-700 dark:text-rose-300">
-        <AlertTriangle className="h-3.5 w-3.5 shrink-0" aria-hidden /> {copy}
-      </p>
-      <Button variant="outline" size="sm" onClick={onRetry} disabled={busy} aria-label={retryLabel}>
-        {busy ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" aria-hidden /> : null}
-        Retry
-      </Button>
-    </div>
-  );
-
-  // v2.131.0: the honesty stamp — a loaded report says WHEN its numbers were
-  // fetched (tabular, muted, 24-hour clock). No stamp = not fetched yet.
-  const formatStamp = (d: Date) => d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-  const UpdatedStamp = ({ testId, at }: { testId: string; at: Date | null }) =>
-    at ? (
-      <p data-testid={testId} className="text-[11px] tabular-nums text-muted-foreground">Updated {formatStamp(at)}</p>
-    ) : null;
-
-  const Stat = ({ label, value, hint, tone }: { label: string; value: string; hint?: string; tone?: 'warn' | 'good' }) => (
-    <div className="rounded-xl border bg-card p-3.5 shadow-sm print:shadow-none">
-      <p className="text-xs font-medium text-muted-foreground">{label}</p>
-      <p
-        className={`mt-1 text-xl font-bold tabular-nums ${
-          tone === 'warn' ? 'text-amber-700 dark:text-amber-400' : tone === 'good' ? 'text-emerald-700 dark:text-emerald-400' : ''
-        }`}
-      >
-        {value}
-      </p>
-      {hint ? <p className="text-[11px] text-muted-foreground">{hint}</p> : null}
-    </div>
-  );
 
   const TableToolbar = ({ columns, exportCsv, busyKey }: { columns: Array<{ key: string; label: string }>; exportCsv: () => void; busyKey?: string }) => (
     <div className="mb-2 flex flex-wrap items-center justify-end gap-2 print:hidden">
@@ -2073,7 +2076,6 @@ export default function HrReportsPage() {
         <TabsContent value="portal" className="space-y-4">
           {!portal ? (
             portalFailed ? (
-              // eslint-disable-next-line react-hooks/static-components -- the reports desk renders its component family in-render (58 established usages on this page); the census rides the same family without changing the design
               <ReportFailureStrip
                 testId="hr-reports-portal-error"
                 copy="The portal roll call could not be loaded — the numbers stay dark rather than guess."
@@ -2086,9 +2088,7 @@ export default function HrReportsPage() {
             )
           ) : (
             <>
-              {/* eslint-disable-next-line react-hooks/static-components -- the reports desk renders its component family in-render (58 established usages on this page); the census rides the same family without changing the design */}
               <UpdatedStamp testId="hr-reports-updated-portal" at={portalLoadedAt} />
-              {/* eslint-disable react-hooks/static-components -- the reports desk renders its component family in-render (58 established usages on this page); the census rides the same family without changing the design */}
               <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
                 <Stat label="Employees in scope" value={String(portal.total)} />
                 <Stat label="Linked logins" value={String(portal.linked)} tone="good" hint="a linked login opens the self-service portal" />
@@ -2101,7 +2101,6 @@ export default function HrReportsPage() {
                 />
                 <Stat label="Not linked" value={String(portal.unlinked)} tone={portal.unlinked ? 'warn' : undefined} hint="the honest dash — no login to open it" />
               </div>
-              {/* eslint-enable react-hooks/static-components */}
               <p className="text-sm text-muted-foreground">
                 The roster&rsquo;s quiet bell rolled up to report distance: who holds a self-service login,
                 which of those accounts stand, and where the dash still does. A point-in-time census —
