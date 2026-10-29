@@ -2,6 +2,22 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.260.0] The ledger's instruments
+
+The org procurement ledger has worn the band lens since v2.253.0 and the finder since v2.226.0, while the metric instruments answered everywhere but here — the branch's roster got its rail in v2.259.0, the supplier's roster in v2.258.0, and the ledger's window stayed unread by the metrics. This round the instruments come home: the rail answers by the window's rows, composed with the house and the needle, and one ear lifts them all.
+
+### Added
+- **The metric rail** (`src/components/org/po-ledger.tsx`): on time / arrived late / in flight chips beneath the band rail, each answering with its REAL count over the rows the window already holds (the band counts' own law — the counts read the rows, never the view; a pressed metric keeps its number while it narrows). A press narrows the view COMPOSED with the band house and the needle (AND, never OR); the fetch never moves. The predicates ride the one home (`src/lib/po-metrics.ts`) — a rail count here, a branch rail count and the supplier card's percentage cannot disagree.
+- **The wire's honest growth** (`src/app/api/org/purchase-orders/route.ts`): the ledger's rows carry `createdAt` beside `orderDate` (additive) — the predicates read the SAME clock the branch roster's rows carry, so the one home never answers by different fields on different surfaces.
+- **The combined ear, fourth surface** (`po-ledger.tsx`): the ledger wears TWO narrowing lens instruments, so it wears ONE `useLensEscape` with the combined press (`bandLens !== 'ALL' || metricLens !== 'all'`) and the combined lift — one Escape stands both down, the TDZ law honored (the state declares before the ear that reads it).
+- **The honest empty face**: a pressed metric that empties the view names itself ("no order on this window is on time / arrived late / is still in flight") and the face's stand-down lifts all three — band, metric and finder — with the words' own promise (the testid keeps its name; the law grew).
+
+### Styled
+- The metric chips wear the metrics' own families (green / rose / blue — the tiles' colours, never a new palette) with the ledger's own sky focus-visible rings, tabular-nums counts, and the honest-press titles ("on this window answers the rule — a press narrows the view, the fetch stays").
+
+### Tests
+- `src/tests/ledger-instruments-v2260.test.ts` (19 pins across 5 describes): the one home's import, the TDZ-ordered state, the single combined ear, the counts and the composed memo (band → metric → needle), the wire's additive clock, the rail's face (testids, aria-pressed, families, voices), the honest empty face, and the ancestors' untouched bytes (the ear's two rungs, the band rail, the branch rail's own addresses, the export law, the drills' rungs).
+
 ## [2.259.0] The branch's instruments + the branch's door
 
 The branch's purchase-order page has worn the band lens since v2.254.0, and the supplier's roster learned the metric instruments in v2.258.0 — but the branch's numbers stayed dead ends, and a purchase order born at a count sheet could name its sheet without opening it. This round the branch's page wears both laws: the metric rail answers by the rows behind its counts, and the birth strip's door opens the sheet that birthed the order.

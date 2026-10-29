@@ -66,6 +66,17 @@ import { useLensEscape } from '@/lib/use-lens-escape';
 // v2.253.0: the houses + the label word join the import — the lens
 // rail and the birth chips' dots read the ONE home, never a copy.
 import { bandHouse, chipLabel, daysVoice, type CadenceBand } from '@/lib/cadence-band';
+// v2.260.0 THE LEDGER'S INSTRUMENTS — the metrics' own predicates ride
+// the ONE home: the supplier card's counts, the branch roster's rail and
+// now the ledger's rail read the same rule (a tile's number and a rail's
+// count cannot disagree — the two-copies law never gets a second copy).
+import {
+  poMetricPredicate,
+  poMetricVoice,
+  poMetricEmptyVoice,
+  poMetricFamily,
+  type PoMetricLens,
+} from '@/lib/po-metrics';
 
 const fmtKes = (v: number) =>
   `KES ${v.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -136,6 +147,10 @@ interface PoLedgerWire {
       poNumber: string;
       status: string;
       orderDate: string;
+      // v2.260.0: the metric clock rides the roster (additive — the
+      // predicates' own field, the branch roster's shape mirrored; the
+      // wire is the single source of this row's truth).
+      createdAt: string;
       expectedDate: string | null;
       lineCount: number;
       store: { id: string; name: string; code: string | null };
@@ -188,10 +203,22 @@ export function ProcurementLedger({ stores }: { stores: StoreRow[] }) {
   // the surface, never of the fetch — the rungs above stay the wire's
   // (the query key carries only what the wire answers).
   const [bandLens, setBandLens] = useState<'ALL' | CadenceBand | 'silent'>('ALL');
+  // v2.260.0 THE LEDGER'S INSTRUMENTS — the metric rung: 'all' stands
+  // for the whole window; a kind narrows the VIEW composed with the band
+  // house and the needle (AND, never OR). State of the surface, never of
+  // the fetch — the rungs above stay the wire's. Declared BEFORE the ear
+  // that reads it (the TDZ law).
+  const [metricLens, setMetricLens] = useState<PoMetricLens>('all');
   // v2.256.0 THE LENS'S EAR — the keyboard's lift: Escape stands the
   // lens down (the same lift the face's own clear buttons speak), a
   // dialog's Escape stays the dialog's.
-  useLensEscape(bandLens !== 'ALL', () => setBandLens('ALL'));
+  // v2.260.0: the ear grew the combined press + lift — the metric
+  // instrument joined the band house, ONE listener lifts both (the
+  // branch roster's own combined ear, the third surface of the shape).
+  useLensEscape(bandLens !== 'ALL' || metricLens !== 'all', () => {
+    setBandLens('ALL');
+    setMetricLens('all');
+  });
   // v2.256.0 THE BIRTH'S DOOR — the sheet drill the PO drill's birth
   // strip opens. ONE drill at a time: the door closes the PO drill as
   // the sheet opens (the reading moves; the roster's door reopens).
@@ -236,22 +263,42 @@ export function ProcurementLedger({ stores }: { stores: StoreRow[] }) {
     }
     return c;
   }, [data]);
+  // v2.260.0: the metrics' own counts — REAL numbers over the window's
+  // rows (the band counts' own law: the counts read the rows, never the
+  // view — a pressed metric keeps its number while it narrows).
+  const metricCounts = useMemo(() => {
+    const c = { onTime: 0, late: 0, open: 0 };
+    if (!data) return c;
+    for (const r of data.rows) {
+      if (poMetricPredicate('onTime', r)) c.onTime += 1;
+      if (poMetricPredicate('late', r)) c.late += 1;
+      if (poMetricPredicate('open', r)) c.open += 1;
+    }
+    return c;
+  }, [data]);
   const shownRows = useMemo(() => {
     if (!data) return [];
-    // The lens first (the house's own narrowing), then the needle —
-    // both are the reading; the fetch never moves.
+    // The lens first (the house's own narrowing), then the metric (the
+    // instrument composed with the house — AND, never OR), then the
+    // needle — all are the reading; the fetch never moves.
     const lensed =
       bandLens === 'ALL'
         ? data.rows
         : data.rows.filter((r) => (bandLens === 'silent' ? rowBand(r) == null : rowBand(r) === bandLens));
-    if (!cleanNeedle) return lensed;
-    return lensed.filter((r) =>
+    // v2.260.0: the metric narrows what the house already answered (the
+    // composition law — the roster's memos compose, one home reads both).
+    const metricRows =
+      metricLens === 'all'
+        ? lensed
+        : lensed.filter((r) => poMetricPredicate(metricLens, r));
+    if (!cleanNeedle) return metricRows;
+    return metricRows.filter((r) =>
       r.poNumber.toLowerCase().includes(cleanNeedle) ||
       r.supplierName.toLowerCase().includes(cleanNeedle) ||
       r.store.name.toLowerCase().includes(cleanNeedle) ||
       (r.store.code ?? '').toLowerCase().includes(cleanNeedle),
     );
-  }, [data, cleanNeedle, bandLens]);
+  }, [data, cleanNeedle, bandLens, metricLens]);
 
   const totalCount = data?.counts.reduce((acc, c) => acc + c.count, 0) ?? 0;
 
@@ -418,6 +465,41 @@ export function ProcurementLedger({ stores }: { stores: StoreRow[] }) {
         </div>
       )}
 
+      {/* v2.260.0 THE LEDGER'S INSTRUMENTS — the metrics' own rail beneath
+          the band house: real counts over the window's rows (the band
+          counts' own law — the counts read the rows, never the view),
+          a press narrows the view COMPOSED with the house and the needle
+          (AND, never OR); the fetch never moves. The chips wear the
+          metrics' own families (green/rose/blue — the tiles' colours,
+          never a new palette); the rail's focus rings stay the ledger's
+          own sky (focus-visible — a mouse press leaves no ring). */}
+      {data && data.rows.length > 0 && (
+        <div
+          data-testid="po-ledger-metric-row"
+          className="mt-1.5 flex flex-wrap items-center gap-1.5"
+          title="the metrics' own rail — the numbers' real counts over the window's rows; a press narrows the view composed with the band house and the needle (AND, never OR)"
+        >
+          {(['onTime', 'late', 'open'] as const).map((k) => {
+            const pressed = metricLens === k;
+            const n = metricCounts[k];
+            const family = poMetricFamily(k);
+            return (
+              <button
+                key={k}
+                type="button"
+                data-testid={`po-ledger-metric-${k}`}
+                aria-pressed={pressed}
+                onClick={() => setMetricLens(pressed ? 'all' : k)}
+                title={`${poMetricVoice(k)} — ${n === 0 ? 'no order' : `${num(n)} ${n === 1 ? 'order' : 'orders'}`} on this window answers the rule; a press narrows the view (the fetch stays)`}
+                className={`inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-[10px] font-semibold uppercase tracking-wide tabular-nums ring-1 transition-[filter] focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/40 ${pressed ? family.pressed : family.chip} ${pressed ? '' : 'hover:brightness-[0.97] dark:hover:brightness-110'}`}
+              >
+                {poMetricVoice(k)} <span className="opacity-70">{num(n)}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {wire.isLoading && (
         <p data-testid="po-ledger-loading" className="mt-3 rounded-lg border border-dashed border-slate-200 bg-slate-50/60 px-3 py-2 text-[11px] text-slate-500 dark:border-slate-600 dark:bg-slate-800/40 dark:text-slate-400">
           reading the pipeline — one fetch of the roster…
@@ -495,13 +577,18 @@ export function ProcurementLedger({ stores }: { stores: StoreRow[] }) {
                the words are. */
             <div data-testid="po-ledger-lens-empty" className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-dashed border-slate-200 bg-white/60 px-3 py-2.5 dark:border-slate-600 dark:bg-slate-900/60">
               <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                the lens narrowed the window to nothing — lift a band house or clear the finder and the orders return.
+                {/* v2.260.0: the honest empty face — a pressed metric that
+                    empties the view names itself (the branch roster's own
+                    law), composed with the house and the needle's names. */}
+                {metricLens !== 'all'
+                  ? `no order on this window ${poMetricEmptyVoice(metricLens)} under the pressed filters — lift the metric, a band house or clear the finder and the orders return.`
+                  : 'the lens narrowed the window to nothing — lift a band house or clear the finder and the orders return.'}
               </p>
               <button
                 type="button"
                 data-testid="po-ledger-lens-clear"
-                onClick={() => { setBandLens('ALL'); setNeedle(''); }}
-                title="stand the lens down and clear the finder — the whole window returns (the fetch never moved)"
+                onClick={() => { setBandLens('ALL'); setMetricLens('all'); setNeedle(''); }}
+                title="stand the lens down, stand the metric down and clear the finder — the whole window returns (the fetch never moved)"
                 className="shrink-0 rounded-md border border-slate-200 bg-white px-2 py-1 text-[10px] font-semibold text-slate-600 transition-colors hover:bg-slate-50 focus:outline-none focus:ring-1 focus:ring-sky-500/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
               >
                 clear the view

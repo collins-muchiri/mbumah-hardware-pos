@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.260.0',
+    title: 'The ledger\u2019s instruments',
+    bullets: [
+      'The org procurement ledger grows the metric rail: on time, arrived late and in flight chips answer with their real counts over the window\u2019s own rows \u2014 a press narrows the view composed with the band house and the finder (AND, never OR), and the fetch never moves.',
+      'The wire grew honestly: each order now carries its created-at beside the ordered day, so a rail count here and the Performance card\u2019s rate read the same rule and the same clock \u2014 they cannot disagree.',
+      'Two lenses, one ear: a single Escape stands the metric and the band house down together \u2014 the combined-ear law the branch\u2019s page taught, now worn by the ledger too.',
+      'The empty answer names the pressed metric ("no order on this window arrived late") and the stand-down lifts all three \u2014 band, metric and finder \u2014 with the words\u2019 own promise.',
+    ],
+  },
+  {
     version: '2.259.0',
     title: 'The branch\u2019s instruments + the branch\u2019s door',
     bullets: [
