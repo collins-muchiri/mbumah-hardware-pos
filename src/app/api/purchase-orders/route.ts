@@ -15,6 +15,12 @@ import { withSequenceRetry } from '@/lib/sequence';
 // IEEE-754 dust into the Decimal header totals.
 import { toDec, round2 } from '@/lib/utils/financialMath';
 import { getVatRatePercent } from '@/lib/vat-settings';
+// v2.252.0 THE ROSTER'S WHEN — the branch roster's sheet-born rows answer
+// when their walk aisle was last heard (the org wire's own read, ported
+// to the branch): the census's single-aisle read (one home) and the
+// stored law (one reader).
+import { readCategoryBand, type CadenceBand } from '@/lib/cadence-band';
+import { readCadenceLaw } from '@/lib/cadence-law';
 
 export const dynamic = 'force-dynamic';
 
@@ -90,7 +96,10 @@ async function getPurchaseOrdersHandler(
             id: true,
             status: true,
             closedAt: true,
-            walkAisle: { select: { name: true } },
+            // v2.252.0: the aisle's id rides so the wire can read each
+            // aisle's own band (the census's single-aisle read — the
+            // name alone could never ask the shelf when it was heard).
+            walkAisle: { select: { id: true, name: true } },
           },
         },
         _count: { select: { items: true } },
@@ -101,6 +110,32 @@ async function getPurchaseOrdersHandler(
     }),
     db.purchaseOrder.count({ where }),
   ]);
+
+  // v2.252.0 THE ROSTER'S WHEN — the roster's sheet-born rows answer when
+  // their walk aisle was last heard, the org list wire's own read ported
+  // to the branch. THE COST, ASSESSED HONESTLY (the worklog's demand):
+  // ONE stored-law read, then ONE band read per DISTINCT aisle id on the
+  // page — a page of rows shares its aisles (limit is the roster's own
+  // page size; the distinct count is the page's aisle spread, not the
+  // row count), and each read is the census's own three bounded queries
+  // via the TENANT client (the branch's floor answers for the branch's
+  // aisle — the stock-takes' own pattern). A read that fails is no band
+  // — the row keeps its silence, never a guessed house.
+  const aisleIds = [
+    ...new Set(
+      purchaseOrders
+        .map((po) => po.originStockTake?.walkAisle?.id)
+        .filter((v): v is string => typeof v === 'string'),
+    ),
+  ];
+  const aisleBands = new Map<string, { band: CadenceBand; daysSince: number | null }>();
+  if (aisleIds.length > 0) {
+    const law = await readCadenceLaw(db);
+    for (const aisleId of aisleIds) {
+      const band = await readCategoryBand(db, aisleId, law, new Date());
+      if (band) aisleBands.set(aisleId, { band: band.band, daysSince: band.daysSince });
+    }
+  }
 
   const result = purchaseOrders.map((po) => {
     const { _count, ...poData } = po as typeof po & { _count?: { items: number } };
@@ -114,6 +149,23 @@ async function getPurchaseOrdersHandler(
       subTotal: canViewCost ? Number(poData.subTotal) : null,
       taxAmount: canViewCost ? Number(poData.taxAmount) : null,
       totalAmount: canViewCost ? Number(poData.totalAmount) : null,
+      // v2.252.0: the aisle's band rides the birth (additive + optional —
+      // a failed read answers null and the row keeps its silence, the
+      // honest absence). The band is not a cost: it rides for every
+      // viewer.
+      originStockTake: poData.originStockTake
+        ? {
+            ...poData.originStockTake,
+            walkAisle: poData.originStockTake.walkAisle
+              ? {
+                  id: poData.originStockTake.walkAisle.id,
+                  name: poData.originStockTake.walkAisle.name,
+                  band: aisleBands.get(poData.originStockTake.walkAisle.id)?.band ?? null,
+                  daysSince: aisleBands.get(poData.originStockTake.walkAisle.id)?.daysSince ?? null,
+                }
+              : poData.originStockTake.walkAisle,
+          }
+        : poData.originStockTake,
     };
   });
 

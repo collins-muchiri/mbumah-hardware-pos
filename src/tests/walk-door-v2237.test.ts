@@ -37,19 +37,19 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.237.0)', () => {
   it('package.json leads 2.237.0 (all three slots)', () => {
-    expect(version).toBe('2.251.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.251.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.251.0');
+    expect(version).toBe('2.252.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.252.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.252.0');
   });
 
   it('VERSION speaks 2.237.0 and the verify gate is wired', () => {
-    expect(read('VERSION').trim()).toBe('2.251.0');
+    expect(read('VERSION').trim()).toBe('2.252.0');
     expect(pkg.scripts['verify:v2-237-0']).toBe('node scripts/verify-v2-237-0.mjs');
   });
 
   it('the whats-new feed leads the walk\u2019s-door entry (order pin: header-anchored, never a bare version string)', () => {
-    expect(feed.includes("version: '2.251.0',")).toBe(true);
-    expect(feed.indexOf("version: '2.251.0',")).toBeLessThan(feed.indexOf("version: '2.250.0',"));
+    expect(feed.includes("version: '2.252.0',")).toBe(true);
+    expect(feed.indexOf("version: '2.252.0',")).toBeLessThan(feed.indexOf("version: '2.251.0',"));
     expect(feed.includes("title: 'The walk\\u2019s door',")).toBe(true);
   });
 
@@ -155,12 +155,12 @@ describe('the branch\u2019s arrival (stock-take-panel.tsx)', () => {
     expect(panel).toContain('the org&apos;s walk order sent you here — {doorVoice}.');
   });
 
-  it('the user\u2019s own hand silences the whisper (scope pair + category select)', () => {
+  it('the user\u2019s own hand silences the whisper (scope pair + the listbox’s pick — the select became a Radix listbox at v2.252.0)', () => {
     // v2.238.0 re-pin: the silencing hands grew the census reset (the
     // door's birth dies with the whisper — one life, shared).
     expect(panel).toContain("onClick={() => { setCreateScope('full'); setDoorVoice(null); setDoorBorn(false); }}");
     expect(panel).toContain("onClick={() => { setCreateScope('category'); setDoorVoice(null); setDoorBorn(false); }}");
-    expect(panel).toContain('onChange={(e) => { setCreateCategoryId(e.target.value); setDoorVoice(null); setDoorBorn(false); }}');
+    expect(panel).toContain('onValueChange={(v) => { setCreateCategoryId(v); setDoorVoice(null); setDoorBorn(false); }}');
   });
 
   it('the deferred law: no setState runs synchronously inside the effect (the house pattern)', () => {

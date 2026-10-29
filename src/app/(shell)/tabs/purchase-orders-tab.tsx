@@ -1981,7 +1981,14 @@ export default function PurchaseOrdersTab() {
                               {po.originStockTake && (
                                 <Badge
                                   data-testid="po-row-birth-chip"
-                                  title={`born at count sheet ${po.originStockTake.id}${po.originStockTake.walkAisle?.name ? ` — the walk order named ${po.originStockTake.walkAisle.name}` : ''}`}
+                                  // v2.252.0 THE ROSTER'S WHEN — the chip's
+                                  // title grows the aisle's days voice (the
+                                  // org ledger's own law, the same one home):
+                                  // "born at count sheet X — the walk order
+                                  // named Tools — last heard counted today."
+                                  // A row whose read fell silent keeps its
+                                  // v2.248 voice — the honest absence.
+                                  title={`born at count sheet ${po.originStockTake.id}${po.originStockTake.walkAisle?.name ? ` — the walk order named ${po.originStockTake.walkAisle.name}` : ''}${po.originStockTake.walkAisle?.band ? ` — last heard ${daysVoice({ band: po.originStockTake.walkAisle.band as 'fresh' | 'stale' | 'beyond' | 'never', daysSince: po.originStockTake.walkAisle.daysSince })}` : ''}`}
                                   className="text-[9px] bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300 gap-0.5"
                                 >
                                   <ClipboardList className="h-3 w-3" />

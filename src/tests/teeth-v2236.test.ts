@@ -38,19 +38,19 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.236.0)', () => {
   it('package.json leads 2.236.0 (all three slots)', () => {
-    expect(version).toBe('2.251.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.251.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.251.0');
+    expect(version).toBe('2.252.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.252.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.252.0');
   });
 
   it('VERSION speaks 2.236.0 and the verify gate is wired', () => {
-    expect(read('VERSION').trim()).toBe('2.251.0');
+    expect(read('VERSION').trim()).toBe('2.252.0');
     expect(pkg.scripts['verify:v2-236-0']).toBe('node scripts/verify-v2-236-0.mjs');
   });
 
   it('the whats-new feed leads the teeth entry (order pin: header-anchored, never a bare version string)', () => {
-    expect(feed.includes("version: '2.251.0',")).toBe(true);
-    expect(feed.indexOf("version: '2.251.0',")).toBeLessThan(feed.indexOf("version: '2.250.0',"));
+    expect(feed.includes("version: '2.252.0',")).toBe(true);
+    expect(feed.indexOf("version: '2.252.0',")).toBeLessThan(feed.indexOf("version: '2.251.0',"));
     expect(feed.includes("title: 'The teeth',")).toBe(true);
   });
 
@@ -129,8 +129,12 @@ describe('the picker\u2019s cadence voice (stock-take-panel)', () => {
     expect(panel.includes('freshDays: number;')).toBe(true);
   });
 
-  it('every option label speaks the days voice (name · count · voice)', () => {
-    expect(panel.includes("[c.name, `${c.productCount ?? 0} products`, c.cadence ? pickDaysVoice(c.cadence) : ''].filter(Boolean).join(' · ')")).toBe(true);
+  it('every option row WEARS the walk’s voices (the chip, the count, the days — the native option’s text law retired at v2.252.0)', () => {
+    // v2.252.0 hand-pass: the picker left the native <option> behind — the
+    // Radix rows WEAR the voices (the band chip + the count · days detail)
+    // instead of speaking them as plain text.
+    expect(panel.includes("data-testid={`stocktake-option-cadence-${c.id}`}")).toBe(true);
+    expect(panel.includes("[`${c.productCount ?? 0} products`, c.cadence ? pickDaysVoice(c.cadence) : ''].filter(Boolean).join(' · ')")).toBe(true);
   });
 
   it('the days voice answers every state honestly', () => {

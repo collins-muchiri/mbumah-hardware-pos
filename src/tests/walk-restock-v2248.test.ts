@@ -91,8 +91,8 @@ describe('the restock\u2019s birth \u2014 the wire (v2.248.0)', () => {
     expect(poWire).toContain('originStockTakeId: originStockTakeId != null && originStockTakeId !== \'\' ? originStockTakeId : null,');
   });
 
-  it('the list wire grows originStockTake (additive + optional)', () => {
-    expect(poWire).toContain('originStockTake: {\n          select: {\n            id: true,\n            status: true,\n            closedAt: true,\n            walkAisle: { select: { name: true } },\n          },\n        },');
+  it('the list wire grows originStockTake (additive + optional; the aisle id rides at v2.252.0)', () => {
+    expect(poWire).toContain('originStockTake: {\n          select: {\n            id: true,\n            status: true,\n            closedAt: true,\n            // v2.252.0: the aisle\'s id rides so the wire can read each\n            // aisle\'s own band (the census\'s single-aisle read \u2014 the\n            // name alone could never ask the shelf when it was heard).\n            walkAisle: { select: { id: true, name: true } },\n          },\n        },'); // v2.252.0: the pin carries the aisle's own comment bytes
   });
 
   it('the detail wire grows originStockTake (additive + optional; the aisle id rides at v2.251.0)', () => {
@@ -187,7 +187,7 @@ describe('the laws named \u2014 the ride-along (v2.248.0)', () => {
 
 describe('the release face (v2.248.0)', () => {
   it('package.json speaks 2.248.0', () => {
-    expect(version).toBe('2.251.0');
+    expect(version).toBe('2.252.0');
   });
 
   it('the door\u2019s answer rides the changelog', () => {
@@ -199,8 +199,8 @@ describe('the release face (v2.248.0)', () => {
 
   it('whats-new speaks the door\u2019s answer first', () => {
     const whatsNew = read('src/lib/whats-new.ts');
-    expect(whatsNew).toContain("version: '2.251.0',");
+    expect(whatsNew).toContain("version: '2.252.0',");
     expect(whatsNew).toContain('The door\\u2019s answer');
-    expect(whatsNew.indexOf("version: '2.251.0',")).toBeLessThan(whatsNew.indexOf("version: '2.250.0',"));
+    expect(whatsNew.indexOf("version: '2.252.0',")).toBeLessThan(whatsNew.indexOf("version: '2.251.0',"));
   });
 });
