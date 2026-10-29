@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.264.0',
+    title: 'The door downstairs',
+    bullets: [
+      'The procurement ledger is read-only from above \u2014 so now it has a door: pick a branch and a small arrow opens that branch\u2019s own Purchase Orders page in its workspace, where the pens live.',
+      'Your pressed lenses ride along: the metric and band house you pressed up in the ledger arrive pressed downstairs (they travel on the link itself \u2014 a new tab carries no memory), and a foreign or unpressed lens arrives as nothing.',
+      'The arrival is one-time: the question is consumed when the page opens and the address is cleaned, so a manual reload never inherits the door\u2019s question by accident.',
+    ],
+  },
+  {
     version: '2.263.0',
     title: 'The lens remembered',
     bullets: [

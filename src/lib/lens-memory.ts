@@ -62,3 +62,48 @@ export function writeLensMemory(key: string, memory: LensMemory): void {
     // failure the reader needs to hear about
   }
 }
+
+// ============================================================================
+// v2.264.0 THE LENS'S CARRY — the door's law
+// ============================================================================
+// The org ledger's branch door hands its question downstairs: the pressed
+// lenses ride the URL, never the session memory. THE REASON IS PHYSICAL:
+// a door is a hard navigation into a workspace — often a NEW tab, and a
+// new tab holds no sessionStorage. A carried question that trusted the
+// memory would arrive naked. The URL is the only voice that survives the
+// jump, so the URL is what the door speaks.
+//
+// THE MEMBERSHIP LAW, AGAIN — at the far end this time: the params are
+// strings, and only the family's own members get pressed. A foreign word
+// in a carried param is not a question — it is refused (null), never
+// guessed into a lens. Absence stays absence: a param that did not
+// travel answers null, and the landing face keeps whatever its own
+// memory said (the door overrides only what it actually carries).
+//
+// THE 'ALL'/'all' REFUSAL: a lens standing at its face's own default is
+// nothing to carry — the door speaks only pressed questions. An explicit
+// `?band=ALL` or `?metric=all` in the URL is the same silence.
+
+export interface LensCarry {
+  band: 'ALL' | 'fresh' | 'stale' | 'beyond' | 'never' | 'silent' | null;
+  metric: 'all' | 'onTime' | 'late' | 'open' | null;
+}
+
+const CARRY_BANDS: ReadonlyArray<string> = ['fresh', 'stale', 'beyond', 'never', 'silent'];
+const CARRY_METRICS: ReadonlyArray<string> = ['onTime', 'late', 'open'];
+
+/** The door's carried lenses, membership-checked — each side stands
+ * alone: a valid metric beside a foreign band carries the metric and
+ * refuses the band (the far end keeps its own band voice). Pure. */
+export function lensCarryFromParams(band: string | null, metric: string | null): LensCarry {
+  return {
+    band:
+      band != null && CARRY_BANDS.includes(band)
+        ? (band as LensCarry['band'])
+        : null,
+    metric:
+      metric != null && CARRY_METRICS.includes(metric)
+        ? (metric as LensCarry['metric'])
+        : null,
+  };
+}

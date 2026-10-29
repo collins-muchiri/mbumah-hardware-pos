@@ -46,7 +46,10 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Baby, ChevronRight, ClipboardList, Download, History, TriangleAlert } from 'lucide-react';
+import { ArrowUpRight, Baby, ChevronRight, ClipboardList, Download, History, TriangleAlert } from 'lucide-react';
+// v2.264.0 THE DOOR DOWNSTAIRS — the branch door's address (the one home
+// of workspace links; the store strip's own builder family).
+import { buildBranchPurchaseOrdersHref } from '@/lib/workspace/links';
 import {
   Select,
   SelectContent,
@@ -374,21 +377,70 @@ export function ProcurementLedger({ stores }: { stores: StoreRow[] }) {
         </div>
         {/* The branch picker — the pipeline narrows honestly (a refetch,
             not a client-side mask; the counts answer for the narrowing). */}
-        <Select value={branchId} onValueChange={setBranchId}>
-          <SelectTrigger
-            data-testid="po-ledger-branch-select"
-            aria-label="Filter purchase orders by branch"
-            className="h-7 w-auto min-w-[150px] gap-1 rounded-md border-slate-200 bg-white px-2 text-[11px] text-slate-700 focus:ring-1 focus:ring-sky-500/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
-          >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="ALL" className="text-[11px]">all branches</SelectItem>
-            {stores.map((s) => (
-              <SelectItem key={s.id} value={s.id} className="text-[11px]">{s.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {/* v2.264.0 THE DOOR DOWNSTAIRS — the picker grows its door: a
+            named branch's purchase orders live in that branch's own
+            workspace (READ-ONLY BY LAW up here — the branch keeps the
+            only pens), so the honest answer to a narrowed question is a
+            door, not a pen. The pressed lenses ride the URL (the carry
+            law — the session memory never crosses a hard door; a new tab
+            holds none); unpressed lenses ride as nothing (the honest
+            absence, no param at all). A NEW TAB — the store strip's own
+            law: the org console stays where the reader left it. The door
+            renders only when a branch is NAMED (a door needs a room);
+            when a lens rides, the door wears the question's own colour
+            (the metric's family dot, else the band house's rail) and a
+            quiet sky ring — a loaded door, saying what it carries. */}
+        <div className="flex items-center gap-1.5">
+          <Select value={branchId} onValueChange={setBranchId}>
+            <SelectTrigger
+              data-testid="po-ledger-branch-select"
+              aria-label="Filter purchase orders by branch"
+              className="h-7 w-auto min-w-[150px] gap-1 rounded-md border-slate-200 bg-white px-2 text-[11px] text-slate-700 focus:ring-1 focus:ring-sky-500/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL" className="text-[11px]">all branches</SelectItem>
+              {stores.map((s) => (
+                <SelectItem key={s.id} value={s.id} className="text-[11px]">{s.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {branchId !== 'ALL' &&
+            (() => {
+              const branch = stores.find((s) => s.id === branchId);
+              if (!branch) return null;
+              const carries = metricLens !== 'all' || bandLens !== 'ALL';
+              const metricFam = metricLens !== 'all' ? poMetricFamily(metricLens) : null;
+              return (
+                <button
+                  type="button"
+                  data-testid="po-ledger-branch-door"
+                  aria-label={`Open ${branch.name}'s purchase orders in its own workspace`}
+                  title={`open ${branch.name}'s purchase orders in its own workspace — the branch keeps the only pens${carries ? '; the pressed lenses ride along' : ''}`}
+                  onClick={() =>
+                    window.open(
+                      buildBranchPurchaseOrdersHref(
+                        { id: branch.id, slug: branch.slug, subdomain: branch.subdomain },
+                        { band: bandLens, metric: metricLens },
+                      ),
+                      '_blank',
+                      'noopener',
+                    )
+                  }
+                  className={`inline-flex h-7 shrink-0 items-center justify-center gap-1 rounded-md border px-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/40 ${carries ? 'border-sky-200 bg-white text-sky-700 ring-1 ring-sky-500/30 hover:bg-sky-50 dark:border-sky-500/40 dark:bg-slate-900 dark:text-sky-300 dark:hover:bg-sky-500/10' : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-sky-700 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-sky-300'}`}
+                >
+                  <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+                  {(metricFam || (bandLens !== 'ALL' && bandLens !== 'silent' ? bandHouse(bandLens) : null)) && (
+                    <span
+                      aria-hidden="true"
+                      className={`h-1.5 w-1.5 shrink-0 rounded-full ${metricFam ? metricFam.rail : bandHouse(bandLens as CadenceBand).rail}`}
+                    />
+                  )}
+                </button>
+              );
+            })()}
+        </div>
       </div>
 
       {/* The status ladder — every rung answers with its REAL count

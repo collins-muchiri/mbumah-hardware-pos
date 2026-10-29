@@ -106,7 +106,7 @@ describe('the focus\u2019s honesty \u2014 the rings speak only to keyboards (v2.
 
   it('the chips wear focus-visible \u2014 every one of them (the ledger\u2019s rungs joined the law)', () => {
     const count = (s: string) => (s.match(/focus-visible:ring-2 focus-visible:ring-sky-500\/40/g) ?? []).length;
-    expect(count(ledger)).toBe(6); // 2 band + 2 status rungs + 1 origin rung + 1 metric rail (v2.260.0: the ledger's instruments joined the law — the rail's chips share one literal)
+    expect(count(ledger)).toBe(7); // 2 band + 2 status rungs + 1 origin rung + 1 metric rail + 1 branch door (v2.264.0: the door downstairs joined the law — its arrow wears the same keyboard ring)
     expect(count(branch)).toBe(3); // the houses + the silence + the metrics' rail (v2.259.0: the metric chips joined the law)
     expect(count(suppliers)).toBe(2);
   });
