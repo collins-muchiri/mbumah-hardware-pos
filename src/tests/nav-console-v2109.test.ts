@@ -70,7 +70,9 @@ describe('v2.109.0 — the shared panel (people-payroll-by-branch.tsx)', () => {
 
   it('titles the panel exactly and counts branches dynamically', () => {
     expect(src.includes('People &amp; payroll by branch ({rows.length})')).toBe(true);
-    expect(src.includes('headcount, cost, absence, latest run, expiry alerts per branch')).toBe(true);
+    // v2.275.0: the enumeration grew by design — the census's Portal column
+    // joined the shared panel (the v2.273 parity gap closed on both homes).
+    expect(src.includes('headcount, cost, absence, latest run, portal adoption, expiry alerts per branch')).toBe(true);
   });
 
   it('serves every required metric per branch', () => {

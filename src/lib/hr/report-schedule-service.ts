@@ -23,6 +23,7 @@ import { db } from '@/lib/db';
 import { hrAudit, HrEntityType } from './audit';
 import { sendEmail } from '@/lib/email-service';
 import { digestToCsv, formatCsvSize, type DigestCsvAttachment } from '@/lib/hr/digest-csv';
+import { statutoryDueForPeriod } from '@/lib/hr/compliance-calendar';
 import {
   hrReportDigestTemplate,
   hrReportDigestText,
@@ -548,8 +549,15 @@ export async function buildDigestPayload(
         ],
         table: {
           caption: 'Monthly statutory liability',
-          columns: ['Month', 'PAYE', 'NSSF', 'SHIF', 'AHL', 'Total'],
-          rows: r.monthly.map((m) => [m.label, fmt(m.paye), fmt(m.nssf), fmt(m.shif), fmt(m.housingLevy), fmt(m.paye + m.nssf + m.shif + m.housingLevy + m.payeArrears)]),
+          // v2.275.0: the digest's table learns the CLOCK — each payroll
+          // month's row carries the deadline the statute sets (the 9th of
+          // the following month, derived by the compliance calendar's pure
+          // helper from the month key the row already carries; ISO so the
+          // CSV never argues about locale). The column is named "Due by",
+          // never "Filed": whether a past window was actually filed is the
+          // ledger's business, and the digest never claims a receipt.
+          columns: ['Month', 'PAYE', 'NSSF', 'SHIF', 'AHL', 'Total', 'Due by'],
+          rows: r.monthly.map((m) => [m.label, fmt(m.paye), fmt(m.nssf), fmt(m.shif), fmt(m.housingLevy), fmt(m.paye + m.nssf + m.shif + m.housingLevy + m.payeArrears), statutoryDueForPeriod(m.month)?.dueDate ?? '']),
         },
       };
     }

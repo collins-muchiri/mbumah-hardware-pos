@@ -48,6 +48,7 @@ import {
 } from 'lucide-react';
 import { apiGet, apiSend, ErrorNote, StatusBadge, formatDate, formatKes } from '@/components/hr/self-service-ui';
 import { buildConsentTimelineCsv, consentTimelineCsvFilename, type ConsentTimelineCsvRow } from '@/lib/hr/consent-timeline-csv';
+import { statutoryDueForPeriod } from '@/lib/hr/compliance-calendar';
 import { COL_WIDTHS_STORAGE_KEY, EDGE_BAND, loadColWidths, nudgeColWidth } from '@/lib/hr/column-resize';
 import { describeSweepOutcome } from '@/lib/hr/sweep-outcome';
 import { formatCsvSize } from '@/lib/hr/digest-csv';
@@ -2164,6 +2165,7 @@ export default function HrReportsPage() {
                     columns={[
                       { key: 'label', label: 'Period' }, { key: 'paye', label: 'PAYE' }, { key: 'nssf', label: 'NSSF' },
                       { key: 'shif', label: 'SHIF' }, { key: 'ahl', label: 'Housing levy' }, { key: 'arr', label: 'Arrears' },
+                      { key: 'due', label: 'Due' },
                     ]}
                     exportCsv={() => void exportTableCsv('statutory-liability')}
                     busyKey='statutory-liability'
@@ -2177,18 +2179,37 @@ export default function HrReportsPage() {
                         <TableHead {...head('shif')}   className={`text-right ${col('shif')}`}>SHIF</TableHead>
                         <TableHead {...head('ahl')}   className={`text-right ${col('ahl')}`}>Housing levy</TableHead>
                         <TableHead {...head('arr')}   className={`text-right ${col('arr')}`}>Arrears</TableHead>
+                        <TableHead {...head('due')}    className={`text-right ${col('due')}`}>Due</TableHead>
                       </TableRow></TableHeader>
                       <TableBody>
-                        {statutory.monthly.map((m) => (
-                          <TableRow key={m.month}>
-                            <TableCell className={col('label')}>{m.label}</TableCell>
-                            <TableCell className={`text-right tabular-nums ${col('paye')}`}>{formatKes(m.paye)}</TableCell>
-                            <TableCell className={`text-right tabular-nums ${col('nssf')}`}>{formatKes(m.nssf)}</TableCell>
-                            <TableCell className={`text-right tabular-nums ${col('shif')}`}>{formatKes(m.shif)}</TableCell>
-                            <TableCell className={`text-right tabular-nums ${col('ahl')}`}>{formatKes(m.housingLevy)}</TableCell>
-                            <TableCell className={`text-right tabular-nums ${col('arr')}`}>{formatKes(m.payeArrears)}</TableCell>
-                          </TableRow>
-                        ))}
+                        {statutory.monthly.map((m) => {
+                          // v2.275.0: the row speaks the CLOCK beside the money — the
+                          // deadline is the statute's own (the 9th of the following
+                          // month), derived by the compliance calendar's pure helper
+                          // from the month key the row already carries. The column is
+                          // named "Due", never "Filed": whether a past window was
+                          // actually filed is the ledger's business, and the cell
+                          // never claims a receipt. A weekend 9th rides the calendar's
+                          // amber words as the cell's title (the statute does not
+                          // wait; settle before the weekend).
+                          const due = statutoryDueForPeriod(m.month);
+                          return (
+                            <TableRow key={m.month}>
+                              <TableCell className={col('label')}>{m.label}</TableCell>
+                              <TableCell className={`text-right tabular-nums ${col('paye')}`}>{formatKes(m.paye)}</TableCell>
+                              <TableCell className={`text-right tabular-nums ${col('nssf')}`}>{formatKes(m.nssf)}</TableCell>
+                              <TableCell className={`text-right tabular-nums ${col('shif')}`}>{formatKes(m.shif)}</TableCell>
+                              <TableCell className={`text-right tabular-nums ${col('ahl')}`}>{formatKes(m.housingLevy)}</TableCell>
+                              <TableCell className={`text-right tabular-nums ${col('arr')}`}>{formatKes(m.payeArrears)}</TableCell>
+                              <TableCell
+                                className={`whitespace-nowrap text-right text-xs tabular-nums ${due?.weekendNote ? 'text-amber-700 dark:text-amber-400' : 'text-slate-600 dark:text-slate-300'} ${col('due')}`}
+                                title={due?.weekendNote ?? 'Filing window: the 1st–9th of the following month — the statute does not wait for the weekend'}
+                              >
+                                {due ? due.dueLabel : '—'}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
                       </TableBody>
                     </Table>
                   </div>

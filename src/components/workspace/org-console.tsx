@@ -135,6 +135,7 @@ import {
   buildExpiringEmployeesHref,
   buildOverdueAssetsHref,
   buildPeoplePayrollDeepLink,
+  buildPortalReportHref,
   buildRunDeepLinkHref,
 } from '@/lib/workspace/links';
 import { buildBranchesCsv, type BranchDeskCsvBlock } from '@/lib/org/branches-csv';
@@ -1945,7 +1946,12 @@ export function OrgConsole() {
                                     nothing, and no dead door. */}
                                 {row.portalTotal > 0 ? (
                                   <Link
-                                    href={`/hr/reports?tab=portal&storeId=${row.storeId}`}
+                                    /* v2.275.0: the href moved to the links lib's ONE
+                                        writer (buildPortalReportHref) — the shared panel's
+                                        PortalCell speaks the SAME builder this release, so
+                                        the two doors can never disagree about where the
+                                        census lives. The composed bytes are identical. */
+                                    href={buildPortalReportHref(row.storeId)}
                                     data-testid="org-console-hr-portal-door"
                                     aria-label={`${row.portalLinked} of ${row.portalTotal} employees hold a linked portal login at ${row.storeName} — open the portal adoption census narrowed to ${row.storeName}`}
                                     title={`Linked logins over employees in scope — open the portal adoption census narrowed to ${row.storeName}`}

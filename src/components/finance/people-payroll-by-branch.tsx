@@ -22,9 +22,9 @@
 // the machine-readable code in the title and the human words in the cell.
 
 import { useState } from 'react';
-import { ChevronDown, ExternalLink, SlidersHorizontal, Users } from 'lucide-react';
+import { BellRing, ChevronDown, ExternalLink, SlidersHorizontal, Users } from 'lucide-react';
 import type { OrgSummaryData } from '@/components/org/primitives';
-import { buildAbsenceReportHref, buildExpiringEmployeesHref, buildOverdueAssetsHref, buildRunDeepLinkHref } from '@/lib/workspace/links';
+import { buildAbsenceReportHref, buildExpiringEmployeesHref, buildOverdueAssetsHref, buildPortalReportHref, buildRunDeepLinkHref } from '@/lib/workspace/links';
 import { ASSET_LIST_READ_ROLES, EMPLOYEE_LIST_READ_ROLES } from '@/lib/app-config';
 import { useAuthStore } from '@/lib/stores';
 
@@ -44,6 +44,22 @@ export function filterBranchRows(rows: HrPerStoreRow[], branchId: string): HrPer
 /** KES with thousands separators (money cell contract). */
 export function kesMoney(v: number): string {
   return `KES ${v.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+/**
+ * v2.275.0: the census's rate, as a pure function — the one truth the
+ * table cell and the mobile card share (the filterBranchRows law: the unit
+ * test pins the one truth both surfaces speak). linked over the census's
+ * OWN denominator (employees in scope — non-deleted, status unfiltered,
+ * never the active-only headcount, the exact law hrPerStoreForOrgConsole
+ * writes on the wire). A branch with no employees in scope has no rate —
+ * the rate of nothing would be a guess — so null is the honest absence the
+ * cell renders as a dash.
+ */
+export function portalAdoptionPct(portalLinked: number, portalTotal: number): number | null {
+  if (!Number.isFinite(portalTotal) || portalTotal <= 0) return null;
+  const linked = Number.isFinite(portalLinked) ? Math.max(0, Math.min(portalLinked, portalTotal)) : 0;
+  return Math.round((linked / portalTotal) * 100);
 }
 
 /**
@@ -156,6 +172,43 @@ function AbsenceCell({ row }: { row: HrPerStoreRow }) {
     >
       {row.monthAbsenceRatePct}%
     </span>
+  );
+}
+
+function PortalCell({ row }: { row: HrPerStoreRow }) {
+  // v2.275.0: the census's column joins the shared panel — the v2.273.0
+  // parity gap closes on BOTH homes at once (the Expert Console AND the
+  // People & Payroll tab), because this panel is the one implementation
+  // both surfaces speak through. The cell IS the door (the org console's
+  // drill-down law): the composition "1/5" with the rate in the census's
+  // own emerald, opening the adoption census narrowed to this branch —
+  // through the links lib's ONE writer (buildPortalReportHref), the same
+  // builder the org console's cell speaks through since this release. The
+  // honest dash for a branch with no employees in scope — no rate of
+  // nothing, and no dead door. ONE cell, two mounts (the table and the
+  // mobile card) — the panel renders EXACTLY one portal vocabulary.
+  const pct = portalAdoptionPct(row.portalLinked, row.portalTotal);
+  if (pct === null) {
+    return (
+      <span className="text-xs text-slate-400 dark:text-slate-500" title="No employees in scope for this branch">
+        —
+      </span>
+    );
+  }
+  return (
+    <a
+      href={buildPortalReportHref(row.storeId)}
+      data-testid="people-payroll-portal-door"
+      aria-label={`${row.portalLinked} of ${row.portalTotal} employees hold a linked portal login at ${row.storeName} — open the portal adoption census narrowed to ${row.storeName}`}
+      title="Linked logins over employees in scope — open the portal adoption census narrowed to this branch"
+      className="inline-flex items-baseline gap-1 rounded-md underline-offset-2 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+    >
+      <BellRing className="h-3 w-3 self-center shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+      <span className="tabular-nums">
+        {row.portalLinked}/{row.portalTotal}
+      </span>
+      <span className="font-semibold text-emerald-700 dark:text-emerald-400">{pct}%</span>
+    </a>
   );
 }
 
@@ -306,7 +359,7 @@ export function PeoplePayrollByBranch({
           <Users className="h-4 w-4 shrink-0 text-orange-500" aria-hidden="true" />
           People &amp; payroll by branch ({rows.length})
           <span className="hidden text-xs font-normal text-slate-500 dark:text-slate-400 sm:inline">
-            &mdash; headcount, cost, absence, latest run, expiry alerts per branch
+            &mdash; headcount, cost, absence, latest run, portal adoption, expiry alerts per branch
           </span>
         </span>
         <ChevronDown
@@ -368,6 +421,7 @@ export function PeoplePayrollByBranch({
                   <th scope="col" className="px-3 py-2 text-right font-medium">Cost (month)</th>
                   <th scope="col" className="px-3 py-2 text-right font-medium">Absence</th>
                   <th scope="col" className="px-3 py-2 font-medium">Latest payroll</th>
+                  <th scope="col" className="px-3 py-2 text-right font-medium">Portal</th>
                   <th scope="col" className="px-4 py-2 text-right font-medium">Expiry alerts</th>
                 </tr>
               </thead>
@@ -393,6 +447,9 @@ export function PeoplePayrollByBranch({
                     </td>
                     <td className="px-3 py-2">
                       <LatestRunCell run={row.latestPayroll} storeName={row.storeName} />
+                    </td>
+                    <td className="px-3 py-2 text-right tabular-nums">
+                      <PortalCell row={row} />
                     </td>
                     <td className="px-4 py-2 text-right">
                       <ExpiryCell row={row} />
@@ -441,6 +498,12 @@ export function PeoplePayrollByBranch({
                       <dt className="text-[10px] uppercase tracking-wide text-slate-400">Expiry alerts</dt>
                       <dd className="mt-0.5 text-right">
                         <ExpiryCell row={row} />
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-[10px] uppercase tracking-wide text-slate-400">Portal</dt>
+                      <dd className="mt-0.5 text-right">
+                        <PortalCell row={row} />
                       </dd>
                     </div>
                     <div className="col-span-2">
