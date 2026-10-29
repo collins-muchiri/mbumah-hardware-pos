@@ -24,6 +24,10 @@ import {
   type ProductListItem,
 } from '@/lib/api';
 import { handleError } from '@/lib/error-handler';
+// v2.251.0 THE WALK'S WHEN — the detail strip's cadence chip wears the
+// census's own four houses (one home, byte-identical classes to the
+// org drill's chip).
+import { bandHouse, chipLabel, daysVoice } from '@/lib/cadence-band';
 import { formatQty, formatQtyWithUnit } from '@/lib/utils/financialMath';
 import { ResponsiveDialog } from '@/components/ui/responsive-dialog';
 
@@ -1133,6 +1137,21 @@ function PODetailView({
                   this PO answers count sheet <span className="tabular-nums">{detail.originStockTake.id}</span>
                   {detail.originStockTake.walkAisle?.name ? <> — the walk order named {detail.originStockTake.walkAisle.name}</> : null}
                   {detail.originStockTake.status === 'CLOSED' ? ' (the books heard it).' : ` (${detail.originStockTake.status.toLowerCase()}).`}
+                  {/* v2.251.0 THE WALK'S WHEN — the walk order's own cadence
+                      chip: the variance map's four houses (fresh/stale/
+                      beyond/never) read the census's way; the chip's title
+                      speaks the days voice, the word the chipLabel names.
+                      A band the read could not answer stays absent — never
+                      a guessed house. */}
+                  {detail.originStockTake.walkAisle?.band ? (
+                    <span
+                      data-testid="po-detail-aisle-band"
+                      className={`ml-1.5 inline-flex translate-y-[-0.5px] items-center rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide ring-1 ring-inset ${bandHouse(detail.originStockTake.walkAisle.band).chip}`}
+                      title={daysVoice({ band: detail.originStockTake.walkAisle.band as 'fresh' | 'stale' | 'beyond' | 'never', daysSince: detail.originStockTake.walkAisle.daysSince })}
+                    >
+                      {chipLabel(detail.originStockTake.walkAisle.band)}
+                    </span>
+                  ) : null}
                 </p>
               </div>
             )}

@@ -2,6 +2,19 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.251.0] The walk's when
+
+The birth strip learned the aisle's name at v2.248.0 and the org drill learned its cadence chip at v2.250.0 — but the branch strip still answered only WHERE the walk order pointed, never WHEN that aisle was last heard, and the ledger's file spoke the aisle's name without its voice. This round the when arrives everywhere the birth is spoken: the branch strip wears the chip, the roster's rows answer for their aisles, and the CSV sorts the walk's answers by the house that spoke.
+
+### Added
+- **The branch detail wire's band** (`GET /api/purchase-orders/[id]`): the birth's walk aisle grows its id, and the wire reads the aisle's own cadence band — `readCadenceLaw` + `readCategoryBand` via the tenant client (the stock-takes' own pattern; the branch's floor answers for the branch's aisle). `walkAisle` grows `band` + `daysSince` (additive + optional — a failed read answers null and the strip keeps its today voice, the honest silence). The band is not a cost: it rides for every viewer.
+- **The branch birth strip's chip** (`purchase-orders-tab.tsx`): the violet strip wears the cadence chip — `bandHouse`'s byte-identical classes, `daysVoice` on the title, `chipLabel`'s word — `data-testid="po-detail-aisle-band"` (the org drill's `po-drill-aisle-band` sibling). A band the read could not answer stays absent — never a guessed house.
+- **The org list wire's row bands** (`GET /api/org/purchase-orders`): the roster's sheet-born rows answer when their walk aisle was last heard — ONE stored-law read, then ONE band read per DISTINCT aisle id in the window (the dedupe keeps the cost at the page's aisle spread, not the row count; each read is the census's own three bounded queries). Rows' `walkAisle` grows `band` + `daysSince`.
+- **The ledger CSV's aisle_band column** (`rosterCsv`): the file grows `,aisle_band` beside `,aisle` — the walk's WHEN, the four houses the wire already computed (zero new fetch). A row whose read failed or whose birth had no aisle exports empty (a file has no titles — the word speaks alone; the days stay the screen's voice).
+
+### Styled
+- **The roster chip speaks the days** (`po-ledger.tsx`): the violet birth chip's title grows the aisle's days voice — "born at a count sheet — the walk order named Tools — last heard counted today" — the same one home the drill's chip reads; a row without a band keeps its v2.249 voice.
+
 ## [2.250.0] The branch's gate
 
 The cost gate comes down to the branch: the org wires have spoken the shillings' law since v2.227.0 and the products wire since v2.12.2, but the branch purchase-order wires never grew the gate — every viewer with store access read the roster's totals, the document's financial block and every line's cost. This round the branch wires answer the same truth, every face wears the honest absence, and the birth strip learns the aisle's own cadence.

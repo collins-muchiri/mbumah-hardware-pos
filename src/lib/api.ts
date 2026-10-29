@@ -2780,7 +2780,7 @@ export interface PurchaseOrderListItem {
   // v2.248.0 THE RESTOCK'S BIRTH — the sheet a PO was born from (additive
   // + optional; the list + detail wires carry it, a hand-raised PO reads
   // null and the faces render the silent absence).
-  originStockTake?: { id: string; status: string; closedAt: string | null; walkAisle: { name: string } | null } | null;
+  originStockTake?: { id: string; status: string; closedAt: string | null; walkAisle: { name: string; band?: string | null; daysSince?: number | null } | null } | null;
 }
 
 export interface PurchaseOrderItemDetail {

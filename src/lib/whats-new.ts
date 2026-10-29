@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.251.0',
+    title: 'The walk\u2019s when',
+    bullets: [
+      'The branch purchase order\u2019s birth strip now wears the aisle\u2019s cadence chip too \u2014 fresh, stale, beyond or never \u2014 the same four houses the org drill has spoken since the last visit.',
+      'The org\u2019s procurement ledger rows answer when their walk aisle was last heard: the roster chip\u2019s title speaks the days, read the census\u2019s way.',
+      'The ledger\u2019s CSV grows an aisle_band column beside the aisle\u2019s name \u2014 the file sorts the walk\u2019s answers by when they were heard.',
+      'A read that cannot answer stays silent \u2014 never a guessed house, never a fabricated date.',
+    ],
+  },
+  {
     version: '2.250.0',
     title: 'The branch\u2019s gate',
     bullets: [
