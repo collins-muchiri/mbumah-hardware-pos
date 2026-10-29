@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
@@ -15,7 +15,8 @@ import {
 // v2.253.0 THE BIRTH'S FIFTH FACE — the supplier's roster wears the
 // violet birth (the branch roster's own chip), the aisle's band as the
 // house's rail-coloured dot (the ONE home the map reads).
-import { bandHouse, daysVoice, type CadenceBand } from '@/lib/cadence-band';
+// v2.255.0 THE SUPPLIERS' LENS — chipLabel joins (the rail's own words).
+import { bandHouse, chipLabel, daysVoice, type CadenceBand } from '@/lib/cadence-band';
 
 import { useAppStore } from '@/lib/stores';
 import {
@@ -54,6 +55,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+
+// v2.255.0 THE SUPPLIERS' LENS — the row's own band, read from above:
+// the family the wire's spoke wore, or the silent absence (a hand-raised
+// order, a failed read). The cast stays behind a membership check — a
+// string that is not one of the four houses IS the silence, never a
+// guessed family. Module-level: the memos read it clean (no deps) — the
+// org ledger's and the branch roster's own law, ported to the third face.
+const supplierPoBand = (po: PurchaseOrderListItem): CadenceBand | null => {
+  const b = po.originStockTake?.walkAisle?.band;
+  return b === 'fresh' || b === 'stale' || b === 'beyond' || b === 'never' ? b : null;
+};
 
 const AVATAR_GRADIENTS = [
   'from-rose-500 to-pink-600',
@@ -915,7 +927,45 @@ function SupplierDetailView({
     enabled: !!supplierId,
   });
 
-  const purchaseOrders = Array.isArray(poData?.data) ? poData.data : [];
+  // v2.255.0: the roster's own memo — the branch roster's own law (the
+  // identity per fetch, the lens's memos read a stable dep).
+  const purchaseOrders: PurchaseOrderListItem[] = useMemo(
+    () => (Array.isArray(poData?.data) ? poData.data : []),
+    [poData]
+  );
+
+  // v2.255.0 THE SUPPLIERS' LENS — the band rung (the org ledger's and
+  // the branch roster's own law, ported to the third face): 'ALL' stands
+  // for the whole roster; a house (or the silence) narrows the VIEW.
+  // State of the surface, never of the fetch — the wire's rungs
+  // (storeId + supplierId) stay the wire's.
+  const [bandLens, setBandLens] = useState<'ALL' | CadenceBand | 'silent'>('ALL');
+
+  // the lens's own counts — REAL numbers over the roster's rows (every
+  // row lands in exactly one family; the sums read the roster). A pressed
+  // house keeps its number — the counts read the rows, never the view.
+  const bandCounts = useMemo(() => {
+    const c = { fresh: 0, stale: 0, beyond: 0, never: 0, silent: 0 };
+    for (const po of purchaseOrders) {
+      const b = supplierPoBand(po);
+      if (b) c[b] += 1;
+      else c.silent += 1;
+    }
+    return c;
+  }, [purchaseOrders]);
+
+  // the lens first (the house's own narrowing) — the roster holds no
+  // other reading controls (no needle, no sort rungs here), so the lens
+  // is the view's own answer; the fetch never moves.
+  const lensedOrders = useMemo(
+    () =>
+      bandLens === 'ALL'
+        ? purchaseOrders
+        : purchaseOrders.filter((po) =>
+            bandLens === 'silent' ? supplierPoBand(po) == null : supplierPoBand(po) === bandLens
+          ),
+    [purchaseOrders, bandLens]
+  );
 
   const deleteMutation = useMutation({
     mutationFn: () => suppliersApi.delete(supplierId),
@@ -947,8 +997,11 @@ function SupplierDetailView({
   if (!supplier) return null;
 
   const summary = supplier.summary || { totalPOs: 0, totalPOValue: 0, pendingPOs: 0 };
+  // v2.255.0 bugfix — the read copies before it sorts: the old line
+  // sorted the fetched array IN PLACE, i.e. the react-query cache's own
+  // array (every other reader of the key would see the reordered rows).
   const lastOrderDate = purchaseOrders.length > 0
-    ? purchaseOrders.sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime())[0]?.orderDate
+    ? [...purchaseOrders].sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime())[0]?.orderDate
     : null;
 
   return (
@@ -1096,15 +1149,94 @@ function SupplierDetailView({
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base">Purchase Orders</CardTitle>
-                <Badge variant="outline">{purchaseOrders.length} orders</Badge>
+                {/* v2.255.0: the badge speaks the lens — a pressed house
+                    answers N of M (the honest narrowing), 'ALL' keeps the
+                    roster's own count. */}
+                <Badge variant="outline" className="tabular-nums">
+                  {bandLens === 'ALL'
+                    ? `${purchaseOrders.length} orders`
+                    : `${lensedOrders.length} of ${purchaseOrders.length} orders`}
+                </Badge>
               </div>
             </CardHeader>
             <CardContent className="p-0">
+              {/* v2.255.0 THE SUPPLIERS' LENS — the band rail, the org
+                  ledger's and the branch roster's own lens ported to the
+                  third face: the four houses the aisles speak + the silent
+                  absence, each chip answering with its REAL count over the
+                  rows the roster ALREADY holds. A press narrows the view
+                  (the fetch never moves — the wire's rungs stay the
+                  wire's); the birth chips' dots below stay v2.253's. */}
+              {purchaseOrders.length > 0 && (
+                <div
+                  data-testid="supplier-po-band-row"
+                  className="flex flex-wrap items-center gap-1.5 px-4 pt-4"
+                  title="the roster's own lens — a press narrows the view (the fetch stays)"
+                >
+                  {(['fresh', 'stale', 'beyond', 'never'] as const).map((b) => {
+                    const house = bandHouse(b);
+                    const pressed = bandLens === b;
+                    const n = bandCounts[b];
+                    return (
+                      <button
+                        key={b}
+                        type="button"
+                        data-testid={`supplier-po-band-${b}`}
+                        aria-pressed={pressed}
+                        onClick={() => setBandLens(pressed ? 'ALL' : b)}
+                        title={`${chipLabel(b)} — ${n === 0 ? 'no order' : `${n} ${n === 1 ? 'order' : 'orders'}`} on this roster wears the house; a press narrows the view (the fetch stays)`}
+                        className={`inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-[10px] font-semibold uppercase tracking-wide tabular-nums ring-1 transition-[filter] focus:outline-none focus:ring-2 focus:ring-sky-500/40 ${pressed ? house.pressed : house.chip} ${pressed ? '' : 'hover:brightness-[0.97] dark:hover:brightness-110'}`}
+                      >
+                        <span aria-hidden="true" className={`h-1.5 w-1.5 shrink-0 rounded-full ${pressed ? 'bg-white/80 dark:bg-slate-950/50' : house.rail}`} />
+                        {chipLabel(b)} <span className="opacity-70">{n}</span>
+                      </button>
+                    );
+                  })}
+                  <button
+                    type="button"
+                    data-testid="supplier-po-band-silent"
+                    aria-pressed={bandLens === 'silent'}
+                    onClick={() => setBandLens(bandLens === 'silent' ? 'ALL' : 'silent')}
+                    title={`no band — ${bandCounts.silent === 0 ? 'no order' : `${bandCounts.silent} ${bandCounts.silent === 1 ? 'order' : 'orders'}`} on this roster keeps the silence (a hand-raised birth, or a read that fell honest)`}
+                    className={`inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-[10px] font-semibold uppercase tracking-wide tabular-nums ring-1 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500/40 ${bandLens === 'silent' ? 'bg-slate-800 text-white ring-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:ring-slate-100' : 'bg-white text-slate-600 ring-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-600 dark:hover:bg-slate-800'}`}
+                  >
+                    no band <span className="opacity-70">{bandCounts.silent}</span>
+                  </button>
+                </div>
+              )}
               {purchaseOrders.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
                   <p className="text-sm">No purchase orders yet</p>
                   <p className="text-xs mt-1">Create a PO to start tracking orders</p>
+                </div>
+              ) : lensedOrders.length === 0 ? (
+                <div
+                  data-testid="supplier-po-lens-empty"
+                  className="text-center py-8 text-muted-foreground px-4"
+                >
+                  {/* v2.255.0: the lens's own empty face — the honest answer
+                      when the pressed house empties the view (the roster
+                      itself still holds rows; the face says so and offers
+                      the lift — the words never lie about the rows). */}
+                  <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">
+                    {bandLens === 'silent'
+                      ? 'No order on this roster keeps the silence'
+                      : `No order on this roster wears ${bandLens}`}
+                  </p>
+                  <p className="text-xs mt-1">
+                    {purchaseOrders.length} {purchaseOrders.length === 1 ? 'order' : 'orders'} on the roster — lift the lens to see {purchaseOrders.length === 1 ? 'it' : 'them'}
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-3 h-7 text-xs"
+                    data-testid="supplier-po-band-clear"
+                    onClick={() => setBandLens('ALL')}
+                  >
+                    <X className="h-3 w-3 mr-1" /> Clear the lens
+                  </Button>
                 </div>
               ) : (
                 <div className="max-h-96 overflow-auto custom-scrollbar">
@@ -1121,7 +1253,7 @@ function SupplierDetailView({
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {purchaseOrders.map((po) => (
+                      {lensedOrders.map((po) => (
                         <TableRow key={po.id}>
                           <TableCell className="font-mono text-sm">
                             <div className="flex flex-wrap items-center gap-1.5">

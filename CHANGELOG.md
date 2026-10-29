@@ -2,6 +2,18 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.255.0] The suppliers' lens
+
+The lens has been proven twice — the org ledger learned it at v2.253.0, the branch's own purchase-order page at v2.254.0 — but the supplier's orders tab, where the birth reached its fifth face, could only SPEAK the families on its chips, never answer by them. This round the lens crosses to the third face: the supplier's roster grows the same band rail over the rows it already holds, the pressed house that empties the view gets an honest answer and a lift, and the roster's date read stops reordering the fetched list under the hood.
+
+### Added
+- **The suppliers' band lens** (`suppliers-tab.tsx`): a rail between the card header and the roster — fresh / stale / beyond / never + "no band", each chip answering with its REAL count over the roster's rows (`supplierPoBand` reads behind the same membership check; every row lands in exactly one family). A press narrows the view — the roster holds no needle and no sort rungs, so the lens IS the reading here — and the fetch never moves (the wire's rungs, storeId + supplierId, stay the wire's). A pressed chip wears its house's pressed face; a click on the pressed chip stands it down.
+- **The lens's own empty face** (`suppliers-tab.tsx`): the pressed house that empties the view gets the honest answer — "no order on this roster wears …", the roster's own count beside it — and one "clear the lens" control that brings every order back. The true empty roster keeps its own face; the two empties never blur.
+- **The badge speaks the lens** (`suppliers-tab.tsx`): the orders badge answers "N of M orders" under a pressed house and keeps the roster's own count at ALL.
+
+### Fixed
+- **The cache's own honesty** (`suppliers-tab.tsx`): the last-order-date read copies before it sorts — the old line sorted the fetched array IN PLACE, i.e. the react-query cache's own array, so every other reader of the key would have seen the reordered rows. The roster's identity is also the memo's now (the branch roster's own law), so the lens's memos read a stable dep.
+
 ## [2.254.0] The branch's lens
 
 The org ledger learned the lens last visit — the four houses answered by their real counts and a press narrowed the view — but the branch's own purchase-order page could only speak the families on its chips, never answer by them. This round the lens crosses the floor: the branch roster grows the same band rail over the rows it already holds, its birth chips wear the same coloured dots, and the org's lens-empty face grows the affordance its words always promised.
