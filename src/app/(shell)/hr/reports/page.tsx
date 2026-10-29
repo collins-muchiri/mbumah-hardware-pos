@@ -42,6 +42,7 @@ import {
   X,
   Bell,
   BellOff,
+  BellRing,
   Mail,
   MailX,
 } from 'lucide-react';
@@ -55,8 +56,10 @@ import { ReportSchedulesTab } from '@/components/hr/report-schedules-tab';
 type Money = number;
 
 // v2.52.0: tab id → schedule report key for the ad-hoc digest CSV export.
-// Tabs without a digest (p10 / schedules / privacy) are absent on purpose:
-// P10 has its own statutory CSV, Schedules has send-now, Privacy has none.
+// Tabs without a digest (p10 / schedules / portal / privacy) are absent on
+// purpose: P10 has its own statutory CSV, Schedules has send-now, Privacy
+// has none, and the portal census is a point-in-time roll call (no period
+// to schedule a digest of).
 const DIGEST_EXPORT_KEYS: Record<string, string> = {
   headcount: 'headcount',
   cost: 'employment-cost',
@@ -236,6 +239,30 @@ interface ConsentDto {
 // v2.129.0: one employee's append-only consent timeline — the drawer's
 // source. Events arrive oldest → newest with stoodDays computed SERVER-side
 // (the drawer never reimplements the clock); standing closes the story.
+// v2.271.0: the portal adoption report — the roster's quiet bell rolled up
+// to report distance. Rows carry the SAME shaped bits the roster wire
+// carries (role + active state only); the email never rides the report.
+interface PortalAdoptionDto {
+  scope: 'ORG' | 'BRANCH';
+  total: number;
+  linked: number;
+  activeLogins: number;
+  deactivatedLogins: number;
+  unlinked: number;
+  byStore: Array<{ storeName: string; total: number; linked: number }>;
+  rows: Array<{
+    id: string;
+    name: string;
+    employeeCode: string | null;
+    jobTitle: string | null;
+    status: string;
+    storeName: string;
+    portalLinked: boolean;
+    portalRole: string | null;
+    portalActive: boolean | null;
+  }>;
+}
+
 interface ConsentHistoryDto {
   employee: { id: string; code: string; name: string };
   events: Array<{
@@ -274,7 +301,7 @@ interface RetentionDto {
 const YEARS = [new Date().getUTCFullYear(), new Date().getUTCFullYear() - 1, new Date().getUTCFullYear() - 2];
 
 
-const REPORT_TAB_KEYS = ['headcount', 'cost', 'absence', 'leave', 'turnover', 'tth', 'statutory', 'p10', 'schedules', 'privacy'] as const;
+const REPORT_TAB_KEYS = ['headcount', 'cost', 'absence', 'leave', 'turnover', 'tth', 'statutory', 'p10', 'schedules', 'portal', 'privacy'] as const;
 
 /** v2.35.0: flag chip tone for a leave utilisation row. */
 function utilFlagTone(flag: LeaveUtilRow['flag']): string {
@@ -321,6 +348,52 @@ function BalanceChip({ label, value, hint, tone }: { label: string; value: strin
     </div>
   );
 }
+
+// v2.271.0: the reports desk’s pure presentational family hoisted to module level —
+// the in-render definitions warned (react-hooks/static-components) on EVERY usage
+// across every tab; these four are prop-driven and closure-free, so the hoist is a
+// zero-behavior change that retires the warnings at the source.
+// v2.131.0: ONE strip family for the whole reports surface — the rose frame
+// the Privacy tab earned in v2.130.0, now shared by every report tab, with
+// a warning glyph and an in-flight retry. Loads speak here; the shared
+// ErrorNote above the tabs stays reserved for actions.
+const ReportFailureStrip = ({ testId, copy, retryLabel, onRetry, busy }: { testId: string; copy: string; retryLabel: string; onRetry: () => void; busy?: boolean }) => (
+  <div
+    data-testid={testId}
+    role="status"
+    className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-rose-200 bg-rose-50 px-3 py-2 dark:border-rose-900 dark:bg-rose-950/40"
+  >
+    <p className="flex items-center gap-2 text-xs text-rose-700 dark:text-rose-300">
+      <AlertTriangle className="h-3.5 w-3.5 shrink-0" aria-hidden /> {copy}
+    </p>
+    <Button variant="outline" size="sm" onClick={onRetry} disabled={busy} aria-label={retryLabel}>
+      {busy ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" aria-hidden /> : null}
+      Retry
+    </Button>
+  </div>
+);
+
+// v2.131.0: the honesty stamp — a loaded report says WHEN its numbers were
+// fetched (tabular, muted, 24-hour clock). No stamp = not fetched yet.
+const formatStamp = (d: Date) => d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+const UpdatedStamp = ({ testId, at }: { testId: string; at: Date | null }) =>
+  at ? (
+    <p data-testid={testId} className="text-[11px] tabular-nums text-muted-foreground">Updated {formatStamp(at)}</p>
+  ) : null;
+
+const Stat = ({ label, value, hint, tone }: { label: string; value: string; hint?: string; tone?: 'warn' | 'good' }) => (
+  <div className="rounded-xl border bg-card p-3.5 shadow-sm print:shadow-none">
+    <p className="text-xs font-medium text-muted-foreground">{label}</p>
+    <p
+      className={`mt-1 text-xl font-bold tabular-nums ${
+        tone === 'warn' ? 'text-amber-700 dark:text-amber-400' : tone === 'good' ? 'text-emerald-700 dark:text-emerald-400' : ''
+      }`}
+    >
+      {value}
+    </p>
+    {hint ? <p className="text-[11px] text-muted-foreground">{hint}</p> : null}
+  </div>
+);
 
 export default function HrReportsPage() {
   const [error, setError] = useState('');
@@ -425,6 +498,13 @@ export default function HrReportsPage() {
   const [consentLoadedAt, setConsentLoadedAt] = useState<Date | null>(null);
   const [erasureLoadedAt, setErasureLoadedAt] = useState<Date | null>(null);
   const [retentionLoadedAt, setRetentionLoadedAt] = useState<Date | null>(null);
+  // v2.271.0: the portal adoption census — loaded with the page (a census is
+  // cheap) and RELOADED on the branch drill-down (the storeId chip narrows
+  // every report table; this one keeps that law).
+  const [portal, setPortal] = useState<PortalAdoptionDto | null>(null);
+  const [portalFailed, setPortalFailed] = useState(false);
+  const [portalLoadedAt, setPortalLoadedAt] = useState<Date | null>(null);
+  const [portalBusy, setPortalBusy] = useState(false);
   // v2.129.0: the consent timeline drawer — one door, per-employee payload.
   // All four reset on close (the stale-state hygiene: one employee's history
   // must never greet the next open).
@@ -550,6 +630,21 @@ export default function HrReportsPage() {
       setErasureBusy(false); // v2.131.0: the retry path spins while it runs
     }
   }, []);
+
+  const loadPortal = useCallback(async () => {
+    setPortalBusy(true);
+    try {
+      const qs = storeId ? `?storeId=${encodeURIComponent(storeId)}` : '';
+      setPortal(await apiGet<PortalAdoptionDto>(`/api/hr/reports/portal-adoption${qs}`));
+      setPortalFailed(false);
+      setPortalLoadedAt(new Date());
+    } catch {
+      setPortal(null);
+      setPortalFailed(true); // the failure speaks on the tab, like the rest
+    } finally {
+      setPortalBusy(false);
+    }
+  }, [storeId]);
 
   // v2.129.0: the timeline door opens — fresh fetch per open, retry reuses
   // the door's employee (openHistory is the single loader).
@@ -695,6 +790,9 @@ export default function HrReportsPage() {
   useEffect(() => {
     void loadRetention();
   }, [loadRetention]);
+  useEffect(() => {
+    void loadPortal();
+  }, [loadPortal]);
   // v2.36.0: resolve one report row into the governed correction surface.
   const openDrill = useCallback(async (employeeCode: string, typeCode: string) => {
     setDrill({ open: true, loading: true, data: null });
@@ -903,48 +1001,6 @@ export default function HrReportsPage() {
       setTableBusy(null);
     }
   }, [from, to, leaveYear, storeId, tableBusy]);
-
-  // v2.131.0: ONE strip family for the whole reports surface — the rose frame
-  // the Privacy tab earned in v2.130.0, now shared by every report tab, with
-  // a warning glyph and an in-flight retry. Loads speak here; the shared
-  // ErrorNote above the tabs stays reserved for actions.
-  const ReportFailureStrip = ({ testId, copy, retryLabel, onRetry, busy }: { testId: string; copy: string; retryLabel: string; onRetry: () => void; busy?: boolean }) => (
-    <div
-      data-testid={testId}
-      role="status"
-      className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-rose-200 bg-rose-50 px-3 py-2 dark:border-rose-900 dark:bg-rose-950/40"
-    >
-      <p className="flex items-center gap-2 text-xs text-rose-700 dark:text-rose-300">
-        <AlertTriangle className="h-3.5 w-3.5 shrink-0" aria-hidden /> {copy}
-      </p>
-      <Button variant="outline" size="sm" onClick={onRetry} disabled={busy} aria-label={retryLabel}>
-        {busy ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" aria-hidden /> : null}
-        Retry
-      </Button>
-    </div>
-  );
-
-  // v2.131.0: the honesty stamp — a loaded report says WHEN its numbers were
-  // fetched (tabular, muted, 24-hour clock). No stamp = not fetched yet.
-  const formatStamp = (d: Date) => d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-  const UpdatedStamp = ({ testId, at }: { testId: string; at: Date | null }) =>
-    at ? (
-      <p data-testid={testId} className="text-[11px] tabular-nums text-muted-foreground">Updated {formatStamp(at)}</p>
-    ) : null;
-
-  const Stat = ({ label, value, hint, tone }: { label: string; value: string; hint?: string; tone?: 'warn' | 'good' }) => (
-    <div className="rounded-xl border bg-card p-3.5 shadow-sm print:shadow-none">
-      <p className="text-xs font-medium text-muted-foreground">{label}</p>
-      <p
-        className={`mt-1 text-xl font-bold tabular-nums ${
-          tone === 'warn' ? 'text-amber-700 dark:text-amber-400' : tone === 'good' ? 'text-emerald-700 dark:text-emerald-400' : ''
-        }`}
-      >
-        {value}
-      </p>
-      {hint ? <p className="text-[11px] text-muted-foreground">{hint}</p> : null}
-    </div>
-  );
 
   const TableToolbar = ({ columns, exportCsv, busyKey }: { columns: Array<{ key: string; label: string }>; exportCsv: () => void; busyKey?: string }) => (
     <div className="mb-2 flex flex-wrap items-center justify-end gap-2 print:hidden">
@@ -1166,6 +1222,9 @@ export default function HrReportsPage() {
           <TabsTrigger value="p10">P10</TabsTrigger>
           <TabsTrigger value="schedules" className="gap-1.5">
             <CalendarClock className="h-3.5 w-3.5" aria-hidden /> Schedules
+          </TabsTrigger>
+          <TabsTrigger value="portal" className="gap-1.5">
+            <BellRing className="h-3.5 w-3.5 text-emerald-500" aria-hidden /> Portal
           </TabsTrigger>
           <TabsTrigger value="privacy">Privacy</TabsTrigger>
         </TabsList>
@@ -2013,6 +2072,163 @@ export default function HrReportsPage() {
         </TabsContent>
 
         {/* ── Privacy / consent (v2.119.0) + erasure ── */}
+        {/* ── Portal adoption (v2.271.0): the bell at report distance ── */}
+        <TabsContent value="portal" className="space-y-4">
+          {!portal ? (
+            portalFailed ? (
+              <ReportFailureStrip
+                testId="hr-reports-portal-error"
+                copy="The portal roll call could not be loaded — the numbers stay dark rather than guess."
+                retryLabel="Retry loading the portal adoption report"
+                onRetry={() => void loadPortal()}
+                busy={portalBusy}
+              />
+            ) : (
+              <Skeleton className="h-40 w-full" />
+            )
+          ) : (
+            <>
+              <UpdatedStamp testId="hr-reports-updated-portal" at={portalLoadedAt} />
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+                <Stat label="Employees in scope" value={String(portal.total)} />
+                <Stat label="Linked logins" value={String(portal.linked)} tone="good" hint="a linked login opens the self-service portal" />
+                <Stat label="Active logins" value={String(portal.activeLogins)} />
+                <Stat
+                  label="Deactivated logins"
+                  value={String(portal.deactivatedLogins)}
+                  tone={portal.deactivatedLogins ? 'warn' : undefined}
+                  hint="the link stands; the account is the closed door"
+                />
+                <Stat label="Not linked" value={String(portal.unlinked)} tone={portal.unlinked ? 'warn' : undefined} hint="the honest dash — no login to open it" />
+              </div>
+              <p className="text-sm text-muted-foreground">
+                The roster&rsquo;s quiet bell rolled up to report distance: who holds a self-service login,
+                which of those accounts stand, and where the dash still does. A point-in-time census —
+                the adoption story the leave and payslip emails assume. Role is named; the email never rides.
+              </p>
+
+              {/* per-branch rollup — the meter is the adoption rate at a glance */}
+              {portal.byStore.length > 0 && (
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-semibold">Adoption by branch</CardTitle>
+                    <CardDescription className="text-xs">
+                      Linked logins over employees in scope, per branch the scope answers for.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {portal.byStore.map((b) => {
+                      const pct = b.total > 0 ? Math.round((b.linked / b.total) * 100) : 0;
+                      return (
+                        <div key={b.storeName} data-testid="hr-reports-portal-store-row">
+                          <div className="mb-1 flex items-center justify-between text-xs">
+                            <span className="font-medium">{b.storeName}</span>
+                            <span className="tabular-nums text-muted-foreground">
+                              <span className="font-semibold text-emerald-700 dark:text-emerald-400">{b.linked}</span> of {b.total} linked · {pct}%
+                            </span>
+                          </div>
+                          <div
+                            className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800"
+                            role="img"
+                            aria-label={`${b.storeName}: ${b.linked} of ${b.total} employees hold a linked portal login (${pct}%)`}
+                          >
+                            <div
+                              className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400"
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* the roll call — the roster's chip vocabulary, byte-kept */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-semibold">The roll call</CardTitle>
+                  <CardDescription className="text-xs">
+                    Every employee the scope answers for, and the state of their portal door.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-slate-50/60 dark:bg-slate-900/60">
+                          <TableHead {...head('portal-employee')}>Employee</TableHead>
+                          <TableHead {...head('portal-job')}>Job title</TableHead>
+                          <TableHead {...head('portal-branch')}>Branch</TableHead>
+                          <TableHead {...head('portal-role')}>Login role</TableHead>
+                          <TableHead {...head('portal-state')}>Portal state</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {portal.rows.map((r) => {
+                          // the roster's PORTAL_CHIP law, byte-kept: emerald open /
+                          // amber closed — and the unlinked row renders the honest
+                          // dash, never a look-alike chip
+                          const state = !r.portalLinked
+                            ? null
+                            : r.portalActive === false
+                              ? {
+                                  label: 'portal off',
+                                  className:
+                                    'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950/50 dark:text-amber-300',
+                                  title: 'The linked login is deactivated — the portal stays closed until the account is reactivated in Settings → Users.',
+                                }
+                              : {
+                                  label: 'portal',
+                                  className:
+                                    'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-300',
+                                  title: 'The linked login is active — leave and payroll notifications land in the app.',
+                                };
+                          return (
+                            <TableRow key={r.id} data-testid="hr-reports-portal-row">
+                              <TableCell>
+                                <span className="font-medium">{r.name}</span>
+                                {r.employeeCode && (
+                                  <span className="ml-2 font-mono text-[10px] text-slate-400 dark:text-slate-500">{r.employeeCode}</span>
+                                )}
+                              </TableCell>
+                              <TableCell className="text-sm text-muted-foreground">{r.jobTitle || '—'}</TableCell>
+                              <TableCell className="text-sm text-muted-foreground">{r.storeName}</TableCell>
+                              <TableCell className="text-sm text-muted-foreground">
+                                {r.portalLinked ? (r.portalRole ?? 'linked').replace(/_/g, ' ').toLowerCase() : <span className="text-slate-300 dark:text-slate-600">—</span>}
+                              </TableCell>
+                              <TableCell>
+                                {state ? (
+                                  <span
+                                    data-testid="hr-reports-portal-state"
+                                    title={state.title}
+                                    className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${state.className}`}
+                                  >
+                                    <BellRing className="h-3 w-3" aria-hidden="true" />
+                                    {state.label}
+                                  </span>
+                                ) : (
+                                  <span
+                                    data-testid="hr-reports-portal-silent"
+                                    className="text-xs text-slate-300 dark:text-slate-600"
+                                    title="No linked login — the self-service portal stays behind the HR desk."
+                                  >
+                                    —
+                                  </span>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
+        </TabsContent>
+
         <TabsContent value="privacy" className="space-y-4">
           <Card data-testid="hr-privacy-consent">
             <CardHeader className="pb-2">

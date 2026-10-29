@@ -210,10 +210,12 @@ describe('the columns bend — resizable columns, the spec\'s last table afforda
     const s = page();
     const elements = (s.match(/<TableHead(?!er)/g) ?? []).length;
     const spreads = (s.match(/\{\.\.\.head\('[a-z0-9-]+'\)\}/g) ?? []).length;
-    // 63 elements: 59 resizable + 4 mini heads (two 2-column headcount
-    // breakdowns a resize affordance would only noise up)
-    expect(elements).toBe(63);
-    expect(spreads).toBe(59);
+    // 68 elements: 64 resizable + 4 mini heads (two 2-column headcount
+    // breakdowns a resize affordance would only noise up). v2.271.0 grew
+    // both numbers by 5 — the portal roll call's heads ride the SAME law
+    // (the spec's last table affordance, kept on the new desk).
+    expect(elements).toBe(68);
+    expect(spreads).toBe(64);
     expect(elements - spreads).toBe(4);
   });
 
