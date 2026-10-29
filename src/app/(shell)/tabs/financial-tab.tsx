@@ -2002,7 +2002,7 @@ export default function FinancialTab() {
             <div className="py-8 text-center">
               <Wallet className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-30" />
               <p className="text-sm text-muted-foreground">No expenses recorded</p>
-              <p className="text-xs text-muted-foreground mt-1">Click "Record Expense" to add one</p>
+              <p className="text-xs text-muted-foreground mt-1">Click &quot;Record Expense&quot; to add one</p>
             </div>
           ) : (
             <div className="overflow-x-auto">

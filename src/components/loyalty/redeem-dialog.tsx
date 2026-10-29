@@ -127,7 +127,7 @@ export function RedeemDialog({
             Redeem Loyalty Points
           </DialogTitle>
           <DialogDescription>
-            Convert <span className="font-semibold text-foreground">{customerName}</span>'s
+            Convert <span className="font-semibold text-foreground">{customerName}</span>&apos;s
             points into a discount voucher.
           </DialogDescription>
         </DialogHeader>

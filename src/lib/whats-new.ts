@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.263.0',
+    title: 'The lens remembered',
+    bullets: [
+      'Your lens comes back with you: press a band house or a metric on the purchase-order ledger or a branch\u2019s roster, navigate away, come back \u2014 the lens is exactly as you left it, with a quiet \u201cremembered\u201d chip beside the rail to say so.',
+      'The needle never rides: a search is a moment\u2019s question, not a stance \u2014 only the band house and the metric kind are remembered, and standing a lens down (Escape, the clear buttons, a press) forgets it like any other press.',
+      'The memory lives in the tab: it never crosses tabs and never outlives the visit, and a memory that cannot be read or written is a face that simply forgets \u2014 never a crash.',
+    ],
+  },
+  {
     version: '2.262.0',
     title: 'The branch\u2019s answer',
     bullets: [

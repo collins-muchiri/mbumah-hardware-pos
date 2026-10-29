@@ -44,9 +44,9 @@
 // sibling's truth); the roster's copy grows the birth column (a file
 // speaks the word — 'sheet' | 'hand' — where a face may stay silent).
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Baby, ChevronRight, ClipboardList, Download, TriangleAlert } from 'lucide-react';
+import { Baby, ChevronRight, ClipboardList, Download, History, TriangleAlert } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -58,6 +58,11 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { PoDrill, poStatusChip, type PoDrillTarget } from './po-drill';
 import { SheetDrill, csvCell, type SheetDrillTarget } from './sheet-drill';
 import { num, timeAgo, type StoreRow } from './primitives';
+// v2.263.0 THE LENS REMEMBERED — the roster-memory candidate, defined at
+// last (one home): the band house and the metric kind remember their
+// press across navigation within the session. The needle never rides —
+// a needle is a moment's question, not a stance.
+import { readLensMemory, writeLensMemory } from '@/lib/lens-memory';
 // v2.256.0 THE LENS'S EAR — Escape stands the lens down (the one home;
 // the dialog guard lives in the hook, never a copy).
 import { useLensEscape } from '@/lib/use-lens-escape';
@@ -223,6 +228,40 @@ export function ProcurementLedger({ stores }: { stores: StoreRow[] }) {
   // strip opens. ONE drill at a time: the door closes the PO drill as
   // the sheet opens (the reading moves; the roster's door reopens).
   const [sheetDrill, setSheetDrill] = useState<SheetDrillTarget>(null);
+  // v2.263.0 THE LENS REMEMBERED — the memory speaks once, at arrival:
+  // the face hydrates its lenses from the session (the membership law —
+  // only values the face can name get pressed), and the write side
+  // remembers every press including the lifts (standing a lens down IS
+  // forgetting). The chip speaks only while the reader's own hand has
+  // not yet moved the lens.
+  const [remembered, setRemembered] = useState(false);
+  const firstWriteRef = useRef(true);
+  useEffect(() => {
+    const mem = readLensMemory('org-po-ledger');
+    if (!mem) return;
+    const BANDS = ['fresh', 'stale', 'beyond', 'never', 'silent'];
+    const METRICS = ['onTime', 'late', 'open'];
+    if (BANDS.includes(mem.band)) setBandLens(mem.band as 'ALL' | CadenceBand | 'silent');
+    if (METRICS.includes(mem.metric)) setMetricLens(mem.metric as PoMetricLens);
+    if (BANDS.includes(mem.band) || METRICS.includes(mem.metric)) {
+      setRemembered(true);
+    }
+  }, []);
+  useEffect(() => {
+    // the mount commit writes nothing (the read side just spoke — a
+    // default-envelope write here would wipe the memory it consumed);
+    // every LATER run is a reader's press and rides the memory.
+    if (firstWriteRef.current) {
+      firstWriteRef.current = false;
+      return;
+    }
+    writeLensMemory('org-po-ledger', { band: bandLens, metric: metricLens });
+    // the chip's honest lifetime: it speaks about the restoration and
+    // goes quiet when the lens returns to the face's own default (the
+    // reader stood it down) — a different press is still a remembered
+    // lens, just moved.
+    if (remembered && bandLens === 'ALL' && metricLens === 'all') setRemembered(false);
+  }, [bandLens, metricLens, remembered]);
 
   const wire = useQuery<PoLedgerWire>({
     queryKey: ['org-po-ledger', statusFilter, branchId, originFilter],
@@ -497,6 +536,20 @@ export function ProcurementLedger({ stores }: { stores: StoreRow[] }) {
               </button>
             );
           })}
+          {/* v2.263.0 THE REMEMBERED CHIP — the restoration's own notice:
+              the lens came back with you, and the words say so (and how
+              to lift it). It speaks only until the reader's own hand
+              moves an instrument — a notice, not a stance. */}
+          {remembered && (
+            <span
+              data-testid="po-ledger-lens-remembered"
+              title="your last lens returned with you — Escape, the clear button or a press stands it down"
+              className="inline-flex h-6 items-center gap-1 rounded-full bg-slate-100 px-2.5 text-[10px] font-semibold uppercase tracking-wide text-slate-600 ring-1 ring-slate-200 dark:bg-slate-500/10 dark:text-slate-300 dark:ring-slate-500/30"
+            >
+              <History className="h-2.5 w-2.5" aria-hidden="true" />
+              remembered
+            </span>
+          )}
         </div>
       )}
 

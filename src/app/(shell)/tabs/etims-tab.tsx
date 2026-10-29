@@ -219,7 +219,7 @@ function ProfileSection({ storeId }: { storeId: string }) {
               KRA Business Profile
             </CardTitle>
             <CardDescription>
-              Your store's eTIMS credentials. Used to submit sales invoices to the Kenya Revenue Authority.
+              Your store&apos;s eTIMS credentials. Used to submit sales invoices to the Kenya Revenue Authority.
             </CardDescription>
           </div>
           {canEdit && (
@@ -281,7 +281,7 @@ function ProfileSection({ storeId }: { storeId: string }) {
               <div className="space-y-1">
                 <p className="text-sm font-medium text-foreground">No KRA profile configured</p>
                 <p className="text-xs text-muted-foreground">
-                  You won't be able to submit invoices to KRA until you configure your eTIMS credentials.
+                  You won&apos;t be able to submit invoices to KRA until you configure your eTIMS credentials.
                 </p>
               </div>
               {canEdit && (
@@ -303,9 +303,9 @@ function ProfileSection({ storeId }: { storeId: string }) {
             <div className="space-y-1.5 text-sm">
               <p className="font-medium text-foreground">About eTIMS integration</p>
               <p className="text-muted-foreground text-xs leading-relaxed">
-                The Kenya Revenue Authority's electronic Tax Invoice Management System (eTIMS) requires
+                The Kenya Revenue Authority&apos;s electronic Tax Invoice Management System (eTIMS) requires
                 all VAT-registered businesses to submit sales invoices in real-time. This integration
-                maps each sales transaction to KRA's invoice format (with VAT 16% breakdown) and submits
+                maps each sales transaction to KRA&apos;s invoice format (with VAT 16% breakdown) and submits
                 it via the eTIMS API. Sandbox mode is for testing; production mode sends real invoices.
               </p>
               <p className="text-muted-foreground text-xs">
@@ -1068,7 +1068,7 @@ export default function EtimsTab() {
             KRA eTIMS Integration
           </h2>
           <p className="text-sm text-muted-foreground">
-            Submit sales invoices to the Kenya Revenue Authority's electronic Tax Invoice Management System.
+            Submit sales invoices to the Kenya Revenue Authority&apos;s electronic Tax Invoice Management System.
           </p>
         </div>
       </div>
