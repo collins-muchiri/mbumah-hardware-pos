@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.258.0',
+    title: 'The metrics\u2019 answer',
+    bullets: [
+      'The supplier\u2019s Performance card finally answers by its orders: the on-time, late and in-flight tiles wear drill chips with their real counts \u2014 click one and the Purchase Orders sub-tab opens with that lens pressed, narrowed to exactly the orders behind the number.',
+      'The metric lens composes with the band lens (both narrow together, the fetch never moves), the badge answers the combined reading, and one Escape stands the whole view back up.',
+      'The predicates live in one home \u2014 a tile\u2019s percentage and its drill count can never disagree, because they read the same rule.',
+      'The empty answer is honest too: a pressed metric that empties the roster names itself and offers its own clear beside the band\u2019s.',
+    ],
+  },
+  {
     version: '2.257.0',
     title: 'The escape ladder',
     bullets: [

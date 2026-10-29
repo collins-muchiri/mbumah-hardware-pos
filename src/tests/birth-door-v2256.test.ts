@@ -90,9 +90,9 @@ describe('the lens\u2019s ear \u2014 Escape stands the lens down (v2.256.0)', ()
     expect(branch).toContain('Escape stands the lens down"');
   });
 
-  it('the supplier face wears the ear \u2014 the third face, the same one home', () => {
+  it('the supplier face wears the ear \u2014 the third face, the same one home (v2.258.0: the ear grew the combined lift \u2014 the metric instrument joined, one listener lifts both)', () => {
     expect(suppliers).toContain("import { useLensEscape } from '@/lib/use-lens-escape';");
-    expect(suppliers).toContain("useLensEscape(bandLens !== 'ALL', () => setBandLens('ALL'));");
+    expect(suppliers).toContain("bandLens !== 'ALL' || metricLens !== 'all',");
     expect(suppliers).toContain('Escape stands the lens down"');
   });
 });

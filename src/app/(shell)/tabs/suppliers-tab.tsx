@@ -20,6 +20,12 @@ import { bandHouse, chipLabel, daysVoice, type CadenceBand } from '@/lib/cadence
 // v2.256.0 THE LENS'S EAR — Escape stands the lens down (the one home;
 // the dialog guard lives in the hook, never a copy).
 import { useLensEscape } from '@/lib/use-lens-escape';
+// v2.258.0 THE METRICS' ANSWER — the metric predicates' one home: the
+// Performance card's numbers answer BY the orders behind them.
+import {
+  poMetricPredicate, poMetricVoice, poMetricEmptyVoice, poMetricFamily,
+  type PoMetricKind, type PoMetricLens,
+} from '@/lib/po-metrics';
 
 import { useAppStore } from '@/lib/stores';
 import {
@@ -248,7 +254,30 @@ function DeliveryStatusIndicator({ po }: { po: PurchaseOrderListItem }) {
 
 // Supplier Performance Card (local, PO-based variant)
 
-function SupplierPOPerformanceCard({ purchaseOrders }: { purchaseOrders: PurchaseOrderListItem[] }) {
+function SupplierPOPerformanceCard({ purchaseOrders, onDrillToOrders }: { purchaseOrders: PurchaseOrderListItem[]; onDrillToOrders?: (kind: PoMetricKind) => void }) {
+  // v2.258.0 THE METRICS' ANSWER — the counts read the ONE home's
+  // predicates (the same rule the roster's metric lens filters by): a
+  // tile's % and its drill count cannot disagree. The drill is additive,
+  // never assumed — a face without the callback keeps the plain words.
+  const onTimeCount = purchaseOrders.filter((po) => poMetricPredicate('onTime', po)).length;
+  const lateCount = purchaseOrders.filter((po) => poMetricPredicate('late', po)).length;
+  const openCount = purchaseOrders.filter((po) => poMetricPredicate('open', po)).length;
+  const drill = (kind: PoMetricKind, n: number) =>
+    onDrillToOrders ? (
+      <button
+        type="button"
+        data-testid={`supplier-po-metric-drill-${kind}`}
+        title={`see the ${n} ${n === 1 ? 'order' : 'orders'} behind this number — opens the Purchase Orders sub-tab with the ${poMetricVoice(kind)} lens pressed`}
+        onClick={() => onDrillToOrders(kind)}
+        className={`inline-flex h-5 items-center gap-1 rounded-full px-2 text-[10px] font-semibold ring-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 ${poMetricFamily(kind).chip}`}
+      >
+        {poMetricVoice(kind)} <span className="tabular-nums opacity-80">{n}</span>
+      </button>
+    ) : (
+      <span className="text-[10px] text-muted-foreground">
+        {poMetricVoice(kind)} <span className="tabular-nums">{n}</span>
+      </span>
+    );
   const receivedPOs = purchaseOrders.filter(po => po.status === 'RECEIVED');
   const onTimePOs = receivedPOs.filter(po => {
     if (!po.expectedDate) return true;
@@ -292,6 +321,12 @@ function SupplierPOPerformanceCard({ purchaseOrders }: { purchaseOrders: Purchas
             <div className="mt-1 h-1 bg-green-200/50 rounded-full overflow-hidden">
               <div className="h-full bg-green-500 rounded-full" style={{ width: `${onTimeRate}%` }} />
             </div>
+            {/* v2.258.0: the number answers by its orders — the drill chips
+                speak the two halves of the received set (on time / late). */}
+            <div className="mt-1.5 flex flex-wrap items-center gap-1">
+              {drill('onTime', onTimeCount)}
+              {drill('late', lateCount)}
+            </div>
           </div>
           <div className="p-3 rounded-lg bg-blue-50/80 dark:bg-blue-900/20 backdrop-blur-sm border border-blue-200/30 dark:border-blue-800/30">
             <div className="flex items-center gap-2 mb-1">
@@ -301,6 +336,11 @@ function SupplierPOPerformanceCard({ purchaseOrders }: { purchaseOrders: Purchas
             <p className="text-xl font-bold text-blue-600">{fulfillmentRate}%</p>
             <div className="mt-1 h-1 bg-blue-200/50 rounded-full overflow-hidden">
               <div className="h-full bg-blue-500 rounded-full" style={{ width: `${fulfillmentRate}%` }} />
+            </div>
+            {/* v2.258.0: what the fulfillment rate does not yet cover — the
+                orders still in flight, one honest drill away. */}
+            <div className="mt-1.5 flex flex-wrap items-center gap-1">
+              {drill('open', openCount)}
             </div>
           </div>
           <div className="p-3 rounded-lg bg-amber-50/80 dark:bg-amber-900/20 backdrop-blur-sm border border-amber-200/30 dark:border-amber-800/30">
@@ -914,6 +954,10 @@ function SupplierDetailView({
   const [editOpen, setEditOpen] = useState(false);
   const [receivePOOpen, setReceivePOOpen] = useState(false);
   const [selectedPO, setSelectedPO] = useState<PurchaseOrderListItem | null>(null);
+  // v2.258.0: the detail's own sub-tab wheel — the metrics' drill turns
+  // it (Performance → Orders, lens pressed); a manual click keeps the
+  // wheel honest through onValueChange.
+  const [detailTab, setDetailTab] = useState('info');
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
@@ -943,10 +987,25 @@ function SupplierDetailView({
   // State of the surface, never of the fetch — the wire's rungs
   // (storeId + supplierId) stay the wire's.
   const [bandLens, setBandLens] = useState<'ALL' | CadenceBand | 'silent'>('ALL');
-  // v2.256.0 THE LENS'S EAR — the keyboard's lift: Escape stands the
-  // lens down (the same lift the face's own clear-the-lens speaks), a
-  // dialog's Escape stays the dialog's.
-  useLensEscape(bandLens !== 'ALL', () => setBandLens('ALL'));
+  // v2.258.0 THE METRICS' ANSWER — the metric rung: the Performance
+  // card's tiles drill to the orders behind their numbers (the same
+  // purchaseOrders the roster holds — the fetch never moves). The ear
+  // below lifts BOTH instruments. (The state declares BEFORE the ear
+  // that reads it — a const read above its own declaration is the TDZ,
+  // and the error boundary wears the fall.)
+  const [metricLens, setMetricLens] = useState<PoMetricLens>('all');
+  // v2.256.0 THE LENS'S EAR — the keyboard's lift. v2.258.0: the surface
+  // wears ONE ear with the COMBINED lift — two independent window
+  // listeners race (the live walk caught it twice: a discrete event's
+  // synchronous flush retires the other ear before its turn in the same
+  // Escape, so one press lifted one instrument and which one varied).
+  // One listener, one press, both instruments down — the view fully
+  // returns, and a dialog's Escape stays the dialog's (the guard lives
+  // in the hook, never a copy).
+  useLensEscape(
+    bandLens !== 'ALL' || metricLens !== 'all',
+    () => { setBandLens('ALL'); setMetricLens('all'); }
+  );
 
   // the lens's own counts — REAL numbers over the roster's rows (every
   // row lands in exactly one family; the sums read the roster). A pressed
@@ -964,7 +1023,7 @@ function SupplierDetailView({
   // the lens first (the house's own narrowing) — the roster holds no
   // other reading controls (no needle, no sort rungs here), so the lens
   // is the view's own answer; the fetch never moves.
-  const lensedOrders = useMemo(
+  const bandOrders = useMemo(
     () =>
       bandLens === 'ALL'
         ? purchaseOrders
@@ -972,6 +1031,16 @@ function SupplierDetailView({
             bandLens === 'silent' ? supplierPoBand(po) == null : supplierPoBand(po) === bandLens
           ),
     [purchaseOrders, bandLens]
+  );
+  // v2.258.0: the composed reading — the metric lens narrows what the
+  // band lens already answered (AND, never OR). The name the rows and
+  // the badge read stays the view's own: one reading, two instruments.
+  const lensedOrders = useMemo(
+    () =>
+      metricLens === 'all'
+        ? bandOrders
+        : bandOrders.filter((po) => poMetricPredicate(metricLens, po)),
+    [bandOrders, metricLens]
   );
 
   const deleteMutation = useMutation({
@@ -1109,8 +1178,10 @@ function SupplierDetailView({
         </Card>
       </div>
 
-      {/* Tabs */}
-      <Tabs defaultValue="info">
+      {/* Tabs — v2.258.0: controlled, the metrics' drill switches to the
+          orders sub-tab with the metric lens pressed (the drill needs the
+          wheel; a manual click keeps working through onValueChange). */}
+      <Tabs value={detailTab} onValueChange={(v) => setDetailTab(v)}>
         <TabsList>
           <TabsTrigger value="info">Info</TabsTrigger>
           <TabsTrigger value="orders">Purchase Orders</TabsTrigger>
@@ -1160,7 +1231,9 @@ function SupplierDetailView({
                     answers N of M (the honest narrowing), 'ALL' keeps the
                     roster's own count. */}
                 <Badge variant="outline" className="tabular-nums">
-                  {bandLens === 'ALL'
+                  {metricLens !== 'all'
+                    ? `${lensedOrders.length} of ${purchaseOrders.length} orders`
+                    : bandLens === 'ALL'
                     ? `${purchaseOrders.length} orders`
                     : `${lensedOrders.length} of ${purchaseOrders.length} orders`}
                 </Badge>
@@ -1211,6 +1284,31 @@ function SupplierDetailView({
                   </button>
                 </div>
               )}
+              {/* v2.258.0 THE METRICS' ANSWER — the metric rung's own rail:
+                  ONE chip when a metric is pressed, wearing the tile's own
+                  family, answering with the composed count (band ∩ metric),
+                  a click stands it down. Escape stands it down too (the
+                  metric ear rides beside the band's). */}
+              {metricLens !== 'all' && purchaseOrders.length > 0 && (
+                <div
+                  data-testid="supplier-po-metric-row"
+                  className="flex flex-wrap items-center gap-1.5 px-4 pt-2"
+                  title="the metrics' answer — the performance card's number, drilled to the orders behind it; a press narrows the view (the fetch stays); Escape stands the lens down"
+                >
+                  <button
+                    type="button"
+                    data-testid="supplier-po-metric-chip"
+                    aria-pressed="true"
+                    onClick={() => setMetricLens('all')}
+                    title={`${poMetricVoice(metricLens)} — ${lensedOrders.length} ${lensedOrders.length === 1 ? 'order' : 'orders'} behind the number; a click stands the metric down`}
+                    className={`inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-[10px] font-semibold uppercase tracking-wide tabular-nums ring-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 ${poMetricFamily(metricLens).pressed}`}
+                  >
+                    <span aria-hidden="true" className={`h-1.5 w-1.5 shrink-0 rounded-full bg-white/80 dark:bg-slate-950/50`} />
+                    {poMetricVoice(metricLens)} <span className="opacity-80">{lensedOrders.length}</span>
+                    <X className="h-3 w-3 opacity-70" aria-hidden="true" />
+                  </button>
+                </div>
+              )}
               {purchaseOrders.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
@@ -1228,7 +1326,9 @@ function SupplierDetailView({
                       the lift — the words never lie about the rows). */}
                   <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
                   <p className="text-sm">
-                    {bandLens === 'silent'
+                    {metricLens !== 'all'
+                      ? `No order on this roster ${poMetricEmptyVoice(metricLens)}`
+                      : bandLens === 'silent'
                       ? 'No order on this roster keeps the silence'
                       : `No order on this roster wears ${bandLens}`}
                   </p>
@@ -1244,6 +1344,17 @@ function SupplierDetailView({
                   >
                     <X className="h-3 w-3 mr-1" /> Clear the lens
                   </Button>
+                  {metricLens !== 'all' && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-3 ml-2 h-7 text-xs"
+                      data-testid="supplier-po-metric-clear"
+                      onClick={() => setMetricLens('all')}
+                    >
+                      <X className="h-3 w-3 mr-1" /> Clear the metric
+                    </Button>
+                  )}
                 </div>
               ) : (
                 <div className="max-h-96 overflow-auto custom-scrollbar">
@@ -1328,7 +1439,10 @@ function SupplierDetailView({
         </TabsContent>
 
         <TabsContent value="performance" className="mt-4">
-          <SupplierPOPerformanceCard purchaseOrders={purchaseOrders} />
+          <SupplierPOPerformanceCard
+            purchaseOrders={purchaseOrders}
+            onDrillToOrders={(kind) => { setMetricLens(kind); setDetailTab('orders'); }}
+          />
         </TabsContent>
 
         <TabsContent value="contact" className="mt-4">
