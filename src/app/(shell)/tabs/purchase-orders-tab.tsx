@@ -28,6 +28,9 @@ import { handleError } from '@/lib/error-handler';
 // census's own four houses (one home, byte-identical classes to the
 // org drill's chip).
 import { bandHouse, chipLabel, daysVoice, type CadenceBand } from '@/lib/cadence-band';
+// v2.256.0 THE LENS'S EAR — Escape stands the lens down (the one home;
+// the dialog guard lives in the hook, never a copy).
+import { useLensEscape } from '@/lib/use-lens-escape';
 
 // v2.254.0 THE BRANCH'S LENS — the row's own band, read from above: the
 // family the wire's spoke wore, or the silent absence (a hand-raised
@@ -1568,6 +1571,10 @@ export default function PurchaseOrdersTab() {
   // narrows the VIEW. State of the surface, never of the fetch — the
   // wire's rungs (status/supplier/date/page) stay the wire's.
   const [bandLens, setBandLens] = useState<'ALL' | CadenceBand | 'silent'>('ALL');
+  // v2.256.0 THE LENS'S EAR — the keyboard's lift: Escape stands the
+  // lens down (the same lift the face's own clear-all speaks), a
+  // dialog's Escape stays the dialog's.
+  useLensEscape(bandLens !== 'ALL', () => setBandLens('ALL'));
 
   const limit = 20;
   const currentTime = useMemo(() => new Date().getTime(), []);
@@ -1923,7 +1930,7 @@ export default function PurchaseOrdersTab() {
         <div
           data-testid="po-roster-band-row"
           className="flex flex-wrap items-center gap-1.5"
-          title="the page's own lens — the filters above stay the wire's; a press narrows the view (the fetch stays)"
+          title="the page's own lens — the filters above stay the wire's; a press narrows the view (the fetch stays); Escape stands the lens down"
         >
           {(['fresh', 'stale', 'beyond', 'never'] as const).map((b) => {
             const house = bandHouse(b);
@@ -1937,7 +1944,7 @@ export default function PurchaseOrdersTab() {
                 aria-pressed={pressed}
                 onClick={() => setBandLens(pressed ? 'ALL' : b)}
                 title={`${chipLabel(b)} — ${n === 0 ? 'no order' : `${n} ${n === 1 ? 'order' : 'orders'}`} on this page wears the house; a press narrows the view (the fetch stays)`}
-                className={`inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-[10px] font-semibold uppercase tracking-wide tabular-nums ring-1 transition-[filter] focus:outline-none focus:ring-2 focus:ring-sky-500/40 ${pressed ? house.pressed : house.chip} ${pressed ? '' : 'hover:brightness-[0.97] dark:hover:brightness-110'}`}
+                className={`inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-[10px] font-semibold uppercase tracking-wide tabular-nums ring-1 transition-[filter] focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/40 ${pressed ? house.pressed : house.chip} ${pressed ? '' : 'hover:brightness-[0.97] dark:hover:brightness-110'}`}
               >
                 <span aria-hidden="true" className={`h-1.5 w-1.5 shrink-0 rounded-full ${pressed ? 'bg-white/80 dark:bg-slate-950/50' : house.rail}`} />
                 {chipLabel(b)} <span className="opacity-70">{n}</span>
@@ -1950,7 +1957,7 @@ export default function PurchaseOrdersTab() {
             aria-pressed={bandLens === 'silent'}
             onClick={() => setBandLens(bandLens === 'silent' ? 'ALL' : 'silent')}
             title={`no band — ${bandCounts.silent === 0 ? 'no order' : `${bandCounts.silent} ${bandCounts.silent === 1 ? 'order' : 'orders'}`} on this page keeps the silence (a hand-raised birth, or a read that fell honest)`}
-            className={`inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-[10px] font-semibold uppercase tracking-wide tabular-nums ring-1 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500/40 ${bandLens === 'silent' ? 'bg-slate-800 text-white ring-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:ring-slate-100' : 'bg-white text-slate-600 ring-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-600 dark:hover:bg-slate-800'}`}
+            className={`inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-[10px] font-semibold uppercase tracking-wide tabular-nums ring-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/40 ${bandLens === 'silent' ? 'bg-slate-800 text-white ring-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:ring-slate-100' : 'bg-white text-slate-600 ring-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-600 dark:hover:bg-slate-800'}`}
           >
             no band <span className="opacity-70">{bandCounts.silent}</span>
           </button>

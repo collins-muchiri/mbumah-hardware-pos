@@ -37,7 +37,7 @@ ok('the lens first, then the needle, then the sort', tab.includes("bandLens === 
 ok('the face\u2019s own clear-all lifts the lens', tab.includes('    setBandLens(\'ALL\');') && tab.includes('search || statusFilter !== \'ALL\' || supplierFilter !== \'ALL\' || dateFrom || dateTo || bandLens !== \'ALL\''));
 ok('the rail wears the five families', tab.includes('data-testid="po-roster-band-row"') && tab.includes('data-testid={`po-roster-band-${b}`}') && tab.includes('data-testid="po-roster-band-silent"'));
 ok('the toggle law rides (pressed face from the one home)', tab.includes("onClick={() => setBandLens(pressed ? 'ALL' : b)}") && tab.includes("onClick={() => setBandLens(bandLens === 'silent' ? 'ALL' : 'silent')}") && tab.includes('${pressed ? house.pressed : house.chip}'));
-ok('the disclosure rides the rail', tab.includes('title="the page\'s own lens — the filters above stay the wire\'s; a press narrows the view (the fetch stays)"'));
+ok('the disclosure rides the rail (v2.256.0: the ear\u2019s words joined the title)', tab.includes('title="the page\'s own lens — the filters above stay the wire\'s; a press narrows the view (the fetch stays); Escape stands the lens down"'));
 
 console.log('— the birth\u2019s dot on the branch face —');
 ok('the branch roster\u2019s birth chip wears the rail-coloured dot (one home)', tab.includes('data-testid="po-row-band-dot"') && tab.includes('${bandHouse(po.originStockTake.walkAisle.band as CadenceBand).rail}'));
