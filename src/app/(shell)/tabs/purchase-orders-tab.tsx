@@ -1140,6 +1140,19 @@ function PODetailView({
           <div className="flex items-center gap-2">
             <ClipboardList className="h-5 w-5 text-primary" />
             {detail.poNumber}
+            {/* v2.261.0 THE DRILLS' WORDS — the branch detail wears the
+                esc chip the drills wear (hidden on small screens, honest
+                to ears via aria-hidden). NO new rung: the detail's
+                Escape is Radix's own — the topmost layer answers first,
+                the ladder's silence law holds by the platform's own
+                stack. The words, never a second listener. */}
+            <span
+              data-testid="po-detail-esc-hint"
+              aria-hidden="true"
+              className="hidden items-center rounded border bg-muted/40 px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-muted-foreground sm:inline-flex"
+            >
+              esc
+            </span>
           </div>
         }
         description={

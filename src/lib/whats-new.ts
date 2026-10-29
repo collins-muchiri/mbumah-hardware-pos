@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.261.0',
+    title: 'The document\u2019s answer',
+    bullets: [
+      'Open an order\u2019s drill under a pressed metric and the document answers why: \u201carrived late \u2014 raised 3 days after the day the supplier named\u201d \u2014 the one rule\u2019s own arithmetic, spoken with the document\u2019s own facts (status, raised-at, the named day \u2014 zero new fetch).',
+      'The gate is the rule itself: a document that no longer answers the pressed lens keeps the strip silent, and a drill opened of its own right answers nothing it was not asked \u2014 a why that cannot be spoken is never guessed.',
+      'The strip wears the metric\u2019s own family \u2014 the pressed chip\u2019s colour and its rail dot; an information face, never the pressed shout, never a new palette.',
+      'The branch detail wears the drills\u2019 esc chip too \u2014 the words, not a second listener: its Escape is the platform\u2019s own, and the topmost layer still answers first.',
+    ],
+  },
+  {
     version: '2.260.0',
     title: 'The ledger\u2019s instruments',
     bullets: [

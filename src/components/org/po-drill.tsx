@@ -46,6 +46,10 @@ import { useDrillEscape } from '@/lib/use-lens-escape';
 // four houses (one home, byte-identical classes — never a second
 // constant).
 import { bandHouse, chipLabel, daysVoice } from '@/lib/cadence-band';
+// v2.261.0 THE DOCUMENT'S ANSWER — the why-strip reads the ONE home:
+// the gate is the predicate, the words are the voice, the face is the
+// family — a strip and a rail count cannot disagree.
+import { poMetricFamily, poMetricWhyVoice, type PoMetricKind } from '@/lib/po-metrics';
 
 const fmtKes = (v: number) =>
   `KES ${v.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -84,7 +88,17 @@ export function poLinesCsv(lines: PoDrillWire['data']['lines'], opts: { costGate
   return `\ufeff${[header, ...rows].join('\r\n')}`;
 }
 
-export type PoDrillTarget = { id: string; poNumber: string; status: string } | null;
+export type PoDrillTarget = {
+  id: string;
+  poNumber: string;
+  status: string;
+  // v2.261.0 THE DOCUMENT'S ANSWER — the pressed rule the parent hands
+  // the door (additive + optional): when the ledger opens a row's drill
+  // under a pressed metric, the drill speaks WHY with the document's own
+  // facts. A drill opened of its own right carries no metric — the
+  // honest absence, never an assumed lens.
+  metric?: PoMetricKind;
+} | null;
 
 interface PoDrillWire {
   success: boolean;
@@ -191,6 +205,14 @@ export function PoDrill({ target, onClose, onOpenSheet }: { target: PoDrillTarge
   const birthTarget = data?.originStockTake && data.store
     ? { id: data.originStockTake.id, storeName: data.store.name, status: data.originStockTake.status }
     : null;
+  // v2.261.0 THE DOCUMENT'S ANSWER — the pressed rule the parent handed
+  // the door. The gate is the ONE home's predicate on the FRESH wire's
+  // own row: a document that no longer answers the pressed rule (a stale
+  // lens, a row that moved between list and drill) keeps the strip
+  // silent — a why that cannot be spoken is never guessed.
+  const metricKind = target.metric ?? null;
+  const whyFamily = metricKind ? poMetricFamily(metricKind) : null;
+  const metricWhy = metricKind && data ? poMetricWhyVoice(metricKind, data) : null;
 
   const costGated = data?.summary.totalAmount == null;
   const exportLines = () => {
@@ -282,6 +304,30 @@ export function PoDrill({ target, onClose, onOpenSheet }: { target: PoDrillTarge
 
         {data && (
           <>
+            {/* v2.261.0 THE DOCUMENT'S ANSWER — the drill speaks WHY this
+                document sits in the pressed set: the one rule's own
+                arithmetic, read from the fields the wire ALREADY carries
+                (status + createdAt + expectedDate — zero new fetch). The
+                gate is the predicate; the voice answered null for a
+                document that does not answer the rule. The strip wears
+                the metric's own family — the pressed chip's colour, a
+                rail-coloured dot — never a new palette, never the pressed
+                shout (an answer is information, not a control). */}
+            {metricWhy && metricKind && whyFamily && (
+              <div
+                data-testid="po-drill-metric-why"
+                title="the one rule — the Performance card, the rails and the tiles all read it; this document's own facts answer it here"
+                className={`mt-2.5 rounded-lg border px-3 py-2 text-[11px] ${whyFamily.why}`}
+              >
+                <p className="flex items-center gap-1 text-[9px] font-semibold uppercase tracking-wide opacity-70">
+                  <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${whyFamily.rail}`} />
+                  why this document answers
+                </p>
+                <p data-testid="po-drill-metric-why-voice" className="mt-0.5 font-medium">
+                  {metricWhy}
+                </p>
+              </div>
+            )}
             {/* v2.249.0 THE BIRTH'S LEDGER — the org drill names the
                 count sheet this PO was born from (the violet door
                 family, the SAME voice the branch record speaks): the
