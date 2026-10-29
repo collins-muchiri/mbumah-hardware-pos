@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.271.0',
+    title: 'The report hears the bell',
+    bullets: [
+      'The reports desk gains a Portal tab \u2014 the roster\u2019s quiet bell rolled up: who holds a self-service login, which accounts stand, and where the honest dash still does, per branch and per employee.',
+      'The adoption meter answers at a glance \u2014 linked logins over employees in scope, per branch the scope answers for.',
+      'The census keeps the roster\u2019s own laws: the email never rides the report, the unlinked row stays the honest dash, and the branch drill-down narrows it like every other table.',
+    ],
+  },
+  {
     version: '2.270.0',
     title: 'The lens finds the bell',
     bullets: [

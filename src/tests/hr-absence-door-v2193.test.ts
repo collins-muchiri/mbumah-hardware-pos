@@ -55,7 +55,10 @@ describe('the builder executed - the ONE writer of the composed shape', () => {
   it('the destination honors BOTH halves of the composed link', () => {
     // the tab key is one of the reports page's OWN REPORT_TAB_KEYS
     expect(reportsPage).toContain("'absence'");
-    expect(reportsPage).toContain("REPORT_TAB_KEYS = ['headcount', 'cost', 'absence', 'leave', 'turnover', 'tth', 'statutory', 'p10', 'schedules', 'privacy']");
+    // v2.271.0 grew the desk by one ('portal' — the adoption census); the
+    // composed-link law itself is untouched (the door still lands on a
+    // real REPORT_TAB_KEYS member).
+    expect(reportsPage).toContain("REPORT_TAB_KEYS = ['headcount', 'cost', 'absence', 'leave', 'turnover', 'tth', 'statutory', 'p10', 'schedules', 'portal', 'privacy']");
     // the page consumes the ?tab= param into its tab state
     expect(reportsPage).toContain('(REPORT_TAB_KEYS as readonly string[]).includes(requested)');
     // the v2.23.0 per-branch deep link rides through the page's storeId
@@ -185,9 +188,9 @@ describe('the styling math - the desk report families carry their numbers', () =
 
 describe('docs and release surfaces', () => {
   it('package.json rides at 2.198.0 (all three slots) and the verify script is wired', () => {
-    expect(pkg.version).toBe('2.270.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.270.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.270.0');
+    expect(pkg.version).toBe('2.271.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.271.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.271.0');
     expect(pkg.scripts['verify:v2-193-0']).toBe('node scripts/verify-v2-193-0.mjs');
     expect(pkg.scripts['verify:v2-192-0']).toBe('node scripts/verify-v2-192-0.mjs');
     expect(readRepo('scripts/verify-v2-193-0.mjs')).toContain('v2.193.0 verification');
@@ -211,8 +214,8 @@ describe('docs and release surfaces', () => {
 
   it('the head-pin counters re-anchored to the new head', () => {
     const counter = readRepo('src/tests/console-changelog.test.ts');
-    expect(counter).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(162);");
+    expect(counter).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(163);");
     const a11yShell = readRepo('src/tests/a11y-shell-v2148.test.ts');
-    expect(a11yShell).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(162);");
+    expect(a11yShell).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(163);");
   });
 });

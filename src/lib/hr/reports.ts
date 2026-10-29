@@ -1082,3 +1082,73 @@ export async function auditLeaveUtilisationExport(session: Session, year: number
     metadata: { year, format, scope: resolveReportScope(session) },
   }).catch(() => undefined);
 }
+
+/**
+ * v2.271.0: the portal adoption report — the roster's quiet bell rolled up
+ * to report distance. Answers, for the governed scope, who holds a linked
+ * self-service login, how many of those logins are active vs deactivated,
+ * and where the honest dash still stands (the unlinked). The per-employee
+ * rows carry the SAME shaped bits the roster wire carries (role + active
+ * state only) — the email NEVER leaves the User row (the roster's own
+ * PII law, spoken at report distance). A point-in-time census: no period,
+ * the way the consent view is one.
+ */
+export async function portalAdoptionReport(session: Session, opts?: { storeId?: string | null }) {
+  const scope = resolveReportScope(session);
+  if (!scope) return null;
+  const where = { deletedAt: null, ...scopeWhere(session, scope, opts?.storeId) };
+
+  const rows = await db.employee.findMany({
+    where,
+    orderBy: [{ firstName: 'asc' }, { lastName: 'asc' }],
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      employeeCode: true,
+      jobTitle: true,
+      status: true,
+      store: { select: { name: true } },
+      // role + active state only — the select itself refuses the email
+      // (the shaper cannot leak what the query never fetched)
+      user: { select: { role: true, isActive: true } },
+    },
+  });
+
+  const shaped = rows.map((e) => ({
+    id: e.id,
+    name: `${e.firstName} ${e.lastName}`,
+    employeeCode: e.employeeCode,
+    jobTitle: e.jobTitle,
+    status: e.status,
+    storeName: e.store.name,
+    portalLinked: e.user != null,
+    portalRole: e.user?.role ?? null,
+    portalActive: e.user ? e.user.isActive : null,
+  }));
+
+  // per-branch rollup (the org console's StatCard drill-down reads the same
+  // store names; BRANCH scope sees exactly one entry)
+  const byStoreMap = new Map<string, { total: number; linked: number }>();
+  for (const r of shaped) {
+    const entry = byStoreMap.get(r.storeName) ?? { total: 0, linked: 0 };
+    entry.total += 1;
+    if (r.portalLinked) entry.linked += 1;
+    byStoreMap.set(r.storeName, entry);
+  }
+
+  return {
+    scope,
+    total: shaped.length,
+    linked: shaped.filter((r) => r.portalLinked).length,
+    activeLogins: shaped.filter((r) => r.portalLinked && r.portalActive !== false).length,
+    deactivatedLogins: shaped.filter((r) => r.portalLinked && r.portalActive === false).length,
+    unlinked: shaped.filter((r) => !r.portalLinked).length,
+    byStore: [...byStoreMap.entries()]
+      .map(([storeName, s]) => ({ storeName, ...s }))
+      .sort((a, b) => b.total - a.total),
+    rows: shaped,
+  };
+}
+
+export type PortalAdoptionDto = NonNullable<Awaited<ReturnType<typeof portalAdoptionReport>>>;

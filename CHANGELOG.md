@@ -2,6 +2,16 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.271.0] The report hears the bell
+
+The roster answers WHICH hires hold portal access (v2.268.0's quiet bell) and the lens can ASK for them (v2.270.0) — but the reports desk had no census. This round the bell is rolled up to report distance: a point-in-time adoption roll call over the governed scope, on its own tab of /hr/reports.
+
+### Added
+- **The Portal adoption report** (`src/lib/hr/reports.ts` + `src/app/api/hr/reports/portal-adoption/route.ts` + `src/app/(shell)/hr/reports/page.tsx`): a new tab answering, for the governed scope (the same `hr.report.branch` guard, roles, and branch drill-down as every other report), who holds a linked self-service login, how many of those logins are active vs deactivated, and where the honest dash still stands — as summary tiles, a per-branch rollup with an adoption meter, and the per-employee roll call. The service's select REFUSES the email (role + active state only — the shaper cannot leak what the query never fetched); the rows carry exactly the shaped bits the roster wire carries. The census reloads when the branch chip narrows the surface (the storeId law every report table keeps), speaks its failures with the shared retry strip, and has no digest CSV by design (a census has no period to schedule).
+
+### Styled
+- **The roll call wears the roster's chip vocabulary, byte-kept**: emerald open / amber closed — the exact classes the Portal column wears — and the unlinked row renders the honest dash, never a look-alike chip. The by-branch meter is a thin emerald gradient bar with an aria-label speaking the rate aloud.
+
 ## [2.270.0] The lens finds the bell
 
 v2.268.0 made the roster answer WHICH hires hold portal access (the quiet bell), and v2.267.0's keystone let HR link one from the detail card — but the filter bar could not ASK for them. This round the bell answers in the filter bar, and the portal home's hero answers back from the employee's side of the same link.
