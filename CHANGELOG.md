@@ -2,6 +2,22 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.258.0] The metrics' answer
+
+The supplier detail's Performance card has always computed its rates from the same purchase orders the Orders sub-tab holds — but the numbers were dead ends: a 78% on-time rate named no order you could read. This round the numbers answer by the orders behind them: a drill chip on the tile opens the roster with the metric lens pressed, narrowed to exactly the rows wearing the number.
+
+### Added
+- **The metrics' one home** (`src/lib/po-metrics.ts`): the metric predicates — `onTime` (received, not after its expectation; the card's own rule byte-matched), `late` (the received complement — no row in both, no row in neither), `open` (in flight: not cancelled, not received) — plus the chip voices and the tile families, ONE copy. A tile's percentage and its drill count cannot disagree, because they read the same rule.
+- **The drill chips** (`suppliers-tab.tsx` `SupplierPOPerformanceCard`): the On-Time tile wears "on time N" (green) and "late M" (rose) — the two halves of the received set; the Fulfillment tile wears "in flight K" (blue) — what fulfillment does not yet cover. A click opens the Orders sub-tab with the metric lens pressed (the drill needs the wheel — the detail's sub-tabs are controlled state now). A face without the callback keeps the plain counts: the drill is additive, never assumed.
+- **The metric lens on the roster** (`suppliers-tab.tsx` `SupplierDetailView`): the metric narrows what the band lens already answered (AND, never OR) — the composed list keeps the name the rows and badge read (`lensedOrders`; the band-only memo becomes `bandOrders`), the badge answers the combined reading, and the pressed metric wears its own family chip (the count beside it, a click stands it down). Its own ear rides beside the band's: one Escape stands the whole narrowing down — both instruments lift together, the view fully returns.
+- **The honest empty face**: a pressed metric that empties the roster names itself ("No order on this roster is on time / arrived late / is still in flight") and offers its own clear beside the band's — the two lifts never blur.
+
+### Styled
+- The drill chips and the roster's metric chip wear the tile's own family (green/rose/blue — never a new palette) with focus-visible rings; the counts are tabular-nums; the chip's title speaks the number's own words.
+
+### Tests
+- `src/tests/metric-drill-v2258.test.ts` (14 pins across 4 describes): the one home's kinds/rules/voices/families, the card's additive drill + predicate-read counts, the roster's composition (state, ear, memos, chip, badge, empty face) with every v2.255.0 byte kept, and the controlled wheel that turns the drill.
+
 ## [2.257.0] The escape ladder
 
 The drills could be opened by keyboard and read by keyboard, but they could only be closed by mouse — the ear's guard (v2.256.0) correctly hands Escape to "the dialog", and the drill WAS the dialog, so a press on an open drill did nothing. This round the one home grows the drills' own rung: Escape closes the drill you are reading, the ladder stacks cleanly, and the law is spoken where the hand can find it.

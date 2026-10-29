@@ -45,7 +45,7 @@ ok('the dialog guard reads the live tree at the moment of the keypress', ear.inc
 ok('the listener is tidy (added and removed)', ear.includes("window.addEventListener('keydown', onKey);") && ear.includes("window.removeEventListener('keydown', onKey);"));
 ok('the org face wears the ear', ledger.includes("import { useLensEscape } from '@/lib/use-lens-escape';") && ledger.includes("useLensEscape(bandLens !== 'ALL', () => setBandLens('ALL'));"));
 ok('the branch face wears the ear', branch.includes("import { useLensEscape } from '@/lib/use-lens-escape';") && branch.includes("useLensEscape(bandLens !== 'ALL', () => setBandLens('ALL'));"));
-ok('the supplier face wears the ear', suppliers.includes("import { useLensEscape } from '@/lib/use-lens-escape';") && suppliers.includes("useLensEscape(bandLens !== 'ALL', () => setBandLens('ALL'));"));
+ok('the supplier face wears the ear (v2.258.0: the combined lift — the metric instrument joined)', suppliers.includes("import { useLensEscape } from '@/lib/use-lens-escape';") && suppliers.includes("bandLens !== 'ALL' || metricLens !== 'all',"));
 ok('the three rails say it aloud', ledger.includes('Escape stands the lens down"') && branch.includes('Escape stands the lens down"') && suppliers.includes('Escape stands the lens down"'));
 
 console.log('— the focus\u2019s honesty —');
