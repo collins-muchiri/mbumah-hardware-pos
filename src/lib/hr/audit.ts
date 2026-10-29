@@ -39,6 +39,8 @@ export const HrEntityType = {
   DATA_EXPORT: 'DataExport',
   // v2.22.0: scheduled HR report email digests.
   REPORT_SCHEDULE: 'HrReportSchedule',
+  // v2.276.0: the filing ledger — the compliance evidence rows.
+  STATUTORY_FILING: 'StatutoryFiling',
 } as const;
 
 export type HrEntityTypeValue = (typeof HrEntityType)[keyof typeof HrEntityType];

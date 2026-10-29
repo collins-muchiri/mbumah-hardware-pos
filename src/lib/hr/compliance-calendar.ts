@@ -261,3 +261,28 @@ export function statutoryDueForPeriod(month: string): StatutoryDue | null {
     weekendNote,
   };
 }
+
+/**
+ * The payroll month a deadline covers (v2.276.0 "the ledger takes the
+ * receipt"): the deadline "2026-11-09" covers the payroll month "2026-10"
+ * — the 9th-of-the-following-month statute read backwards. This is the
+ * filing ledger's ONE join key: the card's receipt chips, the monthly
+ * figures' filed dots, and the receipt dialog's submit all derive the
+ * month through THIS function, so a chip and a dot can never disagree
+ * about which month a receipt covers. It lives on the PURE calendar lib
+ * (no server imports — the client page reads it directly; a wrong-module
+ * import would pull the ledger's Prisma graph into the browser bundle and
+ * panic the build). Malformed dates → null (honest absence, never a
+ * guessed month).
+ */
+export function periodMonthForDueDate(dueDate: string): string | null {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dueDate ?? '')) return null;
+  const due = new Date(`${dueDate}T00:00:00Z`);
+  if (Number.isNaN(due.getTime())) return null;
+  const year = due.getUTCFullYear();
+  const month0 = due.getUTCMonth(); // 0-based deadline month
+  // one month back, with the January → December year roll
+  const periodYear = month0 === 0 ? year - 1 : year;
+  const periodMonth0 = month0 === 0 ? 11 : month0 - 1;
+  return `${periodYear}-${String(periodMonth0 + 1).padStart(2, '0')}`;
+}

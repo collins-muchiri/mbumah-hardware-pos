@@ -29,6 +29,7 @@ import {
   CalendarX2,
   DoorOpen,
   FileDown,
+  Stamp,
   Hourglass,
   Landmark,
   History,
@@ -48,7 +49,8 @@ import {
 } from 'lucide-react';
 import { apiGet, apiSend, ErrorNote, StatusBadge, formatDate, formatKes } from '@/components/hr/self-service-ui';
 import { buildConsentTimelineCsv, consentTimelineCsvFilename, type ConsentTimelineCsvRow } from '@/lib/hr/consent-timeline-csv';
-import { statutoryDueForPeriod } from '@/lib/hr/compliance-calendar';
+import { statutoryDueForPeriod, periodMonthForDueDate } from '@/lib/hr/compliance-calendar';
+import type { StatutoryFilingRow } from '@/lib/hr/statutory-filing';
 import { COL_WIDTHS_STORAGE_KEY, EDGE_BAND, loadColWidths, nudgeColWidth } from '@/lib/hr/column-resize';
 import { describeSweepOutcome } from '@/lib/hr/sweep-outcome';
 import { formatCsvSize } from '@/lib/hr/digest-csv';
@@ -530,6 +532,22 @@ export default function HrReportsPage() {
   const [calendar, setCalendar] = useState<CalendarDto | null>(null);
   const [calendarFailed, setCalendarFailed] = useState(false);
   const [calendarBusy, setCalendarBusy] = useState(false);
+  // v2.276.0: the filing ledger rides the SAME loader as the clock — one
+  // fetch pair, one busy face, one failure strip family (a new loader+effect
+  // pair would grow the set-state-in-effect family; folding into the
+  // calendar's loader keeps the law exactly). The rows key on
+  // `${kind}:${periodMonth}` — the ONE join key the card's chips, the
+  // monthly figures' dots, and the dialog's submit all speak.
+  const [filings, setFilings] = useState<StatutoryFilingRow[]>([]);
+  const [filingsCoverage, setFilingsCoverage] = useState<{ from: string; to: string } | null>(null);
+  const [filingFailed, setFilingFailed] = useState(false);
+  // the receipt dialog — parameterized by the obligation being filed
+  const [filingTarget, setFilingTarget] = useState<{ kind: string; label: string; periodMonth: string; periodLabel: string } | null>(null);
+  const [filingFiledAt, setFilingFiledAt] = useState('');
+  const [filingRef, setFilingRef] = useState('');
+  const [filingNote, setFilingNote] = useState('');
+  const [filingBusy, setFilingBusy] = useState(false);
+  const [filingError, setFilingError] = useState('');
   const [p10, setP10] = useState<P10Dto | null>(null);
   const [erasure, setErasure] = useState<ErasureDto | null>(null);
   // v2.130.0: the Privacy tab speaks its failures — a failed load renders an
@@ -688,8 +706,31 @@ export default function HrReportsPage() {
     await Promise.resolve();
     setCalendarBusy(true);
     try {
-      setCalendar(await apiGet<CalendarDto>('/api/hr/reports/compliance-calendar'));
+      const cal = await apiGet<CalendarDto>('/api/hr/reports/compliance-calendar');
+      setCalendar(cal);
       setCalendarFailed(false);
+      // v2.276.0: the ledger rides along — the read window is the calendar's
+      // own payroll month back through 24 months (the monthly figures'
+      // default year-lookback fits; a row outside the window never claims a
+      // receipt or a missing one — the coverage bounds are spoken, not guessed).
+      try {
+        const period0 = cal.obligations[0] ? periodMonthForDueDate(cal.obligations[0].dueDate) : null;
+        const now = new Date();
+        const to = period0 ?? `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
+        const fromD = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 24, 1));
+        const from = `${fromD.getUTCFullYear()}-${String(fromD.getUTCMonth() + 1).padStart(2, '0')}`;
+        // apiGet UNWRAPS the envelope (it returns json.data or throws) — the
+        // rows ARE the payload, an envelope-shaped read here would quietly
+        // read .data off an array and file nothing (caught by E2E, pinned below)
+        const rows = await apiGet<StatutoryFilingRow[]>(`/api/hr/reports/compliance-filing?from=${from}&to=${to}`);
+        setFilings(rows ?? []);
+        setFilingsCoverage({ from, to });
+        setFilingFailed(false);
+      } catch {
+        // the clock still speaks — only the receipts go quiet (the strip says so)
+        setFilings([]);
+        setFilingFailed(true);
+      }
     } catch {
       setCalendar(null);
       setCalendarFailed(true); // the clock speaks its own failure — never a spin forever
@@ -697,6 +738,53 @@ export default function HrReportsPage() {
       setCalendarBusy(false);
     }
   }, []);
+
+  // ── v2.276.0: the filing ledger's desk helpers ──
+  // The ONE join key the card's chips, the monthly figures' dots, and the
+  // dialog's submit all speak: `${kind}:${periodMonth}`.
+  const filingFor = (kind: string, periodMonth: string | null | undefined): StatutoryFilingRow | null =>
+    periodMonth ? filings.find((f) => f.kind === kind && f.periodMonth === periodMonth) ?? null : null;
+  /** The month-level roll-up the Due cell's dot speaks: every obligation evidenced. */
+  const monthFullyFiled = (periodMonth: string): boolean =>
+    ['PAYE', 'NSSF', 'SHIF', 'AHL'].every((k) => filings.some((f) => f.kind === k && f.periodMonth === periodMonth));
+  const monthFiledCount = (periodMonth: string): number =>
+    ['PAYE', 'NSSF', 'SHIF', 'AHL'].filter((k) => filings.some((f) => f.kind === k && f.periodMonth === periodMonth)).length;
+  const monthInCoverage = (periodMonth: string): boolean =>
+    Boolean(filingsCoverage && periodMonth >= filingsCoverage.from && periodMonth <= filingsCoverage.to);
+
+  /** Open the receipt dialog for one obligation — the datetime defaults to now. */
+  const openFilingDialog = (o: CalendarDto['obligations'][number], periodMonth: string) => {
+    const nowLocal = new Date();
+    nowLocal.setMinutes(nowLocal.getMinutes() - nowLocal.getTimezoneOffset());
+    setFilingTarget({ kind: o.kind, label: o.label, periodMonth, periodLabel: o.periodLabel });
+    setFilingFiledAt(nowLocal.toISOString().slice(0, 16));
+    setFilingRef('');
+    setFilingNote('');
+    setFilingError('');
+  };
+
+  const submitFiling = async () => {
+    if (!filingTarget) return;
+    setFilingBusy(true);
+    setFilingError('');
+    try {
+      await apiSend('/api/hr/reports/compliance-filing', 'POST', {
+        kind: filingTarget.kind,
+        periodMonth: filingTarget.periodMonth,
+        filedAt: new Date(filingFiledAt).toISOString(),
+        reference: filingRef || null,
+        note: filingNote || null,
+      });
+      setFilingTarget(null);
+      await loadCalendar(); // the receipt joins the map — the chip and the dot speak it
+    } catch (err) {
+      // the route's precise code rides the message; the strip never guesses
+      const msg = err instanceof Error ? err.message : 'The filing could not be recorded.';
+      setFilingError(msg || 'The filing could not be recorded.');
+    } finally {
+      setFilingBusy(false);
+    }
+  };
 
   const loadErasure = useCallback(async () => {
     setErasureBusy(true);
@@ -2132,18 +2220,62 @@ export default function HrReportsPage() {
                               </p>
                             ) : null}
                           </div>
-                          <span
-                            data-testid={`hr-cal-status-${o.kind.toLowerCase()}`}
-                            className={`inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${calendarStatusTone(o.status)}`}
-                          >
-                            {o.statusWord}
-                          </span>
+                          <div className="flex shrink-0 flex-col items-end gap-1.5">
+                            <div className="flex items-center gap-1.5">
+                              {/* v2.276.0: the receipt — the ledger's own chip. The
+                                  emerald 'good' family: on THIS card emerald means
+                                  "the ledger holds the receipt", and the words ride
+                                  the chip so AT hears what the eye sees. It never
+                                  borrows the clock's rose/amber/sky. */}
+                              {(() => {
+                                const periodMonth = periodMonthForDueDate(o.dueDate);
+                                const filed = filingFor(o.kind, periodMonth);
+                                return filed ? (
+                                  <span
+                                    data-testid={`hr-cal-filed-${o.kind.toLowerCase()}`}
+                                    title={`Filed ${formatDate(filed.filedAt)}${filed.filedByName ? ` by ${filed.filedByName}` : ''}${filed.reference ? ` — ref ${filed.reference}` : ''}`}
+                                    className="inline-flex shrink-0 items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300"
+                                  >
+                                    <FileCheck2 className="h-3 w-3 shrink-0" aria-hidden />
+                                    filed {formatDate(filed.filedAt)}
+                                  </span>
+                                ) : null;
+                              })()}
+                              <span
+                                data-testid={`hr-cal-status-${o.kind.toLowerCase()}`}
+                                className={`inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${calendarStatusTone(o.status)}`}
+                              >
+                                {o.statusWord}
+                              </span>
+                            </div>
+                            {/* the write door — only while the window is open and the receipt is missing:
+                                a window that has not opened has nothing to file, and a filed window
+                                keeps its receipt (amendments go through the ledger's own audit trail). */}
+                            {o.status !== 'NOT_YET_OPEN' && !filingFor(o.kind, periodMonthForDueDate(o.dueDate)) && (
+                              <button
+                                type="button"
+                                data-testid={`hr-cal-file-button-${o.kind.toLowerCase()}`}
+                                onClick={() => {
+                                  const pm = periodMonthForDueDate(o.dueDate);
+                                  if (pm) openFilingDialog(o, pm);
+                                }}
+                                className="inline-flex items-center gap-1 rounded-md border border-dashed border-border px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground transition-colors hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 dark:hover:border-emerald-800 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300"
+                              >
+                                <Stamp className="h-3 w-3 shrink-0" aria-hidden /> Mark filed
+                              </button>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>
                     <p className="mt-2 border-t pt-2 text-[11px] text-muted-foreground">
-                      The clock speaks deadlines only — whether a window was filed is the ledger&apos;s business. Instruments: {calendar.obligations[0]?.instrument ?? '—'}; the same 9th governs NSSF, SHIF and the housing levy.
+                      The clock speaks deadlines; the ledger speaks receipts — record a filing when the return goes in, and the chip remembers who filed it and when. Instruments: {calendar.obligations[0]?.instrument ?? '—'}; the same 9th governs NSSF, SHIF and the housing levy.
                     </p>
+                    {filingFailed && (
+                      <p className="mt-1.5 text-[11px] text-amber-700 dark:text-amber-400" data-testid="hr-compliance-filing-error">
+                        The filing ledger could not be read — the clock still speaks, the receipts are quiet. Retry from the calendar&apos;s refresh.
+                      </p>
+                    )}
                   </CardContent>
                 </Card>
               )}
@@ -2203,9 +2335,25 @@ export default function HrReportsPage() {
                               <TableCell className={`text-right tabular-nums ${col('arr')}`}>{formatKes(m.payeArrears)}</TableCell>
                               <TableCell
                                 className={`whitespace-nowrap text-right text-xs tabular-nums ${due?.weekendNote ? 'text-amber-700 dark:text-amber-400' : 'text-slate-600 dark:text-slate-300'} ${col('due')}`}
-                                title={due?.weekendNote ?? 'Filing window: the 1st–9th of the following month — the statute does not wait for the weekend'}
+                                title={(() => {
+                                  // the clock's words stay; the ledger's composition joins them —
+                                  // within the read window a month without receipts says so honestly,
+                                  // outside it the cell keeps quiet (no coverage, no claim)
+                                  const base = due?.weekendNote ?? 'Filing window: the 1st–9th of the following month — the statute does not wait for the weekend';
+                                  if (!monthInCoverage(m.month)) return base;
+                                  const count = monthFiledCount(m.month);
+                                  if (count === 0) return `${base} — no filing recorded`;
+                                  return `${base} — filed: ${count} of 4 obligations`;
+                                })()}
                               >
                                 {due ? due.dueLabel : '—'}
+                                {monthFullyFiled(m.month) && (
+                                  <FileCheck2
+                                    className="ml-1 inline h-3 w-3 text-emerald-600 dark:text-emerald-400"
+                                    aria-label="All four obligations filed for this month"
+                                    data-testid="hr-due-filed-dot"
+                                  />
+                                )}
                               </TableCell>
                             </TableRow>
                           );
@@ -3012,6 +3160,82 @@ export default function HrReportsPage() {
               ) : null}
             </div>
           ) : null}
+        </DialogContent>
+      </Dialog>
+
+      {/* ── v2.276.0: the filing ledger's receipt dialog ──
+          One dialog, parameterized by the obligation whose "Mark filed"
+          opened it. The receipt is the FILER's assertion (what was filed,
+          when it was actually made, an optional reference) — the server
+          validates it is not future-dated and audits the write; the chip
+          and the monthly figures' dot speak the same row afterwards. */}
+      <Dialog open={filingTarget !== null} onOpenChange={(open) => !open && setFilingTarget(null)}>
+        <DialogContent className="sm:max-w-md" data-testid="hr-filing-dialog">
+          <DialogHeader>
+            <DialogTitle className="text-sm">
+              Record the {filingTarget?.label} filing — {filingTarget?.periodLabel}
+            </DialogTitle>
+            <DialogDescription>
+              The receipt is your assertion that the return or payment went in. It lands in the filing ledger —
+              one receipt per obligation per month; recording again amends it.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <Label htmlFor="filing-filed-at" className="text-xs">Filed on</Label>
+              <Input
+                id="filing-filed-at"
+                type="datetime-local"
+                value={filingFiledAt}
+                onChange={(e) => setFilingFiledAt(e.target.value)}
+                className="h-8"
+                data-testid="hr-filing-filed-at"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="filing-ref" className="text-xs">Reference (optional)</Label>
+              <Input
+                id="filing-ref"
+                value={filingRef}
+                onChange={(e) => setFilingRef(e.target.value)}
+                placeholder="Payment slip / KRA voucher number"
+                maxLength={120}
+                className="h-8"
+                data-testid="hr-filing-ref"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="filing-note" className="text-xs">Note (optional)</Label>
+              <Textarea
+                id="filing-note"
+                value={filingNote}
+                onChange={(e) => setFilingNote(e.target.value)}
+                placeholder="Anything the next reader of this receipt should know"
+                maxLength={500}
+                className="min-h-16 text-xs"
+                data-testid="hr-filing-note"
+              />
+            </div>
+            {filingError ? (
+              <p className="text-xs text-rose-700 dark:text-rose-400" data-testid="hr-filing-error" role="alert">
+                {filingError}
+              </p>
+            ) : null}
+          </div>
+          <DialogFooter>
+            <Button size="sm" variant="outline" onClick={() => setFilingTarget(null)} disabled={filingBusy}>
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => void submitFiling()}
+              disabled={filingBusy || !filingFiledAt}
+              data-testid="hr-filing-submit"
+            >
+              {filingBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden /> : <Stamp className="h-3.5 w-3.5" aria-hidden />}
+              Record filing
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
