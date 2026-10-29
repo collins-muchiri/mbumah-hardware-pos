@@ -2,6 +2,15 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.252.0] The walk's options
+
+The teeth family has dressed every face it owns — the legend, the chips, the heat bars, the verdicts — except one: the aisle picker's native `<option>` labels, plain text by the platform's own law ("a native option cannot wear a chip", the v2.236 comment's own words). This round the picker leaves the native select behind: a Radix listbox whose rows wear the walk's voices, and the branch roster's birth chips learn the days voice the org ledger spoke last visit.
+
+### Added
+- **The walk's options listbox** (`stock-take-panel.tsx` + `ui/select.tsx`): the count-sheet category picker is a Radix Select now — each option row wears the aisle's name (the ItemText: typeahead reads the name), the band chip (`pickBandHouse`'s four families, byte-identical), the product count and the days voice (muted, tabular); the trigger speaks the picked aisle's own face (name + chip, composed from the panel's pick state — never a mirrored label); the pick strip below keeps the selected aisle's full voice (the verdict, the heat bar). THE VOICE-NOT-SORT LAW holds: the rows keep the categories' own sortOrder. The door law rides unchanged: a hand's own pick clears the org's door voice and the door-born flag.
+- **The shared listbox's detail door** (`ui/select.tsx`): `SelectItem` grows an optional `detail` prop — a sibling row AFTER the ItemText (chips, counts, voices — the rich faces a native option could never wear) that never lies about what the keyboard matched. Additive — every existing caller renders byte-identical.
+- **The branch roster's when** (`GET /api/purchase-orders` + `purchase-orders-tab.tsx`): the branch list wire reads each sheet-born row's aisle band — ONE stored-law read, then ONE band read per DISTINCT aisle id on the page (the org wire's dedupe pattern ported; the tenant client, the stock-takes' own pattern), the honest cost note riding the read site — and the roster's birth chip title grows the days voice ("born at count sheet X — the walk order named Tools — last heard counted today"). A row whose read fell silent keeps its v2.248 voice.
+
 ## [2.251.0] The walk's when
 
 The birth strip learned the aisle's name at v2.248.0 and the org drill learned its cadence chip at v2.250.0 — but the branch strip still answered only WHERE the walk order pointed, never WHEN that aisle was last heard, and the ledger's file spoke the aisle's name without its voice. This round the when arrives everywhere the birth is spoken: the branch strip wears the chip, the roster's rows answer for their aisles, and the CSV sorts the walk's answers by the house that spoke.

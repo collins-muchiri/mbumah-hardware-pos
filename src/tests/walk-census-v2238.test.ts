@@ -43,19 +43,19 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.238.0)', () => {
   it('package.json leads 2.238.0 (all three slots)', () => {
-    expect(version).toBe('2.251.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.251.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.251.0');
+    expect(version).toBe('2.252.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.252.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.252.0');
   });
 
   it('VERSION speaks 2.238.0 and the verify gate is wired', () => {
-    expect(read('VERSION').trim()).toBe('2.251.0');
+    expect(read('VERSION').trim()).toBe('2.252.0');
     expect(pkg.scripts['verify:v2-238-0']).toBe('node scripts/verify-v2-238-0.mjs');
   });
 
   it('the whats-new feed leads the door\u2019s-census entry (order pin: header-anchored, never a bare version string)', () => {
-    expect(feed.includes("version: '2.251.0',")).toBe(true);
-    expect(feed.indexOf("version: '2.251.0',")).toBeLessThan(feed.indexOf("version: '2.250.0',"));
+    expect(feed.includes("version: '2.252.0',")).toBe(true);
+    expect(feed.indexOf("version: '2.252.0',")).toBeLessThan(feed.indexOf("version: '2.251.0',"));
     expect(feed.includes("title: 'The door\\u2019s census',")).toBe(true);
   });
 
@@ -108,10 +108,10 @@ describe('the birth rides the drawer (stock-take-panel.tsx)', () => {
     expect(panel).toContain('setDoorVoice(null);');
   });
 
-  it('the user\u2019s own hand silences BOTH the whisper and the birth (scope pair + category select)', () => {
+  it('the user\u2019s own hand silences BOTH the whisper and the birth (scope pair + the listbox\u2019s pick — the select became a Radix listbox at v2.252.0)', () => {
     expect(panel).toContain("onClick={() => { setCreateScope('full'); setDoorVoice(null); setDoorBorn(false); }}");
     expect(panel).toContain("onClick={() => { setCreateScope('category'); setDoorVoice(null); setDoorBorn(false); }}");
-    expect(panel).toContain('onChange={(e) => { setCreateCategoryId(e.target.value); setDoorVoice(null); setDoorBorn(false); }}');
+    expect(panel).toContain('onValueChange={(v) => { setCreateCategoryId(v); setDoorVoice(null); setDoorBorn(false); }}');
   });
 
   it('the create payload carries the origin ONLY when the door aimed the sheet', () => {

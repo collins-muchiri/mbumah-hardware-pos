@@ -64,6 +64,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+// v2.252.0 THE WALK'S OPTIONS — the picker leaves the native <option>
+// behind (the one face the teeth family could never dress): a Radix
+// listbox whose rows wear the walk's own voices.
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
 import { ClipboardCheck, DoorOpen, Download, FolderTree, History, Loader2, Printer, RotateCcw, Search, X } from 'lucide-react';
 import { authorizedFetchJson } from '@/lib/api';
 import { num, parseSheetLineage, LineageChip } from '@/components/org/primitives';
@@ -1308,20 +1312,78 @@ export function StockTakePanel({ storeId, canViewCost }: { storeId: string | nul
                 )}
                 {createScope === 'category' && (
                   <div className="mt-1.5">
-                    <select
-                      data-testid="stocktake-create-category"
-                      value={createCategoryId}
-                      onChange={(e) => { setCreateCategoryId(e.target.value); setDoorVoice(null); setDoorBorn(false); }}
-                      aria-label="Count sheet category"
-                      className="h-7 w-full rounded border border-slate-200 bg-white px-1.5 text-xs text-slate-700 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+                    {/* v2.252.0 THE WALK'S OPTIONS — the picker leaves the
+                        native <option> behind (the one face the teeth
+                        family could never dress — "a native option cannot
+                        wear a chip", the v2.236 comment's own words): a
+                        Radix listbox whose rows wear the walk's own
+                        voices — the aisle's name (the ItemText: the
+                        keyboard's typeahead reads the name), the band
+                        chip (pickBandHouse's four families, byte-
+                        identical), the count and the days voice (muted,
+                        tabular). THE VOICE-NOT-SORT LAW holds: the rows
+                        keep the categories' own sortOrder — the walk
+                        order belongs to the org map. The trigger speaks
+                        the picked aisle's own face (name + chip — the
+                        panel owns the pick state, so the face composes
+                        from the truth, never a mirrored label); the pick
+                        strip below keeps the SELECTED aisle's full voice
+                        (the verdict, the heat bar). Aisle-less rows (an
+                        older cached answer) keep name + count — the
+                        silence, never a guessed band. The door law rides
+                        unchanged: a hand's own pick clears the org's
+                        door voice and the door-born flag. */}
+                    <Select
+                      value={createCategoryId || undefined}
+                      onValueChange={(v) => { setCreateCategoryId(v); setDoorVoice(null); setDoorBorn(false); }}
                     >
-                      <option value="">pick a category…</option>
-                      {(categoriesQuery.data ?? []).map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {[c.name, `${c.productCount ?? 0} products`, c.cadence ? pickDaysVoice(c.cadence) : ''].filter(Boolean).join(' · ')}
-                        </option>
-                      ))}
-                    </select>
+                      <SelectTrigger
+                        data-testid="stocktake-create-category"
+                        aria-label="Count sheet category"
+                        className="w-full bg-white px-2 text-xs dark:bg-slate-900"
+                      >
+                        {pickedCategory ? (
+                          <span className="flex min-w-0 items-center gap-1.5">
+                            <span className="truncate font-medium">{pickedCategory.name}</span>
+                            {pickedCategory.cadence && (
+                              <span
+                                data-testid="stocktake-create-category-chip"
+                                className={`inline-flex shrink-0 items-center rounded px-1 py-0.5 text-[9px] font-semibold uppercase tracking-wide ring-1 ${pickBandHouse(pickedCategory.cadence.band).chip}`}
+                              >
+                                {pickedCategory.cadence.band}
+                              </span>
+                            )}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">pick a category…</span>
+                        )}
+                      </SelectTrigger>
+                      <SelectContent className="max-h-72">
+                        {(categoriesQuery.data ?? []).map((c) => (
+                          <SelectItem
+                            key={c.id}
+                            value={c.id}
+                            detail={
+                              <>
+                                {c.cadence && (
+                                  <span
+                                    data-testid={`stocktake-option-cadence-${c.id}`}
+                                    className={`inline-flex items-center rounded px-1 py-0.5 text-[9px] font-semibold uppercase tracking-wide ring-1 ${pickBandHouse(c.cadence.band).chip}`}
+                                  >
+                                    {c.cadence.band}
+                                  </span>
+                                )}
+                                <span className="whitespace-nowrap text-[10px] tabular-nums text-slate-500 dark:text-slate-400">
+                                  {[`${c.productCount ?? 0} products`, c.cadence ? pickDaysVoice(c.cadence) : ''].filter(Boolean).join(' · ')}
+                                </span>
+                              </>
+                            }
+                          >
+                            <span className="font-medium">{c.name}</span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     {/* v2.236.0 THE TEETH — the picker wears the org
                         cadence's voice: the legend speaks the thresholds
                         from the wire's own numbers (never a constant),

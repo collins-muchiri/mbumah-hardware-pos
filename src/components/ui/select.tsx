@@ -101,8 +101,18 @@ function SelectLabel({
 function SelectItem({
   className,
   children,
+  // v2.252.0 THE WALK'S OPTIONS — an optional detail row rides AFTER the
+  // ItemText (a sibling inside the Item, never inside it): chips, counts,
+  // voices — the rich faces a native <option> could never wear. The
+  // ItemText keeps the plain label (Radix's typeahead reads it; the
+  // trigger mirror is unused by faces that compose their own), so the
+  // detail never lies about what the keyboard matched. Additive — every
+  // existing caller renders byte-identical.
+  detail,
   ...props
-}: React.ComponentProps<typeof SelectPrimitive.Item>) {
+}: React.ComponentProps<typeof SelectPrimitive.Item> & {
+  detail?: React.ReactNode;
+}) {
   return (
     <SelectPrimitive.Item
       data-slot="select-item"
@@ -118,6 +128,9 @@ function SelectItem({
         </SelectPrimitive.ItemIndicator>
       </span>
       <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+      {detail != null && (
+        <span className="ml-auto flex shrink-0 items-center gap-1.5">{detail}</span>
+      )}
     </SelectPrimitive.Item>
   )
 }

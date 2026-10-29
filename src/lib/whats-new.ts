@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.252.0',
+    title: 'The walk\u2019s options',
+    bullets: [
+      'Picking an aisle for a new count sheet finally wears the walk\u2019s own voices: the picker\u2019s options are a real listbox now \u2014 each row carries the aisle\u2019s cadence chip, its product count and its days voice, in the categories\u2019 own order.',
+      'The picker\u2019s trigger speaks the picked aisle\u2019s face \u2014 name and band chip \u2014 and the strip below keeps the full voice (the verdict, the heat bar) for the aisle you picked.',
+      'The branch purchase order\u2019s roster answers when its sheet-born rows\u2019 aisles were last heard \u2014 the birth chip\u2019s title speaks the days, the same voice the org ledger learned last visit.',
+      'The keyboard walks the listbox the way it always has \u2014 arrows, typeahead by aisle name, Enter to pick.',
+    ],
+  },
+  {
     version: '2.251.0',
     title: 'The walk\u2019s when',
     bullets: [
