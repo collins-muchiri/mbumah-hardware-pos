@@ -477,9 +477,25 @@ export function ProcurementLedger({ stores }: { stores: StoreRow[] }) {
                but the lens (or the needle) narrowed the view to nothing.
                A separate face: the pipe-empty words would lie about the
                lens's own state (the rows are THERE, held behind the view). */
-            <p data-testid="po-ledger-lens-empty" className="mt-2 rounded-lg border border-dashed border-slate-200 bg-white/60 px-3 py-3 text-[11px] text-slate-500 dark:border-slate-600 dark:bg-slate-900/60 dark:text-slate-400">
-              the lens narrowed the window to nothing — lift a band house or clear the finder and the orders return.
-            </p>
+            /* v2.254.0: the face grows its own lift — one control that
+               stands the lens down AND clears the finder (the words'
+               own promise, now a button). A face without an affordance
+               made the reader hunt for the chips; the lift rides where
+               the words are. */
+            <div data-testid="po-ledger-lens-empty" className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-dashed border-slate-200 bg-white/60 px-3 py-2.5 dark:border-slate-600 dark:bg-slate-900/60">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                the lens narrowed the window to nothing — lift a band house or clear the finder and the orders return.
+              </p>
+              <button
+                type="button"
+                data-testid="po-ledger-lens-clear"
+                onClick={() => { setBandLens('ALL'); setNeedle(''); }}
+                title="stand the lens down and clear the finder — the whole window returns (the fetch never moved)"
+                className="shrink-0 rounded-md border border-slate-200 bg-white px-2 py-1 text-[10px] font-semibold text-slate-600 transition-colors hover:bg-slate-50 focus:outline-none focus:ring-1 focus:ring-sky-500/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+              >
+                clear the view
+              </button>
+            </div>
           ) : (
             <ul data-testid="po-ledger-rows" className="mt-1.5 max-h-[42vh] space-y-1.5 overflow-y-auto pr-1">
               {shownRows.map((po) => (

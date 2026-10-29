@@ -54,8 +54,8 @@ describe('the branch detail wire\u2019s band \u2014 the strip learns WHEN (v2.25
 });
 
 describe('the branch birth strip\u2019s chip \u2014 the four houses, byte-identical (v2.251.0)', () => {
-  it('the chip\u2019s one home rides the import', () => {
-    expect(tab).toContain("import { bandHouse, chipLabel, daysVoice } from '@/lib/cadence-band';");
+  it('the chip\u2019s one home rides the import \u2014 the branch lens\u2019s CadenceBand type joins (v2.254.0)', () => {
+    expect(tab).toContain("import { bandHouse, chipLabel, daysVoice, type CadenceBand } from '@/lib/cadence-band';");
   });
 
   it('the strip wears the chip \u2014 the org drill\u2019s sibling', () => {

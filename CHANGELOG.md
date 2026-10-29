@@ -2,6 +2,15 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.254.0] The branch's lens
+
+The org ledger learned the lens last visit — the four houses answered by their real counts and a press narrowed the view — but the branch's own purchase-order page could only speak the families on its chips, never answer by them. This round the lens crosses the floor: the branch roster grows the same band rail over the rows it already holds, its birth chips wear the same coloured dots, and the org's lens-empty face grows the affordance its words always promised.
+
+### Added
+- **The branch's band lens** (`purchase-orders-tab.tsx`): a rail between the filters and the table — fresh / stale / beyond / never + "no band", each chip answering with its REAL count over the page's rows (`poRowBand` reads behind the same membership check; every row lands in exactly one family). A press narrows the view composed with the search and the sort (the lens first, then the needle, then the sort — the reading narrows, the fetch never moves); the wire's rungs (status/supplier/date/page) stay the wire's. The face's own clear-filters control lifts the lens too and `hasActiveFilters` reads it — the empty face's words stay true. A pressed chip wears its house's pressed face; a click stands it down.
+- **The birth's dot on the branch face** (`purchase-orders-tab.tsx`): the branch roster's violet birth chip wears its aisle's band as the house's rail-coloured dot (`bandHouse(band).rail` — the one home, the org roster's own law from v2.253). A row whose read fell silent keeps the plain violet.
+- **The lens-empty's lift** (`po-ledger.tsx`): the org ledger's empty face grows its own affordance — one "clear the view" button that stands the lens down AND clears the finder (the words' own promise, now a control; the fetch never moved). The face keeps its words; the lift rides beside them.
+
 ## [2.253.0] The ledger's lens
 
 The when has arrived everywhere the birth is spoken — the org rows, the branch chips, the drill, the file — but the ledger could only SPEAK the houses, never ANSWER by them: an order born at a stale aisle sat invisible among the fresh ones. This round the procurement ledger grows the band rail (the window's own lens — the four houses plus the silent absence, real counts, a press narrows the view), the birth chips wear their aisle's band as a coloured dot, and the birth reaches its fifth face: the supplier's own purchase-order roster.

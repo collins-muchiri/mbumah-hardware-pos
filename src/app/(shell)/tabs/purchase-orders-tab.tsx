@@ -27,7 +27,17 @@ import { handleError } from '@/lib/error-handler';
 // v2.251.0 THE WALK'S WHEN — the detail strip's cadence chip wears the
 // census's own four houses (one home, byte-identical classes to the
 // org drill's chip).
-import { bandHouse, chipLabel, daysVoice } from '@/lib/cadence-band';
+import { bandHouse, chipLabel, daysVoice, type CadenceBand } from '@/lib/cadence-band';
+
+// v2.254.0 THE BRANCH'S LENS — the row's own band, read from above: the
+// family the wire's spoke wore, or the silent absence (a hand-raised
+// order, a failed read). The cast stays behind a membership check — a
+// string that is not one of the four houses IS the silence, never a
+// guessed family. Module-level: the memos read it clean (no deps).
+const poRowBand = (po: PurchaseOrderListItem): CadenceBand | null => {
+  const b = po.originStockTake?.walkAisle?.band;
+  return b === 'fresh' || b === 'stale' || b === 'beyond' || b === 'never' ? b : null;
+};
 import { formatQty, formatQtyWithUnit } from '@/lib/utils/financialMath';
 import { ResponsiveDialog } from '@/components/ui/responsive-dialog';
 
@@ -1553,6 +1563,11 @@ export default function PurchaseOrdersTab() {
   }, []);
   const [selectedPO, setSelectedPO] = useState<PurchaseOrderListItem | null>(null);
   const [filtersVisible, setFiltersVisible] = useState(false);
+  // v2.254.0 THE BRANCH'S LENS — the band rung (the org ledger's own law,
+  // ported): 'ALL' stands for the whole page; a house (or the silence)
+  // narrows the VIEW. State of the surface, never of the fetch — the
+  // wire's rungs (status/supplier/date/page) stay the wire's.
+  const [bandLens, setBandLens] = useState<'ALL' | CadenceBand | 'silent'>('ALL');
 
   const limit = 20;
   const currentTime = useMemo(() => new Date().getTime(), []);
@@ -1585,6 +1600,19 @@ export default function PurchaseOrdersTab() {
     () => (Array.isArray(poData?.data) ? poData.data : []),
     [poData]
   );
+  // v2.254.0: the lens's own counts — REAL numbers over the page's rows
+  // (every row lands in exactly one family; the sums read the page). A
+  // pressed house keeps its number — the counts read the rows, never
+  // the view.
+  const bandCounts = useMemo(() => {
+    const c = { fresh: 0, stale: 0, beyond: 0, never: 0, silent: 0 };
+    for (const po of purchaseOrders) {
+      const b = poRowBand(po);
+      if (b) c[b] += 1;
+      else c.silent += 1;
+    }
+    return c;
+  }, [purchaseOrders]);
   const pagination = poData?.pagination;
   // v2.250.0 THE BRANCH'S GATE — the truth the wire speaks (never a
   // role name guessed client-side): the roster's shillings and the
@@ -1628,13 +1656,22 @@ export default function PurchaseOrdersTab() {
 
   // Sort
   const sortedPOs = useMemo(() => {
+    // v2.254.0: the lens first (the house's own narrowing), then the
+    // needle, then the sort — the reading narrows, the fetch never
+    // moves (the org lens's own law, the branch's own words).
+    const lensed =
+      bandLens === 'ALL'
+        ? purchaseOrders
+        : purchaseOrders.filter((po) =>
+            bandLens === 'silent' ? poRowBand(po) == null : poRowBand(po) === bandLens
+          );
     const filtered = search.trim()
-      ? purchaseOrders.filter(
+      ? lensed.filter(
           (po) =>
             po.poNumber.toLowerCase().includes(search.toLowerCase()) ||
             po.supplier?.name?.toLowerCase().includes(search.toLowerCase())
         )
-      : purchaseOrders;
+      : lensed;
 
     return [...filtered].sort((a, b) => {
       let cmp = 0;
@@ -1650,7 +1687,7 @@ export default function PurchaseOrdersTab() {
       }
       return sortDir === 'desc' ? -cmp : cmp;
     });
-  }, [purchaseOrders, search, sortField, sortDir]);
+  }, [purchaseOrders, search, sortField, sortDir, bandLens]);
 
   const toggleSort = (field: 'orderDate' | 'totalAmount' | 'status') => {
     // v2.250.0: the money rung stops answering when the gate is down —
@@ -1676,10 +1713,13 @@ export default function PurchaseOrdersTab() {
     setDateFrom('');
     setDateTo('');
     setPage(1);
+    // v2.254.0: the lens is one of the face's own filters now — the
+    // clear-all lifts it too (the honest clear, never a partial one).
+    setBandLens('ALL');
   };
 
   const hasActiveFilters =
-    search || statusFilter !== 'ALL' || supplierFilter !== 'ALL' || dateFrom || dateTo;
+    search || statusFilter !== 'ALL' || supplierFilter !== 'ALL' || dateFrom || dateTo || bandLens !== 'ALL';
 
   // Render
 
@@ -1872,6 +1912,51 @@ export default function PurchaseOrdersTab() {
         </Card>
       )}
 
+      {/* v2.254.0 THE BRANCH'S LENS — the band rail, the org ledger's own
+          lens ported to the branch's page: the four houses the aisles
+          speak + the silent absence, each chip answering with its REAL
+          count over the rows the page ALREADY holds. A press narrows the
+          view (composed with the search and the sort — the reading
+          narrows, the fetch never moves); the wire's rungs stay the
+          wire's; the face's own clear-all lifts the lens too. */}
+      {!poLoading && !poError && purchaseOrders.length > 0 && (
+        <div
+          data-testid="po-roster-band-row"
+          className="flex flex-wrap items-center gap-1.5"
+          title="the page's own lens — the filters above stay the wire's; a press narrows the view (the fetch stays)"
+        >
+          {(['fresh', 'stale', 'beyond', 'never'] as const).map((b) => {
+            const house = bandHouse(b);
+            const pressed = bandLens === b;
+            const n = bandCounts[b];
+            return (
+              <button
+                key={b}
+                type="button"
+                data-testid={`po-roster-band-${b}`}
+                aria-pressed={pressed}
+                onClick={() => setBandLens(pressed ? 'ALL' : b)}
+                title={`${chipLabel(b)} — ${n === 0 ? 'no order' : `${n} ${n === 1 ? 'order' : 'orders'}`} on this page wears the house; a press narrows the view (the fetch stays)`}
+                className={`inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-[10px] font-semibold uppercase tracking-wide tabular-nums ring-1 transition-[filter] focus:outline-none focus:ring-2 focus:ring-sky-500/40 ${pressed ? house.pressed : house.chip} ${pressed ? '' : 'hover:brightness-[0.97] dark:hover:brightness-110'}`}
+              >
+                <span aria-hidden="true" className={`h-1.5 w-1.5 shrink-0 rounded-full ${pressed ? 'bg-white/80 dark:bg-slate-950/50' : house.rail}`} />
+                {chipLabel(b)} <span className="opacity-70">{n}</span>
+              </button>
+            );
+          })}
+          <button
+            type="button"
+            data-testid="po-roster-band-silent"
+            aria-pressed={bandLens === 'silent'}
+            onClick={() => setBandLens(bandLens === 'silent' ? 'ALL' : 'silent')}
+            title={`no band — ${bandCounts.silent === 0 ? 'no order' : `${bandCounts.silent} ${bandCounts.silent === 1 ? 'order' : 'orders'}`} on this page keeps the silence (a hand-raised birth, or a read that fell honest)`}
+            className={`inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-[10px] font-semibold uppercase tracking-wide tabular-nums ring-1 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500/40 ${bandLens === 'silent' ? 'bg-slate-800 text-white ring-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:ring-slate-100' : 'bg-white text-slate-600 ring-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-600 dark:hover:bg-slate-800'}`}
+          >
+            no band <span className="opacity-70">{bandCounts.silent}</span>
+          </button>
+        </div>
+      )}
+
       {/* ── Table ── */}
       <Card className="backdrop-blur-sm bg-card/80 border-border/50">
         <CardContent className="p-0">
@@ -1991,6 +2076,19 @@ export default function PurchaseOrdersTab() {
                                   title={`born at count sheet ${po.originStockTake.id}${po.originStockTake.walkAisle?.name ? ` — the walk order named ${po.originStockTake.walkAisle.name}` : ''}${po.originStockTake.walkAisle?.band ? ` — last heard ${daysVoice({ band: po.originStockTake.walkAisle.band as 'fresh' | 'stale' | 'beyond' | 'never', daysSince: po.originStockTake.walkAisle.daysSince })}` : ''}`}
                                   className="text-[9px] bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300 gap-0.5"
                                 >
+                                  {/* v2.254.0: the chip wears its aisle's band
+                                      — the house's own rail colour as a dot
+                                      (the ONE home; the org roster's own law
+                                      from v2.253, now on the branch's face
+                                      too). A silent read keeps the plain
+                                      violet — never a guessed colour. */}
+                                  {po.originStockTake.walkAisle?.band && (
+                                    <span
+                                      data-testid="po-row-band-dot"
+                                      aria-hidden="true"
+                                      className={`h-1.5 w-1.5 shrink-0 rounded-full ${bandHouse(po.originStockTake.walkAisle.band as CadenceBand).rail}`}
+                                    />
+                                  )}
                                   <ClipboardList className="h-3 w-3" />
                                   BORN AT A COUNT SHEET
                                 </Badge>
