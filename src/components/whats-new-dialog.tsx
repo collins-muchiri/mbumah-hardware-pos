@@ -19,7 +19,7 @@
  */
 
 import { useEffect, useState, useSyncExternalStore } from 'react';
-import { ExternalLink, Sparkles } from 'lucide-react';
+import { ExternalLink, ScrollText, Sparkles } from 'lucide-react';
 
 import {
   Dialog,
@@ -75,7 +75,19 @@ function EntryBlock({ entry, latest }: { entry: WhatsNewEntry; latest: boolean }
   );
 }
 
-export function WhatsNewDialog() {
+// v2.265.0 THE CONSOLE HEARS THE RELEASE — the announcement's hand. The
+// dialog mounts on every surface whose shell wears MainApp (the home tabs
+// shell, the branch workspaces) — the org console's own face never did,
+// so its reader alone never heard a fresh release arrive. The console now
+// mounts the SAME shared dialog (one home, the same seen-flag law, never
+// a copy), and its one extra power is this optional hand: when the host
+// surface owns its own release archive, the footer grows "Open the release
+// archive" — the announcement dismisses (writing the shared seen flag
+// FIRST, so the footer pill and the palette inbox reflect "read" the
+// moment the archive opens) and the host lands the reader on the
+// announced release. Absent, the dialog renders byte-identical to every
+// earlier round (the GitHub link stands alone) — additive, never a fork.
+export function WhatsNewDialog({ onOpenChangelog }: { onOpenChangelog?: () => void } = {}) {
   // SSR-SAFETY GATE: identical (null) output on server and hydration render.
   // useSyncExternalStore flips to true only after hydration - the same
   // hydration-safe pattern page.tsx uses for useHasMounted.
@@ -144,6 +156,18 @@ export function WhatsNewDialog() {
         </div>
 
         <DialogFooter className="gap-2 sm:justify-between">
+          {onOpenChangelog ? (
+            <Button
+              variant="outline"
+              size="sm"
+              data-testid="whats-new-open-archive"
+              title="the release archive — every version's notes, this one already found"
+              onClick={() => { dismiss(); onOpenChangelog(); }}
+            >
+              <ScrollText className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+              Open the release archive
+            </Button>
+          ) : null}
           <Button variant="outline" size="sm" asChild>
             <a href={CHANGELOG_URL} target="_blank" rel="noopener noreferrer">
               <ExternalLink className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />

@@ -25,6 +25,11 @@ import { KpiRow } from '@/components/org/kpi-row';
 import { VarianceMap } from '@/components/org/variance-map';
 import { ProcurementLedger } from '@/components/org/po-ledger';
 import { ChangelogModal, CommandPalette, ConsoleFooter, ConsoleHeader, LoginDialog, ShortcutsModal, type SessionUser } from '@/components/org/chrome';
+// v2.265.0 THE CONSOLE HEARS THE RELEASE — the shared announcement dialog
+// (the shell and the workspaces already wear it; the console alone was
+// silent) + the version the hand lands the archive on.
+import { WhatsNewDialog } from '@/components/whats-new-dialog';
+import { APP_VERSION } from '@/lib/version';
 import { SectionErrorBoundary } from '@/components/error-boundary';
 import { KenyaMap, Sparkline, WeekDeltaChip, weekDeltaWords, kes, num, timeAgo, type DeskActivityData, type DeskActivityFilter, type KpiSummaryData, type OrgSummaryData, type StoreRow } from '@/components/org/primitives';
 import { authorizedFetchJson } from '@/lib/api';
@@ -511,6 +516,16 @@ export default function OrgConsolePage() {
       <ShortcutsModal open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
       <ChangelogModal open={changelogOpen} onOpenChange={(o) => { setChangelogOpen(o); if (!o) setReleaseJump(null); }} jumpTo={releaseJump} />
       <LoginDialog open={loginOpen} onOpenChange={setLoginOpen} onToast={onToast} onSignedIn={handleSignedIn} />
+      {/* v2.265.0 THE CONSOLE HEARS THE RELEASE — the shared dialog (one
+          home, the same seen-flag law; never a copy) mounts here, so a
+          fresh release announces itself to the console's reader the same
+          way every MainApp surface already announces. The hand: "Open the
+          release archive" dismisses (the shared flag writes FIRST — the
+          footer pill and the palette inbox read it) and lands in THIS
+          console's own changelog modal, scrolled to the announced release
+          (the palette's v2.73.0 jump target, reused — the archive opens
+          where the announcement began). */}
+      <WhatsNewDialog onOpenChangelog={() => { setReleaseJump(APP_VERSION); setChangelogOpen(true); }} />
 
       {/* Screen-reader summary */}
       <span className="sr-only" aria-live="polite">
