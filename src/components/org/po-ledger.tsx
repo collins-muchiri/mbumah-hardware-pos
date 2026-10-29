@@ -606,7 +606,20 @@ export function ProcurementLedger({ stores }: { stores: StoreRow[] }) {
                   <button
                     type="button"
                     data-testid={`po-ledger-open-${po.id}`}
-                    onClick={() => setDrill({ id: po.id, poNumber: po.poNumber, status: po.status })}
+                    onClick={() =>
+                      setDrill({
+                        id: po.id,
+                        poNumber: po.poNumber,
+                        status: po.status,
+                        // v2.261.0 THE DOCUMENT'S ANSWER — the pressed rule
+                        // rides the door: the drill's strip answers with
+                        // the document's own facts (the one home's voice).
+                        // Unpressed, the field stays absent — a drill
+                        // opened of its own right answers nothing it was
+                        // not asked (the honest absence).
+                        metric: metricLens === 'all' ? undefined : metricLens,
+                      })
+                    }
                     className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-2 rounded text-left hover:bg-slate-50 dark:hover:bg-slate-800"
                   >
                     <span className="flex min-w-0 flex-wrap items-center gap-1.5">

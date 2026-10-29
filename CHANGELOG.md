@@ -2,6 +2,21 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.261.0] The document's answer
+
+The metric arc's completion: the tile answered with a count (v2.258.0), the rails answered with rows (v2.259.0, v2.260.0), and now the DOCUMENT answers with its own facts. Open an order's drill under a pressed metric and the drill speaks why — the one rule's own arithmetic, read from the fields the wire already carries.
+
+### Added
+- **The why-strip** (`src/components/org/po-drill.tsx`): when the ledger opens a row's drill under a pressed metric, the drill grows a strip that answers with the document's own facts — "arrived late — raised 3 days after the day the supplier named". The `PoDrillTarget` grew an optional `metric` (additive); the ledger's row door hands the pressed rule (`metric: metricLens === 'all' ? undefined : metricLens`), and a drill opened of its own right answers nothing it was not asked.
+- **The WHY voice in the one home** (`src/lib/po-metrics.ts`): `poMetricWhyVoice(kind, shape)` gates on the predicate ITSELF — a document that no longer answers the pressed lens answers null, and the strip stays absent (the silent absence, never a guessed why). The count is the CALENDAR gap between the day the supplier named and the day the order was raised: twenty-five hours past the named midnight is one day after, never two; a raise later in the named day itself speaks its own words.
+- **The family's fourth face**: `poMetricFamily` grew `why` — the strip's own colours (border + ground + text per family, the rail dot for the pressed chip's colour). An information face: never the pressed shout, never a hover, never a new palette.
+
+### Styled
+- **The drills' words, not a new rung** (`src/app/(shell)/tabs/purchase-orders-tab.tsx`): the branch detail wears the esc chip the drills wear (hidden on small screens, honest to ears via aria-hidden). No second listener — the detail's Escape is Radix's own, the topmost layer answers first, and the ladder's silence law holds by the platform's own stack.
+
+### Tests
+- `src/tests/document-answer-v2261.test.ts` (17 pins across 5 describes): the one home's voice and face (byte + RUNTIME — the gate's silences, the calendar arithmetic, the same-day words), the drill's strip (address, family, the fresh-wire gate, the loaded-document placement), the ledger's hand (pressed rides, unpressed absent), the branch detail's chip (the words, NO second listener), and the ancestors' untouched bytes. The voice's runtime pins caught the same-day shape before it shipped: a raise at the named day's midnight is the only same-day on-time, and any later hour belongs to the late rule's own words.
+
 ## [2.260.0] The ledger's instruments
 
 The org procurement ledger has worn the band lens since v2.253.0 and the finder since v2.226.0, while the metric instruments answered everywhere but here — the branch's roster got its rail in v2.259.0, the supplier's roster in v2.258.0, and the ledger's window stayed unread by the metrics. This round the instruments come home: the rail answers by the window's rows, composed with the house and the needle, and one ear lifts them all.

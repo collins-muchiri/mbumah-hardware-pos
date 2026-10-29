@@ -43,9 +43,9 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.228.0)', () => {
   it('package.json leads 2.228.0 (all three slots)', () => {
-    expect(version).toBe('2.260.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.260.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.260.0');
+    expect(version).toBe('2.261.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.261.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.261.0');
   });
 
   it('the changelog anchors the section ABOVE its ancestor (the structural pin — headers, never bare strings)', () => {
@@ -242,8 +242,9 @@ describe('the whisper\u2019s door (po-ledger.tsx)', () => {
     expect(ledger).toContain("const header = 'po_number,status,supplier,branch,lines,ordered_day,total_kes,birth,aisle,aisle_band';");
   });
 
-  it('the door button keeps its testid and its drill (the row\u2019s only navigation)', () => {
+  it('the door button keeps its testid and its drill (the row\u2019s only navigation; the door grew the pressed rule\u2019s hand at v2.261.0 \u2014 the document\u2019s answer rides it, the id/status bytes unchanged)', () => {
     expect(ledger).toContain('data-testid={`po-ledger-open-${po.id}`}');
-    expect(ledger).toContain('setDrill({ id: po.id, poNumber: po.poNumber, status: po.status })');
+    expect(ledger).toContain('id: po.id,\n                        poNumber: po.poNumber,\n                        status: po.status,');
+    expect(ledger).toContain("metric: metricLens === 'all' ? undefined : metricLens,");
   });
 });
