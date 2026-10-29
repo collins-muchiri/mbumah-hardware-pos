@@ -74,12 +74,27 @@
 // narrows the rows: `sheet` → born at a count sheet, `hand` →
 // hand-raised; anything else is a REFUSED filter (the same 400 law
 // as status — an unknown rung never silently means "all").
+//
+// v2.251.0 THE WALK'S WHEN — the roster's sheet-born rows answer when
+// their walk aisle was last heard: the detail wire's own band read
+// grown to the list (ONE stored-law read, then ONE read per DISTINCT
+// aisle id in the window — the dedupe keeps the cost at the page's
+// aisle spread, not the row count). A failed read is no band — the row
+// keeps its silence, never a guessed house. The band is not a cost: it
+// rides for every org role, and the ledger's CSV speaks it in its own
+// aisle_band column.
 
 import { type NextRequest } from 'next/server';
 import { rawDb, runWithoutTenant } from '@/lib/db';
 import { withErrorBoundary } from '@/lib/logger';
 import { requireAuth, type AuthSession } from '@/lib/auth';
 import { hasFeaturePermission } from '@/lib/permissions';
+// v2.251.0 THE WALK'S WHEN — the roster's rows speak WHEN their walk
+// aisle was last heard (the detail wire's own read, grown to the list):
+// the census's single-aisle read (one home) and the stored law (one
+// reader).
+import { readCategoryBand, type CadenceBand } from '@/lib/cadence-band';
+import { readCadenceLaw } from '@/lib/cadence-law';
 
 // v2.228.0: the whisper names at most THREE speakers — a cap,
 // disclosed (the full roster lives on the branch's own watchlist
@@ -178,7 +193,10 @@ async function orgPurchaseOrdersHandler(request: NextRequest, session: AuthSessi
               id: true,
               status: true,
               closedAt: true,
-              walkAisle: { select: { name: true } },
+              // v2.251.0: the aisle's id rides so the wire can read each
+              // aisle's own band (the census's single-aisle read — the
+              // name alone could never ask the shelf when it was heard).
+              walkAisle: { select: { id: true, name: true } },
             },
           },
         },
@@ -191,6 +209,30 @@ async function orgPurchaseOrdersHandler(request: NextRequest, session: AuthSessi
       rawDb.purchaseOrder.count({ where: { ...birthWhere, originStockTakeId: { not: null } } }),
       rawDb.purchaseOrder.count({ where: { ...birthWhere, originStockTakeId: null } }),
     ]);
+
+    // v2.251.0 THE WALK'S WHEN — the roster's rows answer when their walk
+    // aisle was last heard, the detail wire's own read grown to the list.
+    // THE COST, ASSESSED HONESTLY (the worklog's demand): ONE stored-law
+    // read, then ONE band read per DISTINCT aisle id in the window — a
+    // page of rows shares its aisles (take is clamped 1..100; the distinct
+    // count is the page's aisle spread, not the row count), and each read
+    // is the census's own three bounded queries. A read that fails is no
+    // band — the row keeps its silence, never a guessed house.
+    const aisleIds = [
+      ...new Set(
+        rows
+          .map((po) => po.originStockTake?.walkAisle?.id)
+          .filter((v): v is string => typeof v === 'string'),
+      ),
+    ];
+    const aisleBands = new Map<string, { band: CadenceBand; daysSince: number | null }>();
+    if (aisleIds.length > 0) {
+      const law = await readCadenceLaw(rawDb);
+      for (const aisleId of aisleIds) {
+        const band = await readCategoryBand(rawDb, aisleId, law, new Date());
+        if (band) aisleBands.set(aisleId, { band: band.band, daysSince: band.daysSince });
+      }
+    }
 
     // v2.227.0 THE WATCHLIST STITCH — per (store, supplier-of-record):
     // how many of the store's low products last spoke to this supplier.
@@ -245,7 +287,7 @@ async function orgPurchaseOrdersHandler(request: NextRequest, session: AuthSessi
       }
     }
 
-    return { rows, grouped, hints, births: { sheet: bornAtSheets, hand: handRaised } };
+    return { rows, grouped, hints, births: { sheet: bornAtSheets, hand: handRaised }, aisleBands };
   });
 
   const canViewCost = hasFeaturePermission(session.role, 'inventory.view.cost');
@@ -290,7 +332,14 @@ async function orgPurchaseOrdersHandler(request: NextRequest, session: AuthSessi
               status: po.originStockTake.status,
               closedAt: po.originStockTake.closedAt?.toISOString() ?? null,
               walkAisle: po.originStockTake.walkAisle
-                ? { name: po.originStockTake.walkAisle.name }
+                ? {
+                    name: po.originStockTake.walkAisle.name,
+                    // v2.251.0: the aisle's band (additive + optional — a
+                    // failed read answers null and the row keeps its
+                    // silence, the honest absence).
+                    band: result.aisleBands.get(po.originStockTake.walkAisle.id)?.band ?? null,
+                    daysSince: result.aisleBands.get(po.originStockTake.walkAisle.id)?.daysSince ?? null,
+                  }
                 : null,
             }
           : null,

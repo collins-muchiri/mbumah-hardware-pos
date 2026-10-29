@@ -35,11 +35,11 @@ const pkg = JSON.parse(read('package.json'));
 const version = String(pkg.version);
 
 describe('the org wire\u2019s birth \u2014 the roster rides the violet (v2.249.0)', () => {
-  it('the rows grow originStockTakeId + originStockTake (additive, the branch wire\u2019s own shape)', () => {
+  it('the rows grow originStockTakeId + originStockTake (additive, the branch wire\u2019s own shape; the aisle\u2019s band rides the row at v2.251.0)', () => {
     expect(orgWire).toContain('originStockTakeId: true,\n          originStockTake: {');
     expect(orgWire).toContain('originStockTakeId: po.originStockTakeId,');
     expect(orgWire).toContain('closedAt: po.originStockTake.closedAt?.toISOString() ?? null,');
-    expect(orgWire).toContain('walkAisle: po.originStockTake.walkAisle\n                ? { name: po.originStockTake.walkAisle.name }\n                : null,');
+    expect(orgWire).toContain('walkAisle: po.originStockTake.walkAisle\n                ? {\n                    name: po.originStockTake.walkAisle.name,\n                    // v2.251.0: the aisle\'s band (additive + optional \u2014 a\n                    // failed read answers null and the row keeps its\n                    // silence, the honest absence).\n                    band: result.aisleBands.get(po.originStockTake.walkAisle.id)?.band ?? null,\n                    daysSince: result.aisleBands.get(po.originStockTake.walkAisle.id)?.daysSince ?? null,\n                  }\n                : null,',); // v2.251.0: the pin carries the band's own comment bytes
   });
 
   it('a hand-raised PO answers null \u2014 the silent absence, never a fabricated strip', () => {
@@ -75,10 +75,10 @@ describe('the org detail wire\u2019s birth (v2.249.0)', () => {
 });
 
 describe('the ledger\u2019s birth rungs + chips (v2.249.0)', () => {
-  it('the wire type grows the births + the rows\u2019 birth (additive)', () => {
+  it('the wire type grows the births + the rows\u2019 birth (additive; the aisle\u2019s band rides the type at v2.251.0)', () => {
     expect(ledger).toContain('births: { sheet: number; hand: number };');
     expect(ledger).toContain('originStockTakeId: string | null;');
-    expect(ledger).toContain('originStockTake: {\n        id: string;\n        status: string;\n        closedAt: string | null;\n        walkAisle: { name: string | null } | null;\n      } | null;');
+    expect(ledger).toContain('originStockTake: {\n        id: string;\n        status: string;\n        closedAt: string | null;\n        // v2.251.0: the aisle\'s band rides the roster (additive +\n        // optional \u2014 the wire\'s deduped read; a failed read answers\n        // null and the row keeps its silence, the honest absence).\n        walkAisle: { name: string | null; band: string | null; daysSince: number | null } | null;\n      } | null;');
   });
 
   it('the birth rung rides the query key and the fetch \u2014 a rung change IS a refetch', () => {
@@ -112,8 +112,8 @@ describe('the ledger\u2019s birth rungs + chips (v2.249.0)', () => {
     expect(ledger).toContain('bg-violet-50 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-violet-700 ring-1 ring-violet-200 dark:bg-violet-500/10 dark:text-violet-300 dark:ring-violet-500/30');
   });
 
-  it('the roster\u2019s copy grows the birth column \u2014 a file speaks the word for every row', () => {
-    expect(ledger).toContain("const header = 'po_number,status,supplier,branch,lines,ordered_day,total_kes,birth,aisle';");
+  it('the roster\u2019s copy grows the birth column \u2014 a file speaks the word for every row (the band column rides at v2.251.0)', () => {
+    expect(ledger).toContain("const header = 'po_number,status,supplier,branch,lines,ordered_day,total_kes,birth,aisle,aisle_band';");
     expect(ledger).toContain("r.originStockTakeId != null ? 'sheet' : 'hand',");
   });
 });
@@ -154,7 +154,7 @@ describe('the restock door\u2019s shillings (v2.249.0)', () => {
 
 describe('the release face (v2.249.0)', () => {
   it('package.json speaks 2.249.0', () => {
-    expect(version).toBe('2.250.0');
+    expect(version).toBe('2.251.0');
   });
 
   it('the birth\u2019s ledger rides the changelog', () => {
@@ -166,8 +166,8 @@ describe('the release face (v2.249.0)', () => {
 
   it('whats-new speaks the birth\u2019s ledger first', () => {
     const whatsNew = read('src/lib/whats-new.ts');
-    expect(whatsNew).toContain("version: '2.250.0',");
+    expect(whatsNew).toContain("version: '2.251.0',");
     expect(whatsNew).toContain('The birth\\u2019s ledger');
-    expect(whatsNew.indexOf("version: '2.250.0',")).toBeLessThan(whatsNew.indexOf("version: '2.249.0',"));
+    expect(whatsNew.indexOf("version: '2.251.0',")).toBeLessThan(whatsNew.indexOf("version: '2.250.0',"));
   });
 });

@@ -50,9 +50,9 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.227.0)', () => {
   it('package.json leads 2.227.0 (all three slots)', () => {
-    expect(version).toBe('2.250.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.250.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.250.0');
+    expect(version).toBe('2.251.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.251.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.251.0');
   });
 
   it('the changelog anchors the section ABOVE its ancestor (the structural pin — headers, never bare strings)', () => {
@@ -177,7 +177,7 @@ describe('the watchlist stitch (v2.227.0)', () => {
     expect(ledger.includes("${po.watchlistHints} ${po.watchlistHints === 1 ? 'row' : 'rows'} on ${po.store.name}'s watchlist ${po.watchlistHints === 1 ? 'hints' : 'hint'} at this supplier")).toBe(true);
   });
 
-  it('the roster CSV keeps its stitch a live whisper (the birth column rode the file at v2.249.0, the aisle beside it at v2.250.0 — the stitch is still not a row of the file)', () => {
-    expect(roster.includes("const header = 'po_number,status,supplier,branch,lines,ordered_day,total_kes,birth,aisle';")).toBe(true);
+  it('the roster CSV keeps its stitch a live whisper (the birth column rode the file at v2.249.0, the aisle beside it at v2.250.0 — the stitch is still not a row of the file; the band rides beside the aisle at v2.251.0)', () => {
+    expect(roster.includes("const header = 'po_number,status,supplier,branch,lines,ordered_day,total_kes,birth,aisle,aisle_band';")).toBe(true);
   });
 });

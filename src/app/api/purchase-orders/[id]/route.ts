@@ -11,6 +11,12 @@ import { requireStoreAccess, type AuthSession } from '@/lib/auth';
 // module never exported it — the build caught the import's address).
 import { hasFeaturePermission } from '@/lib/permissions';
 import { getVatRatePercent } from '@/lib/vat-settings';
+// v2.251.0 THE WALK'S WHEN — the branch strip learns the aisle's own
+// cadence chip (the org drill's own voice since v2.250.0): the census's
+// single-aisle read (one home) and the stored law (one reader — the
+// band never re-derives the thresholds).
+import { readCategoryBand, type CadenceBand } from '@/lib/cadence-band';
+import { readCadenceLaw } from '@/lib/cadence-law';
 
 export const dynamic = 'force-dynamic';
 
@@ -56,7 +62,10 @@ async function getPurchaseOrderHandler(
           id: true,
           status: true,
           closedAt: true,
-          walkAisle: { select: { name: true } },
+          // v2.251.0: the aisle's id rides so the wire can read the
+          // aisle's own band (the detail's single-aisle read — the name
+          // alone could never ask the shelf when it was heard).
+          walkAisle: { select: { id: true, name: true } },
         },
       },
     },
@@ -78,6 +87,21 @@ async function getPurchaseOrderHandler(
   // every viewer's own truth.
   const canViewCost = hasFeaturePermission(session.role, 'inventory.view.cost');
 
+  // v2.251.0 THE WALK'S WHEN — the birth strip names the sheet's walk
+  // order; now it also says WHEN that aisle was last heard, the variance
+  // map's own four houses read the census's way (one aisle, one read;
+  // a read that fails is no band — the chip's silence, never a guessed
+  // house). The band is not a cost: it rides for every viewer. The law
+  // and the band read ride the TENANT client — the stock-takes' own
+  // pattern (the branch's floor answers for the branch's aisle).
+  const walkCategoryId = purchaseOrder.originStockTake?.walkAisle?.id ?? null;
+  let aisleBand: { band: CadenceBand; daysSince: number | null } | null = null;
+  if (walkCategoryId) {
+    const law = await readCadenceLaw(db);
+    const band = await readCategoryBand(db, walkCategoryId, law, new Date());
+    if (band) aisleBand = { band: band.band, daysSince: band.daysSince };
+  }
+
   return Response.json({
     success: true,
     // v2.250.0: the gate's own flag rides the envelope (the org wire's
@@ -96,6 +120,22 @@ async function getPurchaseOrderHandler(
           ? { ...it.product, costPrice: canViewCost ? Number(it.product.costPrice) : null }
           : it.product,
       })),
+      // v2.251.0: the aisle's band rides the birth's walk aisle (additive
+      // + optional — a failed read answers null and the strip keeps its
+      // today voice, the honest silence).
+      originStockTake: purchaseOrder.originStockTake
+        ? {
+            ...purchaseOrder.originStockTake,
+            walkAisle: purchaseOrder.originStockTake.walkAisle
+              ? {
+                  id: purchaseOrder.originStockTake.walkAisle.id,
+                  name: purchaseOrder.originStockTake.walkAisle.name,
+                  band: aisleBand?.band ?? null,
+                  daysSince: aisleBand?.daysSince ?? null,
+                }
+              : purchaseOrder.originStockTake.walkAisle,
+          }
+        : purchaseOrder.originStockTake,
     },
   });
 }

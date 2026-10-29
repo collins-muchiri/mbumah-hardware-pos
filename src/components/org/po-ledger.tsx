@@ -49,6 +49,9 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { PoDrill, poStatusChip, type PoDrillTarget } from './po-drill';
 import { csvCell } from './sheet-drill';
 import { num, timeAgo, type StoreRow } from './primitives';
+// v2.251.0 THE WALK'S WHEN — the roster chip's title speaks the aisle's
+// days voice (the same one home the drill's chip reads).
+import { daysVoice } from '@/lib/cadence-band';
 
 const fmtKes = (v: number) =>
   `KES ${v.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -70,7 +73,12 @@ export function rosterCsv(rows: PoLedgerWire['data']['rows'], opts: { costGated:
   // address, the wire already carries the name (zero new fetch). A
   // hand-raised row's aisle cell exports EMPTY (the absence, never a
   // guessed word).
-  const header = 'po_number,status,supplier,branch,lines,ordered_day,total_kes,birth,aisle';
+  // v2.251.0: the AISLE_BAND column rides beside the name — the walk's
+  // WHEN, the four houses the wire already computed (zero new fetch). A
+  // row whose read failed or whose birth had no aisle exports EMPTY (a
+  // file has no titles — the word speaks alone; the days stay the
+  // screen's voice).
+  const header = 'po_number,status,supplier,branch,lines,ordered_day,total_kes,birth,aisle,aisle_band';
   const rowsOut = rows.map((r) =>
     [
       csvCell(r.poNumber),
@@ -82,6 +90,7 @@ export function rosterCsv(rows: PoLedgerWire['data']['rows'], opts: { costGated:
       !opts.costGated && r.totalAmount != null ? r.totalAmount : '',
       r.originStockTakeId != null ? 'sheet' : 'hand',
       r.originStockTake?.walkAisle?.name ?? '',
+      r.originStockTake?.walkAisle?.band ?? '',
     ].join(','),
   );
   return `\ufeff${[header, ...rowsOut].join('\r\n')}`;
@@ -124,7 +133,10 @@ interface PoLedgerWire {
         id: string;
         status: string;
         closedAt: string | null;
-        walkAisle: { name: string | null } | null;
+        // v2.251.0: the aisle's band rides the roster (additive +
+        // optional — the wire's deduped read; a failed read answers
+        // null and the row keeps its silence, the honest absence).
+        walkAisle: { name: string | null; band: string | null; daysSince: number | null } | null;
       } | null;
       totalAmount: number | null;
     }>;
@@ -393,7 +405,7 @@ export function ProcurementLedger({ stores }: { stores: StoreRow[] }) {
                       {po.originStockTakeId != null && (
                         <span
                           data-testid="po-ledger-row-birth-chip"
-                          title={po.originStockTake?.walkAisle?.name ? `born at a count sheet — the walk order named ${po.originStockTake.walkAisle.name}` : 'born at a count sheet'}
+                          title={`born at a count sheet${po.originStockTake?.walkAisle?.name ? ` — the walk order named ${po.originStockTake.walkAisle.name}` : ''}${po.originStockTake?.walkAisle?.band ? ` — last heard ${daysVoice({ band: po.originStockTake.walkAisle.band as 'fresh' | 'stale' | 'beyond' | 'never', daysSince: po.originStockTake.walkAisle.daysSince })}` : ''}`}
                           className="inline-flex shrink-0 items-center gap-0.5 rounded bg-violet-50 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-violet-700 ring-1 ring-violet-200 dark:bg-violet-500/10 dark:text-violet-300 dark:ring-violet-500/30"
                         >
                           <Baby className="h-2.5 w-2.5" aria-hidden="true" />

@@ -159,8 +159,8 @@ describe('the aisle speaks twice \u2014 the band rides the birth (v2.250.0)', ()
     expect(poDrill).toContain('{chipLabel(data.originStockTake.walkAisle.band)}');
   });
 
-  it('the ledger\u2019s CSV grows the aisle column \u2014 the wire already carries the name', () => {
-    expect(ledger).toContain("const header = 'po_number,status,supplier,branch,lines,ordered_day,total_kes,birth,aisle';");
+  it('the ledger\u2019s CSV grows the aisle column \u2014 the wire already carries the name (the band beside it at v2.251.0)', () => {
+    expect(ledger).toContain("const header = 'po_number,status,supplier,branch,lines,ordered_day,total_kes,birth,aisle,aisle_band';");
     expect(ledger).toContain("r.originStockTake?.walkAisle?.name ?? '',");
   });
 });
