@@ -2,6 +2,21 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.265.0] The console hears the release
+
+The org console's reader alone never heard the release voice: the shared What's New dialog mounts on every surface whose shell wears MainApp (the home tabs shell, the branch workspaces) — but the console's own face never mounted it, while its release archive (the footer pill, the palette inbox, the modal) sat fully built beside the silence. Proven live: with the shared seen flag cleared, /console mounted with no announcement.
+
+### Added
+- **The shared dialog on the console** (`src/app/(shell)/console/page.tsx`): the SAME `WhatsNewDialog` (one home, the same seen-flag law, the same SSR gate — never a copy) mounts beside the console's overlays, so a fresh release announces itself to the console's reader the same way every MainApp surface already announces.
+- **The announcement's hand** (`src/components/whats-new-dialog.tsx`): an additive optional `onOpenChangelog?: () => void` — when the host owns its own release archive, the footer grows "Open the release archive" (ScrollText, the archive's own glyph): the announcement dismisses FIRST (the shared seen flag writes, so the footer pill and the palette inbox read "read" the moment the archive opens) and the host lands the reader on the announced release. ABSENT, the dialog renders byte-identical to every earlier round — the shell's own `<WhatsNewDialog />` stays bare.
+- **The landing**: the console's hand reuses its own v2.73.0 jump-to-release target — the archive opens scrolled to the version the announcement named (the archive opens where the announcement began).
+
+### Styled
+- **The archive button**: outline, ScrollText, honest title ("the release archive — every version's notes, this one already found") — a shared-face addition that benefits every host that wears the hand, and renders nowhere it isn't handed.
+
+### Tests
+- `src/tests/console-release-voice-v2265.test.ts` (7 pins / 2 describes): the hand's bytes (additive signature, the dismiss-FIRST order, the conditional render, the SSR gate + seen-flag law untouched), the archive button's address + title, the console's import + mount + hand, the byte-order pin (login dialog → archive modal → the voice), the shell's bare mount (one home, two surfaces, zero props there), the RUNTIME agreement (the announcement names a release the feed knows), and the ancestors' bytes. The treadmill walked 315 ancestor pins across 70 files.
+
 ## [2.264.0] The door downstairs
 
 The org ledger's drill-to-branch affordance, carried since Tasks 236–238, answered at last in its honest shape: the ledger is read-only from above by law ("the branch workspace keeps the only pens"), so the answer to a narrowed question is not a pen up here — it is a door to where the pens live. The named branch's own workspace Purchase Orders page opens in a new tab, and the pressed lenses ride the URL.
@@ -31,7 +46,7 @@ The roster-memory candidate, defined at last: a face's narrowing instruments —
 - **The remembered chip**: a quiet "remembered" notice beside the metric rail (History icon, the honest title — "your last lens returned with you — Escape, the clear button or a press stands it down") speaks only until the reader's own hand moves an instrument — a notice, not a stance. Two surfaces, two addresses, one shape.
 
 ### Tests
-- `src/tests/lens-memory-v2263.test.ts` (10 pins / 3 describes): the one home's bytes + RUNTIME roundtrip (a press remembered, a stranger refused, unparseable envelopes refused), the membership law on both faces, the needle's absence from the memory, the remembered chips, and the ancestors' bytes. The treadmill walked 315 ancestor pins across 71 files.
+- `src/tests/lens-memory-v2263.test.ts` (10 pins / 3 describes): the one home's bytes + RUNTIME roundtrip (a press remembered, a stranger refused, unparseable envelopes refused), the membership law on both faces, the needle's absence from the memory, the remembered chips, and the ancestors' bytes. The treadmill walked 315 ancestor pins across 70 files.
 
 ## [2.262.0] The branch's answer
 

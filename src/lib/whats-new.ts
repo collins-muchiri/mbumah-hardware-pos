@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.265.0',
+    title: 'The console hears the release',
+    bullets: [
+      'A fresh release now announces itself on the organization console too \u2014 the same "What\u2019s New" card every other surface shows, in the same moment, from the same source.',
+      'The card\u2019s new "Open the release archive" button lands in the console\u2019s own changelog, scrolled straight to the version being announced.',
+      'The card remembers you read it \u2014 one shared flag across every surface, so the footer pill and the command palette agree the moment you\u2019ve seen it.',
+    ],
+  },
+  {
     version: '2.264.0',
     title: 'The door downstairs',
     bullets: [
