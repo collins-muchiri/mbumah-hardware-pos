@@ -2,6 +2,16 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.272.0] The census carries its copy
+
+v2.271.0 gave the reports desk the adoption census — but a census you cannot file is a census you cannot take to the meeting. The digest export route refuses the roll call ON PURPOSE (a digest is aggregate-only by construction; the roll call is name-bearing), so a name-bearing file gets its OWN door: same guard, same scope law, its own audit action.
+
+### Added
+- **The census's audited CSV door** (`src/lib/hr/portal-adoption-csv.ts` + `src/app/api/hr/reports/portal-adoption/export/route.ts` + `src/app/(shell)/hr/reports/page.tsx`): a "Roll call CSV" button on the roll call card downloads the governed file — the house format (header block, Summary of the census numbers, the roll call table), built by a PURE builder that shapes only what the ALREADY-governed census DTO carries (the OWASP formula-injection guard is `csvCell` itself; RFC-4180 CRLF; an honest point-in-time filename). The route rides the same `hr.report.branch` guard + roles, the same `validateReportStore` drill-down, refuses an empty census with the honest 404 `NO_REPORT_DATA`, and writes its own audit action `PORTAL_ADOPTION_EXPORTED` → DataExport with COUNT-ONLY metadata (rows, scope, byteSize, channel) — the roll call's names never ride the audit trail, and the file has no email column because the census never fetched one. An empty census refuses to file; the digest export route stays aggregate-only, untouched.
+
+### Styled
+- **The door wears the census's own emerald** (`border-emerald-200 … focus-visible:ring-emerald-400`): the linked-login color, never the digest's violet — a color never means two things. The button spins (`Loader2`) with honest "Building…" words while the file builds, its `role="status"` note speaks the size and the audit law when it lands (or the failure in the shared red), and the whole door is `print:hidden` like every export control.
+
 ## [2.271.0] The report hears the bell
 
 The roster answers WHICH hires hold portal access (v2.268.0's quiet bell) and the lens can ASK for them (v2.270.0) — but the reports desk had no census. This round the bell is rolled up to report distance: a point-in-time adoption roll call over the governed scope, on its own tab of /hr/reports.

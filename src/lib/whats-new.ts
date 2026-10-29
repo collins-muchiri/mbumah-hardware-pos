@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.272.0',
+    title: 'The census carries its copy',
+    bullets: [
+      'The Portal adoption report can now file itself: a "Roll call CSV" button on the roll call downloads the governed file \u2014 header block, the census numbers, and every employee the scope answers for, in the exact shape the table shows.',
+      'A name-bearing file gets its own audited door: the export lands in the audit trail (counts and scope only \u2014 the names never ride it), and the file carries no emails, because the builder shapes only what the census already fetched.',
+      'The door wears the census\u2019s own emerald \u2014 spinning while it builds, speaking its size when it lands, quiet in print.',
+    ],
+  },
+  {
     version: '2.271.0',
     title: 'The report hears the bell',
     bullets: [
