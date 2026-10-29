@@ -646,6 +646,50 @@ export default function HrReportsPage() {
     }
   }, [storeId]);
 
+  // v2.272.0: the census carries its copy — the roll call's own audited CSV
+  // door. The digest export refuses the census ON PURPOSE (a digest is
+  // aggregate-only by construction; the roll call is name-bearing), so the
+  // download rides the census's OWN endpoint: the same governed scope the
+  // tab answers for, the same shaped bits the table shows (no emails), and
+  // the export lands in the audit trail (PORTAL_ADOPTION_EXPORTED,
+  // count-only metadata — the names never ride it).
+  const [portalCsvBusy, setPortalCsvBusy] = useState(false);
+  const [portalCsvNote, setPortalCsvNote] = useState<{ tone: 'ok' | 'err'; text: string } | null>(null);
+
+  const exportPortalCsv = useCallback(async () => {
+    if (portalCsvBusy) return;
+    setPortalCsvBusy(true);
+    setPortalCsvNote(null);
+    try {
+      const qs = storeId ? `?storeId=${encodeURIComponent(storeId)}` : '';
+      const res = await fetch(`/api/hr/reports/portal-adoption/export${qs}`, { credentials: 'include' });
+      if (!res.ok) {
+        const j = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(j.error || `Export failed (${res.status}).`);
+      }
+      const blob = await res.blob();
+      const match = (res.headers.get('Content-Disposition') ?? '').match(/filename="([^"]+)"/);
+      const filename =
+        match?.[1] ?? res.headers.get('X-Census-Csv-Filename') ?? 'mbumah-portal-adoption-census.csv';
+      const objUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = objUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(objUrl);
+      setPortalCsvNote({
+        tone: 'ok',
+        text: `Roll call CSV downloaded — ${filename} (${formatCsvSize(blob.size)}). The export is audit logged; the file carries no emails — the same shaped bits the table shows.`,
+      });
+    } catch (e) {
+      setPortalCsvNote({ tone: 'err', text: e instanceof Error ? e.message : 'Export failed.' });
+    } finally {
+      setPortalCsvBusy(false);
+    }
+  }, [storeId, portalCsvBusy]);
+
   // v2.129.0: the timeline door opens — fresh fetch per open, retry reuses
   // the door's employee (openHistory is the single loader).
   const openHistory = useCallback((r: ConsentDto['records'][number]) => {
@@ -2144,13 +2188,38 @@ export default function HrReportsPage() {
                 </Card>
               )}
 
-              {/* the roll call — the roster's chip vocabulary, byte-kept */}
+              {/* the roll call — the roster's chip vocabulary, byte-kept;
+                  v2.272.0: the header carries the census's own CSV door —
+                  emerald (the linked-login color — a color never means two
+                  things), spinning while it builds, quiet in print */}
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-semibold">The roll call</CardTitle>
-                  <CardDescription className="text-xs">
-                    Every employee the scope answers for, and the state of their portal door.
-                  </CardDescription>
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <CardTitle className="text-sm font-semibold">The roll call</CardTitle>
+                      <CardDescription className="text-xs">
+                        Every employee the scope answers for, and the state of their portal door.
+                      </CardDescription>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => void exportPortalCsv()}
+                      disabled={portalCsvBusy}
+                      data-testid="hr-reports-portal-export"
+                      title="Roll call CSV — the governed file: header block, injection guard, and the export lands in the audit trail. No emails ride."
+                      aria-label={portalCsvBusy ? 'Building the roll call CSV' : 'Download the roll call CSV of the portal adoption census'}
+                      className="h-8 shrink-0 gap-1.5 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800 focus-visible:ring-emerald-400 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-300 dark:hover:bg-emerald-900/40 dark:hover:text-emerald-200 print:hidden"
+                    >
+                      {portalCsvBusy ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+                      ) : (
+                        <FileDown className="h-3.5 w-3.5" aria-hidden />
+                      )}
+                      {portalCsvBusy ? 'Building…' : 'Roll call CSV'}
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="overflow-x-auto">
@@ -2225,6 +2294,24 @@ export default function HrReportsPage() {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* v2.272.0: the export's own note — the download speaks its
+                  size and its audit law, or its failure, in the census's
+                  emerald (or the shared red), a role="status" like the
+                  digest note speaks above the tabs */}
+              {portalCsvNote ? (
+                <p
+                  role="status"
+                  data-testid="hr-reports-portal-export-note"
+                  className={`print:hidden ${
+                    portalCsvNote.tone === 'ok'
+                      ? 'text-xs font-medium text-emerald-700 dark:text-emerald-300'
+                      : 'text-xs font-medium text-red-600 dark:text-red-400'
+                  }`}
+                >
+                  {portalCsvNote.text}
+                </p>
+              ) : null}
             </>
           )}
         </TabsContent>
