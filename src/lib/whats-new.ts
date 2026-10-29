@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.254.0',
+    title: 'The branch\u2019s lens',
+    bullets: [
+      'The branch\u2019s purchase-order page answers by the walk\u2019s own houses, the same lens the org ledger learned last visit: a band rail above the table \u2014 fresh, stale, beyond, never, no band \u2014 each chip speaking its real count over the page, a press narrowing the view to that house.',
+      'The lens composes with the search and the sort (the reading narrows, the fetch never moves), and the page\u2019s own clear-filters button lifts it too \u2014 one honest clear, never a partial one.',
+      'The branch\u2019s birth chips wear their aisle\u2019s band as a coloured dot, the same family marker the org roster spoke last visit \u2014 the family reads at a glance before any title is hovered.',
+      'The org ledger\u2019s lens-empty face grew its own lift: one \u201cclear the view\u201d button that stands the lens down and clears the finder \u2014 the words\u2019 own promise, now a control.',
+    ],
+  },
+  {
     version: '2.253.0',
     title: 'The ledger\u2019s lens',
     bullets: [
