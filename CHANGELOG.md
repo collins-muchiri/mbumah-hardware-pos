@@ -2,6 +2,17 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.269.0] The portal hears the release
+
+The release voice reached every MainApp surface (the shell at v2.13.0, the console at v2.265.0, the desk at v2.266.0) — but the self-service portal, the surface the v2.267.0 keystone's linked logins actually open, is a SLIM layout outside MainApp, and it never heard a word. Proven live: with the seen flag fresh, /employees/me mounted silent while the same browser had just been announced on the POS workspace. And the portal's tab bars had their own silence: twelve links, zero active faces, no aria-current anywhere — the reader could not see where they were.
+
+### Added
+- **The portal hears the release** (`src/app/(selfservice)/employees/me/layout.tsx`): the SAME `WhatsNewDialog` (one home, the same seen-flag law, the same SSR gate) mounts BARE — the shell's own zero-props law, now three surfaces wide. The slim layout's honesty holds: the dialog is Radix + pure data; no React Query, no auth store crosses the slim boundary.
+- **The wayfinding one home** (`src/app/(selfservice)/employees/me/self-service-tabs.tsx`): a client component renders BOTH tab bars from the SAME array against the SAME pathname — the mobile bottom bar and the desktop rail can never disagree about where the reader is. The active tab wears `aria-current="page"` and the portal's own brand face — the amber gradient the profile hero wears (a color never means two things). The stateless navs retired whole.
+
+### Styled
+- **The active faces**: mobile — the foreground text + the amber icon + the gradient indicator bar under the active tab; desktop — the amber pill with its ring. The Home tab answers EXACT (the root, not a prefix ruler); the other five keep their leaf (and nested paths beneath) lit. Tab testids answer both navs (`selfservice-tab-*`, `selfservice-tab-desktop-*`, `selfservice-tab-indicator`).
+
 ## [2.268.0] The roster's quiet bell
 
 v2.267.0 linked logins to employees on the detail card, but the roster — the face every HR role lands on — stayed deaf: which hires hold portal access was a one-detail-at-a-time question, answered by opening each record in turn. This round the roster itself answers, and the detail card's picker learns the affordance its styling always implied.

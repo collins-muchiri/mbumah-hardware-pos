@@ -1,21 +1,13 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import { Home, Wallet, CalendarClock, Palmtree, Target, FileText } from 'lucide-react';
+import { WhatsNewDialog } from '@/components/whats-new-dialog';
+import { SelfServiceTabs } from './self-service-tabs';
 
 export const metadata: Metadata = {
   title: 'My Workspace | Mbumah Hardware',
   description: 'Your payslips, leave, attendance, goals, and documents — private to you.',
 };
-
-const TABS = [
-  { href: '/employees/me', label: 'Home', icon: Home },
-  { href: '/employees/me/payslips', label: 'Payslips', icon: Wallet },
-  { href: '/employees/me/attendance', label: 'Attendance', icon: CalendarClock },
-  { href: '/employees/me/leave', label: 'Leave', icon: Palmtree },
-  { href: '/employees/me/goals', label: 'Goals', icon: Target },
-  { href: '/employees/me/documents', label: 'Docs', icon: FileText },
-];
 
 export default function EmployeeSelfServiceLayout({ children }: { children: ReactNode }) {
   return (
@@ -36,41 +28,18 @@ export default function EmployeeSelfServiceLayout({ children }: { children: Reac
 
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 pb-24 pt-4 sm:pt-6 md:pb-10">{children}</main>
 
-      {/* Mobile bottom tab bar (self-service is mobile-first per spec) */}
-      <nav
-        aria-label="Self-service navigation"
-        className="fixed inset-x-0 bottom-0 z-40 border-t bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
-      >
-        <div className="grid grid-cols-6">
-          {TABS.map((tab) => (
-            <Link
-              key={tab.href}
-              href={tab.href}
-              className="flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium text-muted-foreground transition-colors active:text-foreground"
-            >
-              <tab.icon className="h-5 w-5" aria-hidden />
-              {tab.label}
-            </Link>
-          ))}
-        </div>
-      </nav>
+      {/* v2.269.0: the wayfinding one home — both tab bars render through the
+          SAME client component (the same array, the same pathname, the same
+          aria-current law). The stateless navs (every tab looked alike, no
+          active face) retired whole. */}
+      <SelfServiceTabs />
 
-      {/* Desktop inline nav (mirrors the mobile tabs) */}
-      <nav
-        aria-label="Self-service navigation desktop"
-        className="sticky bottom-0 z-30 hidden justify-center gap-1 border-t bg-card/95 py-2 backdrop-blur md:flex"
-      >
-        {TABS.map((tab) => (
-          <Link
-            key={tab.href}
-            href={tab.href}
-            className="flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-          >
-            <tab.icon className="h-4 w-4" aria-hidden />
-            {tab.label}
-          </Link>
-        ))}
-      </nav>
+      {/* v2.269.0: the portal hears the release — the shared dialog (one
+          home, the same seen-flag law, the same SSR gate) mounts BARE, the
+          shell's own zero-props law, now three surfaces wide. The slim
+          layout's honesty holds: the dialog is Radix + pure data — no React
+          Query, no auth store crosses the slim boundary. */}
+      <WhatsNewDialog />
 
       <footer className="hidden border-t py-3 text-center text-xs text-muted-foreground md:block">
         Your data is scoped to your own profile. Payslip figures stay available offline on this device once loaded.
