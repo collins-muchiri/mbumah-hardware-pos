@@ -112,6 +112,31 @@ export function buildPeoplePayrollDeepLink(storeId: string): string {
 }
 
 /**
+ * v2.264.0 THE DOOR DOWNSTAIRS — the org ledger's branch door. The
+ * procurement ledger is read-only from above by law ("the branch
+ * workspace keeps the only pens"), so the honest answer to a narrowed
+ * question is not a pen up here — it is a door to where the pens live:
+ * the named branch's own workspace Purchase Orders page. The pressed
+ * lenses ride the URL (the carry law — lens-memory's own: the session
+ * memory never crosses a hard door; a new tab holds no sessionStorage).
+ * Only PRESSED lenses ride: 'ALL'/'all' (the whole window) is nothing
+ * to carry — the honest absence, no param at all. Path-forced like the
+ * console's own store strip (the same origin decides), pure, relative,
+ * never throws.
+ */
+export function buildBranchPurchaseOrdersHref(
+  store: StoreWorkspaceRef,
+  lens?: { band?: string | null; metric?: string | null },
+): string {
+  const base = buildStoreWorkspaceUrl(store, { page: '/purchase-orders', forcePath: true });
+  const params = new URLSearchParams();
+  if (lens?.band && lens.band !== 'ALL') params.set('band', lens.band);
+  if (lens?.metric && lens.metric !== 'all') params.set('metric', lens.metric);
+  const qs = params.toString();
+  return qs ? `${base}?${qs}` : base;
+}
+
+/**
  * v2.113.0: the People & Payroll panel's expiry-alerts door — the documents
  * half of the alert count opens the HR employees list pre-filtered to people
  * whose documents expire within `days` (default 90, mirroring the panel's

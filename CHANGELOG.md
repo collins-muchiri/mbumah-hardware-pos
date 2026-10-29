@@ -2,6 +2,22 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.264.0] The door downstairs
+
+The org ledger's drill-to-branch affordance, carried since Tasks 236–238, answered at last in its honest shape: the ledger is read-only from above by law ("the branch workspace keeps the only pens"), so the answer to a narrowed question is not a pen up here — it is a door to where the pens live. The named branch's own workspace Purchase Orders page opens in a new tab, and the pressed lenses ride the URL.
+
+### Added
+- **The carry law's one home** (`src/lib/lens-memory.ts`): `lensCarryFromParams` — the door's membership at the far end: a foreign word in a carried param is refused (null), never guessed into a lens; the defaults ('ALL'/'all') are nothing to carry; each side stands alone (a valid metric beside a foreign band carries the metric and refuses the band).
+- **The door's address** (`src/lib/workspace/links.ts`): `buildBranchPurchaseOrdersHref` — the named branch's workspace Purchase Orders page, path-forced like the console's own store strip; only PRESSED lenses ride (an unpressed lens is the honest absence — no param at all).
+- **The door itself** (`src/components/org/po-ledger.tsx`): the branch picker grows its door — rendered only when a branch is NAMED (a door needs a room), opening in a NEW TAB (the store strip's own law: the org console stays where the reader left it).
+- **The door's landing** (`src/app/(shell)/tabs/purchase-orders-tab.tsx`): the carry rides the memory's own arrival — one mount effect (no second set-state face), the door's word wins instrument by instrument over the memory's same-instrument lens, the params consumed ONCE and stripped (the restock door's own one-time law), and the remembered chip stays the memory's voice (a door arrival is the door's own).
+
+### Styled
+- **The loaded door says what it carries**: when a lens rides, the door wears the question's own colour — the metric's family rail dot (else the band house's rail) and a quiet sky ring; unpressed, it stands down to the ledger's own slate. The honest title speaks both states ("the branch keeps the only pens" / "the pressed lenses ride along").
+
+### Tests
+- `src/tests/branch-door-v2264.test.ts` (9 pins across 4 describes): the carry law's bytes + RUNTIME (a pressed question carried, a foreign word refused, silence carried as silence, 'Late' is a stranger), the builder's bytes + RUNTIME (the address carries what is pressed and nothing else), the door's bytes (testid, named-branch gate, new-tab law, the carry, the loaded colour), the landing's bytes (the one home, the one-time strip, the precedence, the chip's voice) with the byte-order pin (carry above read above write), and the ancestors' bytes on both faces. The treadmill walked 315 ancestor pins across 70 files.
+
 ## [2.263.0] The lens remembered
 
 The roster-memory candidate, defined at last: a face's narrowing instruments — the band house and the metric kind — remember their press across navigation within the session. The reader returns and the lens is exactly as it was left. The needle never rides (a needle is a moment's question, not a stance), and standing a lens down IS forgetting — the lifts write through like any other press.

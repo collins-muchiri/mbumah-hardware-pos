@@ -49,6 +49,10 @@ import {
 // v2.263.0 THE LENS REMEMBERED — one home, never a copy (the ledger's
 // own memory wire; the needle never rides).
 import { readLensMemory, writeLensMemory } from '@/lib/lens-memory';
+// v2.264.0 THE DOOR'S LANDING — the carry law's own mouth (a separate
+// line on purpose: the remembered import above is an ancestor's pinned
+// byte, and the growth adds, never rewrites).
+import { lensCarryFromParams } from '@/lib/lens-memory';
 import { SheetDrill, type SheetDrillTarget } from '@/components/org/sheet-drill';
 
 // v2.254.0 THE BRANCH'S LENS — the row's own band, read from above: the
@@ -1707,13 +1711,36 @@ export default function PurchaseOrdersTab() {
   const [remembered, setRemembered] = useState(false);
   const firstWriteRef = useRef(true);
   useEffect(() => {
+    // v2.264.0 THE DOOR'S LANDING rides the memory's own arrival (one
+    // mount effect — no second listener, no second set-state face): the
+    // org ledger's branch door hands its question down on the URL (the
+    // carry law — the session memory never crosses a hard door; a new
+    // tab holds none). THE PRECEDENCE, instrument by instrument: an
+    // explicit question beats a remembered stance — the door's carried
+    // lens wins over the memory's same-instrument lens. The params are
+    // consumed ONCE and stripped (the restock door's own one-time law):
+    // a manual reload never inherits the door's question by accident.
+    // The membership check reads the ONE home (lensCarryFromParams) — a
+    // foreign word in a carried param is refused, never guessed into a
+    // lens. The carried press is NOT the remembered chip's voice (the
+    // chip speaks for the memory's restoration, and a door arrival is
+    // the door's own); the write effect below records the carried lens
+    // as this workspace's stance (a press rides the memory).
+    const sp = new URLSearchParams(window.location.search);
+    const carry = lensCarryFromParams(sp.get('band'), sp.get('metric'));
+    if (sp.has('band') || sp.has('metric')) {
+      window.history.replaceState(null, '', window.location.pathname + window.location.hash);
+    }
     const mem = readLensMemory('branch-po-roster');
-    if (!mem) return;
     const BANDS = ['fresh', 'stale', 'beyond', 'never', 'silent'];
     const METRICS = ['onTime', 'late', 'open'];
-    if (BANDS.includes(mem.band)) setBandLens(mem.band as 'ALL' | CadenceBand | 'silent');
-    if (METRICS.includes(mem.metric)) setMetricLens(mem.metric as PoMetricLens);
-    if (BANDS.includes(mem.band) || METRICS.includes(mem.metric)) {
+    if (carry.band) setBandLens(carry.band);
+    else if (mem && BANDS.includes(mem.band)) setBandLens(mem.band as 'ALL' | CadenceBand | 'silent');
+    if (carry.metric) setMetricLens(carry.metric);
+    else if (mem && METRICS.includes(mem.metric)) setMetricLens(mem.metric as PoMetricLens);
+    // the chip speaks for the memory's restoration only — a door
+    // arrival (any carried instrument) is the door's own voice
+    if (mem && !carry.band && !carry.metric && (BANDS.includes(mem.band) || METRICS.includes(mem.metric))) {
       setRemembered(true);
     }
   }, []);
