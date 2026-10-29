@@ -91,8 +91,8 @@ describe('the org list wire\u2019s row bands \u2014 the dedupe\u2019s honest cos
 });
 
 describe('the ledger speaks the when \u2014 the chip\u2019s title and the file\u2019s column (v2.251.0)', () => {
-  it('the days voice rides the import \u2014 the drill\u2019s own one home', () => {
-    expect(ledger).toContain("import { daysVoice } from '@/lib/cadence-band';");
+  it('the days voice rides the import \u2014 the lens\u2019s houses + the label word join the one home (v2.253.0)', () => {
+    expect(ledger).toContain("import { bandHouse, chipLabel, daysVoice, type CadenceBand } from '@/lib/cadence-band';");
   });
 
   it('the roster chip\u2019s title grows the aisle\u2019s days voice \u2014 a row without a band keeps its v2.249 voice', () => {

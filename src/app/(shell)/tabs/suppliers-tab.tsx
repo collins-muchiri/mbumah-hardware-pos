@@ -9,8 +9,13 @@ import {
   ChevronRight, Download, Package, CalendarDays,
   ClipboardCheck, AlertTriangle, Hash, Clock, CheckCircle2,
   Circle, Award, Timer, MessageSquare, Smartphone,
-  Send, MoreVertical, DollarSign,
+  Send, MoreVertical, DollarSign, ClipboardList,
 } from 'lucide-react';
+
+// v2.253.0 THE BIRTH'S FIFTH FACE — the supplier's roster wears the
+// violet birth (the branch roster's own chip), the aisle's band as the
+// house's rail-coloured dot (the ONE home the map reads).
+import { bandHouse, daysVoice, type CadenceBand } from '@/lib/cadence-band';
 
 import { useAppStore } from '@/lib/stores';
 import {
@@ -1118,7 +1123,38 @@ function SupplierDetailView({
                     <TableBody>
                       {purchaseOrders.map((po) => (
                         <TableRow key={po.id}>
-                          <TableCell className="font-mono text-sm">{po.poNumber}</TableCell>
+                          <TableCell className="font-mono text-sm">
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              {po.poNumber}
+                              {/* v2.253.0 THE BIRTH'S FIFTH FACE — the
+                                  supplier's PO roster wears the violet birth
+                                  (the branch roster's own chip, the SAME
+                                  title voice): the sheet's id, the walk
+                                  order's aisle, the days the aisle was last
+                                  heard. The chip wears its aisle's band as
+                                  the house's rail-coloured dot (the ONE
+                                  home). A hand-raised PO renders the silent
+                                  absence; a row whose read fell silent keeps
+                                  the plain violet. */}
+                              {po.originStockTake && (
+                                <Badge
+                                  data-testid="supplier-po-birth-chip"
+                                  className="font-sans text-[9px] bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300 gap-0.5"
+                                  title={`born at count sheet ${po.originStockTake.id}${po.originStockTake.walkAisle?.name ? ` — the walk order named ${po.originStockTake.walkAisle.name}` : ''}${po.originStockTake.walkAisle?.band ? ` — last heard ${daysVoice({ band: po.originStockTake.walkAisle.band as CadenceBand, daysSince: po.originStockTake.walkAisle.daysSince ?? null })}` : ''}`}
+                                >
+                                  {po.originStockTake.walkAisle?.band && (
+                                    <span
+                                      data-testid="supplier-po-band-dot"
+                                      aria-hidden="true"
+                                      className={`h-1.5 w-1.5 shrink-0 rounded-full ${bandHouse(po.originStockTake.walkAisle.band as CadenceBand).rail}`}
+                                    />
+                                  )}
+                                  <ClipboardList className="h-3 w-3" />
+                                  BORN AT A COUNT SHEET
+                                </Badge>
+                              )}
+                            </div>
+                          </TableCell>
                           <TableCell className="text-sm">{formatDate(po.orderDate)}</TableCell>
                           <TableCell>
                             <POStatusTimeline status={po.status} />

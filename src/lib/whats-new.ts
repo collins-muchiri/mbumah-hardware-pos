@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.253.0',
+    title: 'The ledger\u2019s lens',
+    bullets: [
+      'The procurement ledger answers by the walk\u2019s own houses: a band rail under the birth rungs \u2014 fresh, stale, beyond, never, no band \u2014 each chip speaking its real count over the window, a press narrowing the view to that house.',
+      'The lens is the screen\u2019s, never the file\u2019s: the rungs stay the wire\u2019s, the CSV export speaks the whole window, and a pressed chip wears its house\u2019s own solid colour until you lift it.',
+      'The birth chips wear their aisle\u2019s band as a coloured dot \u2014 on the org ledger\u2019s rows and the supplier\u2019s purchase-order roster alike \u2014 so the family reads at a glance before any title is hovered.',
+      'The supplier\u2019s purchase-order table now wears the violet birth chip the branch roster has spoken since v2.248 \u2014 the sheet, the aisle and the days in the title, the honest absence on a hand-raised order.',
+    ],
+  },
+  {
     version: '2.252.0',
     title: 'The walk\u2019s options',
     bullets: [

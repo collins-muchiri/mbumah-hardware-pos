@@ -53,14 +53,19 @@ export interface CadenceBandHouse {
   chip: string;
   rail: string;
   bar: string | null;
+  // v2.253.0 THE LEDGER'S LENS — the pressed face the lens rail wears
+  // when its family is the view's answer (the rungs' own inversion law:
+  // solid house colour, the words white on it). Additive — every caller
+  // that reads chip/rail/bar renders byte-identical.
+  pressed: string;
 }
 
 /** The four houses — the exact classes the variance map has spoken since v2.235.0. */
 export function bandHouse(band: CadenceBand): CadenceBandHouse {
-  if (band === 'fresh') return { chip: 'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/30', rail: 'bg-emerald-500', bar: 'bg-emerald-500' };
-  if (band === 'stale') return { chip: 'bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/30', rail: 'bg-amber-500', bar: 'bg-amber-500' };
-  if (band === 'beyond') return { chip: 'bg-orange-50 text-orange-700 ring-orange-200 dark:bg-orange-500/10 dark:text-orange-300 dark:ring-orange-500/30', rail: 'bg-orange-500', bar: 'bg-orange-400' };
-  return { chip: 'bg-slate-100 text-slate-600 ring-slate-200 dark:bg-slate-500/10 dark:text-slate-300 dark:ring-slate-500/30', rail: 'bg-slate-300 dark:bg-slate-600', bar: null };
+  if (band === 'fresh') return { chip: 'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/30', rail: 'bg-emerald-500', bar: 'bg-emerald-500', pressed: 'bg-emerald-600 text-white ring-emerald-600 dark:bg-emerald-400 dark:text-emerald-950 dark:ring-emerald-400' };
+  if (band === 'stale') return { chip: 'bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/30', rail: 'bg-amber-500', bar: 'bg-amber-500', pressed: 'bg-amber-600 text-white ring-amber-600 dark:bg-amber-400 dark:text-amber-950 dark:ring-amber-400' };
+  if (band === 'beyond') return { chip: 'bg-orange-50 text-orange-700 ring-orange-200 dark:bg-orange-500/10 dark:text-orange-300 dark:ring-orange-500/30', rail: 'bg-orange-500', bar: 'bg-orange-400', pressed: 'bg-orange-600 text-white ring-orange-600 dark:bg-orange-400 dark:text-orange-950 dark:ring-orange-400' };
+  return { chip: 'bg-slate-100 text-slate-600 ring-slate-200 dark:bg-slate-500/10 dark:text-slate-300 dark:ring-slate-500/30', rail: 'bg-slate-300 dark:bg-slate-600', bar: null, pressed: 'bg-slate-600 text-white ring-slate-600 dark:bg-slate-300 dark:text-slate-900 dark:ring-slate-300' };
 }
 
 /** The band's voice — the human line the chips' titles and the rows' aria speak. */
