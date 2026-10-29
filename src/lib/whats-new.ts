@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.255.0',
+    title: 'The suppliers\u2019 lens',
+    bullets: [
+      'The supplier\u2019s own purchase-order roster now answers by the walk\u2019s houses — the third face of the lens the org ledger and the branch page already wear: a band rail above the table (fresh, stale, beyond, never, no band), each chip speaking its real count over the roster.',
+      'A press narrows the roster to that house — the fetch never moves; the lens reads the orders the page already holds.',
+      'A pressed house that empties the view gets an honest answer (“no order on this roster wears…”) and one “clear the lens” button that brings every order back.',
+      'The orders badge speaks the lens too — a pressed house answers “N of M orders” — and the roster\u2019s date read no longer reorders the list under the hood (a quiet correctness fix).',
+    ],
+  },
+  {
     version: '2.254.0',
     title: 'The branch\u2019s lens',
     bullets: [

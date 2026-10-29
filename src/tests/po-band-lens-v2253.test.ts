@@ -143,7 +143,7 @@ describe('the birth\u2019s fifth face \u2014 the supplier\u2019s roster wears th
     expect(suppliersTab).toContain('{po.originStockTake && (');
   });
 
-  it('the houses ride the ONE home \u2014 the supplier face imports the lib, never a copy', () => {
-    expect(suppliersTab).toContain("import { bandHouse, daysVoice, type CadenceBand } from '@/lib/cadence-band';");
+  it('the houses ride the ONE home \u2014 the supplier face imports the lib, never a copy (the import grew chipLabel at v2.255.0 — the lens\u2019s own words)', () => {
+    expect(suppliersTab).toContain("import { bandHouse, chipLabel, daysVoice, type CadenceBand } from '@/lib/cadence-band';");
   });
 });
