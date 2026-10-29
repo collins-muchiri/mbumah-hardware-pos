@@ -35,6 +35,7 @@ import {
   RefreshCw,
   RotateCcw,
   Rows3,
+  ScrollText,
   ShieldAlert,
   SlidersHorizontal,
   Timer,
@@ -55,6 +56,13 @@ import {
 import { LoginScreen } from '@/components/login-screen';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { UnifiedConsoleShell } from '@/components/console/unified-console';
+// v2.266.0 THE DESK HEARS THE RELEASE — the desk's release voice: the SAME
+// shared announcement (one home, the same seen-flag law) and the SAME
+// archive modal the console wears (org/chrome exports it; the console page
+// is its only other consumer — a shared home, never a copy).
+import { ChangelogModal } from '@/components/org/chrome';
+import { WhatsNewDialog } from '@/components/whats-new-dialog';
+import { APP_VERSION } from '@/lib/version';
 // v2.216.0: the SECOND SHELF — the display-currency switcher reaches the
 // org desk's own banner, the shell where the desk's strip-bearing slice
 // modals live (the shelf law the v2.215.0 console shelf established: the
@@ -678,6 +686,14 @@ export function OrgConsole() {
   const [expertStore, setExpertStore] = useState<OrgSummaryStore | null>(null);
   const [expertDiagnostic, setExpertDiagnostic] = useState<BranchDiagnostic | null>(null);
   const [expertPhase, setExpertPhase] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
+
+  // v2.266.0 THE DESK HEARS THE RELEASE — the desk's own archive state:
+  // the modal's open flag and the jump that remembers which version the
+  // announcement named (the header's own door opens at the top — no jump,
+  // the honest default). Declared with the component's other states, before
+  // any early return (the hook-order law).
+  const [changelogOpen, setChangelogOpen] = useState(false);
+  const [releaseJump, setReleaseJump] = useState<string | null>(null);
   const [expertError, setExpertError] = useState('');
   const [expertList, setExpertList] = useState<BranchDiagnostic[] | null>(null);
   const [copyConfirmation, setCopyConfirmation] = useState('');
@@ -1492,6 +1508,21 @@ export function OrgConsole() {
             <Badge variant="outline" className="max-w-full whitespace-normal text-xs">
               {user?.name || 'Signed in'} - {role}
             </Badge>
+            {/* v2.266.0 THE DESK HEARS THE RELEASE — the archive's own door,
+                quiet beside the desk's controls: the full release archive is
+                one click from the desk's reader without waiting for an
+                announcement. Opens at the top (no jump — the jump is the
+                announcement's own memory, not the door's). */}
+            <Button
+              size="sm"
+              variant="outline"
+              data-testid="org-desk-changelog-button"
+              title="the release archive — every version's notes"
+              onClick={() => { setReleaseJump(null); setChangelogOpen(true); }}
+            >
+              <ScrollText className="h-4 w-4 mr-1.5" aria-hidden="true" />
+              Release notes
+            </Button>
             <Button asChild size="sm" variant="outline">
               <Link href="/chat">
                 <MessagesSquare className="h-4 w-4 mr-1.5" aria-hidden="true" />
@@ -2738,6 +2769,21 @@ export function OrgConsole() {
           ) : null}
         </DialogContent>
       </Dialog>
+
+      {/* v2.266.0 THE DESK HEARS THE RELEASE — the desk finally wears the
+          same release voice every MainApp surface wears (and the console
+          since v2.265.0): the SAME shared WhatsNewDialog (one home, the
+          same seen-flag law, the same SSR gate — never a copy) announces a
+          fresh release to the desk's reader, and the SAME ChangelogModal is
+          the hand's landing — the archive opens scrolled to the version the
+          announcement named. The header's "Release notes" door opens the
+          same archive at the top. One shared flag, one archive, one truth. */}
+      <ChangelogModal
+        open={changelogOpen}
+        onOpenChange={(o) => { setChangelogOpen(o); if (!o) setReleaseJump(null); }}
+        jumpTo={releaseJump}
+      />
+      <WhatsNewDialog onOpenChangelog={() => { setReleaseJump(APP_VERSION); setChangelogOpen(true); }} />
     </UnifiedConsoleShell>
   );
 }
