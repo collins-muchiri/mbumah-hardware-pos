@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.269.0',
+    title: 'The portal hears the release',
+    bullets: [
+      'The self-service portal now announces a fresh release too — the same "What\u2019s New" card every other surface shows, from the same source, remembered by the same flag. The slim layout\u2019s honesty holds: no heavy runtime crossed.',
+      'The portal\u2019s tab bars learned where they are: the tab you are on wears the amber brand face and answers aria-current, on the mobile bar and the desktop rail alike — twelve identical links retired.',
+      'The Home tab answers exactly (it is the root, not a prefix ruler) and every other tab keeps its leaf lit on nested paths.',
+    ],
+  },
+  {
     version: '2.268.0',
     title: 'The roster\u2019s quiet bell',
     bullets: [
