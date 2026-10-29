@@ -99,7 +99,14 @@ export default async function EmployeeHome() {
   return (
     <>
       <SelfDashboardCacheWriter data={data} />
-      <HomeView data={data} payslipNotices={payslipNotices} />
+      <HomeView
+        data={data}
+        payslipNotices={payslipNotices}
+        // v2.270.0: the hero's linked-login voice — the session's own identity
+        // (the guard already resolved the employee link, so the voice always
+        // has a real login to name when the hero renders).
+        linkedLogin={{ email: guard.session.email, role: guard.session.role }}
+      />
     </>
   );
 }

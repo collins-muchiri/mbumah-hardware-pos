@@ -5,7 +5,7 @@
 // WHY THIS PAGE EXISTS: the HR workspace nav has pointed "Employees" at
 // /hr/employees since v2.18.x, but the route itself never shipped — every
 // click landed on a 404 (found in QA this round). This is the list: search,
-// status, and an expiring-documents filter, deep-linkable so the People &
+// status, expiring-document and portal-linked filters, deep-linkable so the People &
 // Payroll panel's expiry-alerts door can land here pre-filtered
 // (/hr/employees?expiring=90&storeId=<id>).
 //
@@ -187,7 +187,15 @@ function readParam(name: string): string {
   }
 }
 
-function mirrorFiltersToUrl(q: string, status: string, expiringOnly: boolean, expiringDays: string) {
+function mirrorFiltersToUrl(
+  q: string,
+  status: string,
+  expiringOnly: boolean,
+  expiringDays: string,
+  // v2.270.0: the lens's fourth face deep-links too (?linked=1) — the same
+  // shareable-URL law the other three filters ride.
+  linkedOnly: boolean,
+) {
   try {
     const sp = new URLSearchParams(window.location.search);
     if (q) sp.set('q', q);
@@ -196,6 +204,8 @@ function mirrorFiltersToUrl(q: string, status: string, expiringOnly: boolean, ex
     else sp.delete('status');
     if (expiringOnly && expiringDays) sp.set('expiring', expiringDays);
     else sp.delete('expiring');
+    if (linkedOnly) sp.set('linked', '1');
+    else sp.delete('linked');
     const qs = sp.toString();
     window.history.replaceState(null, '', window.location.pathname + (qs ? `?${qs}` : ''));
   } catch {
@@ -213,6 +223,9 @@ export default function EmployeesPage() {
   const [linkExpiring] = useState(() => readParam('expiring'));
   const [linkQuery] = useState(() => readParam('q'));
   const [linkStatus] = useState(() => readParam('status'));
+  // v2.270.0: the portal-linked lens seed — ?linked=1 opens the roster with
+  // the bell narrowed (the same lazy-seed law as the other three filters).
+  const [linkLinked] = useState(() => readParam('linked'));
 
   const [search, setSearch] = useState(linkQuery);
   const [debouncedQ, setDebouncedQ] = useState(linkQuery);
@@ -220,6 +233,11 @@ export default function EmployeesPage() {
     STATUS_OPTIONS.includes(linkStatus as (typeof STATUS_OPTIONS)[number]) ? linkStatus : 'ALL',
   );
   const [expiringOnly, setExpiringOnly] = useState(linkExpiring !== '');
+  // v2.270.0: the lens's fourth face — show only employees holding a linked
+  // self-service login. CLIENT-side on purpose: the bell's wire already
+  // carries portalLinked on every row, so the answer needs no second fetch
+  // and no API contract change — the roster narrows what it already holds.
+  const [linkedOnly, setLinkedOnly] = useState(linkLinked === '1');
   const [rows, setRows] = useState<EmployeeRow[] | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
@@ -269,11 +287,17 @@ export default function EmployeesPage() {
   }, [load, reloadKey]);
 
   useEffect(() => {
-    mirrorFiltersToUrl(debouncedQ, status, expiringOnly, linkExpiring || '90');
-  }, [debouncedQ, status, expiringOnly, linkExpiring]);
+    mirrorFiltersToUrl(debouncedQ, status, expiringOnly, linkExpiring || '90', linkedOnly);
+  }, [debouncedQ, status, expiringOnly, linkExpiring, linkedOnly]);
 
   const storeMismatch =
     !loading && !error && !!linkStoreId && rows != null && rows.length > 0 && rows[0].storeId !== linkStoreId;
+
+  // v2.270.0: the visible list — the server's answer narrowed by the linked
+  // lens. ONE law follows from this: every count under the filter bar reads
+  // the rows standing in the table (the same honesty the server-side
+  // expiring lens already rides — its counts narrow with the list too).
+  const visibleRows = rows && linkedOnly ? rows.filter((r) => r.portalLinked) : rows;
 
   const clearFilters = () => {
     setUserTouched(true);
@@ -281,9 +305,11 @@ export default function EmployeesPage() {
     setDebouncedQ('');
     setStatus('ALL');
     setExpiringOnly(false);
+    setLinkedOnly(false);
   };
 
-  const activeFilters = (debouncedQ ? 1 : 0) + (status !== 'ALL' ? 1 : 0) + (expiringOnly ? 1 : 0);
+  const activeFilters =
+    (debouncedQ ? 1 : 0) + (status !== 'ALL' ? 1 : 0) + (expiringOnly ? 1 : 0) + (linkedOnly ? 1 : 0);
 
   // ── Onboarding (v2.120.0) ────────────────────────────────────────────────
   // The server decides who sees this door (GET canCreate); the dialog files
@@ -424,8 +450,8 @@ export default function EmployeesPage() {
           <div className="min-w-0">
             <h1 className="text-xl font-semibold tracking-tight text-foreground">Employees</h1>
             <p className="text-xs text-muted-foreground">
-              The branch roster — search, filter, and follow the expiring-document trail. Summaries only; open a
-              record for detail.
+              The branch roster — search, filter, follow the expiring-document trail, and find the portal-linked.
+              Summaries only; open a record for detail.
             </p>
           </div>
         </div>
@@ -516,6 +542,33 @@ export default function EmployeesPage() {
             </span>
           )}
         </button>
+        {/* v2.270.0: the lens's fourth face — the bell answers in the filter bar.
+            The pressed face is EMERALD: the roster's own vocabulary puts emerald
+            on the linked login (the portal chip) and amber on the expiring trail
+            — a color never means two things. The icon is the bell the rows wear. */}
+        <button
+          type="button"
+          onClick={() => {
+            setUserTouched(true);
+            setLinkedOnly((v) => !v);
+          }}
+          aria-pressed={linkedOnly}
+          data-testid="hr-employees-linked-toggle"
+          className={`inline-flex h-8 items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${
+            linkedOnly
+              ? 'border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300'
+              : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+          }`}
+          title="Show only employees holding a linked self-service portal login"
+        >
+          <BellRing className="h-3.5 w-3.5" aria-hidden="true" />
+          Portal linked
+          {linkedOnly && linkLinked && !userTouched && (
+            <span className="rounded bg-emerald-100 px-1 text-[10px] font-semibold text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200">
+              from link
+            </span>
+          )}
+        </button>
         {activeFilters > 0 && (
           <button
             type="button"
@@ -530,13 +583,13 @@ export default function EmployeesPage() {
           <div className="ml-auto flex items-center gap-3">
             <span
               data-testid="hr-employees-portal-count"
-              title="Linked logins answer in-app leave and payroll notifications — the count reads this roster’s rows."
+              title="Linked logins answer in-app leave and payroll notifications — the count reads the rows standing in the table."
               className="text-xs tabular-nums text-slate-400 dark:text-slate-500"
             >
               <span className="font-semibold text-emerald-700 dark:text-emerald-400">
-                {rows.filter((r) => r.portalLinked).length}
+                {(visibleRows ?? []).filter((r) => r.portalLinked).length}
               </span>{' '}
-              of {rows.length} linked
+              of {(visibleRows ?? []).length} linked
             </span>
             {consentLedger && (
               <span
@@ -557,7 +610,7 @@ export default function EmployeesPage() {
               </span>
             )}
             <span className="text-xs text-slate-400 dark:text-slate-500" data-testid="hr-employees-count">
-              {rows.length} {rows.length === 1 ? 'employee' : 'employees'}
+              {(visibleRows ?? []).length} {(visibleRows ?? []).length === 1 ? 'employee' : 'employees'}
             </span>
           </div>
         )}
@@ -579,7 +632,7 @@ export default function EmployeesPage() {
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-full" />
         </div>
-      ) : rows && rows.length > 0 ? (
+      ) : rows && visibleRows && visibleRows.length > 0 ? (
         <>
           {/* Desktop table */}
           <Card className="hidden md:block">
@@ -605,7 +658,7 @@ export default function EmployeesPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {rows.map((r) => (
+                  {visibleRows.map((r) => (
                     <TableRow key={r.id} data-testid="hr-employees-row" className="transition-colors">
                       <TableCell>
                         <a
@@ -689,7 +742,7 @@ export default function EmployeesPage() {
 
           {/* Mobile cards */}
           <div className="space-y-2 md:hidden" data-testid="hr-employees-cards">
-            {rows.map((r) => (
+            {visibleRows.map((r) => (
               <div
                 key={r.id}
                 className="rounded-lg border border-slate-200 p-3 transition-shadow hover:shadow-sm dark:border-slate-800"
@@ -732,16 +785,20 @@ export default function EmployeesPage() {
           <CardContent className="flex flex-col items-center gap-2 py-10 text-center">
             <Users className="h-6 w-6 text-slate-300 dark:text-slate-600" aria-hidden="true" />
             <p className="text-sm font-medium text-foreground">
-              {expiringOnly
-                ? `No employees have documents expiring within ${linkExpiring || '90'} days here.`
-                : debouncedQ || status !== 'ALL'
-                  ? 'No employees match these filters.'
-                  : 'No employees yet for this store context.'}
+              {linkedOnly && rows && rows.length > 0
+                ? 'No employees on this roster hold a linked portal login.'
+                : expiringOnly
+                  ? `No employees have documents expiring within ${linkExpiring || '90'} days here.`
+                  : debouncedQ || status !== 'ALL'
+                    ? 'No employees match these filters.'
+                    : 'No employees yet for this store context.'}
             </p>
             <p className="max-w-md text-xs text-muted-foreground">
-              {expiringOnly
-                ? 'The window counts documents whose expiry date falls between today and the horizon — the same definition the People & Payroll panel rides on.'
-                : 'Try widening the filters, or add employee records from this workspace.'}
+              {linkedOnly && rows && rows.length > 0
+                ? 'The portal stays closed until a login is linked — Settings → Users holds that door; the Portal column keeps its honest dash meanwhile.'
+                : expiringOnly
+                  ? 'The window counts documents whose expiry date falls between today and the horizon — the same definition the People & Payroll panel rides on.'
+                  : 'Try widening the filters, or add employee records from this workspace.'}
             </p>
             {activeFilters > 0 && (
               <Button variant="outline" size="sm" onClick={clearFilters}>

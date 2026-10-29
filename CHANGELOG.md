@@ -2,6 +2,17 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.270.0] The lens finds the bell
+
+v2.268.0 made the roster answer WHICH hires hold portal access (the quiet bell), and v2.267.0's keystone let HR link one from the detail card — but the filter bar could not ASK for them. This round the bell answers in the filter bar, and the portal home's hero answers back from the employee's side of the same link.
+
+### Added
+- **The lens's fourth face** (`src/app/(shell)/hr/employees/page.tsx`): a "Portal linked" toggle beside "Expiring docs" narrows the roster to employees holding a linked self-service login. Client-side on purpose — the bell's wire already carries `portalLinked` on every row, so the answer needs no second fetch and no API contract change. Deep-linkable (`?linked=1`) like the other three filters: seeded, URL-mirrored, counted in `activeFilters`, cleared with the rest. The visible list follows ONE law: every count under the filter bar reads the rows standing in the table — the bell, the roster count, and the empty card alike (the consent counts keep their whole-view honesty, as their title says).
+- **The hero answers back** (`src/app/(selfservice)/employees/me/home-view.tsx` + `page.tsx`): the portal home's profile hero gains the linked-login voice — the session's own identity (email + role) under a hairline in the SAME emerald the roster's Portal column wears, naming the login HR linked to this profile and where the leave and payroll notices land. The keystone's audit fact, spoken on the surface the login actually opens.
+
+### Styled
+- **The pressed lens wears emerald** (`border-emerald-300 bg-emerald-50 …` + `focus-visible:ring-emerald-400`): the roster's color vocabulary keeps its one-meaning law — emerald is the linked login's, amber stays the expiring trail's. The "from link" badge follows its lens's face, and the empty card gained its own honest words ("No employees on this roster hold a linked portal login." — with the door named: Settings → Users).
+
 ## [2.269.0] The portal hears the release
 
 The release voice reached every MainApp surface (the shell at v2.13.0, the console at v2.265.0, the desk at v2.266.0) — but the self-service portal, the surface the v2.267.0 keystone's linked logins actually open, is a SLIM layout outside MainApp, and it never heard a word. Proven live: with the seen flag fresh, /employees/me mounted silent while the same browser had just been announced on the POS workspace. And the portal's tab bars had their own silence: twelve links, zero active faces, no aria-current anywhere — the reader could not see where they were.

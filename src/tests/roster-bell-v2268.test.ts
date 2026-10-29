@@ -101,9 +101,13 @@ describe('the roster wears the bell (v2.268.0)', () => {
 
   it('the count answers REAL numbers over the roster\u2019s rows', () => {
     expect(page).toContain('data-testid="hr-employees-portal-count"');
-    expect(page).toContain('rows.filter((r) => r.portalLinked).length');
-    expect(page).toContain('of {rows.length} linked');
-    expect(page).toContain('the count reads this roster\u2019s rows.');
+    // v2.270.0 moved the bell's bytes onto the visible list — the lens's
+    // fourth face narrowed the list, and the bell reads THE ROWS STANDING
+    // IN THE TABLE (the same honesty this pin has always demanded; the
+    // ancestor byte moved by design, not by accident).
+    expect(page).toContain('(visibleRows ?? []).filter((r) => r.portalLinked).length');
+    expect(page).toContain('of {(visibleRows ?? []).length} linked');
+    expect(page).toContain('the count reads the rows standing in the table.');
     // the count lives in the toolbar the consent counts share
     const countIdx = page.indexOf('data-testid="hr-employees-portal-count"');
     const consentCountsIdx = page.indexOf('data-testid="hr-employees-consent-counts"');

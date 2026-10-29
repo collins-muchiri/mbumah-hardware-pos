@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.270.0',
+    title: 'The lens finds the bell',
+    bullets: [
+      'The employees roster can now ask for the portal-linked: a "Portal linked" toggle beside "Expiring docs" narrows the list to the hires holding a self-service login \u2014 deep-linkable, and the counts under the bar read the rows standing in the table.',
+      'The pressed lens wears the emerald the portal chip already owns \u2014 amber stays the expiring trail\u2019s, so a color never means two things.',
+      'The portal home\u2019s profile hero answers back: your linked login is named in the same emerald \u2014 the sign-in HR tied to this profile, and where the leave and payroll notices land.',
+    ],
+  },
+  {
     version: '2.269.0',
     title: 'The portal hears the release',
     bullets: [
