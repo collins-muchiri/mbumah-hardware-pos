@@ -221,6 +221,17 @@ const HR_DRILLDOWN_COLS: HrDrillColDef[] = [
     hint:
       'Sorts by run finality: locked & posted first, then approved, draft, voided. Click again for the mirror (least final first). Branches with no runs sort last.',
   },
+  {
+    // v2.273.0: the census's column — linked over in-scope, per branch, and
+    // the cell IS the door (opens the census narrowed to the branch).
+    key: 'portal',
+    label: 'Portal',
+    align: 'right',
+    pad: 'px-3',
+    sortable: true,
+    hint:
+      'Sorts by adoption rate — linked logins over employees in scope. Click again for the mirror. Branches with no employees in scope sort last.',
+  },
   { key: 'alerts', label: 'Expiry alerts', align: 'right', pad: 'px-3', sortable: true },
 ];
 
@@ -303,6 +314,11 @@ interface OrgSummary {
     headcountActive: number;
     monthEmploymentCost: number;
     monthAbsenceRatePct: number;
+    /** v2.273.0: the census's five numbers on the org wire — the SAME
+     *  honest derivations the report tab speaks (linked over in-scope,
+     *  active/deactivated, the unlinked dash). The tile opens the census;
+     *  one truth on both surfaces. */
+    portalAdoption: { total: number; linked: number; activeLogins: number; deactivatedLogins: number; unlinked: number };
     latestPayroll: { periodName: string; status: string; createdAt: string } | null;
     expiryAlerts: { documentsExpiring90Days: number; assetsOverdue: number };
   } | null;
@@ -314,6 +330,10 @@ interface OrgSummary {
         headcountActive: number;
         monthEmploymentCost: number;
         monthAbsenceRatePct: number;
+        /** v2.273.0: the branch's census numbers — linked over in-scope
+         *  (the census's OWN definition, never the ACTIVE-only headcount). */
+        portalLinked: number;
+        portalTotal: number;
         latestPayroll: {
           periodName: string;
           status: string;
@@ -578,7 +598,11 @@ function StatCard({
   icon: React.ReactNode;
   label: string;
   value: string;
-  tone?: 'warn';
+  // v2.273.0: 'good' joins 'warn' — the census's own emerald (the
+  // linked-login color, text-emerald-700 dark:text-emerald-400, the SAME
+  // pair the report tab's chips and meters speak). A color never means two
+  // things: good is the adoption voice, warn stays amber.
+  tone?: 'warn' | 'good';
   // v2.21.0: optional deep-link. When set the tile becomes a Link with a
   // focus ring + hover affordance; otherwise it stays a static card.
   href?: string;
@@ -597,11 +621,33 @@ function StatCard({
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         {/* v2.149.0: amber-700 — amber-600 measured 3.19:1 on the white card,
             under the 4.5:1 the small label cells need (the text-xl value only
-            cleared large-text 3:1 on a thin margin). amber-700 is 4.52:1. */}
-        <span className={tone === 'warn' ? 'text-amber-700 dark:text-amber-400' : 'text-muted-foreground'}>{icon}</span>
+            cleared large-text 3:1 on a thin margin). amber-700 is 4.52:1.
+            v2.273.0: the 'good' face wears the census's emerald-700 — the
+            same contrast law, the same small-label cell. */}
+        <span
+          className={
+            tone === 'warn'
+              ? 'text-amber-700 dark:text-amber-400'
+              : tone === 'good'
+                ? 'text-emerald-700 dark:text-emerald-400'
+                : 'text-muted-foreground'
+          }
+        >
+          {icon}
+        </span>
         {label}
       </div>
-      <p className={`mt-2 text-xl font-semibold tabular-nums ${tone === 'warn' ? 'text-amber-700 dark:text-amber-400' : ''}`}>{value}</p>
+      <p
+        className={`mt-2 text-xl font-semibold tabular-nums ${
+          tone === 'warn'
+            ? 'text-amber-700 dark:text-amber-400'
+            : tone === 'good'
+              ? 'text-emerald-700 dark:text-emerald-400'
+              : ''
+        }`}
+      >
+        {value}
+      </p>
       {footer}
     </>
   );
@@ -1249,6 +1295,11 @@ export function OrgConsole() {
       // v2.178.0: the week by branch as the fourth section (empty when the
       // payload lacked the block — the file ends at the v2.177.0 shape).
       trendRows,
+      // v2.273.0: the portal section as the fifth — the SAME sorted hrRows
+      // the table speaks (the v2.180.0 file-mirrors-screen rule), the
+      // census's numbers offline. Present even while the drill-down is
+      // collapsed (the data is the summary's).
+      hrRows.map((r) => ({ storeName: r.storeName, linked: r.portalLinked, total: r.portalTotal })),
     );
     const stamp = new Date().toISOString().slice(0, 10);
     const filename = `branches_${stamp}.csv`;
@@ -1266,11 +1317,14 @@ export function OrgConsole() {
     setExportUrl(url);
     // v2.178.0: the note counts the sections it actually wrote — the owner
     // can tell at a glance whether the week (and the desk) made the file.
+    // v2.273.0: the portal section counts too — it rides whenever the
+    // drill-down's rows do (the same hrRows the fifth section speaks).
     const sections =
       1 +
       (summary.hrPerStore && summary.hrPerStore.length > 0 ? 1 : 0) +
       (desk ? 1 : 0) +
-      (trendRows.length > 0 ? 1 : 0);
+      (trendRows.length > 0 ? 1 : 0) +
+      (summary.hrPerStore && summary.hrPerStore.length > 0 ? 1 : 0);
     setExportNote(
       `Exported ${filename} \u00b7 ${sections} section${sections === 1 ? '' : 's'}${deskNote}`,
     );
@@ -1600,7 +1654,9 @@ export function OrgConsole() {
         {summary.hr ? (
           <section aria-label="HR summary tiles">
             <h2 className="mb-2 text-sm font-semibold text-muted-foreground">People &amp; payroll</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+            {/* v2.273.0: the strip is six tiles — the census's own adoption
+                tile joins the row (xl:grid-cols-6). */}
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
               <StatCard icon={<Users className="h-4 w-4" aria-hidden="true" />} label="Active headcount" value={String(summary.hr.headcountActive)} href="/hr/reports?tab=headcount" title="Open headcount report" />
               <StatCard icon={<Wallet className="h-4 w-4" aria-hidden="true" />} label="Employment cost (month)" value={formatKES(summary.hr.monthEmploymentCost)} href="/hr/reports?tab=cost" title="Open employment cost report" />
               <StatCard
@@ -1618,6 +1674,27 @@ export function OrgConsole() {
                 tone={summary.hr.latestPayroll && ['APPROVED', 'PENDING_APPROVAL'].includes(summary.hr.latestPayroll.status) ? 'warn' : undefined}
                 href="/hr/payroll"
                 title="Open the payroll workspace"
+              />
+              {/* v2.273.0: the console hears the census — the adoption tile
+                  wears the census's OWN emerald (tone='good', the linked-login
+                  color — a color never means two things), speaks the rate as
+                  the value and the honest composition as its footer, and
+                  opens the census at report distance. A scope with no
+                  employees keeps the plain muted face (nothing to adopt
+                  into is not an achievement). */}
+              <StatCard
+                icon={<Users className="h-4 w-4" aria-hidden="true" />}
+                label="Portal adoption"
+                value={`${summary.hr.portalAdoption.total > 0 ? Math.round((summary.hr.portalAdoption.linked / summary.hr.portalAdoption.total) * 100) : 0}%`}
+                tone={summary.hr.portalAdoption.total > 0 ? 'good' : undefined}
+                href="/hr/reports?tab=portal"
+                title="Open the portal adoption census"
+                footer={
+                  <span className="mt-1 block text-[11px] text-muted-foreground">
+                    {summary.hr.portalAdoption.linked} of {summary.hr.portalAdoption.total} linked
+                    {summary.hr.portalAdoption.unlinked > 0 ? ` · ${summary.hr.portalAdoption.unlinked} not linked` : ''}
+                  </span>
+                }
               />
               <StatCard
                 icon={<ShieldAlert className="h-4 w-4" aria-hidden="true" />}
@@ -1665,7 +1742,7 @@ export function OrgConsole() {
                           sort, density and the open door all save to this
                           browser, riding the same muted pair. */}
                       <span className="font-normal text-slate-600 dark:text-slate-400">
-                        — headcount, cost, absence, latest run, expiry alerts per branch · layout saves to this browser
+                        — headcount, cost, absence, latest run, expiry alerts, portal adoption per branch · layout saves to this browser
                       </span>
                     </span>
                     <ChevronDown
@@ -1857,6 +1934,35 @@ export function OrgConsole() {
                                     </span>
                                   );
                                 })()}
+                              </td>
+                              <td className="px-3 py-2 text-right tabular-nums">
+                                {/* v2.273.0: the census's column — the cell IS the
+                                    door: linked over in-scope with the rate in the
+                                    census's own emerald, opening the census narrowed
+                                    to this branch (the tab key + the storeId law the
+                                    other cells keep). A branch with no employees in
+                                    scope renders the honest dash — no rate of
+                                    nothing, and no dead door. */}
+                                {row.portalTotal > 0 ? (
+                                  <Link
+                                    href={`/hr/reports?tab=portal&storeId=${row.storeId}`}
+                                    data-testid="org-console-hr-portal-door"
+                                    aria-label={`${row.portalLinked} of ${row.portalTotal} employees hold a linked portal login at ${row.storeName} — open the portal adoption census narrowed to ${row.storeName}`}
+                                    title={`Linked logins over employees in scope — open the portal adoption census narrowed to ${row.storeName}`}
+                                    className="inline-flex items-baseline gap-1 rounded-md underline-offset-2 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                                  >
+                                    <span>
+                                      {row.portalLinked}/{row.portalTotal}
+                                    </span>
+                                    <span className="font-semibold text-emerald-700 dark:text-emerald-400">
+                                      {Math.round((row.portalLinked / row.portalTotal) * 100)}%
+                                    </span>
+                                  </Link>
+                                ) : (
+                                  <span className="text-muted-foreground" title="No employees in scope for this branch">
+                                    —
+                                  </span>
+                                )}
                               </td>
                               <td className="px-3 py-2 text-right tabular-nums">
                                 {(() => {

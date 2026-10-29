@@ -259,7 +259,9 @@ describe('the export handler rides the review-activity read and follows up', () 
     expect(org).toContain('if (!desk) deskNote');
     // v2.178.0 pin evolution (deliberate): the call grew its fifth argument —
     // the week by branch rides the same download as the fourth section.
-    expect(org).toContain('      trendRows,\n    );');
+    // v2.273.0 pin evolution (deliberate): the call grew its SIXTH argument —
+    // the portal section rides as the fifth; the week's arg bytes unchanged.
+    expect(org).toContain('      trendRows,\n      // v2.273.0: the portal section as the fifth');
   });
 
   it('the note grows an Open link to the live blob, one URL at a time', () => {
@@ -278,9 +280,9 @@ describe('the export handler rides the review-activity read and follows up', () 
 describe('the release surfaces speak 2.154.0', () => {
   it('package.json, changelog and the feed lead with 2.154.0', () => {
     const pkg = JSON.parse(readRepo('package.json'));
-    expect(pkg.version).toBe('2.272.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.272.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.272.0');
+    expect(pkg.version).toBe('2.273.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.273.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.273.0');
     expect(readRepo('CHANGELOG.md')).toContain('## [2.189.0]');
     const feed = readRepo('src/lib/whats-new.ts');
     expect(feed.indexOf("'2.189.0'")).toBeLessThan(feed.indexOf("'2.153.0'"));

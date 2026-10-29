@@ -117,7 +117,10 @@ describe('the org console amber family passes at cell size', () => {
     // dark:text-amber-400), so 8 - 1 = 7; the door's own voice is pinned
     // in hr-absence-door-v2193.
     expect(org().match(/text-amber-700 dark:text-amber-400/g)?.length).toBe(7);
-    expect(org()).toContain("tone === 'warn' ? 'text-amber-700 dark:text-amber-400' : 'text-muted-foreground'");
+    // v2.273.0 pin evolution (deliberate): the tone ternary grew the 'good'
+    // face (the census's emerald) and moved to the multi-line shape — the
+    // amber pair bytes are unchanged (the count above still holds at 7).
+    expect(org()).toContain("tone === 'warn'\n            ? 'text-amber-700 dark:text-amber-400'\n            : tone === 'good'");
     expect(org()).toContain('text-amber-700 font-medium dark:text-amber-400');
   });
 });
