@@ -71,19 +71,21 @@ describe('v2.131.0 — every report speaks its failures', () => {
     expect(s).toContain('setLeaveFailed(false)');
   });
 
-  it('strip copy stays in the house voice — dark rather than guess, twelve doors', () => {
+  it('strip copy stays in the house voice — dark rather than guess, thirteen doors', () => {
     const s = page();
     const copies = s.match(/copy="([^"]+)"/g) ?? [];
     // v2.271.0 added the twelfth door (the portal roll call's strip)
-    expect(copies.length).toBe(12);
+    // v2.274.0 added the thirteenth door (the filing calendar's strip — the clock speaks its own failure)
+    expect(copies.length).toBe(13);
     for (const c of copies) expect(c).toContain('dark rather than guess');
   });
 
-  it('retry labels are named and distinct — twelve of them', () => {
+  it('retry labels are named and distinct — thirteen of them', () => {
     const s = page();
     const labels = (s.match(/retryLabel="([^"]+)"/g) ?? []).map((l) => l.replace('retryLabel=', ''));
     // v2.271.0 added the twelfth ("Retry loading the portal adoption report")
-    expect(labels.length).toBe(12);
+    // v2.274.0 added the thirteenth ("Retry loading the filing calendar")
+    expect(labels.length).toBe(13);
     expect(new Set(labels).size).toBe(labels.length);
   });
 

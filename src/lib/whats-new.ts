@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.274.0',
+    title: 'The calendar keeps the clock',
+    bullets: [
+      'The statutory desk gains a filing calendar: Kenya\u2019s monthly payroll obligations \u2014 PAYE, NSSF, SHIF and the housing levy \u2014 with the exact day each window closes, derived from the server\u2019s own clock.',
+      'Each obligation carries its window state up front \u2014 due in N days, due tomorrow, due today \u2014 with an arc showing how much of the 1st\u20139th window has burned, and the muted quiet of a window that has not opened yet.',
+      'When a 9th lands on a weekend the calendar says so and reminds you the statute does not wait \u2014 settle before the weekend, not after.',
+    ],
+  },
+  {
     version: '2.273.0',
     title: 'The console hears the census',
     bullets: [
