@@ -2,6 +2,22 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.259.0] The branch's instruments + the branch's door
+
+The branch's purchase-order page has worn the band lens since v2.254.0, and the supplier's roster learned the metric instruments in v2.258.0 — but the branch's numbers stayed dead ends, and a purchase order born at a count sheet could name its sheet without opening it. This round the branch's page wears both laws: the metric rail answers by the rows behind its counts, and the birth strip's door opens the sheet that birthed the order.
+
+### Added
+- **The metric rail** (`purchase-orders-tab.tsx`): on time / arrived late / in flight chips beneath the band rail, each answering with its REAL count over the rows the page already holds (the band counts' own law — the counts read the rows, never the view). A press narrows the view COMPOSED with the band (AND, never OR) and the needle; the fetch never moves. The predicates ride the one home (`src/lib/po-metrics.ts`) — a rail count and the supplier card's percentage cannot disagree.
+- **The combined ear** (`purchase-orders-tab.tsx`): the surface now wears TWO narrowing instruments, so it wears ONE `useLensEscape` with the combined press and the combined lift — one Escape stands both lenses down, the face's clear-all does the same (the combined-ear law, the third surface to wear it; the TDZ law honored — the state declares before the ear that reads it).
+- **The branch's door** (`purchase-orders-tab.tsx` `PODetailView` + `api/purchase-orders/[id]/route.ts`): the birth strip grows the org drill's own door ("open the sheet", the violet family, focus-visible rings) when the parent hands the detail an `onOpenSheet`; the parent closes the detail BEFORE the sheet drill opens (one dialog at a time — the ladder's own shape) and the sheet drill wears its Escape rung already (v2.257.0, one home). The store's name rides the detail's fresh wire (additive + optional: `store` on the detail include and the `PurchaseOrderListItem` type) — a stale cached row keeps the honest absence, no name, no door.
+- **The honest empty face**: a pressed metric that empties the page names itself ("No order on this page is on time / arrived late / is still in flight") and offers its own stand-down button beside the band's clear.
+
+### Styled
+- The metric chips wear the metrics' own families (green / rose / blue — the tiles' colours, never a new palette) with the branch rail's own sky focus-visible rings, tabular-nums counts, and the honest-press titles ("a press narrows the view — the fetch stays"). The door bytes are the org drill's own (violet, arrow, the words).
+
+### Tests
+- `src/tests/branch-instruments-v2259.test.ts` (19 pins across 4 describes): the one home's import, the TDZ-ordered state, the single combined ear, the counts and composed memos, the rail's face (testids, aria-pressed, families, voices, empty face), the door's honest address and the parent's hand, the wire's additive store, and the ancestors' untouched bytes (the ear's two rungs, the supplier's combined ear, the org drill's door, the sheet drill's contract).
+
 ## [2.258.0] The metrics' answer
 
 The supplier detail's Performance card has always computed its rates from the same purchase orders the Orders sub-tab holds — but the numbers were dead ends: a 78% on-time rate named no order you could read. This round the numbers answer by the orders behind them: a drill chip on the tile opens the roster with the metric lens pressed, narrowed to exactly the rows wearing the number.

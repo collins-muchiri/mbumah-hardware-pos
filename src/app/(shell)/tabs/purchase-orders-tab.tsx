@@ -11,6 +11,7 @@ import {
   MoreHorizontal,
   PackageCheck, PackageX, ShieldCheck, Stamp,
   Receipt, ShoppingBag, DollarSign,
+  ArrowUpRight,
 } from 'lucide-react';
 
 import { useAppStore } from '@/lib/stores';
@@ -31,6 +32,19 @@ import { bandHouse, chipLabel, daysVoice, type CadenceBand } from '@/lib/cadence
 // v2.256.0 THE LENS'S EAR — Escape stands the lens down (the one home;
 // the dialog guard lives in the hook, never a copy).
 import { useLensEscape } from '@/lib/use-lens-escape';
+// v2.259.0 THE BRANCH'S INSTRUMENTS — the metrics' one home: the branch
+// roster's rail reads the SAME predicates the supplier detail's card and
+// roster speak (a tile's % and its drill count cannot disagree — one rule,
+// one home). The door imports the org's own drill (the sheet drill wears
+// its Escape rung already — v2.257.0, one home).
+import {
+  poMetricPredicate,
+  poMetricVoice,
+  poMetricEmptyVoice,
+  poMetricFamily,
+  type PoMetricLens,
+} from '@/lib/po-metrics';
+import { SheetDrill, type SheetDrillTarget } from '@/components/org/sheet-drill';
 
 // v2.254.0 THE BRANCH'S LENS — the row's own band, read from above: the
 // family the wire's spoke wore, or the silent absence (a hand-raised
@@ -885,10 +899,17 @@ function PODetailView({
   po,
   open,
   onOpenChange,
+  onOpenSheet,
 }: {
   po: PurchaseOrderListItem | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  // v2.259.0 THE BRANCH'S DOOR — the org drill's own law ported: when the
+  // parent hands the detail an `onOpenSheet`, the birth strip grows the
+  // door (data-testid=po-detail-birth-door) that hands the parent
+  // {id, storeName, status} — the SheetDrill's own contract. A face
+  // without the callback keeps the plain strip (additive, never assumed).
+  onOpenSheet?: (t: { id: string; storeName: string; status: string }) => void;
 }) {
   const queryClient = useQueryClient();
   // v2.8.0: admin-controlled VAT rate for the stored-amount label.
@@ -908,6 +929,15 @@ function PODetailView({
     enabled: open && !!po?.id,
   });
   const detail: PurchaseOrderListItem | null = detailData?.data ?? po;
+  // v2.259.0 THE BRANCH'S DOOR — the sheet's address: the birth speaks
+  // the store's name only when the FRESH detail carries it (the sheet and
+  // the order share the store — the birth's own law). A stale cached row
+  // (the list shape carries no store) keeps the honest absence — no name,
+  // no door, never a guessed address.
+  const birthTarget =
+    detail?.originStockTake && detail.store?.name
+      ? { id: detail.originStockTake.id, storeName: detail.store.name, status: detail.originStockTake.status }
+      : null;
 
   const statusMutation = useMutation({
     mutationFn: ({ status, extra }: { status: string; extra?: Record<string, string> }) =>
@@ -1166,6 +1196,23 @@ function PODetailView({
                     </span>
                   ) : null}
                 </p>
+                {/* v2.259.0 THE BRANCH'S DOOR — the org drill's own door
+                    bytes (the violet family, the same words' shape): the
+                    strip names the sheet, the door OPENS it. Focus rings
+                    speak only to keyboards (focus-visible — a mouse press
+                    leaves no ring), the family law the lens chips wear. */}
+                {onOpenSheet && birthTarget && (
+                  <button
+                    type="button"
+                    data-testid="po-detail-birth-door"
+                    onClick={() => onOpenSheet(birthTarget)}
+                    title={`open count sheet ${birthTarget.id} — the detail's reading moves to the sheet that birthed this order (this detail closes; the roster's door reopens it)`}
+                    className="mt-1.5 inline-flex h-6 items-center gap-1 rounded-full bg-violet-100 px-2.5 text-[10px] font-semibold uppercase tracking-wide text-violet-800 ring-1 ring-inset ring-violet-300 transition-[filter] hover:brightness-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/60 dark:bg-violet-500/20 dark:text-violet-100 dark:ring-violet-500/40"
+                  >
+                    <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+                    open the sheet
+                  </button>
+                )}
               </div>
             )}
 
@@ -1571,10 +1618,28 @@ export default function PurchaseOrdersTab() {
   // narrows the VIEW. State of the surface, never of the fetch — the
   // wire's rungs (status/supplier/date/page) stay the wire's.
   const [bandLens, setBandLens] = useState<'ALL' | CadenceBand | 'silent'>('ALL');
-  // v2.256.0 THE LENS'S EAR — the keyboard's lift: Escape stands the
-  // lens down (the same lift the face's own clear-all speaks), a
-  // dialog's Escape stays the dialog's.
-  useLensEscape(bandLens !== 'ALL', () => setBandLens('ALL'));
+  // v2.259.0 THE BRANCH'S INSTRUMENTS — the metric rung (the supplier
+  // roster's own law, ported home): the three metrics narrow the view
+  // composed with the band (AND, never OR) and the needle. The state
+  // declares BEFORE the ear that reads it (the TDZ law — a const read
+  // above its own declaration is the crash the error boundary wears).
+  const [metricLens, setMetricLens] = useState<PoMetricLens>('all');
+  // v2.256.0 THE LENS'S EAR — the keyboard's lift. v2.259.0: THE
+  // COMBINED-EAR LAW — the surface now wears TWO narrowing instruments,
+  // so it wears ONE ear with the COMBINED press and the COMBINED lift
+  // (two independent window listeners race — a discrete event's
+  // synchronous flush retires the other ear before its turn; the live
+  // walk caught it twice on the supplier's face). One Escape lifts BOTH
+  // instruments — the top of the ladder speaks for the whole surface.
+  useLensEscape(bandLens !== 'ALL' || metricLens !== 'all', () => {
+    setBandLens('ALL');
+    setMetricLens('all');
+  });
+  // v2.259.0 THE BRANCH'S DOOR — the org ledger's own law: the sheet
+  // drill is the tab's own dialog (the drill wears its Escape rung —
+  // v2.257.0, one home); the door closes the detail and opens the sheet
+  // (one dialog at a time, the ladder's own shape).
+  const [sheetDrill, setSheetDrill] = useState<SheetDrillTarget>(null);
 
   const limit = 20;
   const currentTime = useMemo(() => new Date().getTime(), []);
@@ -1620,6 +1685,17 @@ export default function PurchaseOrdersTab() {
     }
     return c;
   }, [purchaseOrders]);
+  // v2.259.0 THE BRANCH'S INSTRUMENTS — the metrics' own counts: REAL
+  // numbers over the page's rows (the band counts' own law). A pressed
+  // metric keeps its number — the counts read the rows, never the view.
+  const metricCounts = useMemo(
+    () => ({
+      onTime: purchaseOrders.filter((po) => poMetricPredicate('onTime', po)).length,
+      late: purchaseOrders.filter((po) => poMetricPredicate('late', po)).length,
+      open: purchaseOrders.filter((po) => poMetricPredicate('open', po)).length,
+    }),
+    [purchaseOrders]
+  );
   const pagination = poData?.pagination;
   // v2.250.0 THE BRANCH'S GATE — the truth the wire speaks (never a
   // role name guessed client-side): the roster's shillings and the
@@ -1662,23 +1738,34 @@ export default function PurchaseOrdersTab() {
   }, [purchaseOrders]);
 
   // Sort
-  const sortedPOs = useMemo(() => {
-    // v2.254.0: the lens first (the house's own narrowing), then the
-    // needle, then the sort — the reading narrows, the fetch never
-    // moves (the org lens's own law, the branch's own words).
-    const lensed =
+  // v2.259.0: the memos compose the supplier roster's own way — the
+  // band's narrowing first (bandOrders), then the metric's (the COMPOSED
+  // memo keeps the name lensedOrders), then the needle, then the sort.
+  // The reading narrows; the fetch never moves.
+  const bandOrders = useMemo(
+    () =>
       bandLens === 'ALL'
         ? purchaseOrders
         : purchaseOrders.filter((po) =>
             bandLens === 'silent' ? poRowBand(po) == null : poRowBand(po) === bandLens
-          );
+          ),
+    [purchaseOrders, bandLens]
+  );
+  const lensedOrders = useMemo(
+    () =>
+      metricLens === 'all'
+        ? bandOrders
+        : bandOrders.filter((po) => poMetricPredicate(metricLens, po)),
+    [bandOrders, metricLens]
+  );
+  const sortedPOs = useMemo(() => {
     const filtered = search.trim()
-      ? lensed.filter(
+      ? lensedOrders.filter(
           (po) =>
             po.poNumber.toLowerCase().includes(search.toLowerCase()) ||
             po.supplier?.name?.toLowerCase().includes(search.toLowerCase())
         )
-      : lensed;
+      : lensedOrders;
 
     return [...filtered].sort((a, b) => {
       let cmp = 0;
@@ -1694,7 +1781,7 @@ export default function PurchaseOrdersTab() {
       }
       return sortDir === 'desc' ? -cmp : cmp;
     });
-  }, [purchaseOrders, search, sortField, sortDir, bandLens]);
+  }, [lensedOrders, search, sortField, sortDir]);
 
   const toggleSort = (field: 'orderDate' | 'totalAmount' | 'status') => {
     // v2.250.0: the money rung stops answering when the gate is down —
@@ -1722,11 +1809,14 @@ export default function PurchaseOrdersTab() {
     setPage(1);
     // v2.254.0: the lens is one of the face's own filters now — the
     // clear-all lifts it too (the honest clear, never a partial one).
+    // v2.259.0: BOTH instruments (the combined lift — one hand, one
+    // surface, nothing left pressed).
     setBandLens('ALL');
+    setMetricLens('all');
   };
 
   const hasActiveFilters =
-    search || statusFilter !== 'ALL' || supplierFilter !== 'ALL' || dateFrom || dateTo || bandLens !== 'ALL';
+    search || statusFilter !== 'ALL' || supplierFilter !== 'ALL' || dateFrom || dateTo || bandLens !== 'ALL' || metricLens !== 'all';
 
   // Render
 
@@ -1964,6 +2054,43 @@ export default function PurchaseOrdersTab() {
         </div>
       )}
 
+      {/* v2.259.0 THE BRANCH'S INSTRUMENTS — the metric rail (the supplier
+          roster's own law, ported home): the three metrics the Performance
+          card speaks, each answering with its REAL count over the rows the
+          page ALREADY holds. A press narrows the view COMPOSED with the
+          band (AND, never OR) and the needle; the fetch never moves; the
+          face's own clear-all lifts it too (hasActiveFilters reads it).
+          The chips wear the metrics' own families (green/rose/blue — the
+          tiles' colours, never a new palette); the rail's focus rings stay
+          the branch's own sky (focus-visible — a mouse press leaves no
+          ring). */}
+      {!poLoading && !poError && purchaseOrders.length > 0 && (
+        <div
+          data-testid="branch-po-metric-rail"
+          className="flex flex-wrap items-center gap-1.5"
+          title="the metrics' own rail — the numbers' real counts over the page's rows; a press narrows the view composed with the band (AND, never OR)"
+        >
+          {(['onTime', 'late', 'open'] as const).map((k) => {
+            const pressed = metricLens === k;
+            const n = metricCounts[k];
+            const family = poMetricFamily(k);
+            return (
+              <button
+                key={k}
+                type="button"
+                data-testid={`branch-po-metric-${k}`}
+                aria-pressed={pressed}
+                onClick={() => setMetricLens(pressed ? 'all' : k)}
+                title={`${poMetricVoice(k)} — ${n === 0 ? 'no order' : `${n} ${n === 1 ? 'order' : 'orders'}`} on this page answers the rule; a press narrows the view (the fetch stays)`}
+                className={`inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-[10px] font-semibold uppercase tracking-wide tabular-nums ring-1 transition-[filter] focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/40 ${pressed ? family.pressed : family.chip} ${pressed ? '' : 'hover:brightness-[0.97] dark:hover:brightness-110'}`}
+              >
+                {poMetricVoice(k)} <span className="opacity-70">{n}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* ── Table ── */}
       <Card className="backdrop-blur-sm bg-card/80 border-border/50">
         <CardContent className="p-0">
@@ -1994,10 +2121,24 @@ export default function PurchaseOrdersTab() {
               <ClipboardList className="h-12 w-12 mx-auto mb-3 opacity-30" />
               <p className="font-medium">No purchase orders found</p>
               <p className="text-sm mt-1">
-                {hasActiveFilters
-                  ? 'Try adjusting your filters or search terms'
-                  : 'Create your first purchase order to get started'}
+                {metricLens !== 'all'
+                  ? `No order on this page ${poMetricEmptyVoice(metricLens)}`
+                  : hasActiveFilters
+                    ? 'Try adjusting your filters or search terms'
+                    : 'Create your first purchase order to get started'}
               </p>
+              {metricLens !== 'all' && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  data-testid="branch-po-metric-clear"
+                  onClick={() => setMetricLens('all')}
+                  className="mt-3"
+                >
+                  <X className="h-3.5 w-3.5 mr-1" />
+                  stand the metric down
+                </Button>
+              )}
               {!hasActiveFilters && (
                 <Button size="sm" className="mt-3" onClick={() => setCreateOpen(true)}>
                   <Plus className="h-4 w-4 mr-1" />
@@ -2213,7 +2354,20 @@ export default function PurchaseOrdersTab() {
       <CreatePODialog open={createOpen} onOpenChange={setCreateOpen} storeId={currentStoreId} restockSheetId={restockFrom || null} />
 
       {/* ── PO Detail Dialog ── */}
-      <PODetailView po={selectedPO} open={detailOpen} onOpenChange={setDetailOpen} />
+      <PODetailView
+        po={selectedPO}
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+        onOpenSheet={(t) => {
+          // v2.259.0 THE BRANCH'S DOOR — the org ledger's own hand: the
+          // detail closes BEFORE the sheet opens (one dialog at a time —
+          // the ladder's own shape; the drill's Escape rung rides the
+          // SheetDrill from v2.257.0, one home).
+          setDetailOpen(false);
+          setSheetDrill(t);
+        }}
+      />
+      {sheetDrill && <SheetDrill target={sheetDrill} onClose={() => setSheetDrill(null)} />}
     </div>
   );
 }
