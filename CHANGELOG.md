@@ -2,6 +2,23 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.257.0] The escape ladder
+
+The drills could be opened by keyboard and read by keyboard, but they could only be closed by mouse — the ear's guard (v2.256.0) correctly hands Escape to "the dialog", and the drill WAS the dialog, so a press on an open drill did nothing. This round the one home grows the drills' own rung: Escape closes the drill you are reading, the ladder stacks cleanly, and the law is spoken where the hand can find it.
+
+### Added
+- **The drills' rung** (`src/lib/use-lens-escape.ts`, the one home): `useDrillEscape(onClose)` — Escape closes the drill when it is the tree's ONLY dialog; when another dialog rides above it, the drill stays silent and the topmost dialog's own law speaks first. The guard reads the live tree at the moment of the keypress (the ear's law mirrored, never a copy), and the listener's lifetime IS the drill's mount (unmount disarms).
+- **Both drills wear the rung** (`po-drill.tsx` + `sheet-drill.tsx`): one import, one call, one home — the PO drill and the sheet drill close on Escape exactly as their overlay click and close button already speak.
+- **The ladder stacks**: a drill over a pressed lens gives Escape → the drill closes (the drill's rung), Escape again → the lens stands down (the ear's rung, whose guard bytes are unchanged). One press pops the topmost layer, always.
+- **The esc hint** (both drill headers): a quiet `esc` kbd chip beside the close button (`aria-hidden` — the close button's own label carries the law), and the close buttons' titles grew the words "Escape closes this drill".
+
+### Styled
+- The close buttons' rings joined the focus-visible law: violet for the PO drill (its door's family), amber for the sheet (its icon's family) — keyboard focus is visible, mouse clicks leave no ring.
+- A type-only import cleanup landed across seven files (`consistent-type-imports`, the lint audit's auto-fixable tail, bundled per the v2.256.0 handover): inline `type` modifiers on type-only imports and one forbidden `import()` annotation restructured in the payroll lifecycle test — no behavior moved.
+
+### Tests
+- `src/tests/drill-escape-v2257.test.ts` (9 pins across 3 describes): the rung exported from the one home, the only-dialog guard's bytes, the disarm-on-unmount, both drills' wiring, the ear's three faces' unchanged imports, the esc chips + close words + family rings, and the chips' aria-hidden honesty.
+
 ## [2.256.0] The birth's door + the lens's ear
 
 The org PO drill has named its birth since v2.249.0 — the violet strip speaking the count sheet an order was born from — but the name was only ever words. This round the words grow their control, the three lens faces learn the keyboard, and the chips' focus rings learn honesty.

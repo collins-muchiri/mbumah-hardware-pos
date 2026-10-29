@@ -25,7 +25,7 @@ import {
   calculateInstallmentSchedule,
   calculateEndDate,
   serializePlanRow,
-  serializeInstallmentRow,
+  type serializeInstallmentRow,
   toNumber,
   type PlanFrequency,
 } from '@/lib/debt-plan-utils';

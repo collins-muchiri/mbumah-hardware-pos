@@ -10,7 +10,7 @@
 // A missing or corrupt state file answers the idle defaults; this endpoint
 // never 500s on updater infrastructure and never exposes filesystem paths.
 
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { getSessionFromRequest, OWNER_ROLES } from '@/lib/auth';
 import { readUpdateState, buildPublicStatus } from '@/lib/updater/state';
 

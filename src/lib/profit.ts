@@ -44,7 +44,7 @@
 // (NaN/±Infinity, e.g. from Number(undefined)) are treated as 0 so a single
 // malformed row can never 500 an aggregation endpoint.
 
-import Decimal from 'decimal.js';
+import type Decimal from 'decimal.js';
 import { KES } from '@/lib/money';
 
 /**

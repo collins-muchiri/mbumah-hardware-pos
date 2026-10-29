@@ -12,7 +12,7 @@
 // The spawn is detached and unref'd on purpose: the orchestrator outlives
 // this request and owns updater/update-state.json from here on.
 
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { spawn } from 'node:child_process';
 import { getSessionFromRequest, OWNER_ROLES } from '@/lib/auth';
 import { readUpdateState, writeUpdateState, ACTIVE_PHASES } from '@/lib/updater/state';

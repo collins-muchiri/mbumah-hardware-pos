@@ -41,6 +41,7 @@ import { useEffect, useState } from 'react';
 import { ArrowUpRight, ClipboardList, Download, Printer, Search, X } from 'lucide-react';
 import { csvCell } from './sheet-drill';
 import { num, timeAgo } from './primitives';
+import { useDrillEscape } from '@/lib/use-lens-escape';
 // v2.250.0 THE AISLE'S BAND — the strip's chip wears the census's own
 // four houses (one home, byte-identical classes — never a second
 // constant).
@@ -149,6 +150,10 @@ interface PoDrillWire {
 //   (no callback) keeps the strip's words — the door is additive,
 //   never assumed.
 export function PoDrill({ target, onClose, onOpenSheet }: { target: PoDrillTarget; onClose: () => void; onOpenSheet?: (t: { id: string; storeName: string; status: string }) => void }) {
+  // v2.257.0 THE ESCAPE LADDER — the drill's own Escape rung: the drill
+  // closes when it is the tree's only dialog, and yields to whatever
+  // rides above it. One home (use-lens-escape), never a copy.
+  useDrillEscape(onClose);
   // The finder's needle — the sheet drill's v2.223.0 law: state of the
   // drill, not of the ledger (the ledger keys the drill per document,
   // so a fresh door opens with an empty needle by construction).
@@ -244,13 +249,21 @@ export function PoDrill({ target, onClose, onOpenSheet }: { target: PoDrillTarge
               </p>
             )}
           </div>
+          <span
+            data-testid="po-drill-esc-hint"
+            aria-hidden="true"
+            className="hidden items-center rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-slate-400 sm:inline-flex dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-500"
+          >
+            esc
+          </span>
           <button
             type="button"
             data-testid="po-drill-close"
             data-po-print-off=""
             aria-label="Close the purchase order drill"
+            title="Escape closes this drill"
             onClick={onClose}
-            className="rounded p-1 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+            className="rounded p-1 text-slate-500 hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/60 dark:text-slate-400 dark:hover:bg-slate-800"
           >
             <X className="h-4 w-4" />
           </button>
