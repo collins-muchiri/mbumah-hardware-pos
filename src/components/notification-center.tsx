@@ -44,6 +44,10 @@ import {
   EVENT_TYPE_LABELS,
   SECURITY_TONE_CLASSES,
   securityRowTone,
+  // v2.298.0: one word, one home — the anonymous face the feed has said
+  // since v2.292.0 moves to the lib's constant (the drill already speaks
+  // it; the inline copy is gone).
+  DRILL_UNKNOWN_ACTOR,
 } from '@/lib/security-feed';
 
 // v2.12.7 (PR C): Security filter tab
@@ -123,7 +127,7 @@ function SecurityEventsFeed({
         Recent security events
       </div>
       {events.map((event) => {
-        const who = event.details?.email || 'Unknown user';
+        const who = event.details?.email || DRILL_UNKNOWN_ACTOR;
         const what = event.details?.permission || event.resource || '';
         // v2.292.0 THE TONE LAW: the row's color is DATA — severity leads,
         // the type fills the gaps (the lib's pure securityRowTone, pinned by

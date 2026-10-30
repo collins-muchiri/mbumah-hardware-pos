@@ -8,7 +8,7 @@ import {
 } from 'recharts';
 import {
   Shield, ShieldOff, AlertTriangle, Users,
-  Activity, Eye, Ban, RefreshCw, Filter, X, ScrollText, Loader2,
+  Activity, Eye, Ban, RefreshCw, Filter, X, ScrollText, Loader2, Download,
 } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -55,6 +55,10 @@ import {
   type DeniedGate,
   type GateDrillEvent,
 } from '@/lib/security-feed';
+// v2.298.0: the drill files its ledger — the SHOWN rows leave the screen as
+// an RFC-4180 CSV from the ONE filing home (the lib builds the bytes and the
+// name; the tab only hands them to the browser's Blob download).
+import { gateDrillToCsv, gateDrillCsvFilename } from '@/lib/gate-drill-csv';
 
 // Types
 
@@ -430,6 +434,30 @@ export default function SecurityTab() {
       setDrillLoading(false);
     }
   }, [gateDrill, gateRange, drillPage, drillLoading]);
+
+  // v2.298.0: the drill files its ledger. The button hands the browser the
+  // SAME rows the panel shows (page 1 + every walked page, deduped by the
+  // same merge) — no fresh fetch, so the file can never disagree with the
+  // screen it was opened from. The lib owns the bytes and the name; this
+  // handler only moves the Blob.
+  const downloadGateDrillCsv = useCallback(() => {
+    if (!gateDrill || !gateDrillQuery.data) return;
+    const rows = mergeDrillRows(gateDrillQuery.data.events, drillExtra);
+    const csv = gateDrillToCsv(rows, {
+      resource: gateDrill,
+      windowLabel: gateRange,
+      total: gateDrillQuery.data.total,
+    });
+    const blob = new Blob([csv], { type: 'text/csv; charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = gateDrillCsvFilename(gateDrill, gateRange);
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+  }, [gateDrill, gateDrillQuery.data, drillExtra, gateRange]);
 
   const handleRefresh = () => {
     refetchDashboard();
@@ -1164,14 +1192,35 @@ export default function SecurityTab() {
                         {gateDrillVoice(gateDrill, drilledCount, gateRange)}
                       </span>
                     </p>
-                    <button
-                      type="button"
-                      onClick={() => setGateDrill(null)}
-                      aria-label="Close gate drill"
-                      className="rounded p-1 text-muted-foreground hover:bg-muted/60 hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40 shrink-0"
-                    >
-                      <X className="h-3.5 w-3.5" aria-hidden="true" />
-                    </button>
+                    <div className="flex items-center gap-1 shrink-0">
+                      {/* v2.298.0: the drill files its ledger — the SHOWN rows
+                          leave as a CSV named for the gate and the window.
+                          The button wears the drill's own amber family (the
+                          walk's face) and is disabled when the panel has no
+                          rows to file — an empty panel never offers an empty
+                          file. */}
+                      <button
+                        type="button"
+                        onClick={downloadGateDrillCsv}
+                        disabled={drillRows.length === 0}
+                        data-testid="gate-drill-csv"
+                        aria-label={`Download the ${drillRows.length} shown ${
+                          drillRows.length === 1 ? 'denial' : 'denials'
+                        } at ${gateDrill} as CSV`}
+                        className="inline-flex items-center gap-1 rounded-md border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-[11px] font-medium text-amber-700 dark:text-amber-400 transition-colors hover:bg-amber-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+                      >
+                        <Download className="h-3 w-3" aria-hidden="true" />
+                        CSV
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setGateDrill(null)}
+                        aria-label="Close gate drill"
+                        className="rounded p-1 text-muted-foreground hover:bg-muted/60 hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40 shrink-0"
+                      >
+                        <X className="h-3.5 w-3.5" aria-hidden="true" />
+                      </button>
+                    </div>
                   </div>
                   {actorVoice ? (
                     <p
@@ -1222,6 +1271,16 @@ export default function SecurityTab() {
                               <span className="font-medium text-foreground/80 shrink-0">
                                 {EVENT_TYPE_LABELS[ev.eventType] || ev.eventType}
                               </span>
+                              {/* v2.298.0: the row's outcome — the wire's own
+                                  blocked truth, in the feed's exact badge face
+                                  (v2.292.0). The drill's rows were the only
+                                  denial face missing the outcome; now the
+                                  screen and the filed CSV agree. */}
+                              {ev.blocked ? (
+                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-red-300 dark:border-red-800 text-red-600 dark:text-red-400 uppercase tracking-wide shrink-0">
+                                  Blocked
+                                </span>
+                              ) : null}
                               {ev.ipAddress ? (
                                 <span className="font-mono truncate" title={ev.ipAddress}>
                                   {ev.ipAddress}

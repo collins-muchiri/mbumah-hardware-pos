@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.298.0',
+    title: 'The drill files its ledger',
+    bullets: [
+      'The gate drill now hands you the evidence: a CSV button files every denial currently on screen — severity, account, role, gate key, IP, outcome, time — ready to attach to an incident ticket.',
+      'The file tells the truth about its own scope: a half-walked window is labeled "N of M shown", a finished one "all N shown" — the copy can never pretend to be the whole ledger.',
+      'Each drill row now wears the outcome badge (Blocked) in the exact face your bell\u2019s Security feed uses — the screen and the file agree.',
+      'One word, one home: the feed\u2019s "Unknown user" and the drill\u2019s anonymous face are now the same word from the same place.',
+    ],
+  },
+  {
     version: '2.297.0',
     title: 'The drill names its deniers',
     bullets: [

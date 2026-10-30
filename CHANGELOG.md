@@ -2,6 +2,21 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.298.0] The drill files its ledger
+
+The drill answered "who is hammering this gate" on screen, but a triager who needed to attach that answer to an incident ticket had to copy rows by hand. Now the drill's header carries a CSV button that files exactly the rows on screen — the walked window, nothing more, nothing less — while the rows themselves learn the outcome badge the feed has spoken since v2.292.0.
+
+### Added
+- **The ONE filing home** (`src/lib/gate-drill-csv.ts`): `gateDrillToCsv(rows, meta)` — the preamble (Report / Gate / Window / Rows / Generated (UTC)), the drill's own column contract (Severity, Event, Actor, Role, Permission, IP address, Blocked, Time (UTC)), then one row per SHOWN denial in the ledger's own order — never re-sorted, never fetched fresh, so the file can never disagree with the screen it was opened from. The honesty law rides the preamble: an unfinished walk names its slice ("3 of 10 shown"), a complete one names itself ("all N shown") — a filed copy of a half-walked window cannot masquerade as the whole ledger. Cells ride the digest CSV's `csvCell` escaper (the OWASP formula-injection guard, ONE home since v2.46.0); RFC-4180 CRLF envelope with trailing CRLF. `gateDrillCsvFilename(resource, windowLabel)` — gate slug + window + UTC wall-date (`mbumah-denials-api-users-24h-2026-10-31.csv`); a punctuation-only resource falls back to `gate`, so the file is never anonymous. Actor words ride the ONE parse (`drillActorFromDetails`); an anonymous row says the vocabulary's word and leaves the pills empty.
+- **The button** (`src/app/(shell)/tabs/security-tab.tsx`): the drill header grows a right-side button group — the CSV button in the drill's own amber family (the walk's face) with the Download glyph, `data-testid="gate-drill-csv"`, disabled when the panel has no rows to file (an empty panel never offers an empty file), aria-label naming exactly what the click will hand over. The handler feeds the browser the SAME rows the panel shows (page 1 + every walked page under the same `mergeDrillRows` dedupe) via the established client-Blob download law.
+- **The row's outcome** (④): each drill row now wears the wire's own blocked truth as the Blocked badge — the feed's exact face (v2.292.0), so the drill's rows were no longer the only denial face missing the outcome and the screen and the filed CSV agree.
+
+### Changed
+- **One word, one home** (`src/components/notification-center.tsx`, `src/lib/security-feed.ts`): the feed's inline 'Unknown user' (v2.292.0) migrates to the lib's `DRILL_UNKNOWN_ACTOR` — the bell's feed and the drill's ledger speak the same anonymous word from the same place, and the word can never drift between them again. `security-feed.ts` stays import-free (the client-bundle law holds).
+
+### Tests
+- src/tests/gate-drill-csv-v298.test.ts (32 pins, BOTH nets): the preamble by value, the honesty table (unfinished slice / complete / shrunken ledger / the well-formed empty file), the ledger's own order, the ONE parse through the raw-JSON-string wire, the anonymous word with empty pills, the formula-injection guard through a tampered email, RFC-4180 quoting and the CRLF envelope (no lone CR or LF), the verbatim-ISO time law, the filename table (slug, multi-segment, punctuation fallback, live default stamp), and the byte wiring (the tab imports the ONE filing home, the same-rows law, the disabled-when-empty button, the feed's exact badge face shared by both surfaces, the inline anonymous copy GONE, `security-feed.ts` still import-free).
+
 ## [2.297.0] The drill names its deniers
 
 The gate drill listed 10 anonymous denials — severity, label, IP, time — while the feed's Security tab already spoke WHO stood behind each record. Now every drill row carries the actor line (email + role pill + permission pill, the feed's own contract), and the drill's subtitle grows the aggregate a triager asks first: how many DIFFERENT accounts stand behind the denials on screen.
