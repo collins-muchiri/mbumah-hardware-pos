@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.286.0',
+    title: 'The word names its pool',
+    bullets: [
+      'The reviews tab answers the same deep link the goals tab learned last release: ?status=submitted (any case) opens the desk already filtered to submitted reviews — the two vocabularies share no words, so the word itself names its pool, and a named tab keeps the word from dragging you across pools.',
+      'The pool digest\u2019s bell now lands where the mass sits: it reads the digest\u2019s own by-status table and carries the dominant status in the walk — an empty pool keeps the plain landing. The bell never guesses.',
+      'The desk grew quiet details: an amber beacon dot on a tab whose filter is waiting on an unvisited face, a liftable amber chip on the reviews lens, keyboard focus rings on the deep-link chips, and count lines that announce themselves to screen readers.',
+    ],
+  },
+  {
     version: '2.285.0',
     title: 'The goals answer their link',
     bullets: [

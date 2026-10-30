@@ -218,6 +218,16 @@ export default function PerformancePage() {
       window.history.replaceState(null, '', url.toString());
     }
   };
+  // v2.286.0: the mirror of the drop — a hand that IMPOSES a filter speaks
+  // it in the URL too, so a reload re-lands exactly what the reader was
+  // shown (never a state only the click remembered).
+  const setUrlParam = (param: string, value: string) => {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get(param) !== value) {
+      url.searchParams.set(param, value);
+      window.history.replaceState(null, '', url.toString());
+    }
+  };
   const clearDeepLinkedCycle = () => {
     setFilterCycleId('ALL');
     dropUrlParam('cycleId');
@@ -231,21 +241,47 @@ export default function PerformancePage() {
 
   // v2.285.0: ?status= walks the GOALS tab into a pre-filtered state — the
   // goal pool's own deep link (the goal-attainment digest's pool now has
-  // its interactive face one bell-ring away). The read is lenient about
-  // case (a human-typed link is still a link) and strict about vocabulary:
-  // only a KNOWN goal status lands; an unknown word falls back to the
-  // desk's own state. A valid status lands the reader ON the goals tab —
-  // an invisible filter is a lie. Same deferred, directive-free shape as
-  // the reads above (clean in BOTH eslint resolutions).
+  // its interactive face one bell-ring away). v2.286.0: the REVIEWS tab
+  // answers the same word — the two vocabularies are disjoint (OPEN /
+  // ACHIEVED / MISSED / CLOSED vs DRAFT / SUBMITTED / ACKNOWLEDGED /
+  // CALIBRATED), so the word itself names its pool. The read is lenient
+  // about case (a human-typed link is still a link) and strict about
+  // vocabulary: only a KNOWN status lands; an unknown word falls back to
+  // the desk's own state. An explicit ?tab= pins the face — the word
+  // filters within it only when it belongs to that face's vocabulary — and
+  // a bare word routes itself. A valid status lands the reader ON its
+  // face — an invisible filter is a lie. Same deferred, directive-free
+  // shape as the reads above (clean in BOTH eslint resolutions).
   useEffect(() => {
-    const status = new URLSearchParams(window.location.search).get('status')?.toUpperCase();
-    if (!status || !(GOAL_STATUSES as readonly string[]).includes(status)) return;
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get('status')?.toUpperCase();
+    if (!status) return;
+    const tabParam = params.get('tab');
+    const isGoal = (GOAL_STATUSES as readonly string[]).includes(status);
+    const isReview = (REVIEW_STATUSES as readonly string[]).includes(status);
     const t = window.setTimeout(() => {
-      setTab('goals');
-      setFilterGoalStatus(status);
+      if (tabParam === 'goals') {
+        if (isGoal) { setTab('goals'); setFilterGoalStatus(status); }
+        return;
+      }
+      if (tabParam === 'reviews') {
+        if (isReview) { setTab('reviews'); setFilterStatus(status); }
+        return;
+      }
+      if (tabParam) return;
+      if (isGoal) { setTab('goals'); setFilterGoalStatus(status); }
+      else if (isReview) { setTab('reviews'); setFilterStatus(status); }
     }, 0);
     return () => window.clearTimeout(t);
   }, []);
+
+  // v2.286.0: the reviews face's deep link is the same VISIBLE, liftable
+  // state the goals face has spoken since v2.285 — the chip's × lifts BOTH
+  // the filter and the ?status= param that asked for it.
+  const clearDeepLinkedReviewStatus = () => {
+    setFilterStatus('ALL');
+    dropUrlParam('status');
+  };
 
   // v2.285.0: the deep-linked status filter is a VISIBLE, liftable state —
   // the same law the cycle filter has spoken since v2.284. The chip's ×
@@ -482,6 +518,9 @@ export default function PerformancePage() {
     // deep link's ?cycleId= param too, so a reload cannot re-impose a
     // filter the reader just lifted.
     dropUrlParam('cycleId');
+    // v2.286.0: the reviews face answers ?status= now — the same law: the
+    // clear retires the param that asked for the status lens it lifts.
+    dropUrlParam('status');
   };
 
   // v2.89.0: goal counts stay honest to the FULL loaded list (never the
@@ -527,6 +566,13 @@ export default function PerformancePage() {
   const viewCycleReviews = (cycleId: string) => {
     setFilterCycleId(cycleId);
     setFilterStatus('ALL');
+    // v2.286.0: the cross-link owns its deep link — the walk speaks its own
+    // ?cycleId= in the URL (a reload re-lands exactly what the walk landed;
+    // a stale param from an earlier link can never win) and retires any
+    // ?status= the walk just reset. A state the URL forgot is a state a
+    // reload betrays.
+    setUrlParam('cycleId', cycleId);
+    dropUrlParam('status');
     setTab('reviews');
   };
 
@@ -784,8 +830,24 @@ export default function PerformancePage() {
       <Tabs value={tab} onValueChange={setTab} className="space-y-4">
         <TabsList>
           <TabsTrigger value="cycles">Cycles</TabsTrigger>
-          <TabsTrigger value="reviews">Reviews</TabsTrigger>
-          <TabsTrigger value="goals">Goals</TabsTrigger>
+          {/* v2.286.0: a filter that lives on an unvisited tab is never
+              invisible — the trigger wears the amber beacon dot while a
+              cycle OR status filter waits on that face (the deep-link
+              family's quietest member: visible from across the desk,
+              silent to the ear — aria-hidden, the chip on the face does
+              the talking). */}
+          <TabsTrigger value="reviews">
+            Reviews
+            {tab !== 'reviews' && (filterStatus !== 'ALL' || filterCycleId !== 'ALL') ? (
+              <span aria-hidden data-testid="reviews-tab-beacon" className="ml-1.5 inline-block h-1.5 w-1.5 rounded-full bg-amber-500 dark:bg-amber-400" />
+            ) : null}
+          </TabsTrigger>
+          <TabsTrigger value="goals">
+            Goals
+            {tab !== 'goals' && filterGoalStatus !== 'ALL' ? (
+              <span aria-hidden data-testid="goals-tab-beacon" className="ml-1.5 inline-block h-1.5 w-1.5 rounded-full bg-amber-500 dark:bg-amber-400" />
+            ) : null}
+          </TabsTrigger>
         </TabsList>
 
         {/* ── Cycles ── */}
@@ -1041,6 +1103,10 @@ export default function PerformancePage() {
                         <X className="h-3 w-3" aria-hidden />
                       </button>
                     ) : null}
+                    {/* v2.286.0: a hand on a review status chip retires the
+                        deep link's ?status= param — the same law the goal
+                        chips speak: the link talks once; the reader's own
+                        pick owns the URL after it. */}
                     {['ALL', ...REVIEW_STATUSES].map((s) => {
                       const active = filterStatus === s;
                       const count = s === 'ALL' ? (reviews ?? []).length : reviewStatusCounts[s as keyof CycleStatusCounts];
@@ -1050,8 +1116,8 @@ export default function PerformancePage() {
                           type="button"
                           aria-pressed={active}
                           data-testid={`review-filter-status-${s}`}
-                          onClick={() => setFilterStatus(s)}
-                          className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors ${
+                          onClick={() => { dropUrlParam('status'); setFilterStatus(s); }}
+                          className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 dark:focus-visible:ring-amber-500 ${
                             active
                               ? STATUS_CHIP_ACTIVE[s]
                               : 'border-border bg-transparent text-muted-foreground hover:bg-muted/60'
@@ -1062,6 +1128,24 @@ export default function PerformancePage() {
                         </button>
                       );
                     })}
+                    {/* v2.286.0: an active review-status filter — however it
+                        arrived — wears the same liftable amber chip the goal
+                        filter speaks (the deep-link family since v2.284):
+                        the deep link's effect is never invisible state. The
+                        × lifts BOTH the filter and the ?status= param that
+                        asked for it. */}
+                    {filterStatus !== 'ALL' ? (
+                      <button
+                        type="button"
+                        onClick={clearDeepLinkedReviewStatus}
+                        aria-label={`Review status ${filterStatus.replace(/_/g, ' ').toLowerCase()} — clear filter`}
+                        data-testid="review-filter-status-chip"
+                        className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-1 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-950/60 dark:focus-visible:ring-amber-500"
+                      >
+                        Review status {filterStatus.replace(/_/g, ' ').toLowerCase()}
+                        <X className="h-3 w-3" aria-hidden />
+                      </button>
+                    ) : null}
                     {filtersActive ? (
                       <Button
                         size="sm"
@@ -1073,7 +1157,7 @@ export default function PerformancePage() {
                         <X className="h-3 w-3" aria-hidden /> Clear filters
                       </Button>
                     ) : null}
-                    <span className="ml-auto text-xs text-muted-foreground tabular-nums" data-testid="review-filter-count">
+                    <span className="ml-auto text-xs text-muted-foreground tabular-nums" data-testid="review-filter-count" aria-live="polite">
                       Showing {filteredReviews.length} of {(reviews ?? []).length} reviews
                     </span>
                   </div>
@@ -1288,7 +1372,7 @@ export default function PerformancePage() {
                         onClick={clearDeepLinkedGoalStatus}
                         aria-label={`Goal status ${filterGoalStatus.replace(/_/g, ' ').toLowerCase()} — clear filter`}
                         data-testid="goal-filter-status-chip"
-                        className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-100 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-950/60"
+                        className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-1 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-950/60 dark:focus-visible:ring-amber-500"
                       >
                         Goal status {filterGoalStatus.replace(/_/g, ' ').toLowerCase()}
                         <X className="h-3 w-3" aria-hidden />
@@ -1305,7 +1389,7 @@ export default function PerformancePage() {
                         <X className="h-3 w-3" aria-hidden /> Clear filters
                       </Button>
                     ) : null}
-                    <span className="ml-auto text-xs text-muted-foreground tabular-nums" data-testid="goal-filter-count">
+                    <span className="ml-auto text-xs text-muted-foreground tabular-nums" data-testid="goal-filter-count" aria-live="polite">
                       Showing {filteredGoals.length} of {(goals ?? []).length} goals
                     </span>
                   </div>

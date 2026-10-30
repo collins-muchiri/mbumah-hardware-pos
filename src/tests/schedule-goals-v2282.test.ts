@@ -122,7 +122,9 @@ describe('the goal-attainment digest case — the ONE seam', () => {
 
   it('the case aggregates through the goals\u2019 own report fn with the fire instant', () => {
     expect(svcSrc).toContain('const r = await goalAttainmentReport(session, now);');
-    expect(svcSrc).toContain("import { goalAttainmentReport } from './goal-service';");
+    // v2.286.0 re-anchor: the import gains GOAL_STATUSES (the deep-link
+    // vocabulary map reads the lib's own words, never a copy).
+    expect(svcSrc).toContain("import { GOAL_STATUSES, goalAttainmentReport } from './goal-service';");
   });
 
   it('the honest \u2014 face for a percentage over nothing', () => {
