@@ -7,7 +7,7 @@
 // Reports are aggregates; per-employee rows carry employeeCode + job title
 // only. The Privacy tab governs erasure requests (decision + legal basis).
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -57,6 +57,13 @@ import { COL_WIDTHS_STORAGE_KEY, EDGE_BAND, loadColWidths, nudgeColWidth } from 
 import { describeSweepOutcome } from '@/lib/hr/sweep-outcome';
 import { formatCsvSize } from '@/lib/hr/digest-csv';
 import { ReportSchedulesTab } from '@/components/hr/report-schedules-tab';
+// v2.287.0: the desk wears its unread bells — the client-safe seam + the
+// shared read-state store + the badge's feed query (cache-shared, no
+// extra network) feed the landing-tab beacons.
+import { useAppStore } from '@/lib/stores';
+import { useNotificationCount } from '@/hooks/use-notification-count';
+import { useNotificationReadState } from '@/lib/notification-read-state';
+import { digestBeaconTabs } from '@/lib/hr/report-desk-links';
 
 type Money = number;
 
@@ -332,6 +339,26 @@ const YEARS = [new Date().getUTCFullYear(), new Date().getUTCFullYear() - 1, new
 
 const REPORT_TAB_KEYS = ['headcount', 'cost', 'absence', 'leave', 'turnover', 'tth', 'statutory', 'p10', 'schedules', 'portal', 'privacy'] as const;
 
+/**
+ * v2.287.0: the unread-bell beacon — the trigger of a tab an UNREAD digest
+ * bell walks to wears the amber dot while the visitor sits on another tab
+ * (a bell is waiting for a reader, so its dot PULSES — the performance
+ * desk's filter beacons sit still; the two meanings stay distinguishable
+ * at a glance). aria-hidden like the whole family: the bell feed and the
+ * badge are the accessible surface for unreadness — the dot is desk-level
+ * wayfinding for the eye, visible from across the desk, silent to the ear.
+ */
+function TabBeacon({ lit, tab }: { lit: boolean; tab: string }) {
+  if (!lit) return null;
+  return (
+    <span
+      aria-hidden
+      data-testid={`${tab}-tab-beacon`}
+      className="ml-1.5 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-amber-500 dark:bg-amber-400"
+    />
+  );
+}
+
 /** v2.35.0: flag chip tone for a leave utilisation row. */
 function utilFlagTone(flag: LeaveUtilRow['flag']): string {
   switch (flag) {
@@ -499,6 +526,22 @@ export default function HrReportsPage() {
     const requested = new URLSearchParams(window.location.search).get('schedule');
     if (requested) setHighlightScheduleId(requested);
   }, []);
+
+  // v2.287.0: the desk wears its unread bells. The feed is the BADGE'S OWN
+  // query (same key, same cache — no extra network) and the read/dismissed
+  // state is the SHARED external store the notification center writes, so a
+  // bell read in the feed goes dark on the desk in the same tick. The raw
+  // tab words are intersected with the desk's own known tabs: a drifted
+  // word lights nothing (never a guess). The ?schedule= highlight waits on
+  // the schedules face too — a landing without its tab word is still a
+  // landing, and a waiting highlight is never invisible.
+  const currentStoreId = useAppStore((s) => s.currentStoreId);
+  const { activeItems } = useNotificationCount(currentStoreId);
+  const { readIds, dismissedIds } = useNotificationReadState();
+  const digestBeacons = useMemo(() => {
+    const lit = digestBeaconTabs(activeItems, readIds, dismissedIds);
+    return new Set([...lit].filter((t) => (REPORT_TAB_KEYS as readonly string[]).includes(t)));
+  }, [activeItems, readIds, dismissedIds]);
   useEffect(() => {
     const requested = new URLSearchParams(window.location.search).get('storeId');
     if (requested) setStoreId(requested);
@@ -1469,18 +1512,46 @@ export default function HrReportsPage() {
         onPointerMove={onReportPointerMove}
       >
         <TabsList className="flex-wrap print:hidden">
-          <TabsTrigger value="headcount">Headcount</TabsTrigger>
-          <TabsTrigger value="cost">Employment cost</TabsTrigger>
-          <TabsTrigger value="absence">Absence</TabsTrigger>
+          {/* v2.287.0: each digest-carrying trigger wears the amber beacon
+              while an UNREAD bell walks to it and the visitor sits
+              elsewhere (tab !== X && digestBeacons.has(X)); the schedules
+              trigger also lights for a waiting ?schedule= highlight. The
+              beacon never speaks on the tab you're already reading. */}
+          <TabsTrigger value="headcount">
+            Headcount
+            <TabBeacon tab="headcount" lit={tab !== 'headcount' && digestBeacons.has('headcount')} />
+          </TabsTrigger>
+          <TabsTrigger value="cost">
+            Employment cost
+            <TabBeacon tab="cost" lit={tab !== 'cost' && digestBeacons.has('cost')} />
+          </TabsTrigger>
+          <TabsTrigger value="absence">
+            Absence
+            <TabBeacon tab="absence" lit={tab !== 'absence' && digestBeacons.has('absence')} />
+          </TabsTrigger>
           <TabsTrigger value="leave" className="gap-1.5">
             <CalendarDays className="h-3.5 w-3.5 text-emerald-500" aria-hidden /> Leave balances
+            <TabBeacon tab="leave" lit={tab !== 'leave' && digestBeacons.has('leave')} />
           </TabsTrigger>
-          <TabsTrigger value="turnover">Turnover</TabsTrigger>
-          <TabsTrigger value="tth">Time to hire</TabsTrigger>
-          <TabsTrigger value="statutory">Statutory</TabsTrigger>
+          <TabsTrigger value="turnover">
+            Turnover
+            <TabBeacon tab="turnover" lit={tab !== 'turnover' && digestBeacons.has('turnover')} />
+          </TabsTrigger>
+          <TabsTrigger value="tth">
+            Time to hire
+            <TabBeacon tab="tth" lit={tab !== 'tth' && digestBeacons.has('tth')} />
+          </TabsTrigger>
+          <TabsTrigger value="statutory">
+            Statutory
+            <TabBeacon tab="statutory" lit={tab !== 'statutory' && digestBeacons.has('statutory')} />
+          </TabsTrigger>
           <TabsTrigger value="p10">P10</TabsTrigger>
           <TabsTrigger value="schedules" className="gap-1.5">
             <CalendarClock className="h-3.5 w-3.5" aria-hidden /> Schedules
+            <TabBeacon
+              tab="schedules"
+              lit={tab !== 'schedules' && (highlightScheduleId !== null || digestBeacons.has('schedules'))}
+            />
           </TabsTrigger>
           <TabsTrigger value="portal" className="gap-1.5">
             <BellRing className="h-3.5 w-3.5 text-emerald-500" aria-hidden /> Portal

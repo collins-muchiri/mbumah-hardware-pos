@@ -29,5 +29,10 @@ export function useNotificationCount(storeId: string) {
     unread: unread.length,
     critical: unread.filter((n) => n.severity === 'critical').length,
     hasNew: unread.length > 0,
+    // v2.287.0: the ACTIVE (undismissed) items themselves, for consumers
+    // that need to read a bell's walk (the reports desk's unread-bell
+    // beacons light the landing tab of an unread digest). Same query
+    // instance as the badge — no extra network, the cache is shared.
+    activeItems: active,
   };
 }
