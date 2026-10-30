@@ -329,20 +329,19 @@ export function requireAuth(
 
     if (options?.roles && options.roles.length > 0) {
       if (!options.roles.includes(session.role)) {
-        // Log unauthorized access attempt
-        try {
-          await systemLog({
-            action: 'ACCESS_DENIED',
-            component: LogComponent.AUTH,
-            severity: LogSeverity.WARN,
-            message: `User ${session.email} (role: ${session.role}) attempted access requiring roles: ${options.roles.join(', ')}`,
-            userId: session.userId,
-            storeId: session.storeId || undefined,
-            metadata: { requiredRoles: options.roles, actualRole: session.role },
-          });
-        } catch {
-          /* ignore logging errors */
-        }
+        // v2.292.0 THE DENIAL LEDGER: the role gate used to write ONLY an ops
+        // systemLog — the durable, dashboard-visible record never landed, so
+        // the most common denial (a role hitting a role-gated endpoint) was
+        // invisible to the security dashboard AND the feed's Security tab.
+        // The recorder writes all three records (SecurityEvent + ops log +
+        // hash-chained audit row) and swallows its own failures — a denial
+        // must never 500 the route.
+        await recordPermissionDenied({
+          session,
+          permission: `roles:${options.roles.join('|')}`,
+          request,
+          resource: new URL(request.url).pathname,
+        });
 
         return Response.json(
           { success: false, error: 'Insufficient permissions.' },
@@ -385,6 +384,40 @@ export function requireAuth(
 export function requireRole(...roles: string[]) {
   return (session: AuthSession): Response | null => {
     if (!roles.includes(session.role)) {
+      return Response.json(
+        { success: false, error: 'Insufficient permissions.' },
+        { status: 403 }
+      );
+    }
+    return null;
+  };
+}
+
+/**
+ * v2.292.0 THE DENIAL LEDGER, in-handler form: the async twin of requireRole
+ * that RECORDS the denial before refusing. The sync helper answers with a
+ * bare 403 and no record at all — an invisible denial on money-adjacent
+ * routes. Same shape, one extra argument (the request, for the path/ip the
+ * record needs), one extra await:
+ *
+ * ```ts
+ * const gate = requireRoleRecorded('SUPER_ADMIN', 'STORE_OWNER');
+ * const denied = await gate(session, request);
+ * if (denied) return denied;
+ * ```
+ *
+ * The denial is filed as PERMISSION_DENIED with permission
+ * `roles:<allowed>` — the same durable record every other denial writes.
+ */
+export function requireRoleRecorded(...roles: string[]) {
+  return async (session: AuthSession, request: NextRequest): Promise<Response | null> => {
+    if (!roles.includes(session.role)) {
+      await recordPermissionDenied({
+        session,
+        permission: `roles:${roles.join('|')}`,
+        request,
+        resource: new URL(request.url).pathname,
+      });
       return Response.json(
         { success: false, error: 'Insufficient permissions.' },
         { status: 403 }
@@ -462,24 +495,14 @@ export function withSessionAuth(
       session.role !== 'SUPER_ADMIN' && // SUPER_ADMIN always bypasses role gates
       !allowedRoles.includes(session.role)
     ) {
-      try {
-        await systemLog({
-          action: 'ACCESS_DENIED',
-          component: LogComponent.AUTH,
-          severity: LogSeverity.WARN,
-          message: `User ${session.email} (role: ${session.role}) attempted access requiring: ${allowedRoles.join(', ')}`,
-          userId: session.userId,
-          storeId: session.storeId || undefined,
-          metadata: {
-            requiredRoles: allowedRoles,
-            actualRole: session.role,
-            path: new URL(request.url).pathname,
-            method: request.method,
-          },
-        });
-      } catch {
-        /* logging must never block the auth decision */
-      }
+      // v2.292.0 THE DENIAL LEDGER: record the durable SecurityEvent (the
+      // ops log alone left this denial invisible to the dashboard + feed).
+      await recordPermissionDenied({
+        session,
+        permission: `roles:${allowedRoles.join('|')}`,
+        request,
+        resource: new URL(request.url).pathname,
+      });
       return Response.json(
         {
           success: false,
@@ -819,24 +842,14 @@ export function requireStoreAccess(
       session.role !== 'SUPER_ADMIN' &&
       !allowedRoles.includes(session.role)
     ) {
-      try {
-        await systemLog({
-          action: 'ACCESS_DENIED',
-          component: LogComponent.AUTH,
-          severity: LogSeverity.WARN,
-          message: `User ${session.email} (role: ${session.role}) attempted access requiring: ${allowedRoles.join(', ')}`,
-          userId: session.userId,
-          storeId: session.storeId || undefined,
-          metadata: {
-            requiredRoles: allowedRoles,
-            actualRole: session.role,
-            path: new URL(request.url).pathname,
-            method: request.method,
-          },
-        });
-      } catch {
-        /* ignore logging errors */
-      }
+      // v2.292.0 THE DENIAL LEDGER: record the durable SecurityEvent (the
+      // ops log alone left this denial invisible to the dashboard + feed).
+      await recordPermissionDenied({
+        session,
+        permission: `roles:${allowedRoles.join('|')}`,
+        request,
+        resource: new URL(request.url).pathname,
+      });
       return Response.json(
         {
           success: false,

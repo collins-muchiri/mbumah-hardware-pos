@@ -14,7 +14,7 @@
 
 import { type NextRequest } from 'next/server';
 import { runWithoutTenant } from '@/lib/db';
-import { requireAuth, requireRole, type AuthSession } from '@/lib/auth';
+import { requireAuth, requireRoleRecorded, type AuthSession } from '@/lib/auth';
 import { isRateLimited } from '@/lib/rate-limit';
 import { getClientIp } from '@/lib/security';
 import { withErrorBoundary, systemLog } from '@/lib/logger';
@@ -24,14 +24,16 @@ import { computeBranchDiagnostics } from '@/lib/org/diagnostics';
 
 export const dynamic = 'force-dynamic';
 
-const requireConsoleRole = requireRole('SUPER_ADMIN', 'STORE_OWNER');
+// v2.292.0: the recorded twin — a console-gate denial lands on the
+// durable SecurityEvent ledger (the bare 403 wrote nothing).
+const requireConsoleRole = requireRoleRecorded('SUPER_ADMIN', 'STORE_OWNER');
 
 async function refreshDiagnosticsHandler(
   request: NextRequest,
   session: AuthSession,
 ): Promise<Response> {
   return runWithoutTenant(async () => {
-    const denied = requireConsoleRole(session);
+    const denied = await requireConsoleRole(session, request);
     if (denied) return denied;
 
     const rl = isRateLimited(

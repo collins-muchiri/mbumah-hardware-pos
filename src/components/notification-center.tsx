@@ -34,30 +34,23 @@ import {
   Sunrise,
 } from 'lucide-react';
 
+// v2.292.0: the security feed's vocabulary lives in ONE lib now — the abuse
+// type set, the shop-floor labels, and the row-tone law (severity leads:
+// ERROR red, WARN amber; the lockout family is red even when severity is
+// absent; unknown stays quiet). The component imports, never copies — the
+// same one-vocabulary move the notification lens made in v2.290.0.
+import {
+  ABUSE_EVENT_TYPES,
+  EVENT_TYPE_LABELS,
+  SECURITY_TONE_CLASSES,
+  securityRowTone,
+} from '@/lib/security-feed';
+
 // v2.12.7 (PR C): Security filter tab
 // Roles allowed to see the Security tab + the merged recent SecurityEvent feed
 // (mirrors the /api/security/events role gate). SUPER_ADMIN/STORE_OWNER/
 // BRANCH_MANAGER.
 const SECURITY_TAB_ROLES: readonly string[] = ['SUPER_ADMIN', 'STORE_OWNER', 'BRANCH_MANAGER'];
-
-/** The abuse eventTypes merged as read-only entries under the Security tab. */
-const ABUSE_EVENT_TYPES = [
-  'PERMISSION_DENIED',
-  'HIGH_RISK_ATTEMPT',
-  'BRUTE_FORCE',
-  'ACCOUNT_LOCKED',
-  'PRIVILEGE_ABUSE_PATTERN',
-] as const;
-
-const EVENT_TYPE_LABELS: Record<string, string> = {
-  PERMISSION_DENIED: 'Permission Denied',
-  HIGH_RISK_ATTEMPT: 'High-Risk Attempt',
-  BRUTE_FORCE: 'Brute Force',
-  ACCOUNT_LOCKED: 'Account Locked',
-  PRIVILEGE_ABUSE_PATTERN: 'Privilege Abuse Pattern',
-  UNAUTHORIZED_ACCESS: 'Unauthorized Access',
-  MANAGER_AUTHORIZED: 'Manager Authorized',
-};
 
 /** One merged SecurityEvent row (read-only - from /api/security/events). */
 interface SecurityEventEntry {
@@ -65,6 +58,11 @@ interface SecurityEventEntry {
   eventType: string;
   resource: string | null;
   ipAddress: string | null;
+  // v2.292.0: the wire always carried these (the route spreads the row);
+  // the face now speaks them — severity drives the row's tone, blocked
+  // gets its own badge.
+  severity?: string | null;
+  blocked?: boolean;
   details: { email?: string; role?: string; permission?: string } | null;
   createdAt: string;
 }
@@ -127,24 +125,57 @@ function SecurityEventsFeed({
       {events.map((event) => {
         const who = event.details?.email || 'Unknown user';
         const what = event.details?.permission || event.resource || '';
+        // v2.292.0 THE TONE LAW: the row's color is DATA — severity leads,
+        // the type fills the gaps (the lib's pure securityRowTone, pinned by
+        // value in the suite). The one-red-for-everything face is gone.
+        const tone = securityRowTone(event.eventType, event.severity);
+        const toneClasses = SECURITY_TONE_CLASSES[tone];
         return (
           <div
             key={event.id}
-            className="w-full p-3 rounded-lg border bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900/40"
+            data-testid="security-event-row"
+            className={`w-full p-3 rounded-lg border ${toneClasses.row}`}
           >
             <div className="flex items-start gap-3">
               <div className="shrink-0 mt-0.5">
-                <ShieldAlert className="h-4 w-4 text-red-500" />
+                <ShieldAlert className={`h-4 w-4 ${toneClasses.icon}`} aria-hidden />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium">
-                  {EVENT_TYPE_LABELS[event.eventType] || event.eventType}
-                </p>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <p className="text-sm font-medium">
+                    {EVENT_TYPE_LABELS[event.eventType] || event.eventType}
+                  </p>
+                  {/* v2.292.0: the row's own wire truth, spoken plainly — a
+                      blocked event wears its badge; the tone already colors
+                      the card, so the badge stays a quiet outline. */}
+                  {event.blocked && (
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-red-300 dark:border-red-800 text-red-600 dark:text-red-400 uppercase tracking-wide">
+                      Blocked
+                    </span>
+                  )}
+                </div>
                 <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
                   {who}
                   {what ? ` - ${what}` : ''}
                   {event.ipAddress ? ` · ${event.ipAddress}` : ''}
                 </p>
+                {/* v2.292.0: the details the recorder writes, as quiet chips
+                    — role and permission are the two words an admin needs to
+                    triage; they render only when the record names them. */}
+                {(event.details?.role || event.details?.permission) && (
+                  <div className="flex items-center gap-1 mt-1 flex-wrap">
+                    {event.details?.role && (
+                      <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
+                        {event.details.role}
+                      </span>
+                    )}
+                    {event.details?.permission && (
+                      <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground font-mono">
+                        {event.details.permission}
+                      </span>
+                    )}
+                  </div>
+                )}
                 <p
                   className="text-[10px] text-muted-foreground mt-1"
                   title={formatDateTime(event.createdAt)}
