@@ -70,3 +70,23 @@ export function applyNotificationFilter<T extends FilterableNotification>(
   }
   return items.filter((n) => n.severity === filter);
 }
+
+/**
+ * v2.291.0: THE OPENER'S LENS LAW — which lens an open transition asks for.
+ * The feed lands on the lens its OPENER named (badge → 'unread', the bell →
+ * 'all'); while the sheet stays open the effect is a spectator: a lens the
+ * user pressed is never clobbered by a re-render. Returns null when the
+ * caller must not touch the filter at all (not an open transition, or the
+ * sheet was already open) — null is "spectator", never a lens.
+ *
+ * Pure so the RUNTIME-PIN law holds: the transition table is asserted by
+ * value, the render site just wires it.
+ */
+export function openerLensFilter(
+  open: boolean,
+  wasOpen: boolean,
+  initialFilter: NotificationFilter | undefined,
+): NotificationFilter | null {
+  if (!open || wasOpen) return null;
+  return initialFilter ?? 'all';
+}

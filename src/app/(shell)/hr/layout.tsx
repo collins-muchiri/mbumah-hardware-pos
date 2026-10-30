@@ -2,6 +2,11 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { HrShellNav } from '@/components/layout/hr-shell-nav';
 import { HrShellBell } from '@/components/layout/hr-shell-bell';
+// v2.291.0: the boot island — the /hr route never hydrated the auth store,
+// so a direct load of /hr left every role-gated read (the notification
+// center's Security tab) staring at an empty role. One line of wiring, the
+// shared boot, not a copy.
+import { HrAuthBoot } from '@/components/layout/hr-auth-boot';
 
 export const metadata: Metadata = {
   title: 'HR Workspace | Mbumah Hardware POS',
@@ -11,6 +16,7 @@ export const metadata: Metadata = {
 export default function HrLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-background">
+      <HrAuthBoot />
       <header className="sticky top-0 z-40 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
         {/* v2.147.0: the header wraps instead of the page scrolling — the
             10-link nav was the only unclipped pusher past 390px, which broke

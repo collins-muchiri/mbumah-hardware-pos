@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.291.0',
+    title: 'The HR shell boots its session; the badge opens the unread list',
+    bullets: [
+      'Opening the HR workspace directly now behaves like a signed-in session \u2014 the Security tab appears there for managers too, same as in the main app.',
+      'The unread badge on the bell is now clickable: it opens the feed straight onto your unread list. The question the number asks is the question the click answers.',
+      'The bell still opens the full feed on All \u2014 the badge is the shortcut to just the unread rows.',
+      'The badge pill now invites the hand: it grows on hover and carries the same keyboard focus ring as every other control.',
+    ],
+  },
+  {
     version: '2.290.0',
     title: 'The feed learns its unread lens',
     bullets: [

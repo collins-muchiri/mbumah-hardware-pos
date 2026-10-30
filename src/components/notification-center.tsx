@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAppStore, useAuthStore, type AppTab } from '@/lib/stores';
@@ -13,7 +13,7 @@ import { useNotificationReadState } from '@/lib/notification-read-state';
 // v2.290.0: the filter row's one vocabulary + the pure lens predicate —
 // the type used to be declared locally, which was a copy waiting to drift
 // the day a lens was added on one side only.
-import { applyNotificationFilter, type NotificationFilter } from '@/lib/notification-filter';
+import { applyNotificationFilter, openerLensFilter, type NotificationFilter } from '@/lib/notification-filter';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -164,13 +164,37 @@ export function NotificationCenter({
   open,
   onOpenChange,
   storeId,
+  initialFilter,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   storeId: string;
+  /**
+   * v2.291.0: the lens the OPENER asks for. The bell opens the feed on
+   * 'all'; the unread badge deep-links the feed onto 'unread' — the
+   * question the pixel asks is the question the click answers. Applied on
+   * the false→true open transition ONLY (wandering inside an open sheet is
+   * never clobbered), and every open lands on the opener's lens — the bell
+   * never inherits the badge's ask, the badge never inherits the bell's.
+   * Absent = 'all'.
+   */
+  initialFilter?: NotificationFilter;
 }) {
   const [filter, setFilter] = useState<NotificationFilter>('all');
   const [showDismissed, setShowDismissed] = useState(false);
+
+  // v2.291.0: THE OPENER'S LENS LAW. On each false→true open transition the
+  // feed lands on the lens its opener asked for (badge → 'unread', bell →
+  // 'all'); while the sheet stays open this effect is a spectator — chips
+  // the user presses are never clobbered. The law lives in the lens lib as
+  // the pure openerLensFilter (runtime-pinned there); the render site wires.
+  const openRef = useRef(false);
+  useEffect(() => {
+    const wasOpen = openRef.current;
+    openRef.current = open;
+    const lens = openerLensFilter(open, wasOpen, initialFilter);
+    if (lens) setFilter(lens);
+  }, [open, initialFilter]);
   const { setActiveTab } = useAppStore();
   const queryClient = useQueryClient();
   // v2.24.0: deep links (HR digest copies) navigate via the app router.

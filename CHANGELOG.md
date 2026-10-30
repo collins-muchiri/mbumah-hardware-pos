@@ -2,6 +2,24 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.291.0] The HR shell boots its session; the badge opens the unread list
+
+Two faces, one thread: the session the HR shell was silently missing, and the shortcut the badge was silently promising. The Security tab now appears on the HR workspace for the roles that own it, and the unread badge itself opens the feed straight onto the unread list.
+
+### Fixed
+- **The HR hydration gap** (`src/components/layout/hr-auth-boot.tsx`, NEW): nothing on the `/hr` route hydrated the auth store — the POS shell hydrates in `(shell)/page.tsx`, branch workspaces through the gateway, the HR shell through NOTHING. A direct load of `/hr` left `useAuthStore.user = null`, so the notification center's Security tab (role-gated SUPER_ADMIN/STORE_OWNER/BRANCH_MANAGER, v2.12.7) never rendered there — even though the session's own localStorage held the role. The fix is one line of wiring: the HR layout mounts the shared `useWorkspaceAuthBoot` (the same idempotent boot the root page runs — auth from localStorage, cookie adoption → `/api/auth/me`, app-store rehydrate), so every HR desk inherits a real session and the bell's store scope lands with it. No copy of the boot sequence exists.
+
+### Added
+- **The badge door** (`src/components/layout/notification-badge-button.tsx`, NEW): the unread badge is a BUTTON of its own. Clicking the bell still opens the feed on All (the general door); clicking the badge deep-links the feed ONTO the Unread lens — the question the pixel asks ("what are those 3?") is the question the click answers. One component, three mounts (expanded rail, collapsed rail, HR bell). A button may not nest in a button: the badge is a SIBLING in a relative wrapper, exactly where the old span sat.
+- **The opener's lens law** (`src/lib/notification-filter.ts`): `openerLensFilter(open, wasOpen, initialFilter)` — every open lands on the lens its opener asked for, applied on the false→true transition ONLY; while the sheet is open the effect is a spectator and a lens the user pressed is never clobbered. Pure, so the transition table is runtime-pinned by value; the render sites wire it. The bell never inherits the badge's ask, the badge never inherits the bell's.
+
+### Styled
+- **The pill invites the hand**: the badge button carries the keyboard-first focus-visible ring (the v2.288 law), a `title` tooltip with the singular/plural law ("Open the 1 unread notification" / "…3 notifications"), and a gentle hover scale — the bounce-in still announces arrivals; the v2.148.0 contrast tokens (white on red-600, slate-950 on amber-500) ride inside the one shared component instead of three copies.
+- **Honest names**: the bell keeps "Notifications (N unread)"; the badge says "N unread — open the unread list" — two stops, two destinations, no ambiguity for a screen reader.
+
+### Verified
+- The transition table on the REAL `openerLensFilter` (badge lands on unread, bell on All, spectator while open, close is quiet, every lens rides an ask). The byte net pins the boot island (shared boot, renders null, smuggles nothing), the badge contract, all three call sites, and the death of the inline span badges. Older suites re-anchored to the new shape without weakening a law (v2.148.0's contrast pins now sit at the source). Full gates green; live E2E on :3200.
+
 ## [2.290.0] The feed learns its unread lens
 
 The badge's unanswered question: the bell's badge counts UNREAD rows, but the feed's filter row could only narrow by severity (All / Critical / Warnings / Info / Security / Email failed) — finding the 11 unread among 13 meant scanning by eye. This round the filter row gains the Unread lens, the badge's own chip, and every chip learns to speak its pressed state.

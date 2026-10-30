@@ -114,7 +114,9 @@ describe('the filter row wiring (byte net)', () => {
   const lib = readRepo(LIB);
 
   it('the component imports the lens lib — type and predicate both', () => {
-    expect(center).toContain("import { applyNotificationFilter, type NotificationFilter } from '@/lib/notification-filter';");
+    // v2.291.0 re-anchor: openerLensFilter joins the import — the opener's
+    // lens law lives in the same one home.
+    expect(center).toContain("import { applyNotificationFilter, openerLensFilter, type NotificationFilter } from '@/lib/notification-filter';");
   });
 
   it('the local type copy is DEAD — the vocabulary lives in one place', () => {
