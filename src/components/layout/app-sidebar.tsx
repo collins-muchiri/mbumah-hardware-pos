@@ -29,6 +29,11 @@ import {
 // v2.16.0 (subdomain workspaces): pinned-branch awareness for the selector.
 import { useWorkspaceStore } from '@/lib/workspace/workspace-store';
 import { buildExpertConsoleUrl } from '@/lib/workspace/links';
+// v2.291.0: the badge is a button of its own — one pill, every bell (the
+// expanded rail, the collapsed rail, the HR shell). One component, one
+// contract; the contrast law (v2.148.0) rides inside it.
+import { NotificationBadgeButton } from '@/components/layout/notification-badge-button';
+import type { NotificationFilter } from '@/lib/notification-filter';
 
 // v2.14.1 (fullscreen autohide): keyboard shortcut hints surfaced in
 // icon-mode tooltips (spec: "tooltip on hover label + shortcut F2 F3 F4 F5").
@@ -58,11 +63,16 @@ export function AppSidebar() {
   const logout = useAuthStore((s) => s.logout);
   const { theme, setTheme } = useTheme();
   const [notificationOpen, setNotificationOpen] = useState(false);
+  // v2.291.0: the lens this shell's opener asks for — undefined (All) for a
+  // bell, 'unread' for the badge deep-link. Rides the open event up to the
+  // center, which applies it on the open transition.
+  const [notificationLens, setNotificationLens] = useState<NotificationFilter | undefined>(undefined);
   const [profileOpen, setProfileOpen] = useState(false);
   // v2.289.0: alt+N rings the bell from anywhere in the POS shell (the
   // sidebar owns the feed's open state; the HR shell wires the same key to
-  // its own header bell — one hook, two openers, the same key).
-  useNotificationHotkey(useCallback(() => setNotificationOpen(true), []));
+  // its own header bell — one hook, two openers, the same key). The keyboard
+  // asks the bell's lens: the general door, All.
+  useNotificationHotkey(useCallback(() => { setNotificationLens(undefined); setNotificationOpen(true); }, []));
   // v2.14.1 (fullscreen autohide): when the app is fullscreen on desktop the
   // sidebar slides away after 2s of pointer/keyboard inactivity and peeks
   // back via the left-edge sensor, the top-bar toggle, or keyboard focus.
@@ -363,27 +373,29 @@ export function AppSidebar() {
               />
             </div>
             {!collapsed && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="shrink-0 text-slate-400 hover:text-white relative"
-                onClick={() => setNotificationOpen(true)}
-                aria-label={`Notifications${notificationCount.unread > 0 ? ` (${notificationCount.unread} unread)` : ''}`}
-                aria-haspopup="dialog"
-              >
-                <Bell className="h-4 w-4" aria-hidden />
+              <div className="relative shrink-0">
+                {/* v2.291.0: the relative wrapper hosts BOTH doors — the bell
+                    (All) and, riding its top-right corner, the unread badge
+                    button (the unread lens). Siblings, never nested. */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="shrink-0 text-slate-400 hover:text-white"
+                  onClick={() => { setNotificationLens(undefined); setNotificationOpen(true); }}
+                  aria-label={`Notifications${notificationCount.unread > 0 ? ` (${notificationCount.unread} unread)` : ''}`}
+                  aria-haspopup="dialog"
+                >
+                  <Bell className="h-4 w-4" aria-hidden />
+                </Button>
                 {notificationCount.unread > 0 ? (
-                  <span key={notifBadgeKey} className={`absolute -top-0.5 -right-0.5 min-w-[16px] h-4 flex items-center justify-center rounded-full text-[9px] font-bold px-1 animate-badge-bounce-in ${notificationCount.critical > 0 ? 'bg-red-600 text-white' : 'bg-amber-500 text-slate-950'}`}>
-                    {/* v2.148.0: the count pill must pass the contrast bar on
-                        its OWN token, not mid-animation — white on red-500
-                        measured 3.8:1 and the pulse half-dimmed it further
-                        (axe caught the mid-frame). Critical is now white on
-                        red-600 (4.8:1, pulse dropped — the bounce-in already
-                        announces); warning is slate-950 on amber-500 (8.6:1). */}
-                    {notificationCount.unread > 99 ? '99+' : notificationCount.unread}
-                  </span>
+                  <NotificationBadgeButton
+                    key={notifBadgeKey}
+                    count={notificationCount.unread}
+                    critical={notificationCount.critical > 0}
+                    onOpenUnread={() => { setNotificationLens('unread'); setNotificationOpen(true); }}
+                  />
                 ) : null}
-              </Button>
+              </div>
             )}
             {/* Mobile close button */}
             {!collapsed && (
@@ -412,22 +424,30 @@ export function AppSidebar() {
             <div className="flex justify-center px-2 pt-2 pb-0">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-slate-400 hover:text-white relative h-8 w-8"
-                    onClick={() => setNotificationOpen(true)}
-                    aria-label={`Notifications${notificationCount.unread > 0 ? ` (${notificationCount.unread} unread)` : ''}`}
-                    aria-haspopup="dialog"
-                  >
-                    <Bell className="h-4 w-4" aria-hidden />
+                  {/* v2.291.0: the same two doors as the expanded rail — the
+                      badge is the compact pill (14px face) with the same
+                      contract. */}
+                  <div className="relative">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-slate-400 hover:text-white h-8 w-8"
+                      onClick={() => { setNotificationLens(undefined); setNotificationOpen(true); }}
+                      aria-label={`Notifications${notificationCount.unread > 0 ? ` (${notificationCount.unread} unread)` : ''}`}
+                      aria-haspopup="dialog"
+                    >
+                      <Bell className="h-4 w-4" aria-hidden />
+                    </Button>
                     {notificationCount.unread > 0 && (
-                      <span key={`collapsed-${notifBadgeKey}`} className={`absolute -top-0.5 -right-0.5 min-w-[14px] h-3.5 flex items-center justify-center rounded-full text-[8px] font-bold px-0.5 animate-badge-bounce-in ${notificationCount.critical > 0 ? 'bg-red-600 text-white' : 'bg-amber-500 text-slate-950'}`}>
-                        {/* v2.148.0: same pill contract as the expanded rail. */}
-                        {notificationCount.unread > 99 ? '99+' : notificationCount.unread}
-                      </span>
+                      <NotificationBadgeButton
+                        key={`collapsed-${notifBadgeKey}`}
+                        size="compact"
+                        count={notificationCount.unread}
+                        critical={notificationCount.critical > 0}
+                        onOpenUnread={() => { setNotificationLens('unread'); setNotificationOpen(true); }}
+                      />
                     )}
-                  </Button>
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent side="right" sideOffset={8}>Notifications</TooltipContent>
               </Tooltip>
@@ -556,6 +576,7 @@ export function AppSidebar() {
         open={notificationOpen}
         onOpenChange={setNotificationOpen}
         storeId={currentStoreId}
+        initialFilter={notificationLens}
       />
       <ProfileSettingsDialog open={profileOpen} onOpenChange={setProfileOpen} />
     </TooltipProvider>

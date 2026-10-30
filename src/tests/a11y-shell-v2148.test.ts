@@ -47,20 +47,26 @@ describe('the count pills pass on their own token (no pulse)', () => {
   it('critical is white on red-600, warning is slate-950 on amber-500 — at all three mounts', () => {
     // The old contract: text-white in the base + `bg-red-500` /
     // `bg-amber-500` — 3.8:1 and 2.15:1 on tiny bold text.
-    const pillTone = 'bg-red-600 text-white\' : \'bg-amber-500 text-slate-950\'';
-    expect(sidebar()).toContain(pillTone); // expanded rail
-    expect(sidebar()).toContain(pillTone); // collapsed rail (same expression shape)
-    expect(sidebar().match(/bg-red-600 text-white/g)?.length).toBe(2);
-    expect(topbar()).toContain('bg-red-600 text-white\' : \'bg-amber-500 text-slate-950\'');
+    // v2.291.0 re-anchor: the tone ternary lives in the ONE shared badge
+    // component, and all three mounts (expanded rail, collapsed rail, HR
+    // bell) inherit it by importing NotificationBadgeButton — three call
+    // sites, one law, zero copies.
+    const badge = readRepo('src/components/layout/notification-badge-button.tsx');
+    expect(badge).toContain("'bg-red-600 text-white'");
+    expect(badge).toContain("'bg-amber-500 text-slate-950'");
+    expect(sidebar().match(/<NotificationBadgeButton/g)?.length).toBe(2);
+    expect(readRepo('src/components/layout/hr-shell-bell.tsx')).toContain('<NotificationBadgeButton');
   });
 
   it('text-white no longer sits in the pill base class — the tone owns it', () => {
     // If text-white stayed in the base, the amber variant would render
     // white-on-amber (2.15:1) again. The base keeps only shape + size;
     // the tone ternary legitimately carries text-white for the red side.
-    const sidebarPills = sidebar().split('animate-badge-bounce-in');
-    expect(sidebarPills.length).toBeGreaterThanOrEqual(3);
-    for (const chunk of sidebarPills.slice(1)) {
+    // v2.291.0 re-anchor: the pill's base class lives in the shared badge
+    // component — split there, the law is pinned once at the source.
+    const badgePills = readRepo('src/components/layout/notification-badge-button.tsx').split('animate-badge-bounce-in');
+    expect(badgePills.length).toBeGreaterThanOrEqual(2);
+    for (const chunk of badgePills.slice(1)) {
       const base = chunk.split('${')[0];
       expect(base).not.toContain('text-white');
     }
@@ -261,9 +267,9 @@ describe('the live re-audit follow-ups (found on the rebuilt build)', () => {
 describe('the release surfaces speak the version', () => {
   it('package.json, whats-new and the changelog lead with 2.154.0 (re-anchored per release)', () => {
     const pkg = JSON.parse(readRepo('package.json'));
-    expect(pkg.version).toBe('2.290.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.290.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.290.0');
+    expect(pkg.version).toBe('2.291.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.291.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.291.0');
     const feed = readRepo('src/lib/whats-new.ts');
     expect(feed.indexOf("'2.189.0'")).toBeGreaterThan(-1);
     expect(feed.indexOf("'2.189.0'")).toBeLessThan(feed.indexOf("'2.153.0'"));
@@ -272,6 +278,6 @@ describe('the release surfaces speak the version', () => {
 
   it('the unread counter test is re-anchored to the new head', () => {
     const counter = readRepo('src/tests/console-changelog.test.ts');
-    expect(counter).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(182);");
+    expect(counter).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(183);");
   });
 });

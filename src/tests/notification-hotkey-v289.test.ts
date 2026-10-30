@@ -100,20 +100,22 @@ describe('the hook wires one keydown listener per shell', () => {
 
 describe('one key, two openers, never a copy', () => {
   it('the POS sidebar wires alt+N to its bell state', () => {
+    // v2.291.0 re-anchor: the keyboard asks the BELL's lens (the general
+    // door, All) — the body grew the lens reset, the identity law holds.
     const s = readRepo(SIDEBAR);
     expect(s).toContain("import { useNotificationHotkey } from '@/hooks/use-notification-hotkey';");
-    expect(s).toContain('useNotificationHotkey(useCallback(() => setNotificationOpen(true), []));');
+    expect(s).toContain('useNotificationHotkey(useCallback(() => { setNotificationLens(undefined); setNotificationOpen(true); }, []));');
   });
 
   it('the HR header bell wires alt+N to its own sheet', () => {
     const s = readRepo(HRBELL);
     expect(s).toContain("import { useNotificationHotkey } from '@/hooks/use-notification-hotkey';");
-    expect(s).toContain('useNotificationHotkey(useCallback(() => setOpen(true), []));');
+    expect(s).toContain('useNotificationHotkey(useCallback(() => { setOpenLens(undefined); setOpen(true); }, []));');
   });
 
   it('each opener is identity-stable (useCallback — the listener never churns)', () => {
-    expect(readRepo(SIDEBAR)).toMatch(/useCallback\(\(\) => setNotificationOpen\(true\), \[\]\)/);
-    expect(readRepo(HRBELL)).toMatch(/useCallback\(\(\) => setOpen\(true\), \[\]\)/);
+    expect(readRepo(SIDEBAR)).toMatch(/useCallback\(\(\) => \{ setNotificationLens\(undefined\); setNotificationOpen\(true\); \}, \[\]\)/);
+    expect(readRepo(HRBELL)).toMatch(/useCallback\(\(\) => \{ setOpenLens\(undefined\); setOpen\(true\); \}, \[\]\)/);
   });
 });
 

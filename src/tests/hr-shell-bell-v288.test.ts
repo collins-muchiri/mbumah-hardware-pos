@@ -202,11 +202,17 @@ describe('the bell island reuses the shared machinery', () => {
     expect(src()).toContain('useNotificationCount(currentStoreId)');
   });
 
-  it('the badge contrast law is the sidebar\u2019s own (v2.148.0)', () => {
+  it('the badge contrast law is the sidebar\u2019s own (v2.148.0) \u2014 inherited via the shared badge (v2.291.0)', () => {
+    // v2.291.0 re-anchor: the pill moved into notification-badge-button.tsx
+    // (one component, every bell). The HR bell inherits the tokens by
+    // importing it; the law itself is pinned at the source.
     const s = src();
-    expect(s).toContain("'bg-red-600 text-white'");
-    expect(s).toContain("'bg-amber-500 text-slate-950'");
-    expect(s).toContain('animate-badge-bounce-in');
+    expect(s).toContain("import { NotificationBadgeButton } from '@/components/layout/notification-badge-button'");
+    expect(s).toContain('<NotificationBadgeButton');
+    const badge = readRepo('src/components/layout/notification-badge-button.tsx');
+    expect(badge).toContain("'bg-red-600 text-white'");
+    expect(badge).toContain("'bg-amber-500 text-slate-950'");
+    expect(badge).toContain('animate-badge-bounce-in');
   });
 
   it('the bounce replays only on an INCREASE (the prev-count ref pattern)', () => {
@@ -216,8 +222,12 @@ describe('the bell island reuses the shared machinery', () => {
   });
 
   it('the cap reads 99+ and the accessible name carries the unread count', () => {
+    // v2.291.0 re-anchor: the 99+ clamp rides the shared badge component
+    // (the count it renders is ITS prop); the bell keeps its own accessible
+    // name and the dialog contract.
     const s = src();
-    expect(s).toContain("notificationCount.unread > 99 ? '99+' : notificationCount.unread");
+    const badge = readRepo('src/components/layout/notification-badge-button.tsx');
+    expect(badge).toContain("{count > 99 ? '99+' : count}");
     expect(s).toContain('aria-label={`Notifications${notificationCount.unread > 0 ? ` (${notificationCount.unread} unread)` : \'\'}`}');
     expect(s).toContain('aria-haspopup="dialog"');
   });
@@ -225,8 +235,10 @@ describe('the bell island reuses the shared machinery', () => {
   it('the bell is findable by test, and quiet when the feed is empty', () => {
     const s = src();
     expect(s).toContain('data-testid="hr-shell-bell"');
-    expect(s).toContain('data-testid="hr-shell-bell-badge"');
-    // badge only renders when there is something to say
+    // v2.291.0 re-anchor: the badge's own testid lives in the shared
+    // component now (notification-unread-badge); the mount stays conditional
+    // \u2014 badge only renders when there is something to say.
+    expect(readRepo('src/components/layout/notification-badge-button.tsx')).toContain('data-testid="notification-unread-badge"');
     expect(s).toContain('{notificationCount.unread > 0 ? (');
   });
 });
