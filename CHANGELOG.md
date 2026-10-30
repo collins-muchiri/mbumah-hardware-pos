@@ -2,6 +2,15 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.296.0] The drill learns to walk
+
+The gate drill panel's "+N earlier in this window." static line was dead data — a number that never moved. The events API already paginated; the panel now WALKS: a "Show N earlier denials" button fetches the next page with the same question the panel opened with (the drilled gate, the card's lens) and appends the older records under a dedupe law, while the remaining count goes live.
+
+### Added
+- **The walk** (`src/app/(shell)/tabs/security-tab.tsx` + `src/lib/security-feed.ts`): the drill fetch grows an additive `page` param (one `GATE_DRILL_PAGE_SIZE` constant feeds both the fetch's limit and the arithmetic); the panel's rows are page 1 PLUS every page the visitor asked for, merged by `mergeDrillRows` — the window slides, so a denial minted between two page fetches can never show twice. The walk resets with its question (a new gate or lens clears the appended pages).
+- **The walk's faces** (④): the button names exactly what the next press will show (`gateDrillShowEarlierLabel(min(page size, remaining))`) and wears the drill's own amber family (pressed `bg-amber-500/10` + `border-amber-500/30`, `hover:bg-amber-500/20`, focus-visible ring, disabled dim + spinner via `Loader2`); the remaining count speaks live (`gateDrillEarlierVoice`, shrinks with every page); the exhausted window retires the button with `gateDrillExhaustedVoice("All N denials in this window are shown.")`; a failed page fetch keeps the rows and speaks `gateDrillErrorVoice()` in red; walked-in rows announce themselves with a quiet `animate-in fade-in slide-in-from-bottom-1`.
+- **The one home**: `GateDrillEvent` + `GATE_DRILL_PAGE_SIZE` + `mergeDrillRows` moved to the pure lib (RUNTIME-pinned); the tab imports, never copies.
+
 ## [2.295.0] The gates open their ledgers
 
 The Most denied gates card's rows become handles: clicking a gate opens a drill panel listing exactly the PERMISSION_DENIED records that named it — severity badge, event label, source IP, timestamp — windowed to the same lens the card speaks. And the privilege-abuse lock learns its own line: the 403 that TRIPS the lockout now answers `lockNotice("Account locked for 15 minutes — too many denied attempts.")` instead of leaving the caller in silence until the ACCOUNT_LOCKED notification surfaces.

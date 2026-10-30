@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.296.0',
+    title: 'The drill learns to walk',
+    bullets: [
+      'The “earlier in this window” line on the Most denied gates drill is now a walk: press “Show N earlier denials” and the older records join the list, page by page.',
+      'The count is live — it shrinks with every page you show, and the button always names exactly how many records the next press will bring.',
+      'When the window is fully shown the button retires and says so; if a page fails to load the rows keep their places and the panel tells you honestly.',
+      'Records that arrived between pages are never shown twice — the walk dedupes as it goes.',
+    ],
+  },
+  {
     version: '2.295.0',
     title: 'The gates open their ledgers',
     bullets: [

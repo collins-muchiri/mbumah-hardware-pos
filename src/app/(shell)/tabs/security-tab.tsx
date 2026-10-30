@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
@@ -8,7 +8,7 @@ import {
 } from 'recharts';
 import {
   Shield, ShieldOff, AlertTriangle, Users,
-  Activity, Eye, Ban, RefreshCw, Filter, X, ScrollText,
+  Activity, Eye, Ban, RefreshCw, Filter, X, ScrollText, Loader2,
 } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,8 +38,15 @@ import {
   securityRowTone,
   gateDrillVoice,
   gateDrillEmptyVoice,
+  gateDrillEarlierVoice,
+  gateDrillShowEarlierLabel,
+  gateDrillExhaustedVoice,
+  gateDrillErrorVoice,
+  mergeDrillRows,
+  GATE_DRILL_PAGE_SIZE,
   type deniedGateReport,
   type DeniedGate,
+  type GateDrillEvent,
 } from '@/lib/security-feed';
 
 // Types
@@ -169,21 +176,14 @@ async function fetchEvents(params: Record<string, string>): Promise<unknown> {
 
 // v2.295.0: the gate drill's fetch — exactly the PERMISSION_DENIED rows
 // that named this resource, windowed to the card's lens, newest 8 with the
-// honest total so the panel can speak "+N earlier in this window".
-interface GateDrillEvent {
-  id: string;
-  eventType: string;
-  severity: string;
-  ipAddress: string | null;
-  action: string | null;
-  createdAt: string;
-  blocked: boolean;
-}
-
+// honest total. v2.296.0: the fetch WALKS — an additive `page` param lets
+// the panel append the window's older records; GateDrillEvent lives in the
+// lib now (the walk's merge is pure and RUNTIME-pinned there).
 async function fetchGateDrill(
   resource: string,
-  range: GateRange
-): Promise<{ events: GateDrillEvent[]; total: number }> {
+  range: GateRange,
+  page = 1
+): Promise<{ events: GateDrillEvent[]; total: number; page: number }> {
   const token = typeof window !== 'undefined' ? localStorage.getItem('mbt_token') : null;
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -194,7 +194,8 @@ async function fetchGateDrill(
     resource,
     eventType: 'PERMISSION_DENIED',
     dateFrom,
-    limit: '8',
+    limit: String(GATE_DRILL_PAGE_SIZE),
+    page: String(page),
   }).toString();
   const res = await fetch(`/api/security/events?${qs}`, { headers, credentials: 'same-origin' });
   if (!res.ok) {
@@ -205,6 +206,7 @@ async function fetchGateDrill(
   return {
     events: Array.isArray(json?.data) ? json.data : [],
     total: typeof json?.pagination?.total === 'number' ? json.pagination.total : 0,
+    page: typeof json?.pagination?.page === 'number' ? json.pagination.page : page,
   };
 }
 
@@ -329,6 +331,12 @@ export default function SecurityTab() {
   // v2.295.0: the gate drill — the card's rows are handles; the drilled
   // resource lives here (null = closed, exactly one drill at a time).
   const [gateDrill, setGateDrill] = useState<string | null>(null);
+  // v2.296.0: the walk's ledger — the earlier pages appended so far, the
+  // last page fetched, and the honest loading/error faces.
+  const [drillExtra, setDrillExtra] = useState<GateDrillEvent[]>([]);
+  const [drillPage, setDrillPage] = useState(1);
+  const [drillLoading, setDrillLoading] = useState(false);
+  const [drillError, setDrillError] = useState(false);
 
   // v2.295.0: the drill closes on Escape. The card is NOT inside a Radix
   // DismissableLayer (no topmost-law to lean on), so the drill owns its own
@@ -341,6 +349,21 @@ export default function SecurityTab() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [gateDrill]);
+
+  // v2.296.0: the walk resets with its question — the React render-reset
+  // law (adjusting state during render, not an effect): when the drilled
+  // gate or the lens changes, the walk's ledger clears before this render
+  // paints. (drillError is also cleared on every fresh attempt below.)
+  const [walkGate, setWalkGate] = useState(gateDrill);
+  const [walkRange, setWalkRange] = useState(gateRange);
+  if (walkGate !== gateDrill || walkRange !== gateRange) {
+    setWalkGate(gateDrill);
+    setWalkRange(gateRange);
+    setDrillExtra([]);
+    setDrillPage(1);
+    setDrillLoading(false);
+    setDrillError(false);
+  }
 
   // Dashboard data
   const {
@@ -381,6 +404,25 @@ export default function SecurityTab() {
     queryFn: () => fetchGateDrill(gateDrill || '', gateRange),
     enabled: !!gateDrill,
   });
+
+  // v2.296.0: the walk — one click, one page, appended under the dedupe
+  // law (mergeDrillRows). The pages are fetched with the SAME question the
+  // panel opened with (the drilled gate, the card's lens); the button's
+  // promise is the page size, the ledger's truth is the remaining count.
+  const showEarlierGateRows = useCallback(async () => {
+    if (!gateDrill || drillLoading) return;
+    setDrillLoading(true);
+    setDrillError(false);
+    try {
+      const next = await fetchGateDrill(gateDrill, gateRange, drillPage + 1);
+      setDrillExtra((prev) => mergeDrillRows(prev, next.events));
+      setDrillPage(drillPage + 1);
+    } catch {
+      setDrillError(true);
+    } finally {
+      setDrillLoading(false);
+    }
+  }, [gateDrill, gateRange, drillPage, drillLoading]);
 
   const handleRefresh = () => {
     refetchDashboard();
@@ -1067,10 +1109,26 @@ export default function SecurityTab() {
             </ul>
             {gateDrill ? (() => {
               // v2.295.0: the gate drill panel — the ledger behind the count.
+              // v2.296.0: the walk — the panel's rows are page 1 PLUS every
+              // earlier page the visitor has asked for, deduped by id.
               const drilledCount = dashboard.deniedGates.top.find(
                 (g: DeniedGate) => g.resource === gateDrill
               )?.count ?? 0;
-              const drillRows = gateDrillQuery.data?.events ?? [];
+              const pageOneCount = gateDrillQuery.data?.events.length ?? 0;
+              const drillRows = gateDrillQuery.data
+                ? mergeDrillRows(gateDrillQuery.data.events, drillExtra)
+                : [];
+              // v2.296.0: the walk's arithmetic, computed once where the
+              // data is in scope — the LIVE remaining count (it shrinks with
+              // every page), what the button promises to show, and whether
+              // the ledger is complete.
+              const drillData = gateDrillQuery.data || null;
+              const walkRemaining = drillData
+                ? Math.max(0, drillData.total - drillRows.length)
+                : 0;
+              const walkToShow = Math.min(GATE_DRILL_PAGE_SIZE, walkRemaining);
+              const walkExhausted =
+                !!drillData && walkRemaining === 0 && drillData.total > GATE_DRILL_PAGE_SIZE;
               return (
                 <div
                   id="gate-drill-panel"
@@ -1109,8 +1167,15 @@ export default function SecurityTab() {
                     </p>
                   ) : (
                     <ul className="mt-2 space-y-1.5">
-                      {drillRows.map((ev) => (
-                        <li key={ev.id} className="flex items-center gap-2 text-xs text-muted-foreground min-w-0">
+                      {drillRows.map((ev, i) => (
+                        <li
+                          key={ev.id}
+                          className={`flex items-center gap-2 text-xs text-muted-foreground min-w-0 ${
+                            i >= pageOneCount
+                              ? 'animate-in fade-in slide-in-from-bottom-1 duration-500'
+                              : ''
+                          }`}
+                        >
                           <Badge
                             variant="outline"
                             className={`text-[10px] px-1.5 py-0 font-medium shrink-0 ${
@@ -1139,9 +1204,32 @@ export default function SecurityTab() {
                       ))}
                     </ul>
                   )}
-                  {gateDrillQuery.data && gateDrillQuery.data.total > drillRows.length ? (
+                  {drillData && walkRemaining > 0 ? (
+                    <div className="mt-2 flex items-center gap-2 flex-wrap">
+                      <button
+                        type="button"
+                        onClick={showEarlierGateRows}
+                        disabled={drillLoading}
+                        aria-busy={drillLoading || undefined}
+                        className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-[11px] font-medium text-amber-700 transition-colors hover:bg-amber-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+                      >
+                        {drillLoading ? (
+                          <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />
+                        ) : null}
+                        {drillLoading ? 'Loading…' : gateDrillShowEarlierLabel(walkToShow)}
+                      </button>
+                      <span className="text-[11px] text-muted-foreground/80 tabular-nums">
+                        {gateDrillEarlierVoice(walkRemaining)}
+                      </span>
+                    </div>
+                  ) : walkExhausted && drillData ? (
                     <p className="mt-2 text-[11px] text-muted-foreground/80">
-                      +{gateDrillQuery.data.total - drillRows.length} earlier in this window.
+                      {gateDrillExhaustedVoice(drillData.total)}
+                    </p>
+                  ) : null}
+                  {drillError && !drillLoading ? (
+                    <p className="mt-1.5 text-[11px] text-red-600" role="status">
+                      {gateDrillErrorVoice()}
                     </p>
                   ) : null}
                 </div>

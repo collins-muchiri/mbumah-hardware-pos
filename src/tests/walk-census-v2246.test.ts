@@ -53,13 +53,13 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.246.0)', () => {
   it('package.json leads 2.246.0 (all three slots)', () => {
-    expect(version).toBe('2.295.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.295.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.295.0');
+    expect(version).toBe('2.296.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.296.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.296.0');
   });
 
   it('VERSION + the gates ride', () => {
-    expect(read('VERSION').trim()).toBe('2.295.0');
+    expect(read('VERSION').trim()).toBe('2.296.0');
     expect(pkg.scripts['verify:v2-246-0']).toBe('node scripts/verify-v2-246-0.mjs');
     expect(pkg.scripts['verify:v2-245-0']).toBe('node scripts/verify-v2-245-0.mjs');
   });
@@ -76,8 +76,8 @@ describe('the round of record (v2.246.0)', () => {
   });
 
   it('the counters ride +1 in the counter test', () => {
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(187);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(220);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(188);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(221);");
   });
 });
 
