@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.282.0',
+    title: 'The digest learns the goals',
+    bullets: [
+      'The performance module joins the digest family: "Goal attainment" is now a scheduleable report \u2014 the standing goal pool by status (targets, current sums, attainment), the clock\u2019s own overdue count, and honest dashes where a percentage would be a guess.',
+      'Every schedule card now wears its report\u2019s own glyph \u2014 headcount speaks Users, goals speak Target, statutory speaks Scale \u2014 so the list scans by icon, not only by label. The colour never changes: the sky family stays the schedule\u2019s own.',
+      'Aggregates only, as always: counts and sums ride the digest \u2014 no names, no raw ids \u2014 through the same governed scope the goals screen obeys.',
+    ],
+  },
+  {
     version: '2.281.0',
     title: 'The card remembers its deliveries',
     bullets: [

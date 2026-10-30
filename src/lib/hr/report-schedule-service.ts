@@ -48,6 +48,7 @@ import {
   timeToHireReport,
   turnoverReport,
 } from './reports';
+import { goalAttainmentReport } from './goal-service';
 import type { AuthSession } from '@/lib/auth';
 
 export const HR_SCHEDULE_REPORTS = [
@@ -58,6 +59,7 @@ export const HR_SCHEDULE_REPORTS = [
   'time-to-hire',
   'statutory-liability',
   'leave-utilisation',
+  'goal-attainment',
 ] as const;
 export type HrScheduleReportKey = (typeof HR_SCHEDULE_REPORTS)[number];
 
@@ -72,6 +74,7 @@ export const REPORT_LABELS: Record<HrScheduleReportKey, string> = {
   'time-to-hire': 'Time to hire',
   'statutory-liability': 'Statutory liability',
   'leave-utilisation': 'Leave balances',
+  'goal-attainment': 'Goal attainment',
 };
 
 export class HrScheduleError extends Error {
@@ -678,6 +681,33 @@ export async function buildDigestPayload(
         },
       };
     }
+    case 'goal-attainment': {
+      // v2.282.0: the performance module's first digest — the goal pool's
+      // aggregate (counts + sums ONLY, the same governed scope listGoals
+      // obeys; no names ride a digest). Year-independent like the leave
+      // case: the pool is standing, the digest re-computes it on every
+      // fire. An empty pool digests as honest zeros ("Tracked goals: 0" IS
+      // the truth — the document's-answer law).
+      const r = await goalAttainmentReport(session, now);
+      const pctOrDash = (v: number | null) => (v == null ? '—' : `${Math.round(v * 10) / 10}%`);
+      return {
+        ...base,
+        reportLabel: REPORT_LABELS['goal-attainment'],
+        periodLabel: 'All cycles — the standing pool',
+        headline: [
+          { label: 'Tracked goals', value: String(r.tracked) },
+          { label: 'Attainment', value: pctOrDash(r.attainmentPct) },
+          { label: 'Achieved', value: String(r.achieved) },
+          { label: 'Missed', value: String(r.missed) },
+          { label: 'Overdue', value: String(r.overdue) },
+        ],
+        table: {
+          caption: 'Goal pool by status',
+          columns: ['Status', 'Goals', 'Target', 'Current', 'Attainment %'],
+          rows: r.rows.map((s) => [s.status, String(s.goals), String(s.target), String(s.current), pctOrDash(s.attainmentPct)]),
+        },
+      };
+    }
     default:
       return null;
   }
@@ -750,6 +780,7 @@ export const REPORT_KEY_TO_TAB: Record<HrScheduleReportKey, string> = {
   'time-to-hire': 'tth',
   'statutory-liability': 'statutory',
   'leave-utilisation': 'leave',
+  'goal-attainment': 'goals',
 };
 
 function digestHeadlines(digest: HrReportDigestData): string {

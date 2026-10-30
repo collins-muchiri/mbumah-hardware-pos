@@ -2,6 +2,21 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.282.0] The digest learns the goals
+
+The performance module had no digest face: the scheduler covered seven HR reports and none of them goals. This round the goal pool's aggregate joins the governed digest seam — scheduleable, previewable, emailable, CSV-able through the ONE seam every surface mirrors — and every schedule card learns to speak its report's own glyph.
+
+### Added
+- **The goal pool's aggregate** (`src/lib/hr/goal-service.ts`): `goalAttainmentReport(session, now)` — counts and sums ONLY, the same governed scope `listGoals` obeys (`employeeScopeWhere`), the same Number()-per-row door the leave report opens; rows march the vocabulary's own order (OPEN, ACHIEVED, MISSED, CLOSED) each with its target sum, current sum and attainment percentage; `goalAttainmentPct(target, current)` — the ONE percentage, exported for the runtime pins (null when the target sum is 0 — a percentage over nothing is a guess; a NEGATIVE target is data corruption, not a denominator); `overdue` — the clock's own count of goals the ledger still holds OPEN past their due date (the pool saying "these look missed, and nobody has re-run me yet"; the boundary is STRICT). NO FALLTHROUGH RENAMING: a status word the vocabulary does not know buckets AS ITSELF — the document exposes what it cannot name, never renames it.
+- **The digest case** (`src/lib/hr/report-schedule-service.ts`): `goal-attainment` joins `HR_SCHEDULE_REPORTS` (label "Goal attainment", CSV slug `goals`); the case builds the headline (Tracked goals / Attainment / Achieved / Missed / Overdue) and the "Goal pool by status" table, `periodLabel` "All cycles — the standing pool" (year-independent like the leave case); the honest `—` face where a percentage would be a guess; an empty pool digests as honest zeros.
+- **The schedule door** (`src/components/hr/report-schedules-tab.tsx`): the report select grows "Goal attainment (all cycles)".
+
+### Styled (mandatory ④)
+- **The report's own glyph**: `REPORT_ICONS` maps each report key to its lucide icon (Users, Coins, CalendarX, TrendingDown, Hourglass, Scale, CalendarRange, Target) and the card header rides it through the `ReportIcon` helper — the list of cards scans by glyph, not only by label text. The GLYPH varies, never the colour: every icon stays the schedule's own sky family; Mail stays the fallback and keeps the dialog's "Would email" row (which is about the email).
+
+### Tests
+- `src/tests/schedule-goals-v2282.test.ts` — 22 pins, BOTH nets: the percentage's truth table (the zero/negative deniors, the r1 door, over-achievement's own truth), the vocabulary order, the aggregate's scope/no-names/no-fallthrough/strict-boundary/Number-door/honest-zeros laws, the digest case's headline order and table shape, and the card's icon map (the glyph law, the Mail fallback, the dialog's Mail survivor).
+
 ## [2.281.0] The card remembers its deliveries
 
 The Schedules card spoke only its LAST send (`lastStatus` on the row), and the v2.25 delivery dots stayed lazy — hidden behind the history panel's fetch. An operator scanning the list could not see "3 of the last 5 sends failed" without opening every card. This round the card remembers its deliveries: the list view carries each schedule's delivery health (the last five recorded sends — counts, entries, ONE spoken line) derived server-side from the send ledger, and every card wears an always-on health strip.

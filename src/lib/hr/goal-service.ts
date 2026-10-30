@@ -661,4 +661,108 @@ export async function listMyGoals(employeeId: string): Promise<GoalDto[]> {
   return result;
 }
 
+// ── v2.282.0: the goal pool's aggregate (the digest's own voice) ────────────
+//
+// The performance module had no digest face: the scheduler covered seven HR
+// reports and none of them goals. This is the goals' aggregate — counts and
+// sums ONLY, the same governed scope listGoals obeys (employeeScopeWhere),
+// the same Number()-per-row door the leave report opens. No names ride it —
+// a digest is aggregates only (the tab's own standing contract).
+//
+// The clock's own count: `overdue` counts goals the ledger still holds OPEN
+// whose dueDate has passed. The recompute law (recomputeGoal) moves such
+// goals to MISSED when it re-speaks them — so a non-zero overdue count is
+// the pool saying "these look missed, and nobody has re-run me yet". The
+// boundary is STRICT (due this instant is not overdue) — pinned.
+
+export interface GoalAttainmentRow {
+  status: string; // the model's own vocabulary: OPEN | ACHIEVED | MISSED | CLOSED
+  goals: number;
+  target: number; // the pool's target sum
+  current: number; // the pool's current sum
+  /** Null when the pool's target sum is 0 — a percentage over nothing is a guess. */
+  attainmentPct: number | null;
+}
+
+export interface GoalAttainmentDto {
+  tracked: number;
+  open: number;
+  achieved: number;
+  missed: number;
+  closed: number;
+  overdue: number;
+  targetTotal: number;
+  currentTotal: number;
+  attainmentPct: number | null;
+  rows: GoalAttainmentRow[];
+}
+
+const goalR1 = (n: number) => Math.round(n * 10) / 10;
+
+/**
+ * The attainment percentage — the ONE derivation, exported so the test's
+ * runtime pins can hold it (the fourth-net law: bytes pin the call site,
+ * the runtime pins the math). Null when the target sum is 0 — a percentage
+ * over nothing is a guess, and a NEGATIVE target is data corruption, not a
+ * denominator (the strict `> 0` keeps both honest).
+ */
+export function goalAttainmentPct(target: number, current: number): number | null {
+  return target > 0 ? goalR1((current / target) * 100) : null;
+}
+
+export async function goalAttainmentReport(
+  session: AuthSession,
+  now: Date = new Date(),
+): Promise<GoalAttainmentDto> {
+  const goals = await db.goal.findMany({
+    where: { deletedAt: null, employee: employeeScopeWhere(session) },
+    select: { status: true, metricSource: true, targetValue: true, currentValue: true, dueDate: true },
+  });
+
+  const buckets = new Map<string, { goals: number; target: number; current: number }>();
+  let overdue = 0;
+  let targetTotal = 0;
+  let currentTotal = 0;
+  for (const g of goals) {
+    // No fallthrough renaming: a status word the vocabulary does not know is
+    // bucketed AS ITSELF — the rows speak the four known statuses, so a
+    // stray word shows up honestly as tracked > the rows' sum (the document
+    // exposes what it cannot name, never renames it).
+    const bucket = buckets.get(g.status) ?? { goals: 0, target: 0, current: 0 };
+    const target = Number(g.targetValue ?? 0);
+    const current = Number(g.currentValue ?? 0);
+    bucket.goals += 1;
+    bucket.target += target;
+    bucket.current += current;
+    buckets.set(g.status, bucket);
+    targetTotal += target;
+    currentTotal += current;
+    if (g.status === 'OPEN' && g.dueDate != null && g.dueDate.getTime() < now.getTime()) overdue += 1;
+  }
+
+  const rows: GoalAttainmentRow[] = GOAL_STATUSES.map((status) => {
+    const b = buckets.get(status) ?? { goals: 0, target: 0, current: 0 };
+    return {
+      status,
+      goals: b.goals,
+      target: goalR1(b.target),
+      current: goalR1(b.current),
+      attainmentPct: goalAttainmentPct(b.target, b.current),
+    };
+  });
+
+  return {
+    tracked: goals.length,
+    open: buckets.get('OPEN')?.goals ?? 0,
+    achieved: buckets.get('ACHIEVED')?.goals ?? 0,
+    missed: buckets.get('MISSED')?.goals ?? 0,
+    closed: buckets.get('CLOSED')?.goals ?? 0,
+    overdue,
+    targetTotal: goalR1(targetTotal),
+    currentTotal: goalR1(currentTotal),
+    attainmentPct: goalAttainmentPct(targetTotal, currentTotal),
+    rows,
+  };
+}
+
 export { decimalToMoney };

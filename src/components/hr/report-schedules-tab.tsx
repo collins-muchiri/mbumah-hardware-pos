@@ -33,14 +33,17 @@ import {
   CalendarDays,
   CalendarRange,
   CalendarSync,
+  CalendarX,
   ChevronDown,
   ChevronUp,
   CircleAlert,
   CircleCheck,
   CircleX,
   Clock3,
+  Coins,
   Eye,
   History,
+  Hourglass,
   Loader2,
   Mail,
   Paperclip,
@@ -48,9 +51,13 @@ import {
   Play,
   PlusCircle,
   RotateCcw,
+  Scale,
   Send,
+  Target,
   Trash2,
+  TrendingDown,
   Users,
+  type LucideIcon,
 } from 'lucide-react';
 import { apiGet, apiSend, ErrorNote, formatDate } from '@/components/hr/self-service-ui';
 
@@ -142,7 +149,29 @@ const REPORT_OPTIONS = [
   { value: 'time-to-hire', label: 'Time to hire' },
   { value: 'statutory-liability', label: 'Statutory liability' },
   { value: 'leave-utilisation', label: 'Leave balances (leave-year keyed)' },
+  { value: 'goal-attainment', label: 'Goal attainment (all cycles)' },
 ];
+
+// v2.282.0: the card header's icon speaks ITS report — the list of cards
+// becomes scannable by glyph, not only by label text. The GLYPH varies,
+// never the colour: every icon stays the schedule's own sky family
+// (colour never means two things). Mail stays the fallback (and keeps the
+// dialog's "Would email" row, which is about the email, not the report).
+const REPORT_ICONS: Record<string, LucideIcon> = {
+  headcount: Users,
+  'employment-cost': Coins,
+  absence: CalendarX,
+  turnover: TrendingDown,
+  'time-to-hire': Hourglass,
+  'statutory-liability': Scale,
+  'leave-utilisation': CalendarRange,
+  'goal-attainment': Target,
+};
+
+function ReportIcon({ reportKey, className }: { reportKey: string; className?: string }) {
+  const Icon = REPORT_ICONS[reportKey] ?? Mail;
+  return <Icon className={className ?? 'h-4 w-4 shrink-0 text-sky-500'} aria-hidden />;
+}
 
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -664,7 +693,7 @@ export function ReportSchedulesTab({ highlightScheduleId }: { highlightScheduleI
               <CardHeader className="px-4 pt-3">
                 <div className="flex items-start justify-between gap-2">
                   <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-                    <Mail className="h-4 w-4 shrink-0 text-sky-500" aria-hidden />
+                    <ReportIcon reportKey={s.reportKey} />
                     {s.reportLabel}
                   </CardTitle>
                   <div className="flex shrink-0 flex-col items-end gap-1">
