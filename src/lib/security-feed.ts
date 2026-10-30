@@ -245,11 +245,12 @@ export function gateDrillErrorVoice(): string {
 }
 
 /**
- * The drill row's anonymous face (v2.297.0) — the word spoken when a denial
- * record carries no readable actor. The feed's Security tab has said
- * 'Unknown user' since v2.292.0; the word moves here so the drill speaks
- * the SAME vocabulary from ONE home (the feed's inline copy predates the
- * lib home and may migrate to it in a later release).
+ * The anonymous face (v2.297.0, drill; v2.298.0 everywhere) — the word
+ * spoken when a denial record carries no readable actor. The feed's
+ * Security tab had said 'Unknown user' inline since v2.292.0; v2.298.0
+ * migrates that copy here, so BOTH faces speak the SAME vocabulary from
+ * ONE home — the word can never drift between the bell's feed and the
+ * drill's ledger again.
  */
 export const DRILL_UNKNOWN_ACTOR = 'Unknown user';
 
