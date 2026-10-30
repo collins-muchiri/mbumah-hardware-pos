@@ -42,6 +42,13 @@ import {
   gateDrillShowEarlierLabel,
   gateDrillExhaustedVoice,
   gateDrillErrorVoice,
+  // v2.297.0: the drill names its deniers — the ONE parse, the distinct
+  // count, the honest aggregate voice, and the anonymous word, all from
+  // the one home.
+  drillActorFromDetails,
+  distinctActorEmails,
+  gateDrillActorVoice,
+  DRILL_UNKNOWN_ACTOR,
   mergeDrillRows,
   GATE_DRILL_PAGE_SIZE,
   type deniedGateReport,
@@ -1129,6 +1136,17 @@ export default function SecurityTab() {
               const walkToShow = Math.min(GATE_DRILL_PAGE_SIZE, walkRemaining);
               const walkExhausted =
                 !!drillData && walkRemaining === 0 && drillData.total > GATE_DRILL_PAGE_SIZE;
+              // v2.297.0: the drill names its deniers — ONE parse per shown
+              // row feeds BOTH the row faces and the aggregate count (the
+              // same derivation consumed twice, never two parses). The
+              // voice is honest: an all-anonymous ledger stays silent, an
+              // unfinished walk names only the slice on screen.
+              const drillActors = drillRows.map((ev) => drillActorFromDetails(ev.details));
+              const actorVoice = gateDrillActorVoice(
+                distinctActorEmails(drillActors),
+                drillRows.length,
+                drillData?.total ?? 0
+              );
               return (
                 <div
                   id="gate-drill-panel"
@@ -1155,6 +1173,17 @@ export default function SecurityTab() {
                       <X className="h-3.5 w-3.5" aria-hidden="true" />
                     </button>
                   </div>
+                  {actorVoice ? (
+                    <p
+                      data-testid="gate-drill-actor-line"
+                      className="mt-1.5 text-[11px] text-amber-700 dark:text-amber-400 flex items-center gap-1.5 min-w-0"
+                    >
+                      <Users className="h-3 w-3 shrink-0" aria-hidden="true" />
+                      <span className="truncate" title={actorVoice}>
+                        {actorVoice}
+                      </span>
+                    </p>
+                  ) : null}
                   {gateDrillQuery.isLoading ? (
                     <div className="mt-2 space-y-1.5">
                       <Skeleton className="h-4 w-full" />
@@ -1167,41 +1196,76 @@ export default function SecurityTab() {
                     </p>
                   ) : (
                     <ul className="mt-2 space-y-1.5">
-                      {drillRows.map((ev, i) => (
-                        <li
-                          key={ev.id}
-                          className={`flex items-center gap-2 text-xs text-muted-foreground min-w-0 ${
-                            i >= pageOneCount
-                              ? 'animate-in fade-in slide-in-from-bottom-1 duration-500'
-                              : ''
-                          }`}
-                        >
-                          <Badge
-                            variant="outline"
-                            className={`text-[10px] px-1.5 py-0 font-medium shrink-0 ${
-                              SECURITY_SEVERITY_BADGE_CLASSES[ev.severity] || 'bg-gray-100 text-gray-500'
+                      {drillRows.map((ev, i) => {
+                        // v2.297.0: the row's own actor — the SAME parsed
+                        // actor the aggregate counted (drillActors[i] is
+                        // this row's identity, no second parse).
+                        const actor = drillActors[i];
+                        return (
+                          <li
+                            key={ev.id}
+                            className={`min-w-0 ${
+                              i >= pageOneCount
+                                ? 'animate-in fade-in slide-in-from-bottom-1 duration-500'
+                                : ''
                             }`}
                           >
-                            {ev.severity}
-                          </Badge>
-                          <span className="font-medium text-foreground/80 shrink-0">
-                            {EVENT_TYPE_LABELS[ev.eventType] || ev.eventType}
-                          </span>
-                          {ev.ipAddress ? (
-                            <span className="font-mono truncate" title={ev.ipAddress}>
-                              {ev.ipAddress}
-                            </span>
-                          ) : null}
-                          <span className="ml-auto shrink-0 tabular-nums">
-                            {new Date(ev.createdAt).toLocaleString([], {
-                              month: 'short',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
-                          </span>
-                        </li>
-                      ))}
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground min-w-0">
+                              <Badge
+                                variant="outline"
+                                className={`text-[10px] px-1.5 py-0 font-medium shrink-0 ${
+                                  SECURITY_SEVERITY_BADGE_CLASSES[ev.severity] || 'bg-gray-100 text-gray-500'
+                                }`}
+                              >
+                                {ev.severity}
+                              </Badge>
+                              <span className="font-medium text-foreground/80 shrink-0">
+                                {EVENT_TYPE_LABELS[ev.eventType] || ev.eventType}
+                              </span>
+                              {ev.ipAddress ? (
+                                <span className="font-mono truncate" title={ev.ipAddress}>
+                                  {ev.ipAddress}
+                                </span>
+                              ) : null}
+                              <span className="ml-auto shrink-0 tabular-nums">
+                                {new Date(ev.createdAt).toLocaleString([], {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })}
+                              </span>
+                            </div>
+                            {/* v2.297.0: the actor line — who stood behind
+                                this denial, in the feed's own contract (the
+                                email first, then the role and permission
+                                pills). Anonymous rows say the one word the
+                                vocabulary owns — never a guessed name. */}
+                            <div
+                              data-testid="gate-drill-actor-row"
+                              className="mt-0.5 flex items-center gap-1 flex-wrap min-w-0"
+                            >
+                              <span
+                                data-testid="gate-drill-actor-email"
+                                className="text-[10px] font-medium text-foreground/70 truncate max-w-[220px]"
+                                title={actor.email || DRILL_UNKNOWN_ACTOR}
+                              >
+                                {actor.email || DRILL_UNKNOWN_ACTOR}
+                              </span>
+                              {actor.role ? (
+                                <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground shrink-0">
+                                  {actor.role}
+                                </span>
+                              ) : null}
+                              {actor.permission ? (
+                                <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground font-mono shrink-0">
+                                  {actor.permission}
+                                </span>
+                              ) : null}
+                            </div>
+                          </li>
+                        );
+                      })}
                     </ul>
                   )}
                   {drillData && walkRemaining > 0 ? (

@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.297.0',
+    title: 'The drill names its deniers',
+    bullets: [
+      'Every record in the Most denied gates drill now says who stood behind it: the account, its role, and the exact gate key that refused it — the same words the Security tab in your bell already speaks.',
+      'The drill answers the first triage question on its own: how many DIFFERENT accounts are behind the denials on screen.',
+      'An unfinished walk tells the truth about what it has shown so far — the count names the slice on screen, and grows as you show more.',
+      'A record without a readable actor says “Unknown user” — the drill never guesses a name.',
+    ],
+  },
+  {
     version: '2.296.0',
     title: 'The drill learns to walk',
     bullets: [

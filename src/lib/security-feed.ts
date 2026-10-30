@@ -183,6 +183,13 @@ export interface GateDrillEvent {
   action: string | null;
   createdAt: string;
   blocked: boolean;
+  /**
+   * v2.297.0: the recorder's payload — `{ role, permission, email }` on the
+   * rows recordPermissionDenied writes. Parsed to an object by the events
+   * route, but typed `unknown` on purpose: the ONE parse is
+   * drillActorFromDetails, and legacy/garbage payloads stay anonymous.
+   */
+  details?: unknown;
 }
 
 /**
@@ -235,6 +242,98 @@ export function gateDrillExhaustedVoice(total: number): string {
  */
 export function gateDrillErrorVoice(): string {
   return 'The earlier denials did not load — try again.';
+}
+
+/**
+ * The drill row's anonymous face (v2.297.0) — the word spoken when a denial
+ * record carries no readable actor. The feed's Security tab has said
+ * 'Unknown user' since v2.292.0; the word moves here so the drill speaks
+ * the SAME vocabulary from ONE home (the feed's inline copy predates the
+ * lib home and may migrate to it in a later release).
+ */
+export const DRILL_UNKNOWN_ACTOR = 'Unknown user';
+
+/**
+ * One denial's actor (v2.297.0) — the recorder writes
+ * `details: { role, permission, email }` (auth.ts recordPermissionDenied);
+ * the events API spreads the row with that field JSON-parsed. Every field
+ * is nullable: legacy rows, non-recorder event types and any future writer
+ * that forgets a key stay anonymous — the drill never guesses an identity.
+ */
+export interface DrillActor {
+  email: string | null;
+  role: string | null;
+  permission: string | null;
+}
+
+/**
+ * The ONE parse of a drill row's details (v2.297.0).
+ *
+ * The wire's shape has drifted across the recorder's life: today's rows
+ * carry a parsed object, but a defensive writer (or an older route) may
+ * deliver the raw JSON string, and rows from event types that never had an
+ * actor carry null or a foreign payload. The law: ONE guarded attempt to
+ * reach an object (a string gets one JSON.parse, garbage dies quietly),
+ * each of the three words lands ONLY when it is a non-empty string, and
+ * everything else stays null — the honest absence, never an invented
+ * identity. Pure and non-throwing so the RUNTIME-PIN law holds.
+ */
+export function drillActorFromDetails(details: unknown): DrillActor {
+  let source: unknown = details;
+  if (typeof source === 'string') {
+    try {
+      source = JSON.parse(source);
+    } catch {
+      source = null;
+    }
+  }
+  const obj =
+    source !== null && typeof source === 'object' ? (source as Record<string, unknown>) : null;
+  const word = (v: unknown): string | null =>
+    typeof v === 'string' && v.trim().length > 0 ? v : null;
+  return {
+    email: obj ? word(obj.email) : null,
+    role: obj ? word(obj.role) : null,
+    permission: obj ? word(obj.permission) : null,
+  };
+}
+
+/**
+ * The distinct-actor count (v2.297.0) — how many DIFFERENT accounts stand
+ * behind the drill's shown rows. The question the count answers is "one
+ * misconfigured device or ten accounts hammering the gate", and an
+ * anonymous row must never inflate it: a null email is an unknown, not a
+ * third actor. Pure so the RUNTIME-PIN law holds.
+ */
+export function distinctActorEmails(actors: DrillActor[]): number {
+  const seen = new Set<string>();
+  for (const actor of actors) {
+    if (actor.email) seen.add(actor.email);
+  }
+  return seen.size;
+}
+
+/**
+ * The drill's actor voice (v2.297.0) — the aggregate line beneath the
+ * drill's subtitle: how many accounts stand behind the denials on screen.
+ *
+ * THE HONESTY LAWS:
+ *   • zero named actors → null — the panel stays silent rather than dress
+ *     an all-anonymous ledger in a count it cannot speak;
+ *   • the complete window names itself ("all N denials in this window")
+ *     — shown >= total means the walk finished (or the ledger shrank;
+ *     both are complete);
+ *   • an unfinished walk NEVER claims the unseen rows: the voice names the
+ *     slice actually shown ("the first 8 of 10 denials shown") — the
+ *     count grows as the walk grows, and says so.
+ */
+export function gateDrillActorVoice(actors: number, shown: number, total: number): string | null {
+  if (!Number.isFinite(actors) || actors <= 0) return null;
+  const actorWord = actors === 1 ? '1 actor' : `${actors} actors`;
+  if (shown >= total) {
+    return `${actorWord} behind all ${total} ${total === 1 ? 'denial' : 'denials'} in this window.`;
+  }
+  return `${actorWord} behind the first ${shown} of ${total} denials shown.`;
 }
 
 /** The contrast-safe face classes per tone (v2.148.0 law: tokens on their own). */
