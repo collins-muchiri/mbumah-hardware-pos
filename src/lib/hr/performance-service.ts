@@ -119,6 +119,100 @@ export async function listCycles(session: Session): Promise<CycleDto[]> {
   }));
 }
 
+// ── v2.283.0: the cycles join the digest (the performance module's second
+// parity face) ───────────────────────────────────────────────────────────────
+// v2.282.0 taught the goal pool to speak; the review pool was the named gap
+// in the handover. The SAME laws apply, sharpened by the spec's own mask:
+//   • Counts ONLY. Spec rule 7 keeps ratings and narratives out of list
+//     payloads — a digest is an EMAIL, so a fortiori no rating sum, no
+//     average, no derivation a score could be reverse-engineered from. The
+//     aggregate speaks how many, never how good.
+//   • The governed scope is listCycles' scope: every non-deleted cycle of
+//     the session's organization, and the non-deleted reviews of those
+//     cycles. NOT listCycles' take:60 — that is a console page size, not a
+//     scope; the digest is the standing pool.
+//   • No fallthrough renaming: a status word the vocabulary does not know
+//     buckets AS ITSELF — tracked > the rows' sum is how a stray shows
+//     itself. The document exposes what it cannot name, never renames it.
+//   • `reviewCyclePct` is EXPORTED for the runtime pins (the fourth net): a
+//     share over nothing (or a negative pool) is a guess, so it denies.
+
+export interface ReviewCycleRow {
+  status: string;
+  reviews: number;
+  sharePct: number | null;
+}
+
+export interface ReviewCycleReportDto {
+  trackedCycles: number;
+  draftCycles: number;
+  activeCycles: number;
+  closedCycles: number;
+  /** ACTIVE cycles whose window has ended but which were never closed — the clock's own signal that nobody closed them. */
+  unclosedWindows: number;
+  trackedReviews: number;
+  /** Reviews parked at SUBMITTED — awaiting a reviewer's/HR's acknowledgement. */
+  awaitingAcknowledgement: number;
+  calibrated: number;
+  rows: ReviewCycleRow[];
+}
+
+/**
+ * The share of the review pool one status owns. Null when the pool is empty
+ * (a percentage over nothing is a guess) or negative (data corruption, not a
+ * denominator) — the SAME denior law `goalAttainmentPct` speaks.
+ */
+export function reviewCyclePct(part: number, whole: number): number | null {
+  if (whole <= 0) return null;
+  return Math.round((part / whole) * 1000) / 10;
+}
+
+export async function reviewCycleReport(
+  session: AuthSession,
+  now: Date = new Date(),
+): Promise<ReviewCycleReportDto> {
+  const cycles = await db.reviewCycle.findMany({
+    where: { deletedAt: null, organizationId: session.organizationId },
+    select: { status: true, periodStart: true, periodEnd: true },
+  });
+  const reviews = await db.performanceReview.findMany({
+    where: { deletedAt: null, cycle: { deletedAt: null, organizationId: session.organizationId } },
+    select: { status: true },
+  });
+
+  const cycleBuckets = new Map<string, number>();
+  let unclosedWindows = 0;
+  for (const c of cycles) {
+    cycleBuckets.set(c.status, (cycleBuckets.get(c.status) ?? 0) + 1);
+    // Strict boundary, the goal pool's own clock law: a window that ends
+    // this instant is not yet over. Only an ACTIVE cycle can owe a close.
+    if (c.status === 'ACTIVE' && c.periodEnd.getTime() < now.getTime()) unclosedWindows += 1;
+  }
+
+  const reviewBuckets = new Map<string, number>();
+  for (const r of reviews) {
+    reviewBuckets.set(r.status, (reviewBuckets.get(r.status) ?? 0) + 1);
+  }
+
+  const rows: ReviewCycleRow[] = REVIEW_STATUSES.map((status) => ({
+    status,
+    reviews: reviewBuckets.get(status) ?? 0,
+    sharePct: reviewCyclePct(reviewBuckets.get(status) ?? 0, reviews.length),
+  }));
+
+  return {
+    trackedCycles: cycles.length,
+    draftCycles: cycleBuckets.get('DRAFT') ?? 0,
+    activeCycles: cycleBuckets.get('ACTIVE') ?? 0,
+    closedCycles: cycleBuckets.get('CLOSED') ?? 0,
+    unclosedWindows,
+    trackedReviews: reviews.length,
+    awaitingAcknowledgement: reviewBuckets.get('SUBMITTED') ?? 0,
+    calibrated: reviewBuckets.get('CALIBRATED') ?? 0,
+    rows,
+  };
+}
+
 export async function createCycle(
   input: { name?: unknown; periodStart?: unknown; periodEnd?: unknown },
   session: Session,

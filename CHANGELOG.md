@@ -2,6 +2,22 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.283.0] The cycles join the digest
+
+The performance module's second parity face: v2.282.0 taught the goal pool to speak and the handover named the review pool as the next gap. This round the cycles/reviews aggregate joins the governed digest seam — scheduleable, previewable, emailable through the ONE seam every surface mirrors — and the digest preview learns to speak the pool vocabularies' own colours.
+
+### Added
+- **The review pool's aggregate** (`src/lib/hr/performance-service.ts`): `reviewCycleReport(session, now)` — counts ONLY (the spec's mask is stricter here than for goals: ratings never ride a list payload, a fortiori never an email; the aggregate speaks how many, never how good); the governed scope is `listCycles`' scope (every non-deleted cycle of the organization, the non-deleted reviews of those cycles) but NOT its `take: 60` — that is a console page size, not a scope, and the digest is the standing pool; rows march `REVIEW_STATUSES`' own order (DRAFT, SUBMITTED, ACKNOWLEDGED, CALIBRATED) each with its count and pool share; `reviewCyclePct(part, whole)` — the ONE share, exported for the runtime pins (null when the pool is empty or negative — a percentage over nothing is a guess); `unclosedWindows` — the clock's own count of ACTIVE cycles whose window has ended but which were never closed (the boundary is STRICT: a window that ends this instant is not yet over). NO FALLTHROUGH RENAMING: a status word the vocabulary does not know buckets AS ITSELF — tracked > the rows' sum is how a stray shows itself.
+- **The digest case** (`src/lib/hr/report-schedule-service.ts`): `review-cycles` joins `HR_SCHEDULE_REPORTS` (label "Review cycles"); the case builds the headline (Tracked cycles / Active cycles / Tracked reviews / Awaiting acknowledgement / Calibrated / Unclosed windows) and the "Review pool by status" table, `periodLabel` "All cycles — the standing pool" (year-independent like the goal case); an empty pool digests as honest zeros with the share face's own `—`.
+- **The deep link** (`src/lib/hr/report-schedule-service.ts` + `src/app/(shell)/hr/performance/page.tsx`): the review pool's interactive home is the PERFORMANCE desk, not the reports desk — `REPORT_KEY_TO_URL` overrides are consulted before `REPORT_KEY_TO_TAB`, and the desk now reads `?tab=` on mount (only a KNOWN tab id lands; an unknown word falls back to cycles). The digest's bell action walks the reader into the reviews tab.
+
+### Styled
+- **The preview's face** (`src/components/hr/report-schedules-tab.tsx`): the email-style strip wears the report's OWN glyph (the same face the schedule card shows — preview and card scan as one object; the glyph varies, the sky family never does); the digest table's label column speaks in the pool vocabularies' own colours — a KNOWN lifecycle word wears its chip (amber waiting, emerald positive, rose negative, slate quiet, sky in motion — five BORROWED families, no word wears two colours across the app), an unknown word stays plain text (the document exposes what it cannot name, never dresses it up); the numeric columns right-align under their own headers so digits of the same magnitude scan down a column instead of zig-zagging.
+- **The schedule door** (`src/components/hr/report-schedules-tab.tsx`): the report select grows "Review cycles (all cycles)" and the review pool wears the reviewer's own clipboard glyph.
+
+### Tests
+- `src/tests/schedule-reviews-v283.test.ts` (26 pins, BOTH nets): the share's truth table incl. the empty/negative deniors and the r1 door, the two vocabularies' order, the aggregate's scope/no-take/counts-only/no-fallthrough/strict-boundary/honest-zeros laws, the digest case's headline order + table shape + standing-pool label ×2, the deep-link override + the desk's known-tab read, the preview's glyph/chip/alignment laws (nine words, five borrowed families).
+
 ## [2.282.0] The digest learns the goals
 
 The performance module had no digest face: the scheduler covered seven HR reports and none of them goals. This round the goal pool's aggregate joins the governed digest seam — scheduleable, previewable, emailable, CSV-able through the ONE seam every surface mirrors — and every schedule card learns to speak its report's own glyph.

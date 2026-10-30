@@ -49,6 +49,7 @@ import {
   turnoverReport,
 } from './reports';
 import { goalAttainmentReport } from './goal-service';
+import { reviewCycleReport } from './performance-service';
 import type { AuthSession } from '@/lib/auth';
 
 export const HR_SCHEDULE_REPORTS = [
@@ -60,6 +61,7 @@ export const HR_SCHEDULE_REPORTS = [
   'statutory-liability',
   'leave-utilisation',
   'goal-attainment',
+  'review-cycles',
 ] as const;
 export type HrScheduleReportKey = (typeof HR_SCHEDULE_REPORTS)[number];
 
@@ -75,6 +77,7 @@ export const REPORT_LABELS: Record<HrScheduleReportKey, string> = {
   'statutory-liability': 'Statutory liability',
   'leave-utilisation': 'Leave balances',
   'goal-attainment': 'Goal attainment',
+  'review-cycles': 'Review cycles',
 };
 
 export class HrScheduleError extends Error {
@@ -708,6 +711,34 @@ export async function buildDigestPayload(
         },
       };
     }
+    case 'review-cycles': {
+      // v2.283.0: the performance module's SECOND digest face — the review
+      // pool's aggregate. COUNTS ONLY (the spec's mask is stricter here than
+      // for goals: ratings never ride a list payload, a fortiori never an
+      // email). The same standing-pool shape as the goal case: no period
+      // key, the digest re-speaks the pool on every fire; empty pools
+      // digest as honest zeros with the share face's own '—'.
+      const r = await reviewCycleReport(session, now);
+      const pctOrDash = (v: number | null) => (v == null ? '—' : `${Math.round(v * 10) / 10}%`);
+      return {
+        ...base,
+        reportLabel: REPORT_LABELS['review-cycles'],
+        periodLabel: 'All cycles — the standing pool',
+        headline: [
+          { label: 'Tracked cycles', value: String(r.trackedCycles) },
+          { label: 'Active cycles', value: String(r.activeCycles) },
+          { label: 'Tracked reviews', value: String(r.trackedReviews) },
+          { label: 'Awaiting acknowledgement', value: String(r.awaitingAcknowledgement) },
+          { label: 'Calibrated', value: String(r.calibrated) },
+          { label: 'Unclosed windows', value: String(r.unclosedWindows) },
+        ],
+        table: {
+          caption: 'Review pool by status',
+          columns: ['Status', 'Reviews', 'Share %'],
+          rows: r.rows.map((s) => [s.status, String(s.reviews), pctOrDash(s.sharePct)]),
+        },
+      };
+    }
     default:
       return null;
   }
@@ -781,6 +812,17 @@ export const REPORT_KEY_TO_TAB: Record<HrScheduleReportKey, string> = {
   'statutory-liability': 'statutory',
   'leave-utilisation': 'leave',
   'goal-attainment': 'goals',
+  // v2.283.0: the review pool's interactive home is the PERFORMANCE desk,
+  // not the reports desk — but the desk itself is the honest target (its
+  // ?tab= read lands below). The builder consults REPORT_KEY_TO_URL FIRST.
+  'review-cycles': 'reviews',
+};
+
+// v2.283.0: full-URL deep-link overrides, consulted before REPORT_KEY_TO_TAB.
+// The cycles' desk lives at /hr/performance; the page now reads ?tab= so the
+// link walks the reader into the reviews tab, not just the desk.
+export const REPORT_KEY_TO_URL: Partial<Record<HrScheduleReportKey, string>> = {
+  'review-cycles': '/hr/performance?tab=reviews',
 };
 
 function digestHeadlines(digest: HrReportDigestData): string {
@@ -816,10 +858,14 @@ async function writeDigestNotification(params: {
   note?: string;
 }): Promise<string | null> {
   try {
+    const override = REPORT_KEY_TO_URL[params.reportKey as HrScheduleReportKey];
     const tab = REPORT_KEY_TO_TAB[params.reportKey as HrScheduleReportKey];
-    const actionUrl = tab
-      ? `/hr/reports?tab=${tab}${params.storeId ? `&storeId=${params.storeId}` : ''}`
-      : '/hr/reports';
+    const storeIdQs = params.storeId ? `${override?.includes('?') ? '&' : '?'}storeId=${params.storeId}` : '';
+    const actionUrl = override
+      ? `${override}${storeIdQs}`
+      : tab
+        ? `/hr/reports?tab=${tab}${params.storeId ? `&storeId=${params.storeId}` : ''}`
+        : '/hr/reports';
     const label =
       params.digest?.reportLabel ??
       REPORT_LABELS[params.reportKey as HrScheduleReportKey] ??

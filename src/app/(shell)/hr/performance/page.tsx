@@ -175,6 +175,19 @@ export default function PerformancePage() {
   // gains cycle + status filters — the API already spoke ?cycleId=&status=,
   // the console just never offered the handles.
   const [tab, setTab] = useState('cycles');
+  // v2.283.0: the desk is deep-linkable (?tab=reviews) — the review-cycles
+  // digest's bell action walks the reader straight into the reviews tab.
+  // Same law as the reports page's read: only a KNOWN tab id lands; an
+  // unknown word falls back to the desk's own default (cycles). The
+  // mount-time setTab is the v2.21.0 precedent's own shape (the URL cannot
+  // be read during render, and a lazy initializer would split the server's
+  // render from the client's — a hydration fork for one tab id), so the
+  // cascading-render rule is pointedly silenced HERE, not repo-wide.
+  useEffect(() => {
+    const requested = new URLSearchParams(window.location.search).get('tab');
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one mount-time setTab; the v2.21.0 precedent on the reports desk speaks the same shape
+    if (requested === 'cycles' || requested === 'reviews' || requested === 'goals') setTab(requested);
+  }, []);
   const [filterCycleId, setFilterCycleId] = useState('ALL');
   const [filterStatus, setFilterStatus] = useState('ALL');
 
