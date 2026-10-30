@@ -143,7 +143,9 @@ describe('the gate drill wiring (byte net, v2.295.0)', () => {
     expect(tab).toContain("const GATE_WINDOW_MS: Record<GateRange, number> = {");
     expect(tab).toContain("resource,");
     expect(tab).toContain("eventType: 'PERMISSION_DENIED',");
-    expect(tab).toContain("limit: '8',");
+    // v2.296.0 re-anchor: the limit rides the lib's ONE page-size constant
+    // (the fetch and the walk's arithmetic can never drift apart).
+    expect(tab).toContain('limit: String(GATE_DRILL_PAGE_SIZE),');
     expect(tab).toContain('GATE_WINDOW_MS[range]');
   });
 
@@ -154,14 +156,16 @@ describe('the gate drill wiring (byte net, v2.295.0)', () => {
     expect(tab).toContain('queryFn: () => fetchGateDrill(gateDrill || \'\', gateRange),');
   });
 
-  it('the panel is a named region that speaks the drill voices and the +N footer', () => {
+  it('the panel is a named region that speaks the drill voices and the walk\u2019s live count', () => {
     const tab = readRepo(TAB);
     expect(tab).toContain("id=\"gate-drill-panel\"");
     expect(tab).toContain('role="region"');
     expect(tab).toContain('aria-label={`Gate drill: ${gateDrill}`}');
     expect(tab).toContain('{gateDrillVoice(gateDrill, drilledCount, gateRange)}');
     expect(tab).toContain('{gateDrillEmptyVoice(gateDrill)}');
-    expect(tab).toContain('+{gateDrillQuery.data.total - drillRows.length} earlier in this window.');
+    // v2.296.0 re-anchor: the static "+N earlier" line grew a mouth and a
+    // walk — the panel now speaks the LIVE remaining count.
+    expect(tab).toContain('{gateDrillEarlierVoice(walkRemaining)}');
     expect(tab).toContain('aria-label="Close gate drill"');
   });
 

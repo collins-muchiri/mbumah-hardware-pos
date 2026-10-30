@@ -163,6 +163,80 @@ export function gateDrillEmptyVoice(resource: string): string {
   return `No denial records at ${resource} right now — the ledger moved since the count.`;
 }
 
+/**
+ * The gate drill's page size (v2.296.0) — how many records one step of the
+ * walk brings. One constant so the fetch's limit and the "show earlier"
+ * arithmetic can never drift apart.
+ */
+export const GATE_DRILL_PAGE_SIZE = 8;
+
+/**
+ * The gate drill's row shape (v2.296.0) — moved here from the tab so the
+ * walk's merge helper can be pure and RUNTIME-pinned (the tab imports it,
+ * never copies it — the same one-home law the voices already obey).
+ */
+export interface GateDrillEvent {
+  id: string;
+  eventType: string;
+  severity: string;
+  ipAddress: string | null;
+  action: string | null;
+  createdAt: string;
+  blocked: boolean;
+}
+
+/**
+ * The walk's merge (v2.296.0) — appended earlier rows dedupe by id against
+ * everything already shown. The window slides: a denial minted between two
+ * page fetches pushes a row the older page already delivered, and the walk
+ * must never show the same record twice (nor let a duplicate lie about how
+ * many remain). Pure so the RUNTIME-PIN law holds.
+ */
+export function mergeDrillRows(
+  existing: GateDrillEvent[],
+  incoming: GateDrillEvent[]
+): GateDrillEvent[] {
+  const seen = new Set(existing.map((e) => e.id));
+  return [...existing, ...incoming.filter((e) => !seen.has(e.id))];
+}
+
+/**
+ * The walk's count voice (v2.296.0) — how many earlier records the window
+ * still holds. It replaces the v2.295.0 "+N earlier in this window." static
+ * line: the number is LIVE now, it shrinks with every page the walk shows.
+ */
+export function gateDrillEarlierVoice(remaining: number): string {
+  return `${remaining} earlier ${remaining === 1 ? 'denial' : 'denials'} in this window.`;
+}
+
+/**
+ * The walk's button label (v2.296.0) — names exactly what the click WILL
+ * show (min(page size, remaining)), so the number on the button is a
+ * promise the fetch can keep.
+ */
+export function gateDrillShowEarlierLabel(count: number): string {
+  return `Show ${count} earlier ${count === 1 ? 'denial' : 'denials'}`;
+}
+
+/**
+ * The walk's closing voice (v2.296.0) — spoken when every record the window
+ * holds is on screen; the button retires and the ledger says it is complete.
+ */
+export function gateDrillExhaustedVoice(total: number): string {
+  return `All ${total} ${total === 1 ? 'denial' : 'denials'} in this window ${
+    total === 1 ? 'is' : 'are'
+  } shown.`;
+}
+
+/**
+ * The walk's honest-failure voice (v2.296.0) — the page fetch failed; the
+ * rows already shown keep their places and the panel says so instead of
+ * pretending the click never happened.
+ */
+export function gateDrillErrorVoice(): string {
+  return 'The earlier denials did not load — try again.';
+}
+
 /** The contrast-safe face classes per tone (v2.148.0 law: tokens on their own). */
 export const SECURITY_TONE_CLASSES: Record<SecurityTone, { row: string; icon: string }> = {
   error: {
