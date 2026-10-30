@@ -13,6 +13,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { formatCsvSize } from '@/lib/hr/digest-csv';
+// v2.280.0: the appointment's pure voice — the relative day words + the
+// imminent gate (UTC calendar-day law, the filing voice's own rule).
+import { fireImminent, relativeFireLabel } from '@/lib/hr/schedule-fire-voice';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -58,6 +61,10 @@ interface ScheduleRow {
   dayOfMonth: number | null;
   hourUtc: number;
   active: boolean;
+  // v2.280.0: the card's own appointment — derived server-side by
+  // toScheduleView through nextScheduleRunAt (the ONE derivation); null =
+  // paused (no fire is scheduled until reactivation).
+  nextRunAt: string | null;
   lastRunAt: string | null;
   lastStatus: string | null;
   lastError: string | null;
@@ -269,6 +276,12 @@ export function ReportSchedulesTab({ highlightScheduleId }: { highlightScheduleI
   const [resendInfo, setResendInfo] = useState<Record<string, ScheduleResendInfo>>({});
   const [resendingId, setResendingId] = useState<string | null>(null);
 
+  // v2.280.0: the appointment's "now" — stamped at LOAD (the fetch's own
+  // instant), never read during render (the purity law: no impure call in
+  // the component body). The relative chip ages with the data it describes;
+  // a pause/resume refetch re-stamps it.
+  const [fireNowMs, setFireNowMs] = useState(0);
+
   const storeNameFor = useCallback(
     (id: string | null): string | null => (id ? (stores.find((s) => s.id === id)?.name ?? null) : null),
     [stores],
@@ -283,6 +296,8 @@ export function ReportSchedulesTab({ highlightScheduleId }: { highlightScheduleI
       ]);
       setRows(scheduleRows);
       setStores(storeOptions);
+      // v2.280.0: the stamp rides the load — the view's own instant.
+      setFireNowMs(Date.now());
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load schedules.');
       setRows([]);
@@ -627,6 +642,18 @@ export function ReportSchedulesTab({ highlightScheduleId }: { highlightScheduleI
             Schedule an email digest of any aggregate report — headcount, cost, absence, turnover,
             time to hire or statutory liability. The digest never contains names or raw ids.
           </p>
+          {/* v2.280.0: the empty state's own door — the header button is far
+              from where the eye lands; the CTA sits where the reader is. */}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setOpen(true)}
+            disabled={busy}
+            className="mt-4 gap-1.5"
+            data-testid="schedules-empty-cta"
+          >
+            <PlusCircle className="h-4 w-4" aria-hidden /> Create the first schedule
+          </Button>
         </div>
       ) : (
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -694,7 +721,13 @@ export function ReportSchedulesTab({ highlightScheduleId }: { highlightScheduleI
                     )}
                   </div>
                 </div>
-                <div className="rounded-md border bg-muted/30 px-2.5 py-1.5 text-[11px]">
+                {/* v2.280.0: the fire ledger — the last fire's box keeps its
+                    faces; when the appointment strip renders beneath it the
+                    box drops its own bottom border and rounding (one ledger,
+                    no seam). The strip renders unless the row is active with
+                    no derivable slot (defensive — the server always derives
+                    for active rows). */}
+                <div className={`${(s.active ? s.nextRunAt : true) ? 'rounded-t-md border-b-0' : 'rounded-md'} border bg-muted/30 px-2.5 py-1.5 text-[11px]`}>
                   {s.lastStatus ? (
                     <>
                       <span className="inline-flex items-center gap-1.5">
@@ -782,6 +815,44 @@ export function ReportSchedulesTab({ highlightScheduleId }: { highlightScheduleI
                     </div>
                   ) : null}
                 </div>
+                {/* v2.280.0: the appointment strip — the card speaks its NEXT
+                    fire through the server's ONE derivation
+                    (ScheduleView.nextRunAt ← nextScheduleRunAt). A paused
+                    schedule keeps the honest absence face ("no fire while
+                    paused"); an active row always has a next slot to name.
+                    The dot rides the sky family — the schedule's own colour
+                    (the card icon and the header gradient already live
+                    there): held tone when the fire lands today or tomorrow,
+                    quiet otherwise. Colour never means two things —
+                    emerald/rose/amber stay the delivery verdicts. */}
+                {s.active && s.nextRunAt ? (
+                  <div
+                    data-testid={`schedule-next-fire-${s.id}`}
+                    data-state="scheduled"
+                    className="flex items-center gap-1.5 rounded-b-md border bg-muted/30 px-2.5 py-1.5 text-[11px] transition-colors hover:bg-muted/60"
+                    title="Derived from the cadence and the last fire — manual sends update the status but never move the cadence."
+                  >
+                    <span
+                      aria-hidden
+                      className={`h-1.5 w-1.5 shrink-0 rounded-full ${fireImminent(s.nextRunAt, fireNowMs) ? 'bg-sky-500' : 'bg-sky-300 dark:bg-sky-700'}`}
+                    />
+                    <CalendarSync className="h-3 w-3 shrink-0 text-sky-500" aria-hidden />
+                    <span className="font-medium">Next fire</span>
+                    <span className="text-muted-foreground">{formatDate(s.nextRunAt)}</span>
+                    <span className="ml-auto shrink-0 rounded-full border border-sky-200 bg-sky-50 px-1.5 py-px text-[10px] font-medium text-sky-700 dark:border-sky-900 dark:bg-sky-950/40 dark:text-sky-300">
+                      {relativeFireLabel(s.nextRunAt, fireNowMs)}
+                    </span>
+                  </div>
+                ) : !s.active ? (
+                  <div
+                    data-testid={`schedule-next-fire-${s.id}`}
+                    data-state="paused"
+                    className="flex items-center gap-1.5 rounded-b-md border bg-muted/30 px-2.5 py-1.5 text-[11px] text-muted-foreground"
+                  >
+                    <Pause className="h-3 w-3 shrink-0" aria-hidden />
+                    <span>Paused — no fire while paused.</span>
+                  </div>
+                ) : null}
 
                 {/* v2.25.0: inline delivery-history panel (NotificationLog rows). */}
                 {historyId === s.id ? (
