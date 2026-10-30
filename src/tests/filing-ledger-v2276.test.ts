@@ -176,9 +176,15 @@ describe('the route — one door, both verbs guarded', () => {
 describe('the card wears the receipt — the clock and the ledger, one row', () => {
   it('the receipt chip is emerald and speaks the date; AT hears what the eye sees', () => {
     expect(page).toContain('data-testid={`hr-cal-filed-${o.kind.toLowerCase()}`}');
-    expect(page).toContain('border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300');
+    // v2.277.0 (deliberate evolution): the chip became the amendment DOOR —
+    // the emerald face keeps its palette while gaining the door's
+    // hover/focus-visible affordances, so the className byte grew.
+    expect(page).toContain('border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700');
     expect(page).toContain('filed {formatDate(filed.filedAt)}');
-    expect(page).toContain('title={`Filed ${formatDate(filed.filedAt)}${filed.filedByName ? ` by ${filed.filedByName}` : \'\'}${filed.reference ? ` — ref ${filed.reference}` : \'\'}`}');
+    // v2.277.0 (deliberate evolution): the title gained the amendment's
+    // voice (genuinely amended → "amended <date>") and the door's words
+    // ("open to amend") — the chip's tooltip now speaks its affordance.
+    expect(page).toContain('title={`Filed ${formatDate(filed.filedAt)}${filed.filedByName ? ` by ${filed.filedByName}` : \'\'}${filed.reference ? ` — ref ${filed.reference}` : \'\'}${filingWasAmended(filed) ? ` — amended ${formatDate(filed.updatedAt)}` : \'\'} — open to amend`}');
   });
 
   it('the write door refuses an unopened window and a filed one', () => {
@@ -221,7 +227,11 @@ describe('the Due cell learns the receipt — the month-level roll-up', () => {
     expect(page).toContain('data-testid="hr-due-filed-dot"');
     expect(page).toContain("aria-label=\"All four obligations filed for this month\"");
     expect(page).toContain("const count = monthFiledCount(m.month);");
-    expect(page).toContain('return `${base} — filed: ${count} of 4 obligations`;');
+    // v2.277.0 (deliberate evolution): the composition's third voice — the
+    // title now also counts genuinely amended receipts (the slack law's
+    // monthAmendedCount), so the bare `${count} of 4` return became the
+    // suffixed template.
+    expect(page).toContain('return `${base} — filed: ${count} of 4 obligations${amended > 0 ? ` · ${amended} receipt${amended === 1 ? \'\' : \'s\'} amended` : \'\'}`;');
   });
 
   it('outside the read window the cell keeps quiet — no coverage, no claim', () => {
@@ -230,16 +240,21 @@ describe('the Due cell learns the receipt — the month-level roll-up', () => {
   });
 
   it('the join key is ONE derivation — the page never re-derives the month', () => {
-    // four CALL sites, one derivation: the loader's window seed, the chip's
-    // lookup, the write-door gate, and the dialog opener's key (the import
-    // speaks the name without a call, so it never enters the count)
+    // five CALL sites, one derivation: the loader's window seed, the chip's
+    // lookup, the write-door gate, the dialog opener's key, and — v2.277.0
+    // (deliberate evolution) — the chip's OWN onClick, which derives the
+    // key to open the amend dialog on the receipt the chip wears (the
+    // import speaks the name without a call, so it never enters the count)
     const uses = page.match(/periodMonthForDueDate\(/g) ?? [];
-    expect(uses.length).toBe(4);
+    expect(uses.length).toBe(5);
     // v2.276 build fix (deliberate): the helper lives on the PURE calendar
     // lib (no server imports) — the page's value import of a db-touching
     // module panicked Turbopack (node:async_hooks in a client graph). The
     // row type rides a TYPE-ONLY import, erased at compile time.
-    expect(page).toContain("import { statutoryDueForPeriod, periodMonthForDueDate } from '@/lib/hr/compliance-calendar';");
+    // v2.277.0 (deliberate evolution): the same pure lib grew the amend
+    // desk's helpers — toDatetimeLocalValue (the field's one math) and
+    // filingWasAmended (the slack law) — riding the SAME import.
+    expect(page).toContain("import { statutoryDueForPeriod, periodMonthForDueDate, toDatetimeLocalValue, filingWasAmended } from '@/lib/hr/compliance-calendar';");
     expect(page).toContain("import type { StatutoryFilingRow } from '@/lib/hr/statutory-filing';");
   });
 });

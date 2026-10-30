@@ -286,3 +286,43 @@ export function periodMonthForDueDate(dueDate: string): string | null {
   const periodMonth0 = month0 === 0 ? 11 : month0 - 1;
   return `${periodYear}-${String(periodMonth0 + 1).padStart(2, '0')}`;
 }
+
+/**
+ * The instant a datetime-local input speaks (v2.277.0 "the chip takes its
+ * correction"): the local-offset-subtracted, minute-precision "YYYY-MM-DD
+ * THH:mm" value the receipt dialog's Filed-on field binds. ONE home for the
+ * math both dialog modes speak — the record mode's "now" default and the
+ * amend mode's prefill of the receipt's own filedAt — so a prefill can
+ * never disagree with a default about what an instant looks like in a
+ * field. It lives on the PURE calendar lib (the client-bundle law: the
+ * page may only value-import from pure modules; the ledger lib imports
+ * Prisma and would panic the build). Non-finite instants → '' (the
+ * field's own honest empty — never a guessed "1970-01-01").
+ */
+export function toDatetimeLocalValue(instant: string | Date): string {
+  const at = typeof instant === 'string' ? new Date(instant) : instant;
+  if (!at || Number.isNaN(at.getTime())) return '';
+  const local = new Date(at.getTime() - at.getTimezoneOffset() * 60_000);
+  // slice(0,16) is minute precision — datetime-local speaks minutes, never seconds
+  return local.toISOString().slice(0, 16);
+}
+
+/** The amendment slack: same-write timestamps (created === updated to the
+ * millisecond, or jitter within one second) are the receipt's BIRTH, not a
+ * correction — only a genuinely later update reads as amended. */
+const AMEND_SLACK_MS = 1_000;
+
+/**
+ * Whether a ledger receipt was genuinely amended (v2.277.0): the row's
+ * updatedAt rides meaningfully past its createdAt. The receipt's own
+ * truth, read from the row — never guessed from who touched it or when
+ * the page loaded. Missing timestamps → false (honest absence: a row
+ * that cannot speak its own history is not claimed as corrected).
+ */
+export function filingWasAmended(row: { createdAt?: string | null; updatedAt?: string | null }): boolean {
+  if (!row || typeof row.createdAt !== 'string' || typeof row.updatedAt !== 'string') return false;
+  const created = new Date(row.createdAt).getTime();
+  const updated = new Date(row.updatedAt).getTime();
+  if (Number.isNaN(created) || Number.isNaN(updated)) return false;
+  return updated - created > AMEND_SLACK_MS;
+}
