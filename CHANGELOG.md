@@ -2,6 +2,17 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.297.0] The drill names its deniers
+
+The gate drill listed 10 anonymous denials — severity, label, IP, time — while the feed's Security tab already spoke WHO stood behind each record. Now every drill row carries the actor line (email + role pill + permission pill, the feed's own contract), and the drill's subtitle grows the aggregate a triager asks first: how many DIFFERENT accounts stand behind the denials on screen.
+
+### Added
+- **The ONE parse** (`src/lib/security-feed.ts`): `drillActorFromDetails(details)` — a string gets one guarded JSON.parse, garbage dies quietly, each of the three words (`role`, `permission`, `email`) lands ONLY when it is a non-empty string; everything else stays null — the honest absence, never an invented identity. `distinctActorEmails(actors)` — the distinct count where an anonymous row is an unknown, not a third actor. `gateDrillActorVoice(actors, shown, total)` — the honest aggregate: zero named actors → null (the panel never dresses an all-anonymous ledger in a count); the complete window names itself ("all N denials in this window"); an unfinished walk NEVER claims the unseen ("the first 8 of 10 denials shown"). `DRILL_UNKNOWN_ACTOR` — the anonymous word moves to the one home (the feed's inline copy predates the lib and may migrate later). `GateDrillEvent` grows `details?: unknown` — typed unknown on purpose: the lib's parse is the ONE door.
+- **The drill's actor faces** (`src/app/(shell)/tabs/security-tab.tsx`): ONE parse per shown row (`drillActors`) feeds BOTH the row faces and the aggregate count — never two parses. Each row grows a second line: the actor email (truncate + title), then the role and permission pills in the feed's own anatomy (rounded-full bg-muted; permission in mono); an anonymous row says the vocabulary's one word. The aggregate line rides `data-testid="gate-drill-actor-line"` beneath the drill's subtitle, wearing the drill's own amber family with the Users glyph — the row's main line keeps its original faces untouched.
+
+### Tests
+- src/tests/gate-actors-v297.test.ts (23 pins, BOTH nets): the parse's truth table (object / raw JSON string / garbage / null / foreign / partial identities / the non-throwing law), the distinct law (dedupe, anonymous never inflates, empty → 0), the voice's honesty table (zero silence, singular/plural, the unfinished slice, shown>=total complete, non-finite silence), and the byte wiring (the lib one-home, the interface field, the tab's single-parse compute, the amber line, the row's actor contract, the anonymous word).
+
 ## [2.296.0] The drill learns to walk
 
 The gate drill panel's "+N earlier in this window." static line was dead data — a number that never moved. The events API already paginated; the panel now WALKS: a "Show N earlier denials" button fetches the next page with the same question the panel opened with (the drilled gate, the card's lens) and appends the older records under a dedupe law, while the remaining count goes live.
