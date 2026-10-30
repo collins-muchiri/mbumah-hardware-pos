@@ -28,6 +28,10 @@ async function getSecurityEventsHandler(
   const severity = searchParams.get('severity') || '';
   const ipAddress = searchParams.get('ipAddress') || '';
   const blocked = searchParams.get('blocked') || '';
+  // v2.295.0: the gate drill's handle — the dashboard's Most denied gates
+  // rows drill into exactly the rows that named this resource. Exact-match
+  // (the report groups by the same stored value); empty means no filter.
+  const resource = searchParams.get('resource') || '';
   const dateFrom = searchParams.get('dateFrom') || '';
   const dateTo = searchParams.get('dateTo') || '';
   const storeIdParam = searchParams.get('storeId') || '';
@@ -51,6 +55,8 @@ async function getSecurityEventsHandler(
   }
   if (severity) where.severity = severity;
   if (ipAddress) where.ipAddress = { contains: ipAddress };
+  // v2.295.0: the drill's exact-match resource filter (the gate's own address).
+  if (resource) where.resource = resource;
   if (blocked === 'true') where.blocked = true;
   if (blocked === 'false') where.blocked = false;
 

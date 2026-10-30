@@ -866,9 +866,12 @@ async function createTransactionInner(
             // v2.294.0: the engine counts aloud — the pure lockoutWarning()
             // line (+ the honest attemptsRemaining) rides the 403 body from
             // the third denial in the window; a lock speaks none.
+            // v2.295.0: the response that TRIPS the lock carries its own
+            // line (abuse.lockNotice) — the caller hears the answer.
             ...(abuse.warning
               ? { warning: abuse.warning, attemptsRemaining: abuse.attemptsRemaining }
               : {}),
+            ...(abuse.lockNotice ? { lockNotice: abuse.lockNotice } : {}),
           },
           { status: 403 }
         );
@@ -887,9 +890,11 @@ async function createTransactionInner(
               // Phase-2 POS opens the Manager PIN modal on this flag.
               requiresManagerOverride: true,
               // v2.294.0: the engine counts aloud (see the gt10 arm above).
+              // v2.295.0: the trip response carries its own lock line.
               ...(abuse.warning
                 ? { warning: abuse.warning, attemptsRemaining: abuse.attemptsRemaining }
                 : {}),
+              ...(abuse.lockNotice ? { lockNotice: abuse.lockNotice } : {}),
             },
             { status: 403 }
           );
@@ -1035,9 +1040,11 @@ async function createTransactionInner(
               // Phase-2 POS opens the Manager PIN modal on this flag.
               requiresManagerOverride: true,
               // v2.294.0: the engine counts aloud (see the gt10 arm above).
+              // v2.295.0: the trip response carries its own lock line.
               ...(abuse.warning
                 ? { warning: abuse.warning, attemptsRemaining: abuse.attemptsRemaining }
                 : {}),
+              ...(abuse.lockNotice ? { lockNotice: abuse.lockNotice } : {}),
             },
             { status: 403 }
           );

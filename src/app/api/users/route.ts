@@ -132,9 +132,12 @@ async function createUserHandler(
         // v2.294.0: the engine counts aloud — the pure lockoutWarning()
         // line (+ the honest attemptsRemaining) rides the 403 body from
         // the third denial in the window; a lock speaks none.
+        // v2.295.0: the response that TRIPS the lock carries its own line
+        // (abuse.lockNotice) — the caller hears the answer, not silence.
         ...(abuse.warning
           ? { warning: abuse.warning, attemptsRemaining: abuse.attemptsRemaining }
           : {}),
+        ...(abuse.lockNotice ? { lockNotice: abuse.lockNotice } : {}),
       },
       { status: 403 }
     );

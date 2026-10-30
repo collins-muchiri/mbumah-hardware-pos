@@ -38,6 +38,7 @@ import {
   hasFeaturePermission,
   PERMISSION_DENIED_MESSAGES,
   lockoutWarning,
+  lockNotice,
   type FeaturePermissionKey,
 } from '@/lib/permissions';
 // v2.12.2 (PR B - RBAC): tamper-evident AuditLog entries for denials/overrides.
@@ -1279,11 +1280,24 @@ export interface NoteDeniedOptions {
  * Callers thread both into their denial response so the user hears the
  * engine counting BEFORE the lock lands, not just after.
  *
+ * v2.295.0: the LOCK learns its own line. The trip arm (and only the trip
+ * arm) now returns `lockNotice` — the pure lockNotice(lockedMinutes)
+ * sentence the 403 that TRIPS the lock carries, so the API caller hears
+ * the answer at the moment it matters instead of waiting for the
+ * ACCOUNT_LOCKED notification to surface. The escalation law is untouched:
+ * `warning` stays null on every locked arm; the early arms return
+ * `lockNotice: null` so the field is always present and always honest.
+ *
  * Per-instance limitation: see the block comment at the top of this section.
  */
 export async function noteDeniedAndMaybeLock(
   opts: NoteDeniedOptions
-): Promise<{ locked: boolean; attemptsRemaining: number; warning: string | null }> {
+): Promise<{
+  locked: boolean;
+  attemptsRemaining: number;
+  warning: string | null;
+  lockNotice: string | null;
+}> {
   const { session, request, permission } = opts;
   const now = Date.now();
 
@@ -1294,11 +1308,16 @@ export async function noteDeniedAndMaybeLock(
   denialTimestamps.set(session.userId, stamps);
 
   if (isAccountLocked(session.userId)) {
-    return { locked: true, attemptsRemaining: 0, warning: null };
+    return { locked: true, attemptsRemaining: 0, warning: null, lockNotice: null };
   }
   const attemptsRemaining = Math.max(0, denialThreshold - stamps.length);
   if (stamps.length < denialThreshold) {
-    return { locked: false, attemptsRemaining, warning: lockoutWarning(attemptsRemaining) };
+    return {
+      locked: false,
+      attemptsRemaining,
+      warning: lockoutWarning(attemptsRemaining),
+      lockNotice: null,
+    };
   }
 
   // Trip: lock the account
@@ -1390,5 +1409,8 @@ export async function noteDeniedAndMaybeLock(
     /* ignore logging errors */
   }
 
-  return { locked: true, attemptsRemaining: 0, warning: null };
+  // v2.295.0: the lock speaks its own line — the SAME response that trips
+  // the lock carries lockNotice(lockedMinutes); warning stays null (the
+  // escalation law: a lock warns no more, it ANSWERS).
+  return { locked: true, attemptsRemaining: 0, warning: null, lockNotice: lockNotice(lockedMinutes) };
 }

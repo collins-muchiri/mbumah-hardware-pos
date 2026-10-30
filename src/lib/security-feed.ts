@@ -135,6 +135,34 @@ export function deniedGateReport(
   return { top, namedDenials, unnamedDenials, voice, maxCount };
 }
 
+/**
+ * The gate drill's subtitle (v2.295.0) — the drill panel's own voice.
+ *
+ * v2.295.0 makes the Most denied gates card's rows HANDLES: clicking a gate
+ * opens a drill panel listing exactly the PERMISSION_DENIED records that
+ * named that resource (the events API's new `?resource=` filter, windowed
+ * to the card's lens). This pure composer speaks the panel's one-line
+ * answer — the gate's address, its count in the window, the window itself —
+ * so the drill never shows a bare list without its question.
+ *
+ * Pure so the RUNTIME-PIN law holds: the suite pins the sentences by value
+ * (singular/plural, default window, custom window); the render site just
+ * wires it.
+ */
+export function gateDrillVoice(resource: string, count: number, windowLabel = '24h'): string {
+  return `${count} ${count === 1 ? 'denial' : 'denials'} at ${resource} in the last ${windowLabel}.`;
+}
+
+/**
+ * The gate drill's honest-empty voice (v2.295.0) — spoken when the drill's
+ * fetch returns no rows for a gate the report just counted (the ledger can
+ * move between the report fetch and the drill fetch; the panel says so
+ * instead of rendering a blank box).
+ */
+export function gateDrillEmptyVoice(resource: string): string {
+  return `No denial records at ${resource} right now — the ledger moved since the count.`;
+}
+
 /** The contrast-safe face classes per tone (v2.148.0 law: tokens on their own). */
 export const SECURITY_TONE_CLASSES: Record<SecurityTone, { row: string; icon: string }> = {
   error: {

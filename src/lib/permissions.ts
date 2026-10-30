@@ -164,6 +164,28 @@ export function lockoutWarning(attemptsRemaining: number): string | null {
 }
 
 /**
+ * Pure composer for the LOCK's own line (v2.295.0) — the answer the 403
+ * that TRIPS the lock carries in its body. Until now the fifth denial's
+ * response stayed silent (`warning: null` by the escalation law) and only
+ * the durable ACCOUNT_LOCKED record + the SUPER_ADMIN notification told
+ * the story; the API caller heard nothing at the moment it mattered.
+ * The lock now speaks its own line WITHOUT touching the warning law:
+ * `warning` stays null on every locked arm (the v2.294.0 pins hold
+ * byte-for-byte), and the new `lockNotice` field carries the answer.
+ *
+ * Silence law unchanged in spirit: a non-positive, fractional or non-finite
+ * duration returns null — the engine never guesses its own sentence.
+ */
+export function lockNotice(lockedMinutes: number): string | null {
+  if (!Number.isFinite(lockedMinutes)) return null;
+  if (!Number.isInteger(lockedMinutes)) return null;
+  if (lockedMinutes <= 0) return null;
+  return lockedMinutes === 1
+    ? 'Account locked for 1 minute — too many denied attempts.'
+    : `Account locked for ${lockedMinutes} minutes — too many denied attempts.`;
+}
+
+/**
  * Short role label per permission key - what the phase-2 LockedCard renders
  * ("Requires Branch Manager"). Falls back to a generic admin label.
  */

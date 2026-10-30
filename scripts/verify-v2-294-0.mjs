@@ -48,8 +48,8 @@ console.log('— the engine counts aloud —');
 ok('the composer lives in the pure permissions home', perms.includes('export const LOCKOUT_WARN_AT = 2;') && perms.includes('export function lockoutWarning(attemptsRemaining: number): string | null {'));
 ok('the exact warning lines are pinned bytes', perms.includes("'Warning: 1 attempt remaining before a 15-minute lockout.'") && perms.includes('`Warning: ${attemptsRemaining} attempts remaining before a 15-minute lockout.`'));
 ok('auth.ts imports the composer — no local copy', auth.includes('lockoutWarning,') && !/(?:const|function)\s+lockoutWarning/.test(auth));
-ok('the engine returns { locked, attemptsRemaining, warning }', auth.includes('Promise<{ locked: boolean; attemptsRemaining: number; warning: string | null }>'));
-ok('locked arms speak nothing; the warm window speaks the line', auth.includes('return { locked: true, attemptsRemaining: 0, warning: null };') && auth.includes('return { locked: false, attemptsRemaining, warning: lockoutWarning(attemptsRemaining) };'));
+ok('the engine returns { locked, attemptsRemaining, warning } (+ v2.295.0 lockNotice)', auth.includes('warning: string | null;') && auth.includes('lockNotice: string | null;'));
+ok('locked arms speak nothing; the warm window speaks the line (v2.295.0 bytes)', auth.includes('return { locked: true, attemptsRemaining: 0, warning: null, lockNotice: null };') && auth.includes('warning: lockoutWarning(attemptsRemaining),') && auth.includes('lockNotice: lockNotice(lockedMinutes) };'));
 ok('all five 403 call sites thread the warning', [tx, tx, tx, users, usersId].every((s) => s.includes('const abuse = await noteDeniedAndMaybeLock(') && s.includes('warning: abuse.warning') && s.includes('attemptsRemaining: abuse.attemptsRemaining')));
 ok('transactions carries exactly three sites', (tx.match(/const abuse = await noteDeniedAndMaybeLock\(/g) || []).length === 3);
 
