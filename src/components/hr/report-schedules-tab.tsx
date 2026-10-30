@@ -197,6 +197,17 @@ const LAST_STATUS_STYLES: Record<string, string> = {
   PARTIAL: 'bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-900',
 };
 
+// v2.284.0: the pool reports whose numbers have NO branch dimension. The
+// review models carry no storeId — a branch-scoped schedule for them would
+// wear a branch name over organization-wide counts (a lying document), so
+// the create door rejects the narrowing (INVALID_SCOPE) and the dialog
+// locks the branch pick to the organization.
+const ORG_POOL_REPORTS: ReadonlySet<string> = new Set(['review-cycles']);
+
+function isOrgPoolReport(reportKey: string): boolean {
+  return ORG_POOL_REPORTS.has(reportKey);
+}
+
 // v2.25.0: delivery-row status chip styles (NotificationLog statuses).
 const DELIVERY_STATUS_STYLES: Record<string, string> = {
   SENT: 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900',
@@ -737,6 +748,15 @@ export function ReportSchedulesTab({ highlightScheduleId }: { highlightScheduleI
                     <Badge variant="outline" className={`text-[10px] ${FREQUENCY_STYLES[s.frequency] ?? ''}`}>
                       {s.frequency}
                     </Badge>
+                    {/* v2.284.0: an org-pool schedule wears the mark so the
+                        operator sees the digest speaks the organization
+                        before opening it. Slate outline — the quiet family,
+                        never a second meaning for a colour in use. */}
+                    {isOrgPoolReport(s.reportKey) ? (
+                      <Badge variant="outline" className="text-[10px] bg-slate-100 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800">
+                        Org pool
+                      </Badge>
+                    ) : null}
                     <Badge variant="outline" className={`text-[10px] ${s.active ? LAST_STATUS_STYLES.SENT : LAST_STATUS_STYLES.SKIPPED}`}>
                       {s.active ? 'Active' : 'Paused'}
                     </Badge>
@@ -1169,7 +1189,7 @@ export function ReportSchedulesTab({ highlightScheduleId }: { highlightScheduleI
           <div className="grid gap-3.5">
             <div className="space-y-1.5">
               <Label htmlFor="sched-report">Report</Label>
-              <Select value={form.reportKey} onValueChange={(v) => setForm((f) => ({ ...f, reportKey: v }))}>
+              <Select value={form.reportKey} onValueChange={(v) => setForm((f) => ({ ...f, reportKey: v, ...(isOrgPoolReport(v) ? { storeId: 'all' } : {}) }))}>
                 <SelectTrigger id="sched-report" aria-label="Report to schedule">
                   <SelectValue />
                 </SelectTrigger>
@@ -1185,7 +1205,15 @@ export function ReportSchedulesTab({ highlightScheduleId }: { highlightScheduleI
             {stores.length > 0 && (
               <div className="space-y-1.5">
                 <Label htmlFor="sched-store">Branch scope</Label>
-                <Select value={form.storeId} onValueChange={(v) => setForm((f) => ({ ...f, storeId: v }))}>
+                {/* v2.284.0: an org-pool report LOCKS the branch pick to the
+                    organization — the pool has no branch dimension, so the
+                    only honest scope is all of it. The disabled select and
+                    the swapped hint make the 422 un-hittable from the wire. */}
+                <Select
+                  value={isOrgPoolReport(form.reportKey) ? 'all' : form.storeId}
+                  onValueChange={(v) => setForm((f) => ({ ...f, storeId: v }))}
+                  disabled={isOrgPoolReport(form.reportKey)}
+                >
                   <SelectTrigger id="sched-store" aria-label="Branch scope of the digest">
                     <SelectValue />
                   </SelectTrigger>
@@ -1198,7 +1226,11 @@ export function ReportSchedulesTab({ highlightScheduleId }: { highlightScheduleI
                     ))}
                   </SelectContent>
                 </Select>
-                <p className="text-[11px] text-muted-foreground">Branch-scoped digests contain that branch&apos;s aggregates only.</p>
+                {isOrgPoolReport(form.reportKey) ? (
+                  <p className="text-[11px] text-sky-600 dark:text-sky-400">The review pool is organization-wide — every cycle and review, whatever branch employs them.</p>
+                ) : (
+                  <p className="text-[11px] text-muted-foreground">Branch-scoped digests contain that branch&apos;s aggregates only.</p>
+                )}
               </div>
             )}
             <div className="grid grid-cols-2 gap-3">
