@@ -2,6 +2,21 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.280.0] The schedule keeps its appointment
+
+The Schedules card has always spoken its LAST fire (the status chip and its date); the NEXT fire hid inside the preview dialog — an operator had to open a dialog to learn when the morning digest would land. This round the card keeps its appointment: the row view carries `nextRunAt`, derived server-side through the same pure law the nightly sweep and the preview already obey, and the card wears an appointment strip beneath the last fire's faces — the scheduled face, or the honest paused face when no fire is scheduled.
+
+### Added
+- **The row's own appointment** (`src/lib/hr/report-schedule-service.ts`): `ScheduleView` grows `nextRunAt: string | null` — `toScheduleView` derives it through `nextScheduleRunAt` (the ONE derivation; the card's "next fire" can never disagree with the nightly cron's own math) and keeps the honest absence for a paused schedule (`null` = no fire is scheduled until reactivation, never a guessed instant). The seam feeds every surface that renders a schedule row (the list GET, the create POST, the PATCH) — one derivation, every surface mirrors.
+- **The appointment's pure voice** (`src/lib/hr/schedule-fire-voice.ts`): `relativeFireLabel(iso, now)` — "today" / "tomorrow" / "in N days" / "N days ago" by the UTC-midnight floor law (25 hours ahead is TOMORROW, never "in 2 days"; the filing voice's own calendar arithmetic), malformed instants keeping the honest absence (''); and `fireImminent(iso, now)` — the sky dot's gate, true when the fire lands today or tomorrow. Import-free (the client-bundle law).
+- **The appointment strip** (`src/components/hr/report-schedules-tab.tsx`): the fire box grew a second row — an active schedule wears "Next fire · {date}" with the relative chip ("in 7 days"), a paused schedule wears "Paused — no fire while paused."; both faces carry `data-testid="schedule-next-fire-{id}"` and their `data-state`. The last fire's faces (status chip, error, re-send affordance, health dots) keep their bytes.
+
+### Styled
+- **The sky family, the schedule's own colour**: the imminent dot rides the card icon's and header gradient's family — held `bg-sky-500` when the fire lands today or tomorrow, quiet `bg-sky-300` otherwise; the relative chip wears the sky outline. Colour never means two things — emerald/rose/amber stay the delivery verdicts. The fire ledger mates seamlessly: the top box drops its bottom border and rounding only when the strip renders beneath it. The empty Schedules tab grew its own door — "Create the first schedule" sits where the reader lands, not only in the header.
+
+### Tests
+- `src/tests/schedule-fire-v2280.test.ts` — 26 pins: the relative voice's calendar law (today/tomorrow/yesterday/marches, the 25-hour-is-tomorrow edge, the midnight edges, the honest absence), the imminent gate's truth table, the ONE-derivation agreement (`toScheduleView(row).nextRunAt === nextScheduleRunAt(row).toISOString()` across WEEKLY/DAILY/MONTHLY, the never-fired row still speaking, the paused row's null), the seam's and card's byte pins, and the pure file's own laws (the floor lives once; import-free).
+
 ## [2.279.0] The email hears the clock
 
 v2.278.0 put the receipt counts in the digest's table — but the email still opened on the money, and its faces were type-generic grey. This round the digest email opens on the CLOCK and wears the receipt's own family: the next deadline derived at the fire instant rides the headline first, and a payroll month whose composition is complete is marked emerald in the HTML by the same law that writes "4 of 4 filed" in the CSV.

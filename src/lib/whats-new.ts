@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.280.0',
+    title: 'The schedule keeps its appointment',
+    bullets: [
+      'A report schedule\u2019s card now speaks its NEXT fire — "Next fire \u00b7 6 November 2026 \u00b7 in 7 days" rides beneath the last fire\u2019s verdict, derived by the same law the nightly sweep obeys, so the card and the cron can never disagree.',
+      'A paused schedule keeps the honest absence: "Paused \u2014 no fire while paused." No guessed instant where no fire is scheduled.',
+      'The empty Schedules tab grew its own door \u2014 "Create the first schedule" sits where the reader is, not only in the header.',
+    ],
+  },
+  {
     version: '2.279.0',
     title: 'The email hears the clock',
     bullets: [

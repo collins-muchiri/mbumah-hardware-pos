@@ -143,6 +143,10 @@ export interface ScheduleView {
   dayOfMonth: number | null;
   hourUtc: number;
   active: boolean;
+  // v2.280.0: the row's own appointment — nextScheduleRunAt derived at view
+  // time (the ONE derivation, never a second client math). A paused schedule
+  // keeps the honest absence: null = no fire is scheduled until reactivation.
+  nextRunAt: string | null;
   lastRunAt: string | null;
   lastStatus: string | null;
   lastError: string | null;
@@ -182,6 +186,10 @@ export function toScheduleView(row: {
     dayOfMonth: row.dayOfMonth,
     hourUtc: row.hourUtc,
     active: row.active,
+    // v2.280.0: the appointment rides the SAME pure law the sweep and the
+    // preview use (nextScheduleRunAt) — the card's "next fire" can never
+    // disagree with the nightly cron's own math. Paused → null (honest).
+    nextRunAt: row.active ? nextScheduleRunAt(row).toISOString() : null,
     lastRunAt: row.lastRunAt ? row.lastRunAt.toISOString() : null,
     lastStatus: row.lastStatus,
     lastError: row.lastError,
