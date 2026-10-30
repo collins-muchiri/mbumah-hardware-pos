@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.285.0',
+    title: 'The goals answer their link',
+    bullets: [
+      'The goal-attainment digest\u2019s bell finally walks where the pool lives: the performance desk\u2019s goals tab — the old link landed on the reports desk\u2019s headcount tab silently, because the reports desk has no goals tab to land on.',
+      'The goals tab is deep-linkable: ?status=missed (any case) opens the desk already filtered to missed goals, the filter wears a liftable amber chip, and every clear — chip, button, a fresh pick — retires the URL param with it, so a reload never re-imposes a filter nobody sees.',
+      'An emptied view now names the word it was asked for: "No goal wears missed under the current filters." — on the goals desk and the reviews desk alike.',
+    ],
+  },
+  {
     version: '2.284.0',
     title: 'The pool speaks its true scope',
     bullets: [

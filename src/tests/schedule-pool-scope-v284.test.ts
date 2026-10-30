@@ -129,7 +129,10 @@ describe('the performance desk — ?cycleId= lands as visible, liftable state', 
 
   it('the chip speaks the cycle and lifts filter + param together', () => {
     expect(deskSrc).toContain('const clearDeepLinkedCycle = () => {');
-    expect(deskSrc).toContain("url.searchParams.delete('cycleId');");
+    // v2.285.0: the drop lives in ONE helper — every clear that retires a
+    // deep-linked filter retires the param that asked for it. The generic
+    // clear and the cycle select's own hand retire the param with it.
+    expect(deskSrc).toContain("dropUrlParam('cycleId');");
     expect(deskSrc).toContain('window.history.replaceState(null, \'\', url.toString());');
     expect(deskSrc).toContain("data-testid=\"review-filter-cycle-chip\"");
     expect(deskSrc).toContain("filterCycleId !== 'ALL' ? (");

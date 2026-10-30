@@ -207,13 +207,20 @@ export default function PerformancePage() {
   // v2.284.0: the deep-link filter is a VISIBLE, liftable state. Clearing
   // the chip also drops the ?cycleId= param, so the URL stays truthful —
   // a reload after the lift must not re-impose a filter nobody sees.
-  const clearDeepLinkedCycle = () => {
-    setFilterCycleId('ALL');
+  // v2.285.0: the drop is now ONE helper — every clear that retires a
+  // deep-linked filter retires the param that asked for it. A clear that
+  // leaves its param behind is a partial clear: the next reload would
+  // re-impose a filter nobody sees.
+  const dropUrlParam = (param: string) => {
     const url = new URL(window.location.href);
-    if (url.searchParams.has('cycleId')) {
-      url.searchParams.delete('cycleId');
+    if (url.searchParams.has(param)) {
+      url.searchParams.delete(param);
       window.history.replaceState(null, '', url.toString());
     }
+  };
+  const clearDeepLinkedCycle = () => {
+    setFilterCycleId('ALL');
+    dropUrlParam('cycleId');
   };
 
   // v2.89.0: the Goals tab speaks the same shape — employee + source picks,
@@ -221,6 +228,32 @@ export default function PerformancePage() {
   const [filterGoalEmployee, setFilterGoalEmployee] = useState('ALL');
   const [filterGoalSource, setFilterGoalSource] = useState('ALL');
   const [filterGoalStatus, setFilterGoalStatus] = useState('ALL');
+
+  // v2.285.0: ?status= walks the GOALS tab into a pre-filtered state — the
+  // goal pool's own deep link (the goal-attainment digest's pool now has
+  // its interactive face one bell-ring away). The read is lenient about
+  // case (a human-typed link is still a link) and strict about vocabulary:
+  // only a KNOWN goal status lands; an unknown word falls back to the
+  // desk's own state. A valid status lands the reader ON the goals tab —
+  // an invisible filter is a lie. Same deferred, directive-free shape as
+  // the reads above (clean in BOTH eslint resolutions).
+  useEffect(() => {
+    const status = new URLSearchParams(window.location.search).get('status')?.toUpperCase();
+    if (!status || !(GOAL_STATUSES as readonly string[]).includes(status)) return;
+    const t = window.setTimeout(() => {
+      setTab('goals');
+      setFilterGoalStatus(status);
+    }, 0);
+    return () => window.clearTimeout(t);
+  }, []);
+
+  // v2.285.0: the deep-linked status filter is a VISIBLE, liftable state —
+  // the same law the cycle filter has spoken since v2.284. The chip's ×
+  // lifts BOTH the filter and the ?status= param that asked for it.
+  const clearDeepLinkedGoalStatus = () => {
+    setFilterGoalStatus('ALL');
+    dropUrlParam('status');
+  };
 
   // dialogs
   const [cycleOpen, setCycleOpen] = useState(false);
@@ -445,6 +478,10 @@ export default function PerformancePage() {
   const clearFilters = () => {
     setFilterCycleId('ALL');
     setFilterStatus('ALL');
+    // v2.285.0: the generic clear is one honest clear — it retires the
+    // deep link's ?cycleId= param too, so a reload cannot re-impose a
+    // filter the reader just lifted.
+    dropUrlParam('cycleId');
   };
 
   // v2.89.0: goal counts stay honest to the FULL loaded list (never the
@@ -475,6 +512,9 @@ export default function PerformancePage() {
     setFilterGoalEmployee('ALL');
     setFilterGoalSource('ALL');
     setFilterGoalStatus('ALL');
+    // v2.285.0: the generic clear is one honest clear — the deep link's
+    // ?status= param retires with it (never a partial clear).
+    dropUrlParam('status');
   };
   // v2.89.0: the one-call refresh appears only when something can use it —
   // at least one POS-sourced goal exists in the loaded list.
@@ -967,7 +1007,13 @@ export default function PerformancePage() {
                   {/* ── v2.88.0 filters: cycle select + status chips ── */}
                   <div className="flex flex-wrap items-center gap-2" data-testid="review-filters">
                     <Filter className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
-                    <Select value={filterCycleId} onValueChange={setFilterCycleId}>
+                    {/* v2.285.0: a hand on the select retires the deep link's
+                        ?cycleId= param — the link speaks once; the reader's
+                        own pick owns the URL after it. */}
+                    <Select
+                      value={filterCycleId}
+                      onValueChange={(v) => { dropUrlParam('cycleId'); setFilterCycleId(v); }}
+                    >
                       <SelectTrigger className="h-8 w-52" aria-label="Filter by cycle" data-testid="review-filter-cycle">
                         <SelectValue />
                       </SelectTrigger>
@@ -1033,7 +1079,13 @@ export default function PerformancePage() {
                   </div>
                   {filteredReviews.length === 0 ? (
                     <div className="py-6 text-center">
-                      <p className="text-sm text-muted-foreground">No reviews match the current filters.</p>
+                      {/* v2.285.0: the same honest answer the goals desk
+                          now speaks — name the word the lens asked for. */}
+                      <p className="text-sm text-muted-foreground">
+                        {filterStatus !== 'ALL'
+                          ? `No review wears ${filterStatus.replace(/_/g, ' ').toLowerCase()} under the current filters.`
+                          : 'No reviews match the current filters.'}
+                      </p>
                       <Button size="sm" variant="outline" className="mt-2" onClick={clearFilters}>
                         Clear filters
                       </Button>
@@ -1200,6 +1252,9 @@ export default function PerformancePage() {
                         ))}
                       </SelectContent>
                     </Select>
+                    {/* v2.285.0: a hand on a status chip retires the deep
+                        link's ?status= param — the link speaks once; the
+                        reader's own pick owns the URL. */}
                     {['ALL', ...GOAL_STATUSES].map((s) => {
                       const active = filterGoalStatus === s;
                       const count = s === 'ALL' ? (goals ?? []).length : goalStatusCounts[s] ?? 0;
@@ -1209,7 +1264,7 @@ export default function PerformancePage() {
                           type="button"
                           aria-pressed={active}
                           data-testid={`goal-filter-status-${s}`}
-                          onClick={() => setFilterGoalStatus(s)}
+                          onClick={() => { dropUrlParam('status'); setFilterGoalStatus(s); }}
                           className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors ${
                             active
                               ? GOAL_CHIP_ACTIVE[s]
@@ -1221,6 +1276,24 @@ export default function PerformancePage() {
                         </button>
                       );
                     })}
+                    {/* v2.285.0: an active goal-status filter — however it
+                        arrived — wears its own liftable chip, amber (the
+                        same deep-link family the cycle filter speaks): the
+                        deep link's effect is never invisible state. The ×
+                        lifts BOTH the filter and the ?status= param that
+                        asked for it. */}
+                    {filterGoalStatus !== 'ALL' ? (
+                      <button
+                        type="button"
+                        onClick={clearDeepLinkedGoalStatus}
+                        aria-label={`Goal status ${filterGoalStatus.replace(/_/g, ' ').toLowerCase()} — clear filter`}
+                        data-testid="goal-filter-status-chip"
+                        className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-100 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-950/60"
+                      >
+                        Goal status {filterGoalStatus.replace(/_/g, ' ').toLowerCase()}
+                        <X className="h-3 w-3" aria-hidden />
+                      </button>
+                    ) : null}
                     {goalFiltersActive ? (
                       <Button
                         size="sm"
@@ -1238,7 +1311,14 @@ export default function PerformancePage() {
                   </div>
                   {filteredGoals.length === 0 ? (
                     <div className="py-6 text-center">
-                      <p className="text-sm text-muted-foreground">No goals match the current filters.</p>
+                      {/* v2.285.0: a pressed house that empties the view
+                          speaks the word it was asked for — the honest
+                          answer, not a shrug (the PO lens-empty law). */}
+                      <p className="text-sm text-muted-foreground">
+                        {filterGoalStatus !== 'ALL'
+                          ? `No goal wears ${filterGoalStatus.replace(/_/g, ' ').toLowerCase()} under the current filters.`
+                          : 'No goals match the current filters.'}
+                      </p>
                       <Button size="sm" variant="outline" className="mt-2" onClick={clearGoalFilters}>
                         Clear filters
                       </Button>

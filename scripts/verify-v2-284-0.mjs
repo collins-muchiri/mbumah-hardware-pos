@@ -47,7 +47,7 @@ ok('the card wears the slate Org pool chip', tab.includes('{isOrgPoolReport(s.re
 
 console.log('— the walk (?cycleId= + the liftable chip) —');
 ok('the deep-link read is deferred, directive-free', desk.includes("const cycleId = new URLSearchParams(window.location.search).get('cycleId');") && desk.includes('const t = window.setTimeout(() => setFilterCycleId(cycleId), 0);') && !desk.includes('eslint-disable'));
-ok('the chip lifts filter + param together', desk.includes('const clearDeepLinkedCycle = () => {') && desk.includes("url.searchParams.delete('cycleId');") && desk.includes("window.history.replaceState(null, '', url.toString());"));
+ok('the chip lifts filter + param together', desk.includes('const clearDeepLinkedCycle = () => {') && desk.includes("dropUrlParam('cycleId');") && desk.includes("window.history.replaceState(null, '', url.toString());"));
 ok('the chip renders only when a cycle filter is active', desk.includes("filterCycleId !== 'ALL' ? (") && desk.includes('data-testid="review-filter-cycle-chip"'));
 ok('the chip wears amber (the filters\u2019 own waiting family)', desk.slice(desk.indexOf('review-filter-cycle-chip'), desk.indexOf('review-filter-cycle-chip') + 400).includes('border-amber-200 bg-amber-50'));
 
@@ -55,7 +55,7 @@ console.log('— the tests and the truth bytes —');
 ok('the suite pins the throw', test.includes("expect(err.code).toBe('INVALID_SCOPE');"));
 ok('the suite pins the acceptance', test.includes('expect(a.storeId).toBeNull();'));
 ok('the suite pins the branch door stays open', test.includes("validateScheduleInput({ ...baseInput, reportKey: 'headcount', storeId: 'store-juja' })"));
-ok('the suite pins the URL-truthful clear', test.includes("url.searchParams.delete('cycleId');"));
+ok('the suite pins the URL-truthful clear', test.includes("dropUrlParam('cycleId');"));
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
