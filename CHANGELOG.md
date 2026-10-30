@@ -2,6 +2,23 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.287.0] The bell lights its landing tab
+
+The beacon family's newest member: the reports desk itself. A digest bell has always landed on a reports tab (headcount, cost, absence, turnover, time to hire, statutory, leave) — but from across the desk the landing was invisible until you happened to sit on the right tab. This round the desk wears its unread bells: the trigger of a tab an UNREAD digest bell walks to wears the pulsing amber dot while you are elsewhere. And the schedule vocabulary moves to one client-safe seam, so the desk reads the same map the builder writes — one vocabulary, never a copy.
+
+### Added
+- **The unread-bell beacons** (`src/app/(shell)/hr/reports/page.tsx`): every digest-carrying trigger (Headcount, Employment cost, Absence, Leave balances, Turnover, Time to hire, Statutory, Schedules) wears the amber beacon dot while an unread, undismissed digest bell walks to it and the visitor sits on another tab (`tab !== X && digestBeacons.has(X)`); the beacon never speaks on the tab you are already reading. The schedules trigger also lights while a `?schedule=` highlight waits on its face (the v2.27.0 deep link without its tab word is still a landing).
+- **The client-safe seam** (`src/lib/hr/report-desk-links.ts`): `HR_SCHEDULE_REPORTS`, `HrScheduleReportKey`, `REPORT_KEY_TO_TAB`, `REPORT_KEY_TO_URL` move out of report-schedule-service into a PURE module both the server (builder) and the client (desk) can import — the service re-exports everything at the ONE seam, so every existing importer keeps its exact path and the compiler still forces every landing.
+- **The walk parser** (`src/lib/hr/report-desk-links.ts`): `digestWalkTab(actionUrl)` — a walk lights a tab only when the pathname is exactly `/hr/reports` and a non-empty `?tab=` names it. Performance-pool bells walk `/hr/performance`: not this desk, never this desk's beacons. A bare `/hr/reports` names no tab (the desk's default face is the page's knowledge — the lib refuses to guess).
+- **The beacon set** (`src/lib/hr/report-desk-links.ts`): `digestBeaconTabs(items, readIds, dismissedIds)` — unread and undismissed bells only (the shared external store the notification center writes, so a bell read in the feed goes dark on the desk in the same tick), duplicate bells on one tab collapse into one entry, a drifted tab word is carried verbatim for the page to intersect with its own known tabs.
+- **The feed hand** (`src/hooks/use-notification-count.ts`): the badge hook now hands its active items to consumers (`activeItems`) — the desk reads the SAME query instance as the badge (same cache key, zero extra network).
+
+### Styled
+- **The pulse** (`src/app/(shell)/hr/reports/page.tsx`): a bell is waiting for a reader, so its dot PULSES (`animate-pulse`) — the performance desk's v2.286.0 filter beacons sit still, and the two meanings stay distinguishable at a glance. Same amber family (`bg-amber-500 dark:bg-amber-400`), same `aria-hidden` quiet: the bell feed and the badge remain the accessible surface for unreadness — the dot is desk-level wayfinding for the eye.
+
+### Fixed
+- The schedule vocabulary no longer lives behind a server-only import: a client desk can read the same map the builder writes without pulling the database into the browser bundle (the seam the beacons needed; the re-export keeps every existing import path byte-identical).
+
 ## [2.286.0] The word names its pool
 
 The symmetric-face round: v2.285.0 taught the goals tab to answer `?status=`; this round the REVIEWS tab answers the same word. The two vocabularies are disjoint (OPEN/ACHIEVED/MISSED/CLOSED vs DRAFT/SUBMITTED/ACKNOWLEDGED/CALIBRATED), so the word itself names its pool — a bare `?status=submitted` routes to the reviews tab, a bare `?status=missed` still routes to the goals tab. And the pool digest's bell learns where the mass sits: the digest's OWN by-status table names the dominant status and the walk carries it.

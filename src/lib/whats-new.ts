@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.287.0',
+    title: 'The bell lights its landing tab',
+    bullets: [
+      'The reports desk now wears its unread bells: the tab a digest bell will land on (headcount, cost, absence, leave, turnover, time to hire, statutory) shows a gentle pulsing amber dot while you are somewhere else — you can see where the news lives without opening the bell feed.',
+      'The dot goes dark the moment you read the bell in the notification center, and never shows on the tab you are already reading — it answers "where is it?", not "have I read it?".',
+      'The schedules tab lights the same way when a schedule link is waiting on it, and the pulses are deliberately distinct from the steady dots that mark a waiting filter on the HR performance desk.',
+    ],
+  },
+  {
     version: '2.286.0',
     title: 'The word names its pool',
     bullets: [

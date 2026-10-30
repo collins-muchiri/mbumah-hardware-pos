@@ -28,6 +28,10 @@ import { join } from 'node:path';
 import { describe, it, expect } from 'vitest';
 import { goalAttainmentPct, GOAL_STATUSES } from '@/lib/hr/goal-service';
 import { HR_SCHEDULE_REPORTS, REPORT_LABELS } from '@/lib/hr/report-schedule-service';
+// v2.287.0 re-anchor: the tab landings moved to the client-safe seam
+// (report-desk-links.ts — the ONE vocabulary, re-exported by the service),
+// so the slug pin reads the map at its new home.
+import { REPORT_KEY_TO_TAB } from '@/lib/hr/report-desk-links';
 
 const read = (p: string) => readFileSync(join(process.cwd(), p), 'utf8');
 
@@ -116,8 +120,8 @@ describe('the goal-attainment digest case — the ONE seam', () => {
     expect(svcSrc).toContain("'goal-attainment': 'Goal attainment',");
   });
 
-  it('the CSV filename map carries the goals slug', () => {
-    expect(svcSrc).toContain("'goal-attainment': 'goals',");
+  it('the tab map carries the goals slug (v2.287.0 re-anchor: read at the seam\u2019s new home)', () => {
+    expect(REPORT_KEY_TO_TAB['goal-attainment']).toBe('goals');
   });
 
   it('the case aggregates through the goals\u2019 own report fn with the fire instant', () => {

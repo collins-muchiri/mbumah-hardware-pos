@@ -51,19 +51,19 @@ import {
 import { GOAL_STATUSES, goalAttainmentReport } from './goal-service';
 import { REVIEW_STATUSES, reviewCycleReport } from './performance-service';
 import type { AuthSession } from '@/lib/auth';
+// v2.287.0: the schedule vocabulary's client-safe half moved to
+// report-desk-links.ts (pure — a client component can never import THIS
+// file, it pulls db). The ONE seam preserved: everything re-exports from
+// here, so every existing importer keeps its exact import path.
+import {
+  HR_SCHEDULE_REPORTS,
+  REPORT_KEY_TO_TAB,
+  REPORT_KEY_TO_URL,
+  type HrScheduleReportKey,
+} from './report-desk-links';
 
-export const HR_SCHEDULE_REPORTS = [
-  'headcount',
-  'employment-cost',
-  'absence',
-  'turnover',
-  'time-to-hire',
-  'statutory-liability',
-  'leave-utilisation',
-  'goal-attainment',
-  'review-cycles',
-] as const;
-export type HrScheduleReportKey = (typeof HR_SCHEDULE_REPORTS)[number];
+export { HR_SCHEDULE_REPORTS, REPORT_KEY_TO_TAB, REPORT_KEY_TO_URL } from './report-desk-links';
+export type { HrScheduleReportKey } from './report-desk-links';
 
 export const HR_SCHEDULE_FREQUENCIES = ['DAILY', 'WEEKLY', 'MONTHLY'] as const;
 export type HrScheduleFrequency = (typeof HR_SCHEDULE_FREQUENCIES)[number];
@@ -818,35 +818,10 @@ export interface ScheduleSweepResult {
   results: Array<{ id: string; reportKey: string; status: 'SENT' | 'PARTIAL' | 'FAILED' | 'SKIPPED'; error?: string; recipients: number; delivered?: number; retry?: { attempted: boolean; recovered: boolean; recipients: number } }>;
 }
 
-// v2.24.0: schedule report keys -> /hr/reports deep-link tab ids (the UI
-// shortens 'employment-cost' to 'cost' and 'time-to-hire' to 'tth').
-export const REPORT_KEY_TO_TAB: Record<HrScheduleReportKey, string> = {
-  headcount: 'headcount',
-  'employment-cost': 'cost',
-  absence: 'absence',
-  turnover: 'turnover',
-  'time-to-hire': 'tth',
-  'statutory-liability': 'statutory',
-  'leave-utilisation': 'leave',
-  'goal-attainment': 'goals',
-  // v2.283.0: the review pool's interactive home is the PERFORMANCE desk,
-  // not the reports desk — but the desk itself is the honest target (its
-  // ?tab= read lands below). The builder consults REPORT_KEY_TO_URL FIRST.
-  'review-cycles': 'reviews',
-};
-
-// v2.283.0: full-URL deep-link overrides, consulted before REPORT_KEY_TO_TAB.
-// The cycles' desk lives at /hr/performance; the page now reads ?tab= so the
-// link walks the reader into the reviews tab, not just the desk.
-export const REPORT_KEY_TO_URL: Partial<Record<HrScheduleReportKey, string>> = {
-  'review-cycles': '/hr/performance?tab=reviews',
-  // v2.285.0: the goal pool's interactive home is the performance desk's
-  // goals tab. The reports desk has NO 'goals' tab, so the TAB fallback
-  // (/hr/reports?tab=goals) fell through the desk's known-tab read and
-  // landed on headcount silently — a bell that walks nowhere. The override
-  // is the honest landing: the bell walks where the pool actually lives.
-  'goal-attainment': '/hr/performance?tab=goals',
-};
+// v2.287.0: REPORT_KEY_TO_TAB and REPORT_KEY_TO_URL now live in
+// ./report-desk-links (the client-safe seam) and are re-exported above —
+// the desk's unread-bell beacons read the same map the builder writes,
+// one vocabulary, never a copy.
 
 // v2.286.0: the two performance pools are the only desks that speak a status
 // vocabulary, so they are the only bells whose walk can carry a status word.
