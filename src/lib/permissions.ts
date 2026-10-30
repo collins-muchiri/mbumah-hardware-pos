@@ -134,6 +134,35 @@ export const PERMISSION_DENIED_MESSAGES: Record<string, string> = {
   'settings.roles.manage': 'Only a Super Admin can create users or change roles.',
 };
 
+// v2.294.0 - the abuse engine's spoken warning. The lockout itself lives in
+// src/lib/auth.ts (noteDeniedAndMaybeLock, server-side); the WORDS the 403
+// body speaks live here, in the pure client-importable home, so the copy is
+// pinned by value in the suite and every call site speaks the same line.
+//
+// Escalation law: the warning first appears at the THIRD denial in the
+// sliding window (2 attempts remaining) and repeats at the fourth (1
+// remaining); the fifth denial locks the account, and a lock speaks no
+// warning (the ACCOUNT_LOCKED record + notification already say it).
+// attemptsRemaining <= 0 (locked / window full) and > WARN_AT (window too
+// cold to shout) both stay silent - null, never guessed.
+
+/** Warn from the third denial in the window (2 attempts remaining). */
+export const LOCKOUT_WARN_AT = 2;
+
+/**
+ * Pure composer for the failed-attempt warning line carried in a 403 body.
+ * Returns null when the engine should stay silent (window cold, window
+ * full, or already locked). Deterministic on its integer input so the
+ * suite can pin the exact bytes the user reads.
+ */
+export function lockoutWarning(attemptsRemaining: number): string | null {
+  if (!Number.isInteger(attemptsRemaining)) return null;
+  if (attemptsRemaining <= 0 || attemptsRemaining > LOCKOUT_WARN_AT) return null;
+  return attemptsRemaining === 1
+    ? 'Warning: 1 attempt remaining before a 15-minute lockout.'
+    : `Warning: ${attemptsRemaining} attempts remaining before a 15-minute lockout.`;
+}
+
 /**
  * Short role label per permission key - what the phase-2 LockedCard renders
  * ("Requires Branch Manager"). Falls back to a generic admin label.

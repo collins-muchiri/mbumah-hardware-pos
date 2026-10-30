@@ -37,6 +37,7 @@ import { LogSeverity, LogComponent, hasPermission, type UserRole } from '@/lib/t
 import {
   hasFeaturePermission,
   PERMISSION_DENIED_MESSAGES,
+  lockoutWarning,
   type FeaturePermissionKey,
 } from '@/lib/permissions';
 // v2.12.2 (PR B - RBAC): tamper-evident AuditLog entries for denials/overrides.
@@ -1271,12 +1272,18 @@ export interface NoteDeniedOptions {
  *     (type WARNING / category SECURITY / priority URGENT - see the
  *     Notification model's documented type set)
  *
- * Returns { locked } so callers can tailor their response copy if they wish.
+ * v2.294.0: the return grew a MOUTH. `attemptsRemaining` is the honest
+ * window arithmetic (threshold minus the denials just recorded; 0 once
+ * locked), and `warning` is the pure lockoutWarning() line the 403 body
+ * may speak (from the third denial in the window; a lock speaks none).
+ * Callers thread both into their denial response so the user hears the
+ * engine counting BEFORE the lock lands, not just after.
+ *
  * Per-instance limitation: see the block comment at the top of this section.
  */
 export async function noteDeniedAndMaybeLock(
   opts: NoteDeniedOptions
-): Promise<{ locked: boolean }> {
+): Promise<{ locked: boolean; attemptsRemaining: number; warning: string | null }> {
   const { session, request, permission } = opts;
   const now = Date.now();
 
@@ -1286,8 +1293,12 @@ export async function noteDeniedAndMaybeLock(
   stamps.push(now);
   denialTimestamps.set(session.userId, stamps);
 
-  if (stamps.length < denialThreshold || isAccountLocked(session.userId)) {
-    return { locked: isAccountLocked(session.userId) };
+  if (isAccountLocked(session.userId)) {
+    return { locked: true, attemptsRemaining: 0, warning: null };
+  }
+  const attemptsRemaining = Math.max(0, denialThreshold - stamps.length);
+  if (stamps.length < denialThreshold) {
+    return { locked: false, attemptsRemaining, warning: lockoutWarning(attemptsRemaining) };
   }
 
   // Trip: lock the account
@@ -1379,5 +1390,5 @@ export async function noteDeniedAndMaybeLock(
     /* ignore logging errors */
   }
 
-  return { locked: true };
+  return { locked: true, attemptsRemaining: 0, warning: null };
 }

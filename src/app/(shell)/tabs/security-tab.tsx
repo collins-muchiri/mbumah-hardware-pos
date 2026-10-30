@@ -64,8 +64,18 @@ interface SecurityDashboardData {
   }[];
   timeline: { hour: string; count: number }[];
   // v2.293.0: the gate-heat aggregate — the lib's own report shape.
-  deniedGates: ReturnType<typeof deniedGateReport>;
+  // v2.294.0: the report names the window it answered for.
+  deniedGates: ReturnType<typeof deniedGateReport> & { window: string };
 }
+
+// v2.294.0: the denied-gates card's time lens. One type, three values —
+// the route owns the whitelist; this face only ever sends a named range.
+type GateRange = '24h' | '7d' | '30d';
+const GATE_RANGES: { value: GateRange; label: string }[] = [
+  { value: '24h', label: '24h' },
+  { value: '7d', label: '7 days' },
+  { value: '30d', label: '30 days' },
+];
 
 // Color mappings
 
@@ -98,14 +108,14 @@ const EVENT_TYPE_COLORS: Record<string, string> = {
 
 // API helpers
 
-async function fetchDashboard(): Promise<SecurityDashboardData> {
+async function fetchDashboard(gateRange: GateRange = '24h'): Promise<SecurityDashboardData> {
   const token = typeof window !== 'undefined' ? localStorage.getItem('mbt_token') : null;
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 
-  const res = await fetch('/api/security/dashboard', { headers, credentials: 'same-origin' });
+  const res = await fetch(`/api/security/dashboard?range=${gateRange}`, { headers, credentials: 'same-origin' });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || `Failed to fetch dashboard (${res.status})`);
@@ -126,7 +136,8 @@ async function fetchDashboard(): Promise<SecurityDashboardData> {
     recentCritical: Array.isArray(data?.recentCritical) ? data.recentCritical : [],
     timeline: Array.isArray(data?.timeline) ? data.timeline : [],
     // v2.293.0: the gate-heat aggregate (already voiced by the lib).
-    deniedGates: data?.deniedGates ?? { top: [], namedDenials: 0, unnamedDenials: 0, voice: '', maxCount: 0 },
+    // v2.294.0: the wire names its window; the face reads it back.
+    deniedGates: data?.deniedGates ?? { top: [], namedDenials: 0, unnamedDenials: 0, voice: '', maxCount: 0, window: gateRange },
   };
 }
 
@@ -262,6 +273,8 @@ export default function SecurityTab() {
   const [filterEventType, setFilterEventType] = useState('all');
   const [filterSeverity, setFilterSeverity] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
+  // v2.294.0: the Most denied gates card's time lens (24h / 7d / 30d).
+  const [gateRange, setGateRange] = useState<GateRange>('24h');
 
   // Dashboard data
   const {
@@ -270,8 +283,8 @@ export default function SecurityTab() {
     refetch: refetchDashboard,
     isRefetching: dashboardRefetching,
   } = useQuery({
-    queryKey: ['security-dashboard'],
-    queryFn: fetchDashboard,
+    queryKey: ['security-dashboard', gateRange],
+    queryFn: () => fetchDashboard(gateRange),
     refetchInterval: 30000,
   });
 
@@ -880,16 +893,47 @@ export default function SecurityTab() {
 
       {/* v2.293.0: Most Denied Gates — the gate-heat report. The denial
           ledger (v2.292.0) made every refusal land on the record; this card
-          reads the ledger back: which gates said no most in the last 24h.
-          The bars ride amber-600 (the denial tone's graphics-safe family on
-          the white card, per the v2.204.0 3:1 law) and the subtitle is the
-          lib's own voice line — it always adds up, named and unnamed. */}
+          reads the ledger back: which gates said no most. The bars ride
+          amber-600 (the denial tone's graphics-safe family on the white
+          card, per the v2.204.0 3:1 law) and the subtitle is the lib's own
+          voice line — it always adds up, named and unnamed.
+          v2.294.0: the card breathes over time — a pressed-chip lens
+          (24h / 7d / 30d) refetches the same report over a wider window;
+          the pressed face is the denial tone's own amber family, quiet
+          until asked. */}
       <Card>
         <CardHeader className="pb-2 pt-4 px-4">
-          <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <Ban className="h-4 w-4 text-amber-600" />
-            Most denied gates
-          </CardTitle>
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <Ban className="h-4 w-4 text-amber-600" />
+              Most denied gates
+            </CardTitle>
+            {/* the time lens — segmented chips, one pressed at a time */}
+            <div
+              className="flex items-center gap-1"
+              role="group"
+              aria-label="Denied gates time window"
+            >
+              {GATE_RANGES.map((r) => {
+                const pressed = gateRange === r.value;
+                return (
+                  <button
+                    key={r.value}
+                    type="button"
+                    aria-pressed={pressed}
+                    onClick={() => setGateRange(r.value)}
+                    className={`rounded-full border px-2.5 py-0.5 text-xs transition-colors ${
+                      pressed
+                        ? 'bg-amber-500/10 text-amber-700 border-amber-500/30 font-medium'
+                        : 'bg-transparent text-muted-foreground border-border hover:bg-muted/60'
+                    }`}
+                  >
+                    {r.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
           {dashboard?.deniedGates?.voice ? (
             <p className="text-xs text-muted-foreground pt-1">{dashboard.deniedGates.voice}</p>
           ) : null}
@@ -899,7 +943,7 @@ export default function SecurityTab() {
             <div className="flex items-center justify-center h-24 text-muted-foreground text-sm">
               <div className="flex flex-col items-center gap-2">
                 <Shield className="h-5 w-5 text-green-500 opacity-50" />
-                <span>No denials in the last 24h — every gate said yes.</span>
+                <span>No denials in the last {gateRange} — every gate said yes.</span>
               </div>
             </div>
           ) : (
@@ -915,7 +959,7 @@ export default function SecurityTab() {
                     </span>
                     <div className="flex-1 h-2.5 rounded-full bg-muted overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-amber-600"
+                        className="h-full rounded-full bg-amber-600 transition-all duration-500"
                         style={{ width: `${Math.max(width, 6)}%` }}
                         aria-hidden="true"
                       />

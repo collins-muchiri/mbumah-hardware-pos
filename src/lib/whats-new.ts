@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.294.0',
+    title: 'The gates learn their window',
+    bullets: [
+      'The Most denied gates card now breathes over time: pick 24h, 7 days or 30 days and the report refetches over that window — the bars ease to their new heights.',
+      'The card’s subtitle follows the lens: it always says which window it is answering for, and still adds up when a denial never named its gate.',
+      'Permission denials now count aloud: from the third attempt in ten minutes the 403 answer carries “Warning: 2 attempts remaining before a 15-minute lockout” — you hear the engine before it locks, not just after.',
+    ],
+  },
+  {
     version: '2.293.0',
     title: 'The dashboard speaks the feed\u2019s language',
     bullets: [
