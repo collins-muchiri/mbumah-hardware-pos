@@ -34,6 +34,8 @@ import {
   Landmark,
   History,
   Loader2,
+  PenLine,
+  CheckCircle2,
   ChevronRight,
   FileSpreadsheet,
   Printer,
@@ -49,7 +51,7 @@ import {
 } from 'lucide-react';
 import { apiGet, apiSend, ErrorNote, StatusBadge, formatDate, formatKes } from '@/components/hr/self-service-ui';
 import { buildConsentTimelineCsv, consentTimelineCsvFilename, type ConsentTimelineCsvRow } from '@/lib/hr/consent-timeline-csv';
-import { statutoryDueForPeriod, periodMonthForDueDate } from '@/lib/hr/compliance-calendar';
+import { statutoryDueForPeriod, periodMonthForDueDate, toDatetimeLocalValue, filingWasAmended } from '@/lib/hr/compliance-calendar';
 import type { StatutoryFilingRow } from '@/lib/hr/statutory-filing';
 import { COL_WIDTHS_STORAGE_KEY, EDGE_BAND, loadColWidths, nudgeColWidth } from '@/lib/hr/column-resize';
 import { describeSweepOutcome } from '@/lib/hr/sweep-outcome';
@@ -542,7 +544,17 @@ export default function HrReportsPage() {
   const [filingsCoverage, setFilingsCoverage] = useState<{ from: string; to: string } | null>(null);
   const [filingFailed, setFilingFailed] = useState(false);
   // the receipt dialog — parameterized by the obligation being filed
-  const [filingTarget, setFilingTarget] = useState<{ kind: string; label: string; periodMonth: string; periodLabel: string } | null>(null);
+  // v2.277.0: the target carries its mode — record (the window's door) or
+  // amend (the chip's door). The amend mode prefills the receipt's own
+  // truth and the strip speaks the original recording.
+  const [filingTarget, setFilingTarget] = useState<{
+    kind: string; label: string; periodMonth: string; periodLabel: string;
+    amend: boolean; original: { filedAt: string; filedByName: string | null } | null;
+  } | null>(null);
+  // the correction that would otherwise be silent: a NEW receipt announces
+  // itself (the chip appears), an AMENDED one changes nothing the eye can
+  // see — this note speaks it until the next correction replaces it.
+  const [filingAmendedNote, setFilingAmendedNote] = useState<string | null>(null);
   const [filingFiledAt, setFilingFiledAt] = useState('');
   const [filingRef, setFilingRef] = useState('');
   const [filingNote, setFilingNote] = useState('');
@@ -751,15 +763,35 @@ export default function HrReportsPage() {
     ['PAYE', 'NSSF', 'SHIF', 'AHL'].filter((k) => filings.some((f) => f.kind === k && f.periodMonth === periodMonth)).length;
   const monthInCoverage = (periodMonth: string): boolean =>
     Boolean(filingsCoverage && periodMonth >= filingsCoverage.from && periodMonth <= filingsCoverage.to);
+  /** v2.277.0: how many of the month's receipts were genuinely amended —
+   * the Due cell's title counts corrections the same way it counts receipts. */
+  const monthAmendedCount = (periodMonth: string): number =>
+    ['PAYE', 'NSSF', 'SHIF', 'AHL'].filter((k) => {
+      const f = filingFor(k, periodMonth);
+      return f ? filingWasAmended(f) : false;
+    }).length;
 
-  /** Open the receipt dialog for one obligation — the datetime defaults to now. */
-  const openFilingDialog = (o: CalendarDto['obligations'][number], periodMonth: string) => {
-    const nowLocal = new Date();
-    nowLocal.setMinutes(nowLocal.getMinutes() - nowLocal.getTimezoneOffset());
-    setFilingTarget({ kind: o.kind, label: o.label, periodMonth, periodLabel: o.periodLabel });
-    setFilingFiledAt(nowLocal.toISOString().slice(0, 16));
-    setFilingRef('');
-    setFilingNote('');
+  /** Open the receipt dialog for one obligation. Without a receipt, the
+   * RECORD mode opens — the datetime defaults to now. With the receipt's
+   * own row (v2.277.0, the chip's door), the AMEND mode opens — every
+   * field prefills from what the ledger already holds, so a correction
+   * starts from the truth it corrects, never from a blank. */
+  const openFilingDialog = (
+    o: CalendarDto['obligations'][number],
+    periodMonth: string,
+    existing?: StatutoryFilingRow | null,
+  ) => {
+    setFilingTarget({
+      kind: o.kind,
+      label: o.label,
+      periodMonth,
+      periodLabel: o.periodLabel,
+      amend: Boolean(existing),
+      original: existing ? { filedAt: existing.filedAt, filedByName: existing.filedByName } : null,
+    });
+    setFilingFiledAt(existing ? toDatetimeLocalValue(existing.filedAt) : toDatetimeLocalValue(new Date()));
+    setFilingRef(existing?.reference ?? '');
+    setFilingNote(existing?.note ?? '');
     setFilingError('');
   };
 
@@ -768,13 +800,19 @@ export default function HrReportsPage() {
     setFilingBusy(true);
     setFilingError('');
     try {
-      await apiSend('/api/hr/reports/compliance-filing', 'POST', {
+      // apiSend UNWRAPS the envelope — the payload IS { filing, amended }
+      const res = await apiSend<{ filing: { kind: string }; amended: boolean }>('/api/hr/reports/compliance-filing', 'POST', {
         kind: filingTarget.kind,
         periodMonth: filingTarget.periodMonth,
         filedAt: new Date(filingFiledAt).toISOString(),
         reference: filingRef || null,
         note: filingNote || null,
       });
+      if (res?.amended) {
+        // the silent difference gets its words: the chip looks the same
+        // after a correction — the note is the only face that speaks it
+        setFilingAmendedNote(`${filingTarget.label} — ${filingTarget.periodLabel}`);
+      }
       setFilingTarget(null);
       await loadCalendar(); // the receipt joins the map — the chip and the dot speak it
     } catch (err) {
@@ -2226,19 +2264,30 @@ export default function HrReportsPage() {
                                   emerald 'good' family: on THIS card emerald means
                                   "the ledger holds the receipt", and the words ride
                                   the chip so AT hears what the eye sees. It never
-                                  borrows the clock's rose/amber/sky. */}
+                                  borrows the clock's rose/amber/sky.
+                                  v2.277.0: the chip IS the amendment door — the clock
+                                  governs the FIRST record (the window's law holds);
+                                  the LEDGER governs corrections (a receipt that
+                                  exists can be amended whenever the filer needs).
+                                  A genuinely amended receipt says so in its title. */}
                               {(() => {
                                 const periodMonth = periodMonthForDueDate(o.dueDate);
                                 const filed = filingFor(o.kind, periodMonth);
                                 return filed ? (
-                                  <span
+                                  <button
+                                    type="button"
                                     data-testid={`hr-cal-filed-${o.kind.toLowerCase()}`}
-                                    title={`Filed ${formatDate(filed.filedAt)}${filed.filedByName ? ` by ${filed.filedByName}` : ''}${filed.reference ? ` — ref ${filed.reference}` : ''}`}
-                                    className="inline-flex shrink-0 items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300"
+                                    aria-haspopup="dialog"
+                                    title={`Filed ${formatDate(filed.filedAt)}${filed.filedByName ? ` by ${filed.filedByName}` : ''}${filed.reference ? ` — ref ${filed.reference}` : ''}${filingWasAmended(filed) ? ` — amended ${formatDate(filed.updatedAt)}` : ''} — open to amend`}
+                                    onClick={() => {
+                                      const pm = periodMonthForDueDate(o.dueDate);
+                                      if (pm) openFilingDialog(o, pm, filed);
+                                    }}
+                                    className="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700 transition-colors hover:border-emerald-300 hover:bg-emerald-100 hover:text-emerald-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:border-emerald-700 dark:hover:bg-emerald-900/50 dark:hover:text-emerald-200"
                                   >
                                     <FileCheck2 className="h-3 w-3 shrink-0" aria-hidden />
                                     filed {formatDate(filed.filedAt)}
-                                  </span>
+                                  </button>
                                 ) : null;
                               })()}
                               <span
@@ -2250,7 +2299,7 @@ export default function HrReportsPage() {
                             </div>
                             {/* the write door — only while the window is open and the receipt is missing:
                                 a window that has not opened has nothing to file, and a filed window
-                                keeps its receipt (amendments go through the ledger's own audit trail). */}
+                                keeps its chip — THE CHIP is the amendment door now (v2.277.0). */}
                             {o.status !== 'NOT_YET_OPEN' && !filingFor(o.kind, periodMonthForDueDate(o.dueDate)) && (
                               <button
                                 type="button"
@@ -2274,6 +2323,15 @@ export default function HrReportsPage() {
                     {filingFailed && (
                       <p className="mt-1.5 text-[11px] text-amber-700 dark:text-amber-400" data-testid="hr-compliance-filing-error">
                         The filing ledger could not be read — the clock still speaks, the receipts are quiet. Retry from the calendar&apos;s refresh.
+                      </p>
+                    )}
+                    {filingAmendedNote && (
+                      <p
+                        className="mt-1.5 flex items-start gap-1 text-[11px] text-emerald-700 dark:text-emerald-400"
+                        data-testid="hr-filing-amended-note"
+                      >
+                        <CheckCircle2 className="mt-0.5 h-3 w-3 shrink-0" aria-hidden />
+                        The {filingAmendedNote} receipt was amended — the ledger keeps one truth, and the audit trail remembers the correction.
                       </p>
                     )}
                   </CardContent>
@@ -2343,7 +2401,11 @@ export default function HrReportsPage() {
                                   if (!monthInCoverage(m.month)) return base;
                                   const count = monthFiledCount(m.month);
                                   if (count === 0) return `${base} — no filing recorded`;
-                                  return `${base} — filed: ${count} of 4 obligations`;
+                                  // v2.277.0: the composition's third voice — a month whose
+                                  // receipts were corrected says how many (the slack law
+                                  // decides what counts as a correction, not the eye)
+                                  const amended = monthAmendedCount(m.month);
+                                  return `${base} — filed: ${count} of 4 obligations${amended > 0 ? ` · ${amended} receipt${amended === 1 ? '' : 's'} amended` : ''}`;
                                 })()}
                               >
                                 {due ? due.dueLabel : '—'}
@@ -3164,16 +3226,19 @@ export default function HrReportsPage() {
       </Dialog>
 
       {/* ── v2.276.0: the filing ledger's receipt dialog ──
-          One dialog, parameterized by the obligation whose "Mark filed"
-          opened it. The receipt is the FILER's assertion (what was filed,
-          when it was actually made, an optional reference) — the server
-          validates it is not future-dated and audits the write; the chip
+          One dialog, parameterized by the obligation whose door opened it.
+          v2.277.0: the dialog has TWO MODES — record (the window's door,
+          defaults to now) and amend (the chip's door, prefilled from the
+          receipt the ledger already holds; the strip speaks the original
+          recording so a correction always knows what it corrects). The
+          receipt is the FILER's assertion — the server validates it is not
+          future-dated and audits the write (RECORDED vs AMENDED); the chip
           and the monthly figures' dot speak the same row afterwards. */}
       <Dialog open={filingTarget !== null} onOpenChange={(open) => !open && setFilingTarget(null)}>
         <DialogContent className="sm:max-w-md" data-testid="hr-filing-dialog">
           <DialogHeader>
             <DialogTitle className="text-sm">
-              Record the {filingTarget?.label} filing — {filingTarget?.periodLabel}
+              {filingTarget?.amend ? 'Amend' : 'Record'} the {filingTarget?.label} filing — {filingTarget?.periodLabel}
             </DialogTitle>
             <DialogDescription>
               The receipt is your assertion that the return or payment went in. It lands in the filing ledger —
@@ -3181,6 +3246,17 @@ export default function HrReportsPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
+            {filingTarget?.amend && filingTarget.original ? (
+              <p
+                className="flex items-start gap-1.5 rounded-md border border-dashed border-emerald-300 bg-emerald-50/60 px-2 py-1.5 text-[11px] text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-300"
+                data-testid="hr-filing-amend-strip"
+              >
+                <PenLine className="mt-0.5 h-3 w-3 shrink-0" aria-hidden />
+                This receipt was recorded {formatDate(filingTarget.original.filedAt)}
+                {filingTarget.original.filedByName ? ` by ${filingTarget.original.filedByName}` : ''} — updating it
+                corrects the ledger&apos;s one truth; the audit trail remembers the correction.
+              </p>
+            ) : null}
             <div className="space-y-1">
               <Label htmlFor="filing-filed-at" className="text-xs">Filed on</Label>
               <Input
@@ -3232,8 +3308,8 @@ export default function HrReportsPage() {
               disabled={filingBusy || !filingFiledAt}
               data-testid="hr-filing-submit"
             >
-              {filingBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden /> : <Stamp className="h-3.5 w-3.5" aria-hidden />}
-              Record filing
+              {filingBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden /> : filingTarget?.amend ? <PenLine className="h-3.5 w-3.5" aria-hidden /> : <Stamp className="h-3.5 w-3.5" aria-hidden />}
+              {filingTarget?.amend ? 'Update filing' : 'Record filing'}
             </Button>
           </DialogFooter>
         </DialogContent>

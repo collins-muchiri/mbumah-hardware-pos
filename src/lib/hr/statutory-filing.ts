@@ -84,6 +84,11 @@ export interface StatutoryFilingRow {
   reference: string | null;
   note: string | null;
   filedByName: string | null;
+  // v2.277.0: the receipt's own history — the chip reads whether the row
+  // was genuinely amended (filingWasAmended's slack law) and the amend
+  // dialog's strip speaks the original recording. ISO strings on the wire.
+  createdAt: string;
+  updatedAt: string;
 }
 
 const MONTH_KEY_SHAPE = /^\d{4}-(0[1-9]|1[0-2])$/;
@@ -119,6 +124,8 @@ export async function fetchStatutoryFilings(
       filedAt: true,
       reference: true,
       note: true,
+      createdAt: true,
+      updatedAt: true,
       filedBy: { select: { name: true } },
     },
   });
@@ -129,6 +136,8 @@ export async function fetchStatutoryFilings(
     filedAt: r.filedAt.toISOString(),
     reference: r.reference,
     note: r.note,
+    createdAt: r.createdAt.toISOString(),
+    updatedAt: r.updatedAt.toISOString(),
     filedByName: r.filedBy?.name ?? null,
   }));
 }
@@ -180,6 +189,8 @@ export async function upsertStatutoryFiling(session: AuthSession, input: Statuto
       filedAt: true,
       reference: true,
       note: true,
+      createdAt: true,
+      updatedAt: true,
       filedBy: { select: { name: true } },
     },
   });
@@ -192,6 +203,8 @@ export async function upsertStatutoryFiling(session: AuthSession, input: Statuto
       filedAt: row.filedAt.toISOString(),
       reference: row.reference,
       note: row.note,
+      createdAt: row.createdAt.toISOString(),
+      updatedAt: row.updatedAt.toISOString(),
       filedByName: row.filedBy?.name ?? null,
     },
   };

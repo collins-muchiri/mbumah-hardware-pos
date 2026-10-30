@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.277.0',
+    title: 'The chip takes its correction',
+    bullets: [
+      'A filed receipt is now its own door: click the green filed chip to amend it \u2014 the fields prefill from what the ledger already holds, so a correction never starts from a blank.',
+      'The amend dialog says what it corrects (who recorded the receipt, when), the submit reads "Update filing", and the audit trail remembers every correction.',
+      'Genuinely amended receipts speak up: the chip\u2019s tooltip says "amended <date>", the monthly figures\u2019 Due titles count corrections, and a quiet note confirms the change.',
+    ],
+  },
+  {
     version: '2.276.0',
     title: 'The ledger takes the receipt',
     bullets: [

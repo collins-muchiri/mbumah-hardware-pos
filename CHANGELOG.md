@@ -2,6 +2,22 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.277.0] The chip takes its correction
+
+v2.276.0's route supported amendment (the compound unique makes a re-record an AMEND, and the audit vocabulary already knew `STATUTORY_FILING_AMENDED`), but the card had no door for it — a filed receipt was a dead end on the desk. This round the chip itself becomes the amendment door: the clock keeps governing the FIRST record (a window that has not opened has nothing to file — the law holds), and the LEDGER governs corrections — a receipt that exists can be amended whenever the filer needs, and the correction starts from the truth it corrects.
+
+### Added
+- **The chip is the amendment door** (the Statutory tab's filing calendar): a filed receipt chip is now a button (`aria-haspopup="dialog"`) whose click opens the receipt dialog in AMEND mode — every field prefilled from the ledger's own row (filed-on through the ONE field math, reference, note), so a correction never starts from a blank. The record door ("Mark filed", window-gated) rides unchanged beside it.
+- **The dialog's two modes**: record (the window's door — datetime defaults to now, submit reads "Record filing" with the stamp) and amend (the chip's door — the dashed emerald strip speaks the original recording, who and when, the submit reads "Update filing" with the pen). The route's `{filing, amended}` answer lands as the card's quiet amended note — a NEW receipt announces itself (the chip appears); an AMENDED one changes nothing the eye can see, so the note speaks it.
+- **The receipt's own history rides the row** (`src/lib/hr/statutory-filing.ts`): `StatutoryFilingRow` gains `createdAt`/`updatedAt` (ISO on the wire; the schema already carried the stamps — no migration this round); the read and the write both select and map them. The chip's title says "amended <date>" when the row was genuinely amended, and the monthly figures' Due titles count corrections the way they count receipts ("filed: 4 of 4 obligations · 1 receipt amended").
+- **The pure helpers on the pure home** (`src/lib/hr/compliance-calendar.ts`): `toDatetimeLocalValue` — the datetime-local value's ONE math (local-offset, minute precision; the record mode's now-default and the amend mode's prefill can never disagree about what an instant looks like in a field) — and `filingWasAmended` — the slack law (same-write timestamps within one second are the receipt's BIRTH, never a correction; a row that cannot speak its history is not claimed as corrected). Both RUNTIME-pinned; both live on the import-free calendar lib (the client-bundle law).
+
+### Styled
+- **The door's affordance, quiet and named**: the chip keeps the emerald "the ledger holds the receipt" family (a color never means two things) while gaining the door's manners — cursor-pointer, hover deepens the face (`emerald-100`/`emerald-800`, 4.5:1 held), focus-visible rides the emerald ring; the amend strip is the dashed emerald face that says "this receipt was recorded …" so a correction always knows what it corrects; the amended note is the small check line that never shouts; the pen (amend) and the stamp (record) never share a submit.
+
+### Tests
+- `src/tests/filing-ledger-v2277.test.ts` — 21 pins: the RUNTIME laws (toDatetimeLocalValue's minute-precision round-trip and honest empty; filingWasAmended's slack, birth-not-correction, and honest absence), the row's history through both selects, the chip's door bytes (button, haspopup, prefilled open), the dialog's two modes (titles, strip, submits), the amended note riding the response's own flag, the Due cell's amendment count, the window law unchanged, and the ancestor's four named evolutions. The treadmill walked 316 ancestor pins across 71 files (run once; the pair map verified by git diff — a doubled execution re-eats the pair through the head map, the DOUBLE-RUN LAW's scar re-earned and recovered by checkout + single re-walk).
+
 ## [2.276.0] The ledger takes the receipt
 
 v2.274.0's card footer said "whether a window was filed is the ledger's business" — deferring to a ledger that did not exist. This round the law completes: the filing ledger exists. A receipt is the filer's assertion — what was filed, when it actually went in, an optional reference — recorded from the desk where the deadline is already watched, audited at the door, and spoken back by the chip and the monthly figures' dot.
