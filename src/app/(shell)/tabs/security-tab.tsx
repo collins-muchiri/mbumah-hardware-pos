@@ -27,6 +27,18 @@ import { toast } from 'sonner';
 import { composeScoreVoice } from '@/lib/report-voices';
 // v2.12.8 (PR C): Audit Trail - second view inside the Security tab.
 import { AuditTrailSection } from '@/components/admin/audit-trail-section';
+// v2.293.0: the ONE vocabulary — the dashboard imports the lib's words,
+// tone law, severity-badge faces and the denied-gates report. The local
+// EVENT_TYPE_LABELS / SEVERITY_BG copies are dead (they drifted from the
+// feed's words the day the lib landed; the same move as v2.292.0).
+import {
+  EVENT_TYPE_LABELS,
+  SECURITY_TONE_CLASSES,
+  SECURITY_SEVERITY_BADGE_CLASSES,
+  securityRowTone,
+  type deniedGateReport,
+  type DeniedGate,
+} from '@/lib/security-feed';
 
 // Types
 
@@ -51,6 +63,8 @@ interface SecurityDashboardData {
     blocked: boolean;
   }[];
   timeline: { hour: string; count: number }[];
+  // v2.293.0: the gate-heat aggregate — the lib's own report shape.
+  deniedGates: ReturnType<typeof deniedGateReport>;
 }
 
 // Color mappings
@@ -66,29 +80,10 @@ const SEVERITY_COLORS: Record<string, string> = {
   DEBUG: '#6b7280',
 };
 
-const SEVERITY_BG: Record<string, string> = {
-  CRITICAL: 'bg-red-500/10 text-red-500 border-red-500/20',
-  ERROR: 'bg-orange-500/10 text-orange-500 border-orange-500/20',
-  WARN: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
-  INFO: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
-  DEBUG: 'bg-gray-400/10 text-gray-400 border-gray-400/20',
-};
-
-const EVENT_TYPE_LABELS: Record<string, string> = {
-  RATE_LIMITED: 'Rate Limited',
-  BRUTE_FORCE: 'Brute Force',
-  CSRF_FAILED: 'CSRF Failed',
-  INVALID_INPUT: 'Invalid Input',
-  SUSPICIOUS_ACTIVITY: 'Suspicious Activity',
-  ACCOUNT_LOCKED: 'Account Locked',
-  SESSION_HIJACK_ATTEMPT: 'Session Hijack',
-  UNAUTHORIZED_ACCESS: 'Unauthorized Access',
-  // v2.12.7 (PR C): RBAC + abuse-detection event types.
-  PERMISSION_DENIED: 'Permission Denied',
-  HIGH_RISK_ATTEMPT: 'High-Risk Attempt',
-  PRIVILEGE_ABUSE_PATTERN: 'Privilege Abuse Pattern',
-  MANAGER_AUTHORIZED: 'Manager Authorized',
-};
+// v2.293.0: the local EVENT_TYPE_LABELS (12 entries) copy is DEAD — the
+// lib's one vocabulary carries the words now (see the import above). The
+// chart fill maps below stay: they are the v2.204.0 contrast-tuned recharts
+// palette, a different surface from the row/badge faces.
 
 const EVENT_TYPE_COLORS: Record<string, string> = {
   RATE_LIMITED: '#ea580c',
@@ -130,6 +125,8 @@ async function fetchDashboard(): Promise<SecurityDashboardData> {
     topIPs: Array.isArray(data?.topTargets?.ips) ? data.topTargets.ips : [],
     recentCritical: Array.isArray(data?.recentCritical) ? data.recentCritical : [],
     timeline: Array.isArray(data?.timeline) ? data.timeline : [],
+    // v2.293.0: the gate-heat aggregate (already voiced by the lib).
+    deniedGates: data?.deniedGates ?? { top: [], namedDenials: 0, unnamedDenials: 0, voice: '', maxCount: 0 },
   };
 }
 
@@ -240,11 +237,11 @@ function OverviewCard({
   );
 }
 
-// Severity Badge
+// Severity Badge — the face imports from the lib's closed set (v2.293.0).
 
 function SeverityBadge({ severity }: { severity: string }) {
   return (
-    <Badge variant="outline" className={`text-xs font-medium ${SEVERITY_BG[severity] || 'bg-gray-100 text-gray-500'}`}>
+    <Badge variant="outline" className={`text-xs font-medium ${SECURITY_SEVERITY_BADGE_CLASSES[severity] || 'bg-gray-100 text-gray-500'}`}>
       {severity}
     </Badge>
   );
@@ -845,7 +842,17 @@ export default function SecurityTab() {
                   </TableHeader>
                   <TableBody>
                     {dashboard.recentCritical.map((event) => (
-                      <TableRow key={event.id}>
+                      <TableRow
+                        key={event.id}
+                        className={
+                          // v2.293.0: the row wears its record — the same
+                          // tone law the feed's Security pane speaks. A
+                          // CRITICAL/ERROR event is red on the dashboard
+                          // too; the type fills the gaps; unknown stays
+                          // quiet. One function, two surfaces.
+                          SECURITY_TONE_CLASSES[securityRowTone(event.eventType, event.severity)].row
+                        }
+                      >
                         <TableCell className="text-xs py-2 whitespace-nowrap">
                           {new Date(event.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </TableCell>
@@ -870,6 +877,62 @@ export default function SecurityTab() {
           </CardContent>
         </Card>
       </div>
+
+      {/* v2.293.0: Most Denied Gates — the gate-heat report. The denial
+          ledger (v2.292.0) made every refusal land on the record; this card
+          reads the ledger back: which gates said no most in the last 24h.
+          The bars ride amber-600 (the denial tone's graphics-safe family on
+          the white card, per the v2.204.0 3:1 law) and the subtitle is the
+          lib's own voice line — it always adds up, named and unnamed. */}
+      <Card>
+        <CardHeader className="pb-2 pt-4 px-4">
+          <CardTitle className="text-sm font-medium flex items-center gap-2">
+            <Ban className="h-4 w-4 text-amber-600" />
+            Most denied gates
+          </CardTitle>
+          {dashboard?.deniedGates?.voice ? (
+            <p className="text-xs text-muted-foreground pt-1">{dashboard.deniedGates.voice}</p>
+          ) : null}
+        </CardHeader>
+        <CardContent className="px-4 pb-4">
+          {!dashboard?.deniedGates?.top?.length ? (
+            <div className="flex items-center justify-center h-24 text-muted-foreground text-sm">
+              <div className="flex flex-col items-center gap-2">
+                <Shield className="h-5 w-5 text-green-500 opacity-50" />
+                <span>No denials in the last 24h — every gate said yes.</span>
+              </div>
+            </div>
+          ) : (
+            <ul className="space-y-2">
+              {dashboard.deniedGates.top.map((gate: DeniedGate) => {
+                const width = dashboard.deniedGates.maxCount > 0
+                  ? Math.round((gate.count / dashboard.deniedGates.maxCount) * 100)
+                  : 0;
+                return (
+                  <li key={gate.resource} className="flex items-center gap-3">
+                    <span className="text-xs font-mono truncate max-w-[45%]" title={gate.resource}>
+                      {gate.resource}
+                    </span>
+                    <div className="flex-1 h-2.5 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-amber-600"
+                        style={{ width: `${Math.max(width, 6)}%` }}
+                        aria-hidden="true"
+                      />
+                    </div>
+                    <Badge
+                      variant="outline"
+                      className="text-xs font-medium bg-amber-500/10 text-amber-700 border-amber-500/20 shrink-0"
+                    >
+                      {gate.count} {gate.count === 1 ? 'denial' : 'denials'}
+                    </Badge>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

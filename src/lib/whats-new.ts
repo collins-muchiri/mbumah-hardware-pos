@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.293.0',
+    title: 'The dashboard speaks the feed\u2019s language',
+    bullets: [
+      'The security dashboard now reads the denial ledger back: a Most denied gates card shows which gates said no most in the last 24h, with amber bars and a count for each.',
+      'One vocabulary: the dashboard\u2019s event names and severity chips now come from the same home as the bell\u2019s Security tab \u2014 the words can no longer drift between surfaces.',
+      'Critical and error events wear red on the dashboard\u2019s recent-events table too \u2014 the same tone law the feed speaks: severity leads, type fills the gaps, unknown stays quiet.',
+      'The card\u2019s subtitle always adds up: if a denial somehow never named its gate, the voice says so instead of quietly dropping the count.',
+    ],
+  },
+  {
     version: '2.292.0',
     title: 'Every denial lands on the record',
     bullets: [

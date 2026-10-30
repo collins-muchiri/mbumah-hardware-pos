@@ -5,6 +5,7 @@ import { type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { withErrorBoundary } from '@/lib/logger';
 import { requireAuth, type AuthSession } from '@/lib/auth';
+import { deniedGateReport } from '@/lib/security-feed';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,6 +44,8 @@ async function getSecurityDashboardHandler(
     lockedAccounts,
     recentCriticalEvents,
     hourlyTimeline,
+    deniedGatesGrouped,
+    totalDenied24h,
   ] = await Promise.all([
     // Total events last 24h
     db.securityEvent.count({ where: { ...baseWhere, createdAt: { gte: last24h } } }),
@@ -112,6 +115,27 @@ async function getSecurityDashboardHandler(
       select: { createdAt: true },
       orderBy: { createdAt: 'asc' },
     }),
+
+    // v2.293.0: the denied-gates report - which gates said no most. The
+    // PERMISSION_DENIED rows grouped by the recorded resource (the gate's
+    // own address, written by recordPermissionDenied); top 5 by count plus
+    // the 24h total so the card's voice can name the unnamed gap.
+    db.securityEvent.groupBy({
+      by: ['resource'],
+      where: {
+        ...baseWhere,
+        eventType: 'PERMISSION_DENIED',
+        createdAt: { gte: last24h },
+        resource: { not: null },
+      },
+      _count: true,
+      orderBy: { _count: { resource: 'desc' } },
+      take: 10,
+    }),
+
+    db.securityEvent.count({
+      where: { ...baseWhere, eventType: 'PERMISSION_DENIED', createdAt: { gte: last24h } },
+    }),
   ]);
 
   // Build hourly buckets for timeline
@@ -178,6 +202,14 @@ async function getSecurityDashboardHandler(
         blocked: e.blocked,
       })),
       timeline: hourBuckets,
+      // v2.293.0: the gate-heat report - the pure lib voices the aggregate
+      // (sort, top-5, the unnamed-denials honesty gap, the subtitle line).
+      deniedGates: deniedGateReport(
+        totalDenied24h,
+        deniedGatesGrouped
+          .filter((g): g is typeof g & { resource: string } => Boolean(g.resource))
+          .map((g) => ({ resource: g.resource, count: g._count }))
+      ),
     },
   });
 }
