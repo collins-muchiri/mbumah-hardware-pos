@@ -2,6 +2,18 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.293.0] The dashboard speaks the feed's language
+
+The security dashboard joins the one-vocabulary law the bell's Security tab found in v2.292.0: same words, same tone, same home. And the denial ledger is now read back — a Most denied gates card shows which gates said no most.
+
+### Added
+- **The gate-heat report** (`src/lib/security-feed.ts` + `src/app/api/security/dashboard/route.ts`): the PERMISSION_DENIED rows grouped by the recorded resource (the gate's own address, written by `recordPermissionDenied`), the top gates surfaced on a new dashboard card with amber bars and per-gate counts. `deniedGateReport` — a pure lib function — voices the aggregate: top-5 by count (ties by path for determinism), the `namedDenials`/`unnamedDenials` arithmetic that always adds up to the 24h total, and a subtitle line that names the unnamed gap instead of silently dropping it. The honest-empty face: "No denials in the last 24h — every gate said yes."
+
+### Changed
+- **The one vocabulary completes** (`src/app/(shell)/tabs/security-tab.tsx`): the dashboard tab carried its OWN copy of `EVENT_TYPE_LABELS` (12 entries) and `SEVERITY_BG` (5 faces) — the same drift-waiting-to-happen the feed had before v2.292.0. The lib's map grows to the dashboard's twelve (RATE_LIMITED, CSRF_FAILED, INVALID_INPUT, SUSPICIOUS_ACTIVITY, SESSION_HIJACK_ATTEMPT join); the tab's local copies are dead; both surfaces import one home. The chart-fill palettes stay local — they are the v2.204.0 contrast-tuned recharts surface, not row faces.
+- **The tone law learns CRITICAL** (`securityRowTone`): severity CRITICAL joins ERROR in the red family — the wire's loudest severity can never land on a quiet slate row. The dashboard's recent-critical rows now wear the same `SECURITY_TONE_CLASSES` verdict the feed's Security pane speaks: one function, two surfaces.
+- **The severity badge faces** (`SECURITY_SEVERITY_BADGE_CLASSES`): the outline-badge triad lifted from the tab into the lib's closed five (CRITICAL/ERROR/WARN/INFO/DEBUG), contrast-safe -500-on-tint tokens per the v2.148.0 law.
+
 ## [2.292.0] Every denial lands on the record
 
 A live-found security-observability bug, closed at the source: the role gates that refuse most denied requests never wrote the durable record — the security dashboard and the feed's Security tab could not see them. Now every denial lands on the record, and the security row's color is data.

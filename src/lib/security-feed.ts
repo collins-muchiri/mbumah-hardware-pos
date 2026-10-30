@@ -38,6 +38,15 @@ export const EVENT_TYPE_LABELS: Record<string, string> = {
   // read-only and may name events outside the abuse set.
   UNAUTHORIZED_ACCESS: 'Unauthorized Access',
   MANAGER_AUTHORIZED: 'Manager Authorized',
+  // v2.293.0: the security dashboard's twelve — the tab's local copy is
+  // dead; both surfaces import this one map. The five carried here complete
+  // the dashboard's filter/chart vocabulary (the abuse set plus the
+  // operational types the dashboard's events table names).
+  RATE_LIMITED: 'Rate Limited',
+  CSRF_FAILED: 'CSRF Failed',
+  INVALID_INPUT: 'Invalid Input',
+  SUSPICIOUS_ACTIVITY: 'Suspicious Activity',
+  SESSION_HIJACK_ATTEMPT: 'Session Hijack',
 };
 
 /** The row tone — drives the row's face classes at the render site. */
@@ -46,13 +55,77 @@ export type SecurityTone = 'error' | 'warn' | 'info';
 /**
  * The tone a SecurityEvent row wears. Severity leads; type fills the gaps;
  * unknown stays quiet. Three values, exactly — the row face is a closed set.
+ *
+ * v2.293.0: CRITICAL joins ERROR in the red family — the wire's own loudest
+ * severity can never land on a quiet slate row. The feed's rows never
+ * carried it (recorders write WARN/ERROR); the dashboard's recent-critical
+ * table does, and it imports this same function.
  */
 export function securityRowTone(eventType: string, severity?: string | null): SecurityTone {
-  if (severity === 'ERROR') return 'error';
+  if (severity === 'CRITICAL' || severity === 'ERROR') return 'error';
   if (severity === 'WARN') return 'warn';
   if (eventType === 'ACCOUNT_LOCKED' || eventType === 'BRUTE_FORCE') return 'error';
   if ((ABUSE_EVENT_TYPES as readonly string[]).includes(eventType)) return 'warn';
   return 'info';
+}
+
+/**
+ * The severity OUTLINE badge's face — the dashboard's SeverityBadge and any
+ * future surface that names a severity in one chip. A closed set of five
+ * (the LogSeverity vocabulary); contrast-safe -500-on-tint tokens per the
+ * v2.148.0 law. v2.293.0: lifted from the dashboard tab's local copy so the
+ * words AND the faces come from one home.
+ */
+export const SECURITY_SEVERITY_BADGE_CLASSES: Record<string, string> = {
+  CRITICAL: 'bg-red-500/10 text-red-500 border-red-500/20',
+  ERROR: 'bg-orange-500/10 text-orange-500 border-orange-500/20',
+  WARN: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
+  INFO: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+  DEBUG: 'bg-gray-400/10 text-gray-400 border-gray-400/20',
+};
+
+/** One row of the denied-gates report: the gate and how often it said no. */
+export interface DeniedGate {
+  /** The recorded resource path — the gate's own address. */
+  resource: string;
+  /** How many PERMISSION_DENIED events named this gate. */
+  count: number;
+}
+
+/**
+ * The denied-gates report (v2.293.0) — which gates say no most.
+ *
+ * The dashboard's DB groups the PERMISSION_DENIED rows by resource; this
+ * pure function voices the aggregate: sorts by count (ties by path, so the
+ * order is deterministic), keeps the top `limit`, and counts the honesty
+ * gap — denials whose record never named a resource (legacy rows and any
+ * future writer that forgets) show up as `unnamedDenials`, never silently
+ * vanished. The voice line is the card's subtitle: it always adds up.
+ *
+ * Pure so the RUNTIME-PIN law holds: the suite asserts the arithmetic and
+ * the voice by value; the render site just wires it.
+ */
+export function deniedGateReport(
+  totalDenied: number,
+  gates: DeniedGate[],
+  limit = 5
+): { top: DeniedGate[]; namedDenials: number; unnamedDenials: number; voice: string; maxCount: number } {
+  const sorted = [...gates].sort(
+    (a, b) => b.count - a.count || a.resource.localeCompare(b.resource)
+  );
+  const top = sorted.slice(0, Math.max(0, limit));
+  const namedDenials = sorted.reduce((sum, g) => sum + g.count, 0);
+  const unnamedDenials = Math.max(0, totalDenied - namedDenials);
+  const voice =
+    namedDenials + unnamedDenials === 1
+      ? '1 denial in the last 24h.'
+      : `${namedDenials + unnamedDenials} denials in the last 24h${
+          unnamedDenials > 0
+            ? ` — ${unnamedDenials} never named their gate.`
+            : ', every one named its gate.'
+        }`;
+  const maxCount = top.length > 0 ? top[0].count : 0;
+  return { top, namedDenials, unnamedDenials, voice, maxCount };
 }
 
 /** The contrast-safe face classes per tone (v2.148.0 law: tokens on their own). */
