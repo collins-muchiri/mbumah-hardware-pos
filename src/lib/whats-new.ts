@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.284.0',
+    title: 'The pool speaks its true scope',
+    bullets: [
+      'Review-cycle digests are honest about their reach: the review pool is organization-wide, so the schedule now says "All branches (organization)" — and a branch-scoped schedule for it is refused at the door instead of wearing a branch name over organization-wide counts.',
+      'The schedules desk marks an organization-wide digest with a quiet "Org pool" chip, and the schedule dialog locks the branch pick for it — the constraint is visible before you submit, not an error after.',
+      'The performance desk\u2019s deep links grew a memory: ?cycleId= lands on the reviews tab already filtered to that cycle, and the filter wears a liftable amber chip — clear it and the link\u2019s effect (and its URL param) lifts with it.',
+    ],
+  },
+  {
     version: '2.283.0',
     title: 'The cycles join the digest',
     bullets: [

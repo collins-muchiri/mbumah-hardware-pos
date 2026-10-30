@@ -108,6 +108,18 @@ export function validateScheduleInput(input: ScheduleInput): Required<Pick<Sched
   if (!HR_SCHEDULE_REPORTS.includes(input.reportKey as HrScheduleReportKey)) {
     throw new HrScheduleError('INVALID_REPORT', 'Unknown report key for a schedule.', 422);
   }
+  // v2.284.0: the review pool is ORGANIZATION-WIDE BY CONSTRUCTION — the
+  // cycle and review models carry no storeId, so a branch-scoped schedule
+  // would wear a branch name over org-wide counts (a lying document). The
+  // create door rejects the narrowing outright; the digest case's forced
+  // scope label is the belt if such a row ever exists anyway.
+  if (input.reportKey === 'review-cycles' && input.storeId != null) {
+    throw new HrScheduleError(
+      'INVALID_SCOPE',
+      'The review pool is organization-wide — schedule it at the organization, not a branch.',
+      422,
+    );
+  }
   if (!HR_SCHEDULE_FREQUENCIES.includes(input.frequency as HrScheduleFrequency)) {
     throw new HrScheduleError('INVALID_FREQUENCY', 'Frequency must be DAILY, WEEKLY or MONTHLY.', 422);
   }
@@ -724,6 +736,11 @@ export async function buildDigestPayload(
         ...base,
         reportLabel: REPORT_LABELS['review-cycles'],
         periodLabel: 'All cycles — the standing pool',
+        // v2.284.0: the belt behind the create door's INVALID_SCOPE. The
+        // pool has no branch dimension, so the scope line must speak the
+        // organization even if a branch-scoped row somehow exists — a
+        // branch name over org-wide counts is a lying document.
+        scopeLabel: 'All branches (organization)',
         headline: [
           { label: 'Tracked cycles', value: String(r.trackedCycles) },
           { label: 'Active cycles', value: String(r.activeCycles) },

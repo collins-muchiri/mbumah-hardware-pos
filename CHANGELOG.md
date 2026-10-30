@@ -2,6 +2,22 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.284.0] The pool speaks its true scope
+
+The scope-honesty round: the review pool is organization-wide BY CONSTRUCTION (the cycle and review models carry no storeId), so a branch-scoped `review-cycles` schedule would compute org-wide counts while wearing a branch's name — a lying document. This round the narrowing is refused at the door, the digest's scope line is forced honest, the constraint becomes visible on the schedules desk, and the performance desk's deep links learn `?cycleId=`.
+
+### Added
+- **The create door** (`src/lib/hr/report-schedule-service.ts`): `validateScheduleInput` rejects `review-cycles` + a branch scope outright — `INVALID_SCOPE`, 422, "The review pool is organization-wide — schedule it at the organization, not a branch." The narrowing is refused, not silently corrected. Branch-scoped reports keep their doors.
+- **The belt** (`src/lib/hr/report-schedule-service.ts`): the review-cycles digest case forces `scopeLabel: 'All branches (organization)'` — if a branch-scoped row ever exists anyway, the document STILL speaks its true scope. (The goal pool never had the hole: `employeeScopeWhere` narrows the goal aggregate honestly.)
+- **The walk continues** (`src/app/(shell)/hr/performance/page.tsx`): `?cycleId=` pre-filters the reviews tab on landing (the same deferred, directive-free shape as the `?tab=` read — the v2.283.0 CI lesson pre-applied), and an active cycle filter wears a liftable amber chip whose × drops BOTH the filter and the `?cycleId=` param — the URL stays truthful; a reload after the lift must not re-impose a filter nobody sees.
+
+### Styled
+- **The dialog's locked scope** (`src/components/hr/report-schedules-tab.tsx`): picking an org-pool report locks the branch pick to "All branches (organization)" (disabled select, forced value, the hint swapped to "The review pool is organization-wide — every cycle and review, whatever branch employs them") — the 422 becomes un-hittable from the wire, and the constraint is visible BEFORE submit, not an error after.
+- **The card's org-pool mark** (`src/components/hr/report-schedules-tab.tsx`): an org-pool schedule wears a quiet slate "Org pool" chip beside its frequency badge — the operator sees the digest speaks the organization before opening it. Slate is the quiet family (SKIPPED/CLOSED/DRAFT); no colour in use gains a second meaning.
+
+### Tests
+- `src/tests/schedule-pool-scope-v284.test.ts` (13 pins, BOTH nets): the scope rejection's truth table (INVALID_SCOPE + 422 for review-cycles + a store; accepted at the organization; branch reports keep their doors), the forced scope line, the dialog's lock bytes, the card's mark, the deferred `?cycleId=` read, the liftable chip's amber family and URL-truthful clear.
+
 ## [2.283.0] The cycles join the digest
 
 The performance module's second parity face: v2.282.0 taught the goal pool to speak and the handover named the review pool as the next gap. This round the cycles/reviews aggregate joins the governed digest seam — scheduleable, previewable, emailable through the ONE seam every surface mirrors — and the digest preview learns to speak the pool vocabularies' own colours.

@@ -191,6 +191,31 @@ export default function PerformancePage() {
   const [filterCycleId, setFilterCycleId] = useState('ALL');
   const [filterStatus, setFilterStatus] = useState('ALL');
 
+  // v2.284.0: ?cycleId= walks the reviews tab into a pre-filtered state —
+  // the desk deep link lands showing THAT cycle's reviews, not the whole
+  // pool. Deferred one tick (the same both-resolutions-clean shape as the
+  // ?tab= read above): the URL cannot be read during render, and the
+  // deferred call carries no disable directive to go stale in either
+  // eslint resolution.
+  useEffect(() => {
+    const cycleId = new URLSearchParams(window.location.search).get('cycleId');
+    if (!cycleId) return;
+    const t = window.setTimeout(() => setFilterCycleId(cycleId), 0);
+    return () => window.clearTimeout(t);
+  }, []);
+
+  // v2.284.0: the deep-link filter is a VISIBLE, liftable state. Clearing
+  // the chip also drops the ?cycleId= param, so the URL stays truthful —
+  // a reload after the lift must not re-impose a filter nobody sees.
+  const clearDeepLinkedCycle = () => {
+    setFilterCycleId('ALL');
+    const url = new URL(window.location.href);
+    if (url.searchParams.has('cycleId')) {
+      url.searchParams.delete('cycleId');
+      window.history.replaceState(null, '', url.toString());
+    }
+  };
+
   // v2.89.0: the Goals tab speaks the same shape — employee + source picks,
   // status chips with live counts, an honest "Showing X of Y" line.
   const [filterGoalEmployee, setFilterGoalEmployee] = useState('ALL');
@@ -953,6 +978,23 @@ export default function PerformancePage() {
                         ))}
                       </SelectContent>
                     </Select>
+                    {/* v2.284.0: an active cycle filter — however it arrived —
+                        wears its own liftable chip, amber (the waiting family
+                        these filters already speak): the deep link's effect
+                        is never invisible state. The × lifts BOTH the filter
+                        and the ?cycleId= param that asked for it. */}
+                    {filterCycleId !== 'ALL' ? (
+                      <button
+                        type="button"
+                        onClick={clearDeepLinkedCycle}
+                        aria-label={`Filtered to ${(cycles ?? []).find((c) => c.id === filterCycleId)?.name ?? 'a cycle'} — clear filter`}
+                        data-testid="review-filter-cycle-chip"
+                        className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-100 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-950/60"
+                      >
+                        Filtered to {(cycles ?? []).find((c) => c.id === filterCycleId)?.name ?? 'a cycle'}
+                        <X className="h-3 w-3" aria-hidden />
+                      </button>
+                    ) : null}
                     {['ALL', ...REVIEW_STATUSES].map((s) => {
                       const active = filterStatus === s;
                       const count = s === 'ALL' ? (reviews ?? []).length : reviewStatusCounts[s as keyof CycleStatusCounts];
