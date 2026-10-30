@@ -2,6 +2,21 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.289.0] The bell learns its key
+
+The keyboard's quiet gap: the shortcut map has carried search (⌘K), the sidebar (⌘B) and the F-tab row since the redesign — but the notification feed, the surface the morning digests land in, had NO shortcut on any shell. (The "Notifications alt+T" hint in the accessibility tree is Radix's toast-viewport focus hotkey — it focuses visible toasts; it never opens the feed.) This round alt+N rings the bell on BOTH shells, and the help dialog finally names the row.
+
+### Added
+- **The bell's key** (`src/hooks/use-notification-hotkey.ts`): `useNotificationHotkey` + the pure predicate `isNotificationHotkey` — alt over the PHYSICAL N (`e.code === 'KeyN'`), meta/ctrl excluded (⌘/ctrl+N is the browser's new-window chord — never fight the browser), shift allowed (some intl layouts need it to reach the N). The match law lives on `e.code`, not `e.key`: option+N on macOS produces 'ñ'/'Dead' in the character — a character match would silently die on the most keyboard-rich platform.
+- **One key, two openers, never a copy**: the POS sidebar (`app-sidebar.tsx`) wires the hook to its bell state; the HR header bell (`hr-shell-bell.tsx`, v2.288.0's island) wires the SAME hook to its own sheet — the feed opens with the keyboard from the shop floor and the workspace alike. Each opener is `useCallback`-stable, so the document listener never churns.
+- **The help row** (`src/components/keyboard-shortcuts-help.tsx`): `Alt+N — Open notifications` (bell icon) joins the map between the F-rows and Esc — the feed was the one surface the shortcut map never named.
+
+### Styled
+- The help dialog's kbd-row anatomy is untouched (icon · description · bordered kbd chip); the new row inherits the hover pill and the muted-voice treatment so the map reads as one list, not a patchwork.
+
+### Verified
+- The predicate's truth table (alt+N rings; meta/ctrl refused; bare N and alt+M silent; the mac 'ñ' trap documented by pin). Live E2E: alt+N opens the sheet on /hr and on the POS dashboard, Escape closes, ctrl+alt+N and ⌘+alt+N open NOTHING (the browser keeps its chords), the help dialog carries 11 rows including Alt+N, console clean.
+
 ## [2.288.0] The HR shell hears the bell
 
 The reach fix. A worker parked on `/hr/*` never saw the notification center — the bell lived in the POS shell's sidebar and top-bar, and the HR workspace header carried only ten links. The digest beacons (v2.286/287) paper over the gap, but the feed itself stayed a walk away. This round the HR header carries ONE bell that opens the SAME notification center sheet — same feed, same filters, same deep-link walks, same storeId — and the ten links finally speak their place: the desk you are on is visible at a glance.

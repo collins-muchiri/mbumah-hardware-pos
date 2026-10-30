@@ -24,10 +24,13 @@
 // from inside the HR workspace, which is exactly where a worker stands when
 // the bell rings.
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { Bell } from 'lucide-react';
 import { useAppStore } from '@/lib/stores';
 import { useNotificationCount } from '@/hooks/use-notification-count';
+// v2.289.0: alt+N rings the bell — the HR shell wires the same key the POS
+// sidebar wires, so the feed opens with the keyboard on every shell.
+import { useNotificationHotkey } from '@/hooks/use-notification-hotkey';
 import { NotificationCenter } from '@/components/notification-center';
 import { Button } from '@/components/ui/button';
 
@@ -35,6 +38,9 @@ export function HrShellBell() {
   const [open, setOpen] = useState(false);
   const currentStoreId = useAppStore((s) => s.currentStoreId);
   const notificationCount = useNotificationCount(currentStoreId);
+  // v2.289.0: alt+N rings the bell (the POS shell's sidebar wires the same
+  // hook to its own open state — one key, every shell).
+  useNotificationHotkey(useCallback(() => setOpen(true), []));
 
   // Bounce the badge when the unread count RISES (the sidebar's pattern).
   const prevNotifCount = useRef(0);
