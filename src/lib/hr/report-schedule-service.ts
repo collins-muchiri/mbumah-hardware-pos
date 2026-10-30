@@ -24,6 +24,16 @@ import { hrAudit, HrEntityType } from './audit';
 import { sendEmail } from '@/lib/email-service';
 import { digestToCsv, formatCsvSize, type DigestCsvAttachment } from '@/lib/hr/digest-csv';
 import { digestFilingComplete, digestFilingVoice, digestNextDeadlineChip, statutoryDueForPeriod } from '@/lib/hr/compliance-calendar';
+// v2.281.0: the card's delivery memory — the list's ONE read + the pure
+// voice that turns it into the always-on health face.
+import {
+  aggregateScheduleHealth,
+  HEALTH_LOG_CAP,
+  HEALTH_WINDOW,
+  scheduleIdFromMetadata,
+  type ScheduleHealth,
+  type ScheduleHealthLog,
+} from '@/lib/hr/schedule-health-voice';
 import {
   hrReportDigestTemplate,
   hrReportDigestText,
@@ -133,6 +143,47 @@ export async function listSchedules(organizationId: string) {
   });
 }
 
+/**
+ * v2.281.0: the list view WITH its delivery memory. One bounded read of the
+ * organisation's recent digest logs (the OR-of-contains correlation is
+ * governed BY CONSTRUCTION — the schedule ids come from the actor's own
+ * list, so the query can never widen past the actor's scope; there is no
+ * organizationId on NotificationLog to join through, and no new table is
+ * invented for what the log already remembers). The metadata is parsed once
+ * per row (scheduleIdFromMetadata), the pure voice aggregates per schedule,
+ * and the health rides the view ONLY where sends exist. A failing log read
+ * must never darken the list the operator came for — the catch-quiet law:
+ * the list returns bare, the cards speak their lastStatus as before.
+ */
+export async function listSchedulesView(organizationId: string): Promise<ScheduleView[]> {
+  const rows = await listSchedules(organizationId);
+  if (rows.length === 0) return [];
+  let logs: Array<{ metadata: string | null; status: string; error: string | null; createdAt: Date }> = [];
+  try {
+    logs = await db.notificationLog.findMany({
+      where: {
+        type: 'HR_REPORT_DIGEST',
+        OR: rows.map((r) => ({ metadata: { contains: `"scheduleId":"${r.id}"` } })),
+      },
+      orderBy: { createdAt: 'desc' },
+      take: HEALTH_LOG_CAP,
+    });
+  } catch {
+    return rows.map(toScheduleView);
+  }
+  const flattened: ScheduleHealthLog[] = logs.map((l) => ({
+    scheduleId: scheduleIdFromMetadata(l.metadata),
+    status: l.status,
+    error: l.error,
+    createdAt: l.createdAt.toISOString(),
+  }));
+  return rows.map((r) => {
+    const view = toScheduleView(r);
+    const health = aggregateScheduleHealth(flattened, r.id, HEALTH_WINDOW);
+    return health ? { ...view, health } : view;
+  });
+}
+
 export interface ScheduleView {
   id: string;
   reportKey: string;
@@ -152,6 +203,12 @@ export interface ScheduleView {
   lastError: string | null;
   createdAt: string;
   storeId: string | null;
+  // v2.281.0: the always-on delivery face (the last HEALTH_WINDOW recorded
+  // sends — counts, entries, one spoken line). OPTIONAL and attached ONLY by
+  // listSchedulesView: create/PATCH/fire flows build the view at the moment
+  // of write, where no history can exist yet, and toScheduleView stays pure
+  // of the log read. Absent = the schedule has never sent (honest).
+  health?: ScheduleHealth;
 }
 
 export function toScheduleView(row: {

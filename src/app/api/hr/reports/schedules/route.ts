@@ -10,7 +10,7 @@
 import { hrGuard } from '@/lib/hr/guard';
 import {
   createSchedule,
-  listSchedules,
+  listSchedulesView,
   toScheduleView,
   HrScheduleError,
 } from '@/lib/hr/report-schedule-service';
@@ -20,8 +20,11 @@ export const dynamic = 'force-dynamic';
 const REPORT_ROLES = ['HR_MANAGER', 'STORE_OWNER', 'ACCOUNTANT', 'BRANCH_MANAGER'] as const;
 
 export const GET = hrGuard('hr.report.branch', REPORT_ROLES)(async (_request, session) => {
-  const rows = await listSchedules(session.organizationId);
-  return Response.json({ success: true, data: rows.map(toScheduleView) });
+  // v2.281.0: the list rides listSchedulesView — the same governed rows plus
+  // the always-on delivery health (one bounded log read, scope-shaped by the
+  // schedule ids the actor's own list produced).
+  const rows = await listSchedulesView(session.organizationId);
+  return Response.json({ success: true, data: rows });
 });
 
 export const POST = hrGuard('hr.report.branch', REPORT_ROLES)(async (request, session) => {
