@@ -2,6 +2,24 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.285.0] The goals answer their link
+
+The deep-link parity round: the goal-attainment digest has been scheduleable since v2.282.0, but its bell walked `/hr/reports?tab=goals` — and the reports desk has no `goals` tab, so the known-tab read fell through and every reader landed on headcount silently. A bell that walks nowhere is a lying door. This round the goal pool's bell walks where the pool actually lives, the goals tab learns its own deep link, and "one honest clear" becomes law across both desks.
+
+### Added
+- **The bell's honest landing** (`src/lib/hr/report-schedule-service.ts`): `REPORT_KEY_TO_URL` gains `'goal-attainment': '/hr/performance?tab=goals'` — the goal pool's interactive home is the performance desk's goals tab (the override is consulted before `REPORT_KEY_TO_TAB`, whose `goals` fallback remains as the belt). The review-cycles override stands untouched.
+- **The goals tab's own deep link** (`src/app/(shell)/hr/performance/page.tsx`): `?status=` walks the GOALS tab into a pre-filtered state — lenient about case (`?status=missed` is a human-typed link and still a link), strict about vocabulary (only a KNOWN goal status lands; an unknown word falls back to the desk's own state). A valid status lands the reader ON the goals tab — an invisible filter is a lie. Same deferred, directive-free shape as the `?tab=` and `?cycleId=` reads (the CI lesson pre-applied).
+
+### Styled
+- **The liftable chip** (`src/app/(shell)/hr/performance/page.tsx`): an active goal-status filter — however it arrived — wears the amber deep-link family the cycle filter has spoken since v2.284 (full dark-mode set, hover deepen); its × lifts BOTH the filter and the `?status=` param that asked for it.
+- **The honest answer** (both desks): a pressed house that empties the view names the word it was asked for — "No goal wears missed under the current filters." / "No review wears calibrated under the current filters." — the PO lens-empty law, now on the goals desk and the reviews desk alike.
+
+### Fixed
+- **One honest clear** (`src/app/(shell)/hr/performance/page.tsx`): the param-drop lives in ONE helper (`dropUrlParam`), and every hand that retires a deep-linked filter retires the param with it — the generic review clear (`?cycleId=`), the generic goal clear (`?status=`), a hand on the cycle select, a hand on a status chip. A clear that leaves its param behind was a partial clear: the next reload re-imposed a filter nobody sees.
+
+### Tests
+- `src/tests/performance-deeplink-v285.test.ts` (18 pins, BOTH nets): the override map by VALUE (runtime pins), the case-lenient/vocabulary-strict read, the goals-tab landing, the chip's amber anatomy and word-naming lift, the one-honest-clear law (helper + four retiral hands), the lens-empty law on both desks. `schedule-pool-scope-v284.test.ts` re-anchored to the helper shape (13 pins, green).
+
 ## [2.284.0] The pool speaks its true scope
 
 The scope-honesty round: the review pool is organization-wide BY CONSTRUCTION (the cycle and review models carry no storeId), so a branch-scoped `review-cycles` schedule would compute org-wide counts while wearing a branch's name — a lying document. This round the narrowing is refused at the door, the digest's scope line is forced honest, the constraint becomes visible on the schedules desk, and the performance desk's deep links learn `?cycleId=`.

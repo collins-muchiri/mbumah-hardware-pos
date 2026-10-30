@@ -840,6 +840,12 @@ export const REPORT_KEY_TO_TAB: Record<HrScheduleReportKey, string> = {
 // link walks the reader into the reviews tab, not just the desk.
 export const REPORT_KEY_TO_URL: Partial<Record<HrScheduleReportKey, string>> = {
   'review-cycles': '/hr/performance?tab=reviews',
+  // v2.285.0: the goal pool's interactive home is the performance desk's
+  // goals tab. The reports desk has NO 'goals' tab, so the TAB fallback
+  // (/hr/reports?tab=goals) fell through the desk's known-tab read and
+  // landed on headcount silently — a bell that walks nowhere. The override
+  // is the honest landing: the bell walks where the pool actually lives.
+  'goal-attainment': '/hr/performance?tab=goals',
 };
 
 function digestHeadlines(digest: HrReportDigestData): string {
