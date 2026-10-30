@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.278.0',
+    title: 'The digest learns the receipt',
+    bullets: [
+      'The statutory digest (email and CSV) gains a Filed column beside the deadline: each payroll month now says "2 of 4 filed" — the receipt counts travel with the money, so the morning email tells the whole story.',
+      'Corrections ride the count: a month whose receipts were amended reads "3 of 4 filed · 1 amended". Counts only — names and references stay on the desk.',
+      'A window that has not opened yet stays quiet, and a filing month with nothing recorded says "0 of 4 filed" honestly.',
+      'The reports desk\u2019s Due cell grows the receipt rail: four small dots (PAYE, NSSF, SHIF, housing levy), green when the ledger holds that receipt \u2014 the composition is visible at a glance, not only on hover.',
+    ],
+  },
+  {
     version: '2.277.0',
     title: 'The chip takes its correction',
     bullets: [

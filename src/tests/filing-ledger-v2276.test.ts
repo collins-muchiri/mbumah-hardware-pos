@@ -223,9 +223,18 @@ describe('the card wears the receipt — the clock and the ledger, one row', () 
 });
 
 describe('the Due cell learns the receipt — the month-level roll-up', () => {
-  it('the dot is emerald only when ALL FOUR obligations are evidenced', () => {
-    expect(page).toContain('data-testid="hr-due-filed-dot"');
-    expect(page).toContain("aria-label=\"All four obligations filed for this month\"");
+  it('the receipt rides the cell as the four-dot rail (v2.278.0 evolution)', () => {
+    // v2.278.0 (deliberate evolution): the single emerald check dot —
+    // `data-testid="hr-due-filed-dot"`, the all-four gate monthFullyFiled —
+    // grew into the four-dot RECEIPT RAIL (`hr-due-filed-rail`, one dot per
+    // obligation in the calendar's order, emerald held / quiet slate not):
+    // the composition left the hover-only title for an always-visible face,
+    // and monthFullyFiled retired because the rail IS the composition. The
+    // aria still speaks the ONE grammar the title speaks.
+    expect(page).toContain('data-testid="hr-due-filed-rail"');
+    expect(page).toContain('data-testid={`hr-due-filed-dot-${k.toLowerCase()}`}');
+    expect(page).toContain("held ? 'bg-emerald-500 dark:bg-emerald-400' : 'bg-slate-300 dark:bg-slate-600'");
+    expect(page).toContain('monthFullyFiled'); // only in the retirement comment now
     expect(page).toContain("const count = monthFiledCount(m.month);");
     // v2.277.0 (deliberate evolution): the composition's third voice — the
     // title now also counts genuinely amended receipts (the slack law's

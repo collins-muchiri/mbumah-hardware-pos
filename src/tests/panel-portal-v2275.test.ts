@@ -211,7 +211,10 @@ describe('the ledger learns the clock — the reports desk and the digest mirror
   it('the cell derives from the ONE helper and never claims a filing', () => {
     expect(page).toContain('const due = statutoryDueForPeriod(m.month);');
     expect(page).toContain("{due ? due.dueLabel : '—'}");
-    // "Due", never "Filed" — the document's-answer law on the column name
+    // "Due", never "Filed" — the document's-answer law on the column name.
+    // v2.278.0 (deliberate evolution): the desk's own column stays "Due" —
+    // the composition arrived as the receipt RAIL inside the cell, not as a
+    // second column; `label: 'Filed'` still has no home on the desk.
     expect(page).toContain("label: 'Due' }");
     expect(page).not.toContain("label: 'Filed'");
   });
@@ -222,8 +225,14 @@ describe('the ledger learns the clock — the reports desk and the digest mirror
   });
 
   it('the digest carries Due by (ISO) through the same case — one seam, every surface', () => {
-    expect(schedule).toContain("columns: ['Month', 'PAYE', 'NSSF', 'SHIF', 'AHL', 'Total', 'Due by']");
+    // v2.278.0 (deliberate evolution): the seam learned the receipt — the
+    // columns grew "Filed" beside "Due by" (COUNTS only, the aggregate the
+    // aggregate-only law always allowed), so the pinned array became the
+    // eight-column face. One seam, every surface (email, ad-hoc CSV, the
+    // desk's own table CSV) still mirrors.
+    expect(schedule).toContain("columns: ['Month', 'PAYE', 'NSSF', 'SHIF', 'AHL', 'Total', 'Due by', 'Filed']");
     expect(schedule).toContain('statutoryDueForPeriod(m.month)?.dueDate');
-    expect(schedule).toContain("import { statutoryDueForPeriod } from '@/lib/hr/compliance-calendar';");
+    expect(schedule).toContain('digestFilingVoice(m.month,');
+    expect(schedule).toContain("import { digestFilingVoice, statutoryDueForPeriod } from '@/lib/hr/compliance-calendar';");
   });
 });
