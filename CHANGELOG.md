@@ -2,6 +2,27 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.286.0] The word names its pool
+
+The symmetric-face round: v2.285.0 taught the goals tab to answer `?status=`; this round the REVIEWS tab answers the same word. The two vocabularies are disjoint (OPEN/ACHIEVED/MISSED/CLOSED vs DRAFT/SUBMITTED/ACKNOWLEDGED/CALIBRATED), so the word itself names its pool — a bare `?status=submitted` routes to the reviews tab, a bare `?status=missed` still routes to the goals tab. And the pool digest's bell learns where the mass sits: the digest's OWN by-status table names the dominant status and the walk carries it.
+
+### Added
+- **The symmetric face** (`src/app/(shell)/hr/performance/page.tsx`): the `?status=` read now serves BOTH faces — an explicit `?tab=` pins the face (the word filters within it only when it belongs to that face's vocabulary; a human-typed mismatch like `?tab=reviews&status=OPEN` lands on the named face, never dragged elsewhere), and a bare word routes itself by vocabulary. Case-lenient (a human-typed link is still a link), vocabulary-strict (an unknown word falls back to the desk's own state).
+- **The vocabulary map** (`src/lib/hr/report-schedule-service.ts`): `DEEP_LINK_STATUS_VOCABULARY` reads the lib's OWN words (`REVIEW_STATUSES` from performance-service, `GOAL_STATUSES` from goal-service — never a copy), and only the two performance pools speak a status vocabulary; the other seven bells walk their plain faces.
+- **The bell lands where the mass sits** (`src/lib/hr/report-schedule-service.ts`): `digestDominantStatus(digest, vocabulary)` reads the digest's OWN by-status table — the same rows the reader just read — and the walk carries it (`/hr/performance?tab=reviews&status=<dominant>`). Ties break to the first row in table order (both report builders march their statuses in vocabulary order, so the break is deterministic). An empty pool, an all-zero pool, an unparseable or negative count, or a drifted table walks the plain face — the bell never guesses.
+- **The cross-link owns its deep link** (`src/app/(shell)/hr/performance/page.tsx`): `setUrlParam` — the mirror of the drop. `viewCycleReviews` now speaks its own `?cycleId=` in the URL (a reload re-lands exactly what the walk landed; a stale param from an earlier link can never win) and retires any `?status=` the walk just reset.
+
+### Styled
+- **The liftable chip, on the reviews face** (`src/app/(shell)/hr/performance/page.tsx`): an active review-status filter — however it arrived — wears the amber deep-link family both faces speak (full dark-mode set, hover deepen); its × lifts BOTH the filter and the `?status=` param that asked for it.
+- **The beacon** (`src/app/(shell)/hr/performance/page.tsx`): a filter that lives on an unvisited tab is never invisible — the Reviews/Goals triggers wear the amber dot while a status filter waits on that face (`aria-hidden`; the chip on the face does the talking).
+- **The keyboard is a first-class hand** (both faces): the deep-link chips gain a visible `focus-visible` amber ring; the count lines ("Showing X of Y") are now polite live regions, so a screen reader hears the number move when a lens is pressed.
+
+### Fixed
+- **The last partial clear** (`src/app/(shell)/hr/performance/page.tsx`): the generic review clear retires BOTH deep-link params (`?cycleId=` and `?status=`), and a hand on a review status chip retires the param first — the link speaks once; the reader's own pick owns the URL. A state the URL forgot was a state a reload betrayed.
+
+### Tests
+- `src/tests/performance-deeplink-v286.test.ts` (35 pins, BOTH nets): the vocabulary map by VALUE (runtime pins — the lib's own arrays, disjointness asserted), the `digestDominantStatus` truth table (dominant, tie, number cells, all-zero, drifted word, unparseable, negative, no digest/table/rows, empty vocabulary), the builder's suffix + storeId hand, the desk's routing law (face pin, bare-word routing, incumbent preserved), the reviews amber chip, `setUrlParam` + the cross-link ownership, the double-drop generic clear, both beacons, both polite counts. `schedule-reviews-v283.test.ts` + `schedule-goals-v2282.test.ts` re-anchored to the import/override shapes (green).
+
 ## [2.285.0] The goals answer their link
 
 The deep-link parity round: the goal-attainment digest has been scheduleable since v2.282.0, but its bell walked `/hr/reports?tab=goals` — and the reports desk has no `goals` tab, so the known-tab read fell through and every reader landed on headcount silently. A bell that walks nowhere is a lying door. This round the goal pool's bell walks where the pool actually lives, the goals tab learns its own deep link, and "one honest clear" becomes law across both desks.

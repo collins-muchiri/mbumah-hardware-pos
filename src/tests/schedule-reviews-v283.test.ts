@@ -140,7 +140,9 @@ describe('the review-cycles digest case — the ONE seam', () => {
 
   it('the case aggregates through the performance service\u2019s own report fn', () => {
     expect(svcSrc).toContain('const r = await reviewCycleReport(session, now);');
-    expect(svcSrc).toContain("import { reviewCycleReport } from './performance-service';");
+    // v2.286.0 re-anchor: the import gains REVIEW_STATUSES (the deep-link
+    // vocabulary map reads the lib's own words, never a copy).
+    expect(svcSrc).toContain("import { REVIEW_STATUSES, reviewCycleReport } from './performance-service';");
   });
 
   it('the headline speaks the pool\u2019s counts + the clock, in order', () => {
@@ -173,9 +175,12 @@ describe('the review-cycles deep link — the performance desk', () => {
   });
 
   it('the builder consults the override FIRST and appends storeId only when present', () => {
+    // v2.286.0 re-anchor: the override now gains the dominant-status suffix
+    // (overrideWithStatus) before the storeId hand reads its '?' — the
+    // consult order and the guarded append are the same law.
     expect(svcSrc).toContain('const override = REPORT_KEY_TO_URL[params.reportKey as HrScheduleReportKey];');
-    expect(svcSrc).toContain("const storeIdQs = params.storeId ? `${override?.includes('?') ? '&' : '?'}storeId=${params.storeId}` : '';");
-    expect(svcSrc).toContain('? `${override}${storeIdQs}`');
+    expect(svcSrc).toContain("const storeIdQs = params.storeId ? `${overrideWithStatus?.includes('?') ? '&' : '?'}storeId=${params.storeId}` : '';");
+    expect(svcSrc).toContain('? `${overrideWithStatus}${storeIdQs}`');
   });
 
   it('the performance desk reads ?tab= and only a KNOWN tab id lands (deferred one tick, directive-free)', () => {

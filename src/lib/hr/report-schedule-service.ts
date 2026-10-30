@@ -48,8 +48,8 @@ import {
   timeToHireReport,
   turnoverReport,
 } from './reports';
-import { goalAttainmentReport } from './goal-service';
-import { reviewCycleReport } from './performance-service';
+import { GOAL_STATUSES, goalAttainmentReport } from './goal-service';
+import { REVIEW_STATUSES, reviewCycleReport } from './performance-service';
 import type { AuthSession } from '@/lib/auth';
 
 export const HR_SCHEDULE_REPORTS = [
@@ -848,6 +848,45 @@ export const REPORT_KEY_TO_URL: Partial<Record<HrScheduleReportKey, string>> = {
   'goal-attainment': '/hr/performance?tab=goals',
 };
 
+// v2.286.0: the two performance pools are the only desks that speak a status
+// vocabulary, so they are the only bells whose walk can carry a status word.
+// The desk reads ?status= — an explicit ?tab= pins the face, the word filters
+// within it only when it belongs to that face's vocabulary (the vocabularies
+// are disjoint, so a bare word routes itself).
+export const DEEP_LINK_STATUS_VOCABULARY: Partial<Record<HrScheduleReportKey, readonly string[]>> = {
+  'review-cycles': REVIEW_STATUSES,
+  'goal-attainment': GOAL_STATUSES,
+};
+
+/**
+ * v2.286.0: the pool's dominant status, read from the digest's OWN table —
+ * the same rows the reader just read. The bell lands where the pool's mass
+ * sits; a liftable amber chip on the desk makes the landing honest (never
+ * invisible state). Ties break to the first row in table order (both report
+ * builders march their statuses in vocabulary order, so the break is
+ * deterministic). An empty pool, an all-zero pool, or a table that drifted
+ * outside the vocabulary walks the plain face (null — never a guess).
+ */
+export function digestDominantStatus(
+  digest: Pick<HrReportDigestData, 'table'> | null | undefined,
+  vocabulary: readonly string[],
+): string | null {
+  const rows = digest?.table?.rows ?? [];
+  let best: string | null = null;
+  let bestCount = 0;
+  for (const row of rows) {
+    const status = row[0];
+    if (typeof status !== 'string' || !vocabulary.includes(status)) continue;
+    const n = Number(row[1]);
+    if (!Number.isFinite(n) || n <= 0) continue;
+    if (n > bestCount) {
+      bestCount = n;
+      best = status;
+    }
+  }
+  return best;
+}
+
 function digestHeadlines(digest: HrReportDigestData): string {
   return (digest.headline ?? [])
     .slice(0, 3)
@@ -883,9 +922,22 @@ async function writeDigestNotification(params: {
   try {
     const override = REPORT_KEY_TO_URL[params.reportKey as HrScheduleReportKey];
     const tab = REPORT_KEY_TO_TAB[params.reportKey as HrScheduleReportKey];
-    const storeIdQs = params.storeId ? `${override?.includes('?') ? '&' : '?'}storeId=${params.storeId}` : '';
-    const actionUrl = override
-      ? `${override}${storeIdQs}`
+    // v2.286.0: the bell lands where the pool's mass sits — the digest's own
+    // by-status table names the dominant status and the walk carries it. The
+    // desk reads the word (case-lenient, vocabulary-strict) and the amber
+    // chip lifts it. Every override value carries its own '?', so '&' is the
+    // only separator the suffix can need. No dominant (empty pool, drifted
+    // table) = the plain face — the bell never guesses.
+    const dominant = digestDominantStatus(
+      params.digest,
+      DEEP_LINK_STATUS_VOCABULARY[params.reportKey as HrScheduleReportKey] ?? [],
+    );
+    const overrideWithStatus = override
+      ? `${override}${dominant ? `&status=${dominant}` : ''}`
+      : undefined;
+    const storeIdQs = params.storeId ? `${overrideWithStatus?.includes('?') ? '&' : '?'}storeId=${params.storeId}` : '';
+    const actionUrl = overrideWithStatus
+      ? `${overrideWithStatus}${storeIdQs}`
       : tab
         ? `/hr/reports?tab=${tab}${params.storeId ? `&storeId=${params.storeId}` : ''}`
         : '/hr/reports';
