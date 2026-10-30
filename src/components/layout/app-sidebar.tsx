@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useSyncExternalStore } from 'react';
+import React, { useState, useEffect, useRef, useSyncExternalStore, useCallback } from 'react';
 import { useTheme } from 'next-themes';
 import { toast } from 'sonner';
 import { useAuthStore, useAppStore, type AppTab } from '@/lib/stores';
+// v2.289.0: the bell learns its key — alt+N opens the feed on the POS shell.
+import { useNotificationHotkey } from '@/hooks/use-notification-hotkey';
 import { STORE_LIST } from '@/lib/store-info';
 // v2.12.5 (RBAC): NAV_GROUPS × TAB_CONFIG - no-access tabs now render LOCKED
 // (grayed row + lock icon + "Requires …" tooltip) instead of being silently
@@ -57,6 +59,10 @@ export function AppSidebar() {
   const { theme, setTheme } = useTheme();
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  // v2.289.0: alt+N rings the bell from anywhere in the POS shell (the
+  // sidebar owns the feed's open state; the HR shell wires the same key to
+  // its own header bell — one hook, two openers, the same key).
+  useNotificationHotkey(useCallback(() => setNotificationOpen(true), []));
   // v2.14.1 (fullscreen autohide): when the app is fullscreen on desktop the
   // sidebar slides away after 2s of pointer/keyboard inactivity and peeks
   // back via the left-edge sensor, the top-bar toggle, or keyboard focus.

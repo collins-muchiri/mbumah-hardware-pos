@@ -4,7 +4,7 @@ import React from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   Search, PanelLeftClose, ShoppingCart, Package, Users,
-  BarChart3, CreditCard, Pause, X, Keyboard,
+  BarChart3, CreditCard, Pause, X, Keyboard, Bell,
 } from 'lucide-react';
 
 interface KeyboardShortcutsHelpProps {
@@ -21,6 +21,9 @@ const shortcuts = [
   { keys: 'F5', description: 'Switch to Financial tab', icon: BarChart3 },
   { keys: 'F9', description: 'Process checkout', icon: CreditCard },
   { keys: 'F10', description: 'Hold current cart', icon: Pause },
+  // v2.289.0: the bell learns its key — the row announces it (the feed was
+  // the one surface the shortcut map never named).
+  { keys: 'Alt+N', description: 'Open notifications', icon: Bell },
   { keys: 'Esc', description: 'Clear search / close dialogs', icon: X },
   { keys: '? / Ctrl+/', description: 'Show this help', icon: Keyboard },
 ];

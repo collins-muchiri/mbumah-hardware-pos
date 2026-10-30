@@ -80,6 +80,14 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.289.0',
+    title: 'The bell learns its key',
+    bullets: [
+      'Alt+N now opens your notifications from anywhere — the shop floor and the HR workspace both answer the same key, no mouse hunt required.',
+      'The browser\u2019s own chords are left alone (Ctrl/⌘+N still means "new window"), and the shortcut help (? or Ctrl+/) now lists the bell\u2019s key.',
+    ],
+  },
+  {
     version: '2.288.0',
     title: 'The HR workspace hears the bell',
     bullets: [
