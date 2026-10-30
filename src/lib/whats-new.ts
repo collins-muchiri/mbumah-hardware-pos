@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.279.0',
+    title: 'The email hears the clock',
+    bullets: [
+      'The statutory digest email now opens with the next deadline: "9 November 2026 \u00b7 October 2026 payroll" rides above the money, derived from the statute\u2019s own calendar at the moment the email is built \u2014 the morning email answers what\u2019s coming before what was owed.',
+      'A payroll month whose receipts are all four in wears the green voice in the email itself \u2014 the same emerald the desk speaks, marked by the same law that writes "4 of 4 filed" in the CSV, so the two can never disagree.',
+      'The clock chip and the green mark ride the CSV and plain-text twins as honest words \u2014 no colors where color can\u2019t ride.',
+    ],
+  },
+  {
     version: '2.278.0',
     title: 'The digest learns the receipt',
     bullets: [

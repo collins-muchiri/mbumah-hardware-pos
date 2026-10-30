@@ -2,6 +2,21 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.279.0] The email hears the clock
+
+v2.278.0 put the receipt counts in the digest's table — but the email still opened on the money, and its faces were type-generic grey. This round the digest email opens on the CLOCK and wears the receipt's own family: the next deadline derived at the fire instant rides the headline first, and a payroll month whose composition is complete is marked emerald in the HTML by the same law that writes "4 of 4 filed" in the CSV.
+
+### Added
+- **The clock chip** (`src/lib/hr/compliance-calendar.ts`): `digestNextDeadlineChip(now)` — the NEXT deadline derived purely from `complianceCalendar` at the fire instant ("9 November 2026 · October 2026 payroll"), spread FIRST in the statutory headline so the morning email answers what's coming before what was owed. Words only — the chip borrows no urgency tones (the desk's card owns the window arc and the status colors). The chip rides every twin (HTML headline, CSV header block, plain-text lines) through the ONE seam. Computed once per fire, spread once.
+- **The paired face** (`src/lib/hr/compliance-calendar.ts`): `digestFilingComplete(month, counts, now)` — the voice's boolean twin, through the SAME window gate and the SAME clamps; and `filingWindowOpenDay(month)` — the window's open day-key extracted so the gate lives ONCE (the voice's inline math retired; the `utcDayKey(now) < openDay` law byte kept). THE AGREEMENT LAW (pinned as a truth table): complete ⇔ the voice reads the complete composition ("4 of 4 filed" with its optional amendment tail) — the email's emerald and the CSV's words can never disagree.
+- **The good cells** (`src/lib/email-templates.ts` + `src/lib/hr/report-schedule-service.ts`): `HrDigestTable.goodCells?: Array<[row, column]>` — COORDINATES only, emitted by the builder through `digestFilingComplete` (column 7, the Filed face). The HTML email renders marked cells in `BRAND.primaryDark` (emerald-600 — the receipt's family per color-never-means-two-things) at weight 600; the CSV and text twins never read goodCells (plain by law); a payload without goodCells renders byte-identical to the pre-v2.279 template (pinned).
+
+### Styled
+- **The email's good family**: the marked Filed cell wears the SAME emerald the shell's brand already speaks (`#059669`, emerald-600 — no new palette), exactly one colored cell per complete month; the clock chip renders as the headline's plain words; the low-stock badge precedent (conditional faces in email) extended by coordinates rather than string-sniffing — the mark travels as data, never as a guess.
+
+### Tests
+- `src/tests/digest-email-clock-v2279.test.ts` — 23 pins: the ONE gate (the voice rides `filingWindowOpenDay`, the inline math gone), the agreement truth table over the gate (nulls, partials, amendments, clamps, unopened windows, malformed months), the chip's honest date pairs (on-or-before the 9th reads this month's 9th over the previous payroll — the calendar's own window law; past it, the roll), the December roll, the always-derivable calendar, the builder's once-computed chip + coordinates + the v2.278 rows bytes untouched, the email's emerald-td bytes with the exactly-one-colored-cell law, the byte-identical no-goodCells render, and the plain-text twin's colorless law. `panel-portal-v2275.test.ts` evolved deliberately (the import grew the paired faces — named in the ancestor's own body).
+
 ## [2.278.0] The digest learns the receipt
 
 v2.275.0 named the digest's statutory column "Due by", never "Filed", because the ledger did not exist; v2.276.0 built the ledger; the desk's Due cell learned to count receipts (v2.276.0/277.0) — but the digest, the surface the filing officer actually reads each morning, stayed silent. This round the mirror completes: the digest's statutory table gains the Filed column, COUNTS only, through the same seam that feeds the scheduled email, the ad-hoc CSV and the desk's own table CSV.
