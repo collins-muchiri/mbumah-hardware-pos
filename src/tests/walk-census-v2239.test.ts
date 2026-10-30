@@ -42,13 +42,13 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.239.0)', () => {
   it('package.json leads 2.239.0 (all three slots)', () => {
-    expect(version).toBe('2.280.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.280.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.280.0');
+    expect(version).toBe('2.281.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.281.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.281.0');
   });
 
   it('VERSION speaks 2.239.0 and the verify gate is wired (previous gate still wired)', () => {
-    expect(read('VERSION').trim()).toBe('2.280.0');
+    expect(read('VERSION').trim()).toBe('2.281.0');
     expect(pkg.scripts['verify:v2-239-0']).toBe('node scripts/verify-v2-239-0.mjs');
     expect(pkg.scripts['verify:v2-238-0']).toBe('node scripts/verify-v2-238-0.mjs');
   });
@@ -74,14 +74,14 @@ describe('the round of record (v2.239.0)', () => {
   });
 
   it('the counters ride +1 (the door\u2019s-census entry joined; the yard\u2019s answer joins)', () => {
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(172);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.109.0')).toBe(173);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.108.0')).toBe(174);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(205);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(173);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.109.0')).toBe(174);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.108.0')).toBe(175);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(206);");
   });
 
   it('the meta-pin family rides +1 with the counter source', () => {
-    expect(metaPin).toContain("expect(counter).toContain(\"expect(whatsNewUnreadCount('2.110.0')).toBe(172);\");");
+    expect(metaPin).toContain("expect(counter).toContain(\"expect(whatsNewUnreadCount('2.110.0')).toBe(173);\");");
   });
 });
 

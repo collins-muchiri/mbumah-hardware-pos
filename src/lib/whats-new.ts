@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.281.0',
+    title: 'The card remembers its deliveries',
+    bullets: [
+      'Every report schedule\u2019s card now wears its delivery health as standard \u2014 "4 delivered \u00b7 1 failed across the last 5 sends" rides beneath the last fire\u2019s verdict, read straight from the send ledger, so scanning the list tells you how deliveries have been going without opening a single panel.',
+      'One dot per send, oldest to newest: green delivered, amber partial (only some recipients reached), rose failed, quiet slate pending \u2014 partial and pending no longer share one colour.',
+      'A schedule that has never sent keeps the honest silence \u2014 no strip, never a "0 delivered" guess. Delivery history still holds the full per-recipient detail.',
+    ],
+  },
+  {
     version: '2.280.0',
     title: 'The schedule keeps its appointment',
     bullets: [

@@ -16,6 +16,9 @@ import { formatCsvSize } from '@/lib/hr/digest-csv';
 // v2.280.0: the appointment's pure voice — the relative day words + the
 // imminent gate (UTC calendar-day law, the filing voice's own rule).
 import { fireImminent, relativeFireLabel } from '@/lib/hr/schedule-fire-voice';
+// v2.281.0: the health strip's outcome vocabulary (TYPES only — the pure
+// voice never rides the client bundle).
+import type { ScheduleHealth } from '@/lib/hr/schedule-health-voice';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -70,6 +73,11 @@ interface ScheduleRow {
   lastError: string | null;
   createdAt: string;
   storeId: string | null;
+  // v2.281.0: the always-on delivery face — the last recorded sends as
+  // counts + entries + ONE spoken line, derived server-side by
+  // listSchedulesView (never a lazy fetch). Absent = the schedule has
+  // never sent; the face stays silent (never "0 delivered").
+  health?: ScheduleHealth | null;
 }
 
 interface StoreOption {
@@ -160,29 +168,17 @@ const DELIVERY_STATUS_STYLES: Record<string, string> = {
   PARTIAL: 'bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-900',
 };
 
-// v2.25.0: health dot colour per delivery status (mini-bar on each card).
-const DOT_STYLES: Record<string, string> = {
-  SENT: 'bg-emerald-500',
-  FAILED: 'bg-rose-500',
-  PENDING: 'bg-amber-400',
-  PARTIAL: 'bg-amber-400',
+// v2.281.0: the health strip's colour per outcome. The v2.25 lazy-dot map
+// gave PARTIAL and PENDING the same amber — that collision retires here
+// (colour never means two things): partial wears amber (the mixed-delivery
+// state the chips already speak), pending wears quiet slate (unresolved is
+// not a verdict), delivered emerald, failed rose — the chips' own families.
+const HEALTH_DOT_STYLES: Record<string, string> = {
+  delivered: 'bg-emerald-500',
+  partial: 'bg-amber-500',
+  failed: 'bg-rose-500',
+  pending: 'bg-slate-400 dark:bg-slate-500',
 };
-
-function deliveryDotClass(status: string): string {
-  return DOT_STYLES[status] ?? 'bg-muted-foreground/40';
-}
-
-/** Newest-last list for the dots bar (API returns newest-first). */
-function healthDots(rows: DeliveryRow[]): Array<{ id: string; status: string; title: string }> {
-  return [...rows]
-    .reverse()
-    .slice(-10)
-    .map((d) => ({
-      id: d.id,
-      status: d.status,
-      title: `${d.status}${d.manual ? ' (manual)' : ''} · ${formatDate(d.createdAt)}${d.error ? ` · ${d.error}` : ''}`,
-    }));
-}
 
 // v2.26.0: client-side mirror of the service's EMAIL_RE so the recipient
 // editor gives instant per-address feedback (the server re-validates anyway).
@@ -797,21 +793,32 @@ export function ReportSchedulesTab({ highlightScheduleId }: { highlightScheduleI
                   ) : (
                     <span className="text-muted-foreground">Not sent yet — first digest when due.</span>
                   )}
-                  {/* v2.25.0: last-10 delivery health dots (load history to populate). */}
-                  {historyId === s.id && historyRows && historyRows.length > 0 ? (
+                  {/* v2.281.0: the always-on delivery face — the card's
+                      delivery memory speaks from the server's ONE bounded
+                      log read (listSchedulesView), never from a lazy
+                      fetch: an operator scanning the list reads "4
+                      delivered · 1 failed across the last 5 sends"
+                      without opening a panel. The v2.25 lazy dots row
+                      retires INTO this face (the history panel keeps its
+                      full per-row detail). Dots render oldest-left — the
+                      entries arrive newest-first (the voice's own order). */}
+                  {s.health ? (
                     <div
                       className="mt-2 flex items-center gap-1 border-t pt-2"
-                      role="img"
-                      aria-label={`Last ${historyRows.length} deliveries: ${historyRows.filter((d) => d.status === 'SENT').length} sent, ${historyRows.filter((d) => d.status === 'FAILED').length} failed`}
+                      data-testid={`schedule-health-${s.id}`}
+                      data-window={String(s.health.window)}
+                      title="The last recorded sends of this schedule — open Delivery history for the full per-recipient detail."
                     >
-                      {healthDots(historyRows).map((dot) => (
+                      {[...s.health.entries].reverse().map((entry, idx) => (
                         <span
-                          key={dot.id}
-                          className={`h-1.5 w-1.5 rounded-full ${deliveryDotClass(dot.status)} transition-transform hover:scale-150`}
-                          title={dot.title}
+                          key={`${entry.createdAt}-${idx}`}
+                          data-testid={`schedule-health-dot-${s.id}-${idx}`}
+                          aria-hidden
+                          className={`h-1.5 w-1.5 rounded-full ${HEALTH_DOT_STYLES[entry.outcome] ?? 'bg-muted-foreground/40'} transition-transform hover:scale-150`}
+                          title={`${entry.outcome} · ${formatDate(entry.createdAt)}`}
                         />
                       ))}
-                      <span className="ml-1 text-[10px] text-muted-foreground">last {historyRows.length} sends</span>
+                      <span className="ml-1 text-[10px] text-muted-foreground">{s.health.voice}</span>
                     </div>
                   ) : null}
                 </div>
