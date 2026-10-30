@@ -163,8 +163,8 @@ describe('the export parse - only provably sound rows survive', () => {
 
 describe('the version contract', () => {
   it('package.json rides at 2.186.0', () => {
-    expect(pkg.version).toBe('2.287.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.287.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.287.0');
+    expect(pkg.version).toBe('2.288.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.288.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.288.0');
   });
 });

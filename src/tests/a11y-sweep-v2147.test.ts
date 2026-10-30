@@ -31,11 +31,16 @@ import { join } from 'node:path';
 const readRepo = (rel: string) => readFileSync(join(process.cwd(), rel), 'utf8');
 
 const LAYOUT = 'src/app/(shell)/hr/layout.tsx';
+// v2.288.0 re-anchor: the nav lifted into its own client island so the links
+// could speak their place (aria-current). The header laws that live in the
+// nav's bytes moved with it; the layout-level laws stay on the layout.
+const NAV = 'src/components/layout/hr-shell-nav.tsx';
 const DESK = 'src/app/(shell)/hr/timesheets/page.tsx';
 const PAYROLL = 'src/app/(shell)/hr/payroll/page.tsx';
 
 describe('the header wraps instead of the page scrolling', () => {
   const layout = () => readRepo(LAYOUT);
+  const nav = () => readRepo(NAV);
 
   it('the header row drops its fixed height and allows the nav to drop below', () => {
     // h-14 forced one row; min-h-14 + flex-wrap lets the nav take its own
@@ -45,12 +50,15 @@ describe('the header wraps instead of the page scrolling', () => {
 
   it('the nav itself wraps, right-aligned, every link visible', () => {
     // No overflow-x hiding — the acceptance line is about the PAGE not
-    // scrolling, and hidden links are worse than wrapped links.
-    expect(layout()).toContain('ml-auto flex flex-wrap items-center justify-end gap-1');
+    // scrolling, and hidden links are worse than wrapped links. v2.288.0:
+    // the right cluster (nav + divider + bell) is the ml-auto wrap unit and
+    // the nav wraps inside it.
+    expect(layout()).toContain('ml-auto flex min-w-0 flex-1 flex-wrap items-center justify-end');
+    expect(nav()).toContain('flex flex-wrap items-center justify-end gap-1');
   });
 
   it('nav links keep their accessible name source and compact on phones only', () => {
-    const src = layout();
+    const src = nav();
     expect(src).toContain('aria-label="HR navigation"');
     // The mobile-compact dress code: smaller padding/type under sm:, the
     // desktop size unchanged from sm: up.
@@ -59,7 +67,8 @@ describe('the header wraps instead of the page scrolling', () => {
 
   it('desktop keeps the exact link classes it had (only the phone sizes shrank)', () => {
     // The desktop dress code is untouched: font-medium + hover accent.
-    expect(layout()).toContain('font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground');
+    expect(nav()).toContain('font-medium');
+    expect(nav()).toContain('text-muted-foreground hover:bg-accent hover:text-foreground');
   });
 });
 

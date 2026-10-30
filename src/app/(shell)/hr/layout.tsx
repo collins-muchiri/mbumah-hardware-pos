@@ -1,23 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { HrShellNav } from '@/components/layout/hr-shell-nav';
+import { HrShellBell } from '@/components/layout/hr-shell-bell';
 
 export const metadata: Metadata = {
   title: 'HR Workspace | Mbumah Hardware POS',
   description: 'Employee management workspace: records, documents, and statutory readiness.',
 };
-
-const NAV_ITEMS = [
-  { href: '/hr', label: 'Overview' },
-  { href: '/hr/employees', label: 'Employees' },
-  { href: '/hr/recruitment', label: 'Recruitment' },
-  { href: '/hr/onboarding', label: 'Onboarding' },
-  { href: '/hr/payroll', label: 'Payroll' },
-  { href: '/hr/timesheets', label: 'Timesheets' },
-  { href: '/hr/performance', label: 'Performance' },
-  { href: '/hr/assets', label: 'Assets' },
-  { href: '/hr/discipline', label: 'Discipline' },
-  { href: '/hr/reports', label: 'Reports' },
-];
 
 export default function HrLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -36,17 +25,20 @@ export default function HrLayout({ children }: { children: React.ReactNode }) {
               EMS
             </span>
           </Link>
-          <nav aria-label="HR navigation" className="ml-auto flex flex-wrap items-center justify-end gap-1">
-            {NAV_ITEMS.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="whitespace-nowrap rounded-md px-2.5 py-1 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground sm:px-3 sm:py-1.5 sm:text-sm"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          {/* v2.288.0: the right cluster — nav, then a hairline, then the
+              bell. The feed was a walk away (POS shell only); now the
+              workspace it announces is the workspace it lives in. The
+              cluster flex-wraps as one unit, so the v2.147.0 wrap law
+              (no horizontal scroll at 390px) holds with the bell aboard. */}
+          <div className="ml-auto flex min-w-0 flex-1 flex-wrap items-center justify-end gap-x-2 gap-y-1">
+            <HrShellNav />
+            <div
+              aria-hidden="true"
+              className="hidden h-6 w-px shrink-0 bg-border sm:block"
+              data-testid="hr-header-divider"
+            />
+            <HrShellBell />
+          </div>
         </div>
       </header>
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">{children}</main>

@@ -236,14 +236,17 @@ describe('gate panel - the timesheet row carries its own amber door', () => {
 // ── 6. Navigation ────────────────────────────────────────────────────────────
 
 describe('HR nav - the desk is reachable', () => {
-  const LAYOUT = readRepo('src/app/(shell)/hr/layout.tsx');
+  // v2.288.0 re-anchor: the nav lifted into its own client island
+  // (hr-shell-nav.tsx) so the links could speak their place; the layout
+  // mounts the island. The door vocabulary lives at the island now.
+  const NAV = readRepo('src/components/layout/hr-shell-nav.tsx');
 
   it('Timesheets joins the nav, right after Payroll (the door target adjacency)', () => {
-    expect(LAYOUT).toContain("{ href: '/hr/payroll', label: 'Payroll' }");
-    expect(LAYOUT).toContain("{ href: '/hr/timesheets', label: 'Timesheets' }");
-    const payroll = LAYOUT.indexOf("href: '/hr/payroll'");
-    const timesheets = LAYOUT.indexOf("href: '/hr/timesheets'");
-    const performance = LAYOUT.indexOf("href: '/hr/performance'");
+    expect(NAV).toContain("{ href: '/hr/payroll', label: 'Payroll' }");
+    expect(NAV).toContain("{ href: '/hr/timesheets', label: 'Timesheets' }");
+    const payroll = NAV.indexOf("href: '/hr/payroll'");
+    const timesheets = NAV.indexOf("href: '/hr/timesheets'");
+    const performance = NAV.indexOf("href: '/hr/performance'");
     expect(timesheets).toBeGreaterThan(payroll);
     expect(timesheets).toBeLessThan(performance);
   });

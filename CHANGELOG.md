@@ -2,6 +2,23 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.288.0] The HR shell hears the bell
+
+The reach fix. A worker parked on `/hr/*` never saw the notification center — the bell lived in the POS shell's sidebar and top-bar, and the HR workspace header carried only ten links. The digest beacons (v2.286/287) paper over the gap, but the feed itself stayed a walk away. This round the HR header carries ONE bell that opens the SAME notification center sheet — same feed, same filters, same deep-link walks, same storeId — and the ten links finally speak their place: the desk you are on is visible at a glance.
+
+### Added
+- **The HR-shell bell** (`src/components/layout/hr-shell-bell.tsx`): a bell button in the HR workspace header mounting the real `NotificationCenter` (mark all read, severity filters, dismissed drawer, security tab, retry delivery, deep-link walks). The storeId is the app store's own; the badge rides the badge hook the sidebar already uses — same `['notification-count', storeId]` cache key, zero extra network. The feed query is `enabled: open`, so the mount costs nothing until the bell is rung. Deep links written into bell rows resolve through the app router, identically from inside the workspace they announce.
+- **The active nav** (`src/components/layout/hr-shell-nav.tsx`): the ten links lift into a client island so the CURRENT desk wears the accent pill (`aria-current="page"`, `bg-accent font-semibold`). The active law is a pure predicate — exact match for the workspace root (`/hr`), exact-or-descendant for every desk, segment-boundary aware (`/hr/employeex` is never `/hr/employees`), empty hrefs refuse to guess. Query strings never participate: `?status=` is a lens on the page, not a different page.
+
+### Styled
+- **The badge speaks the sidebar's law** (v2.148.0): critical unread = white on red-600 (4.8:1), everything else = slate-950 on amber-500 (8.6:1); the bounce-in replays only on an INCREASE via the same prev-count ref pattern; the cap reads 99+; the accessible name carries the unread count (`aria-label` + `aria-haspopup="dialog"`).
+- **The hairline divider** between nav and bell (`bg-border`, hidden on phones, `aria-hidden`): the feed's door reads as furniture, not as an eleventh nav item.
+- **Focus rings** on every nav link and the bell (`focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1`): keyboard is a first-class hand in a ten-link header.
+- **The right cluster wraps as one unit** (`ml-auto flex min-w-0 flex-1 flex-wrap items-center justify-end`): the v2.147.0 law — no horizontal scroll at 390px — holds with the bell aboard; the layout stays a server component (it owns the metadata), the two islands are client children.
+
+### Fixed
+- The HR workspace's reach gap: digest beacons could point at a desk whose feed was unreachable from that desk's own shell. The bell closes the loop — the workspace a notification announces is now the workspace the bell lives in.
+
 ## [2.287.0] The bell lights its landing tab
 
 The beacon family's newest member: the reports desk itself. A digest bell has always landed on a reports tab (headcount, cost, absence, turnover, time to hire, statutory, leave) — but from across the desk the landing was invisible until you happened to sit on the right tab. This round the desk wears its unread bells: the trigger of a tab an UNREAD digest bell walks to wears the pulsing amber dot while you are elsewhere. And the schedule vocabulary moves to one client-safe seam, so the desk reads the same map the builder writes — one vocabulary, never a copy.

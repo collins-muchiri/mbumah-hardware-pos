@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.288.0',
+    title: 'The HR workspace hears the bell',
+    bullets: [
+      'The HR workspace header now carries its own notification bell — the same feed, filters and deep links as the shop floor\u2019s bell, so a worker parked on any HR desk finally sees the news without walking to the dashboard.',
+      'The bell\u2019s badge speaks the same language: amber for unread, red for critical, and it goes dark the moment you\u2019ve read the feed.',
+      'The ten HR navigation links now show where you are — the desk you\u2019re on is highlighted, so a ten-door header finally reads like a map.',
+    ],
+  },
+  {
     version: '2.287.0',
     title: 'The bell lights its landing tab',
     bullets: [
