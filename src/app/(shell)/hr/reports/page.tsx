@@ -756,9 +756,9 @@ export default function HrReportsPage() {
   // dialog's submit all speak: `${kind}:${periodMonth}`.
   const filingFor = (kind: string, periodMonth: string | null | undefined): StatutoryFilingRow | null =>
     periodMonth ? filings.find((f) => f.kind === kind && f.periodMonth === periodMonth) ?? null : null;
-  /** The month-level roll-up the Due cell's dot speaks: every obligation evidenced. */
-  const monthFullyFiled = (periodMonth: string): boolean =>
-    ['PAYE', 'NSSF', 'SHIF', 'AHL'].every((k) => filings.some((f) => f.kind === k && f.periodMonth === periodMonth));
+  // v2.278.0: monthFullyFiled retired — the single all-four check dot grew
+  // into the receipt rail (per-obligation dots), whose face no longer needs
+  // a separate all-four gate; the rail IS the composition.
   const monthFiledCount = (periodMonth: string): number =>
     ['PAYE', 'NSSF', 'SHIF', 'AHL'].filter((k) => filings.some((f) => f.kind === k && f.periodMonth === periodMonth)).length;
   const monthInCoverage = (periodMonth: string): boolean =>
@@ -2409,13 +2409,39 @@ export default function HrReportsPage() {
                                 })()}
                               >
                                 {due ? due.dueLabel : '—'}
-                                {monthFullyFiled(m.month) && (
-                                  <FileCheck2
-                                    className="ml-1 inline h-3 w-3 text-emerald-600 dark:text-emerald-400"
-                                    aria-label="All four obligations filed for this month"
-                                    data-testid="hr-due-filed-dot"
-                                  />
-                                )}
+                                {monthInCoverage(m.month) && (() => {
+                                  // v2.278.0: the receipt rail — the composition leaves the
+                                  // hover-only title for an always-visible face. Four dots,
+                                  // the calendar's own order (PAYE, NSSF, SHIF, housing levy),
+                                  // emerald when the ledger holds that receipt, quiet slate
+                                  // when it does not — the rail-dot law: the dots carry the
+                                  // face, the aria carries the composition in the ONE grammar
+                                  // the title already speaks, and no new palette is invented.
+                                  // Outside the read window the cell keeps quiet (no coverage,
+                                  // no claim) — the law the rail inherits, never retires.
+                                  const kinds = ['PAYE', 'NSSF', 'SHIF', 'AHL'] as const;
+                                  const count = monthFiledCount(m.month);
+                                  const amended = monthAmendedCount(m.month);
+                                  return (
+                                    <span
+                                      className="ml-1.5 inline-flex items-center gap-0.5 align-middle"
+                                      role="img"
+                                      aria-label={`filed: ${count} of ${kinds.length} obligations${amended > 0 ? ` · ${amended} receipt${amended === 1 ? '' : 's'} amended` : ''}`}
+                                      data-testid="hr-due-filed-rail"
+                                    >
+                                      {kinds.map((k) => {
+                                        const held = Boolean(filingFor(k, m.month));
+                                        return (
+                                          <span
+                                            key={k}
+                                            className={`h-1.5 w-1.5 rounded-full ${held ? 'bg-emerald-500 dark:bg-emerald-400' : 'bg-slate-300 dark:bg-slate-600'}`}
+                                            data-testid={`hr-due-filed-dot-${k.toLowerCase()}`}
+                                          />
+                                        );
+                                      })}
+                                    </span>
+                                  );
+                                })()}
                               </TableCell>
                             </TableRow>
                           );

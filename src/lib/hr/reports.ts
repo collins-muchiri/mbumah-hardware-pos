@@ -12,6 +12,8 @@
 import { type Prisma } from '@prisma/client';
 import { db } from '@/lib/db';
 import { hrAudit, HrEntityType } from './audit';
+import { filingWasAmended } from './compliance-calendar';
+import { fetchStatutoryFilings } from './statutory-filing';
 import { toCSV } from '@/lib/report-utils';
 import type { AuthSession } from '@/lib/auth';
 
@@ -490,8 +492,42 @@ export async function statutoryLiabilityReport(
   }
   const total = paye + nssf + shif + ahl + arrears;
 
+  // ── v2.278.0 "the digest learns the receipt": the ledger's composition
+  // rides the report — per payroll month, HOW MANY of the calendar's four
+  // obligations hold a receipt and how many of those were genuinely
+  // amended (filingWasAmended's slack law decides, not the eye). The read
+  // is the ledger's OWN read (fetchStatutoryFilings — one home, never a
+  // second roll call), scoped to the month range the monthly rows already
+  // span; a month with no posted payroll lines but with receipts still
+  // speaks its composition? NO — the composition rides the MONTHLY ROWS,
+  // and the rows are the period's payroll months; a ledger read that
+  // cannot speak (pre-migration database, any failure) leaves the
+  // composition null and the money still tells the truth (the
+  // load-erasure law: a ledger failure darkens the receipts, never the
+  // money). COUNTS only — names, references and notes never ride a
+  // report (the aggregate law this file was written under).
+  const monthKeys = [...monthly.keys()].sort();
+  let filings: Record<string, { filed: number; amended: number }> | null = null;
+  if (monthKeys.length > 0) {
+    try {
+      const rows = await fetchStatutoryFilings(session, { fromMonth: monthKeys[0], toMonth: monthKeys[monthKeys.length - 1] });
+      const buckets: Record<string, { filed: number; amended: number }> = {};
+      for (const key of monthKeys) buckets[key] = { filed: 0, amended: 0 };
+      for (const row of rows) {
+        const bucket = buckets[row.periodMonth];
+        if (!bucket) continue; // a receipt whose payroll month has no row here is another report's story
+        bucket.filed += 1;
+        if (filingWasAmended(row)) bucket.amended += 1;
+      }
+      filings = buckets;
+    } catch {
+      filings = null; // the ledger stays quiet; the money never lies about it
+    }
+  }
+
   return {
     scope,
+    filings,
     totals: {
       paye: Math.round(paye * 100) / 100,
       nssf: Math.round(nssf * 100) / 100,

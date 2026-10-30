@@ -23,7 +23,7 @@ import { db } from '@/lib/db';
 import { hrAudit, HrEntityType } from './audit';
 import { sendEmail } from '@/lib/email-service';
 import { digestToCsv, formatCsvSize, type DigestCsvAttachment } from '@/lib/hr/digest-csv';
-import { statutoryDueForPeriod } from '@/lib/hr/compliance-calendar';
+import { digestFilingVoice, statutoryDueForPeriod } from '@/lib/hr/compliance-calendar';
 import {
   hrReportDigestTemplate,
   hrReportDigestText,
@@ -549,15 +549,22 @@ export async function buildDigestPayload(
         ],
         table: {
           caption: 'Monthly statutory liability',
-          // v2.275.0: the digest's table learns the CLOCK — each payroll
+          // v2.275.0: the digest's table learned the CLOCK — each payroll
           // month's row carries the deadline the statute sets (the 9th of
           // the following month, derived by the compliance calendar's pure
           // helper from the month key the row already carries; ISO so the
-          // CSV never argues about locale). The column is named "Due by",
-          // never "Filed": whether a past window was actually filed is the
-          // ledger's business, and the digest never claims a receipt.
-          columns: ['Month', 'PAYE', 'NSSF', 'SHIF', 'AHL', 'Total', 'Due by'],
-          rows: r.monthly.map((m) => [m.label, fmt(m.paye), fmt(m.nssf), fmt(m.shif), fmt(m.housingLevy), fmt(m.paye + m.nssf + m.shif + m.housingLevy + m.payeArrears), statutoryDueForPeriod(m.month)?.dueDate ?? '']),
+          // CSV never argues about locale).
+          // v2.278.0 "the digest learns the receipt": the column named "Due
+          // by", never "Filed", was the law when the ledger did not exist;
+          // v2.276.0 built the ledger and the desk's Due cell learned to
+          // count receipts — the digest now completes the mirror with the
+          // aggregate the aggregate-only law always allowed: COUNTS only
+          // ("N of 4 filed · K amended" by the calendar's pure voice),
+          // never a name, reference or note. The window governs the first
+          // record: a month whose filing window has not opened keeps the
+          // cell quiet, and a ledger that cannot speak stays quiet too.
+          columns: ['Month', 'PAYE', 'NSSF', 'SHIF', 'AHL', 'Total', 'Due by', 'Filed'],
+          rows: r.monthly.map((m) => [m.label, fmt(m.paye), fmt(m.nssf), fmt(m.shif), fmt(m.housingLevy), fmt(m.paye + m.nssf + m.shif + m.housingLevy + m.payeArrears), statutoryDueForPeriod(m.month)?.dueDate ?? '', digestFilingVoice(m.month, r.filings ? r.filings[m.month] ?? null : null, now)]),
         },
       };
     }

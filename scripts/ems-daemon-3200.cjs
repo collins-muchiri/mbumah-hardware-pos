@@ -56,7 +56,14 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
       stdio: ['ignore', fs.openSync(LOG, 'a'), fs.openSync(LOG, 'a')],
       env: {
         ...process.env,
-        DATABASE_URL: 'file:/home/z/ems/prisma/prisma/dev.db',
+        // v2.278.0 THE PIN LAW: the pin must ride the spawn itself (process
+        // env beats .env — an inherited shell DATABASE_URL would win), and
+        // the pin must speak the QA database .env speaks (db/ems-dev.db,
+        // where the QA seeds land), NOT the vitest-forced house db — the
+        // old pin here pointed at prisma/prisma/dev.db, so every
+        // launcher-born daemon served a different world than the shell's
+        // own `next start` and the desk E2E saw its seeds vanish.
+        DATABASE_URL: 'file:/home/z/ems/db/ems-dev.db',
         NODE_ENV: 'production',
         PORT: '3200',
       },

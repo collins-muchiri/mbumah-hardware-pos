@@ -326,3 +326,68 @@ export function filingWasAmended(row: { createdAt?: string | null; updatedAt?: s
   if (Number.isNaN(created) || Number.isNaN(updated)) return false;
   return updated - created > AMEND_SLACK_MS;
 }
+
+/**
+ * The statute's four monthly obligations (v2.278.0 "the digest learns the
+ * receipt") — the CLOCK's own list, in the calendar's own order. The digest's
+ * "Filed" denominator is how many obligations the calendar DEMANDS of a
+ * payroll month, so the number lives here (the clock's home), not on the
+ * ledger (the ledger's STATUTORY_FILING_KINDS speaks what the ledger ACCEPTS;
+ * the two agree today, each answering its own concern — and the pure calendar
+ * may never import the ledger's Prisma graph, the client-bundle law).
+ */
+export const STATUTORY_OBLIGATION_KINDS = ['PAYE', 'NSSF', 'SHIF', 'AHL'] as const;
+
+export type StatutoryObligationKind = (typeof STATUTORY_OBLIGATION_KINDS)[number];
+
+/**
+ * The day a payroll month's filing window opens (v2.278.0): the 1st of the
+ * due month — the same month statutoryDueForPeriod already derives, so a
+ * digest cell and a desk chip can never disagree about when filing becomes
+ * POSSIBLE. Read back from the due date's own first (due month + "-01",
+ * UTC midnight) — the ONE derivation, never a second 9th-minus-8 math.
+ * Malformed month keys → null (honest absence, never a guessed window).
+ */
+export function filingWindowOpensForPeriod(month: string): string | null {
+  const due = statutoryDueForPeriod(month);
+  if (!due) return null;
+  return `${due.dueDate.slice(0, 7)}-01`;
+}
+
+/**
+ * The digest's receipt voice (v2.278.0 "the digest learns the receipt").
+ * v2.275.0 named the digest's statutory column "Due by", never "Filed",
+ * because the ledger did not exist; v2.276.0 built the ledger, and the
+ * desk's Due cell learned to count receipts (v2.276.0/277.0) — but the
+ * digest stayed silent. This voice completes the mirror: COUNTS only, the
+ * aggregate the digest's aggregate-only law always allowed (names,
+ * references and notes stay the ledger desk's own words — they never ride
+ * a digest).
+ *
+ * The document's-answer grammar, in order:
+ * - counts null (the ledger could not speak — pre-migration database,
+ *   read failure) → '' : quiet, never a guessed composition;
+ * - the window has not opened yet (now before the 1st of the due month,
+ *   UTC-midnight floor law) → '' : the clock governs the first record,
+ *   and a "0 of 4" cried over an unopened window would be neglect where
+ *   none is possible;
+ * - otherwise "N of 4 filed", with " · K amended" when the slack law's
+ *   corrections ride the receipts. Both counts clamp at the door (a
+ *   corrupt payload cannot inflate a composition — the RUNTIME-pin law);
+ *   malformed months stay quiet.
+ */
+export function digestFilingVoice(
+  month: string,
+  counts: { filed: number; amended: number } | null,
+  now: Date,
+): string {
+  if (!counts) return '';
+  const opens = filingWindowOpensForPeriod(month);
+  if (!opens) return '';
+  const openDay = utcDayKey(new Date(`${opens}T00:00:00Z`));
+  if (Number.isNaN(openDay) || utcDayKey(now) < openDay) return '';
+  const total = STATUTORY_OBLIGATION_KINDS.length;
+  const filed = Math.max(0, Math.min(total, Math.floor(Number(counts.filed) || 0)));
+  const amended = Math.max(0, Math.min(filed, Math.floor(Number(counts.amended) || 0)));
+  return `${filed} of ${total} filed${amended > 0 ? ` · ${amended} amended` : ''}`;
+}
