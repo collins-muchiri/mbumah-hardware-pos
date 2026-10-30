@@ -178,9 +178,11 @@ describe('the review-cycles deep link — the performance desk', () => {
     expect(svcSrc).toContain('? `${override}${storeIdQs}`');
   });
 
-  it('the performance desk reads ?tab= and only a KNOWN tab id lands', () => {
+  it('the performance desk reads ?tab= and only a KNOWN tab id lands (deferred one tick, directive-free)', () => {
     expect(perfPageSrc).toContain("const requested = new URLSearchParams(window.location.search).get('tab');");
-    expect(perfPageSrc).toContain("if (requested === 'cycles' || requested === 'reviews' || requested === 'goals') setTab(requested);");
+    expect(perfPageSrc).toContain("if (requested !== 'cycles' && requested !== 'reviews' && requested !== 'goals') return;");
+    expect(perfPageSrc).toContain('const t = window.setTimeout(() => setTab(requested), 0);');
+    expect(perfPageSrc).not.toContain('eslint-disable'); // no directive to go stale in either eslint resolution
   });
 });
 

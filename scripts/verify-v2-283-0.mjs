@@ -57,7 +57,7 @@ ok('the tab map stays total', svc.includes("'review-cycles': 'reviews',"));
 ok('the URL override wins for review-cycles', svc.includes("'review-cycles': '/hr/performance?tab=reviews',") && svc.includes('export const REPORT_KEY_TO_URL: Partial<Record<HrScheduleReportKey, string>>'));
 ok('the builder consults the override FIRST', svc.indexOf('const override = REPORT_KEY_TO_URL') > -1 && svc.indexOf('const override = REPORT_KEY_TO_URL') < svc.indexOf('const tab = REPORT_KEY_TO_TAB'));
 ok('storeId appends only when present (never a bare storeId=null)', svc.includes("const storeIdQs = params.storeId ? `${override?.includes('?') ? '&' : '?'}storeId=${params.storeId}` : '';"));
-ok('the performance desk reads ?tab= and only a KNOWN tab id lands', desk.includes("const requested = new URLSearchParams(window.location.search).get('tab');") && desk.includes("if (requested === 'cycles' || requested === 'reviews' || requested === 'goals') setTab(requested);"));
+ok('the performance desk reads ?tab= and only a KNOWN tab id lands (deferred, directive-free)', desk.includes("const requested = new URLSearchParams(window.location.search).get('tab');") && desk.includes("if (requested !== 'cycles' && requested !== 'reviews' && requested !== 'goals') return;") && desk.includes('const t = window.setTimeout(() => setTab(requested), 0);') && !desk.includes('eslint-disable'));
 
 console.log('— the card + the preview\u2019s face (mandatory \u2463) —');
 ok('the select offers the review digest', tab.includes("{ value: 'review-cycles', label: 'Review cycles (all cycles)' },"));
