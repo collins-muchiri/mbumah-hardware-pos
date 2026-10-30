@@ -315,6 +315,84 @@ export function distinctActorEmails(actors: DrillActor[]): number {
 }
 
 /**
+ * One actor's section of the grouped drill (v2.299.0) — the account's word,
+ * whether it is the anonymous bucket, the distinct role words its rows
+ * carried (first-appearance order, for the header pills), and the indices
+ * of its rows in the LEDGER'S OWN ORDER. The grouped view is a LENS over
+ * the ledger — it never re-sorts, never re-fetches, never owns the filing
+ * (the CSV stays in ledger order no matter which lens is on screen).
+ */
+export interface GateDrillActorGroup {
+  /** The group key — the email, or the vocabulary's one word for unknowns. */
+  key: string;
+  /** The header's label — same word as the key, one home for both. */
+  label: string;
+  /** True only for the anonymous bucket (null email) — never an identity. */
+  isUnknown: boolean;
+  /** Distinct non-null role words across the group's rows, first seen first. */
+  roles: string[];
+  /** The group's row indices into the source array, in ledger order. */
+  rows: number[];
+}
+
+/**
+ * The drill's grouping lens (v2.299.0) — the shown rows folded under each
+ * account, the aggregate's own answer made visible.
+ *
+ * THE LAWS:
+ *   • sections appear in FIRST-APPEARANCE order — the ledger's own order
+ *     decides which account leads, never the alphabet (the file's law: the
+ *     view reads in the same order the desk just read on screen);
+ *   • the anonymous bucket is ONE bucket (an unknown row is not an
+ *     identity), and it walks LAST — the named accounts lead, the unnamed
+ *     tail follows; an all-unknown ledger simply has its one bucket first;
+ *   • role words are distinct and first-seen-first, so a section header
+ *     never repeats a pill;
+ *   • the lens consumes the ALREADY-PARSED actors (the ONE parse's
+ *     consumers grow; the parse count does not).
+ *
+ * Pure so the RUNTIME-PIN law holds: the suite pins the order, the bucket
+ * law and the counts by value; the render site just wires it.
+ */
+export function groupDrillRowsByActor(actors: DrillActor[]): GateDrillActorGroup[] {
+  const named = new Map<string, { roles: string[]; rows: number[] }>();
+  const unknownRoles: string[] = [];
+  const unknownRows: number[] = [];
+  for (let i = 0; i < actors.length; i++) {
+    const actor = actors[i];
+    if (actor.email) {
+      let g = named.get(actor.email);
+      if (!g) {
+        g = { roles: [], rows: [] };
+        named.set(actor.email, g);
+      }
+      g.rows.push(i);
+      if (actor.role && !g.roles.includes(actor.role)) g.roles.push(actor.role);
+    } else {
+      unknownRows.push(i);
+      if (actor.role && !unknownRoles.includes(actor.role)) unknownRoles.push(actor.role);
+    }
+  }
+  const groups: GateDrillActorGroup[] = [...named.entries()].map(([email, g]) => ({
+    key: email,
+    label: email,
+    isUnknown: false,
+    roles: g.roles,
+    rows: g.rows,
+  }));
+  if (unknownRows.length > 0) {
+    groups.push({
+      key: DRILL_UNKNOWN_ACTOR,
+      label: DRILL_UNKNOWN_ACTOR,
+      isUnknown: true,
+      roles: unknownRoles,
+      rows: unknownRows,
+    });
+  }
+  return groups;
+}
+
+/**
  * The drill's actor voice (v2.297.0) — the aggregate line beneath the
  * drill's subtitle: how many accounts stand behind the denials on screen.
  *

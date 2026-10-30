@@ -200,10 +200,12 @@ describe('the actor wiring (byte net, v2.297.0)', () => {
     expect(tab).toMatch(
       /const actorVoice = gateDrillActorVoice\(\s*\n\s*distinctActorEmails\(drillActors\),\s*\n\s*drillRows\.length,\s*\n\s*drillData\?\.total \?\? 0\s*\n\s*\);/
     );
-    // the row consumes the SAME parsed array — no second drillActorFromDetails call in the row loop
-    const rowLoop = tab.slice(tab.indexOf('drillRows.map((ev, i) => {'));
-    expect(rowLoop).not.toContain('drillActorFromDetails(');
-    expect(rowLoop).toContain('const actor = drillActors[i];');
+    // the row consumes the SAME parsed array — no second drillActorFromDetails
+    // call in the row face (v2.299.0: the face lives in ONE helper consumed by
+    // BOTH lenses; the helper is the row loop's heir, so the pin rides it)
+    const rowFace = tab.slice(tab.indexOf('const renderDrillRow = ('));
+    expect(rowFace).not.toContain('drillActorFromDetails(');
+    expect(rowFace).toContain('const actor = drillActors[i];');
   });
 
   it('the aggregate line rides the drill\u2019s own amber family with its testid', () => {

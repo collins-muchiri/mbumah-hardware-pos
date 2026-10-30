@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.299.0',
+    title: 'The drill groups its actors',
+    bullets: [
+      'The gate drill can now fold its denials under each account: one Group switch turns the flat ledger into sections named for who caused them, each with its own denial count and role pills.',
+      'Sections appear in the order the ledger met them, and records with no readable actor share one honest "Unknown user" section at the end \u2014 an unknown is never dressed up as an identity.',
+      'The lens changes only the view: the aggregate count, the walk, and the CSV filing stay exactly as they were \u2014 the file is always the ledger, newest first.',
+    ],
+  },
+  {
     version: '2.298.0',
     title: 'The drill files its ledger',
     bullets: [

@@ -49,6 +49,9 @@ import {
   distinctActorEmails,
   gateDrillActorVoice,
   DRILL_UNKNOWN_ACTOR,
+  // v2.299.0: the grouping lens — the shown rows folded under each account,
+  // the aggregate's own answer made visible. Imported, never copied.
+  groupDrillRowsByActor,
   mergeDrillRows,
   GATE_DRILL_PAGE_SIZE,
   type deniedGateReport,
@@ -348,6 +351,11 @@ export default function SecurityTab() {
   const [drillPage, setDrillPage] = useState(1);
   const [drillLoading, setDrillLoading] = useState(false);
   const [drillError, setDrillError] = useState(false);
+  // v2.299.0: the grouping lens is the OPERATOR'S choice, not the gate's —
+  // it persists across opens (the same memory law as the walk's pages) and
+  // is view-only: the ledger order, the aggregate voice and the filing are
+  // untouched by it.
+  const [drillGrouped, setDrillGrouped] = useState(false);
 
   // v2.295.0: the drill closes on Escape. The card is NOT inside a Radix
   // DismissableLayer (no topmost-law to lean on), so the drill owns its own
@@ -1175,6 +1183,99 @@ export default function SecurityTab() {
                 drillRows.length,
                 drillData?.total ?? 0
               );
+              // v2.299.0: the grouping lens — the ONE parse's consumers grow
+              // (the aggregate, the row faces, now the sections); the parse
+              // count does not. The lens never touches the filing: the CSV
+              // handler below keeps filing the LEDGER'S OWN ORDER.
+              const drillGroups = groupDrillRowsByActor(drillActors);
+              // One row face, two lenses: ungrouped rows carry the actor
+              // line (the row speaks its own identity); grouped rows hang
+              // under their section header (the section speaks for them —
+              // the row's actor line would say the same thing twice).
+              const renderDrillRow = (ev: GateDrillEvent, i: number, showActor: boolean) => {
+                // v2.297.0: the row's own actor — the SAME parsed actor the
+                // aggregate counted (drillActors[i] is this row's identity,
+                // no second parse).
+                const actor = drillActors[i];
+                return (
+                  <li
+                    key={ev.id}
+                    className={`min-w-0 ${
+                      i >= pageOneCount
+                        ? 'animate-in fade-in slide-in-from-bottom-1 duration-500'
+                        : ''
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground min-w-0">
+                      <Badge
+                        variant="outline"
+                        className={`text-[10px] px-1.5 py-0 font-medium shrink-0 ${
+                          SECURITY_SEVERITY_BADGE_CLASSES[ev.severity] || 'bg-gray-100 text-gray-500'
+                        }`}
+                      >
+                        {ev.severity}
+                      </Badge>
+                      <span className="font-medium text-foreground/80 shrink-0">
+                        {EVENT_TYPE_LABELS[ev.eventType] || ev.eventType}
+                      </span>
+                      {/* v2.298.0: the row's outcome — the wire's own
+                          blocked truth, in the feed's exact badge face
+                          (v2.292.0). The drill's rows were the only
+                          denial face missing the outcome; now the
+                          screen and the filed CSV agree. */}
+                      {ev.blocked ? (
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-red-300 dark:border-red-800 text-red-600 dark:text-red-400 uppercase tracking-wide shrink-0">
+                          Blocked
+                        </span>
+                      ) : null}
+                      {ev.ipAddress ? (
+                        <span className="font-mono truncate" title={ev.ipAddress}>
+                          {ev.ipAddress}
+                        </span>
+                      ) : null}
+                      <span className="ml-auto shrink-0 tabular-nums">
+                        {new Date(ev.createdAt).toLocaleString([], {
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </span>
+                    </div>
+                    {/* v2.297.0: the actor line — who stood behind this
+                        denial, in the feed's own contract (the email first,
+                        then the role and permission pills). Anonymous rows
+                        say the one word the vocabulary owns — never a
+                        guessed name. v2.299.0: grouped rows hang under
+                        their section header, which already speaks for
+                        them — the line would say the same thing twice. */}
+                    {showActor ? (
+                      <div
+                        data-testid="gate-drill-actor-row"
+                        className="mt-0.5 flex items-center gap-1 flex-wrap min-w-0"
+                      >
+                        <span
+                          data-testid="gate-drill-actor-email"
+                          className="text-[10px] font-medium text-foreground/70 truncate max-w-[220px]"
+                          title={actor.email || DRILL_UNKNOWN_ACTOR}
+                        >
+                          {actor.email || DRILL_UNKNOWN_ACTOR}
+                        </span>
+                        {actor.role ? (
+                          <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground shrink-0">
+                            {actor.role}
+                          </span>
+                        ) : null}
+                        {actor.permission ? (
+                          <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground font-mono shrink-0">
+                            {actor.permission}
+                          </span>
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </li>
+                );
+              };
               return (
                 <div
                   id="gate-drill-panel"
@@ -1193,6 +1294,31 @@ export default function SecurityTab() {
                       </span>
                     </p>
                     <div className="flex items-center gap-1 shrink-0">
+                      {/* v2.299.0: the grouping lens's own switch — the
+                          operator's choice, pressed = the amber fill (the
+                          card handles' pressed face). Hidden when there is
+                          nothing to group; view-only either way. */}
+                      {drillRows.length > 0 ? (
+                        <button
+                          type="button"
+                          onClick={() => setDrillGrouped(!drillGrouped)}
+                          aria-pressed={drillGrouped}
+                          data-testid="gate-drill-group-toggle"
+                          aria-label={
+                            drillGrouped
+                              ? 'Show the denials as one ledger'
+                              : 'Group the shown denials by account'
+                          }
+                          className={`inline-flex items-center gap-1 rounded-md border border-amber-500/30 px-2 py-1 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40 cursor-pointer ${
+                            drillGrouped
+                              ? 'bg-amber-500/20 text-amber-800 dark:text-amber-300'
+                              : 'bg-amber-500/10 text-amber-700 dark:text-amber-400 hover:bg-amber-500/20'
+                          }`}
+                        >
+                          <Users className="h-3 w-3" aria-hidden="true" />
+                          Group
+                        </button>
+                      ) : null}
                       {/* v2.298.0: the drill files its ledger — the SHOWN rows
                           leave as a CSV named for the gate and the window.
                           The button wears the drill's own amber family (the
@@ -1243,88 +1369,50 @@ export default function SecurityTab() {
                     <p className="mt-2 text-xs text-muted-foreground">
                       {gateDrillEmptyVoice(gateDrill)}
                     </p>
+                  ) : drillGrouped ? (
+                    // v2.299.0: the grouping lens — the shown rows folded
+                    // under each account in FIRST-APPEARANCE order (the
+                    // ledger's own order decides who leads), the anonymous
+                    // bucket walking last (an unknown is not an identity).
+                    // A view only: the aggregate, the walk and the filing
+                    // are untouched by it.
+                    <div className="mt-2 space-y-2.5" data-testid="gate-drill-groups">
+                      {drillGroups.map((g) => (
+                        <div key={g.key} data-testid="gate-drill-group">
+                          <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                            <span
+                              data-testid="gate-drill-group-label"
+                              className={`text-[11px] font-semibold truncate max-w-[260px] ${
+                                g.isUnknown ? 'text-muted-foreground' : 'text-foreground/80'
+                              }`}
+                              title={g.label}
+                            >
+                              {g.label}
+                            </span>
+                            {g.roles.map((role) => (
+                              <span
+                                key={role}
+                                className="text-[9px] font-medium px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground shrink-0"
+                              >
+                                {role}
+                              </span>
+                            ))}
+                            <Badge
+                              variant="outline"
+                              className="ml-auto text-[10px] px-1.5 py-0 font-medium bg-amber-500/10 text-amber-700 border-amber-500/20 shrink-0"
+                            >
+                              {g.rows.length} {g.rows.length === 1 ? 'denial' : 'denials'}
+                            </Badge>
+                          </div>
+                          <ul className="mt-1 space-y-1.5 pl-2 border-l-2 border-amber-500/20">
+                            {g.rows.map((idx) => renderDrillRow(drillRows[idx], idx, false))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
                   ) : (
                     <ul className="mt-2 space-y-1.5">
-                      {drillRows.map((ev, i) => {
-                        // v2.297.0: the row's own actor — the SAME parsed
-                        // actor the aggregate counted (drillActors[i] is
-                        // this row's identity, no second parse).
-                        const actor = drillActors[i];
-                        return (
-                          <li
-                            key={ev.id}
-                            className={`min-w-0 ${
-                              i >= pageOneCount
-                                ? 'animate-in fade-in slide-in-from-bottom-1 duration-500'
-                                : ''
-                            }`}
-                          >
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground min-w-0">
-                              <Badge
-                                variant="outline"
-                                className={`text-[10px] px-1.5 py-0 font-medium shrink-0 ${
-                                  SECURITY_SEVERITY_BADGE_CLASSES[ev.severity] || 'bg-gray-100 text-gray-500'
-                                }`}
-                              >
-                                {ev.severity}
-                              </Badge>
-                              <span className="font-medium text-foreground/80 shrink-0">
-                                {EVENT_TYPE_LABELS[ev.eventType] || ev.eventType}
-                              </span>
-                              {/* v2.298.0: the row's outcome — the wire's own
-                                  blocked truth, in the feed's exact badge face
-                                  (v2.292.0). The drill's rows were the only
-                                  denial face missing the outcome; now the
-                                  screen and the filed CSV agree. */}
-                              {ev.blocked ? (
-                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-red-300 dark:border-red-800 text-red-600 dark:text-red-400 uppercase tracking-wide shrink-0">
-                                  Blocked
-                                </span>
-                              ) : null}
-                              {ev.ipAddress ? (
-                                <span className="font-mono truncate" title={ev.ipAddress}>
-                                  {ev.ipAddress}
-                                </span>
-                              ) : null}
-                              <span className="ml-auto shrink-0 tabular-nums">
-                                {new Date(ev.createdAt).toLocaleString([], {
-                                  month: 'short',
-                                  day: 'numeric',
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                })}
-                              </span>
-                            </div>
-                            {/* v2.297.0: the actor line — who stood behind
-                                this denial, in the feed's own contract (the
-                                email first, then the role and permission
-                                pills). Anonymous rows say the one word the
-                                vocabulary owns — never a guessed name. */}
-                            <div
-                              data-testid="gate-drill-actor-row"
-                              className="mt-0.5 flex items-center gap-1 flex-wrap min-w-0"
-                            >
-                              <span
-                                data-testid="gate-drill-actor-email"
-                                className="text-[10px] font-medium text-foreground/70 truncate max-w-[220px]"
-                                title={actor.email || DRILL_UNKNOWN_ACTOR}
-                              >
-                                {actor.email || DRILL_UNKNOWN_ACTOR}
-                              </span>
-                              {actor.role ? (
-                                <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground shrink-0">
-                                  {actor.role}
-                                </span>
-                              ) : null}
-                              {actor.permission ? (
-                                <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground font-mono shrink-0">
-                                  {actor.permission}
-                                </span>
-                              ) : null}
-                            </div>
-                          </li>
-                        );
-                      })}
+                      {drillRows.map((ev, i) => renderDrillRow(ev, i, true))}
                     </ul>
                   )}
                   {drillData && walkRemaining > 0 ? (

@@ -2,6 +2,21 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.299.0] The drill groups its actors
+
+The drill's aggregate answers "how many accounts stand behind these denials" as a number; a triager staring at a mixed ledger still had to sort the rows by eye. Now a Group switch folds the shown rows under each account — sections named for who caused them, each with its own denial count — while the ledger itself, the aggregate voice and the CSV filing stay exactly as they were.
+
+### Added
+- **The grouping lens** (`src/lib/security-feed.ts`): `groupDrillRowsByActor(actors)` → `GateDrillActorGroup[]` — sections in FIRST-APPEARANCE order (the ledger's own order decides who leads, never the alphabet), the anonymous bucket ONE bucket walking LAST (an unknown row is not an identity; an all-unknown ledger has its one bucket first), distinct first-seen-first role words for the header pills, and the section's row indices in ledger order. The lens consumes the ALREADY-PARSED actors — the ONE parse's consumers grow (aggregate, row faces, sections); the parse count does not. Pure so the RUNTIME-PIN law holds.
+- **The faces** (`src/app/(shell)/tabs/security-tab.tsx`, mandatory ④⑤): the drill header grows the Group switch (`data-testid="gate-drill-group-toggle"`, aria-pressed, amber family, pressed = the amber fill — the card handles' pressed face; hidden when there is nothing to group; the operator's choice, persisting across opens). The grouped view (`data-testid="gate-drill-groups"`) renders one section per account: the label (muted voice for the anonymous bucket — never an identity claim), the role pills, the amber count chip, and the section's rows beneath a `border-l-2 border-amber-500/20` spine. The row face lives in ONE local helper consumed by BOTH lenses — ungrouped rows carry the actor line (the row speaks its own identity); grouped rows hang under their section header (the section speaks for them — the line would say the same thing twice).
+- **View-only law**: the lens never touches the ledger's truth — the aggregate voice, the walk button and the CSV filing are untouched by it; the file is always the ledger, newest first.
+
+### Changed
+- The v2.297.0 byte net's row-loop anchor rides the new helper (`const renderDrillRow = (` is the row loop's heir); the pin's intent — no second `drillActorFromDetails` call in the row face, the row consumes `drillActors[i]` — is unchanged.
+
+### Tests
+- src/tests/gate-groups-v299.test.ts (24 pins, BOTH nets): the lens's truth table (first-appearance order, ledger-order row indices, the anonymous bucket last, the all-unknown single bucket, the label-is-key law, distinct first-seen role words, the empty ledger, the trivial ledger) and the byte wiring (the tab imports the lens, the ONE parse still has exactly one call site, the one-helper-two-lenses law, the toggle's pressed-state honesty, the grouped spine + amber chip, the muted anonymous header, the view-only filing law, the operator's-choice state, security-feed.ts still import-free).
+
 ## [2.298.0] The drill files its ledger
 
 The drill answered "who is hammering this gate" on screen, but a triager who needed to attach that answer to an incident ticket had to copy rows by hand. Now the drill's header carries a CSV button that files exactly the rows on screen — the walked window, nothing more, nothing less — while the rows themselves learn the outcome badge the feed has spoken since v2.292.0.
