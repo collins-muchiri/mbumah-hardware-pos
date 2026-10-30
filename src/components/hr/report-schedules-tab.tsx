@@ -39,6 +39,7 @@ import {
   CircleAlert,
   CircleCheck,
   CircleX,
+  ClipboardCheck,
   Clock3,
   Coins,
   Eye,
@@ -131,6 +132,9 @@ interface ScheduleResendInfo {
 
 // v2.25.0: dry-run digest preview (identical payload to the email, never sent).
 interface SchedulePreviewData {
+  // v2.283.0: the schedule's own view rides along — the preview strip wears
+  // the report's glyph, which needs the reportKey.
+  schedule: { reportKey: string };
   reportLabel: string;
   periodLabel: string | null;
   scopeLabel: string | null;
@@ -150,6 +154,7 @@ const REPORT_OPTIONS = [
   { value: 'statutory-liability', label: 'Statutory liability' },
   { value: 'leave-utilisation', label: 'Leave balances (leave-year keyed)' },
   { value: 'goal-attainment', label: 'Goal attainment (all cycles)' },
+  { value: 'review-cycles', label: 'Review cycles (all cycles)' },
 ];
 
 // v2.282.0: the card header's icon speaks ITS report — the list of cards
@@ -166,6 +171,9 @@ const REPORT_ICONS: Record<string, LucideIcon> = {
   'statutory-liability': Scale,
   'leave-utilisation': CalendarRange,
   'goal-attainment': Target,
+  // v2.283.0: the review pool wears the reviewer's own clipboard — a review
+  // IS a checked pass over someone's cycle. Same sky family as every glyph.
+  'review-cycles': ClipboardCheck,
 };
 
 function ReportIcon({ reportKey, className }: { reportKey: string; className?: string }) {
@@ -196,6 +204,35 @@ const DELIVERY_STATUS_STYLES: Record<string, string> = {
   PENDING: 'bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-900',
   PARTIAL: 'bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-900',
 };
+
+// v2.283.0: the digest preview table's label column speaks in the pool
+// vocabularies' own colours — a lifecycle word wears its chip, anything
+// else stays plain text (the document exposes what it cannot name, never
+// dresses it up). The colour families are BORROWED, not invented: amber =
+// waiting (PENDING/PARTIAL already speak it), emerald = positive (SENT),
+// rose = negative (FAILED), slate = quiet (SKIPPED), sky = in motion (the
+// schedule's own family). No word wears two colours across the app.
+const DIGEST_STATUS_CHIP: Record<string, string> = {
+  OPEN: 'bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-900',
+  ACHIEVED: 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900',
+  MISSED: 'bg-rose-100 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-900',
+  CLOSED: 'bg-slate-100 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800',
+  DRAFT: 'bg-slate-100 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800',
+  SUBMITTED: 'bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-900',
+  ACKNOWLEDGED: 'bg-sky-100 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border-sky-200 dark:border-sky-900',
+  CALIBRATED: 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900',
+  ACTIVE: 'bg-sky-100 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border-sky-200 dark:border-sky-900',
+};
+
+function DigestStatusCell({ word }: { word: string }) {
+  const chip = DIGEST_STATUS_CHIP[word];
+  if (!chip) return <>{word}</>;
+  return (
+    <span className={`inline-flex items-center rounded-md border px-1.5 py-0.5 text-[11px] font-medium ${chip}`}>
+      {word}
+    </span>
+  );
+}
 
 // v2.281.0: the health strip's colour per outcome. The v2.25 lazy-dot map
 // gave PARTIAL and PENDING the same amber — that collision retires here
@@ -1280,7 +1317,14 @@ export function ReportSchedulesTab({ highlightScheduleId }: { highlightScheduleI
               <div className="overflow-hidden rounded-lg border">
                 <div className="h-1 w-full bg-gradient-to-r from-sky-500 via-violet-500 to-amber-400" aria-hidden />
                 <div className="space-y-1 px-3.5 py-3">
-                  <p className="text-sm font-semibold">{preview.reportLabel} digest</p>
+                  {/* v2.283.0: the strip wears the report's OWN glyph — the
+                      same face the schedule card shows, so the preview and
+                      its card scan as one object. Glyph varies, colour
+                      never does (the sky family stays the schedule's). */}
+                  <p className="flex items-center gap-1.5 text-sm font-semibold">
+                    <ReportIcon reportKey={preview.schedule.reportKey} />
+                    {preview.reportLabel} digest
+                  </p>
                   <p className="text-xs text-muted-foreground">
                     {preview.periodLabel} · {preview.scopeLabel}
                   </p>
@@ -1306,8 +1350,8 @@ export function ReportSchedulesTab({ highlightScheduleId }: { highlightScheduleI
                   <table className="w-full text-xs">
                     <thead>
                       <tr className="border-b text-left text-[11px] text-muted-foreground">
-                        {preview.table.columns.map((c) => (
-                          <th key={c} className="px-3 py-1.5 font-medium">
+                        {preview.table.columns.map((c, ci) => (
+                          <th key={c} className={`px-3 py-1.5 font-medium ${ci > 0 ? 'text-right' : ''}`}>
                             {c}
                           </th>
                         ))}
@@ -1316,9 +1360,14 @@ export function ReportSchedulesTab({ highlightScheduleId }: { highlightScheduleI
                     <tbody>
                       {preview.table.rows.map((row, ri) => (
                         <tr key={ri} className="border-b last:border-b-0 transition-colors hover:bg-muted/30">
+                          {/* v2.283.0: the label column wears its chip when the
+                              word is a known lifecycle word; the numeric
+                              columns right-align under their own headers —
+                              digits of the same magnitude scan down a column
+                              instead of zig-zagging. */}
                           {row.map((cell, ci) => (
-                            <td key={ci} className={`px-3 py-1.5 ${ci === 0 ? 'font-medium' : 'tabular-nums'}`}>
-                              {cell}
+                            <td key={ci} className={`px-3 py-1.5 ${ci === 0 ? 'font-medium' : 'tabular-nums text-right'}`}>
+                              {ci === 0 ? <DigestStatusCell word={cell} /> : cell}
                             </td>
                           ))}
                         </tr>

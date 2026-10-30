@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.283.0',
+    title: 'The cycles join the digest',
+    bullets: [
+      'The review pool joins the digest family: "Review cycles" is now a scheduleable report \u2014 every cycle by state (draft, active, closed), every review by status (draft through calibrated), the reviews awaiting acknowledgement, and the clock\u2019s own unclosed-window count.',
+      'Digest previews now speak the pool\u2019s own colours \u2014 a lifecycle word wears its chip (amber waiting, emerald positive, rose missed) and the numbers right-align under their headers, so the table scans at a glance. Unknown words stay plain text: the document never dresses up what it cannot name.',
+      'The digest\u2019s bell action walks straight into the performance desk\u2019s reviews tab. And as always: counts only \u2014 no ratings, no names \u2014 through the same governed scope the performance screen obeys.',
+    ],
+  },
+  {
     version: '2.282.0',
     title: 'The digest learns the goals',
     bullets: [

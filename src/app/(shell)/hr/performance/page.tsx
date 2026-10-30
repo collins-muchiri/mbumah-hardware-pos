@@ -175,6 +175,19 @@ export default function PerformancePage() {
   // gains cycle + status filters — the API already spoke ?cycleId=&status=,
   // the console just never offered the handles.
   const [tab, setTab] = useState('cycles');
+  // v2.283.0: the desk is deep-linkable (?tab=reviews) — the review-cycles
+  // digest's bell action walks the reader straight into the reviews tab.
+  // Same law as the reports page's read: only a KNOWN tab id lands; an
+  // unknown word falls back to the desk's own default (cycles). The setTab
+  // is deferred one tick (a timeout, not a bare sync call): the URL cannot
+  // be read during render, and the deferred call is rule-clean in BOTH
+  // eslint resolutions (no disable directive to go stale in either).
+  useEffect(() => {
+    const requested = new URLSearchParams(window.location.search).get('tab');
+    if (requested !== 'cycles' && requested !== 'reviews' && requested !== 'goals') return;
+    const t = window.setTimeout(() => setTab(requested), 0);
+    return () => window.clearTimeout(t);
+  }, []);
   const [filterCycleId, setFilterCycleId] = useState('ALL');
   const [filterStatus, setFilterStatus] = useState('ALL');
 
