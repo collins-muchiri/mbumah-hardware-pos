@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.292.0',
+    title: 'Every denial lands on the record',
+    bullets: [
+      'Security hardening: denied requests (a role reaching past its authority) now land on the durable security ledger \u2014 the dashboard and the bell\u2019s Security tab see them, not just the ops log.',
+      'The Security tab\u2019s rows now speak their record: red for lockouts and errors, amber for warnings, a Blocked badge, and the role + permission that were refused, as chips.',
+      'Unknown event types stay quiet \u2014 color is data, never decoration.',
+    ],
+  },
+  {
     version: '2.291.0',
     title: 'The HR shell boots its session; the badge opens the unread list',
     bullets: [

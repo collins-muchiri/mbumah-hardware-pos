@@ -102,7 +102,10 @@ beforeEach(() => vi.clearAllMocks());
 describe('v2.45.0 PUT /api/leaves — EDIT owner authz', () => {
   it('EDIT is no longer inside the decision-capable requireRole gate', () => {
     const gate = routeSource.split("if (action === 'APPROVE' || action === 'REJECT')")[1] ?? '';
-    expect(gate).toContain("requireRole('SUPER_ADMIN', 'STORE_OWNER', 'BRANCH_MANAGER', 'ACCOUNTANT')");
+    // v2.292.0 re-anchor: the gate is the RECORDED twin — same roles, same
+    // law (EDIT stays outside), and the denial now lands on the durable
+    // SecurityEvent ledger instead of a bare 403.
+    expect(gate).toContain("requireRoleRecorded('SUPER_ADMIN', 'STORE_OWNER', 'BRANCH_MANAGER', 'ACCOUNTANT')(session, request)");
     expect(gate.slice(0, 400)).not.toContain("action === 'EDIT'");
   });
 

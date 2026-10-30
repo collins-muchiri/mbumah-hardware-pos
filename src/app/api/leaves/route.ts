@@ -10,7 +10,7 @@ import { type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { LogSeverity, LogComponent } from '@/lib/types';
-import { requireStoreAccess, requireRole } from '@/lib/auth';
+import { requireStoreAccess, requireRoleRecorded, type AuthSession } from '@/lib/auth';
 import {
   updateLeaveBalanceOnStatusChange,
 } from '@/lib/payroll-helpers';
@@ -226,7 +226,9 @@ export const GET = withErrorBoundary(
 // portal path.
 async function createLeaveHandler(
   request: NextRequest,
-  session: { userId: string; role: string; storeId: string | null; email: string }
+  // v2.292.0: the recorded gate takes the full AuthSession (the wrapper
+  // supplies it — the narrower inline type was a copy waiting to drift).
+  session: AuthSession
 ): Promise<Response> {
   const body = await request.json();
 
@@ -403,7 +405,9 @@ export const POST = withErrorBoundary(
 // PUT: Approve / reject / cancel / EDIT a leave request
 async function updateLeaveHandler(
   request: NextRequest,
-  session: { userId: string; role: string; storeId: string | null; email: string }
+  // v2.292.0: the recorded gate takes the full AuthSession (the wrapper
+  // supplies it — the narrower inline type was a copy waiting to drift).
+  session: AuthSession
 ): Promise<Response> {
   const body = await request.json();
 
@@ -431,7 +435,9 @@ async function updateLeaveHandler(
   // which the decision-capable role gate would have refused. The owner vs
   // decision-capable split is enforced below, once the request is fetched.
   if (action === 'APPROVE' || action === 'REJECT') {
-    const roleError = requireRole('SUPER_ADMIN', 'STORE_OWNER', 'BRANCH_MANAGER', 'ACCOUNTANT')(session);
+    // v2.292.0: the recorded twin — the decision-capable gate's denial now
+    // lands on the durable SecurityEvent ledger (the bare 403 wrote nothing).
+    const roleError = await requireRoleRecorded('SUPER_ADMIN', 'STORE_OWNER', 'BRANCH_MANAGER', 'ACCOUNTANT')(session, request);
     if (roleError) return roleError;
   }
 

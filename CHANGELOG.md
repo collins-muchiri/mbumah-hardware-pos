@@ -2,6 +2,24 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.292.0] Every denial lands on the record
+
+A live-found security-observability bug, closed at the source: the role gates that refuse most denied requests never wrote the durable record — the security dashboard and the feed's Security tab could not see them. Now every denial lands on the record, and the security row's color is data.
+
+### Fixed
+- **The invisible denial** (`src/lib/auth.ts`): `requireAuth`'s ROLE gate wrote ONLY an ops systemLog — the durable SecurityEvent never landed. Reproduced live on :3200: a CASHIER session 403'd against `/api/security/dashboard`, `/api/users` and `/api/hr/employees` (five denials) and the SecurityEvent table stayed at count 0. `withSessionAuth` and `requireStoreAccess` carried the same gap; `requireRole()` — the in-handler helper — wrote NOTHING AT ALL. THE FIX: all three wrapper role-gates route through `recordPermissionDenied` (SecurityEvent + ops log + hash-chained audit row, swallow-all-errors — a denial must never 500 the route), filing `PERMISSION_DENIED` with permission `roles:<allowed>` so the feed's Security tab and the dashboard both see it.
+
+### Added
+- **The recorded twin** (`requireRoleRecorded`): the async form of `requireRole` that RECORDS the denial before refusing — same shape, one extra argument (the request, for the path/ip the record needs). The four in-handler call sites migrated: the leaves decision-capable gate (APPROVE/REJECT) and all three org-console diagnostics gates. The sync helper survives for non-recording callers, its doc now names the gap.
+- **The security feed's one vocabulary** (`src/lib/security-feed.ts`, NEW): the abuse type set, the shop-floor labels, and the row-tone law move OUT of notification-center into ONE lib — the same one-vocabulary move the notification lens made in v2.290.0. The component imports, never copies.
+
+### Styled
+- **The tone law**: a security row's color is DATA. Severity leads (ERROR = red, WARN = amber — the row's own wire truth); when severity is absent the TYPE answers (the lockout family — ACCOUNT_LOCKED, BRUTE_FORCE — is the red family; every other abuse type amber); unknown stays quiet slate, never guessed into alarm. The one-red-for-everything face is gone.
+- **The row speaks its record**: a blocked event wears its own quiet "Blocked" outline badge; the role and permission the recorder writes render as chips (permission in mono); the shield icon takes the row's tone; every mark stays inside the contrast-safe token set.
+
+### Verified
+- The tone table on the REAL `securityRowTone` (severity leads, lockout family by type, unknown quiet, every abuse type resolves, labels complete, faces closed-set) + the byte wiring (the recorder calls in all three gates, the death of the log-only blocks, the recorded twin's four call sites, the lib one-vocabulary, the row contract's severity/blocked). Older leaves pin re-anchored (same law, recorded bytes). Full gates green; live E2E: CASHIER denials now LAND in the ledger and the Security tab renders them with real content on both shells.
+
 ## [2.291.0] The HR shell boots its session; the badge opens the unread list
 
 Two faces, one thread: the session the HR shell was silently missing, and the shortcut the badge was silently promising. The Security tab now appears on the HR workspace for the roles that own it, and the unread badge itself opens the feed straight onto the unread list.
