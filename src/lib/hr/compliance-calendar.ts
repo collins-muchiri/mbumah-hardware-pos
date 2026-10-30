@@ -355,6 +355,19 @@ export function filingWindowOpensForPeriod(month: string): string | null {
 }
 
 /**
+ * The open day as a day KEY (v2.279.0 "the email hears the clock"): the
+ * window's opening UTC midnight, computed once so the voice and the
+ * complete-test can never disagree about whether filing is possible —
+ * the ONE window gate, two faces. Malformed months → null.
+ */
+export function filingWindowOpenDay(month: string): number | null {
+  const opens = filingWindowOpensForPeriod(month);
+  if (!opens) return null;
+  const day = utcDayKey(new Date(`${opens}T00:00:00Z`));
+  return Number.isNaN(day) ? null : day;
+}
+
+/**
  * The digest's receipt voice (v2.278.0 "the digest learns the receipt").
  * v2.275.0 named the digest's statutory column "Due by", never "Filed",
  * because the ledger did not exist; v2.276.0 built the ledger, and the
@@ -382,12 +395,49 @@ export function digestFilingVoice(
   now: Date,
 ): string {
   if (!counts) return '';
-  const opens = filingWindowOpensForPeriod(month);
-  if (!opens) return '';
-  const openDay = utcDayKey(new Date(`${opens}T00:00:00Z`));
-  if (Number.isNaN(openDay) || utcDayKey(now) < openDay) return '';
+  const openDay = filingWindowOpenDay(month);
+  if (openDay == null || utcDayKey(now) < openDay) return '';
   const total = STATUTORY_OBLIGATION_KINDS.length;
   const filed = Math.max(0, Math.min(total, Math.floor(Number(counts.filed) || 0)));
   const amended = Math.max(0, Math.min(filed, Math.floor(Number(counts.amended) || 0)));
   return `${filed} of ${total} filed${amended > 0 ? ` · ${amended} amended` : ''}`;
+}
+
+/**
+ * The voice's paired face (v2.279.0 "the email hears the clock"): is this
+ * payroll month's receipt composition COMPLETE — every one of the calendar's
+ * four obligations evidenced, through the SAME window gate and the SAME
+ * clamps the voice speaks? The digest's builder uses it to mark the table's
+ * good cells, so the email's emerald face and the CSV's "4 of 4 filed" can
+ * never disagree: one gate (filingWindowOpenDay), one clamp, two readers.
+ * A ledger that cannot speak, a window that has not opened, a count short
+ * of four — all false (quiet, never a dressed-up partial).
+ */
+export function digestFilingComplete(
+  month: string,
+  counts: { filed: number; amended: number } | null,
+  now: Date,
+): boolean {
+  if (!counts) return false;
+  const openDay = filingWindowOpenDay(month);
+  if (openDay == null || utcDayKey(now) < openDay) return false;
+  const total = STATUTORY_OBLIGATION_KINDS.length;
+  const filed = Math.max(0, Math.min(total, Math.floor(Number(counts.filed) || 0)));
+  return filed === total;
+}
+
+/**
+ * The digest's clock chip (v2.279.0 "the email hears the clock"): the NEXT
+ * deadline the calendar derives at the fire instant, spoken as a headline
+ * chip so the morning email answers "what's coming" before "what was owed".
+ * Derived purely from complianceCalendar(now) — the clock is the statute's
+ * own, never stored, never guessed; the chip speaks the date and the payroll
+ * month it covers and borrows NO urgency colors (words only — the desk's
+ * card owns the window arc and the status tones). A calendar that cannot
+ * speak (no obligations) → null (the chip's honest absence).
+ */
+export function digestNextDeadlineChip(now: Date): { label: string; value: string } | null {
+  const first = complianceCalendar(now).obligations[0];
+  if (!first) return null;
+  return { label: 'Next deadline', value: `${first.dueLabel} · ${first.periodLabel} payroll` };
 }

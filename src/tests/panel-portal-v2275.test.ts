@@ -233,6 +233,10 @@ describe('the ledger learns the clock — the reports desk and the digest mirror
     expect(schedule).toContain("columns: ['Month', 'PAYE', 'NSSF', 'SHIF', 'AHL', 'Total', 'Due by', 'Filed']");
     expect(schedule).toContain('statutoryDueForPeriod(m.month)?.dueDate');
     expect(schedule).toContain('digestFilingVoice(m.month,');
-    expect(schedule).toContain("import { digestFilingVoice, statutoryDueForPeriod } from '@/lib/hr/compliance-calendar';");
+    // v2.279.0 (deliberate evolution): the import grew the voice's paired
+    // faces (digestFilingComplete — the emerald mark's test — and
+    // digestNextDeadlineChip — the clock chip), still from the ONE home.
+    expect(schedule).toContain("} from '@/lib/hr/compliance-calendar';");
+    expect(schedule).toContain('import { digestFilingComplete, digestFilingVoice, digestNextDeadlineChip, statutoryDueForPeriod }');
   });
 });

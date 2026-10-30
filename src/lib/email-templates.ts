@@ -590,6 +590,15 @@ export interface HrDigestTable {
   caption: string;
   columns: string[];
   rows: Array<Array<string | number>>;
+  /**
+   * v2.279.0 "the email hears the clock": COORDINATES (row, column) of cells
+   * the HTML email may wear the good family (the house's emerald — the
+   * receipt's own, per the color-never-means-two-things law). The builder
+   * marks them through the pure complete-test, so the email's face and the
+   * CSV's plain text can never disagree about which compositions are whole.
+   * Coordinates only — the CSV and text twins never read this (plain by law).
+   */
+  goodCells?: Array<[number, number]>;
 }
 
 export interface HrReportDigestData {
@@ -634,9 +643,17 @@ export function hrReportDigestTemplate(data: HrReportDigestData): string {
           <tbody>
             ${data.table.rows
               .map(
-                (row) => `
+                (row, rowIdx) => `
             <tr>
-              ${row.map((cell, i) => `<td style="padding:7px 12px;border-bottom:1px solid ${BRAND.border};${i > 0 ? 'text-align:right;' : ''}">${esc(cell)}</td>`).join('')}
+              ${row.map((cell, colIdx) => {
+                // v2.279.0: a marked cell wears the good family — emerald,
+                // weight 600, the SAME primary the shell already speaks. An
+                // unmarked cell keeps the plain face; absence of goodCells
+                // (older payloads, other report cases) renders byte-identical
+                // to the pre-v2.279 template.
+                const good = data.table?.goodCells?.some((rc) => rc[0] === rowIdx && rc[1] === colIdx);
+                return `<td style="padding:7px 12px;border-bottom:1px solid ${BRAND.border};${colIdx > 0 ? 'text-align:right;' : ''}${good ? `color:${BRAND.primaryDark};font-weight:600;` : ''}">${esc(cell)}</td>`;
+              }).join('')}
             </tr>`,
               )
               .join('')}

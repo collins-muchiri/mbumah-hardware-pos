@@ -23,7 +23,7 @@ import { db } from '@/lib/db';
 import { hrAudit, HrEntityType } from './audit';
 import { sendEmail } from '@/lib/email-service';
 import { digestToCsv, formatCsvSize, type DigestCsvAttachment } from '@/lib/hr/digest-csv';
-import { digestFilingVoice, statutoryDueForPeriod } from '@/lib/hr/compliance-calendar';
+import { digestFilingComplete, digestFilingVoice, digestNextDeadlineChip, statutoryDueForPeriod } from '@/lib/hr/compliance-calendar';
 import {
   hrReportDigestTemplate,
   hrReportDigestText,
@@ -537,10 +537,18 @@ export async function buildDigestPayload(
       const r = await statutoryLiabilityReport(session, period, opts);
       if (!r) return null;
       const fmt = (v: number) => `KES ${v.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      // ONE derivation per fire: the chip is computed once, spread once.
+      const clock = digestNextDeadlineChip(now);
       return {
         ...base,
         reportLabel: REPORT_LABELS['statutory-liability'],
         headline: [
+          // v2.279.0 "the email hears the clock": the fire instant's own NEXT
+          // deadline rides FIRST — the morning email answers "what's coming"
+          // before "what was owed". Derived purely from complianceCalendar
+          // (the statute's clock, never stored); the chip speaks words, no
+          // urgency colors (the desk's card owns the tones).
+          ...(clock ? [clock] : []),
           { label: 'PAYE', value: fmt(r.totals.paye) },
           { label: 'NSSF', value: fmt(r.totals.nssf) },
           { label: 'SHIF', value: fmt(r.totals.shif) },
@@ -565,6 +573,14 @@ export async function buildDigestPayload(
           // cell quiet, and a ledger that cannot speak stays quiet too.
           columns: ['Month', 'PAYE', 'NSSF', 'SHIF', 'AHL', 'Total', 'Due by', 'Filed'],
           rows: r.monthly.map((m) => [m.label, fmt(m.paye), fmt(m.nssf), fmt(m.shif), fmt(m.housingLevy), fmt(m.paye + m.nssf + m.shif + m.housingLevy + m.payeArrears), statutoryDueForPeriod(m.month)?.dueDate ?? '', digestFilingVoice(m.month, r.filings ? r.filings[m.month] ?? null : null, now)]),
+          // v2.279.0: the email's emerald face — the COMPLETE compositions are
+          // marked by the pure complete-test (the voice's paired face: same
+          // window gate, same clamps), so the HTML's good cells and the CSV's
+          // plain "4 of 4 filed" can never disagree. The CSV and text twins
+          // never read goodCells — plain by law.
+          goodCells: r.monthly
+            .map((m, i) => (digestFilingComplete(m.month, r.filings ? r.filings[m.month] ?? null : null, now) ? [i, 7] : null))
+            .filter((c): c is [number, number] => c !== null),
         },
       };
     }
