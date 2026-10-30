@@ -38,13 +38,13 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.243.0)', () => {
   it('package.json leads 2.243.0 (all three slots)', () => {
-    expect(version).toBe('2.294.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.294.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.294.0');
+    expect(version).toBe('2.295.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.295.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.295.0');
   });
 
   it('VERSION speaks 2.243.0 and the verify gate is wired (previous gate still wired)', () => {
-    expect(read('VERSION').trim()).toBe('2.294.0');
+    expect(read('VERSION').trim()).toBe('2.295.0');
     expect(pkg.scripts['verify:v2-243-0']).toBe('node scripts/verify-v2-243-0.mjs');
     expect(pkg.scripts['verify:v2-242-0']).toBe('node scripts/verify-v2-242-0.mjs');
   });
@@ -71,10 +71,10 @@ describe('the round of record (v2.243.0)', () => {
   });
 
   it('the counters ride +1 again (the aisle\u2019s verdict joined)', () => {
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(186);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.109.0')).toBe(187);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.108.0')).toBe(188);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(219);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(187);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.109.0')).toBe(188);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.108.0')).toBe(189);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(220);");
   });
 });
 

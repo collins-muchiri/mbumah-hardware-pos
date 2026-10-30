@@ -176,12 +176,19 @@ describe('the spoken warning wiring (byte net)', () => {
   });
 
   it('the engine returns the honest count and the warning on every arm', () => {
+    // v2.295.0 re-anchor (same law, new bytes): the return shape GREW the
+    // lock's own line (`lockNotice`) — the trip arm speaks it, the early
+    // arms stay null, and `warning` keeps the v2.294.0 escalation semantics
+    // (null on locked arms, the pure line on the warm window).
+    expect(auth).toContain('warning: string | null;');
+    expect(auth).toContain('lockNotice: string | null;');
     expect(auth).toContain(
-      'Promise<{ locked: boolean; attemptsRemaining: number; warning: string | null }>'
+      'return { locked: true, attemptsRemaining: 0, warning: null, lockNotice: null };'
     );
-    expect(auth).toContain('return { locked: true, attemptsRemaining: 0, warning: null };');
+    expect(auth).toContain('warning: lockoutWarning(attemptsRemaining),');
+    expect(auth).toContain('lockNotice: null,');
     expect(auth).toContain(
-      'return { locked: false, attemptsRemaining, warning: lockoutWarning(attemptsRemaining) };'
+      'lockNotice: lockNotice(lockedMinutes) };'
     );
   });
 

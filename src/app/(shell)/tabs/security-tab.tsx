@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
@@ -36,6 +36,8 @@ import {
   SECURITY_TONE_CLASSES,
   SECURITY_SEVERITY_BADGE_CLASSES,
   securityRowTone,
+  gateDrillVoice,
+  gateDrillEmptyVoice,
   type deniedGateReport,
   type DeniedGate,
 } from '@/lib/security-feed';
@@ -76,6 +78,14 @@ const GATE_RANGES: { value: GateRange; label: string }[] = [
   { value: '7d', label: '7 days' },
   { value: '30d', label: '30 days' },
 ];
+
+// v2.295.0: the gate drill windows itself to the SAME lens the card speaks
+// (the report counts over 24h/7d/30d; the drill fetches the matching rows).
+const GATE_WINDOW_MS: Record<GateRange, number> = {
+  '24h': 24 * 60 * 60 * 1000,
+  '7d': 7 * 24 * 60 * 60 * 1000,
+  '30d': 30 * 24 * 60 * 60 * 1000,
+};
 
 // Color mappings
 
@@ -155,6 +165,47 @@ async function fetchEvents(params: Record<string, string>): Promise<unknown> {
     throw new Error(err.error || `Failed to fetch events (${res.status})`);
   }
   return res.json();
+}
+
+// v2.295.0: the gate drill's fetch — exactly the PERMISSION_DENIED rows
+// that named this resource, windowed to the card's lens, newest 8 with the
+// honest total so the panel can speak "+N earlier in this window".
+interface GateDrillEvent {
+  id: string;
+  eventType: string;
+  severity: string;
+  ipAddress: string | null;
+  action: string | null;
+  createdAt: string;
+  blocked: boolean;
+}
+
+async function fetchGateDrill(
+  resource: string,
+  range: GateRange
+): Promise<{ events: GateDrillEvent[]; total: number }> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('mbt_token') : null;
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+  const dateFrom = new Date(Date.now() - GATE_WINDOW_MS[range]).toISOString();
+  const qs = new URLSearchParams({
+    resource,
+    eventType: 'PERMISSION_DENIED',
+    dateFrom,
+    limit: '8',
+  }).toString();
+  const res = await fetch(`/api/security/events?${qs}`, { headers, credentials: 'same-origin' });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `Failed to fetch gate drill (${res.status})`);
+  }
+  const json = await res.json();
+  return {
+    events: Array.isArray(json?.data) ? json.data : [],
+    total: typeof json?.pagination?.total === 'number' ? json.pagination.total : 0,
+  };
 }
 
 // Security Score Gauge
@@ -275,6 +326,21 @@ export default function SecurityTab() {
   const [showFilters, setShowFilters] = useState(false);
   // v2.294.0: the Most denied gates card's time lens (24h / 7d / 30d).
   const [gateRange, setGateRange] = useState<GateRange>('24h');
+  // v2.295.0: the gate drill — the card's rows are handles; the drilled
+  // resource lives here (null = closed, exactly one drill at a time).
+  const [gateDrill, setGateDrill] = useState<string | null>(null);
+
+  // v2.295.0: the drill closes on Escape. The card is NOT inside a Radix
+  // DismissableLayer (no topmost-law to lean on), so the drill owns its own
+  // window listener — mounted ONLY while a drill is open.
+  useEffect(() => {
+    if (!gateDrill) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setGateDrill(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [gateDrill]);
 
   // Dashboard data
   const {
@@ -305,6 +371,15 @@ export default function SecurityTab() {
     queryKey: ['security-events', eventsParams],
     queryFn: () => fetchEvents(eventsParams),
     refetchInterval: 30000,
+  });
+
+  // v2.295.0: the gate drill's rows — one query, keyed by the drilled gate
+  // AND the lens (a window change refetches the drill over its own window);
+  // disabled entirely while no drill is open.
+  const gateDrillQuery = useQuery({
+    queryKey: ['security-gate-drill', gateDrill, gateRange],
+    queryFn: () => fetchGateDrill(gateDrill || '', gateRange),
+    enabled: !!gateDrill,
   });
 
   const handleRefresh = () => {
@@ -947,33 +1022,132 @@ export default function SecurityTab() {
               </div>
             </div>
           ) : (
+            <>
             <ul className="space-y-2">
               {dashboard.deniedGates.top.map((gate: DeniedGate) => {
                 const width = dashboard.deniedGates.maxCount > 0
                   ? Math.round((gate.count / dashboard.deniedGates.maxCount) * 100)
                   : 0;
+                const drilled = gateDrill === gate.resource;
                 return (
-                  <li key={gate.resource} className="flex items-center gap-3">
-                    <span className="text-xs font-mono truncate max-w-[45%]" title={gate.resource}>
-                      {gate.resource}
-                    </span>
-                    <div className="flex-1 h-2.5 rounded-full bg-muted overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-amber-600 transition-all duration-500"
-                        style={{ width: `${Math.max(width, 6)}%` }}
-                        aria-hidden="true"
-                      />
-                    </div>
-                    <Badge
-                      variant="outline"
-                      className="text-xs font-medium bg-amber-500/10 text-amber-700 border-amber-500/20 shrink-0"
+                  <li key={gate.resource}>
+                    {/* v2.295.0: the row is a HANDLE — a real button (keyboard
+                        arrives free) that opens the gate's drill panel. The
+                        pressed face is the same amber family the lens speaks;
+                        hover + focus-visible invite the hand. */}
+                    <button
+                      type="button"
+                      onClick={() => setGateDrill(drilled ? null : gate.resource)}
+                      aria-expanded={drilled}
+                      aria-controls={drilled ? 'gate-drill-panel' : undefined}
+                      className={`w-full flex items-center gap-3 rounded-md px-2 py-1.5 -mx-2 text-left transition-colors cursor-pointer hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40 ${
+                        drilled ? 'bg-amber-500/[0.06]' : ''
+                      }`}
                     >
-                      {gate.count} {gate.count === 1 ? 'denial' : 'denials'}
-                    </Badge>
+                      <span className="text-xs font-mono truncate max-w-[45%]" title={gate.resource}>
+                        {gate.resource}
+                      </span>
+                      <div className="flex-1 h-2.5 rounded-full bg-muted overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-amber-600 transition-all duration-500"
+                          style={{ width: `${Math.max(width, 6)}%` }}
+                          aria-hidden="true"
+                        />
+                      </div>
+                      <Badge
+                        variant="outline"
+                        className="text-xs font-medium bg-amber-500/10 text-amber-700 border-amber-500/20 shrink-0"
+                      >
+                        {gate.count} {gate.count === 1 ? 'denial' : 'denials'}
+                      </Badge>
+                    </button>
                   </li>
                 );
               })}
             </ul>
+            {gateDrill ? (() => {
+              // v2.295.0: the gate drill panel — the ledger behind the count.
+              const drilledCount = dashboard.deniedGates.top.find(
+                (g: DeniedGate) => g.resource === gateDrill
+              )?.count ?? 0;
+              const drillRows = gateDrillQuery.data?.events ?? [];
+              return (
+                <div
+                  id="gate-drill-panel"
+                  role="region"
+                  aria-label={`Gate drill: ${gateDrill}`}
+                  className="mt-3 rounded-lg border border-amber-500/20 bg-amber-500/[0.04] px-3 py-2.5"
+                >
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <p className="text-xs text-amber-700 flex items-center gap-1.5 min-w-0">
+                      <Filter className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                      <span className="font-mono font-medium truncate max-w-[240px]" title={gateDrill}>
+                        {gateDrill}
+                      </span>
+                      <span className="text-amber-600/90 shrink-0">
+                        {gateDrillVoice(gateDrill, drilledCount, gateRange)}
+                      </span>
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setGateDrill(null)}
+                      aria-label="Close gate drill"
+                      className="rounded p-1 text-muted-foreground hover:bg-muted/60 hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40 shrink-0"
+                    >
+                      <X className="h-3.5 w-3.5" aria-hidden="true" />
+                    </button>
+                  </div>
+                  {gateDrillQuery.isLoading ? (
+                    <div className="mt-2 space-y-1.5">
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-4/5" />
+                      <Skeleton className="h-4 w-3/5" />
+                    </div>
+                  ) : drillRows.length === 0 ? (
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      {gateDrillEmptyVoice(gateDrill)}
+                    </p>
+                  ) : (
+                    <ul className="mt-2 space-y-1.5">
+                      {drillRows.map((ev) => (
+                        <li key={ev.id} className="flex items-center gap-2 text-xs text-muted-foreground min-w-0">
+                          <Badge
+                            variant="outline"
+                            className={`text-[10px] px-1.5 py-0 font-medium shrink-0 ${
+                              SECURITY_SEVERITY_BADGE_CLASSES[ev.severity] || 'bg-gray-100 text-gray-500'
+                            }`}
+                          >
+                            {ev.severity}
+                          </Badge>
+                          <span className="font-medium text-foreground/80 shrink-0">
+                            {EVENT_TYPE_LABELS[ev.eventType] || ev.eventType}
+                          </span>
+                          {ev.ipAddress ? (
+                            <span className="font-mono truncate" title={ev.ipAddress}>
+                              {ev.ipAddress}
+                            </span>
+                          ) : null}
+                          <span className="ml-auto shrink-0 tabular-nums">
+                            {new Date(ev.createdAt).toLocaleString([], {
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {gateDrillQuery.data && gateDrillQuery.data.total > drillRows.length ? (
+                    <p className="mt-2 text-[11px] text-muted-foreground/80">
+                      +{gateDrillQuery.data.total - drillRows.length} earlier in this window.
+                    </p>
+                  ) : null}
+                </div>
+              );
+            })() : null}
+            </>
           )}
         </CardContent>
       </Card>

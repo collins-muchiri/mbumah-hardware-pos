@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.295.0',
+    title: 'The gates open their ledgers',
+    bullets: [
+      'The Most denied gates card\u2019s rows are now handles: click a gate and a drill panel opens listing exactly the denial records that named it — who, from where, when.',
+      'The drill answers in the card\u2019s own voice: the gate\u2019s address, its count, and the window you are reading — plus \u201c+N earlier in this window\u201d when the ledger runs deeper than eight rows.',
+      'The lock now speaks its own line: the response that trips the lockout answers \u201cAccount locked for 15 minutes — too many denied attempts\u201d instead of silence.',
+      'Escape closes the drill; the panel carries the same amber family and keyboard focus ring as the rest of the card.',
+    ],
+  },
+  {
     version: '2.294.0',
     title: 'The gates learn their window',
     bullets: [

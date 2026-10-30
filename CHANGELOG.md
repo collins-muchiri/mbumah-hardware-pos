@@ -2,6 +2,14 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.295.0] The gates open their ledgers
+
+The Most denied gates card's rows become handles: clicking a gate opens a drill panel listing exactly the PERMISSION_DENIED records that named it — severity badge, event label, source IP, timestamp — windowed to the same lens the card speaks. And the privilege-abuse lock learns its own line: the 403 that TRIPS the lockout now answers `lockNotice("Account locked for 15 minutes — too many denied attempts.")` instead of leaving the caller in silence until the ACCOUNT_LOCKED notification surfaces.
+
+### Added
+- **The gate drill** (`src/app/(shell)/tabs/security-tab.tsx` + `src/app/api/security/events/route.ts` + `src/lib/security-feed.ts`): the card's rows are real buttons now (`aria-expanded`, hover + focus-visible affordances, one drill open at a time); the drill panel fetches `/api/security/events?resource=<gate>&eventType=PERMISSION_DENIED&dateFrom=<window>&limit=8` through the route's additive exact-match `resource` filter, speaks the pure `gateDrillVoice(gate, count, window)` subtitle, lists the newest 8 records with the lib's severity-badge faces and the one event vocabulary, and carries the honest faces: `gateDrillEmptyVoice` when the ledger moved since the count, and a "+N earlier in this window." footer when the total runs past the 8 shown. Escape closes the drill (the card is not inside a Radix DismissableLayer, so the drill owns a scoped window listener, mounted only while open).
+- **The lock's own line** (`src/lib/permissions.ts` + `src/lib/auth.ts`): pure `lockNotice(lockedMinutes)` — singular/plural, silence law intact (non-finite/fractional/non-positive → null). `noteDeniedAndMaybeLock`'s return grows `lockNotice: string | null`; ONLY the trip arm speaks it, every early arm returns null, and `warning` stays null on locked arms so the v2.294.0 escalation pins hold byte-for-byte. All five 403 call sites (transactions ×3, users ×2) thread `...(abuse.lockNotice ? { lockNotice: abuse.lockNotice } : {})`.
+
 ## [2.294.0] The gates learn their window
 
 The denied-gates report breathes over time — a 24h / 7d / 30d lens on the Most denied gates card, windowed through the route and voiced by the same pure lib. And the privilege-abuse engine counts aloud: from the third denial in the sliding window the 403 body carries the pure `lockoutWarning()` line plus the honest `attemptsRemaining`, so the warning lands before the 15-minute lock, not after.
