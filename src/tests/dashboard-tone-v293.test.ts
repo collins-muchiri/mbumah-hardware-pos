@@ -244,7 +244,9 @@ describe('the dashboard tab — one vocabulary, tone-wearing rows (byte net)', (
 
   it('the Most denied gates card exists with its honest faces', () => {
     expect(tab).toContain('Most denied gates');
-    expect(tab).toContain('No denials in the last 24h — every gate said yes.');
+    // v2.294.0 re-anchor: the honest-empty face learned the window — the
+    // same voice, now interpolated with the card's live lens.
+    expect(tab).toContain('No denials in the last {gateRange} — every gate said yes.');
     expect(tab).toMatch(/bg-amber-600/);
     expect(tab).toMatch(/deniedGates\.voice/);
     expect(tab).toMatch(/deniedGates\.maxCount/);
@@ -281,7 +283,9 @@ describe('the dashboard route — the gate-heat query (byte net)', () => {
   });
 
   it('the response wires deniedGateReport over the grouped rows', () => {
-    expect(route).toMatch(/deniedGates: deniedGateReport\(/);
+    // v2.294.0 re-anchor: the report is spread into a windowed shape —
+    // same lib voice, plus the route naming the window it answered for.
+    expect(route).toMatch(/deniedGates: \{\s*\.\.\.deniedGateReport\(/);
   });
 });
 

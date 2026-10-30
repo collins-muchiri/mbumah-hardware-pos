@@ -21,6 +21,21 @@ async function getSecurityDashboardHandler(
   const last7d = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
   const last30d = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
+  // v2.294.0: the denied-gates card's time window. Whitelisted - anything
+  // that is not one of the three named ranges reads as the default 24h,
+  // never as a guessed window.
+  const DENIED_GATES_RANGES = ['24h', '7d', '30d'] as const;
+  const rangeParam = searchParams.get('range') ?? '';
+  const deniedGatesRange = (DENIED_GATES_RANGES as readonly string[]).includes(rangeParam)
+    ? (rangeParam as (typeof DENIED_GATES_RANGES)[number])
+    : '24h';
+  const deniedGatesSince =
+    deniedGatesRange === '30d'
+      ? last30d
+      : deniedGatesRange === '7d'
+        ? last7d
+        : last24h;
+
   // Base where clause - non-SUPER_ADMIN users scoped to their store
   const baseWhere: Record<string, unknown> = {};
   if (session.role !== 'SUPER_ADMIN') {
@@ -119,13 +134,14 @@ async function getSecurityDashboardHandler(
     // v2.293.0: the denied-gates report - which gates said no most. The
     // PERMISSION_DENIED rows grouped by the recorded resource (the gate's
     // own address, written by recordPermissionDenied); top 5 by count plus
-    // the 24h total so the card's voice can name the unnamed gap.
+    // the window total so the card's voice can name the unnamed gap.
+    // v2.294.0: the window is the card's `?range=` lens (24h/7d/30d).
     db.securityEvent.groupBy({
       by: ['resource'],
       where: {
         ...baseWhere,
         eventType: 'PERMISSION_DENIED',
-        createdAt: { gte: last24h },
+        createdAt: { gte: deniedGatesSince },
         resource: { not: null },
       },
       _count: true,
@@ -134,7 +150,11 @@ async function getSecurityDashboardHandler(
     }),
 
     db.securityEvent.count({
-      where: { ...baseWhere, eventType: 'PERMISSION_DENIED', createdAt: { gte: last24h } },
+      where: {
+        ...baseWhere,
+        eventType: 'PERMISSION_DENIED',
+        createdAt: { gte: deniedGatesSince },
+      },
     }),
   ]);
 
@@ -204,12 +224,19 @@ async function getSecurityDashboardHandler(
       timeline: hourBuckets,
       // v2.293.0: the gate-heat report - the pure lib voices the aggregate
       // (sort, top-5, the unnamed-denials honesty gap, the subtitle line).
-      deniedGates: deniedGateReport(
-        totalDenied24h,
-        deniedGatesGrouped
-          .filter((g): g is typeof g & { resource: string } => Boolean(g.resource))
-          .map((g) => ({ resource: g.resource, count: g._count }))
-      ),
+      // v2.294.0: the report is windowed (?range=) and names its window so
+      // the card's face can keep step with the lens.
+      deniedGates: {
+        ...deniedGateReport(
+          totalDenied24h,
+          deniedGatesGrouped
+            .filter((g): g is typeof g & { resource: string } => Boolean(g.resource))
+            .map((g) => ({ resource: g.resource, count: g._count })),
+          5,
+          deniedGatesRange
+        ),
+        window: deniedGatesRange,
+      },
     },
   });
 }

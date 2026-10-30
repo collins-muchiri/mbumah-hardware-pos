@@ -102,13 +102,20 @@ export interface DeniedGate {
  * future writer that forgets) show up as `unnamedDenials`, never silently
  * vanished. The voice line is the card's subtitle: it always adds up.
  *
+ * v2.294.0: the report learns its WINDOW. The card can now breathe over
+ * time ranges (24h / 7d / 30d — the route's `?range=` lens), so the voice
+ * takes an additive `windowLabel` (default '24h' keeps every v2.293.0 pin
+ * green byte-for-byte). The label is interpolated verbatim — the route
+ * owns the whitelist, the lib never guesses.
+ *
  * Pure so the RUNTIME-PIN law holds: the suite asserts the arithmetic and
  * the voice by value; the render site just wires it.
  */
 export function deniedGateReport(
   totalDenied: number,
   gates: DeniedGate[],
-  limit = 5
+  limit = 5,
+  windowLabel = '24h'
 ): { top: DeniedGate[]; namedDenials: number; unnamedDenials: number; voice: string; maxCount: number } {
   const sorted = [...gates].sort(
     (a, b) => b.count - a.count || a.resource.localeCompare(b.resource)
@@ -118,8 +125,8 @@ export function deniedGateReport(
   const unnamedDenials = Math.max(0, totalDenied - namedDenials);
   const voice =
     namedDenials + unnamedDenials === 1
-      ? '1 denial in the last 24h.'
-      : `${namedDenials + unnamedDenials} denials in the last 24h${
+      ? `1 denial in the last ${windowLabel}.`
+      : `${namedDenials + unnamedDenials} denials in the last ${windowLabel}${
           unnamedDenials > 0
             ? ` — ${unnamedDenials} never named their gate.`
             : ', every one named its gate.'

@@ -122,13 +122,19 @@ async function createUserHandler(
       request,
       resource: '/api/users (create user)',
     });
-    await noteDeniedAndMaybeLock({ session, request, permission: 'settings.roles.manage' });
+    const abuse = await noteDeniedAndMaybeLock({ session, request, permission: 'settings.roles.manage' });
     return Response.json(
       {
         success: false,
         code: 'PERMISSION_DENIED',
         permission: 'settings.roles.manage',
         message: PERMISSION_DENIED_MESSAGES['settings.roles.manage'],
+        // v2.294.0: the engine counts aloud — the pure lockoutWarning()
+        // line (+ the honest attemptsRemaining) rides the 403 body from
+        // the third denial in the window; a lock speaks none.
+        ...(abuse.warning
+          ? { warning: abuse.warning, attemptsRemaining: abuse.attemptsRemaining }
+          : {}),
       },
       { status: 403 }
     );

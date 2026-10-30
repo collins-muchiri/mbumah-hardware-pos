@@ -2,6 +2,14 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.294.0] The gates learn their window
+
+The denied-gates report breathes over time — a 24h / 7d / 30d lens on the Most denied gates card, windowed through the route and voiced by the same pure lib. And the privilege-abuse engine counts aloud: from the third denial in the sliding window the 403 body carries the pure `lockoutWarning()` line plus the honest `attemptsRemaining`, so the warning lands before the 15-minute lock, not after.
+
+- `deniedGateReport(total, gates, limit?, windowLabel = '24h')` — additive window label, every v2.293.0 voice pin green byte-for-byte.
+- `/api/security/dashboard?range=24h|7d|30d` — whitelisted lens; both the resource groupBy and the window total read one `deniedGatesSince`; the response names its `window`.
+- `lockoutWarning()` + `LOCKOUT_WARN_AT` in the pure permissions.ts home; `noteDeniedAndMaybeLock` returns `{ locked, attemptsRemaining, warning }`; all five 403 call sites thread the warning in.
+
 ## [2.293.0] The dashboard speaks the feed's language
 
 The security dashboard joins the one-vocabulary law the bell's Security tab found in v2.292.0: same words, same tone, same home. And the denial ledger is now read back — a Most denied gates card shows which gates said no most.

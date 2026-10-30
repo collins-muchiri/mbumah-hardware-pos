@@ -856,13 +856,19 @@ async function createTransactionInner(
     if (effectiveDiscountPercent > 10 + EPS) {
       if (!hasFeaturePermission(session.role, 'pos.discount.gt10')) {
         await recordPermissionDenied({ session, permission: 'pos.discount.gt10', request });
-        await noteDeniedAndMaybeLock({ session, request, permission: 'pos.discount.gt10' });
+        const abuse = await noteDeniedAndMaybeLock({ session, request, permission: 'pos.discount.gt10' });
         return Response.json(
           {
             success: false,
             code: 'PERMISSION_DENIED',
             permission: 'pos.discount.gt10',
             message: PERMISSION_DENIED_MESSAGES['pos.discount.gt10'],
+            // v2.294.0: the engine counts aloud — the pure lockoutWarning()
+            // line (+ the honest attemptsRemaining) rides the 403 body from
+            // the third denial in the window; a lock speaks none.
+            ...(abuse.warning
+              ? { warning: abuse.warning, attemptsRemaining: abuse.attemptsRemaining }
+              : {}),
           },
           { status: 403 }
         );
@@ -871,7 +877,7 @@ async function createTransactionInner(
       if (!hasFeaturePermission(session.role, 'pos.discount.gt5')) {
         if (!managerOverrideValid) {
           await recordPermissionDenied({ session, permission: 'pos.discount.gt5', request });
-          await noteDeniedAndMaybeLock({ session, request, permission: 'pos.discount.gt5' });
+          const abuse = await noteDeniedAndMaybeLock({ session, request, permission: 'pos.discount.gt5' });
           return Response.json(
             {
               success: false,
@@ -880,6 +886,10 @@ async function createTransactionInner(
               message: PERMISSION_DENIED_MESSAGES['pos.discount.gt5'],
               // Phase-2 POS opens the Manager PIN modal on this flag.
               requiresManagerOverride: true,
+              // v2.294.0: the engine counts aloud (see the gt10 arm above).
+              ...(abuse.warning
+                ? { warning: abuse.warning, attemptsRemaining: abuse.attemptsRemaining }
+                : {}),
             },
             { status: 403 }
           );
@@ -1015,7 +1025,7 @@ async function createTransactionInner(
             request,
             kind: 'HIGH_RISK_ATTEMPT',
           });
-          await noteDeniedAndMaybeLock({ session, request, permission: 'debt.approve.high_risk' });
+          const abuse = await noteDeniedAndMaybeLock({ session, request, permission: 'debt.approve.high_risk' });
           return Response.json(
             {
               success: false,
@@ -1024,6 +1034,10 @@ async function createTransactionInner(
               permission: 'debt.approve.high_risk',
               // Phase-2 POS opens the Manager PIN modal on this flag.
               requiresManagerOverride: true,
+              // v2.294.0: the engine counts aloud (see the gt10 arm above).
+              ...(abuse.warning
+                ? { warning: abuse.warning, attemptsRemaining: abuse.attemptsRemaining }
+                : {}),
             },
             { status: 403 }
           );
