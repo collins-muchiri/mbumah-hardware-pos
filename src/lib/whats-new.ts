@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.290.0',
+    title: 'The feed learns its unread lens',
+    bullets: [
+      'The notification feed\u2019s filter row now has an Unread chip — one tap isolates exactly the rows the bell\u2019s badge is counting, no more scanning by eye.',
+      'Read a row while the Unread lens is on and it leaves the list live; read the last one and the feed says you\u2019re all caught up.',
+      'Every filter chip now shows its pressed state to keyboards and screen readers alike.',
+    ],
+  },
+  {
     version: '2.289.0',
     title: 'The bell learns its key',
     bullets: [

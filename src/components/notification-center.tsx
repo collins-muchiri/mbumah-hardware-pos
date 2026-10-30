@@ -10,6 +10,10 @@ import { isFailedEmailDigest, isRetryableDigestFailure } from '@/lib/hr/digest-n
 // endpoint the schedule card uses (lean JSON helper, CSRF-safe headers).
 import { apiSend } from '@/components/hr/self-service-ui';
 import { useNotificationReadState } from '@/lib/notification-read-state';
+// v2.290.0: the filter row's one vocabulary + the pure lens predicate —
+// the type used to be declared locally, which was a copy waiting to drift
+// the day a lens was added on one side only.
+import { applyNotificationFilter, type NotificationFilter } from '@/lib/notification-filter';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -29,8 +33,6 @@ import {
   PenLine, FilePenLine, Banknote, BookOpenCheck, Wallet, HandCoins, ScanEye, BadgeCheck,
   Sunrise,
 } from 'lucide-react';
-
-type NotificationFilter = 'all' | 'critical' | 'warning' | 'info' | 'security' | 'email_failed';
 
 // v2.12.7 (PR C): Security filter tab
 // Roles allowed to see the Security tab + the merged recent SecurityEvent feed
@@ -216,33 +218,21 @@ export function NotificationCenter({
     [allNotifications, dismissedIds]
   );
 
-  // Apply severity filter - 'security' narrows to SECURITY-category items,
-  // 'email_failed' (v2.28.0) narrows to digest copies whose email FAILED.
-  const filteredNotifications = useMemo(() => {
-    if (filter === 'all') return activeNotifications;
-    if (filter === 'security') {
-      return activeNotifications.filter(
-        (n) => n.category === 'SECURITY' || n.type === 'security'
-      );
-    }
-    if (filter === 'email_failed') {
-      return activeNotifications.filter((n) => isFailedEmailDigest(n));
-    }
-    return activeNotifications.filter((n) => n.severity === filter);
-  }, [activeNotifications, filter]);
+  // v2.290.0: the filter row's predicate lives in ONE pure lib
+  // (src/lib/notification-filter.ts) — 'security' narrows to SECURITY-category
+  // items, 'email_failed' (v2.28.0) to digest copies whose email FAILED, and
+  // 'unread' (v2.290.0) to the rows the badge is actually counting. The lens
+  // sheds rows LIVE: markRead updates the read ledger, the memo recomputes,
+  // and the read row leaves the unread list in the same tick.
+  const filteredNotifications = useMemo(
+    () => applyNotificationFilter(filter, activeNotifications, readIds),
+    [activeNotifications, filter, readIds]
+  );
 
-  const filteredDismissedNotifications = useMemo(() => {
-    if (filter === 'all') return dismissedNotifications;
-    if (filter === 'security') {
-      return dismissedNotifications.filter(
-        (n) => n.category === 'SECURITY' || n.type === 'security'
-      );
-    }
-    if (filter === 'email_failed') {
-      return dismissedNotifications.filter((n) => isFailedEmailDigest(n));
-    }
-    return dismissedNotifications.filter((n) => n.severity === filter);
-  }, [dismissedNotifications, filter]);
+  const filteredDismissedNotifications = useMemo(
+    () => applyNotificationFilter(filter, dismissedNotifications, readIds),
+    [dismissedNotifications, filter, readIds]
+  );
 
   const visibleNotifications = showDismissed ? filteredDismissedNotifications : filteredNotifications;
 
@@ -469,6 +459,11 @@ export function NotificationCenter({
 
   const filterTabs: { id: NotificationFilter; label: string; count: number }[] = [
     { id: 'all', label: 'All', count: activeNotifications.length },
+    // v2.290.0: the badge's own lens — second chip, right after All, because
+    // the question "what are those N unread?" outranks every severity cut.
+    // The count is the SAME number the badge speaks, so the chip and the
+    // bell can never disagree.
+    { id: 'unread', label: 'Unread', count: unreadCount },
     { id: 'critical', label: 'Critical', count: activeNotifications.filter((n) => n.severity === 'critical').length },
     { id: 'warning', label: 'Warnings', count: activeNotifications.filter((n) => n.severity === 'warning').length },
     { id: 'info', label: 'Info', count: activeNotifications.filter((n) => n.severity === 'info').length },
@@ -571,8 +566,10 @@ export function NotificationCenter({
             {filterTabs.map((tab) => (
               <button
                 key={tab.id}
+                type="button"
+                aria-pressed={filter === tab.id}
                 onClick={() => setFilter(tab.id)}
-                className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors inline-flex items-center ${
+                className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors inline-flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 ${
                   filter === tab.id
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-muted text-muted-foreground hover:bg-muted/80'
@@ -585,6 +582,22 @@ export function NotificationCenter({
                 {/* v2.28.0: mail-x marker on the Email failed tab. */}
                 {tab.id === 'email_failed' && (
                   <MailX className={`h-3 w-3 mr-1 ${filter === tab.id ? 'text-primary-foreground' : 'text-rose-500'}`} />
+                )}
+                {/* v2.290.0: the Unread chip wears the ROW dot's own language —
+                    a quiet primary dot (never pulsing; the row dot already
+                    pulses and a chip must not shout). Active, the dot swaps
+                    to the chip's foreground so contrast holds. The block sits
+                    AFTER the shield/mail-x markers so every chip shows its
+                    own single mark and the v2.154.0 proximity law (a
+                    primary-foreground use within reach of its chip's fill)
+                    holds for every marker. */}
+                {tab.id === 'unread' && (
+                  <span
+                    aria-hidden="true"
+                    className={`w-2 h-2 rounded-full mr-1 shrink-0 ${
+                      filter === tab.id ? 'bg-primary-foreground' : 'bg-primary'
+                    }`}
+                  />
                 )}
                 {tab.label}
                 {tab.count > 0 && (

@@ -2,6 +2,22 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.290.0] The feed learns its unread lens
+
+The badge's unanswered question: the bell's badge counts UNREAD rows, but the feed's filter row could only narrow by severity (All / Critical / Warnings / Info / Security / Email failed) — finding the 11 unread among 13 meant scanning by eye. This round the filter row gains the Unread lens, the badge's own chip, and every chip learns to speak its pressed state.
+
+### Added
+- **The unread lens** (`src/lib/notification-filter.ts`): the filter union and the pure predicate `applyNotificationFilter` — the feed's one filter home. 'unread' answers from the read ledger the caller hands in; with no ledger the lens returns the rows unchanged rather than inventing a read state. Severity, Security (v2.12.7) and Email-failed (v2.57.0) laws ride the same predicate for both the active and the dismissed list.
+- **The Unread chip** (`src/components/notification-center.tsx`): the SECOND chip, right after All — the question "what are those N unread?" outranks every severity cut. Its count is the SAME number the badge speaks, so the chip and the bell can never disagree.
+- **The live shed**: clicking a row marks it read; the read ledger updates, the memo recomputes, and the read row leaves the unread list in the same tick. The last read swaps the list for the feed's own positive moment: "No unread notifications / You're all caught up!". One implementation mounts on BOTH shells (POS sidebar + HR header bell).
+
+### Styled
+- **The chip speaks its state**: every filter chip is now an `aria-pressed` toggle (the codebase-wide lens convention), with the keyboard-first focus-visible ring (the v2.288 law) — keyboard is a first-class hand on the filter row too.
+- **The dot's language**: the Unread chip wears the row dot's own mark — a quiet primary dot (never pulsing; the row dot already pulses and a chip must not shout), swapping to the chip's foreground when active so contrast holds.
+
+### Verified
+- The lens truth table on the REAL function (unread subsets, empty/full ledgers, the no-ledger refusal, 'all' order-preservation, severity/security/email-failed arms, both lists). Live E2E: the Unread chip sheds rows live, the caught-up moment lands, chip/badge counts agree, console clean.
+
 ## [2.289.0] The bell learns its key
 
 The keyboard's quiet gap: the shortcut map has carried search (⌘K), the sidebar (⌘B) and the F-tab row since the redesign — but the notification feed, the surface the morning digests land in, had NO shortcut on any shell. (The "Notifications alt+T" hint in the accessibility tree is Radix's toast-viewport focus hotkey — it focuses visible toasts; it never opens the feed.) This round alt+N rings the bell on BOTH shells, and the help dialog finally names the row.
