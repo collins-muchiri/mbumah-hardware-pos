@@ -28,6 +28,11 @@ import { sendEmail } from '@/lib/email-service';
 import type { DigestCsvAttachment } from '@/lib/hr/digest-csv';
 import { hrAudit, HrEntityType } from '../audit';
 import { hasUnapprovedTimesheet } from '../attendance-service';
+// v2.305.0: the component resolution law is the VIEW's own pure function —
+// ONE arithmetic, both mouths (the run service and the /hr/salary-structures
+// desk estimate). The per-employee override fields on the assignment row
+// finally answer here; byte-parity is guaranteed by construction.
+import { resolveComponentCents } from '../salary-structure-view';
 import {
   PAYROLL_APPROVED_METADATA_MARKER,
   PAYROLL_POSTED_METADATA_MARKER,
@@ -399,7 +404,10 @@ export async function preparePayrollRun(ctx: RunActorContext, runId: string) {
     gateTally.clear += 1;
 
     // Salary basis: employee basic + fixed/percent earnings components from
-    // the salary structure effective at period end.
+    // the salary structure effective at period end. Each attached component
+    // resolves through THE ONE LAW (resolveComponentCents): the assignment's
+    // per-employee override first (v2.305.0), else the catalog's own value —
+    // the exact arithmetic the salary desk estimates.
     const basicCents = Math.round(Number(employee.basicSalary) * 100);
     const structure = await db.salaryStructure.findFirst({
       where: { employeeId: employee.id, deletedAt: null, effectiveFrom: { lte: period.endDate } },
@@ -415,7 +423,7 @@ export async function preparePayrollRun(ctx: RunActorContext, runId: string) {
       for (const assignment of structure.components) {
         const comp = assignment.salaryComponent;
         if (!comp.isActive) continue;
-        const fixed = comp.amountCents ?? Math.round((Number(employee.basicSalary) * (comp.percentBps ?? 0)) / 10_000) * 100;
+        const fixed = resolveComponentCents(comp, Number(employee.basicSalary), assignment);
         if (comp.type === 'EARNING') {
           if (comp.code === 'HOUSE') houseCents += fixed;
           else if (comp.code === 'TRANSPORT') transportCents += fixed;
