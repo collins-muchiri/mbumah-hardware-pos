@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.306.0',
+    title: 'The pools speak at their desks',
+    bullets: [
+      'The performance desk finally speaks the numbers its digests email: the Goals tab wears the pool band (Tracked goals · Attainment · Overdue · the count per status) and the Reviews tab wears the cycles band (Tracked cycles · Unclosed windows · Tracked reviews) — the same aggregates the goal-attainment and review-cycles emails carry, computed from the rows already on screen.',
+      'One arithmetic, one colour law: the attainment and share percentages moved into a single pure seam both the digest and the desk read, and a lifecycle word now wears ONE colour everywhere — OPEN is waiting, and waiting wears amber on the filter chips, the table pills and the digest preview alike.',
+      'The bands keep the digest\u2019s honesty laws: a status word they cannot name shows up as itself, an overdue day that ends today is not yet overdue, and an empty board keeps its own line instead of dressing zeros up.',
+    ],
+  },
+  {
     version: '2.305.0',
     title: 'The engine reads the override',
     bullets: [

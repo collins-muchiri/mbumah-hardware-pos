@@ -66,6 +66,13 @@ export function toneForStatus(status: string): Tone {
     case 'COMPLETED':
     case 'PAID':
       return 'good';
+    case 'OPEN':
+      // v2.306.0: the pool vocabulary's ONE colour law — OPEN is waiting,
+      // and waiting wears amber everywhere (the digest preview's family
+      // since v2.283.0, the bands' and filter chips' since v2.306.0). The
+      // table pill stops being the one surface where the word kept a
+      // third face.
+      return 'warn';
     case 'PENDING':
     case 'PENDING_APPROVAL':
     case 'SUBMITTED':

@@ -131,13 +131,17 @@ describe('the goal-attainment digest case — the ONE seam', () => {
     expect(svcSrc).toContain("import { GOAL_STATUSES, goalAttainmentReport } from './goal-service';");
   });
 
-  it('the honest \u2014 face for a percentage over nothing', () => {
-    expect(svcSrc).toContain("const pctOrDash = (v: number | null) => (v == null ? '—' : `${Math.round(v * 10) / 10}%`);");
+  it('the honest — face for a percentage over nothing', () => {
+    // v2.306.0 re-anchor: the pct face moved into the pool voice — ONE
+    // voice for both digest cases and the desk's bands (the em dash and
+    // the r1 rounding live there now, byte-identical).
+    expect(svcSrc).toContain("import { poolPctVoice } from './pool-voice';");
+    expect(read('src/lib/hr/pool-voice.ts')).toContain("return v == null ? '—' : `${Math.round(v * 10) / 10}%`;");
   });
 
   it('the headline speaks counts + attainment + the clock, in order', () => {
     expect(svcSrc).toContain("{ label: 'Tracked goals', value: String(r.tracked) },");
-    expect(svcSrc).toContain("{ label: 'Attainment', value: pctOrDash(r.attainmentPct) },");
+    expect(svcSrc).toContain("{ label: 'Attainment', value: poolPctVoice(r.attainmentPct) },");
     expect(svcSrc).toContain("{ label: 'Achieved', value: String(r.achieved) },");
     expect(svcSrc).toContain("{ label: 'Missed', value: String(r.missed) },");
     expect(svcSrc).toContain("{ label: 'Overdue', value: String(r.overdue) },");

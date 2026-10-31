@@ -13,6 +13,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { formatCsvSize } from '@/lib/hr/digest-csv';
+import { POOL_STATUS_CHIP } from '@/lib/hr/pool-voice';
 // v2.280.0: the appointment's pure voice — the relative day words + the
 // imminent gate (UTC calendar-day law, the filing voice's own rule).
 import { fireImminent, relativeFireLabel } from '@/lib/hr/schedule-fire-voice';
@@ -219,21 +220,11 @@ const DELIVERY_STATUS_STYLES: Record<string, string> = {
 // v2.283.0: the digest preview table's label column speaks in the pool
 // vocabularies' own colours — a lifecycle word wears its chip, anything
 // else stays plain text (the document exposes what it cannot name, never
-// dresses it up). The colour families are BORROWED, not invented: amber =
-// waiting (PENDING/PARTIAL already speak it), emerald = positive (SENT),
-// rose = negative (FAILED), slate = quiet (SKIPPED), sky = in motion (the
-// schedule's own family). No word wears two colours across the app.
-const DIGEST_STATUS_CHIP: Record<string, string> = {
-  OPEN: 'bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-900',
-  ACHIEVED: 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900',
-  MISSED: 'bg-rose-100 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-900',
-  CLOSED: 'bg-slate-100 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800',
-  DRAFT: 'bg-slate-100 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800',
-  SUBMITTED: 'bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-900',
-  ACKNOWLEDGED: 'bg-sky-100 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border-sky-200 dark:border-sky-900',
-  CALIBRATED: 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900',
-  ACTIVE: 'bg-sky-100 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border-sky-200 dark:border-sky-900',
-};
+// dresses it up). v2.306.0: the map's home is the pool voice (the pure
+// seam the performance desk's bands and filter chips read too) — "no word
+// wears two colours across the app" is now true by construction. The
+// local alias keeps every ancestor seam intact.
+const DIGEST_STATUS_CHIP: Record<string, string> = POOL_STATUS_CHIP;
 
 function DigestStatusCell({ word }: { word: string }) {
   const chip = DIGEST_STATUS_CHIP[word];

@@ -19,7 +19,10 @@ import {
 import type { AuthSession } from '@/lib/auth';
 
 export const GOAL_SOURCES = ['MANUAL', 'SALES_TOTAL', 'SALES_COUNT', 'CUSTOM'] as const;
-export const GOAL_STATUSES = ['OPEN', 'ACHIEVED', 'MISSED', 'CLOSED'] as const;
+// v2.306.0: the vocabulary's home is the pool voice (the pure seam); this
+// module re-exports it so every existing caller keeps its import path.
+export { GOAL_STATUSES } from './pool-voice';
+import { GOAL_STATUSES } from './pool-voice';
 
 type Session = AuthSession;
 
@@ -697,18 +700,17 @@ export interface GoalAttainmentDto {
   rows: GoalAttainmentRow[];
 }
 
+// v2.306.0: the r1 law and the attainment percentage moved INTO the pool
+// voice (src/lib/hr/pool-voice.ts) — the pure seam the performance desk's
+// bands import too. The digest's arithmetic and the desk's band now share
+// ONE body by construction; the exported names stay on this module as
+// re-exports so every existing caller (and every ancestor pin) keeps its
+// seam. goalR1 stays local: the bucket sums still round through it before
+// the shared percentage sees them — the exact order of operations the
+// digest has always spoken.
 const goalR1 = (n: number) => Math.round(n * 10) / 10;
-
-/**
- * The attainment percentage — the ONE derivation, exported so the test's
- * runtime pins can hold it (the fourth-net law: bytes pin the call site,
- * the runtime pins the math). Null when the target sum is 0 — a percentage
- * over nothing is a guess, and a NEGATIVE target is data corruption, not a
- * denominator (the strict `> 0` keeps both honest).
- */
-export function goalAttainmentPct(target: number, current: number): number | null {
-  return target > 0 ? goalR1((current / target) * 100) : null;
-}
+export { goalAttainmentPct } from './pool-voice';
+import { goalAttainmentPct } from './pool-voice';
 
 export async function goalAttainmentReport(
   session: AuthSession,

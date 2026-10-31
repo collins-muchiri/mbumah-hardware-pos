@@ -12,8 +12,13 @@ import { hrAudit, HrEntityType } from './audit';
 import { StageGError, employeeScopeWhere, employeeInScope } from './stage-g-shared';
 import type { AuthSession } from '@/lib/auth';
 
-export const CYCLE_STATUSES = ['DRAFT', 'ACTIVE', 'CLOSED'] as const;
-export const REVIEW_STATUSES = ['DRAFT', 'SUBMITTED', 'ACKNOWLEDGED', 'CALIBRATED'] as const;
+// v2.306.0: the vocabularies' home is the pool voice (the pure seam the
+// performance desk's bands import); this module re-exports them so every
+// existing caller keeps its import path. reviewCyclePct moved too — its
+// body lives in pool-voice beside the goal pool's percentage, ONE share
+// arithmetic for both pools.
+export { CYCLE_STATUSES, REVIEW_STATUSES, reviewCyclePct } from './pool-voice';
+import { REVIEW_STATUSES, reviewCyclePct } from './pool-voice';
 export const MIN_RATING = 1;
 export const MAX_RATING = 5;
 
@@ -157,15 +162,10 @@ export interface ReviewCycleReportDto {
   rows: ReviewCycleRow[];
 }
 
-/**
- * The share of the review pool one status owns. Null when the pool is empty
- * (a percentage over nothing is a guess) or negative (data corruption, not a
- * denominator) — the SAME denior law `goalAttainmentPct` speaks.
- */
-export function reviewCyclePct(part: number, whole: number): number | null {
-  if (whole <= 0) return null;
-  return Math.round((part / whole) * 1000) / 10;
-}
+// v2.306.0: the share percentage's body moved into the pool voice (the
+// pure seam); the name stays on this module as the re-export above — the
+// digest's share face and the desk's band read the SAME arithmetic by
+// construction, not by discipline.
 
 export async function reviewCycleReport(
   session: AuthSession,
