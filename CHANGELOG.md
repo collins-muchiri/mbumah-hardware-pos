@@ -2,6 +2,23 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.314.0] The wallet is the only balance
+
+Three integrity holes, one law. The round's QA burst proved them live: a stale legacy loyalty record let a redeem drive a wallet to **−90**, a missing record refused a wallet holding 100 points with "0 points", and a manager could hand-write an EXPIRE that bypassed the FIFO policy entirely. One law answers all three: THE WALLET — `Customer.loyaltyPoints`, the balance the members list and the customer card voice — is the only balance the manual doors read and claim against.
+
+### Fixed
+- **Sufficiency reads the canonical wallet** (`transactions/route.ts`): the REDEEM check read the legacy `CustomerLoyalty.pointsBalance` shadow — whose ONLY reader in all of src/ was that very line. A stale-high shadow (post-expiry, post-dedicated-redeem) passed a redeem the wallet couldn't cover, and the v2.313 wallet law then drove the canonical balance negative (live: wallet 20 + shadow 500 → REDEEM 100 → wallet **−90**); a missing shadow refused a legitimate redeem with "Customer has 0 points" (live: wallet 100, no shadow row → refused). The check now reads `customer.loyaltyPoints` (already fetched — zero extra queries) and voices the canonical number; the shadow survives as a maintained mirror, never authoritative.
+- **The claim shape: the wallet cannot go negative through this door** (`transactions/route.ts`): every negative movement (REDEEM, or a reasoned dock) now claims the wallet with the expiry service's exact conditional-decrement pattern (`updateMany` where `loyaltyPoints >= request`, decrement) INSIDE the transaction — a concurrent spend that wins the race rolls the whole movement back, and the door answers 400 with the freshly re-read balance. Positive movements (grants) keep the unconditional increment.
+- **The manual EXPIRE bypass is retired** (`transactions/route.ts` + `loyalty-tab.tsx`): the manual doors accepted `transactionType: 'EXPIRE'` — a hand-written row that bypasses the FIFO window, the oldest-first attribution, the conditional claim and the idempotence law (live: a manual EXPIRE landed between the burst's probes). The route refuses the type with an honest pointer to the Expiry desk; the Manual Points Adjustment picker no longer offers it; the ledger's filter keeps speaking EXPIRE for the service-written rows it must stay able to show.
+
+### Added
+- **The manual doors' laws, one home** (`loyalty-adjust-policy.ts`): the module that bound the dock-reason law now carries the whole trilogy — `walletInsufficientMessage` (one voice, shared by the early 400 and the claim-lost path, clamped honest at zero), `MANUAL_EXPIRE_REFUSAL_MESSAGE` (the route's door voice), and `EXPIRE_POLICY_NOTE` (the dialog's amber pointer, voiced in the Expiry button's own amber). `AdjustTransactionType` shrinks to the four types the doors may actually write.
+
+### Tests
+- `src/tests/wallet-laws-v2314.test.ts` (NEW, 13 pins): the pure voice (canonical balance, zero-clamp, the refusal + note pair), the route's door laws (wallet sufficiency for every negative movement, the dead shadow read, the EXPIRE refusal, the claim shape with its rollback + fresh re-read, the surviving mirror writes), and the dialog face (the picker's four types, the filter's surviving EXPIRE voice, the amber note).
+- `src/tests/dock-reason-v2313.test.ts`: the import-shape pin follows the law home's growth (multi-line import carrying the wallet laws).
+- `scripts/walk-v2314.mjs`: 71 files · 230 pin lines · 44 counter lines (idempotent on re-run); `verify:v2-314-0` pins the release face; `verify:current` re-proves the mechanics on 2.314.0.
+
 ## [2.313.0] The ask lands; the dock says why
 
 Four honesty fixes, one new law. The round's live QA catches: a warm authenticated deep link never landed (the persisted desk silently won), a tier-less store could not enroll a single customer (the first grant exploded on a foreign key that exists nowhere), and a manual adjust never moved the wallet the members list voices. And a docked loyalty adjustment can be anonymous no more: it must say why.

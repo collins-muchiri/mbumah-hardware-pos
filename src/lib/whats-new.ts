@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.314.0',
+    title: 'The wallet is the only balance',
+    bullets: [
+      'Redeeming (or docking) points now checks the real wallet: a stale loyalty record could let a redeem slip through and push a balance below zero, and a missing record could refuse a wallet that had points — the balance the members list voices is the one that answers now.',
+      'Every negative movement claims the wallet the same way the nightly expiry does: if a concurrent spend got there first, the movement is refused with the true balance instead of pushing the account negative.',
+      'Points can no longer be expired by hand: the manual dialog\u2019s type picker lost "Expire" — expirations run through the amber Expiry desk so the FIFO policy (window, oldest-first, double-press safety) always governs them.',
+    ],
+  },
+  {
     version: '2.313.0',
     title: 'The ask lands; the dock says why',
     bullets: [
