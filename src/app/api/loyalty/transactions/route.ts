@@ -5,7 +5,12 @@ import { db } from '@/lib/db';
 import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { LogSeverity, LogComponent } from '@/lib/types';
 import { withSessionAuth, MANAGER_PLUS_ROLES } from '@/lib/auth';
-import { dockNeedsReason, DOCK_REASON_REQUIRED_MESSAGE } from '@/lib/loyalty-adjust-policy';
+import {
+  dockNeedsReason,
+  DOCK_REASON_REQUIRED_MESSAGE,
+  MANUAL_EXPIRE_REFUSAL_MESSAGE,
+  walletInsufficientMessage,
+} from '@/lib/loyalty-adjust-policy';
 
 export const dynamic = 'force-dynamic';
 
@@ -167,11 +172,25 @@ async function createLoyaltyTransactionHandler(...args: unknown[]): Promise<Resp
     );
   }
 
-  // For EARN/BONUS, points must be positive; for REDEEM/EXPIRE, must be negative
+  // v2.314.0 — EXPIRE IS THE SERVICE'S VOICE: the FIFO policy
+  // (loyalty-expiry-service) is the only honest writer of EXPIRE rows —
+  // it owns the window, the FIFO attribution, the conditional claim and
+  // the idempotence law. A manual EXPIRE bypassed all of it (the burst
+  // proved one landing live, alongside a redeem and a shadow divergence).
+  // Refused at the door; the desk's Expiry dialog is the one way to
+  // expire points.
+  if (tType === 'EXPIRE') {
+    return Response.json(
+      { success: false, error: MANUAL_EXPIRE_REFUSAL_MESSAGE },
+      { status: 400 }
+    );
+  }
+
+  // For EARN/BONUS, points must be positive; for REDEEM, must be negative
   let finalPoints = pointsValue;
   if (tType === 'EARN' || tType === 'BONUS') {
     finalPoints = Math.abs(pointsValue);
-  } else if (tType === 'REDEEM' || tType === 'EXPIRE') {
+  } else if (tType === 'REDEEM') {
     finalPoints = -Math.abs(pointsValue);
   }
 
@@ -184,17 +203,23 @@ async function createLoyaltyTransactionHandler(...args: unknown[]): Promise<Resp
     );
   }
 
-  // For redeem, check sufficient points
-  if (tType === 'REDEEM') {
-    const loyalty = await db.customerLoyalty.findFirst({
-      where: { customerId },
-    });
-    if (!loyalty || loyalty.pointsBalance < Math.abs(finalPoints)) {
-      return Response.json(
-        { success: false, error: `Insufficient loyalty points. Customer has ${loyalty?.pointsBalance || 0} points.` },
-        { status: 400 }
-      );
-    }
+  // v2.314.0 — THE WALLET IS THE ONLY BALANCE: sufficiency for EVERY
+  // negative movement (a REDEEM, or a manager's dock) is judged against
+  // Customer.loyaltyPoints — the wallet the earn, expiry-claim and
+  // dedicated-redeem paths all read and claim against. The old check
+  // read the legacy CustomerLoyalty shadow, whose ONLY reader in all of
+  // src/ was this very line: a stale-high shadow (post-expiry, post-
+  // dedicated-redeem) let a redeem through and the wallet law drove the
+  // canonical balance to −90, live in the burst; a missing shadow
+  // refused a wallet holding 100 points with "0 points". The wallet
+  // answers both honestly. The claim inside the transaction below is
+  // conditional on the same shape, so even a concurrent spend after this
+  // early check cannot push the wallet negative.
+  if (finalPoints < 0 && customer.loyaltyPoints < Math.abs(finalPoints)) {
+    return Response.json(
+      { success: false, error: walletInsufficientMessage(customer.loyaltyPoints) },
+      { status: 400 }
+    );
   }
 
   const transaction = await db.$transaction(async (tx) => {
@@ -271,15 +296,50 @@ async function createLoyaltyTransactionHandler(...args: unknown[]): Promise<Resp
     // adjust never moved the balance the members list and the customer
     // card voice — the burst proved it live (+50/−10 landed as rows, the
     // wallet stayed 0). Both ledgers move together now, in the SAME
-    // transaction; the increment carries either sign (a reasoned dock
-    // decrements exactly like the clawback does).
-    await tx.customer.update({
-      where: { id: customerId },
-      data: { loyaltyPoints: { increment: finalPoints } },
-    });
+    // transaction (the shadow is a legacy MIRROR, never authoritative).
+    //
+    // v2.314.0 THE CLAIM SHAPE: a negative movement CLAIMS the wallet
+    // exactly like the expiry service does — a conditional decrement that
+    // requires the balance to still hold the points (a concurrent
+    // redemption may have spent them after this route's early check).
+    // A lost claim rolls the whole movement back and the door answers
+    // with the freshly re-read balance — the wallet can never go
+    // negative through this route, even mid-race.
+    if (finalPoints > 0) {
+      await tx.customer.update({
+        where: { id: customerId },
+        data: { loyaltyPoints: { increment: finalPoints } },
+      });
+    } else {
+      const claim = await tx.customer.updateMany({
+        where: { id: customerId, loyaltyPoints: { gte: Math.abs(finalPoints) } },
+        data: { loyaltyPoints: { decrement: Math.abs(finalPoints) } },
+      });
+      if (claim.count === 0) {
+        throw new WalletClaimLostError();
+      }
+    }
 
     return loyaltyTx;
-  });
+  })
+    .catch((err: unknown) => {
+      if (err instanceof WalletClaimLostError) return err;
+      // Re-throw genuine DB / system errors so withErrorBoundary logs them.
+      throw err;
+    });
+
+  // A lost claim is an honest 400, voiced with the balance as it stood at
+  // claim time (re-read now, outside the rolled-back transaction).
+  if (transaction instanceof WalletClaimLostError) {
+    const fresh = await db.customer.findUnique({
+      where: { id: customerId },
+      select: { loyaltyPoints: true },
+    });
+    return Response.json(
+      { success: false, error: walletInsufficientMessage(fresh?.loyaltyPoints ?? 0) },
+      { status: 400 }
+    );
+  }
 
   await systemLog({
     action: 'LOYALTY_TRANSACTION_CREATED',
@@ -301,6 +361,14 @@ async function createLoyaltyTransactionHandler(...args: unknown[]): Promise<Resp
 
 // AUDIT FIX (Task 3-d): GET = any store role; POST mints/redeems loyalty
 // points (redeemable value) = manager-or-above.
+
+/** The mid-flight claim loss: the wallet no longer holds the points (a concurrent spend won the race). */
+class WalletClaimLostError extends Error {
+  constructor() {
+    super('WALLET_CLAIM_LOST');
+    this.name = 'WalletClaimLostError';
+  }
+}
 export const GET = withErrorBoundary(
   withSessionAuth(getLoyaltyTransactionsHandler),
   'LOYALTY_TRANSACTIONS_LIST',
