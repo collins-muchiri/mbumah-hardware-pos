@@ -100,12 +100,9 @@ export function payrollGuardrailIssueVoice(code: string, message: string): strin
 // same code field the voice reads.
 //
 // THE HONEST-NULL LAW: a door exists ONLY when the fix surface REALLY exists
-// in the product today. Three codes stay doorless on purpose, each for its own
+// in the product today. Two codes stay doorless on purpose, each for its own
 // documented reason — a door to a surface that cannot perform the fix is a
 // lie with a link on it:
-//   • UNRESOLVED_DEPENDENCY — salary structures have no management UI (the
-//     structures live behind the employee's salary setup; the voice's words
-//     carry the diagnosis);
 //   • IMMUTABLE_STATUS — the lifecycle IS in place; the fix is the run's own
 //     dialog the reader is already holding open;
 //   • DUPLICATE_IDEMPOTENCY_KEY — the destination already exists; the door
@@ -114,8 +111,12 @@ export function payrollGuardrailIssueVoice(code: string, message: string): strin
 // PROMOTED to doors in v2.303.0: the rate-table keeper shipped (/hr/rate-tables
 // — the insert/activate/close face the migration plan reserved for "the
 // payroll release"), so those doors now walk to a surface that can actually
-// perform the fix. That is the door law working as designed: a null is a
-// PROMISE to build the surface, never an excuse.
+// perform the fix. And v2.304.0 promotes the OLDEST null the same way:
+// UNRESOLVED_DEPENDENCY now walks to /hr/salary-structures — the salary desk
+// (the component catalog plus the per-employee versioned structures the run
+// service reads), exactly the management UI whose absence kept the door
+// honest since v2.302.0. That is the door law working as designed: a null is
+// a PROMISE to build the surface, never an excuse.
 //
 // PURE LAW (same as the voice): no Prisma, no React, no network. Unknown
 // codes return null — the door never guesses where a fix lives.
@@ -132,6 +133,7 @@ export interface PayrollIssueDoor {
 const CONSENT_LEDGER_HREF = '/hr/reports?tab=privacy';
 const TIMESHEET_DESK_HREF = '/hr/timesheets';
 const RATE_TABLE_DESK_HREF = '/hr/rate-tables';
+const SALARY_DESK_HREF = '/hr/salary-structures';
 const FINANCIAL_TAB_HREF = '/?tab=financial';
 
 /** The fix surfaces, by code. Employee-keyed doors need `employeeId` — the
@@ -191,6 +193,16 @@ export function payrollIssueDoor(code: string, employeeId?: string): PayrollIssu
         label: 'Journal entries',
         title: 'The journal and its account mappings live on the Financial tab — opens in its own tab.',
       };
+    case 'UNRESOLVED_DEPENDENCY':
+      // v2.304.0: the salary desk shipped — the component catalog plus the
+      // per-employee versioned structures the run service reads. The voice's
+      // sentence ("check the salary structure for a missing or inactive
+      // dependency") now has a surface that can actually perform the check.
+      return {
+        href: SALARY_DESK_HREF,
+        label: 'Salary structures',
+        title: 'The salary desk — the structures and components payroll reads — opens in its own tab.',
+      };
     case 'RATE_TABLE_MISSING':
     case 'OVERLAPPING_RATE_TABLES':
       // v2.303.0: the rate-table keeper shipped — /hr/rate-tables adds new
@@ -204,7 +216,7 @@ export function payrollIssueDoor(code: string, employeeId?: string): PayrollIssu
         title: 'The statutory tables\u2019 keeper — insert a missing version or close the overlapping one — opens in its own tab.',
       };
     default:
-      // The three documented honest nulls + every unknown code.
+      // The two documented honest nulls + every unknown code.
       return null;
   }
 }

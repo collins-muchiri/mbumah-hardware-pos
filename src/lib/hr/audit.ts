@@ -19,6 +19,8 @@ export const HrEntityType = {
   POSITION: 'Position',
   PAY_GRADE: 'PayGrade',
   SALARY_STRUCTURE: 'SalaryStructure',
+  // v2.304.0: the salary component catalog rows (the vocabulary payroll reads).
+  SALARY_COMPONENT: 'SalaryComponent',
   RATE_TABLE: 'RateTable',
   CONSENT_RECORD: 'ConsentRecord',
   HR_SETTING: 'HrSetting',

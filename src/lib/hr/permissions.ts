@@ -79,6 +79,11 @@ export const HR_PERMISSIONS: Record<string, readonly PlatformRole[]> = {
   'hr.report.all': ['HR_MANAGER', 'ACCOUNTANT', 'STORE_OWNER'],
   'hr.settings.manage': ['SUPER_ADMIN'],
   'hr.rate-table.manage': ['SUPER_ADMIN'],
+  // v2.304.0: the salary-structure desk (component catalog + per-employee
+  // versioned structures). Employee pay setup rides the employee-records
+  // family: the same roles that hold hr.employee.update. SUPER_ADMIN
+  // bypasses programmatically (documented, known keys only).
+  'hr.salary-structure.manage': ['HR_MANAGER', 'STORE_OWNER'],
 };
 
 export type HrPermissionKey = keyof typeof HR_PERMISSIONS & string;

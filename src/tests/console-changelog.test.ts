@@ -401,10 +401,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.241.0: the walk's-law entry joins the feed (+1 on every anchor → 132/133/134/165)
     // v2.278.0: the digest's-receipt entry joins the feed (+1 on every anchor → 170/171/172/203)
     // v2.279.0: the email's-clock entry joins the feed (+1 on every anchor → 171/172/173/204)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(195);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(196);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(197);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(228);
+    // v2.304.0: the salary's-desk entry joins the feed (+1 on every anchor → 196/197/198/229)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(196);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(197);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(198);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(229);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 
