@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
   Sparkles, Plus, Search, Crown, Award, Users, Loader2, Settings2, TrendingUp, Calendar, Gift, Zap, ChevronUp, Clock,
-  HandCoins, Target, Megaphone, Edit, History,
+  HandCoins, Target, Megaphone, Edit, History, RotateCcw, Receipt,
   Trophy, Gem, Medal, Shield, Palette,
 } from 'lucide-react';
 
@@ -17,6 +17,7 @@ import {
   type LoyaltyCampaignItem,
   type CustomerItem,
 } from '@/lib/api';
+import { isRefundClawbackTx } from '@/lib/loyalty-utils';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -65,6 +66,17 @@ const TX_TYPE_CONFIG: Record<string, { label: string; color: string; bg: string;
   EXPIRE:  { label: 'Expire',  color: 'text-gray-600 dark:text-gray-400',   bg: 'bg-gray-100 dark:bg-gray-800/50',   icon: Clock },
   ADJUST:  { label: 'Adjust',  color: 'text-amber-700 dark:text-amber-400', bg: 'bg-amber-100 dark:bg-amber-900/30', icon: Settings2 },
 };
+
+// v2.310.0: the clawback face at the desk — a refund clawback is NOT a
+// manual adjustment. It wears rose and the RotateCcw voice; the row tint,
+// the reference cell (the REFUND receipt) and the reason cell (the original
+// sale) carry the paper trail. Manual adjusts keep the amber Settings2 voice.
+const CLAWBACK_CFG = {
+  label: 'Clawback',
+  color: 'text-rose-700 dark:text-rose-400',
+  bg: 'bg-rose-100 dark:bg-rose-900/30',
+  icon: RotateCcw,
+} as const;
 
 // Campaign type config
 const CAMPAIGN_TYPE_CONFIG: Record<string, { label: string; color: string; bg: string; icon: React.ElementType }> = {
@@ -728,10 +740,26 @@ export default function LoyaltyTab() {
               </TableHeader>
               <TableBody>
                 {transactions.map((tx: LoyaltyTransactionItem) => {
-                  const config = TX_TYPE_CONFIG[tx.transactionType] ?? TX_TYPE_CONFIG.ADJUST;
+                  // v2.310.0: one predicate, two faces — the same
+                  // isRefundClawbackTx law the customer card speaks. A
+                  // clawback row is recognized by kind + negative points +
+                  // the clawback reason voice; nothing else wears rose.
+                  const isClawback = isRefundClawbackTx({
+                    transactionType: tx.transactionType,
+                    points: tx.points,
+                    reason: tx.reason ?? tx.description,
+                  });
+                  const config = isClawback
+                    ? CLAWBACK_CFG
+                    : (TX_TYPE_CONFIG[tx.transactionType] ?? TX_TYPE_CONFIG.ADJUST);
                   const TxIcon = config.icon;
                   return (
-                    <TableRow key={tx.id} className="hover:bg-muted/50">
+                    <TableRow
+                      key={tx.id}
+                      className={isClawback
+                        ? 'bg-rose-50/40 hover:bg-rose-50/70 dark:bg-rose-950/20 dark:hover:bg-rose-950/40'
+                        : 'hover:bg-muted/50'}
+                    >
                       <TableCell className="text-xs whitespace-nowrap">
                         {formatDateTime(tx.createdAt)}
                       </TableCell>
@@ -744,19 +772,36 @@ export default function LoyaltyTab() {
                       </TableCell>
                       <TableCell className="text-right">
                         <span className={`text-xs font-semibold ${
+                          isClawback ? 'text-rose-700' :
                           ['EARN', 'BONUS'].includes(tx.transactionType) ? 'text-green-700' :
                           tx.transactionType === 'REDEEM' ? 'text-blue-600' :
                           tx.transactionType === 'EXPIRE' ? 'text-gray-500' : 'text-amber-700'
                         }`}>
-                          {['EARN', 'BONUS'].includes(tx.transactionType) ? '+' : tx.transactionType === 'EXPIRE' ? '-' : ''}
+                          {/* sign law (v2.310.0): positives speak '+'; negatives
+                              carry their own minus (the claw writes −N). EARN/
+                              BONUS keep their '+', EXPIRE keeps its '−'. */}
+                          {['EARN', 'BONUS'].includes(tx.transactionType) ? '+' :
+                            tx.transactionType === 'EXPIRE' ? '-' :
+                            tx.points > 0 ? '+' : ''}
                           {tx.points.toLocaleString()}
                         </span>
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground max-w-[120px] truncate">
-                        {tx.referenceId ?? '-'}
+                        {isClawback && tx.reference ? (
+                          <span
+                            className="inline-flex items-center gap-1 text-rose-700 dark:text-rose-400"
+                            title={`Refund receipt ${tx.reference}`}
+                          >
+                            <Receipt className="h-3 w-3 shrink-0" aria-hidden />
+                            {tx.reference}
+                          </span>
+                        ) : (tx.referenceId ?? '-')}
                       </TableCell>
-                      <TableCell className="text-xs text-muted-foreground max-w-[160px] truncate">
-                        {tx.description ?? '-'}
+                      <TableCell
+                        className="text-xs text-muted-foreground max-w-[160px] truncate"
+                        title={tx.reason ?? tx.description ?? undefined}
+                      >
+                        {tx.reason ?? tx.description ?? '-'}
                       </TableCell>
                     </TableRow>
                   );

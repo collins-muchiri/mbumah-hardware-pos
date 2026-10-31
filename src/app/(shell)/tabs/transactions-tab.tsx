@@ -293,12 +293,17 @@ function ReceiptModal({
   transaction,
   onDistribute,
   distributing,
+  autoPrint = false,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   transaction: TransactionItem | null;
   onDistribute: (channel: 'EMAIL' | 'WHATSAPP' | 'SMS', recipient: string) => void;
   distributing: 'EMAIL' | 'WHATSAPP' | 'SMS' | null;
+  /** v2.310.0: when armed, the print dialog opens by itself once, after the
+   * branded ReceiptDocument has mounted — the refund success desk's direct
+   * print rides this in (money moved → paper follows, one tap less). */
+  autoPrint?: boolean;
 }) {
   const currentStoreId = useAppStore((s) => s.currentStoreId);
 
@@ -308,6 +313,27 @@ function ReceiptModal({
   const [distChannel, setDistChannel] = useState<'EMAIL' | 'WHATSAPP' | 'SMS' | null>(null);
   const [recipient, setRecipient] = useState('');
   const [pdfBusy, setPdfBusy] = useState(false);
+  // v2.310.0: the auto-print tripwire — fires ONCE per open, after the
+  // ReceiptDocument (id=RECEIPT_CONTENT_ID) is on screen; re-arms on close.
+  const autoPrintFiredRef = React.useRef(false);
+
+  React.useEffect(() => {
+    if (!open) {
+      autoPrintFiredRef.current = false;
+      return;
+    }
+    if (!autoPrint || !transaction || autoPrintFiredRef.current) return;
+    autoPrintFiredRef.current = true;
+    const timer = window.setTimeout(() => {
+      try {
+        printReceiptElement(RECEIPT_CONTENT_ID);
+      } catch (error) {
+        console.error('[RECEIPT_PRINT_ERROR]', error);
+        toast.error('Failed to open the print dialog. Please try again.');
+      }
+    }, 400);
+    return () => window.clearTimeout(timer);
+  }, [open, autoPrint, transaction]);
 
   // Reset distribution state when the modal closes.
   const handleOpenChange = (open: boolean) => {
@@ -507,6 +533,7 @@ function RefundDialog({
   onOpenChange,
   transaction,
   onRefunded,
+  onPrintReceipt,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -515,6 +542,10 @@ function RefundDialog({
    * detail (fetched by the success face) so the parent can open the
    * receipt viewer straight onto the refund's paper trail. */
   onRefunded: (receiptTx?: TransactionItem) => void;
+  /** v2.310.0: print WITHOUT the viewer hop — the success desk hands the
+   * REFUND detail to the parent, which opens the receipt viewer with
+   * auto-print armed (drawer-records flow: money moved, paper follows). */
+  onPrintReceipt: (receiptTx: TransactionItem) => void;
 }) {
   const [selected, setSelected] = useState<Record<string, number>>({});
   const [restock, setRestock] = useState(true);
@@ -673,6 +704,21 @@ function RefundDialog({
         setReceiptBusy(false);
       }
     };
+    // v2.310.0: the direct print — same fetch, but the parent arms
+    // auto-print so the paper dialog opens over the viewer (one tap less
+    // on the drawer-records path).
+    const handlePrintRefundReceipt = async () => {
+      setReceiptBusy(true);
+      try {
+        const receiptTx = await transactionsApi.get(result.refund.id);
+        onOpenChange(false);
+        onPrintReceipt(receiptTx);
+      } catch (err) {
+        handleError(err, 'Failed to load the refund receipt. Please try again.');
+      } finally {
+        setReceiptBusy(false);
+      }
+    };
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-lg" aria-describedby="refund-success-desc">
@@ -732,6 +778,19 @@ function RefundDialog({
               }}
             >
               Done
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handlePrintRefundReceipt}
+              disabled={receiptBusy}
+              className="border-emerald-300 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800 focus-visible:ring-emerald-600 dark:border-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-950/40"
+            >
+              {receiptBusy ? (
+                <Loader2 className="h-4 w-4 mr-1.5 animate-spin" aria-hidden />
+              ) : (
+                <Printer className="h-4 w-4 mr-1.5" aria-hidden />
+              )}
+              {receiptBusy ? 'Loading receipt…' : 'Print receipt'}
             </Button>
             <Button
               onClick={handleViewRefundReceipt}
@@ -1154,6 +1213,9 @@ export default function TransactionsTab() {
   // Receipt modal state
   const [receiptTransaction, setReceiptTransaction] = useState<TransactionItem | null>(null);
   const [receiptOpen, setReceiptOpen] = useState(false);
+  // v2.310.0: arms the receipt viewer's one-shot auto-print (the refund
+  // success desk's direct print); disarmed whenever the viewer closes.
+  const [receiptAutoPrint, setReceiptAutoPrint] = useState(false);
   // Receipt distribution state (Phase 4 - Email/WhatsApp)
   const [distributing, setDistributing] = useState<'EMAIL' | 'WHATSAPP' | 'SMS' | null>(null);
 
@@ -1664,10 +1726,14 @@ export default function TransactionsTab() {
       {/* Receipt Modal */}
       <ReceiptModal
         open={receiptOpen}
-        onOpenChange={setReceiptOpen}
+        onOpenChange={(nextOpen) => {
+          setReceiptOpen(nextOpen);
+          if (!nextOpen) setReceiptAutoPrint(false);
+        }}
         transaction={receiptTransaction}
         onDistribute={handleDistributeReceipt}
         distributing={distributing}
+        autoPrint={receiptAutoPrint}
       />
 
       {/* v2.308.0: the refund dialog - the placeholder confirm ("would call
@@ -1684,6 +1750,13 @@ export default function TransactionsTab() {
             setReceiptTransaction(receiptTx);
             setReceiptOpen(true);
           }
+        }}
+        onPrintReceipt={(receiptTx) => {
+          // v2.310.0: the direct print — the viewer opens with auto-print
+          // armed, so the paper dialog is already on its way up.
+          setReceiptTransaction(receiptTx);
+          setReceiptAutoPrint(true);
+          setReceiptOpen(true);
         }}
       />
 

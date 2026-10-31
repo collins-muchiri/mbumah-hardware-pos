@@ -28,6 +28,11 @@ interface LoyaltyTxItem {
   points: number;
   balanceAfter: number;
   reason: string | null;
+  // v2.310.0: the clawback row's own receipt voice — the REFUND transaction's
+  // receipt number rides in `reference`, so the card can show both ends of
+  // the paper trail (the reason names the original sale, the reference names
+  // the refund receipt that took the points back).
+  reference: string | null;
   transactionId: string | null;
   createdAt: string;
 }
@@ -105,10 +110,27 @@ async function getCustomerLoyaltyHandler(
       points: t.points,
       balanceAfter: t.balanceAfter ?? 0,
       reason,
+      reference: t.reference ?? null,
       transactionId: t.transactionId ?? null,
       createdAt: t.createdAt.toISOString(),
     };
   });
+
+  // v2.310.0: the lifetime claw. Points that went home with refunds are a
+  // real lifetime number — the desk can quantify the claw the same way it
+  // quantifies earning and redemption, instead of leaving the story buried
+  // in row reasons. Source of truth: the clawback rows' own reason voice
+  // (negative points + `Refund clawback …`), the same contract
+  // isRefundClawbackTx speaks on the client.
+  const clawAgg = await db.loyaltyTransaction.aggregate({
+    where: {
+      customerId,
+      points: { lt: 0 },
+      reason: { startsWith: 'Refund clawback' },
+    },
+    _sum: { points: true },
+  });
+  const totalClawedBack = Math.abs(clawAgg._sum.points ?? 0);
 
   return Response.json({
     success: true,
@@ -123,6 +145,7 @@ async function getCustomerLoyaltyHandler(
       storedTier: customer.loyaltyTier,
       totalEarned: customer.totalLoyaltyEarned,
       totalRedeemed: customer.totalLoyaltyRedeemed,
+      totalClawedBack,
       joinedAt: customer.joinedAt.toISOString(),
       createdAt: customer.createdAt.toISOString(),
       nextTierProgress,

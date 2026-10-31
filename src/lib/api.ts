@@ -3733,6 +3733,12 @@ export interface LoyaltyTransactionItem {
   referenceId: string | null;
   referenceType: string | null;
   description: string | null;
+  // v2.310.0: the raw /loyalty/transactions rows ride these two fields —
+  // `reason` is the clawback's story voice ("Refund clawback for …"),
+  // `reference` is the REFUND receipt number that took the points back.
+  // Additive optionals: rows written before v2.309.0 may carry null.
+  reason?: string | null;
+  reference?: string | null;
   createdBy: string | null;
   createdAt: string;
   customer?: { id: string; name: string; phone: string | null; email: string | null };
