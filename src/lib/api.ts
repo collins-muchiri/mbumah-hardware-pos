@@ -3809,7 +3809,10 @@ export const loyaltyApi = {
       const qs = query.toString();
       return request<LoyaltyTransactionItem[]>(`/loyalty/transactions${qs ? `?${qs}` : ''}`);
     },
-    create: async (data: { storeId: string; customerId: string; transactionType: string; points: number; description?: string; referenceId?: string; referenceType?: string; tierId?: string }) => {
+    // v2.313.0: `reference` is the wire's real name (the route writes it);
+    // `referenceId` stays accepted for the dialog's historical voice — the
+    // route folds both (reference ?? referenceId).
+    create: async (data: { storeId: string; customerId: string; transactionType: string; points: number; description?: string; reference?: string; referenceId?: string; referenceType?: string; tierId?: string }) => {
       return request<LoyaltyTransactionItem>('/loyalty/transactions', {
         method: 'POST',
         body: JSON.stringify(data),

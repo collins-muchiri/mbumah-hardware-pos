@@ -5,6 +5,7 @@ import { db } from '@/lib/db';
 import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { LogSeverity, LogComponent } from '@/lib/types';
 import { withSessionAuth, MANAGER_PLUS_ROLES } from '@/lib/auth';
+import { dockNeedsReason, DOCK_REASON_REQUIRED_MESSAGE } from '@/lib/loyalty-adjust-policy';
 
 export const dynamic = 'force-dynamic';
 
@@ -118,9 +119,16 @@ async function createLoyaltyTransactionHandler(...args: unknown[]): Promise<Resp
     points,
     transactionType,
     reference,
+    // v2.313.0 THE REFERENCE THAT NEVER LANDED: the manual-adjust dialog
+    // has always sent `referenceId` while this route read only `reference`
+    // — the manager's reference string was silently dropped and the desk
+    // ledger answered '-'. Both voices are accepted now (the explicit
+    // `reference` keeps precedence).
+    referenceId,
     description,
     createdBy,
   } = body;
+  const effectiveReference = reference ?? referenceId ?? null;
 
   if (!storeId || !customerId || !points) {
     return Response.json(
@@ -142,6 +150,19 @@ async function createLoyaltyTransactionHandler(...args: unknown[]): Promise<Resp
   if (pointsValue === 0) {
     return Response.json(
       { success: false, error: 'points must be non-zero.' },
+      { status: 400 }
+    );
+  }
+
+  // v2.313.0 THE DOCK SAYS WHY: a negative ADJUST is a manager's judgment
+  // call against a customer's balance — it must carry a reason the ledger
+  // can voice. Mechanical types (EARN/BONUS/REDEEM and the service-written
+  // EXPIRE) have their own context; the discretionary dock does not get
+  // to be anonymous. The pure predicate lives in loyalty-adjust-policy.ts
+  // (one law, three consumers: this route and both adjust dialogs).
+  if (dockNeedsReason(tType, pointsValue, description)) {
+    return Response.json(
+      { success: false, error: DOCK_REASON_REQUIRED_MESSAGE },
       { status: 400 }
     );
   }
@@ -183,7 +204,7 @@ async function createLoyaltyTransactionHandler(...args: unknown[]): Promise<Resp
         customerId,
         points: finalPoints,
         transactionType: tType,
-        reference: reference || null,
+        reference: effectiveReference,
         description: description || null,
         createdBy: createdBy || null,
       },
@@ -217,7 +238,13 @@ async function createLoyaltyTransactionHandler(...args: unknown[]): Promise<Resp
         data: updateData,
       });
     } else if (finalPoints > 0) {
-      // Auto-assign to first active tier for new loyalty customers
+      // Auto-assign to first active tier for new loyalty customers.
+      // v2.313.0 QA CATCH: the fallback used to write the literal string
+      // 'default' into tierId — a foreign key that exists nowhere — so ANY
+      // store that had not configured loyalty tiers 500'd (P2003) on the
+      // customer's very first grant/earn through this door. The schema's
+      // tierId is nullable BY DESIGN: a tierless store enrolls tierless
+      // members, honestly.
       const firstTier = await tx.loyaltyTier.findFirst({
         where: { storeId, isActive: true },
         orderBy: { sortOrder: 'asc' },
@@ -226,15 +253,30 @@ async function createLoyaltyTransactionHandler(...args: unknown[]): Promise<Resp
       await tx.customerLoyalty.create({
         data: {
           customerId,
-          tierId: firstTier?.id || 'default',
+          tierId: firstTier?.id || null,
           pointsBalance: finalPoints,
           lifetimePoints: finalPoints,
           totalRedeemed: 0,
-          tierAchievedAt: new Date(),
+          tierAchievedAt: firstTier ? new Date() : null,
           lastActivityAt: new Date(),
         },
       });
     }
+
+    // v2.313.0 THE WALLET LAW (the round's live QA catch): the codebase's
+    // own documented law (loyalty-expiry-service.ts) says THE WALLET is
+    // Customer.loyaltyPoints — "the live balance the earn, redeem and
+    // clawback paths all read and claim against". This route maintained
+    // only the legacy shadow (CustomerLoyalty.pointsBalance), so a manual
+    // adjust never moved the balance the members list and the customer
+    // card voice — the burst proved it live (+50/−10 landed as rows, the
+    // wallet stayed 0). Both ledgers move together now, in the SAME
+    // transaction; the increment carries either sign (a reasoned dock
+    // decrements exactly like the clawback does).
+    await tx.customer.update({
+      where: { id: customerId },
+      data: { loyaltyPoints: { increment: finalPoints } },
+    });
 
     return loyaltyTx;
   });
