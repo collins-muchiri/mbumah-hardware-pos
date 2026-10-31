@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import {
   Sparkles, Plus, Search, Crown, Award, Users, Loader2, Settings2, TrendingUp, Calendar, Gift, Zap, ChevronUp, Clock,
   HandCoins, Target, Megaphone, Edit, History, RotateCcw, Receipt,
-  Trophy, Gem, Medal, Shield, Palette, Hourglass,
+  Trophy, Gem, Medal, Shield, Palette, Hourglass, AlertCircle,
 } from 'lucide-react';
 
 import { useAppStore } from '@/lib/stores';
@@ -18,6 +18,7 @@ import {
   type CustomerItem,
 } from '@/lib/api';
 import { isRefundClawbackTx } from '@/lib/loyalty-utils';
+import { dockNeedsReason, DOCK_REASON_HINT } from '@/lib/loyalty-adjust-policy';
 import { parseInitialView } from '@/lib/tab-url';
 import { ReceiptViewDialog } from '@/components/loyalty/receipt-view-dialog';
 import { ExpiryDialog } from '@/components/loyalty/expiry-dialog';
@@ -840,7 +841,12 @@ export default function LoyaltyTab() {
                             <span className="truncate">{tx.reference}</span>
                           </button>
                         ) : (
-                          <span className="block max-w-[120px] truncate">{tx.referenceId ?? '-'}</span>
+                          // v2.313.0: the wire's field is `reference` — read it
+                          // FIRST. referenceId stayed undefined for plain rows
+                          // and every manual row answered '-' even when a
+                          // reference had been given (and, before the route fix,
+                          // dropped entirely).
+                          <span className="block max-w-[120px] truncate">{tx.reference ?? tx.referenceId ?? '-'}</span>
                         )}
                       </TableCell>
                       <TableCell
@@ -1247,7 +1253,15 @@ export default function LoyaltyTab() {
                 placeholder="Reason for adjustment"
                 value={adjustPointsForm.description}
                 onChange={(e) => setAdjustPointsForm({ ...adjustPointsForm, description: e.target.value })}
+                aria-describedby="adjust-points-reason-hint"
+                aria-invalid={dockNeedsReason(adjustPointsForm.type, Number(adjustPointsForm.points), adjustPointsForm.description) || undefined}
               />
+              {dockNeedsReason(adjustPointsForm.type, Number(adjustPointsForm.points), adjustPointsForm.description) && (
+                <p id="adjust-points-reason-hint" aria-live="polite" className="mt-1.5 flex items-start gap-1.5 text-xs text-rose-600 dark:text-rose-400">
+                  <AlertCircle className="mt-px h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                  {DOCK_REASON_HINT}
+                </p>
+              )}
             </div>
           </div>
           <DialogFooter>
@@ -1255,7 +1269,7 @@ export default function LoyaltyTab() {
             <Button
               size="sm"
               className="h-8"
-              disabled={!adjustPointsForm.points || createTxMutation.isPending}
+              disabled={!adjustPointsForm.points || dockNeedsReason(adjustPointsForm.type, Number(adjustPointsForm.points), adjustPointsForm.description) || createTxMutation.isPending}
               onClick={() => {
                 if (!adjustPointsCustomer) return;
                 createTxMutation.mutate({
@@ -1408,7 +1422,15 @@ export default function LoyaltyTab() {
                 placeholder="Reason for adjustment..."
                 value={manualAdjustForm.description}
                 onChange={(e) => setManualAdjustForm({ ...manualAdjustForm, description: e.target.value })}
+                aria-describedby="manual-adjust-reason-hint"
+                aria-invalid={dockNeedsReason(manualAdjustForm.transactionType, Number(manualAdjustForm.points), manualAdjustForm.description) || undefined}
               />
+              {dockNeedsReason(manualAdjustForm.transactionType, Number(manualAdjustForm.points), manualAdjustForm.description) && (
+                <p id="manual-adjust-reason-hint" aria-live="polite" className="mt-1.5 flex items-start gap-1.5 text-xs text-rose-600 dark:text-rose-400">
+                  <AlertCircle className="mt-px h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                  {DOCK_REASON_HINT}
+                </p>
+              )}
             </div>
           </div>
           <DialogFooter>
@@ -1416,14 +1438,16 @@ export default function LoyaltyTab() {
             <Button
               size="sm"
               className="h-8"
-              disabled={!manualAdjustForm.customerId || !manualAdjustForm.points || createTxMutation.isPending}
+              disabled={!manualAdjustForm.customerId || !manualAdjustForm.points || dockNeedsReason(manualAdjustForm.transactionType, Number(manualAdjustForm.points), manualAdjustForm.description) || createTxMutation.isPending}
               onClick={() => {
                 createTxMutation.mutate({
                   storeId: currentStoreId,
                   customerId: manualAdjustForm.customerId,
                   points: Number(manualAdjustForm.points),
                   transactionType: manualAdjustForm.transactionType,
-                  referenceId: manualAdjustForm.reference || undefined,
+                  // v2.313.0: the wire's real name — referenceId was silently
+                  // dropped by the route for the whole life of this dialog.
+                  reference: manualAdjustForm.reference || undefined,
                   description: manualAdjustForm.description || undefined,
                 });
               }}

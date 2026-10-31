@@ -84,6 +84,19 @@ export default function HomePage() {
   const hasMounted = useHasMounted();
   const showRetry = useLoadingWatchdog(hasMounted);
 
+  // v2.313.0 THE CAPTURE LAW: the address bar's ask (?tab= / ?view=) is
+  // read ONCE, here at first render — BEFORE any effect runs. React
+  // flushes CHILD effects before PARENT effects, so MainApp's URL-sync
+  // effect (v2.311.0) replaceState's the persisted desk over the address
+  // bar BEFORE this component's boot effect ever runs; a consume that
+  // re-read window.location answers the OVERWRITE, not the ask — every
+  // warm authenticated deep link (/?tab=pos with a persisted loyalty
+  // desk) silently landed the persisted desk. The capture is per-mount
+  // state: a fresh mount reads a fresh bar, an SSR pass reads '' (guarded).
+  const [initialSearch] = useState(() =>
+    typeof window !== 'undefined' ? window.location.search : '',
+  );
+
   // v2.6.0: one-time guard so React StrictMode double-invocation of the
   // effect never toasts "Previous cart restored" twice.
   const cartRehydrateToastShownRef = useRef(false);
@@ -108,10 +121,19 @@ export default function HomePage() {
     // contract and strips it on its own unmount.
     // ORDER MATTERS: rehydrate() resolves async and would overwrite a
     // synchronous setActiveTab — the deep link is applied AFTER it settles.
+    // v2.313.0: AND the ask itself is the first-render capture (above),
+    // not a re-read of the bar — child effects (MainApp's URL sync) run
+    // before this parent effect and rewrite the bar first.
     const consumeDeepLink = () => {
       try {
+        // v2.313.0: read the FIRST-RENDER CAPTURE (initialSearch above),
+        // never window.location — by consume time the child URL-sync
+        // effect may already have rewritten the bar to the persisted
+        // desk, and the ask would be lost. The capture predates every
+        // effect, so it is always the ask the visitor actually typed,
+        // bookmarked, or shared.
         const asked = parseInitialTab(
-          window.location.search,
+          initialSearch,
           TAB_CONFIG.map((t) => t.id),
         );
         if (asked) {
@@ -155,7 +177,7 @@ export default function HomePage() {
     } catch (err) {
       console.error('[MbumahBoot] Failed to rehydrate cart store:', err);
     }
-  }, [hydrateFromStorage]);
+  }, [hydrateFromStorage, initialSearch]);
 
   if (!hasMounted) {
     return (

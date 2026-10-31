@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.313.0',
+    title: 'The ask lands; the dock says why',
+    bullets: [
+      'Shared desk links now always land: opening /?tab=pos (or any desk link) while another desk was open used to bounce you back to the desk you left — the ask wins now, on every boot, bookmark, and share.',
+      'Docking loyalty points now requires a reason: a manager subtracting points must say why, the ledger refuses an anonymous dock, and the reason shows on the customer\u2019s paper trail.',
+      'Manual adjustments keep their reference too: the "Reference" box on the Manual Points Adjustment dialog was silently dropped — it now lands on the ledger row where it belongs.',
+    ],
+  },
+  {
     version: '2.312.0',
     title: 'The points that expire',
     bullets: [
