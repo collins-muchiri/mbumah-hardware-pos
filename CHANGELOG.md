@@ -2,6 +2,20 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.300.0] The run finds its door
+
+The v2.18.9 payroll lifecycle has been complete in the API and in the /hr/payroll console for a hundred releases — but the main Payroll tab's Pay Runs table could only Void a finished run. A manager staring at a Draft run saw an EMPTY actions cell: the state machine had no door. This release opens it, and teaches the guardrails to speak.
+
+### Added
+- **The door** (`src/app/(shell)/tabs/payroll-tab.tsx`, mandatory 5): every Pay Runs row grows a Manage action (`data-testid="payroll-run-door"`, sky family with hover/dark faces, `DoorOpen` glyph, aria-label naming the run it opens) that opens the SHARED `PayrollRunDialog` — the same component `/hr/payroll` opens (ONE implementation, zero duplicated logic). The door never depends on status: the dialog's own server-driven `can` gates decide which lifecycle steps exist (prepare, submit, approve, reject, post, lock, disburse, M-Pesa B2C), so a DRAFT, VOIDED or FAILED run opens its honest face and the actions cell is never empty again. `onChanged` re-reads both the runs and the periods queries (a transition moves the run's totals; the periods strip counts the same money).
+- **The voice** (`src/lib/hr/payroll/error-voice.ts`, NEW, pure): `payrollGuardrailVoice(raw)` translates every `PayrollGuardrailError` code into a human sentence + an actionable next step — "No statutory rate table is active for this period's date. Add or activate the statutory tables (PAYE, NSSF, SHIF, Housing Levy) for this period, then initiate again." — while the engine's own detail rides verbatim in parentheses (the date and the table type are facts, never dropped). Unknown codes and plain errors pass through UNTOUCHED — the voice never guesses. Both payroll error mouths (initiate + void) speak it.
+
+### Changed
+- The v2.300.0 QA deep-walk found the walk itself blocked on unseeded statutory tables in the dev database; `scripts/seed-rate-tables.mjs` remains the ONE seeding home (no code change — the data was the gap, the voice was the product gap).
+
+### Tests
+- `src/tests/payroll-run-door-v300.test.ts` (18 pins, BOTH nets): the voice's total map (every guardrail code has an entry — a new code without a voice fails before any user meets it raw), the found bug's exact sentence + verbatim detail + no leaking code, empty-detail and unknown-code and lowercase-lookalike passthroughs; the byte wiring: the shared-dialog import (never a copy), the door for every run (no status gate), the door's promise in title + aria-label, the dialog rendered once with the door's state, onChanged's two query keys, the void fast-path law untouched, the /hr/payroll second caller standing, and the voice lib's purity law (one import, no Prisma/React/network).
+
 ## [2.299.0] The drill groups its actors
 
 The drill's aggregate answers "how many accounts stand behind these denials" as a number; a triager staring at a mixed ledger still had to sort the rows by eye. Now a Group switch folds the shown rows under each account — sections named for who caused them, each with its own denial count — while the ledger itself, the aggregate voice and the CSV filing stay exactly as they were.
