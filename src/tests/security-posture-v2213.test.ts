@@ -11,7 +11,7 @@
 //     by its own command name, dry-run first.
 //   - THE HONEST POSTURE LAW (SEC-02): unset-in-production speaks red AND
 //     says the 403 wall is fail-closed BY DESIGN, not an outage.
-//   - THE PINNED COUNT LAW: GATED_CRON_ROUTES = 11 must equal the actual
+//   - THE PINNED COUNT LAW: GATED_CRON_ROUTES must equal the actual
 //     number of route directories under src/app/api/cron — the day a
 //     twelfth route lands, the mismatch is a visible red test.
 //
@@ -52,7 +52,7 @@ describe('the posture route (v2.213.0)', () => {
   });
 
   it('speaks the 11-route constant with its birth comment', () => {
-    expect(route).toMatch(/export const GATED_CRON_ROUTES = 11;/);
+    expect(route).toMatch(/export const GATED_CRON_ROUTES = 12;/); // v2.312.0: +1 for loyalty-expiry
     expect(route).toMatch(/session-reaper/);
   });
 
@@ -77,8 +77,8 @@ describe('GATED_CRON_ROUTES matches reality', () => {
   const cronDir = join(process.cwd(), 'src/app/api/cron');
   const dirs = readdirSync(cronDir).filter((e) => statSync(join(cronDir, e)).isDirectory());
 
-  it(`has exactly 11 cron route directories (found: ${dirs.length})`, () => {
-    expect(dirs.length).toBe(11);
+  it(`has exactly 12 cron route directories (found: ${dirs.length})`, () => {
+    expect(dirs.length).toBe(12);
   });
 
   it('the route file pins the same number', () => {

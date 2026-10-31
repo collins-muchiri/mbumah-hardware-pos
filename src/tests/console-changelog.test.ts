@@ -406,10 +406,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.309.0: the refund's-paper-trail entry joins the feed (+1 on every anchor → 198/199/200/231 → 199/200/201/232)
     // v2.310.0: the claw-speaks entry joins the feed (+1 on every anchor → 199/200/201/232 → 200/201/202/233)
     // v2.311.0: the paper-trail entry joins the feed (+1 on every anchor → 201/202/203/234 → 202/203/204/235)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(202);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(203);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(204);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(235);
+    // v2.312.0: the points-expire entry joins the feed (+1 on every anchor → 202/203/204/235 → 203/204/205/236)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(203);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(204);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(205);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(236);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 
