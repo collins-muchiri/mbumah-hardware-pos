@@ -22,6 +22,7 @@
 
 import { Badge } from '@/components/ui/badge';
 import {
+  ArrowUpRight,
   CalendarOff,
   CalendarX,
   CircleHelp,
@@ -36,12 +37,15 @@ import {
   Lock,
   type LucideIcon,
 } from 'lucide-react';
-import { payrollGuardrailIssueVoice } from '@/lib/hr/payroll/error-voice';
+import { payrollGuardrailIssueVoice, payrollIssueDoor } from '@/lib/hr/payroll/error-voice';
 
 /** Structurally identical to the page's ApiIssue - declared locally so this
  * component never imports from a page module (no import cycle). */
 export interface PayrollIssueShape {
   employeeName?: string;
+  /** v2.302.0: the server's PayrollIssue has always carried it; saying so
+   * here lets the employee-keyed doors deep-link the exact record. */
+  employeeId?: string;
   code: string;
   message: string;
 }
@@ -56,25 +60,37 @@ export interface PayrollIssueFace {
   /** Chip + icon colors per severity family (light/dark). */
   chip: string;
   text: string;
+  /** v2.302.0: the door link's family tint — the row's own family colors
+   * the door that walks to the fix (light/dark/hover/focus). */
+  doorTint: string;
 }
 
 /** The severity families. ONE entry per known guardrail code; unknown codes
  * get the slate help face (the voice never guesses, and neither does the face). */
-const SEVERITY_FACES: Record<PayrollIssueSeverity, { chip: string; text: string; label: string }> = {
+const SEVERITY_FACES: Record<
+  PayrollIssueSeverity,
+  { chip: string; text: string; label: string; doorTint: string }
+> = {
   employee: {
     chip: 'bg-rose-100 dark:bg-rose-950/50 border-rose-200 dark:border-rose-900',
     text: 'text-rose-700 dark:text-rose-300',
     label: 'Employee record fix',
+    doorTint:
+      'text-rose-700 hover:bg-rose-50 hover:text-rose-900 hover:ring-1 hover:ring-rose-200 focus-visible:ring-rose-400 dark:text-rose-300 dark:hover:bg-rose-950/40 dark:hover:text-rose-200 dark:hover:ring-rose-800',
   },
   config: {
     chip: 'bg-amber-100 dark:bg-amber-950/50 border-amber-200 dark:border-amber-900',
     text: 'text-amber-700 dark:text-amber-300',
     label: 'Settings or table fix',
+    doorTint:
+      'text-amber-700 hover:bg-amber-50 hover:text-amber-900 hover:ring-1 hover:ring-amber-200 focus-visible:ring-amber-400 dark:text-amber-300 dark:hover:bg-amber-950/40 dark:hover:text-amber-200 dark:hover:ring-amber-800',
   },
   process: {
     chip: 'bg-sky-100 dark:bg-sky-950/50 border-sky-200 dark:border-sky-900',
     text: 'text-sky-700 dark:text-sky-300',
     label: 'Lifecycle step needed',
+    doorTint:
+      'text-sky-700 hover:bg-sky-50 hover:text-sky-900 hover:ring-1 hover:ring-sky-200 focus-visible:ring-sky-400 dark:text-sky-300 dark:hover:bg-sky-950/40 dark:hover:text-sky-200 dark:hover:ring-sky-800',
   },
 };
 
@@ -99,6 +115,8 @@ const HELP_FACE: PayrollIssueFace = {
   fix: 'Review',
   chip: 'bg-slate-100 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800',
   text: 'text-slate-600 dark:text-slate-300',
+  doorTint:
+    'text-slate-600 hover:bg-slate-50 hover:text-slate-800 hover:ring-1 hover:ring-slate-200 focus-visible:ring-slate-400 dark:text-slate-300 dark:hover:bg-slate-950/40 dark:hover:text-slate-200 dark:hover:ring-slate-800',
 };
 
 export function payrollIssueFace(code: string): PayrollIssueFace {
@@ -106,13 +124,16 @@ export function payrollIssueFace(code: string): PayrollIssueFace {
 }
 
 /** ONE row face for a blocked employee: severity chip + machine-readable
- * code badge + employee + the guardrail voice. The Badge keeps the raw code
+ * code badge + employee + the guardrail voice + (v2.302.0) the remediation
+ * door when the fix surface really exists. The Badge keeps the raw code
  * on purpose - codes are greppable and tests pin them; the sentence next to
- * it is for humans. */
+ * it is for humans; the door at the end is the walk to the fix. A doorless
+ * row renders nothing extra - null is honest absence, never a disabled stub. */
 export function PayrollIssueRow({ issue }: { issue: PayrollIssueShape }) {
   const face = payrollIssueFace(issue.code);
   const Icon = face.icon;
   const voice = payrollGuardrailIssueVoice(issue.code, issue.message);
+  const door = payrollIssueDoor(issue.code, issue.employeeId);
   return (
     <div
       data-testid="payroll-issue-row"
@@ -131,6 +152,21 @@ export function PayrollIssueRow({ issue }: { issue: PayrollIssueShape }) {
       </Badge>
       <span className="font-medium">{issue.employeeName || 'Employee'}</span>
       <span className="text-muted-foreground">{voice}</span>
+      {door ? (
+        <a
+          href={door.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-testid="payroll-issue-door"
+          data-door-href={door.href}
+          aria-label={`${door.label} — opens in its own tab${issue.employeeName ? ` to fix ${issue.employeeName}` : ''}`}
+          title={door.title}
+          className={`ml-auto inline-flex shrink-0 items-center gap-1 self-center rounded-md px-1.5 py-0.5 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 ${face.doorTint}`}
+        >
+          {door.label}
+          <ArrowUpRight className="h-3 w-3 shrink-0" aria-hidden />
+        </a>
+      ) : null}
     </div>
   );
 }

@@ -194,6 +194,10 @@ export const sideLabel = (balance: number, normalBalance: string): string => {
 
 export interface ApiIssue {
   employeeName?: string;
+  /** v2.302.0: said out loud — the server's PayrollIssue has always carried
+   * it (run-service's issue pushes + the stored issues JSON), and the
+   * employee-keyed doors deep-link the exact record through it. */
+  employeeId?: string;
   code: string;
   message: string;
 }

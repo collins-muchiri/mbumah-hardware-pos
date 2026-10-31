@@ -2,6 +2,18 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.302.0] The issue rows carry their doors
+
+v2.301.0 gave the issue rows a voice; the voice names the fix, but the manager still had to find the surface it lives on. This release lets the row carry the door — diagnosis joins its fix, generalized from the gate card's v2.135.0/v2.136.0 precedents to every issue row on both mouths.
+
+### Added
+- **The issue door** (`src/lib/hr/payroll/error-voice.ts`, mandatory 5): `payrollIssueDoor(code, employeeId)` keys off the same code field the voice reads and returns the fix surface when one really exists — MISSING_CONSENT to the consent ledger (`/hr/reports?tab=privacy`), TIMESHEET_NOT_APPROVED deep-linking the exact employee (`/hr/timesheets?employee=<id>`), NEGATIVE_NET / DEDUCTION_CAP_EXCEEDED to the employee record's pay inputs, PERIOD_MISMATCH to the timesheet desk, MISSING_CHART_ACCOUNT / JOURNAL_IMBALANCE to the Financial tab. The HONEST-NULL LAW: five codes stay doorless on purpose (rate tables are insert-only with no editor UI, salary structures have no management UI, the lifecycle is the run's own dialog, the duplicate's destination already exists) — a door to a surface that cannot perform the fix is a lie with a link on it. Pure lib: no React, no Prisma, no network; unknown codes return null.
+- **The row carries its door** (`src/components/hr/payroll-issue-row.tsx`, mandatory 4): the shared row renders the door as a right-aligned link with the row's own severity family tint (rose/amber/sky, dark modes + hover ring + visible focus ring per family), `target="_blank"` + `rel="noopener noreferrer"` safety pair, `data-testid="payroll-issue-door"` + `data-door-href` hooks, and the ArrowUpRight wayfinding icon. A doorless row renders nothing extra — null is honest absence, never a disabled stub. BOTH mouths (run dialog's "Blocked employees" panel + /hr/payroll gate card) gain the doors through the one shared row.
+- **The field said out loud**: `ApiIssue` and `PayrollIssueShape` now declare `employeeId` (optional) — the server's `PayrollIssue` has always carried it (run-service issue pushes + the stored issues JSON), and the employee-keyed doors deep-link the exact record through it.
+
+### Tests
+- `src/tests/payroll-issue-doors-v302.test.ts` (23 pins, BOTH nets): the value net pins every door's href/label/title, employee-keyed deep links with URL encoding, the plain-desk fallback without an id, blank/whitespace ids counting as absent, the five honest nulls, unknown-code nulls, and the door decision's totality over every guardrail code; the byte net pins the row's door call with the issue's own code + employeeId, the new-tab safety pair and data hooks, the honest-absence conditional, per-family focus rings over the whole face map, the shape saying employeeId, BOTH mouths still on the shared row, and the purity law (one relative import, no React/Prisma/network).
+
 ## [2.301.0] The issue rows find their voice
 
 v2.300.0 taught the payroll toasts to speak; the per-employee issue rows kept saying the engine's raw words. This release gives the second caller the microphone, gives every row a severity face, and fixes the click-stealing pulse ring the QA sweep caught red-handed.
