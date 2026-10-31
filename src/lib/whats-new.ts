@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.304.0',
+    title: 'The salary finds its desk',
+    bullets: [
+      'Salary structures finally have a management desk: /hr/salary-structures keeps the component catalog and the per-employee pay versions \u2014 a pay change is a new structure on its own day, the newest-begun structure answers, and issued payslips keep the numbers they were paid by.',
+      'The desk\u2019s guards run the engine\u2019s own laws at write time: two structures of one employee may never begin the same day (payroll would resolve that tie by record order \u2014 a coin flip), and every estimate on the desk is the exact arithmetic payroll pays.',
+      'The oldest honest door now walks somewhere real: UNRESOLVED_DEPENDENCY points to the salary desk \u2014 a null was a promise to build the surface, and the promise is kept.',
+    ],
+  },
+  {
     version: '2.303.0',
     title: 'The tables get their keeper',
     bullets: [

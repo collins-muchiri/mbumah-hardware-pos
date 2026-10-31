@@ -2,13 +2,15 @@
 //
 // BOTH NETS, per the runtime-pin law:
 //     (v2.303.0 RE-ANCHORED: the rate-table keeper shipped, so the two
-//     rate-table nulls were PROMOTED to doors — a null is a promise to build
-//     the surface, and the promise was kept.) The value net pins
+//     rate-table nulls were PROMOTED to doors. v2.304.0 RE-ANCHORED again:
+//     the salary desk shipped, so UNRESOLVED_DEPENDENCY — the oldest null —
+//     was promoted the same way. A null is a promise to build the surface,
+//     and the promises keep being kept.) The value net pins
 //     `payrollIssueDoor`'s truth: `payrollIssueDoor` keys off
 //     the same code field the voice reads, deep-links the employee the row
 //     speaks for when the fix is employee-keyed, falls back to the plain
 //     desk when no id rides along, treats a blank id as absent (the door
-//     never builds a half link), and returns null for the three documented
+//     never builds a half link), and returns null for the two documented
 //     honest nulls + every unknown code (a door to a surface that cannot
 //     perform the fix is a lie with a link on it).
 //   • the BYTE net pins the wiring: BOTH issue mouths (the run dialog's
@@ -104,15 +106,22 @@ describe('payrollIssueDoor — the value net', () => {
     expect(must(door).label).toBe('Journal entries');
   });
 
-  it('the three honest nulls stay doorless — each for its documented reason', () => {
+  it('the two honest nulls stay doorless — each for its documented reason', () => {
     // v2.303.0: RATE_TABLE_MISSING / OVERLAPPING_RATE_TABLES were PROMOTED to
-    // doors when the rate-table keeper shipped — a null is a promise to build
-    // the surface, and the promise was kept. The remaining nulls: salary
-    // structures have no management UI; the lifecycle is in place; the
-    // duplicate's destination already exists.
-    expect(payrollIssueDoor('UNRESOLVED_DEPENDENCY', 'emp-1')).toBeNull();
+    // doors when the rate-table keeper shipped. v2.304.0: UNRESOLVED_DEPENDENCY
+    // was promoted when the salary desk shipped — a null is a promise to
+    // build the surface, and the promises keep being kept. The remaining
+    // nulls: the lifecycle is in place; the duplicate's destination already
+    // exists.
     expect(payrollIssueDoor('IMMUTABLE_STATUS', 'emp-1')).toBeNull();
     expect(payrollIssueDoor('DUPLICATE_IDEMPOTENCY_KEY', 'emp-1')).toBeNull();
+  });
+
+  it('the promoted salary door walks to the salary desk (v2.304.0)', () => {
+    const door = payrollIssueDoor('UNRESOLVED_DEPENDENCY', 'emp-1');
+    expect(door).not.toBeNull();
+    expect(must(door).href).toBe('/hr/salary-structures');
+    expect(must(door).label).toBe('Salary structures');
   });
 
   it('the promoted rate-table doors walk to the keeper (v2.303.0)', () => {

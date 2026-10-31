@@ -27,9 +27,35 @@ interface SettingsDto {
   moduleEnabled: boolean;
 }
 
+/** v2.304.0: the salary desk's tile — the structures in force, one per
+ * employee at most (the newest-begun structure answers). */
+interface SalaryStructureSummary {
+  id: string;
+  employeeId: string;
+  effectiveFrom: string;
+  deletedAt: string | null;
+  employee: { firstName: string; lastName: string; employeeCode: string | null };
+}
+
+/** The in-force law at a glance (mirrors salary-structure-view's
+ * salaryStructureInForce — kept inline so the overview never imports a
+ * desk module; the SAME selection, stated twice, both sides pinned by
+ * tests). */
+function inForceAt(structures: SalaryStructureSummary[], at: Date): SalaryStructureSummary | null {
+  let best: SalaryStructureSummary | null = null;
+  for (const s of structures) {
+    if (s.deletedAt) continue;
+    const from = new Date(s.effectiveFrom).getTime();
+    if (from > at.getTime()) continue;
+    if (!best || from > new Date(best.effectiveFrom).getTime()) best = s;
+  }
+  return best;
+}
+
 export default function HrOverviewPage() {
   const [employees, setEmployees] = useState<EmployeeSummary[] | null>(null);
   const [rateTables, setRateTables] = useState<RateTableDto[] | null>(null);
+  const [salaryStructures, setSalaryStructures] = useState<SalaryStructureSummary[] | null>(null);
   const [settings, setSettings] = useState<SettingsDto | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,10 +63,11 @@ export default function HrOverviewPage() {
     let cancelled = false;
     async function load() {
       try {
-        const [empRes, rateRes, setRes] = await Promise.all([
+        const [empRes, rateRes, setRes, salRes] = await Promise.all([
           fetch('/api/hr/employees', { credentials: 'include' }),
           fetch('/api/hr/rate-tables', { credentials: 'include' }),
           fetch('/api/hr/settings', { credentials: 'include' }),
+          fetch('/api/hr/salary-structures', { credentials: 'include' }),
         ]);
         if (cancelled) return;
         if (!empRes.ok) {
@@ -52,10 +79,12 @@ export default function HrOverviewPage() {
         const emp = (await empRes.json()) as { data: EmployeeSummary[] };
         const rate = (await rateRes.json().catch(() => ({ data: [] }))) as { data: RateTableDto[] };
         const st = (await setRes.json().catch(() => ({ data: null }))) as { data: SettingsDto | null };
+        const sal = (await salRes.json().catch(() => ({ data: [] }))) as { data: SalaryStructureSummary[] };
         if (cancelled) return;
         setEmployees(emp.data ?? []);
         setRateTables(rate.data ?? []);
         setSettings(st.data);
+        setSalaryStructures(sal.data ?? []);
       } catch {
         if (!cancelled) {
           setError('HR workspace is unreachable. Check your connection and sign in again.');
@@ -165,6 +194,81 @@ export default function HrOverviewPage() {
               ))}
             </ul>
           )}
+        </CardContent>
+      </Card>
+
+      {/* v2.304.0: the salary desk's tile — the structures in force per
+          employee, with the Manage door the desk's custody deserves (same
+          family tone as the keeper's door). */}
+      <Card>
+        <CardHeader className="flex flex-row items-start justify-between space-y-0">
+          <div>
+            <CardTitle className="text-base">Salary structures in force</CardTitle>
+            <CardDescription>
+              The newest-begun structure answers for each employee; a pay change is a new structure on its own day.
+            </CardDescription>
+          </div>
+          <a
+            href="/hr/salary-structures"
+            data-testid="hr-salary-structures-door"
+            className="inline-flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-medium text-emerald-700 transition-colors hover:bg-emerald-50 hover:text-emerald-900 hover:ring-1 hover:ring-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 dark:text-emerald-300 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-200 dark:hover:ring-emerald-800"
+          >
+            Manage
+            <ArrowUpRight className="h-3 w-3 shrink-0" aria-hidden />
+          </a>
+        </CardHeader>
+        <CardContent>
+          {salaryStructures === null ? (
+            <div className="space-y-2">
+              <Skeleton className="h-9 w-full" />
+              <Skeleton className="h-9 w-full" />
+            </div>
+          ) : (() => {
+            // One row per employee with at least one living structure; the
+            // in-force law picks what payroll reads today.
+            const byEmployee = new Map<string, SalaryStructureSummary[]>();
+            for (const s of salaryStructures) {
+              const list = byEmployee.get(s.employeeId) ?? [];
+              list.push(s);
+              byEmployee.set(s.employeeId, list);
+            }
+            const rows = [...byEmployee.entries()]
+              .map(([employeeId, list]) => ({ employeeId, inForce: inForceAt(list, new Date()), any: list[0] }))
+              .filter((r): r is { employeeId: string; inForce: SalaryStructureSummary | null; any: SalaryStructureSummary } => !!r.any);
+            if (rows.length === 0) {
+              return (
+                <p className="text-sm text-muted-foreground">
+                  No salary structures on file yet — employees are paid basic salary only. The desk manages the component catalog and the per-employee versions.
+                </p>
+              );
+            }
+            return (
+              <ul className="divide-y rounded-md border" data-testid="hr-salary-structures-list">
+                {rows.map(({ employeeId, inForce, any }) => (
+                  <li key={employeeId} className="flex flex-col gap-1 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium">
+                        {any.employee.firstName} {any.employee.lastName}
+                      </p>
+                      {any.employee.employeeCode ? (
+                        <p className="truncate text-xs text-muted-foreground">{any.employee.employeeCode}</p>
+                      ) : null}
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      {inForce ? (
+                        <>
+                          <Badge variant="outline" className="text-[10px] text-emerald-700 dark:text-emerald-300">in force</Badge>
+                          <span className="text-xs text-muted-foreground">from {new Date(inForce.effectiveFrom).toLocaleDateString()}</span>
+                        </>
+                      ) : (
+                        <Badge variant="outline" className="text-[10px] text-amber-700 dark:text-amber-300">basic-only pay</Badge>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            );
+          })()}
         </CardContent>
       </Card>
     </div>
