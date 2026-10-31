@@ -25,7 +25,9 @@ cadence honest, and how to read the heartbeat. Companion to
 - BOTH dispatchers carry sub-jobs (v2.166.0 note): the hourly carries SIX
   (outbox, payments-sweeper, etims-retry, debt-reminders, b2c-recovery,
   session-reaper) and — since v2.165.0 — the nightly carries FOUR
-  (reconciliation, retention, hr-report-digests, session-reaper). Both
+  (reconciliation, retention, hr-report-digests, session-reaper); since
+  v2.312.0 the nightly carries FIVE, with the loyalty-expiry sweep folded
+  in as the fifth sub-job. Both
   write the tick ledger, and the Automation pulse card labels which
   dispatcher fired the row it is showing.
 - Everything folded into the hourly dispatcher was designed for an hourly
@@ -81,6 +83,17 @@ confirm it, and neither requires shell access:
   the ledger. The Automation pulse card renders it as `· reaped N` (or
   `· clean` for zero) on the chip and an "N reaped" header pill when
   positive. Older ticks and other sub-jobs simply lack the field.
+- **v2.312.0**: the loyalty-expiry sweep writes its OWN ledger row per run
+  (`LOYALTY_EXPIRY_RUN`, one INFO row — a healthy no-op sweep still leaves
+  a trace) with `metadata.stores` = per-store
+  `{ storeId, scanned, walletsExpired, pointsExpired }`.
+- **v2.315.0**: the Automation pulse card surfaces the LAST
+  `LOYALTY_EXPIRY_RUN` row — the sweep line reads "Last expiry sweep N ago
+  · M wallets scanned · K expired, P points returned across S stores" (a
+  healthy zero speaks "nothing to expire"). The reader is
+  `src/lib/loyalty-expiry-pulse.ts` and it is never-a-guess: a row whose
+  metadata cannot be FULLY read (garbage, missing stores array, any
+  dishonest count) renders no sweep line at all — never a partial sum.
 - **v2.165.0**: BOTH dispatchers write the ledger. The nightly dispatcher
   (which had left no always-row since v2.159.0) writes its own tick row,
   and every row's metadata names its dispatcher (`dispatcher: 'hourly' |`
@@ -101,13 +114,16 @@ confirm it, and neither requires shell access:
   the card's sentence — per-gate refusal counts, the most recent
   refusal's EAT stamp, and a single-gate suffix on the pill itself.
 
-## The sub-jobs (nine, as of v2.167.0)
+## The sub-jobs (ten, as of v2.315.0)
 
 <!-- v2.167.0: the table grew from six to nine — the nightly dispatcher's
      three exclusive sub-jobs (reconciliation, retention, hr-report-digests)
      had only lived in the cadence prose since v2.165.0; the register is now
      the COMPLETE card-sized echo of AUTOMATION_SUBJOB_HINTS, and a drift pin
-     asserts every hint key has a row here. -->
+     asserts every hint key has a row here.
+     v2.315.0: the register grew to ten — `loyalty-expiry` (folded into the
+     nightly as its fifth sub-job in v2.312.0) finally has its row; the
+     drift pin now covers it in both directions. -->
 
 | name | owns | notes |
 |------|------|-------|
@@ -120,6 +136,7 @@ confirm it, and neither requires shell access:
 | `reconciliation` | the nightly financial summaries rebuild | nightly-only (02:30 UTC) since v2.165.0 |
 | `retention` | the expired-record purge | nightly-only; honors each record's retention grace period |
 | `hr-report-digests` | the scheduled HR report digests | nightly-only; delivery is RESEND_API_KEY-gated |
+| `loyalty-expiry` | the FIFO loyalty point expiry sweep | nightly-only since v2.312.0 (the fifth sub-job); per store, oldest earn lots first, conditional claim — idempotent by construction; every sweep leaves its own INFO `LOYALTY_EXPIRY_RUN` row (a healthy zero still leaves a trace), and since v2.315.0 the LAST such row faces the Automation pulse card |
 
 ## Reading the heartbeat: the Automation pulse card
 

@@ -96,7 +96,7 @@ describe('the docs - six sub-jobs and the parity appendix', () => {
     // v2.167.0 re-anchor (dated): the table grew six -> nine (the nightly-only
     // sub-jobs joined as rows), so the heading renamed; the nine-key drift pin
     // lives in keyboard-hints-v2167.test.ts.
-    expect(cronDoc).toContain('## The sub-jobs (nine, as of v2.167.0)');
+    expect(cronDoc).toContain('## The sub-jobs (ten, as of v2.315.0)');
     expect(cronDoc).toContain('| `session-reaper` |');
     expect(cronDoc).toContain('never `lastActiveAt`');
     expect(cronDoc).toContain('extended v2.164.0');

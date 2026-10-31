@@ -18,8 +18,9 @@ const orgConsole = repo('src/components/workspace/org-console.tsx');
 const automationApi = repo('src/app/api/org/automation/route.ts');
 const cronDoc = repo('docs/cron-operations.md');
 
-// every sub-job name BOTH dispatchers can emit (6 hourly + 4 nightly,
-// session-reaper shared = 9 unique names)
+// every sub-job name BOTH dispatchers can emit (6 hourly + 5 nightly,
+// session-reaper shared = 10 unique names; loyalty-expiry joined the
+// register in v2.315.0 — the v2.312 fold finally speaks)
 const ALL_NAMES = [
   'outbox',
   'payments-sweeper',
@@ -30,6 +31,7 @@ const ALL_NAMES = [
   'reconciliation',
   'retention',
   'hr-report-digests',
+  'loyalty-expiry',
 ];
 
 describe('the chips say what they own', () => {
@@ -60,7 +62,7 @@ describe('the chips say what they own', () => {
     // v2.167.0 re-anchor (dated): the table grew from six to nine — the
     // nightly-only sub-jobs joined as rows, so the heading renamed; the
     // drift pin for ALL nine keys lives in keyboard-hints-v2167.test.ts.
-    expect(cronDoc).toContain('## The sub-jobs (nine, as of v2.167.0)');
+    expect(cronDoc).toContain('## The sub-jobs (ten, as of v2.315.0)');
   });
 });
 

@@ -32,6 +32,9 @@ const ALL_NAMES = [
   'reconciliation',
   'retention',
   'hr-report-digests',
+  // v2.315.0: the nightly's fifth sub-job (folded in v2.312.0) finally
+  // speaks its ownership line — the register is the complete echo again.
+  'loyalty-expiry',
 ];
 
 const cardStart = orgConsole.indexOf('data-testid="automation-card"');
@@ -96,15 +99,25 @@ describe('the hints reach the keyboard', () => {
     );
   });
 
-  it('the card carries exactly four sr-only copies (chip + pill + last tick + denied pill)', () => {
-    // v2.170.0 re-anchor: the amber denied pill brings the fourth sr-only
+  it('the card carries exactly five sr-only copies (chip + pill + last tick + denied pill + sweep line)', () => {
+    // v2.170.0 re-anchor: the amber denied pill brought the fourth sr-only
     // copy (its own sentence rides the same one-truth rule) — the count
     // was 3 (chip + pill + last tick) since v2.167.0.
-    expect(card.match(/className="sr-only"/g)?.length).toBe(4);
+    // v2.315.0 re-anchor: the expiry sweep line brings the fifth — and it
+    // lives in the expiryRunLine RENDER FUNCTION (defined beside the other
+    // component helpers, BEFORE the card slice, so both card states speak
+    // one truth). The count is card-slice + function-slice = 5.
+    const fnSlice = orgConsole.slice(
+      orgConsole.indexOf('function expiryRunLine('),
+      orgConsole.indexOf("// v2.182.0: the branches table's tuning helpers"),
+    );
+    const cardCopies = card.match(/className="sr-only"/g)?.length ?? 0;
+    const fnCopies = fnSlice.match(/className="sr-only"/g)?.length ?? 0;
+    expect(cardCopies + fnCopies).toBe(5);
   });
 });
 
-describe('the register closes over all nine', () => {
+describe('the register closes over all ten', () => {
   it('every AUTOMATION_SUBJOB_HINTS key has a row in the doc sub-job table (drift pin, both directions)', () => {
     const map = orgConsole
       .split('const AUTOMATION_SUBJOB_HINTS: Record<string, string> = {')[1]
@@ -116,8 +129,8 @@ describe('the register closes over all nine', () => {
     }
   });
 
-  it('the table heading names nine (v2.167.0) and the nightly rows say they are nightly-only', () => {
-    expect(cronDoc).toContain('## The sub-jobs (nine, as of v2.167.0)');
+  it('the table heading names ten (v2.315.0) and the nightly rows say they are nightly-only', () => {
+    expect(cronDoc).toContain('## The sub-jobs (ten, as of v2.315.0)');
     expect(cronDoc).toContain('| `reconciliation` | the nightly financial summaries rebuild |');
     expect(cronDoc).toContain('| `retention` | the expired-record purge |');
     expect(cronDoc).toContain('| `hr-report-digests` | the scheduled HR report digests |');

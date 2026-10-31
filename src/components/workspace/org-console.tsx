@@ -28,6 +28,7 @@ import {
   Clock,
   Download,
   ExternalLink,
+  Hourglass,
   LayoutDashboard,
   MessagesSquare,
   PackageOpen,
@@ -414,6 +415,7 @@ const AUTOMATION_SUBJOB_HINTS: Record<string, string> = {
   'debt-reminders': 'Sends overdue debt statements (7-day per-ledger throttle).',
   'b2c-recovery': 'Re-sends gate-allowed FAILED payroll transfers and re-queries stuck ones.',
   'session-reaper': 'Deletes sign-in sessions whose expiry has passed (expiresAt only).',
+  'loyalty-expiry': 'Expires loyalty points unspent past the policy window (oldest earn lots first).',
   reconciliation: 'Rebuilds the nightly financial summaries.',
   retention: 'Purges expired records past their retention grace period.',
   'hr-report-digests': 'Emails the scheduled HR report digests.',
@@ -950,6 +952,17 @@ export function OrgConsole() {
     deniedTickStamps?: string[];
     deniedTickGates?: (string | null)[];
     secretConfigured: boolean;
+    /** v2.315.0: the last LOYALTY_EXPIRY_RUN sweep, parsed by
+     *  src/lib/loyalty-expiry-pulse's never-a-guess law — present only when
+     *  a fully-readable row exists; absent (undefined) renders no sweep
+     *  line, never a partial sum. */
+    lastExpiryRun?: {
+      at: string;
+      scanned: number;
+      walletsExpired: number;
+      pointsExpired: number;
+      storeCount: number;
+    };
     /** v2.172.0: the UTC hour of Vercel's daily slot, as a number — the
      *  expectation math consumes it without parsing a cron string.
      *  Optional for older responses; the lib's documented default (3)
@@ -1044,6 +1057,49 @@ export function OrgConsole() {
     store: OrgSummaryStore,
   ): BranchDiagnostic | null {
     return list.find((b) => b.storeId === store.id) ?? null;
+  }
+
+  /* v2.315.0: the sweep line is a RENDER FUNCTION, not an inline mount —
+     the sweep is INDEPENDENT evidence (the manager desk writes
+     LOYALTY_EXPIRY_RUN rows without any dispatcher tick), so the line
+     renders in BOTH card states: below the tick body on a ticked card,
+     and beside the "no dispatch yet" sentence on a card that has sweeps
+     but no ticks yet. One source of truth keeps the byte census (the
+     amber pairs, the sr-only copies) honest while both doors speak. */
+  function expiryRunLine(run: NonNullable<AutomationSummary['lastExpiryRun']>) {
+    const expiredSomething = run.walletsExpired > 0;
+    return (
+      <p
+        role="note"
+        data-testid="automation-expiry-run"
+        className="flex items-center gap-1.5 text-xs text-muted-foreground"
+        title={`Expiry sweep recorded ${formatEatStamp(new Date(run.at))}`}
+      >
+        <Hourglass
+          aria-hidden="true"
+          className="h-3.5 w-3.5 shrink-0 text-amber-700 dark:text-amber-400"
+        />
+        <span>
+          Last expiry sweep {timeAgo(run.at)} · {run.scanned} wallet
+          {run.scanned === 1 ? '' : 's'} scanned ·{' '}
+          {expiredSomething ? (
+            <span
+              data-testid="automation-expiry-run-counts"
+              className="font-medium tabular-nums text-amber-700 dark:text-amber-400"
+            >
+              {run.walletsExpired} wallet{run.walletsExpired === 1 ? '' : 's'} expired,
+              {' '}{run.pointsExpired} point{run.pointsExpired === 1 ? '' : 's'} returned
+            </span>
+          ) : (
+            <span data-testid="automation-expiry-run-clean">nothing to expire</span>
+          )}{' '}
+          across {run.storeCount} store{run.storeCount === 1 ? '' : 's'}.
+        </span>
+        <span className="sr-only">
+          (recorded {formatEatStamp(new Date(run.at))})
+        </span>
+      </p>
+    );
   }
 
   // v2.182.0: the branches table's tuning helpers — ONE block, defined
@@ -2541,10 +2597,18 @@ export function OrgConsole() {
               <Skeleton className="h-4 w-72" />
             </div>
           ) : !automation.lastTick ? (
-            <p role="note" data-testid="automation-empty" className="px-4 py-4 text-sm text-muted-foreground">
-              No dispatch has been recorded yet — the first tick (Vercel at 03:00 UTC, or the
-              cron-hourly workflow) writes the ledger and this card wakes up.
-            </p>
+            <div className="px-4 py-4 space-y-3">
+              <p role="note" data-testid="automation-empty" className="text-sm text-muted-foreground">
+                No dispatch has been recorded yet — the first tick (Vercel at 03:00 UTC, or the
+                cron-hourly workflow) writes the ledger and this card wakes up.
+              </p>
+              {/* v2.315.0: the sweep speaks even on a card that has no tick
+                  yet — the manager desk's POST /api/loyalty/expiry writes the
+                  same LOYALTY_EXPIRY_RUN row the nightly cron does, and a
+                  sweep that happened is a sweep worth seeing (the render
+                  function above keeps it one source of truth). */}
+              {automation.lastExpiryRun && expiryRunLine(automation.lastExpiryRun)}
+            </div>
           ) : (
             <div className="px-4 py-4 space-y-3">
               <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -2747,6 +2811,14 @@ export function OrgConsole() {
                   guess, the chips stay empty until a parseable tick lands.
                 </p>
               )}
+              {/* v2.315.0: the sweep gets a face — the last LOYALTY_EXPIRY_RUN
+                  row the ledger holds, in the Expiry desk's own amber. The
+                  field exists only when the parser could fully read the row,
+                  so the line renders nothing rather than a partial sum (the
+                  card's never-a-guess rule). The line lives in the
+                  expiryRunLine render function above — one source of truth
+                  for both card states. */}
+              {automation.lastExpiryRun && expiryRunLine(automation.lastExpiryRun)}
               <p
                 role="note"
                 data-testid="automation-cadence-line"
