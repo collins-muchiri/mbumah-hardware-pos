@@ -3,10 +3,17 @@
 // to avoid leaking secrets.
 
 import { db } from '@/lib/db';
+import bcrypt from 'bcryptjs';
 // APP_VERSION prefers the mbumah.releaseVersion metadata (2.18.0.0) over the
 // package.json semver "version" (2.18.0) so /api/health reports the true
 // correction-release version.
 import { APP_VERSION } from '@/lib/version';
+// AUDIT REMEDIATION (v2.307.0): shared demo-credential policy constant.
+import { DEMO_PASSWORD } from '@/lib/demo-password';
+
+// 5-minute TTL cache for the demo-credential risk probe (one bcrypt compare
+// per window keeps this endpoint cheap for uptime pingers).
+const demoPasswordRiskCache: { at: number; risk: boolean | null } = { at: 0, risk: null };
 
 export const dynamic = 'force-dynamic';
 
@@ -173,6 +180,45 @@ export async function GET() {
     };
   } catch {
     checks.account_security = { status: 'ok', detail: 'Account security check skipped' };
+  }
+
+  // AUDIT REMEDIATION (v2.307.0): demo-credential risk detection.
+  // The audit's finding #5 asks for a health/startup warning when default
+  // demo credentials are detected outside local development. Outside dev, an
+  // admin whose password still verifies as the well-known demo password is
+  // exactly that risk - surface it as a health warning so pingers and ops
+  // dashboards catch it. Development is exempt by policy (documented demo
+  // logins) and the probe itself is skipped there.
+  try {
+    if (process.env.NODE_ENV === 'development') {
+      checks.demo_credentials = {
+        status: 'ok',
+        detail: 'Development environment - documented demo credentials are allowed',
+      };
+    } else {
+      if (Date.now() - demoPasswordRiskCache.at > 5 * 60 * 1000) {
+        const admin = await db.user
+          .findFirst({ where: { role: 'SUPER_ADMIN', isActive: true }, select: { passwordHash: true } })
+          .catch(() => null);
+        demoPasswordRiskCache.risk = admin
+          ? await bcrypt.compare(DEMO_PASSWORD, admin.passwordHash)
+          : null;
+        demoPasswordRiskCache.at = Date.now();
+      }
+      checks.demo_credentials =
+        demoPasswordRiskCache.risk === null
+          ? { status: 'ok', detail: 'Demo-credential check skipped (no active super admin found)' }
+          : demoPasswordRiskCache.risk
+            ? {
+                status: 'warning',
+                detail:
+                  'A super admin account still uses the well-known demo password. ' +
+                  'Rotate it now (or re-seed with SEED_ADMIN_PASSWORD set).',
+              }
+            : { status: 'ok', detail: 'No account uses the well-known demo password' };
+    }
+  } catch {
+    checks.demo_credentials = { status: 'ok', detail: 'Demo-credential check skipped' };
   }
 
   // Check financial ledger integrity (lightweight - last 24h only)

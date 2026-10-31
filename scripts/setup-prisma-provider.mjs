@@ -31,9 +31,61 @@
 //   `@db.Decimal(...)` for PostgreSQL production.
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const schemaPath = join(process.cwd(), 'prisma', 'schema.prisma');
+// AUDIT REMEDIATION (v2.307.0): load <repo>/.env with the SAME precedence
+// rule as the runtime launchers (prisma.config.ts, ensure-schema.mjs,
+// start-server.mjs): a value found in .env WINS over an inherited
+// environment variable.
+//
+// WHY THIS IS THE ROOT-CAUSE FIX for the audit's login-500 / provider-drift
+// finding: this script previously read ONLY `process.env.DATABASE_URL`.
+// Every sibling in the workflow (ensure-schema.mjs via `db:push`,
+// prisma.config.ts via the CLI, start-server.mjs) loads .env with env-WINS,
+// but THIS script did not - so on a fresh clone with a local .env the two
+// provider decisions could disagree:
+//
+//   npm run db:push    → ensure-schema loads .env (file:) → sqlite schema
+//   npm run db:generate → THIS script sees no env var  → flips back to
+//                        postgresql → generates a postgres client
+//
+// The result was a postgres-generated client pointed at a SQLite file:
+// every query failed with "the URL must start with the protocol
+// `postgresql://`" - the observed 500 on /api/auth/login during the audit.
+// Loading .env here (same precedence) makes ALL provider decisions agree.
+// When no .env exists (Docker, Vercel, CI) the inherited environment
+// applies untouched, exactly as before.
+const scriptDir = dirname(fileURLToPath(import.meta.url));
+const repoRoot = join(scriptDir, '..');
+const envPath = join(repoRoot, '.env');
+if (existsSync(envPath)) {
+  try {
+    for (const line of readFileSync(envPath, 'utf8').split(/\r?\n/)) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      const m = trimmed.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/);
+      if (!m) continue;
+      let value = m[2].trim();
+      if (
+        (value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))
+      ) {
+        value = value.slice(1, -1);
+      }
+      // .env wins over the inherited environment (see header).
+      process.env[m[1]] = value;
+    }
+  } catch {
+    // An unreadable .env must never break the provider decision; the
+    // inherited environment still applies.
+  }
+}
+
+// Resolve the schema from THIS script's location (not the caller's working
+// directory) so paths stay correct no matter which directory the CLI,
+// installer or CI runner invokes it from.
+const schemaPath = join(repoRoot, 'prisma', 'schema.prisma');
 
 if (!existsSync(schemaPath)) {
   console.error('✗ prisma/schema.prisma not found at', schemaPath);

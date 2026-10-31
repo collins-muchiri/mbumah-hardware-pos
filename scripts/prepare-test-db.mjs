@@ -57,6 +57,19 @@ function run(cmd, args, extraEnv = {}) {
       ...process.env,
       DATABASE_URL: `file:${dbPath}`,
       DIRECT_URL: `file:${dbPath}`,
+      // AUDIT REMEDIATION (v2.307.0): prisma.config.ts loads <repo>/.env with
+      // .env-WINS precedence, which silently DEFEATED a plain DATABASE_URL
+      // override here whenever the developer had a local .env (the push/seed
+      // landed on the .env database and the hermetic test DB stayed empty).
+      // PRISMA_CONFIG_DATABASE_URL is the config's documented override
+      // channel and beats .env by design.
+      PRISMA_CONFIG_DATABASE_URL: `file:${dbPath}`,
+      // AUDIT REMEDIATION (v2.307.0): the test fixture world is a dev-like
+      // context by policy (src/lib/demo-password.ts: 'test' is dev-like), so
+      // the seeded accounts use the DOCUMENTED demo password. Without this,
+      // a non-dev seed would generate a fresh one-time password per CI run
+      // and the hermetic world would be non-deterministic.
+      NODE_ENV: 'test',
       ...extraEnv,
     },
   });
@@ -100,7 +113,10 @@ try {
   const pushResult = spawnSync(cli || 'npx', cliArgs(['db', 'push', '--skip-generate']), {
     stdio: 'inherit',
     cwd: root,
-    env: { ...process.env, DATABASE_URL: `file:${dbPath}`, DIRECT_URL: `file:${dbPath}` },
+    // PRISMA_CONFIG_DATABASE_URL beats .env (see the run() note above) - a
+    // plain DATABASE_URL export loses to the .env-WINS rule when a local
+    // .env exists.
+    env: { ...process.env, DATABASE_URL: `file:${dbPath}`, DIRECT_URL: `file:${dbPath}`, PRISMA_CONFIG_DATABASE_URL: `file:${dbPath}` },
   });
   if (pushResult.status !== 0) {
     rebuildTestDb(cli, cliArgs);

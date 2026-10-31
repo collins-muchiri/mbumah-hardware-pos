@@ -161,6 +161,15 @@ jobs:
           bun run prisma:validate
           echo "Prisma schema is valid."
 
+      # AUDIT REMEDIATION (v2.307.0): environment doctor. CI runs without a
+      # .env (the environment IS the configuration here), so the doctor runs
+      # in --ci mode: it validates the provider consistency chain and secret
+      # posture structurally, and reports (without failing on) variables a
+      # real deployment must set. A failure here means the repo's own env
+      # tooling is broken for the documented flows.
+      - name: Environment doctor (env:doctor --ci)
+        run: node scripts/env-doctor.mjs --ci
+
       # v2.24.0: the COMMITTED provider must be postgresql (the file's own
       # header documents this). Local installs/builds flip the working-tree
       # schema to SQLite via scripts/setup-prisma-provider.mjs - that flip
@@ -285,6 +294,58 @@ jobs:
             coverage/
             test-results/
           retention-days: 7
+
+  # AUDIT REMEDIATION (v2.307.0): PostgreSQL-gated concurrency tests.
+  # SQLite (the hermetic test job above) serializes writes and can mask race
+  # conditions; this job runs the concurrency suite against a REAL PostgreSQL
+  # server with independent Prisma connections so transactions genuinely
+  # interleave. See src/tests/lib/concurrency-postgres-audit.test.ts
+  # (skipped locally unless TEST_PG_URL is set - runs for real here).
+  concurrency-postgres:
+    name: Concurrency (PostgreSQL)
+    runs-on: ubuntu-latest
+    needs: install
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: mbumah_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      TEST_PG_URL: postgresql://postgres:postgres@localhost:5432/mbumah_test
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/mbumah_test
+      DIRECT_URL: postgresql://postgres:postgres@localhost:5432/mbumah_test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        # postinstall runs setup-prisma-provider.mjs (postgresql scheme →
+        # committed schema as-is) + prisma generate
+        run: bun install --frozen-lockfile
+
+      - name: Push schema to PostgreSQL
+        run: bun run db:push
+
+      - name: Seed fixture data
+        # The fixture world (org_mbumah / store_juja_main / user_super_admin)
+        # that the concurrency assertions reference.
+        run: bunx prisma db seed
+
+      - name: Run PostgreSQL concurrency tests
+        run: bunx vitest run src/tests/lib/concurrency-postgres-audit.test.ts
 
   # Stage 6: Build (main / develop / PRs to those branches)
   build:

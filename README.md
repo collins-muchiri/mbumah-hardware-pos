@@ -42,36 +42,64 @@ Since v2.16.0 every branch can be reached as its own workspace website - `juja-m
 
 ## Quick start
 
-Prerequisites: Node.js 20 or newer (or Bun 1.1+), and a PostgreSQL or SQLite database.
+Prerequisites: Node.js 20 or newer. Bun 1.1+ is supported but NOT required —
+every setup path works on a plain npm install (the seed runner is
+runner-agnostic since v2.307.0).
 
 ```bash
 # Clone the repository
 git clone https://github.com/collins-muchiri/mbumah-hardware-pos.git
 cd mbumah-hardware-pos
 
-# Install dependencies
-bun install
+# Install dependencies (npm or bun — both fully supported)
+npm install
 
 # Create the environment file from the template
 cp .env.example .env
-# Edit .env with your database URL and session secrets (see docs/configuration.md)
+# Edit .env: for zero-dependency local development set
+#   DATABASE_URL=file:./pos.db
+#   DIRECT_URL=file:./pos.db
+# and generate real secrets:
+#   NEXTAUTH_SECRET=$(openssl rand -base64 32)
+#   JWT_SECRET=$(openssl rand -base64 32)
+# (see docs/configuration.md for every variable)
+
+# Validate the environment BEFORE booting: scheme, provider consistency
+# (schema ↔ generated client ↔ DATABASE_URL), secrets, seed policy
+npm run env:doctor
 
 # Generate the Prisma client and create the schema
-bun run db:generate
-bun run db:push
+npm run db:generate
+npm run db:push
 
 # Seed demo data (stores, catalog, users)
-bun run db:seed
+npm run db:seed
 
 # Start the development server
-bun run dev
+npm run dev
 ```
 
 Open http://localhost:3000 and sign in with a demo account.
 
+> **Provider consistency (the #1 historical footgun):** the schema provider is
+> auto-detected from the DATABASE_URL scheme by every repo script. If you ever
+> see `the URL must start with the protocol 'postgresql://'` (or the `file:`
+> equivalent) on login, your generated client and your database disagree —
+> run `npm run env:doctor` (it pinpoints the drift) then `npm run db:generate`.
+> See docs/TROUBLESHOOTING.md.
+
 ### Demo accounts (local development only)
 
 The seed script creates the following accounts. They are for local development and demo environments only; never reuse these credentials in production.
+
+**Credential policy (v2.307.0):** `password123` is the seeded default ONLY in
+`NODE_ENV=development` / `NODE_ENV=test`. In any other environment the seed
+refuses to create a demo-password admin: set `SEED_ADMIN_PASSWORD` to choose
+the password, or leave it unset and the seed generates a strong random
+one-time password and prints it exactly once in its setup output.
+`SEED_ALLOW_DEMO_PASSWORD=1` is the explicit opt-out for demo/staging boxes.
+`/api/health` reports a `demo_credentials` warning when a super admin still
+runs on the well-known demo password outside development.
 
 | Role | Email | Password |
 |---|---|---|

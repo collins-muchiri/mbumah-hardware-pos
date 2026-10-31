@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.307.0',
+    title: 'The audit remediation lands',
+    bullets: [
+      'The auditor\u2019s blockers are fixed at the root: npm-only installs seed again without Bun (a runner-agnostic seed launcher), the .env-vs-provider drift that produced login 500s is closed (every provider decision now reads the same .env with the same precedence), and npm run env:doctor pinpoints any remaining environment drift before it bites.',
+      'Seeded credentials are environment-aware: password123 stays the documented default in development/test only \u2014 anywhere else the seed takes SEED_ADMIN_PASSWORD or generates a strong one-time password printed once, and /api/health warns when a well-known demo password still guards a super admin.',
+      'The financial heart gained its armor: regression tests pin the last-unit oversell race, checkout idempotency, receipt-number uniqueness (the suffix space now matches its documented 36\u2075 contract), production error sanitization and the seeded-credential policy \u2014 with a real-PostgreSQL concurrency job wired into CI.',
+    ],
+  },
+  {
     version: '2.306.0',
     title: 'The pools speak at their desks',
     bullets: [
