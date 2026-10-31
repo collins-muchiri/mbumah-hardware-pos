@@ -18,6 +18,8 @@ import {
   ChevronRight,
   Star,
   History,
+  RotateCcw,
+  Receipt,
 } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
@@ -32,6 +34,8 @@ import { ApiRequestError, friendlyLookupError } from '@/lib/error-handler';
 import { formatKES, formatDateTime, formatRelativeTime, authorizedFetchJson } from '@/lib/api';
 import {
   TIER_CONFIG,
+  isRefundClawbackTx,
+  parseClawbackOriginalReceipt,
   type LoyaltyTierName,
   type LoyaltyTransactionType,
   type TierProgress,
@@ -46,6 +50,8 @@ export interface LoyaltyTransactionItem {
   points: number;
   balanceAfter: number;
   reason: string | null;
+  /** v2.310.0: the REFUND receipt number on a clawback row (the paper trail's other end). */
+  reference: string | null;
   transactionId: string | null;
   createdAt: string;
 }
@@ -61,6 +67,8 @@ export interface CustomerLoyaltyData {
   storedTier: string;
   totalEarned: number;
   totalRedeemed: number;
+  /** v2.310.0: lifetime points that went home with refunds (0 when the claw has never visited). */
+  totalClawedBack: number;
   joinedAt: string;
   createdAt: string;
   nextTierProgress: TierProgress;
@@ -176,6 +184,17 @@ export interface LoyaltyCardProps {
   compact?: boolean;
   className?: string;
 }
+
+// v2.310.0: the clawback face — a refund claw is NOT a manual adjustment.
+// It wears rose and the RotateCcw voice, and the row tells both ends of the
+// paper trail (the reason names the original sale; the reference names the
+// refund receipt that took the points back).
+const CLAWBACK_CFG = {
+  label: 'Clawback',
+  color: 'text-rose-700 dark:text-rose-400',
+  bg: 'bg-rose-100 dark:bg-rose-900/30',
+  icon: RotateCcw,
+} as const;
 
 // Main component
 
@@ -358,6 +377,24 @@ export function LoyaltyCard({
             </div>
           </div>
         </div>
+        {/* v2.310.0: the lifetime claw — only speaks when it has something to say. */}
+        {data.totalClawedBack > 0 && (
+          <div
+            className="flex items-center justify-between rounded-lg border border-rose-200/60 bg-gradient-to-br from-rose-50 to-rose-100/30 p-3 dark:border-rose-900 dark:from-rose-950/30 dark:to-rose-900/10"
+            role="note"
+            aria-label={`Lifetime loyalty points returned with refunds: ${data.totalClawedBack}`}
+          >
+            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+              <RotateCcw className="h-3 w-3 text-rose-700 dark:text-rose-400" /> Clawed back
+            </div>
+            <div className="text-right">
+              <div className="text-lg font-bold text-rose-700 tabular-nums dark:text-rose-400">
+                −{data.totalClawedBack.toLocaleString()}
+              </div>
+              <div className="text-[10px] text-muted-foreground">points returned with refunds</div>
+            </div>
+          </div>
+        )}
 
         {/* ── Quick redeem CTA ── */}
         {canRedeem ? (
@@ -437,12 +474,28 @@ export function LoyaltyCard({
 // Transaction row
 
 function LoyaltyTxRow({ tx }: { tx: LoyaltyTransactionItem }) {
-  const cfg = TX_TYPE_CONFIG[tx.type] ?? TX_TYPE_CONFIG.EARNED;
+  // v2.310.0: the claw speaks its own name — a refund clawback wears rose
+  // and RotateCcw, never the generic blue "Adjusted" voice.
+  const isClawback = isRefundClawbackTx(tx);
+  const cfg = isClawback
+    ? CLAWBACK_CFG
+    : (TX_TYPE_CONFIG[tx.type] ?? TX_TYPE_CONFIG.EARNED);
   const Icon = cfg.icon;
   const isPositive = tx.points > 0;
+  // The paper trail's other end: the REFUND receipt that took the points
+  // back (the reason's own line already names the ORIGINAL sale).
+  const refundReceipt = isClawback
+    ? (tx.reference ?? parseClawbackOriginalReceipt(tx.reason))
+    : null;
 
   return (
-    <div className="flex items-center gap-3 rounded-lg border bg-card p-2.5 hover:bg-muted/40 transition-colors">
+    <div
+      className={`flex items-center gap-3 rounded-lg border p-2.5 transition-colors ${
+        isClawback
+          ? 'border-rose-200/70 bg-rose-50/40 hover:bg-rose-50/70 dark:border-rose-900 dark:bg-rose-950/20 dark:hover:bg-rose-950/40'
+          : 'bg-card hover:bg-muted/40'
+      }`}
+    >
       <div className={`flex h-8 w-8 items-center justify-center rounded-full ${cfg.bg} shrink-0`}>
         <Icon className={`h-4 w-4 ${cfg.color}`} />
       </div>
@@ -459,9 +512,18 @@ function LoyaltyTxRow({ tx }: { tx: LoyaltyTransactionItem }) {
         <p className="text-xs truncate text-foreground">
           {tx.reason ?? `${cfg.label} transaction`}
         </p>
+        {refundReceipt && (
+          <p className="mt-0.5 flex items-center gap-1 text-[10px] text-rose-700/80 dark:text-rose-400/80">
+            <Receipt className="h-3 w-3 shrink-0" aria-hidden />
+            refund receipt {refundReceipt}
+          </p>
+        )}
       </div>
       <div className="text-right shrink-0">
-        <div className={`text-sm font-bold tabular-nums ${isPositive ? 'text-green-700 dark:text-green-400' : 'text-amber-700 dark:text-amber-400'}`}>
+        <div className={`text-sm font-bold tabular-nums ${
+          isClawback ? 'text-rose-700 dark:text-rose-400' :
+          isPositive ? 'text-green-700 dark:text-green-400' : 'text-amber-700 dark:text-amber-400'
+        }`}>
           {isPositive ? '+' : ''}
           {tx.points.toLocaleString()}
         </div>

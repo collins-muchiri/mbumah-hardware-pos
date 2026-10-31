@@ -2,6 +2,18 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.310.0] The claw speaks at its desks
+
+v2.309.0 wrote the clawback row; this release gives it a face. The loyalty ledger and the customer card now recognize a refund claw the same way — one predicate, two desks — and the refund success desk prints its paper without the viewer hop.
+
+### Added
+- **The clawback's identity at both desks** (`isRefundClawbackTx` in `loyalty-utils.ts`, NEW): a refund clawback row is recognized by kind (ADJUST/ADJUSTED) + negative points + the `Refund clawback …` reason voice — and NOTHING else wears rose. The ledger tab renders it with a rose "Clawback" badge (RotateCcw), a rose-tinted row, the REFUND receipt number in the reference cell (Receipt icon), and the original sale's story in the description cell (`reason ?? description`, tooltip on truncation). The customer card's Recent Activity renders the same row as a rose "Clawback" with a "refund receipt {number}" sub-line. Manual adjustments keep the amber Settings2 voice; the sign law is explicit (positives speak `+`, negatives carry their own minus; EARN/BONUS/EXPIRE voices unchanged).
+- **The lifetime claw** (`/api/customers/[id]/loyalty` + LoyaltyCard): the card's response now carries `totalClawedBack` — a server-side aggregate over the customer's clawback rows (negative points + the clawback reason voice) — rendered as a rose "Clawed back" stat cell (role=note, aria-labelled) that only speaks when it has something to say. The card's transaction items also ride `reference` (the refund receipt number), mapped through additively.
+- **The direct print** (`RefundDialog` + `ReceiptModal` in transactions-tab): the refund success desk gained a **Print receipt** action beside **View refund receipt** — same fetch of the REFUND detail, but the receipt viewer opens with auto-print armed (`autoPrint` prop + one-shot tripwire): the print dialog is already on its way up after the branded ReceiptDocument mounts. The drawer-records path loses one tap; the viewer path is unchanged.
+
+### Tests
+- `src/tests/lib/loyalty-clawback-face.test.ts` (NEW, 19 pins): the identity law truth table (both API shapes, the type-field precedence, the impersonation guards — manual adjust, redemption, expiry, positive adjust, mid-sentence mention), and the paper-trail parse (receipt extraction, round-trip with the v2.309 write voice).
+
 ## [2.309.0] The refund leaves a paper trail
 
 v2.308.0 built the refund; this release closes the paper it owes. The refund desk no longer snaps shut on the money — it stays open as a receipt face, the refund's own paper speaks its kind, and the loyalty points the sale earned come home with the money.

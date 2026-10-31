@@ -32,6 +32,14 @@ const LEGACY_TYPE_MAP: Record<string, LoyaltyTransactionType> = {
 };
 
 export function normalizeLegacyType(legacyType: string): LoyaltyTransactionType {
+  // v2.310.0 QA catch: the MODERN voices (the `type` column's own values)
+  // must pass through UNCHANGED — the legacy map only holds the legacy keys,
+  // so `ADJUSTED` used to fall through to the 'EARNED' fallback and the
+  // card's Recent Activity mislabeled every modern-voice row (a refund
+  // clawback read as "Earned"!). Pass the new voices, map the old ones.
+  if ((LOYALTY_TRANSACTION_TYPES as readonly string[]).includes(legacyType)) {
+    return legacyType;
+  }
   return LEGACY_TYPE_MAP[legacyType] ?? 'EARNED';
 }
 
@@ -280,4 +288,51 @@ export function validateRedemption(
     points: rounded,
     kesValue: calculateRedemptionValue(rounded),
   };
+}
+
+// ── The claw's voice (v2.310.0) ────────────────────────────────────────────
+// The refund clawback (v2.309.0, sale-refund-service.ts) writes one
+// ADJUST/ADJUSTED LoyaltyTransaction row with NEGATIVE points and a `reason`
+// that names the original sale: `Refund clawback for {receiptNumber}`.
+// Both loyalty desks — the ledger tab (/loyalty/transactions rows) and the
+// customer card (/customers/[id]/loyalty rows) — must RECOGNIZE it the same
+// way: one predicate, two faces. A manual adjustment by a manager is NOT a
+// clawback; a redemption is not a clawback; a positive ADJUST is not one
+// either. The predicate is intentionally strict so the rose badge can only
+// ever mean "these points went home with a refund".
+
+/** The reason voice the refund clawback writes (v2.309.0 contract). */
+export const REFUND_CLAWBACK_REASON_PREFIX = 'Refund clawback';
+
+/**
+ * Does this loyalty-transaction row speak for the refund clawback?
+ * Strict: negative points + ADJUST/ADJUSTED kind + the clawback reason voice.
+ * Accepts BOTH shapes the two APIs speak: the desk's `transactionType`
+ * (EARN/REDEEM/ADJUST/EXPIRE) and the card's `type` (EARNED/REDEEMED/
+ * ADJUSTED/EXPIRED).
+ */
+export function isRefundClawbackTx(tx: {
+  transactionType?: string | null;
+  type?: string | null;
+  points: number;
+  reason?: string | null;
+}): boolean {
+  if (!Number.isFinite(tx.points) || tx.points >= 0) return false;
+  const kind = tx.type ?? tx.transactionType ?? '';
+  if (kind !== 'ADJUST' && kind !== 'ADJUSTED') return false;
+  return (tx.reason ?? '').startsWith(REFUND_CLAWBACK_REASON_PREFIX);
+}
+
+/**
+ * Pull the ORIGINAL sale's receipt number out of a clawback reason
+ * (`Refund clawback for MBM-RCPT-001` → `MBM-RCPT-001`). Receipt numbers
+ * never carry spaces, so a word-boundary token match is exact. Returns null
+ * for any other voice — the ledger never invents a paper trail.
+ */
+export function parseClawbackOriginalReceipt(
+  reason: string | null | undefined,
+): string | null {
+  if (!reason) return null;
+  const match = reason.match(/^Refund clawback for (\S+)/);
+  return match ? (match[1] ?? null) : null;
 }

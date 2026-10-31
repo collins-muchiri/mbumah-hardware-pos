@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.310.0',
+    title: 'The claw speaks at its desks',
+    bullets: [
+      'Refund clawbacks now wear their own name: the loyalty ledger and the customer card show a rose "Clawback" badge instead of a generic adjustment, with the refund receipt number and the original sale spelled out on the row.',
+      'The customer card gains a lifetime "Clawed back" stat, so you can see at a glance how many points have gone home with refunds.',
+      'The refund success desk gained a direct "Print receipt" — one tap sends the refund\'s paper to the printer, no viewer hop.',
+    ],
+  },
+  {
     version: '2.309.0',
     title: 'The refund leaves a paper trail',
     bullets: [
