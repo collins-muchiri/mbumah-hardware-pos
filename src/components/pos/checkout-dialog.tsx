@@ -472,7 +472,7 @@ export function CheckoutDialog(props: CheckoutDialogProps) {
   const renderSuccessScreen = () => (
     <div className="text-center py-6 space-y-3 animate-scale-in">
       <div className="relative mx-auto w-16 h-16">
-        <div className="absolute inset-0 rounded-full bg-green-100 dark:bg-green-950/40 animate-ping opacity-75" />
+        <div className="pointer-events-none absolute inset-0 rounded-full bg-green-100 dark:bg-green-950/40 animate-ping opacity-75" />
         <div className="relative flex items-center justify-center w-16 h-16 rounded-full bg-green-600 text-white shadow-lg">
           <Check className="h-8 w-8" />
         </div>

@@ -22,6 +22,7 @@ import type { RunHistoryEvent } from '@/lib/hr/payroll/run-history';
 import type { GateTrailRow } from '@/lib/hr/payroll/gate-trail';
 import { ShieldAlert } from 'lucide-react';
 import { RUN_STATUS_STYLES, StatusBadge, kes, type ApiIssue } from '@/app/(shell)/hr/payroll/page';
+import { PayrollIssueRow } from '@/components/hr/payroll-issue-row';
 
 /** Colored payment status chips (v2.21.0 styling pass). */
 const PAYMENT_STATUS_STYLES: Record<string, string> = {
@@ -566,7 +567,7 @@ export function PayrollRunDialog({
                             <Check className="h-3 w-3" aria-hidden />
                           ) : state === 'current' ? (
                             <span className="relative flex h-2 w-2" aria-hidden>
-                              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary-foreground opacity-60" />
+                              <span className="pointer-events-none absolute inline-flex h-full w-full animate-ping rounded-full bg-primary-foreground opacity-60" />
                               <span className="relative inline-flex h-2 w-2 rounded-full bg-primary-foreground" />
                             </span>
                           ) : null}
@@ -1103,11 +1104,7 @@ export function PayrollRunDialog({
               <div className="space-y-2 rounded-lg border border-amber-300 bg-amber-50/60 p-4 dark:border-amber-900 dark:bg-amber-950/30">
                 <p className="text-sm font-medium text-amber-900 dark:text-amber-300">Blocked employees</p>
                 {parsedIssues.map((issue, i) => (
-                  <div key={`${issue.code}-${i}`} className="flex flex-wrap items-center gap-2 text-sm">
-                    <Badge variant="outline" className="font-mono text-[11px]">{issue.code}</Badge>
-                    <span className="font-medium">{issue.employeeName || 'Employee'}</span>
-                    <span className="text-muted-foreground">{issue.message}</span>
-                  </div>
+                  <PayrollIssueRow key={`${issue.code}-${i}`} issue={issue} />
                 ))}
               </div>
             )}

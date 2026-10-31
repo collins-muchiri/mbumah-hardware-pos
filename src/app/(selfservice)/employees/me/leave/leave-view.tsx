@@ -402,7 +402,7 @@ export function LeaveView({ initialData, selfUserId }: { initialData: LeaveDto; 
                         {/* v2.61.0: a live pulse dot — the waiting state reads
                             as "in progress", not as a stale label. */}
                         <span className="relative flex h-1.5 w-1.5" aria-hidden>
-                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
+                          <span className="pointer-events-none absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
                           <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-amber-500" />
                         </span>
                         <Eye className="h-3 w-3" aria-hidden /> Waiting for a desk review

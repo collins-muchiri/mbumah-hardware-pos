@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.301.0',
+    title: 'The issue rows find their voice',
+    bullets: [
+      'Blocked-employee rows now speak the same voice as the toasts: "MISSING_CONSENT" becomes the human sentence with the next step, and the engine\u2019s own words ride along verbatim \u2014 in the run dialog AND the /hr/payroll gate card.',
+      'Every row wears a severity face at a glance: rose for employee-record fixes (consent, timesheet, pay inputs), amber for settings/table fixes, sky for lifecycle steps \u2014 unknown codes keep an honest slate help face.',
+      'The floating Dashboard button\u2019s pulse ring can no longer steal clicks from right-edge controls (the payroll run door caught it in the act) \u2014 decorative animation never intercepts pointers, everywhere.',
+    ],
+  },
+  {
     version: '2.300.0',
     title: 'The run finds its door',
     bullets: [

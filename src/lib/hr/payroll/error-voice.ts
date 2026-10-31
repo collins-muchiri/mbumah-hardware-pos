@@ -65,3 +65,26 @@ export function payrollGuardrailVoice(raw: string): string {
   const voice = GUARDRAIL_VOICES[code];
   return detail ? `${voice} (${detail})` : voice;
 }
+
+/**
+ * The per-employee issue voice (v2.301.0 - the SECOND caller).
+ *
+ * Issue rows arrive as `{ code, message }` pairs, and the two shapes disagree:
+ * engine guardrail issues carry `CODE: detail` in `message`, while the
+ * prepare gate's own issues (MISSING_CONSENT, TIMESHEET_NOT_APPROVED) carry
+ * a plain sentence plus the code in its own field. Looking up the voice BY
+ * THE CODE FIELD covers both shapes with one law:
+ *
+ * - known code: the human sentence speaks, and the engine's own words ride
+ *   along verbatim in parentheses when they add facts (a `CODE:` prefix on
+ *   the message is stripped first so it is never said twice);
+ * - unknown code: the message passes through UNTOUCHED - the voice never
+ *   guesses, exactly as `payrollGuardrailVoice` passthrough law.
+ */
+export function payrollGuardrailIssueVoice(code: string, message: string): string {
+  if (!(GUARDRAIL_CODES as readonly string[]).includes(code)) return message;
+  const voice = GUARDRAIL_VOICES[code as GuardrailCode];
+  const detail = message.replace(CODE_PREFIX_RE, '').trim();
+  if (!detail || detail === voice) return voice;
+  return `${voice} (${detail})`;
+}

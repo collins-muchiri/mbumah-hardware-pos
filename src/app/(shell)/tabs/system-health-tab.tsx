@@ -248,7 +248,7 @@ function PulseIndicator({ status }: { status: string }) {
 
   return (
     <span className={`relative flex h-3 w-3`}>
-      <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${color} opacity-75`} />
+      <span className={`pointer-events-none animate-ping absolute inline-flex h-full w-full rounded-full ${color} opacity-75`} />
       <span className={`relative inline-flex rounded-full h-3 w-3 ${color} shadow-[0_0_6px]`} />
     </span>
   );
