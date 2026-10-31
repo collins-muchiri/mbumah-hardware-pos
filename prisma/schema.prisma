@@ -632,6 +632,13 @@ model SalesTransaction {
   // transaction instead of double-applying stock, payments and journals.
   // Nullable + unique is safe in PostgreSQL/SQLite: multiple NULLs allowed.
   idempotencyKey     String?   @unique
+  // v2.308.0 SALE REFUNDS: a REFUND transaction points at the SALE it
+  // refunds (self-relation). Nullable - legacy rows and normal sales stay
+  // untouched. The refund's per-line attribution lives on SaleItem
+  // (refundedSaleItemId), so prior-refunded quantities are an exact SUM
+  // over the refund chain - no greedy productId matching, no ambiguity
+  // when one sale holds the same product on two lines.
+  refundedTransactionId String?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
@@ -645,6 +652,9 @@ model SalesTransaction {
   giftCardRedemptions GiftCardRedemption[]
   voucherRedemptions  VoucherRedemption[]
   deliveryNote        DeliveryNote?
+  // ── v2.308.0 refund chain ─────────────────────────────────────────────
+  refundedTransaction SalesTransaction?  @relation("SaleRefunds", fields: [refundedTransactionId], references: [id])
+  refunds             SalesTransaction[] @relation("SaleRefunds")
   // ── v2.0.0 eTIMS relation ──────────────────────────────────────────────
   kraInvoice          InvoiceForKRA?
 
@@ -655,6 +665,7 @@ model SalesTransaction {
   @@index([receiptNumber])
   @@index([paymentMethod])
   @@index([createdAt])
+  @@index([refundedTransactionId])
   // Composite multi-tenant performance index (ISO 27001: scoped storeId + time range)
   @@index([storeId, createdAt])
   @@map("sales_transactions")
@@ -673,12 +684,20 @@ model SaleItem {
   taxRate         Decimal @default(16)
   lineTotal       Decimal
   isRentalItem    Boolean @default(false)
+  // v2.308.0: the ORIGINAL sale line this refund line partially refunds.
+  // Nullable - only REFUND transactions' items carry it. Makes per-line
+  // "already refunded" an exact aggregate over the refund chain.
+  refundedSaleItemId String?
 
   transaction SalesTransaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
   product     Product          @relation(fields: [productId], references: [id])
+  // ── v2.308.0 refund chain ─────────────────────────────────────────────
+  refundedSaleItem SaleItem?  @relation("SaleItemRefunds", fields: [refundedSaleItemId], references: [id])
+  refundItems      SaleItem[] @relation("SaleItemRefunds")
 
   @@index([transactionId])
   @@index([productId])
+  @@index([refundedSaleItemId])
   @@map("sale_items")
 }
 

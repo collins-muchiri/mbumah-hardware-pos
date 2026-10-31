@@ -541,6 +541,178 @@ export async function recordSaleJournalEntry(
   });
 }
 
+export interface RefundAccountingParams {
+  storeId: string;
+  organizationId: string;
+  actorUserId: string;
+  receiptNumber: string; // the REFUND's own receipt number
+  originalReceiptNumber: string;
+  transactionId: string; // the REFUND transaction's id
+  grossRevenue: number; // refund total − VAT component (net, post-discount)
+  taxAmount: number; // VAT component inside the refunded consideration
+  paymentBreakdown: {
+    cash?: number;
+    mpesa?: number;
+    giftCard?: number;
+    credit?: number;
+  };
+  cogsAmount?: number; // returned goods at their sale-time cost snapshot
+  postImmediately?: boolean;
+}
+
+/**
+ * Records the double-entry journal lines for a SALE REFUND (v2.308.0) -
+ * the exact mirror of `recordSaleJournalEntry`:
+ *   Debits Sales Revenue (4000) + VAT Payable (2100).
+ *   Credits Cash (1000), M-Pesa (1100), A/R (1200), Gift Card Liability
+ *   (2300) - the money (or forgiveness) that leaves the till.
+ *   COGS reversal: Debit Inventory (1300), Credit COGS (5000) - the goods
+ *   are back on the shelf at their sale-time cost snapshot.
+ * Throws if total debits ≠ total credits (same golden rule backstop).
+ */
+export async function recordRefundJournalEntry(
+  tx: Prisma.TransactionClient,
+  params: RefundAccountingParams,
+): Promise<void> {
+  const {
+    storeId,
+    organizationId,
+    actorUserId,
+    receiptNumber,
+    originalReceiptNumber,
+    transactionId,
+    grossRevenue,
+    taxAmount,
+    paymentBreakdown,
+    cogsAmount = 0,
+    postImmediately = true,
+  } = params;
+
+  const needed = [
+    ACCOUNT_CODES.CASH_ON_HAND,
+    ACCOUNT_CODES.MPESA_ACCOUNT,
+    ACCOUNT_CODES.ACCOUNTS_RECEIVABLE,
+    ACCOUNT_CODES.GIFT_CARD_LIABILITY,
+    ACCOUNT_CODES.SALES_REVENUE,
+    ACCOUNT_CODES.VAT_PAYABLE,
+    ACCOUNT_CODES.COST_OF_GOODS_SOLD,
+    ACCOUNT_CODES.INVENTORY,
+  ];
+  const accounts = await getAccountIds(organizationId, needed, tx);
+
+  const jeNumber = generateJournalEntryNumber();
+  const lines: Prisma.JournalEntryLineCreateManyJournalEntryInput[] = [];
+
+  // Debits: revenue + VAT reversal (the sale's credit sides, mirrored)
+  if (grossRevenue > 0) {
+    lines.push({
+      accountId: accounts.SALES_REVENUE,
+      debit: roundMoney(grossRevenue),
+      credit: 0,
+      description: `Sales revenue reversal for ${originalReceiptNumber}`,
+    });
+  }
+  if (taxAmount > 0) {
+    lines.push({
+      accountId: accounts.VAT_PAYABLE,
+      debit: roundMoney(taxAmount),
+      credit: 0,
+      description: `VAT reversal on ${originalReceiptNumber}`,
+    });
+  }
+
+  // Credits: the tender legs the refund returns (money out / forgiveness)
+  if (paymentBreakdown.cash && paymentBreakdown.cash > 0) {
+    lines.push({
+      accountId: accounts.CASH_ON_HAND,
+      debit: 0,
+      credit: roundMoney(paymentBreakdown.cash),
+      description: `Cash refunded for ${originalReceiptNumber}`,
+    });
+  }
+  if (paymentBreakdown.mpesa && paymentBreakdown.mpesa > 0) {
+    lines.push({
+      accountId: accounts.MPESA_ACCOUNT,
+      debit: 0,
+      credit: roundMoney(paymentBreakdown.mpesa),
+      description: `M-Pesa refunded for ${originalReceiptNumber}`,
+    });
+  }
+  if (paymentBreakdown.giftCard && paymentBreakdown.giftCard > 0) {
+    lines.push({
+      accountId: accounts.GIFT_CARD_LIABILITY,
+      debit: 0,
+      credit: roundMoney(paymentBreakdown.giftCard),
+      description: `Gift card value returned for ${originalReceiptNumber}`,
+    });
+  }
+  if (paymentBreakdown.credit && paymentBreakdown.credit > 0) {
+    lines.push({
+      accountId: accounts.ACCOUNTS_RECEIVABLE,
+      debit: 0,
+      credit: roundMoney(paymentBreakdown.credit),
+      description: `Receivable forgiven for ${originalReceiptNumber}`,
+    });
+  }
+
+  // COGS reversal: the goods are back in stock at their cost snapshot.
+  if (cogsAmount > 0) {
+    const cogs2 = roundMoney(cogsAmount);
+    lines.push({
+      accountId: accounts.COST_OF_GOODS_SOLD,
+      debit: 0,
+      credit: cogs2,
+      description: `COGS reversal for ${originalReceiptNumber}`,
+    });
+    lines.push({
+      accountId: accounts.INVENTORY,
+      debit: cogs2,
+      credit: 0,
+      description: `Inventory returned for ${originalReceiptNumber}`,
+    });
+  }
+
+  // Same sub-cent residual law as the sale entry: absorb a ≤ 0.02 residue
+  // into the first tender (credit) leg; a real imbalance still throws.
+  const preDebits = lines.reduce<Decimal>((s, l) => s.plus(Number(l.debit ?? 0)), new Decimal(0));
+  const preCredits = lines.reduce<Decimal>((s, l) => s.plus(Number(l.credit ?? 0)), new Decimal(0));
+  const residual = roundMoney(preDebits.minus(preCredits));
+  if (residual !== 0 && Math.abs(residual) <= 0.02) {
+    const tenderLeg = lines.find((l) => Number(l.credit ?? 0) > 0);
+    if (tenderLeg) {
+      tenderLeg.credit = roundMoney(Number(tenderLeg.credit ?? 0) + residual);
+    }
+  }
+
+  const totalDebits = lines
+    .reduce<Decimal>((s, l) => s.plus(toDec(l.debit ?? 0)), new Decimal(0))
+    .toNumber();
+  const totalCredits = lines
+    .reduce<Decimal>((s, l) => s.plus(toDec(l.credit ?? 0)), new Decimal(0))
+    .toNumber();
+  if (Math.abs(totalDebits - totalCredits) > 0.01) {
+    throw new Error(
+      `Refund journal entry unbalanced for ${receiptNumber}: debits=${totalDebits.toFixed(2)} credits=${totalCredits.toFixed(2)}`,
+    );
+  }
+
+  await tx.journalEntry.create({
+    data: {
+      storeId,
+      entryNumber: jeNumber,
+      description: `Refund of ${originalReceiptNumber}`,
+      referenceType: 'REFUND',
+      referenceId: transactionId,
+      totalDebit: totalDebits,
+      totalCredit: totalCredits,
+      isPosted: postImmediately,
+      postedAt: postImmediately ? new Date() : null,
+      createdBy: actorUserId,
+      lines: { createMany: { data: lines } },
+    },
+  });
+}
+
 /**
  * Records the ISSUANCE of a gift card (selling it to a customer).
  * Debits Cash/M-Pesa, Credits Gift Card Liability (unearned revenue).

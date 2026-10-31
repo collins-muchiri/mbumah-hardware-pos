@@ -50,6 +50,8 @@ export const FEATURE_PERMISSIONS: Record<string, readonly string[]> = {
   'pos.sell': ['CASHIER', 'BRANCH_MANAGER', 'STORE_OWNER', 'SUPER_ADMIN'],
   /** Voiding a sale (sales-transaction void). Manager tier only. */
   'pos.void': ['BRANCH_MANAGER', 'STORE_OWNER', 'SUPER_ADMIN'],
+  /** Refunding a sale (v2.308.0 - full or per-line partial). Manager tier only: money leaves the till and stock returns to the shelf. */
+  'pos.refund': ['BRANCH_MANAGER', 'STORE_OWNER', 'SUPER_ADMIN'],
   /** Cart/line discounts above 5% (≤5% needs no gate). Manager override can authorize the 5-10% band. */
   'pos.discount.gt5': ['BRANCH_MANAGER', 'STORE_OWNER', 'SUPER_ADMIN'],
   /** Discounts above 10% - owner tier. A cashier can NEVER bypass this, even with a manager override. */
@@ -116,6 +118,7 @@ export function hasFeaturePermission(
 export const PERMISSION_DENIED_MESSAGES: Record<string, string> = {
   'pos.sell': 'Your account cannot record sales. Contact your store administrator.',
   'pos.void': "You don't have permission to void sales. Ask your Branch Manager.",
+  'pos.refund': "You don't have permission to refund sales. Ask your Branch Manager.",
   'pos.discount.gt5':
     "Discounts above 5% need Branch Manager approval. Ask your Branch Manager to authorize this sale, or reduce the discount to 5% or less.",
   'pos.discount.gt10':
@@ -192,6 +195,7 @@ export function lockNotice(lockedMinutes: number): string | null {
 export const PERMISSION_REQUIRED_ROLE_LABEL: Record<string, string> = {
   'pos.sell': 'Store Administrator',
   'pos.void': 'Branch Manager',
+  'pos.refund': 'Branch Manager',
   'pos.discount.gt5': 'Branch Manager',
   'pos.discount.gt10': 'Store Owner',
   'pos.view.all_sales': 'Branch Manager',
