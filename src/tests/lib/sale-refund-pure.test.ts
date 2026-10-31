@@ -25,6 +25,7 @@ import {
   computeRefundPlan,
   splitRefundAmounts,
   toRefundableTotal,
+  refundClawbackPoints,
   type SaleItemLike,
 } from '@/lib/sale-refund-service';
 
@@ -195,5 +196,70 @@ describe('v2.308.0 refunds - toRefundableTotal (the dialog headline)', () => {
       new Map([['l2', 115]]),
     );
     expect(toRefundableTotal(views)).toBe(348);
+  });
+});
+
+// ── v2.309.0: the loyalty clawback law ───────────────────────────────────
+// Refunding money returns the points that money earned. The claw reuses
+// the SAME floor rule as earning (calculateEarnedPoints: 1 point per KES
+// 100, floored), then caps at the wallet's CURRENT balance (floored at 0)
+// so a partially-redeemed wallet never goes negative.
+describe('v2.309.0 refunds - refundClawbackPoints (the loyalty clawback law)', () => {
+  it('a full refund claws back exactly what the sale earned (the symmetric floor law)', () => {
+    // Earn law: floor(total / 100). Claw law: floor(refund / 100).
+    // On a full refund both read the same number - the wallet is whole.
+    for (const total of [99.9, 100, 199.99, 250, 1000, 1234.56]) {
+      const earned = Math.floor(total / 100);
+      expect(refundClawbackPoints(total, Number.MAX_SAFE_INTEGER)).toBe(earned);
+    }
+  });
+
+  it('the wallet cap holds: an already-redeemed balance is never driven negative', () => {
+    // Refund of KES 500 would earn-law 5 points; a wallet holding 2 gives 2.
+    expect(refundClawbackPoints(500, 2)).toBe(2);
+    // An empty wallet forgives the whole claw.
+    expect(refundClawbackPoints(500, 0)).toBe(0);
+    // Fractional balances floor before the cap.
+    expect(refundClawbackPoints(500, 3.9)).toBe(3);
+  });
+
+  it('small refunds claw nothing (the floor stays honest at KES 99.99)', () => {
+    expect(refundClawbackPoints(99.99, 1000)).toBe(0);
+    expect(refundClawbackPoints(100, 1000)).toBe(1);
+  });
+
+  it('zero and non-finite guards: no wallet truth means no claw', () => {
+    expect(refundClawbackPoints(0, 500)).toBe(0);
+    expect(refundClawbackPoints(-500, 500)).toBe(0);
+    expect(refundClawbackPoints(500, Number.NaN)).toBe(0);
+    expect(refundClawbackPoints(500, Number.POSITIVE_INFINITY)).toBe(0);
+  });
+
+  it('SUPERADDITIVITY: a chain of tranche clawbacks never exceeds the original earn', () => {
+    // Σ floor(tᵢ/100) ≤ floor(Σtᵢ/100) for every partition - the property
+    // that makes cumulative clawbacks across a refund chain structurally
+    // unable to take more than the sale originally gave.
+    let seed = 20261031;
+    const rand = () => {
+      seed = (seed * 1103515245 + 12345) % 2147483648;
+      return seed / 2147483648;
+    };
+    for (let trial = 0; trial < 200; trial++) {
+      const total = Math.round(rand() * 5000 * 100) / 100; // KES 0 - 5000, 2dp
+      const earned = Math.floor(total / 100);
+      // Random partition into 2-5 tranches.
+      const parts = 2 + Math.floor(rand() * 4);
+      let remaining = total;
+      let clawed = 0;
+      for (let i = 0; i < parts; i++) {
+        const tranche = i === parts - 1
+          ? remaining
+          : Math.round(rand() * remaining * 100) / 100;
+        clawed += refundClawbackPoints(tranche, Number.MAX_SAFE_INTEGER);
+        remaining = Math.round((remaining - tranche) * 100) / 100;
+        if (remaining <= 0) break;
+      }
+      expect(clawed).toBeLessThanOrEqual(earned);
+    }
   });
 });

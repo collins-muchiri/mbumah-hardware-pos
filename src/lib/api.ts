@@ -955,6 +955,8 @@ export interface RefundResult {
   refundTotal: number;
   restocked: { productId: string; baseUnits: number }[];
   remainingRefundable: number;
+  /** v2.309.0 loyalty clawback - null when there was no wallet or nothing to claw. */
+  loyalty: { clawedBack: number; balanceAfter: number } | null;
 }
 
 // v2.308.0 SALE REFUNDS: the GET /transactions/[id]/refund response - the
@@ -2324,7 +2326,14 @@ export const storeTransfersApi = {
   },
 };
 
-export interface AuditLogItem {
+/**
+ * The audit-logs API's item shape (admin tab's Activity Feed). Renamed from
+ * the duplicated `AuditLogItem` (v2.309.0 quiet fix): two endpoints with
+ * genuinely different payloads had been sharing one name, which TypeScript
+ * reads as TS2717 duplicate-interface noise. The financial audit trail's
+ * item keeps the `AuditLogItem` name; this one speaks the audit-logs shape.
+ */
+export interface AuditLogEntry {
   id: string;
   storeId: string | null;
   userId: string | null;
@@ -2350,7 +2359,7 @@ export const auditLogsApi = {
     if (params?.search) query.set('search', params.search);
     if (params?.page) query.set('page', String(params.page));
     if (params?.limit) query.set('limit', String(params.limit));
-    return request<AuditLogItem[]>(`/audit-logs?${query.toString()}`);
+    return request<AuditLogEntry[]>(`/audit-logs?${query.toString()}`);
   },
 };
 
