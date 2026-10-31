@@ -404,10 +404,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.304.0: the salary's-desk entry joins the feed (+1 on every anchor → 196/197/198/229)
     // v2.305.0: the engine-reads-the-override entry joins the feed (+1 on every anchor → 197/198/199/230)
     // v2.309.0: the refund's-paper-trail entry joins the feed (+1 on every anchor → 198/199/200/231 → 199/200/201/232)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(200);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(201);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(202);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(233);
+    // v2.310.0: the claw-speaks entry joins the feed (+1 on every anchor → 199/200/201/232 → 200/201/202/233)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(201);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(202);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(203);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(234);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 
