@@ -18,7 +18,11 @@ import {
   type CustomerItem,
 } from '@/lib/api';
 import { isRefundClawbackTx } from '@/lib/loyalty-utils';
-import { dockNeedsReason, DOCK_REASON_HINT } from '@/lib/loyalty-adjust-policy';
+import {
+  dockNeedsReason,
+  DOCK_REASON_HINT,
+  EXPIRE_POLICY_NOTE,
+} from '@/lib/loyalty-adjust-policy';
 import { parseInitialView } from '@/lib/tab-url';
 import { ReceiptViewDialog } from '@/components/loyalty/receipt-view-dialog';
 import { ExpiryDialog } from '@/components/loyalty/expiry-dialog';
@@ -1391,7 +1395,9 @@ export default function LoyaltyTab() {
                     <SelectItem value="BONUS">Bonus</SelectItem>
                     <SelectItem value="EARN">Earn</SelectItem>
                     <SelectItem value="REDEEM">Redeem</SelectItem>
-                    <SelectItem value="EXPIRE">Expire</SelectItem>
+                    {/* v2.314.0: EXPIRE is the service's FIFO voice — the
+                        type picker no longer offers the bypass; the honest
+                        note below points at the Expiry desk. */}
                   </SelectContent>
                 </Select>
               </div>
@@ -1432,6 +1438,12 @@ export default function LoyaltyTab() {
                 </p>
               )}
             </div>
+            {/* v2.314.0: the expiry law's face — an amber pointer to the one
+                honest door, voiced in the Expiry button's own amber. */}
+            <p className="flex items-start gap-1.5 text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border border-amber-600/30 dark:border-amber-500/30 rounded-md px-2.5 py-2">
+              <Hourglass className="mt-px h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              <span>{EXPIRE_POLICY_NOTE}</span>
+            </p>
           </div>
           <DialogFooter>
             <Button variant="outline" size="sm" className="h-8" onClick={() => setManualAdjustOpen(false)}>Cancel</Button>

@@ -49,7 +49,11 @@ describe('v2.313.0 — the pure law: dockNeedsReason', () => {
 describe('v2.313.0 — the route enforces the law at the door', () => {
   it('POST 400s a reason-less negative ADJUST with the shared voice', () => {
     expect(route.includes('dockNeedsReason(tType, pointsValue, description)')).toBe(true);
-    expect(route.includes("import { dockNeedsReason, DOCK_REASON_REQUIRED_MESSAGE } from '@/lib/loyalty-adjust-policy';")).toBe(true);
+    // v2.314.0: the import grew to carry the wallet laws too — the pin
+    // follows the shape (the law home is unchanged).
+    expect(route.includes("} from '@/lib/loyalty-adjust-policy';")).toBe(true);
+    expect(route.includes('dockNeedsReason,')).toBe(true);
+    expect(route.includes('DOCK_REASON_REQUIRED_MESSAGE,')).toBe(true);
     expect(route.includes('error: DOCK_REASON_REQUIRED_MESSAGE')).toBe(true);
     expect(route.includes('{ status: 400 }')).toBe(true);
   });
