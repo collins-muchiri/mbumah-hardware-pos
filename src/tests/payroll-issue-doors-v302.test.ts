@@ -1,11 +1,14 @@
 // MBUMAH HARDWARE POS - the issue rows carry their doors (v2.302.0)
 //
 // BOTH NETS, per the runtime-pin law:
-//   • the VALUE net pins the door map's truth: `payrollIssueDoor` keys off
+//     (v2.303.0 RE-ANCHORED: the rate-table keeper shipped, so the two
+//     rate-table nulls were PROMOTED to doors — a null is a promise to build
+//     the surface, and the promise was kept.) The value net pins
+//     `payrollIssueDoor`'s truth: `payrollIssueDoor` keys off
 //     the same code field the voice reads, deep-links the employee the row
 //     speaks for when the fix is employee-keyed, falls back to the plain
 //     desk when no id rides along, treats a blank id as absent (the door
-//     never builds a half link), and returns null for the five documented
+//     never builds a half link), and returns null for the three documented
 //     honest nulls + every unknown code (a door to a surface that cannot
 //     perform the fix is a lie with a link on it).
 //   • the BYTE net pins the wiring: BOTH issue mouths (the run dialog's
@@ -101,15 +104,24 @@ describe('payrollIssueDoor — the value net', () => {
     expect(must(door).label).toBe('Journal entries');
   });
 
-  it('the five honest nulls stay doorless — each for its documented reason', () => {
-    // Rate tables are insert-only (no editor UI ships yet); salary
+  it('the three honest nulls stay doorless — each for its documented reason', () => {
+    // v2.303.0: RATE_TABLE_MISSING / OVERLAPPING_RATE_TABLES were PROMOTED to
+    // doors when the rate-table keeper shipped — a null is a promise to build
+    // the surface, and the promise was kept. The remaining nulls: salary
     // structures have no management UI; the lifecycle is in place; the
     // duplicate's destination already exists.
-    expect(payrollIssueDoor('RATE_TABLE_MISSING', 'emp-1')).toBeNull();
-    expect(payrollIssueDoor('OVERLAPPING_RATE_TABLES', 'emp-1')).toBeNull();
     expect(payrollIssueDoor('UNRESOLVED_DEPENDENCY', 'emp-1')).toBeNull();
     expect(payrollIssueDoor('IMMUTABLE_STATUS', 'emp-1')).toBeNull();
     expect(payrollIssueDoor('DUPLICATE_IDEMPOTENCY_KEY', 'emp-1')).toBeNull();
+  });
+
+  it('the promoted rate-table doors walk to the keeper (v2.303.0)', () => {
+    for (const code of ['RATE_TABLE_MISSING', 'OVERLAPPING_RATE_TABLES'] as const) {
+      const door = payrollIssueDoor(code, 'emp-1');
+      expect(door).not.toBeNull();
+      expect(must(door).href).toBe('/hr/rate-tables');
+      expect(must(door).label).toBe('Rate tables');
+    }
   });
 
   it('an unknown code returns null — the door never guesses where a fix lives', () => {
@@ -223,15 +235,17 @@ describe('PayrollIssueRow — the byte net', () => {
     expect(src).toContain('font-mono text-[11px]');
   });
 
-  it('the lib documents the honest-null law for the five doorless codes', () => {
+  it('the lib documents the honest-null law for the doorless codes', () => {
     const src = read(VOICE_LIB);
     expect(src).toContain('THE HONEST-NULL LAW');
     for (const code of [
-      'RATE_TABLE_MISSING',
-      'OVERLAPPING_RATE_TABLES',
       'UNRESOLVED_DEPENDENCY',
       'IMMUTABLE_STATUS',
       'DUPLICATE_IDEMPOTENCY_KEY',
+      // The promoted pair stays NAMED in the lib's own bytes — the promotion
+      // is part of the law's story now.
+      'RATE_TABLE_MISSING',
+      'OVERLAPPING_RATE_TABLES',
     ]) {
       expect(src).toContain(code);
     }

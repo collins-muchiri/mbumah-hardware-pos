@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.303.0',
+    title: 'The tables get their keeper',
+    bullets: [
+      'The statutory rate tables finally have a management desk: /hr/rate-tables lists every version\u2019s window with Active / Scheduled / Closed faces, highlights same-code overlaps, and \u2014 for SUPER_ADMIN \u2014 inserts new versions and closes windows.',
+      'The insert guard runs the engine\u2019s own overlap law at write time: payroll refuses to price while same-code windows overlap, so the desk refuses to create that state \u2014 what you see and what payroll will do agree by construction.',
+      'Two of the issue rows\u2019 honest doors now walk somewhere real: RATE_TABLE_MISSING and OVERLAPPING_RATE_TABLES point to the keeper \u2014 a null was a promise to build the surface, and the promise is kept.',
+    ],
+  },
+  {
     version: '2.302.0',
     title: 'The issue rows carry their doors',
     bullets: [

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Users, FileText, ShieldAlert, Landmark } from 'lucide-react';
+import { ArrowUpRight, Users, FileText, ShieldAlert, Landmark } from 'lucide-react';
 
 interface EmployeeSummary {
   id: string;
@@ -114,11 +114,24 @@ export default function HrOverviewPage() {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Statutory rate tables in force</CardTitle>
-          <CardDescription>
-            Versioned data with an instrument reference. Rates marked for counsel review are defaults, not legal advice.
-          </CardDescription>
+        <CardHeader className="flex flex-row items-start justify-between space-y-0">
+          <div>
+            <CardTitle className="text-base">Statutory rate tables in force</CardTitle>
+            <CardDescription>
+              Versioned data with an instrument reference. Rates marked for counsel review are defaults, not legal advice.
+            </CardDescription>
+          </div>
+          {/* v2.303.0: the tile walks to the keeper — the management desk the
+              issue rows' RATE_TABLE_MISSING / OVERLAPPING_RATE_TABLES doors
+              point at lives HERE now. */}
+          <a
+            href="/hr/rate-tables"
+            data-testid="hr-rate-tables-door"
+            className="inline-flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-medium text-emerald-700 transition-colors hover:bg-emerald-50 hover:text-emerald-900 hover:ring-1 hover:ring-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 dark:text-emerald-300 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-200 dark:hover:ring-emerald-800"
+          >
+            Manage
+            <ArrowUpRight className="h-3 w-3 shrink-0" aria-hidden />
+          </a>
         </CardHeader>
         <CardContent>
           {rateTables === null ? (
