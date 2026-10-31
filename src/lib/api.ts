@@ -935,6 +935,51 @@ export interface SaleItemDetail {
   taxRate: number;
   lineTotal: number;
   isRentalItem: boolean;
+  // v2.308.0: on REFUND transactions, the ORIGINAL sale line this line
+  // partially refunds (the refund chain's per-line attribution).
+  refundedSaleItemId?: string | null;
+}
+
+// v2.308.0 SALE REFUNDS: the POST /transactions/[id]/refund response body.
+export interface RefundResult {
+  refund: {
+    id: string;
+    receiptNumber: string;
+    totalAmount: number;
+    taxAmount: number;
+    paymentStatus: string;
+    transactionType: string;
+  };
+  originalReceiptNumber: string;
+  originalPaymentStatus: string;
+  refundTotal: number;
+  restocked: { productId: string; baseUnits: number }[];
+  remainingRefundable: number;
+}
+
+// v2.308.0 SALE REFUNDS: the GET /transactions/[id]/refund response - the
+// refundable-line views (the refund chain's exact per-line SUMs) the
+// RefundDialog renders.
+export interface RefundableLine {
+  saleItemId: string;
+  productId: string;
+  productName: string;
+  unitType: string;
+  soldQuantity: number;
+  alreadyRefundedQuantity: number;
+  refundableQuantity: number;
+  lineTotal: number;
+  refundableValue: number;
+  unitRefundValue: number;
+  isRentalItem: boolean;
+}
+
+export interface RefundableLinesResult {
+  receiptNumber: string;
+  totalAmount: number;
+  paymentStatus: string;
+  lines: RefundableLine[];
+  refundableTotal: number;
 }
 
 export const transactionsApi = {
@@ -951,6 +996,26 @@ export const transactionsApi = {
 
   get: async (id: string) => {
     return request<TransactionItem>(`/transactions/${id}`);
+  },
+
+  // v2.308.0 SALE REFUNDS: per-line full/partial refund. The backend runs
+  // the atomic applySaleRefund transaction (service) and answers 201 with
+  // the created REFUND summary; typed failure codes (RefundErrorCode)
+  // arrive as { success: false, code }.
+  refund: async (id: string, data: {
+    lines: { saleItemId: string; quantity: number }[];
+    restock?: boolean;
+    reason?: string;
+    notes?: string;
+  }) => {
+    return request<RefundResult>(`/transactions/${id}/refund`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  refundableLines: async (id: string) => {
+    return request<RefundableLinesResult>(`/transactions/${id}/refund`);
   },
 
   create: async (data: CheckoutPayload) => {

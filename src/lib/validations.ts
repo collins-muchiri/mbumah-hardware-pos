@@ -158,6 +158,29 @@ export const checkoutSchema = z.object({
   }
 });
 
+// v2.308.0 SALE REFUNDS: per-line refund request. Quantities are
+// selling-unit amounts (the units the receipt shows); an EMPTY lines array
+// is rejected at the schema boundary (the service's EMPTY_REFUND guard
+// remains the backstop for all-zero quantities).
+export const REFUND_REASONS = [
+  'DEFECTIVE',
+  'WRONG_ITEM',
+  'CUSTOMER_CHANGED_MIND',
+  'DAMAGED_IN_TRANSIT',
+  'WARRANTY_CLAIM',
+  'OTHER',
+] as const;
+
+export const refundSchema = z.object({
+  lines: z.array(z.object({
+    saleItemId: z.string().min(1),
+    quantity: z.coerce.number().positive(),
+  })).min(1, 'Select at least one item to refund'),
+  restock: z.boolean().optional().default(true),
+  reason: z.enum(REFUND_REASONS).optional(),
+  notes: z.string().max(1000).optional(),
+});
+
 // Customer schemas
 export const createCustomerSchema = z.object({
   storeId: z.string().min(1),
