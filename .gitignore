@@ -114,3 +114,14 @@ package-lock.json
 
 # Runtime update staging and state (never commit)
 /updater/
+
+# AUDIT REMEDIATION (v2.307.0): the prisma/prisma/ working dir holds the
+# hermetic Vitest test database (prisma/prisma/dev.db) and pre-heal backup
+# snapshots - none of them are source. A stale 2.8MB pre-heal snapshot was
+# previously COMMITTED to the repo (audit finding: no database files may be
+# committed).
+prisma/prisma/*.db
+prisma/prisma/*.db-journal
+prisma/prisma/*.db-wal
+prisma/prisma/*.db-shm
+prisma/prisma/*.db.*
