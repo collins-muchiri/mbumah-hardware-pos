@@ -50,6 +50,9 @@ import {
 } from './reports';
 import { GOAL_STATUSES, goalAttainmentReport } from './goal-service';
 import { REVIEW_STATUSES, reviewCycleReport } from './performance-service';
+// v2.306.0: the pct face is the pool voice's ONE voice — both digest
+// cases say percentages through the same seam the desk's bands do.
+import { poolPctVoice } from './pool-voice';
 import type { AuthSession } from '@/lib/auth';
 // v2.287.0: the schedule vocabulary's client-safe half moved to
 // report-desk-links.ts (pure — a client component can never import THIS
@@ -704,14 +707,13 @@ export async function buildDigestPayload(
       // fire. An empty pool digests as honest zeros ("Tracked goals: 0" IS
       // the truth — the document's-answer law).
       const r = await goalAttainmentReport(session, now);
-      const pctOrDash = (v: number | null) => (v == null ? '—' : `${Math.round(v * 10) / 10}%`);
       return {
         ...base,
         reportLabel: REPORT_LABELS['goal-attainment'],
         periodLabel: 'All cycles — the standing pool',
         headline: [
           { label: 'Tracked goals', value: String(r.tracked) },
-          { label: 'Attainment', value: pctOrDash(r.attainmentPct) },
+          { label: 'Attainment', value: poolPctVoice(r.attainmentPct) },
           { label: 'Achieved', value: String(r.achieved) },
           { label: 'Missed', value: String(r.missed) },
           { label: 'Overdue', value: String(r.overdue) },
@@ -719,7 +721,7 @@ export async function buildDigestPayload(
         table: {
           caption: 'Goal pool by status',
           columns: ['Status', 'Goals', 'Target', 'Current', 'Attainment %'],
-          rows: r.rows.map((s) => [s.status, String(s.goals), String(s.target), String(s.current), pctOrDash(s.attainmentPct)]),
+          rows: r.rows.map((s) => [s.status, String(s.goals), String(s.target), String(s.current), poolPctVoice(s.attainmentPct)]),
         },
       };
     }
@@ -731,7 +733,6 @@ export async function buildDigestPayload(
       // key, the digest re-speaks the pool on every fire; empty pools
       // digest as honest zeros with the share face's own '—'.
       const r = await reviewCycleReport(session, now);
-      const pctOrDash = (v: number | null) => (v == null ? '—' : `${Math.round(v * 10) / 10}%`);
       return {
         ...base,
         reportLabel: REPORT_LABELS['review-cycles'],
@@ -752,7 +753,7 @@ export async function buildDigestPayload(
         table: {
           caption: 'Review pool by status',
           columns: ['Status', 'Reviews', 'Share %'],
-          rows: r.rows.map((s) => [s.status, String(s.reviews), pctOrDash(s.sharePct)]),
+          rows: r.rows.map((s) => [s.status, String(s.reviews), poolPctVoice(s.sharePct)]),
         },
       };
     }

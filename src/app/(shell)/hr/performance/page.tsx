@@ -20,6 +20,20 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowRight, Award, CalendarRange, CheckCircle2, FileDown, Filter, Flag, History, LockKeyhole, LogIn, Pencil, Play, Plus, RefreshCw, Star, StickyNote, Target, Trash2, Undo2, X } from 'lucide-react';
 import { hasHrPermission } from '@/lib/hr/permissions';
+// v2.306.0: the pool voice — the ONE pure seam the digest's arithmetic,
+// the vocabularies and the colour map live on. The bands below speak the
+// exact numbers the goal-attainment / review-cycles digests email, from
+// the same rows the desk already holds; the vocabularies stop being
+// page-local duplicates.
+import {
+  GOAL_STATUSES,
+  REVIEW_STATUSES,
+  poolBandFromCycles,
+  poolBandFromGoals,
+  poolPctVoice,
+  poolStatusChip,
+} from '@/lib/hr/pool-voice';
+import type { PoolStatusCount } from '@/lib/hr/pool-voice';
 import {
   apiGet,
   apiSend,
@@ -121,12 +135,64 @@ const SOURCE_LABELS: Record<string, string> = {
   CUSTOM: 'Custom',
 };
 
+// ── v2.306.0: the pool bands ─────────────────────────────────────────────────
+// The digest's own headline, desk-side. The goal-attainment and
+// review-cycles digests email aggregates the desk never spoke — the email
+// said "Attainment 50%" while the desk said only rows. The bands speak the
+// SAME numbers from the SAME rows (poolBandFromGoals / poolBandFromCycles
+// over the fetched pool — no second fetch, no new endpoint), wearing the
+// vocabularies' one colour map (POOL_STATUS_CHIP via poolStatusChip —
+// the digest preview's own families, now single-sourced). One stat pair:
+// a muted label over a tabular-numeral value; a status word wears its
+// chip; a word the map does not know stays plain text — the band exposes
+// what it cannot name, never dresses it up (the bucket law's own voice).
+function PoolStat({ label, value, warn = false }: { label: string; value: string; warn?: boolean }) {
+  return (
+    <span className="inline-flex flex-col gap-0.5">
+      <span className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</span>
+      <span
+        className={`text-sm font-semibold tabular-nums ${warn ? 'text-amber-700 dark:text-amber-300' : 'text-foreground'}`}
+      >
+        {value}
+      </span>
+    </span>
+  );
+}
+
+function PoolStatusChipRow({ rows }: { rows: ReadonlyArray<PoolStatusCount> }) {
+  return (
+    <span className="inline-flex flex-wrap items-center gap-1.5">
+      {rows.map((s) => {
+        const chip = poolStatusChip(s.status);
+        return chip ? (
+          <span
+            key={s.status}
+            className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] font-medium tabular-nums ${chip}`}
+          >
+            {s.status}
+            <span className="font-semibold">{s.count}</span>
+          </span>
+        ) : (
+          // The unknown word speaks itself in plain text — the no-fallthrough
+          // law's face: tracked can exceed the chips' sum, and the band shows
+          // exactly which word the vocabulary does not know.
+          <span key={s.status} className="text-[11px] tabular-nums text-muted-foreground">
+            {s.status} {s.count}
+          </span>
+        );
+      })}
+    </span>
+  );
+}
+
 // v2.89.0: goal-status filter chips — the same language the review chips
-// speak (v2.88.0), each status wearing its own badge family when active:
-// sky for open, emerald for achieved, rose for missed, slate for closed.
-const GOAL_STATUSES = ['OPEN', 'ACHIEVED', 'MISSED', 'CLOSED'] as const;
+// speak (v2.88.0), each status wearing its own badge family when active.
+// v2.306.0: the families ALIGN to the pool voice's one colour law (the
+// digest preview's own borrowed families) — OPEN is waiting, and waiting
+// wears amber; the old sky pressed-state was the one face where the word
+// wore a second colour. The word no longer does.
 const GOAL_CHIP_ACTIVE: Record<string, string> = {
-  OPEN: 'bg-sky-100 text-sky-800 border-sky-300 dark:bg-sky-950/40 dark:text-sky-200 dark:border-sky-900',
+  OPEN: 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/40 dark:text-amber-200 dark:border-amber-900',
   ACHIEVED: 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-200 dark:border-emerald-900',
   MISSED: 'bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/40 dark:text-rose-200 dark:border-rose-900',
   CLOSED: 'bg-slate-100 text-slate-800 border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-600',
@@ -144,7 +210,6 @@ const SOURCE_CHIP: Record<string, string> = {
 // v2.88.0: review-status filter chips. Each status wears its own badge
 // family when active (same tones StatusBadge renders), so the filter row
 // and the table speak the same color language, light and dark.
-const REVIEW_STATUSES = ['DRAFT', 'SUBMITTED', 'ACKNOWLEDGED', 'CALIBRATED'] as const;
 const STATUS_CHIP_ACTIVE: Record<string, string> = {
   DRAFT: 'bg-slate-100 text-slate-800 border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-600',
   SUBMITTED: 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/40 dark:text-amber-200 dark:border-amber-900',
@@ -544,6 +609,21 @@ export default function PerformancePage() {
           (filterGoalStatus === 'ALL' || g.status === filterGoalStatus),
       ),
     [goals, filterGoalEmployee, filterGoalSource, filterGoalStatus],
+  );
+  // v2.306.0: the pool bands — the digest headline's own numbers over the
+  // SAME fetched pool. Each band's clock is its own recompute instant (the
+  // memo re-runs when its pool refetches — the overdue face answers the
+  // data on screen, never a stale tick). The bands aggregate the
+  // UNFILTERED pool: the filters narrow the LIST below, never the pool's
+  // own truth (the digest emails the standing pool — the band speaks the
+  // same standing pool).
+  const goalPoolBand = useMemo(
+    () => (goals && goals.length > 0 ? poolBandFromGoals(goals, new Date()) : null),
+    [goals],
+  );
+  const cyclePoolBand = useMemo(
+    () => (cycles && reviews && (cycles.length > 0 || reviews.length > 0) ? poolBandFromCycles(cycles, reviews, new Date()) : null),
+    [cycles, reviews],
   );
   const goalFiltersActive =
     filterGoalEmployee !== 'ALL' || filterGoalSource !== 'ALL' || filterGoalStatus !== 'ALL';
@@ -1066,6 +1146,32 @@ export default function PerformancePage() {
                 <p className="py-6 text-center text-sm text-muted-foreground">No reviews yet.</p>
               ) : (
                 <div className="space-y-3">
+                  {/* ── v2.306.0 the pool band: the review-cycles digest's
+                      own counts, desk-side. Counts only (the digest's own
+                      mask — ratings never ride a list). Renders over a
+                      non-empty pool; an empty desk keeps its own line. ── */}
+                  {cyclePoolBand ? (
+                    <div
+                      data-testid="cycle-pool-band"
+                      className="rounded-lg border bg-muted/30 px-4 py-3"
+                    >
+                      <div className="flex flex-wrap items-start gap-x-6 gap-y-3">
+                        <PoolStat label="Tracked cycles" value={String(cyclePoolBand.trackedCycles)} />
+                        <PoolStat
+                          label="Unclosed windows"
+                          value={String(cyclePoolBand.unclosedWindows)}
+                          warn={cyclePoolBand.unclosedWindows > 0}
+                        />
+                        <PoolStatusChipRow rows={cyclePoolBand.cycleRows} />
+                        <PoolStat label="Tracked reviews" value={String(cyclePoolBand.trackedReviews)} />
+                        <PoolStatusChipRow rows={cyclePoolBand.reviewRows} />
+                      </div>
+                      <p className="mt-2 text-[11px] text-muted-foreground">
+                        The same counts the review-cycles digest emails — computed from the rows this
+                        session can see.
+                      </p>
+                    </div>
+                  ) : null}
                   {/* ── v2.88.0 filters: cycle select + status chips ── */}
                   <div className="flex flex-wrap items-center gap-2" data-testid="review-filters">
                     <Filter className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
@@ -1311,6 +1417,31 @@ export default function PerformancePage() {
                 <p className="py-6 text-center text-sm text-muted-foreground">No goals yet. Create the first one.</p>
               ) : (
                 <div className="space-y-3">
+                  {/* ── v2.306.0 the pool band: the digest headline's own
+                      numbers, desk-side. Renders only over a non-empty pool
+                      (an empty board's honest absence is the "No goals yet"
+                      line — a zeros band would dress the absence up). ── */}
+                  {goalPoolBand ? (
+                    <div
+                      data-testid="goal-pool-band"
+                      className="rounded-lg border bg-muted/30 px-4 py-3"
+                    >
+                      <div className="flex flex-wrap items-start gap-x-6 gap-y-3">
+                        <PoolStat label="Tracked goals" value={String(goalPoolBand.tracked)} />
+                        <PoolStat label="Attainment" value={poolPctVoice(goalPoolBand.attainmentPct)} />
+                        <PoolStat
+                          label="Overdue"
+                          value={String(goalPoolBand.overdue)}
+                          warn={goalPoolBand.overdue > 0}
+                        />
+                        <PoolStatusChipRow rows={goalPoolBand.rows} />
+                      </div>
+                      <p className="mt-2 text-[11px] text-muted-foreground">
+                        The same aggregate the goal-attainment digest emails — computed from the rows
+                        this session can see.
+                      </p>
+                    </div>
+                  ) : null}
                   {/* ── v2.89.0 filters: employee + source picks, status chips ── */}
                   <div className="flex flex-wrap items-center gap-2" data-testid="goal-filters">
                     <Filter className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />

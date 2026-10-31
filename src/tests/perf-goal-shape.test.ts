@@ -74,15 +74,21 @@ describe('console — the Goals tab speaks the same shape', () => {
   const page = readRepo('src/app/(shell)/hr/performance/page.tsx');
 
   it('goal filter chips exist with live counts from the FULL list', () => {
-    expect(page).toContain("const GOAL_STATUSES = ['OPEN', 'ACHIEVED', 'MISSED', 'CLOSED'] as const;");
+    // v2.306.0 re-anchor: the vocabulary's home is the pool voice (the
+    // pure seam) — the page imports it, no local copy.
+    expect(page).toContain("} from '@/lib/hr/pool-voice';");
     expect(page).toMatch(/data-testid="goal-filters"/);
     expect(page).toMatch(/aria-pressed=\{active\}/);
     expect(page).toMatch(/data-testid=\{`goal-filter-status-\$\{s\}`\}/);
     expect(page).toMatch(/goalStatusCounts\[s\] \?\? 0/);
   });
 
-  it('chips wear their badge family when active (sky/emerald/rose/slate)', () => {
-    expect(page).toMatch(/OPEN:\s*'bg-sky-100 text-sky-800 border-sky-300/);
+  it('chips wear their badge family when active (amber/emerald/rose/slate — the pool law)', () => {
+    // v2.306.0 re-anchor: OPEN is waiting, and waiting wears amber — the
+    // one colour law the digest preview has spoken since v2.283.0. The
+    // old sky pressed-state was the one face where the word wore a
+    // second colour; the word no longer does.
+    expect(page).toMatch(/OPEN:\s*'bg-amber-100 text-amber-800 border-amber-300/);
     expect(page).toMatch(/ACHIEVED:\s*'bg-emerald-100 text-emerald-800 border-emerald-300/);
     expect(page).toMatch(/MISSED:\s*'bg-rose-100 text-rose-800 border-rose-300/);
     expect(page).toMatch(/CLOSED:\s*'bg-slate-100 text-slate-800 border-slate-300/);

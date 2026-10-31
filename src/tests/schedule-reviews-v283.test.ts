@@ -50,6 +50,8 @@ const perfSrc = read('src/lib/hr/performance-service.ts');
 const svcSrc = read('src/lib/hr/report-schedule-service.ts');
 const tabSrc = read('src/components/hr/report-schedules-tab.tsx');
 const perfPageSrc = read('src/app/(shell)/hr/performance/page.tsx');
+// v2.306.0 re-anchor: the colour map's home.
+const poolSrc = read('src/lib/hr/pool-voice.ts');
 
 // ── the share's truth table (RUNTIME pins — the fourth net) ──
 
@@ -157,7 +159,9 @@ describe('the review-cycles digest case — the ONE seam', () => {
   it('the table speaks the review pool by status with the honest share', () => {
     expect(svcSrc).toContain("caption: 'Review pool by status',");
     expect(svcSrc).toContain("columns: ['Status', 'Reviews', 'Share %'],");
-    expect(svcSrc).toContain('rows: r.rows.map((s) => [s.status, String(s.reviews), pctOrDash(s.sharePct)]),');
+    expect(svcSrc).toContain('rows: r.rows.map((s) => [s.status, String(s.reviews), poolPctVoice(s.sharePct)]),');
+    // v2.306.0 re-anchor: the pct face moved into the pool voice — the ONE
+    // voice the digest cases and the desk's bands share.
   });
 
   it('the standing-pool period label (year-independent, the goal case\u2019s own words)', () => {
@@ -207,13 +211,18 @@ describe('the schedules card + the preview\u2019s face', () => {
   });
 
   it('the label column chips KNOWN lifecycle words only', () => {
-    expect(tabSrc).toContain('const DIGEST_STATUS_CHIP: Record<string, string> = {');
+    // v2.306.0 re-anchor: the map's home is the pool voice; the tab aliases
+    // it — every ancestor seam intact, one vocabulary by construction.
+    expect(tabSrc).toContain('const DIGEST_STATUS_CHIP: Record<string, string> = POOL_STATUS_CHIP;');
+    expect(tabSrc).toContain("import { POOL_STATUS_CHIP } from '@/lib/hr/pool-voice';");
     expect(tabSrc).toContain('{ci === 0 ? <DigestStatusCell word={cell} /> : cell}');
     expect(tabSrc).toContain('if (!chip) return <>{word}</>;');
   });
 
   it('no word wears two colours across the app — nine words, five borrowed families', () => {
-    const block = tabSrc.slice(tabSrc.indexOf('const DIGEST_STATUS_CHIP'), tabSrc.indexOf('function DigestStatusCell'));
+    // v2.306.0 re-anchor: the map lives on the pure seam now — the count
+    // reads its home, not the alias.
+    const block = poolSrc.slice(poolSrc.indexOf('export const POOL_STATUS_CHIP'), poolSrc.indexOf('export function poolStatusChip'));
     const classes = [...block.matchAll(/'((?:bg|text|border)-[^']+)'/g)].map((m) => m[1]);
     expect(classes.length).toBe(9); // every lifecycle word dressed
     expect(new Set(classes).size).toBe(5); // amber/emerald/rose/slate/sky — borrowed, not invented

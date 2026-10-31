@@ -2,6 +2,21 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.306.0] The pools speak at their desks
+
+The performance desk held the pools as rows while its own digests emailed their aggregates — a manager reading the Goals tab saw rows and filter chips where the goal-attainment email said "Tracked goals 6 · Attainment 50%". This release closes the last digest↔desk parity gap: the pools speak at their desks, through ONE arithmetic and ONE colour vocabulary both mouths read.
+
+### Added
+- **The pool voice** (`src/lib/hr/pool-voice.ts`, NEW, pure — the import-free client-bundle law): the pool's ONE seam. `poolBandFromGoals(rows, now)` aggregates the goal pool exactly as `goalAttainmentReport` does (r1-rounded sums, the shared percentage, the STRICT overdue clock — due this instant is not overdue); `poolBandFromCycles(cycles, reviews, now)` aggregates the cycles/reviews pool counts-only (the digest's own mask); both obey the no-fallthrough bucket law (a status word the vocabulary does not know buckets AS ITSELF, appended first-seen). The vocabularies (`GOAL_STATUSES` / `REVIEW_STATUSES` / `CYCLE_STATUSES`), both percentages (`goalAttainmentPct` / `reviewCyclePct` — MOVED here, the services re-export the same names so every caller and ancestor pin keeps its seam), the pct face (`poolPctVoice` — the digest's own `pctOrDash` em-dash voice) and the colour map (`POOL_STATUS_CHIP` — the digest preview's nine words, five borrowed families) live here and only here.
+- **The pool bands** (`/hr/performance`, mandatory 4): the Goals tab wears `goal-pool-band` (Tracked goals · Attainment · Overdue · per-status chips) and the Reviews tab wears `cycle-pool-band` (Tracked cycles · Unclosed windows · cycle chips · Tracked reviews · review chips) — the digest headline's own labels verbatim, tabular numerals, each status word in its chip family, an unknown word plain text. The bands aggregate the UNFILTERED pool (the filters narrow the list, never the pool's own truth), re-compute with the pool (each refetch speaks its own now), render only over a non-empty pool (an empty board keeps its honest "No goals yet" line), and name their scope ("computed from the rows this session can see" — v2.284.0's scope honesty, desk-side).
+- **The one colour law, completed** ("no word wears two colours across the app" — true by construction now): the desk's OPEN filter chip wore sky while the digest preview wore amber (the word's second colour since v2.283.0) and the table pill kept a third face (neutral). OPEN is waiting, and waiting wears amber everywhere: the filter chips align, `toneForStatus` gains the `case 'OPEN' → warn`, and the digest preview's map moves to the pure seam with the schedules desk aliasing it.
+
+### Changed
+- The goal-attainment and review-cycles digest cases say percentages through `poolPctVoice` (their local `pctOrDash` copies retire); the digest arithmetic and the desk's bands share ONE body by construction, not by discipline.
+
+### Tests
+- `src/tests/pool-voice-v2306.test.ts` (32 pins, BOTH nets): the value net holds the moved truth tables at their new home (zero/negative deniors, r1 doors, the strict clock boundaries — a window that ends this instant is not yet over/overdue, the no-fallthrough buckets, the r1 sums, the honest absence) and the byte net pins the moves (the bodies live ONLY in the pool voice; the services re-export; the purity law — zero imports), the digest cases' single pct voice, the bands' faces on the page (testids, the unfiltered-pool call, the pool-reset clock, the non-empty gate, the scope notes), the chip alignment (the old sky OPEN is gone) and the table pill's amber. Ancestor pins re-anchored where the seams moved (`schedule-goals-v2282`, `schedule-reviews-v283`).
+
 ## [2.305.0] The engine reads the override
 
 The salary desk shipped with an honesty asterisk: a structure assignment carries per-employee override fields (`overrideAmountCents` / `overridePercentBps`), the desk recorded them as data, and the engine ignored them — the catalog value paid, whatever the assignment said. This release closes the loop: the overrides answer, through ONE resolution arithmetic both mouths run.
