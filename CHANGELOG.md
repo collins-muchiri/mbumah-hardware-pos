@@ -2,6 +2,21 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.309.0] The refund leaves a paper trail
+
+v2.308.0 built the refund; this release closes the paper it owes. The refund desk no longer snaps shut on the money — it stays open as a receipt face, the refund's own paper speaks its kind, and the loyalty points the sale earned come home with the money.
+
+### Added
+- **The refund receipt face** (`RefundDialog`, transactions-tab): after the transaction commits, the dialog switches to an emerald success state — "Money returned" headline, the fully/partially-refunded pill, the restock line, the loyalty clawback line and the amount that remains refundable — with a **View refund receipt** action that fetches the REFUND transaction's full detail and opens the existing branded receipt viewer (print + PDF through the shared `printReceiptElement` / `generateReceiptPdf` pipeline).
+- **The loyalty clawback** (`refundClawbackPoints` + transactional step 8 in `sale-refund-service.ts`, NEW): refunding money returns the points that money earned — the SAME floor rule as earning (1 point per KES 100), capped by the wallet's CURRENT balance so an already-redeemed wallet never goes negative (conditional `updateMany` claim: a concurrently-redeemed balance forgives the claw). Written as one `ADJUST`/`ADJUSTED` `LoyaltyTransaction` row linked to the REFUND transaction (`transactionId` + `reference`), with `balanceAfter` mirroring the wallet. The floor-per-tranche law is superadditive (Σ floor(tᵢ/100) ≤ floor(Σtᵢ/100)), so cumulative clawbacks across a refund chain can never exceed what the sale originally earned. The API response now carries `loyalty: { clawedBack, balanceAfter } | null`.
+- **The refund receipt's own voice** (`receipt-print.tsx`): a REFUND transaction renders an amber "Refund receipt — money returned to the customer" banner between the status strip and the body, and when the service's default note names the original sale, a "Refund of" meta line shows the original receipt number — a refund can never masquerade as a sale on paper.
+
+### Fixed
+- **The `AuditLogItem` duplicate-interface noise** (`api.ts`): two endpoints with genuinely different payloads (the financial audit trail and the audit-logs feed) had been sharing one exported interface name — TypeScript's TS2717 duplicate-name baseline. The audit-logs shape is now `AuditLogEntry` (admin tab's Activity Feed updated); the financial audit trail keeps `AuditLogItem`.
+
+### Tests
+- `src/tests/lib/sale-refund-pure.test.ts` extended: the clawback law (symmetry with earning on a full refund, the balance cap, the zero guards) and the superadditivity property (a chain of tranche clawbacks never exceeds the original earn).
+
 ## [2.308.0] The refund comes home
 
 The transactions desk's Refund button had been a placeholder since the tab shipped ("Refund placeholder - would call API"), and the audit's refund workflow (full/partial refunds, restock, movement records, original-sale linkage, over-refund rejection, permission enforcement) had no backend to test. This release builds the refund the audit described: one atomic transaction that reverses money, VAT, stock and books together — and a counter on the desk that speaks it.

@@ -22,7 +22,7 @@ import {
   systemLogsApi, stockMovementsApi, productsApi,
   auditLogsApi, systemConfigApi, usersApi, settingsApi,
   formatDateTime, formatKES,
-  type AuditLogItem, type SystemConfigItem, type UserItem,
+  type AuditLogEntry, type SystemConfigItem, type UserItem,
 } from '@/lib/api';
 import { VAT_RATE_QUERY_KEY } from '@/hooks/use-vat-rate';
 import { unitLabel } from '@/lib/units';
@@ -515,7 +515,7 @@ function QuickActions() {
 
 // Activity Feed Component 
 
-function ActivityFeed({ logs }: { logs: AuditLogItem[] }) {
+function ActivityFeed({ logs }: { logs: AuditLogEntry[] }) {
   const [visibleCount, setVisibleCount] = useState(8);
   const recentLogs = logs.slice(0, visibleCount);
   const hasMore = logs.length > visibleCount;

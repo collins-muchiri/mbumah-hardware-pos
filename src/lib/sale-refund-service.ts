@@ -38,14 +38,21 @@
  *
  *     If ANY step throws, the entire transaction rolls back - no partial
  *     refunds, no orphaned movements, no unbalanced journals.
- *
- * Loyalty clawback is deliberately OUT of scope for v2.308.0 (documented
- * follow-up): points earned on the original sale are not reversed yet.
+ *   • LOYALTY CLAWBACK (v2.309.0 - the refund closes its loop): points the
+ *     original sale earned come home with the money. The claw is the same
+ *     floor law as earning (1 point per KES 100 refunded), capped by the
+ *     wallet's CURRENT balance so an already-redeemed wallet can never go
+ *     negative, and written as one ADJUST/ADJUSTED LoyaltyTransaction row
+ *     linked to the REFUND transaction. The floor-per-tranche law is
+ *     superadditive (Σ floor(tᵢ/100) ≤ floor(Σtᵢ/100)), so cumulative
+ *     clawbacks across a refund chain can never exceed what the sale
+ *     originally earned.
  */
 
 import Decimal from 'decimal.js';
 import { KES } from '@/lib/money';
 import { toDec, round2 } from '@/lib/utils/financialMath';
+import { calculateEarnedPoints } from '@/lib/loyalty-utils';
 import { generateReceiptNumber } from '@/lib/helpers';
 import { withSequenceRetry, isP2002 } from '@/lib/sequence';
 import { recordRefundJournalEntry } from '@/lib/account-helper';
@@ -234,6 +241,20 @@ export function computeRefundPlan(
 }
 
 /**
+ * The loyalty clawback law (v2.309.0): refunding money returns the points
+ * that money earned. The claw is the SAME floor rule as earning (1 point
+ * per KES 100, via calculateEarnedPoints), then capped by the wallet's
+ * current balance (floored at 0) so a partially-redeemed wallet never goes
+ * negative. Pure and import-light - the transactional side reads the
+ * balance and asserts this exact number.
+ */
+export function refundClawbackPoints(refundTotal: number, currentBalance: number): number {
+  const earned = calculateEarnedPoints(refundTotal);
+  const balance = Number.isFinite(currentBalance) ? Math.max(0, Math.floor(currentBalance)) : 0;
+  return Math.min(earned, balance);
+}
+
+/**
  * The sale's still-refundable total - Σ refundableValue across the views
  * (2dp). The dialog's headline number; the service re-derives the same
  * figure inside the transaction, so the two can never disagree.
@@ -299,6 +320,8 @@ export interface ApplySaleRefundResult {
   refundTotal: number;
   restocked: { productId: string; baseUnits: number }[];
   remainingRefundable: number;
+  /** v2.309.0 loyalty clawback - null when there was no wallet or nothing to claw. */
+  loyalty: { clawedBack: number; balanceAfter: number } | null;
 }
 
 /**
@@ -403,10 +426,16 @@ export async function applySaleRefund(
           paymentMethod: original.paymentMethod,
           paymentStatus: 'COMPLETED',
           transactionType: 'REFUND',
-          notes:
+          notes: [
             params.notes?.trim() ||
-            (params.reason ? `Refund reason: ${params.reason}` : null) ||
+              (params.reason ? `Refund reason: ${params.reason}` : null),
+            // v2.309.0: the chain reference ALWAYS rides the notes — the
+            // refund receipt's "Refund of" meta line reads it, so the paper
+            // trail never loses the original sale to a clerk's reason pick.
             `Refund of ${original.receiptNumber}`,
+          ]
+            .filter(Boolean)
+            .join(' · '),
           refundedTransactionId: original.id,
           items: {
             create: allocations.map((a) => {
@@ -611,6 +640,47 @@ export async function applySaleRefund(
       },
     });
 
+    // 8. The loyalty clawback - points earned on the sale come home with
+    //    the money (v2.309.0). The claw follows the same floor law as
+    //    earning, capped by the wallet's CURRENT balance; the conditional
+    //    decrement keeps a concurrently-redeemed wallet from going
+    //    negative (the claim loses, the claw forgives). The ADJUST row
+    //    links to the REFUND transaction so the loyalty ledger can
+    //    deep-link the paper trail.
+    let loyalty: ApplySaleRefundResult['loyalty'] = null;
+    if (original.customerId) {
+      const wallet = await tx.customer.findUnique({
+        where: { id: original.customerId },
+        select: { loyaltyPoints: true },
+      });
+      if (wallet) {
+        const claw = refundClawbackPoints(refundTotal, Number(wallet.loyaltyPoints ?? 0));
+        if (claw > 0) {
+          const claimed = await tx.customer.updateMany({
+            where: { id: original.customerId, loyaltyPoints: { gte: claw } },
+            data: { loyaltyPoints: { decrement: claw } },
+          });
+          if (claimed.count > 0) {
+            const balanceAfter = Number(wallet.loyaltyPoints ?? 0) - claw;
+            await tx.loyaltyTransaction.create({
+              data: {
+                storeId: original.storeId,
+                customerId: original.customerId,
+                points: -claw,
+                transactionType: 'ADJUST',
+                type: 'ADJUSTED',
+                transactionId: refundTx.id,
+                balanceAfter,
+                reason: `Refund clawback for ${original.receiptNumber}`,
+                reference: refundTx.receiptNumber,
+              },
+            });
+            loyalty = { clawedBack: claw, balanceAfter };
+          }
+        }
+      }
+    }
+
     return {
       refund: {
         id: refundTx.id,
@@ -625,6 +695,7 @@ export async function applySaleRefund(
       refundTotal,
       restocked,
       remainingRefundable: Math.max(0, originalRemaining),
+      loyalty,
     };
   });
 }

@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.309.0',
+    title: 'The refund leaves a paper trail',
+    bullets: [
+      'Every refund now hands over its own receipt: the success desk stays open with the amount, the stock and the loyalty story, and one tap opens the printable refund receipt — print it for the drawer records or hand it to the customer.',
+      'Refund receipts speak their kind: an amber "Refund receipt" banner and the original sale\'s receipt number sit on the paper, so a refund can never masquerade as a sale in the filing cabinet.',
+      'Loyalty points come home with the money: refunding a sale returns the points that money earned (same floor rule as earning), capped so a partially-redeemed wallet never goes negative, with an ADJUST row in the loyalty ledger linking back to the refund.',
+    ],
+  },
+  {
     version: '2.308.0',
     title: 'The refund comes home',
     bullets: [

@@ -7,10 +7,10 @@ import {
   ShoppingBag, Search, Download, ChevronDown, ChevronUp,
   CalendarDays, TrendingUp, Hash, CreditCard, Smartphone, Banknote, Wallet,
   Filter, FileText, RotateCcw, Ban, Eye, Printer, AlertTriangle, Receipt, X, MessageCircle,
-  Mail, Send, Loader2, MessageSquare, PackageOpen, ShieldAlert,
+  Mail, Send, Loader2, MessageSquare, PackageOpen, ShieldAlert, CheckCircle2, Sparkles,
 } from 'lucide-react';
 
-import { transactionsApi, whatsappApi, formatKES, formatDateTime, type TransactionItem, type SaleItemDetail, type ReceiptDistributionResult, type RefundableLine, type RefundableLinesResult } from '@/lib/api';
+import { transactionsApi, whatsappApi, formatKES, formatDateTime, type TransactionItem, type SaleItemDetail, type ReceiptDistributionResult, type RefundableLine, type RefundableLinesResult, type RefundResult } from '@/lib/api';
 import { composeDailyRevenueVoice } from '@/lib/report-voices';
 import { useAppStore, useAuthStore } from '@/lib/stores';
 import { hasFeaturePermission } from '@/lib/permissions';
@@ -511,13 +511,20 @@ function RefundDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   transaction: TransactionItem | null;
-  onRefunded: () => void;
+  /** Called on exit after a commit; carries the REFUND transaction's full
+   * detail (fetched by the success face) so the parent can open the
+   * receipt viewer straight onto the refund's paper trail. */
+  onRefunded: (receiptTx?: TransactionItem) => void;
 }) {
   const [selected, setSelected] = useState<Record<string, number>>({});
   const [restock, setRestock] = useState(true);
   const [reason, setReason] = useState('');
   const [notes, setNotes] = useState('');
   const [busy, setBusy] = useState(false);
+  // v2.309.0: the committed refund - when set, the dialog speaks the
+  // receipt face instead of the form (the money has already moved).
+  const [result, setResult] = useState<RefundResult | null>(null);
+  const [receiptBusy, setReceiptBusy] = useState(false);
   const queryClient = useQueryClient();
 
   // Reset the allocation state each time the dialog opens for a sale.
@@ -528,6 +535,8 @@ function RefundDialog({
       setReason('');
       setNotes('');
       setBusy(false);
+      setResult(null);
+      setReceiptBusy(false);
     }
   }, [open, transaction?.id]);
 
@@ -617,22 +626,23 @@ function RefundDialog({
     if (!transaction || requestedLines.length === 0) return;
     setBusy(true);
     try {
-      const result = await transactionsApi.refund(transaction.id, {
+      const committed = await transactionsApi.refund(transaction.id, {
         lines: requestedLines,
         restock,
         ...(reason ? { reason } : {}),
         ...(notes.trim() ? { notes: notes.trim() } : {}),
       });
-      const restockedNote = result.restocked.length
-        ? ` · ${result.restocked.length} line${result.restocked.length > 1 ? 's' : ''} back on the shelf`
+      const restockedNote = committed.restocked.length
+        ? ` · ${committed.restocked.length} line${committed.restocked.length > 1 ? 's' : ''} back on the shelf`
         : '';
       toast.success(
-        `Refund ${result.refund.receiptNumber} recorded — ${formatKES(result.refundTotal)}${restockedNote}`,
+        `Refund ${committed.refund.receiptNumber} recorded — ${formatKES(committed.refundTotal)}${restockedNote}`,
       );
       await queryClient.invalidateQueries({ queryKey: ['transactions'] });
       await queryClient.invalidateQueries({ queryKey: ['refundable-lines', transaction.id] });
-      onRefunded();
-      onOpenChange(false);
+      // v2.309.0: stay on the dialog - the success face offers the refund's
+      // own receipt (print/PDF) instead of snapping shut on the money.
+      setResult(committed);
     } catch (err) {
       handleError(err, 'Failed to record the refund. Please try again.');
     } finally {
@@ -641,6 +651,105 @@ function RefundDialog({
   };
 
   if (!transaction) return null;
+
+  // v2.309.0: the receipt face - the refund is committed; the dialog now
+  // closes the paper trail instead of offering a form over spent money.
+  if (result) {
+    const restockedNote = result.restocked.length
+      ? `${result.restocked.length} line${result.restocked.length > 1 ? 's' : ''} returned to stock`
+      : null;
+    const loyaltyNote = result.loyalty
+      ? `${result.loyalty.clawedBack} loyalty point${result.loyalty.clawedBack === 1 ? '' : 's'} returned with the refund — wallet now ${result.loyalty.balanceAfter}`
+      : 'No loyalty points to return';
+    const handleViewRefundReceipt = async () => {
+      setReceiptBusy(true);
+      try {
+        const receiptTx = await transactionsApi.get(result.refund.id);
+        onOpenChange(false);
+        onRefunded(receiptTx);
+      } catch (err) {
+        handleError(err, 'Failed to load the refund receipt. Please try again.');
+      } finally {
+        setReceiptBusy(false);
+      }
+    };
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-lg" aria-describedby="refund-success-desc">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
+              <CheckCircle2 className="h-5 w-5" aria-hidden />
+              Refund recorded
+            </DialogTitle>
+            <DialogDescription id="refund-success-desc">
+              Receipt #{result.refund.receiptNumber} · refund of receipt #{result.originalReceiptNumber}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div
+              className="rounded-lg border border-emerald-300/60 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-950/30"
+              role="status"
+            >
+              <div className="flex items-end justify-between gap-3">
+                <div>
+                  <p className="text-[11px] uppercase tracking-wide text-emerald-800/70 dark:text-emerald-300/70">
+                    Money returned
+                  </p>
+                  <p className="text-2xl font-bold tabular-nums text-emerald-700 dark:text-emerald-400">
+                    {formatKES(result.refundTotal)}
+                  </p>
+                </div>
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-semibold text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">
+                  <Sparkles className="h-3 w-3" aria-hidden />
+                  {result.originalPaymentStatus === 'REFUNDED' ? 'Sale fully refunded' : 'Sale marked partially refunded'}
+                </span>
+              </div>
+              <ul className="mt-3 space-y-1 border-t border-emerald-200/70 pt-2 text-xs text-emerald-900/80 dark:border-emerald-900 dark:text-emerald-200/80">
+                <li className="flex items-start gap-1.5">
+                  <PackageOpen className="mt-0.5 h-3 w-3 shrink-0" aria-hidden />
+                  {restockedNote ?? 'Nothing returned to stock'}
+                </li>
+                <li className="flex items-start gap-1.5">
+                  <Sparkles className="mt-0.5 h-3 w-3 shrink-0" aria-hidden />
+                  {loyaltyNote}
+                </li>
+                <li className="flex items-start gap-1.5">
+                  <Receipt className="mt-0.5 h-3 w-3 shrink-0" aria-hidden />
+                  {formatKES(Math.max(0, result.remainingRefundable))} remains refundable on the original sale
+                </li>
+              </ul>
+            </div>
+            <p className="text-center text-[11px] text-muted-foreground">
+              The refund carries its own receipt — print it for the drawer records or hand it to the customer.
+            </p>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                onOpenChange(false);
+                onRefunded();
+              }}
+            >
+              Done
+            </Button>
+            <Button
+              onClick={handleViewRefundReceipt}
+              disabled={receiptBusy}
+              className="bg-emerald-600 hover:bg-emerald-700 focus-visible:ring-emerald-600 dark:bg-emerald-700 dark:hover:bg-emerald-600"
+            >
+              {receiptBusy ? (
+                <Loader2 className="h-4 w-4 mr-1.5 animate-spin" aria-hidden />
+              ) : (
+                <Receipt className="h-4 w-4 mr-1.5" aria-hidden />
+              )}
+              {receiptBusy ? 'Loading receipt…' : 'View refund receipt'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   const notRefundable =
     error &&
@@ -1567,7 +1676,15 @@ export default function TransactionsTab() {
         open={!!refundTransaction}
         onOpenChange={(open) => { if (!open) setRefundTransaction(null); }}
         transaction={refundTransaction}
-        onRefunded={() => setRefundTransaction(null)}
+        onRefunded={(receiptTx) => {
+          setRefundTransaction(null);
+          // v2.309.0: the success face hands over the REFUND transaction's
+          // full detail - the receipt viewer opens straight onto it.
+          if (receiptTx) {
+            setReceiptTransaction(receiptTx);
+            setReceiptOpen(true);
+          }
+        }}
       />
 
       {/* Void Confirmation */}
