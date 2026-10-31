@@ -15,6 +15,14 @@
 //   4. Insert a LoyaltyTransaction (type=REDEEMED) with the post-redeem balance.
 //
 // RBAC: SUPER_ADMIN, STORE_OWNER, BRANCH_MANAGER, CASHIER.
+//
+// THE WALLET LAW (v2.314.0): this door reads and claims ONLY the canonical
+// wallet — Customer.loyaltyPoints, the same balance the members list and
+// the customer card voice. It deliberately does NOT maintain the legacy
+// CustomerLoyalty.pointsBalance shadow mirror: the manual doors' route
+// (/api/loyalty/transactions) keeps that mirror updated as a write-only
+// courtesy, but NO reader anywhere treats it as authoritative — a
+// divergence here is by design and harmless (v2.315.0 note).
 
 import { type NextRequest } from 'next/server';
 import { db } from '@/lib/db';

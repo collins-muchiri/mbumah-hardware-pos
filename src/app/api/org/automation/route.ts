@@ -16,6 +16,7 @@
 import { rawDb, runWithoutTenant } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
 import { withErrorBoundary } from '@/lib/logger';
+import { parseLoyaltyExpiryRunRow } from '@/lib/loyalty-expiry-pulse';
 import type { NextRequest } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -27,6 +28,11 @@ const ORG_ROLES = ['SUPER_ADMIN', 'STORE_OWNER', 'ACCOUNTANT'];
 const TICK_ACTION = 'CRON_DISPATCH_TICK';
 const PARTIAL_FAILURE_ACTION = 'CRON_DISPATCH_PARTIAL_FAILURE';
 const DENIED_ACTION = 'CRON_TICK_DENIED';
+// v2.315.0: the FIFO expiry sweep's own ledger row (written by
+// /api/cron/loyalty-expiry since v2.312.0, and by the manager desk's POST
+// /api/loyalty/expiry with the same action) — the card surfaces the LAST
+// sweep so the nightly sweep is visible beyond the raw ledger.
+const EXPIRY_RUN_ACTION = 'LOYALTY_EXPIRY_RUN';
 
 interface SubJobResult {
   name: string;
@@ -42,6 +48,17 @@ interface SubJobResult {
 async function orgAutomationHandler(_request: NextRequest): Promise<Response> {
   return runWithoutTenant(async () => {
     const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+    // v2.315.0: the sweep read — ONE indexed findFirst for the latest
+    // LOYALTY_EXPIRY_RUN row, fetched AHEAD of the heartbeat batch so the
+    // historical Promise.all destructure the census metatests pin stays
+    // byte-true. Same posture as latestTick: newest row, metadata selected,
+    // the card renders nothing when the parser cannot fully read it.
+    const latestExpiryRun = await rawDb.systemLog.findFirst({
+      where: { action: EXPIRY_RUN_ACTION },
+      orderBy: { createdAt: 'desc' },
+      select: { createdAt: true, metadata: true },
+    });
 
     const [latestTick, failedCount, failedTicks, deniedCount, deniedRows] = await Promise.all([
       rawDb.systemLog.findFirst({
@@ -94,6 +111,13 @@ async function orgAutomationHandler(_request: NextRequest): Promise<Response> {
         take: 10,
       }),
     ]);
+
+    // v2.315.0: the sweep pulse — the parser in src/lib/loyalty-expiry-pulse
+    // owns the never-a-guess law (a row it cannot fully read answers
+    // undefined and the card renders nothing; it never sums a partial row).
+    const lastExpiryRun = latestExpiryRun
+      ? parseLoyaltyExpiryRunRow(latestExpiryRun.metadata, latestExpiryRun.createdAt)
+      : undefined;
 
     // v2.171.0: the refusal feed — stamps stay ISO (the card owns EAT
     // formatting) and the parallel gates array mirrors the row order.
@@ -217,6 +241,10 @@ async function orgAutomationHandler(_request: NextRequest): Promise<Response> {
         // the pill's sentence says WHICH gate refused.
         deniedTickStamps,
         deniedTickGates,
+        // v2.315.0: the last expiry sweep, present only when a readable
+        // LOYALTY_EXPIRY_RUN row exists — an unreadable or absent row omits
+        // the field and the card renders no sweep line (never a guess).
+        ...(lastExpiryRun ? { lastExpiryRun } : {}),
         // Honest tick-gate posture, read server-side: while CRON_SECRET is
         // unset the dispatcher accepts unauthenticated ticks (fail-open with
         // a WARN systemLog) — the card says so in amber until the human
