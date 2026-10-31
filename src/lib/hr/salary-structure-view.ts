@@ -122,21 +122,74 @@ export interface SalaryComponentViewShape {
   percentBps?: number | null;
 }
 
+/** The per-employee override the assignment row carries (v2.305.0: the
+ * engine reads these — the resolution law below is the ONE arithmetic both
+ * mouths run). */
+export interface SalaryComponentOverrideShape {
+  overrideAmountCents?: number | null;
+  overridePercentBps?: number | null;
+}
+
 /**
- * The engine's component arithmetic (run-service, byte-parity): the
- * component's own amountCents first; otherwise basic salary (the EMPLOYEE's
- * KES float, exactly as the engine converts it) times percentBps over
- * 10_000, rounded AS KES then ×100. Inactive components pay nothing (the
- * engine skips them before this line), and the assignment's override fields
- * are recorded data the engine does NOT read — the desk shows the override
- * as recorded, never as the number payroll pays.
+ * THE COMPONENT RESOLUTION LAW (run-service, byte-parity — ONE arithmetic,
+ * both mouths). A component resolves FLAT or as a PERCENT OF BASIC, in this
+ * order:
+ *   1. the assignment's overrideAmountCents (v2.305.0) — else the catalog's
+ *      amountCents;
+ *   2. otherwise the assignment's overridePercentBps (v2.305.0) — else the
+ *      catalog's percentBps — times basic salary (the EMPLOYEE's KES float,
+ *      exactly as the engine converts it) over 10_000, rounded AS KES then
+ *      ×100 (the KES-rounding path, not a cents path).
+ * Inactive components pay nothing (the engine skips them before this line).
+ * The write guard keeps an override on its own basis (a flat override on a
+ * percent component is refused at the desk), so an override never silently
+ * changes WHAT KIND of value pays — only its amount.
+ */
+export function resolveComponentCents(
+  component: Pick<SalaryComponentViewShape, 'amountCents' | 'percentBps'>,
+  basicSalaryKes: number,
+  override?: Pick<SalaryComponentOverrideShape, 'overrideAmountCents' | 'overridePercentBps'> | null,
+): number {
+  const flat = override?.overrideAmountCents ?? component.amountCents;
+  if (flat != null) return flat;
+  const bps = override?.overridePercentBps ?? component.percentBps;
+  return Math.round((Number(basicSalaryKes) * (bps ?? 0)) / 10_000) * 100;
+}
+
+/**
+ * The catalog-only estimate (no per-employee override) — the two-argument
+ * special case of the resolution law, kept under its v2.304.0 name for the
+ * desk's catalog rows and the ancestor pins. NEW callers should pass the
+ * assignment to resolveComponentCents so an override answers by name.
  */
 export function estimateComponentCents(
   component: Pick<SalaryComponentViewShape, 'amountCents' | 'percentBps'>,
   basicSalaryKes: number,
 ): number {
-  if (component.amountCents != null) return component.amountCents;
-  return Math.round((Number(basicSalaryKes) * (component.percentBps ?? 0)) / 10_000) * 100;
+  return resolveComponentCents(component, basicSalaryKes);
+}
+
+/**
+ * The words an attached component's badge speaks on a structure row: the
+ * RESOLVED value (override first, catalog second — the same law the run
+ * service runs) and whether an override is speaking at all. The catalog
+ * words ride along so the badge's title can name the default the override
+ * replaces — color never carries the meaning alone, and neither does the
+ * word "override" without the number it beat.
+ */
+export function assignmentValueWords(
+  component: Pick<SalaryComponentViewShape, 'amountCents' | 'percentBps'>,
+  override?: Pick<SalaryComponentOverrideShape, 'overrideAmountCents' | 'overridePercentBps'> | null,
+): { words: string; overridden: boolean; catalogWords: string } {
+  const amountWords = (cents: number) => `KES ${formatKes(cents)}`;
+  const percentWords = (bps: number | null | undefined) =>
+    bps != null ? `${(bps / 100).toLocaleString('en-KE')}% of basic` : 'no value';
+  const flat = override?.overrideAmountCents ?? component.amountCents;
+  const bps = override?.overridePercentBps ?? component.percentBps;
+  const words = flat != null ? amountWords(flat) : percentWords(bps);
+  const overridden = override?.overrideAmountCents != null || override?.overridePercentBps != null;
+  const catalogWords = component.amountCents != null ? amountWords(component.amountCents) : percentWords(component.percentBps);
+  return { words, overridden, catalogWords };
 }
 
 /** KES formatting for the desk's estimates (whole shillings read cleanest;

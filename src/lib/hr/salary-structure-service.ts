@@ -60,7 +60,19 @@ export interface CreateSalaryStructureInput {
   payFrequency?: string;
   effectiveFrom: string;
   effectiveTo?: string | null;
+  /** v2.304.0 form: catalog values only, no per-employee overrides. */
   componentIds?: string[];
+  /** v2.305.0 form: the attachment may carry per-employee overrides; each
+   * entry must sit on the component's OWN basis (a flat override on a
+   * percent component is refused — an override changes the amount, never
+   * the kind of value that pays). */
+  components?: CreateStructureComponentInput[];
+}
+
+export interface CreateStructureComponentInput {
+  salaryComponentId: string;
+  overrideAmountCents?: number | null;
+  overridePercentBps?: number | null;
 }
 
 /** A non-negative integer cents value. */
@@ -70,10 +82,13 @@ function isCents(v: unknown): v is number {
 
 /**
  * Create a component in the catalog — the vocabulary payroll reads. The
- * component's own amountCents/percentBps are THE numbers the run service
- * pays (the assignment's override fields are not read by the engine), so
- * the catalog row is written with care: a known type, a known computation,
- * and at least one value the engine can resolve.
+ * component's own amountCents/percentBps are the DEFAULTS the run service
+ * pays; since v2.305.0 a structure assignment may override them per
+ * employee (the engine reads the assignment's overrideAmountCents /
+ * overridePercentBps first — the ONE resolution law in
+ * salary-structure-view.ts), so the catalog row is written with care: a
+ * known type, a known computation, and at least one value the engine can
+ * resolve.
  */
 export async function createSalaryComponent(
   session: AuthSession,
@@ -221,6 +236,39 @@ export async function createSalaryStructure(
   }
   const componentIds = Array.isArray(input.componentIds) ? input.componentIds.filter((c) => typeof c === 'string' && c.trim()) : [];
 
+  // v2.305.0 — THE OVERRIDE ENTRIES. Legacy componentIds and the new
+  // components[] form merge into one list; the per-employee overrides ride
+  // their own basis and are validated against the catalog values below.
+  const entries: CreateStructureComponentInput[] = [
+    ...componentIds.map((salaryComponentId) => ({ salaryComponentId, overrideAmountCents: null, overridePercentBps: null })),
+    ...(Array.isArray(input.components) ? input.components : []),
+  ]
+    .map((e) => ({
+      salaryComponentId: typeof e?.salaryComponentId === 'string' ? e.salaryComponentId.trim() : '',
+      overrideAmountCents: e?.overrideAmountCents ?? null,
+      overridePercentBps: e?.overridePercentBps ?? null,
+    }))
+    .filter((e) => e.salaryComponentId);
+  const seen = new Set<string>();
+  for (const e of entries) {
+    if (seen.has(e.salaryComponentId)) {
+      throw new SalaryStructureError(
+        409,
+        'DUPLICATE_COMPONENT',
+        'The same component is picked twice — one structure attaches a component once.',
+      );
+    }
+    seen.add(e.salaryComponentId);
+  }
+  for (const e of entries) {
+    if (e.overrideAmountCents != null && !isCents(e.overrideAmountCents)) {
+      throw new SalaryStructureError(400, 'BAD_OVERRIDE_AMOUNT', 'An override amount must be a whole, non-negative number of cents.');
+    }
+    if (e.overridePercentBps != null && (!Number.isInteger(e.overridePercentBps) || e.overridePercentBps < 0 || e.overridePercentBps > 10_000)) {
+      throw new SalaryStructureError(400, 'BAD_OVERRIDE_PERCENT', 'An override percent must be a whole number of basis points between 0 and 10,000.');
+    }
+  }
+
   // THE SAME-DAY GUARD (engine parity, write-time): the engine resolves a
   // tie by input order, so two structures beginning the same day are not a
   // version history — they are a coin flip. Refuse it.
@@ -238,12 +286,15 @@ export async function createSalaryStructure(
 
   // Component custody: every picked id must be a known, ACTIVE component of
   // this organization — a deactivated or foreign component would ride the
-  // structure silently until a run skips it.
-  if (componentIds.length > 0) {
-    const unique = [...new Set(componentIds)];
+  // structure silently until a run skips it. The catalog row also decides
+  // each override's BASIS: a component with a flat amount may take a flat
+  // override; a percent component may take a percent override — an override
+  // never changes what KIND of value pays.
+  if (entries.length > 0) {
+    const unique = [...new Set(entries.map((e) => e.salaryComponentId))];
     const known = await db.salaryComponent.findMany({
       where: { id: { in: unique }, isActive: true, store: { organizationId: session.organizationId } },
-      select: { id: true },
+      select: { id: true, code: true, amountCents: true, percentBps: true },
     });
     if (known.length !== unique.length) {
       throw new SalaryStructureError(
@@ -251,6 +302,24 @@ export async function createSalaryStructure(
         'UNKNOWN_COMPONENT',
         'One of the picked components does not exist or is inactive — only active catalog components can attach.',
       );
+    }
+    const byId = new Map(known.map((c) => [c.id, c]));
+    for (const e of entries) {
+      const comp = byId.get(e.salaryComponentId)!;
+      if (e.overrideAmountCents != null && comp.amountCents == null) {
+        throw new SalaryStructureError(
+          400,
+          'BAD_OVERRIDE_BASIS',
+          `"${comp.code}" resolves as a percent of basic — override it with a percent, not a flat amount (an override changes the amount, never the kind of value that pays).`,
+        );
+      }
+      if (e.overridePercentBps != null && comp.amountCents != null) {
+        throw new SalaryStructureError(
+          400,
+          'BAD_OVERRIDE_BASIS',
+          `"${comp.code}" resolves as a flat amount — override it with an amount, not a percent (an override changes the amount, never the kind of value that pays).`,
+        );
+      }
     }
   }
 
@@ -262,10 +331,15 @@ export async function createSalaryStructure(
         effectiveFrom: from,
         effectiveTo: to,
         createdByUserId: session.userId,
-        ...(componentIds.length > 0
+        ...(entries.length > 0
           ? {
               components: {
-                create: componentIds.map((salaryComponentId) => ({ employeeId, salaryComponentId })),
+                create: entries.map((e) => ({
+                  employeeId,
+                  salaryComponentId: e.salaryComponentId,
+                  overrideAmountCents: e.overrideAmountCents,
+                  overridePercentBps: e.overridePercentBps,
+                })),
               },
             }
           : {}),
@@ -283,7 +357,8 @@ export async function createSalaryStructure(
         employeeId,
         payFrequency,
         effectiveFrom: input.effectiveFrom,
-        componentCount: componentIds.length,
+        componentCount: entries.length,
+        overrideCount: entries.filter((e) => e.overrideAmountCents != null || e.overridePercentBps != null).length,
         fieldNames: ['employeeId', 'payFrequency', 'effectiveFrom', 'components'],
       },
     });

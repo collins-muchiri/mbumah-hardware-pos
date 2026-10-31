@@ -44,6 +44,7 @@ import {
   Coins,
   History,
   Layers,
+  PenLine,
   Plus,
   RefreshCw,
   ShieldAlert,
@@ -54,8 +55,9 @@ import {
   PAY_FREQUENCIES,
   SALARY_COMPONENT_COMPUTATIONS,
   SALARY_COMPONENT_TYPES,
-  estimateComponentCents,
+  assignmentValueWords,
   formatKes,
+  resolveComponentCents,
   salaryStructureInForce,
   salaryStructureSameDayClashes,
   salaryStructureStatus,
@@ -146,6 +148,12 @@ function componentValueWords(c: ComponentDto): string {
   if (c.percentBps != null) return `${(c.percentBps / 100).toLocaleString('en-KE')}% of basic`;
   return 'no value';
 }
+
+/** The per-employee override face (v2.305.0): the amber chip that rides an
+ * attached component's badge when the assignment — not the catalog — is
+ * what payroll pays. The title names the catalog default the override
+ * replaced: the word "override" never stands without the number it beat. */
+const OVERRIDE_CHIP = 'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300';
 
 function StatusChip({ structure, now, inForceId }: { structure: StructureDto; now: Date; inForceId: string | null }) {
   const status = salaryStructureStatus(structure, now, inForceId);
@@ -352,8 +360,9 @@ export default function SalaryStructuresPage() {
                 const active = inForce
                   ? inForce.components
                       .filter((a) => a.salaryComponent.isActive)
-                      .map((a) => ({ a, cents: estimateComponentCents(a.salaryComponent, basicKes) }))
+                      .map((a) => ({ a, cents: resolveComponentCents(a.salaryComponent, basicKes, a) }))
                   : [];
+                const overriddenCodes = active.filter((x) => x.a.overrideAmountCents != null || x.a.overridePercentBps != null).map((x) => x.a.salaryComponent.code);
                 const earnings = active.filter((x) => x.a.salaryComponent.type === 'EARNING').reduce((sum, x) => sum + x.cents, 0);
                 const deductions = active.filter((x) => x.a.salaryComponent.type === 'DEDUCTION').reduce((sum, x) => sum + x.cents, 0);
                 return (
@@ -364,8 +373,16 @@ export default function SalaryStructuresPage() {
                         {employee.employeeCode ? <Badge variant="outline" className="font-mono text-[11px]">{employee.employeeCode}</Badge> : null}
                         <span className="text-xs font-normal text-muted-foreground">basic KES {formatKes(Math.round(basicKes * 100))}</span>
                         {inForce ? (
-                          <span className="text-xs font-normal text-muted-foreground">
+                          <span className="text-xs font-normal text-muted-foreground" data-testid="salary-inforce-estimate">
                             in force: KES {formatKes(Math.round(basicKes * 100) + earnings)} gross · KES {formatKes(deductions)} deductions
+                            {overriddenCodes.length > 0 ? (
+                              <span
+                                className="ml-1 font-medium text-amber-700 dark:text-amber-300"
+                                title={`Per-employee override(s) included: ${overriddenCodes.join(', ')} — the same resolution the run service pays.`}
+                              >
+                                · {overriddenCodes.length} override{overriddenCodes.length === 1 ? '' : 's'}
+                              </span>
+                            ) : null}
                           </span>
                         ) : (
                           <Badge variant="outline" className="text-[11px] text-amber-700 dark:text-amber-300">
@@ -421,24 +438,40 @@ export default function SalaryStructuresPage() {
                             </span>
                             {attached.length > 0 ? (
                               <span className="flex flex-wrap items-center gap-1">
-                                {attached.map((a) => (
-                                  <Badge
-                                    key={a.id}
-                                    variant="outline"
-                                    className={`text-[10px] ${
-                                      a.salaryComponent.isActive
-                                        ? TYPE_FACES[a.salaryComponent.type]?.chip ?? ''
-                                        : 'border-slate-200 bg-slate-50 text-slate-400 line-through dark:border-slate-800 dark:bg-slate-950/40 dark:text-slate-500'
-                                    }`}
-                                    title={
-                                      a.salaryComponent.isActive
-                                        ? `${a.salaryComponent.name} — payroll pays ${componentValueWords(a.salaryComponent)}`
-                                        : `${a.salaryComponent.name} — inactive; payroll skips it`
-                                    }
-                                  >
-                                    {a.salaryComponent.code} · {componentValueWords(a.salaryComponent)}
-                                  </Badge>
-                                ))}
+                                {attached.map((a) => {
+                                  const value = assignmentValueWords(a.salaryComponent, a);
+                                  return (
+                                    <span key={a.id} className="inline-flex items-center gap-1">
+                                      <Badge
+                                        variant="outline"
+                                        className={`text-[10px] ${
+                                          a.salaryComponent.isActive
+                                            ? TYPE_FACES[a.salaryComponent.type]?.chip ?? ''
+                                            : 'border-slate-200 bg-slate-50 text-slate-400 line-through dark:border-slate-800 dark:bg-slate-950/40 dark:text-slate-500'
+                                        }`}
+                                        title={
+                                          a.salaryComponent.isActive
+                                            ? `${a.salaryComponent.name} — payroll pays ${value.words}`
+                                            : `${a.salaryComponent.name} — inactive; payroll skips it`
+                                        }
+                                      >
+                                        {a.salaryComponent.code} · {value.words}
+                                      </Badge>
+                                      {a.salaryComponent.isActive && value.overridden ? (
+                                        <Badge
+                                          variant="outline"
+                                          className={`gap-0.5 text-[10px] ${OVERRIDE_CHIP}`}
+                                          title={`Per-employee override — the catalog default (${value.catalogWords}) pays everyone else; this employee pays ${value.words}.`}
+                                          data-testid="salary-override-badge"
+                                          data-component-code={a.salaryComponent.code}
+                                        >
+                                          <PenLine className="h-2.5 w-2.5" aria-hidden />
+                                          override
+                                        </Badge>
+                                      ) : null}
+                                    </span>
+                                  );
+                                })}
                               </span>
                             ) : (
                               <span className="text-xs text-muted-foreground">no components attached</span>
@@ -613,6 +646,12 @@ function CreateStructureDialog({
   const [effectiveFrom, setEffectiveFrom] = useState('');
   const [effectiveTo, setEffectiveTo] = useState('');
   const [picked, setPicked] = useState<string[]>([]);
+  // v2.305.0 — per-employee overrides, keyed by component id. Sparse by
+  // design: an absent entry means "catalog value pays"; an empty string
+  // means the same. The input rides its component's OWN basis — flat
+  // components take a KES override, percent components take a bps override
+  // (the service refuses a cross-basis override with BAD_OVERRIDE_BASIS).
+  const [overrides, setOverrides] = useState<Record<string, { amount: string; percent: string }>>({});
 
   useEffect(() => {
     if (!open || employees !== null) return;
@@ -635,11 +674,43 @@ function CreateStructureDialog({
     setEffectiveFrom('');
     setEffectiveTo('');
     setPicked([]);
+    setOverrides({});
     setFormError(null);
   };
 
   const submit = async () => {
     setFormError(null);
+    // Client-side honesty: a typed-but-invalid override is refused HERE —
+    // never silently dropped on the way to the server.
+    for (const id of picked) {
+      const c = components.find((x) => x.id === id);
+      if (!c) continue;
+      const amountRaw = overrides[id]?.amount?.trim() ?? '';
+      const percentRaw = overrides[id]?.percent?.trim() ?? '';
+      if (amountRaw) {
+        const n = Number(amountRaw);
+        if (!Number.isFinite(n) || n < 0) {
+          setFormError(`The ${c.code} override must be a non-negative amount (KES).`);
+          return;
+        }
+      }
+      if (percentRaw) {
+        const n = Number(percentRaw);
+        if (!Number.isInteger(n) || n < 0 || n > 10_000) {
+          setFormError(`The ${c.code} override must be a whole number of basis points between 0 and 10,000 (e.g. 500 = 5%).`);
+          return;
+        }
+      }
+    }
+    const componentEntries = picked.map((id) => {
+      const amountRaw = overrides[id]?.amount?.trim() ?? '';
+      const percentRaw = overrides[id]?.percent?.trim() ?? '';
+      return {
+        salaryComponentId: id,
+        ...(amountRaw ? { overrideAmountCents: Math.round(Number(amountRaw) * 100) } : {}),
+        ...(percentRaw ? { overridePercentBps: Number(percentRaw) } : {}),
+      };
+    });
     setBusy(true);
     try {
       const res = await fetch('/api/hr/salary-structures', {
@@ -651,7 +722,7 @@ function CreateStructureDialog({
           payFrequency,
           effectiveFrom,
           effectiveTo: effectiveTo || null,
-          componentIds: picked,
+          components: componentEntries,
         }),
       });
       const j = (await res.json().catch(() => null)) as { success?: boolean; error?: string } | null;
@@ -710,7 +781,7 @@ function CreateStructureDialog({
         <Separator />
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label>Components to attach (payroll pays each one&rsquo;s own amount or percent)</Label>
+            <Label>Components to attach — payroll pays each one&rsquo;s catalog value; an override on a picked row pays this employee instead</Label>
             <span className="text-[11px] text-muted-foreground" data-testid="ss-picked-count">{picked.length} picked</span>
           </div>
           {activeComponents.length === 0 ? (
@@ -720,21 +791,70 @@ function CreateStructureDialog({
             </p>
           ) : (
             <div className="space-y-1.5" data-testid="ss-component-picker">
-              {activeComponents.map((c) => (
-                <label
-                  key={c.id}
-                  className="flex cursor-pointer items-center gap-2.5 rounded-md border bg-background px-3 py-2 text-sm transition-colors hover:bg-muted/40"
-                >
-                  <Checkbox
-                    checked={picked.includes(c.id)}
-                    onCheckedChange={(v) => setPicked((p) => (v ? [...p, c.id] : p.filter((x) => x !== c.id)))}
-                    aria-label={`Attach ${c.name}`}
-                  />
-                  <Badge variant="outline" className="font-mono text-[10px]">{c.code}</Badge>
-                  <span className="font-medium">{c.name}</span>
-                  <span className="text-muted-foreground">{componentValueWords(c)}</span>
-                </label>
-              ))}
+              {activeComponents.map((c) => {
+                const isPicked = picked.includes(c.id);
+                return (
+                  <div
+                    key={c.id}
+                    data-testid="ss-component-option"
+                    data-picked={isPicked || undefined}
+                    className={`rounded-md border bg-background px-3 py-2 text-sm transition-colors ${
+                      isPicked
+                        ? 'border-emerald-300 bg-emerald-50/50 dark:border-emerald-800 dark:bg-emerald-950/20'
+                        : 'hover:bg-muted/40'
+                    }`}
+                  >
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      <label className="flex min-w-0 flex-1 cursor-pointer items-center gap-2.5">
+                        <Checkbox
+                          checked={isPicked}
+                          onCheckedChange={(v) => setPicked((p) => (v ? [...p, c.id] : p.filter((x) => x !== c.id)))}
+                          aria-label={`Attach ${c.name}`}
+                        />
+                        <Badge variant="outline" className="font-mono text-[10px]">{c.code}</Badge>
+                        <span className="font-medium">{c.name}</span>
+                        <span className="text-muted-foreground">{componentValueWords(c)}</span>
+                      </label>
+                      {isPicked && c.amountCents != null ? (
+                        <div className="flex items-center gap-1.5">
+                          <PenLine className="h-3 w-3 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden />
+                          <Input
+                            data-testid="ss-override-input"
+                            data-override-basis="flat"
+                            inputMode="decimal"
+                            value={overrides[c.id]?.amount ?? ''}
+                            onChange={(e) =>
+                              setOverrides((o) => ({ ...o, [c.id]: { amount: e.target.value, percent: o[c.id]?.percent ?? '' } }))
+                            }
+                            placeholder="catalog default"
+                            aria-label={`Override ${c.code} flat amount (KES); leave empty for the catalog default`}
+                            className="h-7 w-40 border-amber-300 font-mono text-xs tabular-nums focus-visible:ring-amber-400 dark:border-amber-800"
+                          />
+                          <span className="text-[11px] text-muted-foreground">KES override</span>
+                        </div>
+                      ) : null}
+                      {isPicked && c.amountCents == null && c.percentBps != null ? (
+                        <div className="flex items-center gap-1.5">
+                          <PenLine className="h-3 w-3 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden />
+                          <Input
+                            data-testid="ss-override-input"
+                            data-override-basis="percent"
+                            inputMode="numeric"
+                            value={overrides[c.id]?.percent ?? ''}
+                            onChange={(e) =>
+                              setOverrides((o) => ({ ...o, [c.id]: { amount: o[c.id]?.amount ?? '', percent: e.target.value } }))
+                            }
+                            placeholder={`${(c.percentBps / 100).toLocaleString('en-KE')}% = ${c.percentBps}`}
+                            aria-label={`Override ${c.code} percent of basic (basis points); leave empty for the catalog default`}
+                            className="h-7 w-36 border-amber-300 font-mono text-xs tabular-nums focus-visible:ring-amber-400 dark:border-amber-800"
+                          />
+                          <span className="text-[11px] text-muted-foreground">bps override</span>
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>

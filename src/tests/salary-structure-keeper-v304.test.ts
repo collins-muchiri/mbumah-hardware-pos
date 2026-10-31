@@ -264,7 +264,9 @@ describe('the salary desk — the byte net (custody chain)', () => {
     expect(page).toContain('salaryStructureStatus(s, now, inForce?.id ?? null)');
     expect(page).toContain('salaryStructureWindowLapsed(s, now)');
     expect(page).toContain('salaryStructureSameDayClashes(living)');
-    expect(page).toContain('estimateComponentCents(a.salaryComponent, basicKes)');
+    // v2.305.0 walk: the chips' estimate rides the SHARED resolution law with
+    // the assignment (overrides in force) — one arithmetic, both mouths.
+    expect(page).toContain('resolveComponentCents(a.salaryComponent, basicKes, a)');
   });
 
   it('the desk refuses to offer a close-window affordance (the engine ignores effectiveTo)', () => {
@@ -298,17 +300,19 @@ describe('the salary desk — the byte net (custody chain)', () => {
     expect(page).toContain('role="alert"');
   });
 
-  it('the component picker shows the engine-read value, never an override promise', () => {
+  it('the component picker pays what payroll pays — overrides on their own basis (v2.305.0)', () => {
     const page = read(PAGE);
-    // The engine reads the component's OWN amount/percent; the desk's words
-    // say so, and no override affordance exists (the engine would not read it):
-    // no dialog labels an override input, and the create payloads carry only
-    // what payroll reads.
+    // v2.305.0 walk: the v2.304.0 pin documented the engine's BLINDNESS (no
+    // override affordance — "the engine would not read it"). The engine reads
+    // the overrides now, so the desk offers them — but only on the
+    // component's OWN basis (flat KES / percent bps), and the create payload
+    // carries what payroll reads (components[]; the legacy componentIds form
+    // would double-attach and is refused DUPLICATE_COMPONENT).
     expect(page).toContain('componentValueWords');
     expect(page).toContain('payroll pays');
-    expect(page).not.toContain('Override amount');
-    expect(page).not.toContain('Override percent');
-    expect(page).toContain('componentIds: picked');
+    expect(page).toContain('data-override-basis="flat"');
+    expect(page).toContain('data-override-basis="percent"');
+    expect(page).toContain('components: componentEntries');
   });
 
   it('the /hr tile carries its Manage door to the salary desk', () => {

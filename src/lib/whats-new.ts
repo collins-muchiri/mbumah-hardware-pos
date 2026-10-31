@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.305.0',
+    title: 'The engine reads the override',
+    bullets: [
+      'Per-employee pay overrides finally pay: a structure assignment can override its component — flat components take a KES override, percent components take a bps override — and the run service resolves the override FIRST, falling back to the catalog value only where no override stands.',
+      'The resolution is ONE arithmetic, both mouths: the run service and the /hr/salary-structures desk estimate run the same pure law (resolveComponentCents), so what the desk shows and what payroll pays agree by construction — and the desk names every override with the catalog default it beat.',
+      'The write guard keeps an override on its own basis: a flat override on a percent component (or the reverse) is refused with a sentence that says why — an override changes the amount, never the kind of value that pays.',
+    ],
+  },
+  {
     version: '2.304.0',
     title: 'The salary finds its desk',
     bullets: [
