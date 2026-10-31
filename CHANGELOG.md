@@ -2,6 +2,20 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.301.0] The issue rows find their voice
+
+v2.300.0 taught the payroll toasts to speak; the per-employee issue rows kept saying the engine's raw words. This release gives the second caller the microphone, gives every row a severity face, and fixes the click-stealing pulse ring the QA sweep caught red-handed.
+
+### Added
+- **The issue voice's second caller** (`src/lib/hr/payroll/error-voice.ts` + `src/components/hr/payroll-issue-row.tsx`, NEW, mandatory 5): `payrollGuardrailIssueVoice(code, message)` looks the voice up BY THE ISSUE'S CODE FIELD — the one law that covers both wire shapes (the prepare gate's plain-sentence issues and the engine's `CODE: detail` issues). The human sentence speaks, the engine's own words ride verbatim in parentheses, a `CODE:` prefix is stripped before it can be said twice, and unknown codes pass through UNTOUCHED. BOTH issue mouths — the run dialog's "Blocked employees" panel and the /hr/payroll gate card — render the SHARED `PayrollIssueRow` (one implementation, zero copied rows).
+- **The severity faces** (mandatory 4): every row gains a per-code icon chip in one of three honest families — rose for employee-record fixes (MISSING_CONSENT, TIMESHEET_NOT_APPROVED, NEGATIVE_NET, PERIOD_MISMATCH), amber for settings/table fixes (rate tables, caps, dependencies, chart accounts, journal), sky for lifecycle steps (IMMUTABLE_STATUS, DUPLICATE_IDEMPOTENCY_KEY) — with a slate help face for unknown codes, a `data-severity` hook, and hover faces.
+
+### Fixed
+- **The click-stealing pulse ring** (QA-found): the floating Dashboard button's `animate-ping` ring expands to 2× its bounds each keyframe and swept over right-edge controls — the payroll run door and the shortcuts button were caught covered mid-animation, and a real click on the door's center could land on the FAB and navigate to the Dashboard instead. All 11 decorative ping spans across the app now carry `pointer-events-none` (plus `aria-hidden` on the FAB's ring): decorative animation never intercepts pointers, everywhere.
+
+### Tests
+- `src/tests/payroll-issue-voice-v301.test.ts` (15 pins, BOTH nets): the value net pins the gate's plain-sentence MISSING_CONSENT speaking the full voice with verbatim detail, byte-identity with `payrollGuardrailVoice` on the engine shape, no doubled code prefix, unknown-code and empty-message passthroughs, and every guardrail code round-tripping; the byte net pins BOTH mouths on the shared row, the raw `{issue.message}` span gone from both, the face map total over every guardrail code, the no-import-cycle and lib-purity laws, and the ping law enforced per-line across all nine files.
+
 ## [2.300.0] The run finds its door
 
 The v2.18.9 payroll lifecycle has been complete in the API and in the /hr/payroll console for a hundred releases — but the main Payroll tab's Pay Runs table could only Void a finished run. A manager staring at a Draft run saw an EMPTY actions cell: the state machine had no door. This release opens it, and teaches the guardrails to speak.

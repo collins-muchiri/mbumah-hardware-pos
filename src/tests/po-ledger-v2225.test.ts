@@ -56,9 +56,9 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.225.0)', () => {
   it('package.json leads 2.225.0 (all three slots)', () => {
-    expect(version).toBe('2.300.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.300.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.300.0');
+    expect(version).toBe('2.301.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.301.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.301.0');
   });
 
   it('the changelog anchors the section ABOVE its ancestor (the structural pin — headers, never bare strings)', () => {

@@ -258,7 +258,7 @@ export function OnlineBadge() {
         title="Offline - sales will be queued locally"
       >
         <span className="relative flex h-2 w-2">
-          <span className="absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-75 animate-ping" />
+          <span className="pointer-events-none absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-75 animate-ping" />
           <span className="relative inline-flex h-2 w-2 rounded-full bg-rose-600" />
         </span>
         <span className="hidden sm:inline">Offline</span>
@@ -273,7 +273,7 @@ export function OnlineBadge() {
         title={`${pendingCount} sale(s) waiting to sync`}
       >
         <span className="relative flex h-2 w-2">
-          <span className="absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75 animate-ping" />
+          <span className="pointer-events-none absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75 animate-ping" />
           <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-600" />
         </span>
         <span className="hidden sm:inline">{pendingCount} pending</span>

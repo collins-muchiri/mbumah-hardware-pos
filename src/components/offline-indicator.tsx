@@ -126,7 +126,7 @@ function PendingBadge({ count }: { count: number }) {
 function AmberDot() {
   return (
     <span className="relative flex h-2 w-2" aria-hidden="true">
-      <span className="absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-60 animate-ping" />
+      <span className="pointer-events-none absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-60 animate-ping" />
       <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500" />
     </span>
   );

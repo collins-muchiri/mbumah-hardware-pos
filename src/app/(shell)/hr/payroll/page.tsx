@@ -20,6 +20,7 @@ import { AlertTriangle, ArrowLeft, ArrowUpRight, Banknote, Calendar, CheckCircle
 import { formatEatStamp } from '@/lib/hr/payroll/payslip-bundle';
 import { PayrollRunDialog } from '@/components/hr/payroll-run-dialog';
 import { PayrollCorrectionsPanel } from '@/components/hr/payroll-corrections-panel';
+import { PayrollIssueRow } from '@/components/hr/payroll-issue-row';
 import { parseGateVerdict, buildGateVerdictText, gateVerdictTone } from '@/lib/hr/payroll/gate-verdict';
 import { buildGateAttemptChip } from '@/lib/hr/payroll/gate-trail';
 import { downloadRunDigestCsv } from '@/components/hr/run-digest-csv';
@@ -804,14 +805,7 @@ export default function HrPayrollPage() {
               </CardHeader>
               <CardContent className="space-y-2">
                 {gateIssues.map((issue, i) => (
-                  <div
-                    key={`${issue.code}-${i}`}
-                    className="flex flex-wrap items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm"
-                  >
-                    <Badge variant="outline" className="font-mono text-[11px]">{issue.code}</Badge>
-                    <span className="font-medium">{issue.employeeName || 'Employee'}</span>
-                    <span className="text-muted-foreground">{issue.message}</span>
-                  </div>
+                  <PayrollIssueRow key={`${issue.code}-${i}`} issue={issue} />
                 ))}
                 <Button variant="outline" size="sm" onClick={() => setGateIssues(null)}>Dismiss</Button>
               </CardContent>

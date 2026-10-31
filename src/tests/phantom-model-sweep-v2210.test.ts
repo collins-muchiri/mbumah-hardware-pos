@@ -309,9 +309,9 @@ describe('v2.210.0 — the suite rides at the head', () => {
   };
 
   it('the release is 2.210.0 in all three version fields', () => {
-    expect(pkg.version).toBe('2.300.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.300.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.300.0');
+    expect(pkg.version).toBe('2.301.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.301.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.301.0');
   });
 
   it('the What\u2019s New feed heads this release', () => {
