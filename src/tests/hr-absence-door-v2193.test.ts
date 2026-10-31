@@ -218,8 +218,8 @@ describe('docs and release surfaces', () => {
 
   it('the head-pin counters re-anchored to the new head', () => {
     const counter = readRepo('src/tests/console-changelog.test.ts');
-    expect(counter).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(240);");
+    expect(counter).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(241);");
     const a11yShell = readRepo('src/tests/a11y-shell-v2148.test.ts');
-    expect(a11yShell).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(240);");
+    expect(a11yShell).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(241);");
   });
 });

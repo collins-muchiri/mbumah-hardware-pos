@@ -238,7 +238,7 @@ describe('v2.202.0 — docs and release surfaces', () => {
 
   it('the head-pin counters re-anchored to the new head', () => {
     const counter = readRepo('src/tests/console-changelog.test.ts');
-    expect(counter).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(240);");
+    expect(counter).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(241);");
   });
 
   it('the whats-new feed heads the release', () => {

@@ -74,14 +74,14 @@ describe('the round of record (v2.239.0)', () => {
   });
 
   it('the counters ride +1 (the door\u2019s-census entry joined; the yard\u2019s answer joins)', () => {
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(240);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.109.0')).toBe(241);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.108.0')).toBe(242);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(273);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(241);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.109.0')).toBe(242);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.108.0')).toBe(243);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(274);");
   });
 
   it('the meta-pin family rides +1 with the counter source', () => {
-    expect(metaPin).toContain("expect(counter).toContain(\"expect(whatsNewUnreadCount('2.110.0')).toBe(240);\");");
+    expect(metaPin).toContain("expect(counter).toContain(\"expect(whatsNewUnreadCount('2.110.0')).toBe(241);\");");
   });
 });
 

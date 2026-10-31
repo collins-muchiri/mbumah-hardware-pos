@@ -80,8 +80,8 @@ describe('the round of record (v2.241.0)', () => {
   });
 
   it('the counters ride +1 again (the birth joined; the law joins)', () => {
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(240);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(273);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(241);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(274);");
   });
 });
 

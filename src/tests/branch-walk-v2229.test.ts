@@ -72,15 +72,15 @@ describe('the round of record (v2.229.0)', () => {
 
   it('the treadmill bumped the version pins (the watchers track the head)', () => {
     expect(watcher).toContain("expect(pkg.version).toBe('2.350.0');");
-    expect(watcher).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(240);");
+    expect(watcher).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(241);");
   });
 
   it('the counter family rides +1 (120/121/122/153 — the trail names the round)', () => {
     const counter = read('src/tests/console-changelog.test.ts');
-    expect(counter).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(240);");
-    expect(counter).toContain("expect(whatsNewUnreadCount('2.109.0')).toBe(241);");
-    expect(counter).toContain("expect(whatsNewUnreadCount('2.108.0')).toBe(242);");
-    expect(counter).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(273);");
+    expect(counter).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(241);");
+    expect(counter).toContain("expect(whatsNewUnreadCount('2.109.0')).toBe(242);");
+    expect(counter).toContain("expect(whatsNewUnreadCount('2.108.0')).toBe(243);");
+    expect(counter).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(274);");
     expect(counter).toContain('// v2.229.0: the branch-walk entry joins the feed (+1 on every anchor → 120/121/122/153)');
   });
 });

@@ -77,10 +77,10 @@ describe('the round of record (v2.242.0)', () => {
   });
 
   it('the counters ride +1 again (the aisle\u2019s answer joined)', () => {
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(240);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.109.0')).toBe(241);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.108.0')).toBe(242);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(273);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(241);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.109.0')).toBe(242);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.108.0')).toBe(243);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(274);");
   });
 });
 

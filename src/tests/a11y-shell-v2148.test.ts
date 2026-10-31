@@ -278,6 +278,6 @@ describe('the release surfaces speak the version', () => {
 
   it('the unread counter test is re-anchored to the new head', () => {
     const counter = readRepo('src/tests/console-changelog.test.ts');
-    expect(counter).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(240);");
+    expect(counter).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(241);");
   });
 });

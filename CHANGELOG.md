@@ -1,3 +1,31 @@
+## [2.351.0] The audit remediation lands
+
+The prior audit (run against v2.305.0) produced a findings list; this release remediates it end to end: reproducible local setup, a runner-agnostic seed, the login-500 root cause, environment-aware seeded credentials, sanitized production errors, the missing POS integrity tests, a PostgreSQL concurrency gate in CI, and the repository cleanup — verified by the existing 6,700-test suite plus 31 new pins, with every command recorded.
+
+### Added
+- **`npm run env:doctor`** (`scripts/env-doctor.mjs`, wired in CI): the standing detector for the audit's environment class. Validates `.env` presence/gitignore coverage, the DATABASE_URL scheme, **provider consistency across schema ↔ generated client ↔ DATABASE_URL** (the exact drift that produced the audit's login 500), insecure placeholder secrets, the seed-credential posture, and optional-integration gaps (reported, never fatal). `--ci` mode reports without failing on variables a real deployment supplies.
+- **Runner-agnostic seeding** (`scripts/run-seed.mjs`, NEW): `prisma db seed` → `node scripts/run-seed.mjs`, which prefers bun when present and falls back to `node --import tsx` (tsx added as a devDependency). `npm run db:seed` works on npm-only installs without Bun; bun flows keep their historical path.
+- **The seeded-credential policy** (`src/lib/demo-password.ts`, NEW): `SEED_ADMIN_PASSWORD` wins everywhere; `password123` remains the documented default ONLY in development/test; `SEED_ALLOW_DEMO_PASSWORD=1` is an explicit non-dev opt-in; otherwise the seed generates a strong 24-char one-time password and prints it exactly once.
+- **The health-endpoint demo-credential probe** (`/api/health` → `checks.demo_credentials`): outside development, a super admin whose password still verifies as the well-known demo password surfaces as a health warning.
+- **POS financial-integrity regression tests** (`src/tests/lib/checkout-integrity-audit.test.ts`): last-unit oversell race, insufficient-stock claim, checkout idempotency (P2002), stock-movement replay safety, duplicate receipt rejection, receipt-number uniqueness.
+- **PostgreSQL-gated concurrency tests** (`src/tests/lib/concurrency-postgres-audit.test.ts`): real PostgreSQL server with two independent Prisma connections, wired into CI as `concurrency-postgres` job (postgres:16 service).
+- **Production error-sanitization regression tests** (`src/tests/lib/error-sanitization-audit.test.ts`): pins `withErrorBoundary`'s production contract.
+- **`docs/TROUBLESHOOTING.md`** (NEW): every observed audit blocker with symptom → root cause → fix.
+
+### Changed
+- **`scripts/setup-prisma-provider.mjs` now loads `<repo>/.env`** — the ROOT-CAUSE FIX for the audit's login 500: on a fresh clone, `db:push` (loads .env → sqlite) followed by `db:generate` (didn't → postgresql) silently flipped the schema. All provider decisions now agree by construction.
+- **`prisma.config.ts` gains `PRISMA_CONFIG_DATABASE_URL`** — the explicit override channel that beats `.env`.
+- **`generateReceiptNumber`'s suffix now matches its documented space** (`src/lib/helpers.ts`): was 5 hex chars (16⁵ ≈ 1.05M) while claiming "base36 ≈ 60M" — measured 174 birthday collisions across 20,000 draws. Now true base36 (36⁵ ≈ 60.4M).
+- **README quickstart** rewritten npm-first with `env:doctor` in the flow; `.env.example` gains the local-SQLite block, the precedence note, and the SEED_* variables.
+- **CI** (`.github/workflows/ci-cd.yml`): Security & Schema job runs `env:doctor --ci`; new `concurrency-postgres` job.
+
+### Cleanup (PHASE 11)
+- 73 verified-unreferenced one-off scripts archived to `scripts/archive/release-history/`.
+- 2.8MB committed pre-heal database snapshot removed from git; `.gitignore` covers `prisma/prisma/*.db*`.
+
+### Tests
+- 31 new pins across 4 files; full suite **6,731 passed / 2 skipped (PG-gated) / 0 failed**; lint 0 errors / 466 warnings.
+
 ## [2.350.0] The field-level casts census, phase 2: the wider class dissolves
 
 The round the open class closed. v2.348.0 dissolved the three named doors and recorded the wider field-level cast class as deliberately open. This round dissolves it: fifteen doors stop laundering the wire's own truth, dissolved by pattern rather than by file — the honest error-code read (the `in`-narrowing), the type-predicate filter bridges, one shared participant-list helper answering the honest empty list, the metadata bags read through the `in` narrowing with a predicate that validates every field, the named shapes carrying their own nullability (ReorderHint, PatchApplied), the wire read as string-or-number before `new Date()`, the Zod-coerced fields accepted as already typed, the Prisma payload speaking `EmployeeUpdateInput`, and the stock-deduction row typed by derivation from the bundle child's own shape. The boundary class (the house variadic unpack and the containment record) stays documented-open — a different idiom, not claimed. And once: the honest dissolve EXPOSED a dead branch — the gift-card adjust door's "fully redeemed, adding balance back" branch could never fire (the guard refuses every non-ACTIVE/PARTIALLY_REDEEMED card first); the dead branch is gone, runtime-identical.

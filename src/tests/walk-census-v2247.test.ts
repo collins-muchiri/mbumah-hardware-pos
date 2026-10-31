@@ -142,7 +142,7 @@ describe('the walk\u2019s mirror — the release face (v2.247.0)', () => {
   });
 
   it('the counters ride +1 in the counter test', () => {
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(240);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(273);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(241);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(274);");
   });
 });

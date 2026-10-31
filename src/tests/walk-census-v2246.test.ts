@@ -76,8 +76,8 @@ describe('the round of record (v2.246.0)', () => {
   });
 
   it('the counters ride +1 in the counter test', () => {
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(240);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(273);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(241);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(274);");
   });
 });
 
