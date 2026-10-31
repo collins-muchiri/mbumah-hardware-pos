@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.302.0',
+    title: 'The issue rows carry their doors',
+    bullets: [
+      'A blocked row no longer only names the fix \u2014 it walks there: consent rows open the Privacy tab\u2019s consent ledger, timesheet rows deep-link the exact desk, pay-input rows open the employee record, account rows open the Financial tab.',
+      'Doors follow their row\u2019s severity family (rose, amber, sky) and open in their own tab; the five codes whose fix surfaces don\u2019t exist yet stay honestly doorless \u2014 no link pretends to fix what it can\u2019t.',
+      'The blocked-employees panel and the /hr/payroll gate card both gain the doors through the one shared row \u2014 one implementation, both mouths.',
+    ],
+  },
+  {
     version: '2.301.0',
     title: 'The issue rows find their voice',
     bullets: [

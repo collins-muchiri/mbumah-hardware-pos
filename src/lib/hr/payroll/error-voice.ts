@@ -88,3 +88,108 @@ export function payrollGuardrailIssueVoice(code: string, message: string): strin
   if (!detail || detail === voice) return voice;
   return `${voice} (${detail})`;
 }
+
+// ---------------------------------------------------------------------------
+// The issue door (v2.302.0) - the voice names the fix; the door WALKS there.
+//
+// v2.135.0 taught the pattern on the gate card's per-employee rows ("the
+// remediation door — diagnosis joins its fix") and v2.136.0 gave the
+// timesheet block its own desk. v2.302.0 generalizes it: EVERY issue row
+// (both mouths — the run dialog's "Blocked employees" panel and the /hr/payroll
+// gate card's blocked-preparation card) can now carry the door, keyed by the
+// same code field the voice reads.
+//
+// THE HONEST-NULL LAW: a door exists ONLY when the fix surface REALLY exists
+// in the product today. Five codes stay doorless on purpose, each for its own
+// documented reason — a door to a surface that cannot perform the fix is a
+// lie with a link on it:
+//   • RATE_TABLE_MISSING / OVERLAPPING_RATE_TABLES — rate tables are
+//     insert-only data (GET /api/hr/rate-tables header); no editor UI ships
+//     yet ("management arrives with the payroll release"), so there is no
+//     door to build;
+//   • UNRESOLVED_DEPENDENCY — salary structures have no management UI (the
+//     structures live behind the employee's salary setup; the voice's words
+//     carry the diagnosis);
+//   • IMMUTABLE_STATUS — the lifecycle IS in place; the fix is the run's own
+//     dialog the reader is already holding open;
+//   • DUPLICATE_IDEMPOTENCY_KEY — the destination already exists; the door
+//     would point at the same list the run came from.
+//
+// PURE LAW (same as the voice): no Prisma, no React, no network. Unknown
+// codes return null — the door never guesses where a fix lives.
+// ---------------------------------------------------------------------------
+
+/** The door a row carries: where the fix lives, what to call it, and the
+ * hover title that says why. `null` = no honest door (see the law above). */
+export interface PayrollIssueDoor {
+  href: string;
+  label: string;
+  title: string;
+}
+
+const CONSENT_LEDGER_HREF = '/hr/reports?tab=privacy';
+const TIMESHEET_DESK_HREF = '/hr/timesheets';
+const FINANCIAL_TAB_HREF = '/?tab=financial';
+
+/** The fix surfaces, by code. Employee-keyed doors need `employeeId` — the
+ * server's PayrollIssue has carried it since the run service's first issue
+ * push, and v2.302.0 lets the client shapes say so. A blank/whitespace id
+ * counts as absent: the door never builds a half link. */
+export function payrollIssueDoor(code: string, employeeId?: string): PayrollIssueDoor | null {
+  const id = typeof employeeId === 'string' && employeeId.trim() ? employeeId.trim() : null;
+  switch (code) {
+    case 'MISSING_CONSENT':
+      // v2.135.0's precedented door: the grant lives on the Privacy tab's
+      // consent ledger (grant lives there since v2.119.0).
+      return {
+        href: CONSENT_LEDGER_HREF,
+        label: 'Consent ledger',
+        title: 'Grant lives on the Privacy tab\u2019s consent ledger — opens in its own tab.',
+      };
+    case 'TIMESHEET_NOT_APPROVED':
+      // v2.136.0's precedented door, deep-linking the employee the gate
+      // blocked when the row knows who it speaks for.
+      return {
+        href: id ? `${TIMESHEET_DESK_HREF}?employee=${encodeURIComponent(id)}` : TIMESHEET_DESK_HREF,
+        label: 'Timesheet desk',
+        title: 'Approve lives on the timesheet desk — opens in its own tab.',
+      };
+    case 'NEGATIVE_NET':
+    case 'DEDUCTION_CAP_EXCEEDED':
+      // The earnings and deduction inputs live on the employee record —
+      // the same surface the voice's sentence tells the manager to check.
+      return id
+        ? {
+            href: `/hr/employees/${encodeURIComponent(id)}`,
+            label: 'Employee record',
+            title: 'The earnings and deduction inputs live on the employee record — opens in its own tab.',
+          }
+        : null;
+    case 'PERIOD_MISMATCH':
+      // Attendance dates are checked against the pay period on the desk
+      // that owns the timesheets.
+      return {
+        href: TIMESHEET_DESK_HREF,
+        label: 'Timesheet desk',
+        title: 'Attendance dates are checked against the pay period on the timesheet desk — opens in its own tab.',
+      };
+    case 'MISSING_CHART_ACCOUNT':
+      // The Financial tab's Chart of Accounts CRUD is the seed surface.
+      return {
+        href: FINANCIAL_TAB_HREF,
+        label: 'Chart of accounts',
+        title: 'Payroll accounts live on the Financial tab — opens in its own tab.',
+      };
+    case 'JOURNAL_IMBALANCE':
+      // The Financial tab's journal entries table is where a mapping fix
+      // starts.
+      return {
+        href: FINANCIAL_TAB_HREF,
+        label: 'Journal entries',
+        title: 'The journal and its account mappings live on the Financial tab — opens in its own tab.',
+      };
+    default:
+      // The five documented honest nulls + every unknown code.
+      return null;
+  }
+}
