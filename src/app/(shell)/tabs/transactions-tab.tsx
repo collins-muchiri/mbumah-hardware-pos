@@ -1,18 +1,19 @@
 'use client';
 
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
   ShoppingBag, Search, Download, ChevronDown, ChevronUp,
   CalendarDays, TrendingUp, Hash, CreditCard, Smartphone, Banknote, Wallet,
   Filter, FileText, RotateCcw, Ban, Eye, Printer, AlertTriangle, Receipt, X, MessageCircle,
-  Mail, Send, Loader2, MessageSquare,
+  Mail, Send, Loader2, MessageSquare, PackageOpen, ShieldAlert,
 } from 'lucide-react';
 
-import { transactionsApi, whatsappApi, formatKES, formatDateTime, type TransactionItem, type SaleItemDetail, type ReceiptDistributionResult } from '@/lib/api';
+import { transactionsApi, whatsappApi, formatKES, formatDateTime, type TransactionItem, type SaleItemDetail, type ReceiptDistributionResult, type RefundableLine, type RefundableLinesResult } from '@/lib/api';
 import { composeDailyRevenueVoice } from '@/lib/report-voices';
-import { useAppStore } from '@/lib/stores';
+import { useAppStore, useAuthStore } from '@/lib/stores';
+import { hasFeaturePermission } from '@/lib/permissions';
 import { getStoreInfo, getLogoUrl, COMPANY } from '@/lib/store-info';
 import { printReceiptElement, generateReceiptPdf, buildReceiptFileName, RECEIPT_CONTENT_ID } from '@/lib/receipt-pdf';
 import { ReceiptDocument } from '@/components/receipt-print';
@@ -481,6 +482,370 @@ function ConfirmActionDialog({
 
 // TRANSACTION ROW (expandable with actions)
 
+// ── v2.308.0 SALE REFUNDS ────────────────────────────────────────────────
+// The refund dialog. The Refund button in the transaction rows had been a
+// placeholder since the tab shipped ("Refund placeholder - would call
+// API"); this dialog is the counter it was waiting for. It fetches the
+// server's refundable-line views (the refund chain's exact per-line SUMs
+// - never a client-side guess), allocates per line with quantities,
+// restocks by default, speaks the manager-tier gate up front, and mirrors
+// the tab's design language: bordered line cards, tabular money, the
+// refund amber (RotateCcw family), disabled rows that say WHY they are
+// disabled.
+
+const REFUND_REASON_LABELS: Record<string, string> = {
+  DEFECTIVE: 'Defective goods',
+  WRONG_ITEM: 'Wrong item sold',
+  CUSTOMER_CHANGED_MIND: 'Customer changed their mind',
+  DAMAGED_IN_TRANSIT: 'Damaged in transit',
+  WARRANTY_CLAIM: 'Warranty claim',
+  OTHER: 'Other',
+};
+
+function RefundDialog({
+  open,
+  onOpenChange,
+  transaction,
+  onRefunded,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  transaction: TransactionItem | null;
+  onRefunded: () => void;
+}) {
+  const [selected, setSelected] = useState<Record<string, number>>({});
+  const [restock, setRestock] = useState(true);
+  const [reason, setReason] = useState('');
+  const [notes, setNotes] = useState('');
+  const [busy, setBusy] = useState(false);
+  const queryClient = useQueryClient();
+
+  // Reset the allocation state each time the dialog opens for a sale.
+  useEffect(() => {
+    if (open) {
+      setSelected({});
+      setRestock(true);
+      setReason('');
+      setNotes('');
+      setBusy(false);
+    }
+  }, [open, transaction?.id]);
+
+  // The server's refundable-line views - the same SUMs the POST re-derives
+  // inside its transaction. A 409 (NOT_REFUNDABLE) lands here as an error
+  // and the dialog says so instead of rendering a dead form.
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['refundable-lines', transaction?.id],
+    queryFn: async () => {
+      if (!transaction) throw new Error('No sale selected for the refund dialog.');
+      return transactionsApi.refundableLines(transaction.id);
+    },
+    enabled: open && !!transaction,
+    retry: false,
+  });
+
+  const lines: RefundableLine[] = useMemo(
+    () => (data && 'lines' in data && Array.isArray((data as RefundableLinesResult).lines)
+      ? (data as RefundableLinesResult).lines
+      : []),
+    [data],
+  );
+  const refundableTotal = data && 'refundableTotal' in data
+    ? (data as RefundableLinesResult).refundableTotal
+    : 0;
+
+  const requestedLines = useMemo(
+    () =>
+      Object.entries(selected)
+        .filter(([, qty]) => qty > 0)
+        .map(([saleItemId, qty]) => ({ saleItemId, quantity: qty })),
+    [selected],
+  );
+
+  // The live estimate: the dialog allocates the same way the service does -
+  // an exhausting tranche charges the line's remaining value; an interior
+  // tranche charges the proportional share.
+  const estimatedTotal = useMemo(() => {
+    const byId = new Map(lines.map((l) => [l.saleItemId, l]));
+    const consumed = new Map<string, number>();
+    let total = 0;
+    for (const req of requestedLines) {
+      const line = byId.get(req.saleItemId);
+      if (!line) continue;
+      const qty = req.quantity;
+      const exhausts = qty + line.alreadyRefundedQuantity >= line.soldQuantity;
+      const before = line.refundableValue - (consumed.get(req.saleItemId) ?? 0);
+      const gross = exhausts
+        ? before
+        : Math.round(((line.lineTotal * qty) / line.soldQuantity + Number.EPSILON) * 100) / 100;
+      consumed.set(req.saleItemId, (consumed.get(req.saleItemId) ?? 0) + gross);
+      total += gross;
+    }
+    return Math.round((total + Number.EPSILON) * 100) / 100;
+  }, [requestedLines, lines]);
+
+  const restockCount = useMemo(
+    () =>
+      requestedLines.reduce((sum, req) => {
+        const line = lines.find((l) => l.saleItemId === req.saleItemId);
+        return sum + (line && !line.isRentalItem ? 1 : 0);
+      }, 0),
+    [requestedLines, lines],
+  );
+
+  const handleToggleLine = (line: RefundableLine, checked: boolean) => {
+    setSelected((prev) => {
+      const next = { ...prev };
+      if (checked) {
+        next[line.saleItemId] = line.refundableQuantity;
+      } else {
+        delete next[line.saleItemId];
+      }
+      return next;
+    });
+  };
+
+  const handleQtyChange = (line: RefundableLine, raw: string) => {
+    const parsed = parseFloat(raw);
+    const qty = Number.isFinite(parsed)
+      ? Math.max(0, Math.min(line.refundableQuantity, parsed))
+      : 0;
+    setSelected((prev) => ({ ...prev, [line.saleItemId]: qty }));
+  };
+
+  const handleConfirm = async () => {
+    if (!transaction || requestedLines.length === 0) return;
+    setBusy(true);
+    try {
+      const result = await transactionsApi.refund(transaction.id, {
+        lines: requestedLines,
+        restock,
+        ...(reason ? { reason } : {}),
+        ...(notes.trim() ? { notes: notes.trim() } : {}),
+      });
+      const restockedNote = result.restocked.length
+        ? ` · ${result.restocked.length} line${result.restocked.length > 1 ? 's' : ''} back on the shelf`
+        : '';
+      toast.success(
+        `Refund ${result.refund.receiptNumber} recorded — ${formatKES(result.refundTotal)}${restockedNote}`,
+      );
+      await queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      await queryClient.invalidateQueries({ queryKey: ['refundable-lines', transaction.id] });
+      onRefunded();
+      onOpenChange(false);
+    } catch (err) {
+      handleError(err, 'Failed to record the refund. Please try again.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (!transaction) return null;
+
+  const notRefundable =
+    error &&
+    typeof error === 'object' &&
+    'body' in error &&
+    (error as { body?: { code?: string } }).body?.code === 'NOT_REFUNDABLE';
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto" aria-describedby="refund-dialog-desc">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <RotateCcw className="h-5 w-5 text-amber-600" aria-hidden />
+            Refund Sale
+          </DialogTitle>
+          <DialogDescription id="refund-dialog-desc">
+            Receipt #{data?.receiptNumber ?? transaction.receiptNumber} · sold for {formatKES(data?.totalAmount ?? transaction.totalAmount)}
+          </DialogDescription>
+        </DialogHeader>
+
+        {isLoading && (
+          <div className="flex items-center gap-2 py-6 text-sm text-muted-foreground" role="status">
+            <Loader2 className="h-4 w-4 animate-spin" /> Loading refundable lines…
+          </div>
+        )}
+
+        {notRefundable && (
+          <div className="flex items-start gap-2 rounded-lg border border-amber-300/60 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300" role="alert">
+            <ShieldAlert className="h-4 w-4 mt-0.5 shrink-0" aria-hidden />
+            <span>This sale can no longer be refunded — it may already be fully refunded or voided.</span>
+          </div>
+        )}
+
+        {data && lines.length > 0 && (
+          <>
+            {/* The refundable lines */}
+            <div className="space-y-2" role="group" aria-label="Refundable items">
+              {lines.map((line) => {
+                const qty = selected[line.saleItemId] ?? 0;
+                const exhausted = line.refundableQuantity <= 0;
+                const checked = qty > 0;
+                const est = checked
+                  ? qty + line.alreadyRefundedQuantity >= line.soldQuantity
+                    ? line.refundableValue
+                    : Math.round(((line.lineTotal * qty) / line.soldQuantity + Number.EPSILON) * 100) / 100
+                  : 0;
+                return (
+                  <div
+                    key={line.saleItemId}
+                    className={`rounded-lg border p-2.5 transition-colors ${
+                      exhausted
+                        ? 'border-border/50 bg-muted/40 opacity-70'
+                        : checked
+                          ? 'border-amber-400/70 bg-amber-50/60 dark:border-amber-700/60 dark:bg-amber-950/20'
+                          : 'border-border bg-card hover:border-amber-300/60 dark:hover:border-amber-800/60'
+                    }`}
+                  >
+                    <div className="flex items-start gap-2.5">
+                      <input
+                        type="checkbox"
+                        className="mt-1 h-4 w-4 shrink-0 cursor-pointer accent-amber-600"
+                        checked={checked}
+                        disabled={exhausted || busy}
+                        onChange={(e) => handleToggleLine(line, e.target.checked)}
+                        aria-label={`Refund ${line.productName}`}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-baseline justify-between gap-2">
+                          <p className="truncate text-sm font-medium">{line.productName}</p>
+                          <p className="shrink-0 text-sm font-semibold tabular-nums">
+                            {formatKES(line.unitRefundValue)}
+                            <span className="text-[10px] font-normal text-muted-foreground">/{line.unitType.toLowerCase()}</span>
+                          </p>
+                        </div>
+                        <p className="mt-0.5 text-[11px] text-muted-foreground tabular-nums">
+                          Sold {line.soldQuantity} {line.unitType.toLowerCase()}
+                          {line.alreadyRefundedQuantity > 0 && ` · refunded ${line.alreadyRefundedQuantity}`}
+                          {line.isRentalItem && ' · rental (no restock)'}
+                        </p>
+                        {exhausted ? (
+                          <span className="mt-1.5 inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-800 dark:bg-amber-900/50 dark:text-amber-300">
+                            Fully refunded
+                          </span>
+                        ) : (
+                          <div className="mt-1.5 flex items-center gap-2">
+                            <Input
+                              type="number"
+                              inputMode="decimal"
+                              min={0}
+                              max={line.refundableQuantity}
+                              step="any"
+                              value={qty === 0 ? '' : qty}
+                              placeholder="0"
+                              disabled={busy}
+                              onChange={(e) => handleQtyChange(line, e.target.value)}
+                              onFocus={(e) => e.target.select()}
+                              className="h-7 w-24 text-xs tabular-nums"
+                              aria-label={`Quantity to refund for ${line.productName} (max ${line.refundableQuantity})`}
+                            />
+                            <span className="text-[11px] text-muted-foreground">
+                              of {line.refundableQuantity} {line.unitType.toLowerCase()} refundable
+                            </span>
+                            {checked && (
+                              <span className="ml-auto text-xs font-semibold tabular-nums text-amber-700 dark:text-amber-400">
+                                {formatKES(est)}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Reason + notes */}
+            <div className="grid gap-2 sm:grid-cols-2">
+              <label className="block">
+                <span className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Reason</span>
+                <select
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  disabled={busy}
+                  className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  aria-label="Refund reason"
+                >
+                  <option value="">Select a reason…</option>
+                  {Object.entries(REFUND_REASON_LABELS).map(([value, label]) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Note (optional)</span>
+                <Input
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  disabled={busy}
+                  maxLength={300}
+                  placeholder="Anything the till record should say"
+                  className="h-8 text-xs"
+                  aria-label="Refund note"
+                />
+              </label>
+            </div>
+
+            {/* Restock + summary */}
+            <div className="rounded-lg border bg-muted/30 p-3">
+              <label className="flex cursor-pointer items-center gap-2">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 cursor-pointer accent-emerald-600"
+                  checked={restock}
+                  disabled={busy || restockCount === 0}
+                  onChange={(e) => setRestock(e.target.checked)}
+                  aria-label="Return items to stock"
+                />
+                <PackageOpen className="h-3.5 w-3.5 text-emerald-700 dark:text-emerald-400" aria-hidden />
+                <span className="text-xs font-medium">
+                  Return items to stock
+                  {restockCount > 0 && (
+                    <span className="ml-1 text-muted-foreground">({restockCount} line{restockCount > 1 ? 's' : ''})</span>
+                  )}
+                </span>
+              </label>
+              <div className="mt-2 flex items-end justify-between border-t pt-2">
+                <div>
+                  <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Refund total</p>
+                  <p className="text-lg font-bold tabular-nums text-amber-700 dark:text-amber-400">
+                    {formatKES(estimatedTotal)}
+                  </p>
+                </div>
+                <p className="text-right text-[11px] text-muted-foreground tabular-nums">
+                  {formatKES(refundableTotal)} refundable<br />
+                  of {formatKES(data.totalAmount)} sold
+                </p>
+              </div>
+            </div>
+
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleConfirm}
+                disabled={busy || requestedLines.length === 0}
+                className="bg-amber-600 hover:bg-amber-700 focus-visible:ring-amber-600 dark:bg-amber-700 dark:hover:bg-amber-600"
+              >
+                {busy ? (
+                  <Loader2 className="h-4 w-4 mr-1.5 animate-spin" aria-hidden />
+                ) : (
+                  <RotateCcw className="h-4 w-4 mr-1.5" aria-hidden />
+                )}
+                {busy ? 'Recording refund…' : `Refund ${formatKES(estimatedTotal)}`}
+              </Button>
+            </DialogFooter>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function TransactionRow({
   transaction,
   isExpanded,
@@ -503,6 +868,11 @@ function TransactionRow({
   const items = Array.isArray(transaction.items) ? transaction.items : [];
   const txType = getTransactionType(transaction);
   const customerName = transaction.customer?.name || 'Walk-in';
+  // v2.308.0: the Refund button is feature-gated (manager tier) - hiding it
+  // from cashiers is UX; the server's hasFeaturePermission('pos.refund')
+  // gate is the actual enforcement.
+  const user = useAuthStore((s) => s.user);
+  const canRefund = hasFeaturePermission(user?.role, 'pos.refund');
   const avatarGradient = getAvatarGradient(customerName);
   const customerInitials = getInitials(customerName);
 
@@ -617,8 +987,14 @@ function TransactionRow({
                 <Button variant="outline" size="sm" className="h-7 text-xs" onClick={(e) => { e.stopPropagation(); onPrint(); }}>
                   <Printer className="h-3 w-3 mr-1" /> Print
                 </Button>
-                {txType === 'sale' && transaction.paymentStatus === 'COMPLETED' && (
-                  <Button variant="outline" size="sm" className="h-7 text-xs text-amber-700 hover:text-amber-800 hover:bg-amber-50 dark:hover:bg-amber-950/30" onClick={(e) => { e.stopPropagation(); onRefund(); }}>
+                {txType === 'sale' && ['COMPLETED', 'PARTIAL'].includes(transaction.paymentStatus) && canRefund && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-xs text-amber-700 hover:text-amber-800 hover:bg-amber-50 dark:hover:bg-amber-950/30"
+                    onClick={(e) => { e.stopPropagation(); onRefund(); }}
+                    aria-label={`Refund sale ${transaction.receiptNumber}`}
+                  >
                     <RotateCcw className="h-3 w-3 mr-1" /> Refund
                   </Button>
                 )}
@@ -1185,18 +1561,13 @@ export default function TransactionsTab() {
         distributing={distributing}
       />
 
-      {/* Refund Confirmation */}
-      <ConfirmActionDialog
+      {/* v2.308.0: the refund dialog - the placeholder confirm ("would call
+          API") is retired; this one talks to POST /transactions/[id]/refund. */}
+      <RefundDialog
         open={!!refundTransaction}
         onOpenChange={(open) => { if (!open) setRefundTransaction(null); }}
-        title="Confirm Refund"
-        description={`Are you sure you want to refund transaction ${refundTransaction?.receiptNumber}? This will reverse the payment of ${refundTransaction ? formatKES(refundTransaction.totalAmount) : ''}.`}
-        onConfirm={() => {
-          // Refund placeholder - would call API
-          setRefundTransaction(null);
-        }}
-        isPending={false}
-        variant="destructive"
+        transaction={refundTransaction}
+        onRefunded={() => setRefundTransaction(null)}
       />
 
       {/* Void Confirmation */}

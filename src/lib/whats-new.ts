@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.308.0',
+    title: 'The refund comes home',
+    bullets: [
+      'The Refund button on the transactions desk finally does what it always said: a manager-gated, line-level refund that reverses the money, the VAT and the stock in ONE atomic transaction — full or partial, down to the unit.',
+      'The receipt trail stays honest: every refund carries its own receipt number, links back to the sale it refunds, returns goods to the shelf (a toggle for when they are not coming back), and posts a balanced mirror journal entry — the books never see a one-sided refund.',
+      'Guards where money lives: a sale can never be refunded past its total, a refunded line wears an honest "Fully refunded" pill, and a second refund attempt is refused with the amount that remains refundable.',
+    ],
+  },
+  {
     version: '2.306.0',
     title: 'The pools speak at their desks',
     bullets: [

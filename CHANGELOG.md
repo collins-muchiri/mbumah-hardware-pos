@@ -2,6 +2,24 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.308.0] The refund comes home
+
+The transactions desk's Refund button had been a placeholder since the tab shipped ("Refund placeholder - would call API"), and the audit's refund workflow (full/partial refunds, restock, movement records, original-sale linkage, over-refund rejection, permission enforcement) had no backend to test. This release builds the refund the audit described: one atomic transaction that reverses money, VAT, stock and books together — and a counter on the desk that speaks it.
+
+### Added
+- **The refund service** (`src/lib/sale-refund-service.ts`, NEW): the pure allocation seam (`refundableLinesFrom` / `computeRefundPlan` / `splitRefundAmounts` / `toRefundableTotal` — import-free, Decimal-end-to-end) and `applySaleRefund`, the ONE interactive `$transaction` (guard → per-line allocation → REFUND transaction → restock + RETURN movements → Payment row → drawer/debt side effects → mirror journal → original status flip → receipt row). THE EXACTNESS LAW: a tranche that exhausts a line charges the line's REMAINING value, so partial + partial + partial always sums to exactly the sale total; a full refund refunds exactly `totalAmount`.
+- **The refund API** (`POST /api/transactions/[id]/refund`, NEW): `requireStoreAccess` + `hasFeaturePermission('pos.refund')` (manager tier; denials feed the permission-abuse lockout engine), zod-validated (`refundSchema`), typed `RefundError` codes mapped to safe HTTP bodies — no Prisma/SQL internals ever reach the client. `GET /transactions/[id]/refund` returns the refundable-line views the dialog renders (the refund chain's exact per-line SUMs).
+- **The refund chain in the schema**: `SalesTransaction.refundedTransactionId` + `SaleItem.refundedSaleItemId` (nullable self-relations, migration `20261031150000_add_sale_refunds`) — "already refunded" is an exact per-line aggregate over the chain, no greedy productId matching, no ambiguity when one sale holds the same product on two lines.
+- **The mirror journal** (`recordRefundJournalEntry` in `account-helper.ts`, NEW): debits Sales Revenue + VAT Payable, credits the tender legs (cash drawer REFUND rows carry the NEGATIVE signed amount with the same Σ-balance law as checkout; DEBT portions decrement the customer's balance with the checkout's conditional-decrement pattern and write a credit-note DebtLedger row), reverses COGS when goods return to the shelf — balanced to the cent or the whole refund rolls back.
+- **The RefundDialog** (`transactions-tab.tsx`, the placeholder confirm retired): per-line checkboxes with quantity steppers, honest disabled rows ("Fully refunded" pill), the refund amber (RotateCcw family), a restock toggle with an emerald identity, live per-line and total estimates allocated the same way the service allocates, reason + note capture, and the feature-gated Refund button (manager tier) on sale rows that are COMPLETED or PARTIAL.
+
+### Changed
+- The drawer ledger, the daily reports' Returns section and the transactions list already spoke `transactionType REFUND`; refunds now arrive in exactly that vocabulary (positive totals, REFUND type, own receipt number via the audited base36 generator) so reporting needs no migration.
+
+### Tests
+- `src/tests/lib/sale-refund-pure.test.ts` (14 pins): the exactness law (a full refund conserves the total; a chain of partials sums to the cent), LINE_OVER_REFUND/EMPTY_REFUND typed guards, the VAT-inside split law (the same formula checkout uses, with the legacy header-proportion fallback), the refund-chain views.
+- `src/tests/lib/sale-refund-audit.test.ts` (7 DB pins, hermetic house DB): full refund (status flip, exact stock restore, RETURN movement with replay key, Payment + Receipt rows, REFUND-typed balanced journal), the PARTIAL→REFUNDED chain, the over-refund guard committing NOTHING, NOT_REFUNDABLE for REFUND/void rows, TENANT_MISMATCH, restock=false (no stock/movement/inventory leg), and the `pos.refund` permission matrix (cashier/accountant denied, manager tier allowed).
+
 ## [2.306.0] The pools speak at their desks
 
 The performance desk held the pools as rows while its own digests emailed their aggregates — a manager reading the Goals tab saw rows and filter chips where the goal-attainment email said "Tracked goals 6 · Attainment 50%". This release closes the last digest↔desk parity gap: the pools speak at their desks, through ONE arithmetic and ONE colour vocabulary both mouths read.
