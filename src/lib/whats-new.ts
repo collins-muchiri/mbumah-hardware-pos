@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.300.0',
+    title: 'The run finds its door',
+    bullets: [
+      'Pay Runs rows now open the full lifecycle dialog — prepare, submit, approve, reject, post, lock and disburse ride the same Manage button on every run, any status, straight from the Payroll tab.',
+      'Payroll guardrail errors finally speak English: "RATE_TABLE_MISSING: …" becomes a sentence that says what is wrong and what to do next, with the engine\u2019s own detail kept verbatim.',
+      'The void fast-path stays exactly where it was \u2014 and the /hr/payroll console keeps its door into the same dialog; one implementation, two entrances.',
+    ],
+  },
+  {
     version: '2.299.0',
     title: 'The drill groups its actors',
     bullets: [

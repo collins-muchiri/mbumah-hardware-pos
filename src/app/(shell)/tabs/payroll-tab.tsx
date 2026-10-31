@@ -35,7 +35,7 @@ import {
   CheckCircle, XCircle, Clock3, FileText, User,
   IdCard, Building2, AlertTriangle, Calendar, PiggyBank, Play, UserX, Ban,
   CalendarPlus, UserCheck, Info,
-  UserCog, Link2, Unlink, ShieldCheck, ShieldAlert,
+  UserCog, Link2, Unlink, ShieldCheck, ShieldAlert, DoorOpen,
   Copy, RefreshCw, Wand2,
   Paperclip, BadgeCheck, History,
 } from 'lucide-react';
@@ -56,6 +56,11 @@ import {
 
 import { useAppStore, useAuthStore } from '@/lib/stores';
 import { formatKES, formatDate, formatDateTime } from '@/lib/api';
+// v2.300.0: the run finds its door — the SAME lifecycle dialog /hr/payroll
+// opens (ONE implementation, zero duplicated logic) and the ONE home that
+// gives guardrail codes their human voice.
+import { PayrollRunDialog } from '@/components/hr/payroll-run-dialog';
+import { payrollGuardrailVoice } from '@/lib/hr/payroll/error-voice';
 
 // MONEY GUARD (v2.3.1): salary fields were typed as number in the contract but
 // the API (before the v2.3.1 boundary fix) delivered Prisma Decimals as
@@ -3389,6 +3394,11 @@ interface RunForm {
 function RunsSubTab({ storeId }: { storeId: string }) {
   const qc = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
+  // v2.300.0: the run finds its door — every row's Manage action opens the
+  // SAME PayrollRunDialog the /hr/payroll page opens; the dialog itself
+  // decides which lifecycle steps exist (via the server's `can`), so the
+  // door never depends on status and the cell is never empty.
+  const [openRunId, setOpenRunId] = useState<string | null>(null);
   const [form, setForm] = useState<RunForm>({ payrollPeriodId: '', runType: 'FULL', processImmediately: true });
 
   const { data: runsData, isLoading, error } = useQuery<PayrollRun[]>({
@@ -3417,7 +3427,7 @@ function RunsSubTab({ storeId }: { storeId: string }) {
       setDialogOpen(false);
       setForm({ payrollPeriodId: '', runType: 'FULL', processImmediately: true });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(payrollGuardrailVoice(e.message)),
   });
 
   // QA FIX (June 2026 supplemental run): void a never-paid, never-posted run
@@ -3429,7 +3439,7 @@ function RunsSubTab({ storeId }: { storeId: string }) {
       toast.success('Pay run voided');
       qc.invalidateQueries({ queryKey: ['payroll-runs', storeId] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(payrollGuardrailVoice(e.message)),
   });
 
   function handleVoid(run: PayrollRun) {
@@ -3526,18 +3536,36 @@ function RunsSubTab({ storeId }: { storeId: string }) {
                         </div>
                       </td>
                       <td className="px-2 py-2.5 text-right">
-                        {(r.status === 'COMPLETED' || r.status === 'FAILED') && (
+                        <div className="flex items-center justify-end gap-1">
+                          {/* v2.300.0: THE DOOR — every run, any status, opens the
+                              shared lifecycle dialog (the dialog's own `can`
+                              gates decide which steps exist; a VOIDED or FAILED
+                              run opens its honest read-only face). The cell is
+                              never empty again. */}
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="h-7 w-7 text-orange-500 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-950/30"
-                            disabled={voidRunMutation.isPending}
-                            title="Void run (only when nothing was paid and nothing was posted)"
-                            onClick={() => handleVoid(r)}
+                            className="h-7 w-7 text-sky-600 hover:text-sky-700 hover:bg-sky-50 dark:text-sky-400 dark:hover:bg-sky-950/30"
+                            data-testid="payroll-run-door"
+                            title="Manage run — prepare, submit, approve, post, lock, disburse"
+                            aria-label={`Manage the ${r.runType} pay run for ${r.periodName}`}
+                            onClick={() => setOpenRunId(r.id)}
                           >
-                            {voidRunMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Ban className="h-3.5 w-3.5" />}
+                            <DoorOpen className="h-3.5 w-3.5" />
                           </Button>
-                        )}
+                          {(r.status === 'COMPLETED' || r.status === 'FAILED') && (
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-7 w-7 text-orange-500 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-950/30"
+                              disabled={voidRunMutation.isPending}
+                              title="Void run (only when nothing was paid and nothing was posted)"
+                              onClick={() => handleVoid(r)}
+                            >
+                              {voidRunMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Ban className="h-3.5 w-3.5" />}
+                            </Button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -3547,6 +3575,19 @@ function RunsSubTab({ storeId }: { storeId: string }) {
           )}
         </CardContent>
       </Card>
+
+      {/* v2.300.0: THE SHARED DOOR — the same lifecycle dialog the /hr/payroll
+          page opens (ONE implementation). onChanged re-reads both the runs and
+          the periods (a transition moves the run's totals; the periods strip
+          shows TOTAL NET PAID from the same family of rows). */}
+      <PayrollRunDialog
+        runId={openRunId}
+        onClose={() => setOpenRunId(null)}
+        onChanged={() => {
+          qc.invalidateQueries({ queryKey: ['payroll-runs', storeId] });
+          qc.invalidateQueries({ queryKey: ['payroll-periods', storeId] });
+        }}
+      />
 
       {/* Initiate Pay Run Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
