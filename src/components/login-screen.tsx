@@ -113,8 +113,17 @@ export function LoginScreen() {
         typeof window !== 'undefined'
           ? new URLSearchParams(window.location.search).get('next')
           : null;
+      // v2.311.0 the desk ask: an explicit `?tab=` / `?view=` on the
+      // classic root is a DESTINATION, not decoration — the role-based
+      // push used to wipe it, stranding the deep-linker on the default
+      // desk. Like ?next=, the ask wins over the role-based default
+      // (rooted: the SPA shell at / reads the query; ?next= still wins
+      // when BOTH are present — a named path is the more specific ask).
+      const search = typeof window !== 'undefined' ? window.location.search : '';
+      const pathname = typeof window !== 'undefined' ? window.location.pathname : '/';
+      const deskAsk = (pathname === '/' || pathname === '') && /[?&](tab|view)=/.test(search);
       const target =
-        safeReturnPath(nextParam) ?? postLoginRedirect(flaggedUser);
+        safeReturnPath(nextParam) ?? (deskAsk ? `/${search}` : postLoginRedirect(flaggedUser));
       if (target) router.push(target);
     } catch (err: unknown) {
       // INLINE feedback instead of a popup toast: the error appears inside

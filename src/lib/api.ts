@@ -1000,6 +1000,19 @@ export const transactionsApi = {
     return request<TransactionItem>(`/transactions/${id}`);
   },
 
+  // v2.311.0: the paper-trail lookup — the loyalty desk's clawback rows
+  // carry the REFUND receipt number (`reference`), and the new viewer
+  // needs the transaction BEHIND that number. Exact receiptNumber filter
+  // (added to GET /api/transactions this release), store-scoped, first
+  // row or null. Receipt numbers are unique per store, so "first" is
+  // "the" row; zero rows is the not-found face, never a wrong receipt.
+  getByReceipt: async (receiptNumber: string, storeId: string) => {
+    const query = new URLSearchParams({ receiptNumber, storeId, limit: '1' });
+    const res = await request<TransactionItem[]>(`/transactions?${query.toString()}`);
+    const rows = Array.isArray(res.data) ? res.data : [];
+    return rows[0] ?? null;
+  },
+
   // v2.308.0 SALE REFUNDS: per-line full/partial refund. The backend runs
   // the atomic applySaleRefund transaction (service) and answers 201 with
   // the created REFUND summary; typed failure codes (RefundErrorCode)

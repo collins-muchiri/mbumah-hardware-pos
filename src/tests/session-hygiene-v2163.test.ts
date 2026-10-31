@@ -206,7 +206,12 @@ describe('the portal notes - the server half of the return path', () => {
 describe('the login screen - next wins, safely', () => {
   it('reads ?next= at submit time from the real location', () => {
     expect(loginScreen).toContain("new URLSearchParams(window.location.search).get('next')");
-    expect(loginScreen).toContain('safeReturnPath(nextParam) ?? postLoginRedirect(flaggedUser)');
+    // v2.311.0: the desk ask (?tab=/?view= on the classic root) slides in
+    // BETWEEN ?next= and the role default — next still wins (a named path
+    // is the more specific ask), the role default is now the last resort.
+    expect(loginScreen).toContain(
+      'safeReturnPath(nextParam) ?? (deskAsk ? `/${search}` : postLoginRedirect(flaggedUser));',
+    );
     expect(loginScreen).toContain("import { safeReturnPath } from '@/lib/session-idle';");
   });
 

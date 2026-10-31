@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.311.0',
+    title: 'The paper trail becomes walkable',
+    bullets: [
+      'The refund receipt number on a clawback row is now a link: tap it (on the loyalty ledger or the customer card) and the branded refund receipt opens right there, ready to print or download.',
+      'Any desk can now ride the address bar — bookmark or share ?tab=loyalty (add &view=transactions for its ledger) and the app opens on that desk, even right after sign-in.',
+      'The receipt lookup is store-scoped and exact: a receipt number answers with ITS transaction or an honest "not found" — never another branch\'s paper.',
+    ],
+  },
+  {
     version: '2.310.0',
     title: 'The claw speaks at its desks',
     bullets: [

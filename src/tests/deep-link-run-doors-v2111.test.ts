@@ -23,15 +23,19 @@ describe('deep link — ?tab= is consumed ONCE at boot, after rehydrate', () => 
   it('the boot effect validates against TAB_CONFIG and applies the tab after rehydrate', () => {
     const boot = read('src/app/(shell)/page.tsx');
     expect(boot.includes('const consumeDeepLink = () => {')).toBe(true);
-    expect(boot.includes('TAB_CONFIG.some((t) => t.id === tabParam)')).toBe(true);
+    // v2.311.0: the parse moved to the shared tab-url.ts module (one tested
+    // parser for boot and shell); validation is still the REAL tab list.
+    expect(boot.includes("import { parseInitialTab } from '@/lib/tab-url';")).toBe(true);
+    expect(boot.includes('TAB_CONFIG.map((t) => t.id)')).toBe(true);
     // ORDER MATTERS: a synchronous setActiveTab would be overwritten by the
     // async rehydrate — the consumption chains onto its promise.
     expect(boot.includes('.then(consumeDeepLink, consumeDeepLink)')).toBe(true);
-    expect(boot.includes('useAppStore.getState().setActiveTab(tabParam as AppTab)')).toBe(true);
-    // The tab param is consumed (stripped) — a refresh returns to the persisted tab.
-    expect(boot.includes("sp.delete('tab')")).toBe(true);
-    // ?branch is NOT the boot's to consume — the tab owns it.
-    expect(boot.includes("sp.delete('branch')")).toBe(false);
+    expect(boot.includes('useAppStore.getState().setActiveTab(asked)')).toBe(true);
+    // v2.311.0: the strip is GONE — the URL now SPEAKS the desk continuously
+    // (the shell replaceStates ?tab= on every change), so a refresh, bookmark
+    // or shared link always re-lands on the desk it names. No sp.delete at all.
+    expect(boot.includes("sp.delete('tab')")).toBe(false);
+    expect(boot.includes('sp.delete(')).toBe(false);
   });
 });
 

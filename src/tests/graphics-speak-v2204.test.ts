@@ -320,8 +320,8 @@ describe('v2.204.0 — the audit is enforced, not aspirational', () => {
 
 describe('v2.204.0 — the release surfaces', () => {
   it('the version rides to 2.204.0 in the only place a version is edited', () => {
-    expect(pkg.version).toBe('2.310.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.310.0');
+    expect(pkg.version).toBe('2.311.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.311.0');
   });
 
   it('the changelog leads with the release', () => {

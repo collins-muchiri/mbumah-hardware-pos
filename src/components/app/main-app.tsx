@@ -19,6 +19,7 @@ import { useAuthStore, useAppStore } from '@/lib/stores';
 import { useIdleTimeout } from '@/hooks/use-idle-timeout';
 import { APP_BUILD_LABEL } from '@/lib/version';
 import { TAB_LOADERS } from '@/lib/tab-preload';
+import { buildTabSearch } from '@/lib/tab-url';
 import { ErrorBoundary, SectionErrorBoundary } from '@/components/error-boundary';
 import { FloatingHomeButton } from '@/components/floating-home-button';
 import { AppSidebar } from '@/components/layout/app-sidebar';
@@ -107,6 +108,19 @@ export function MainApp() {
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const online = useOnlineStatus();
   const searchBtnRef = useRef<HTMLButtonElement | null>(null);
+
+  // v2.311.0: the shell KEEPS the address bar speaking the desk. The boot
+  // READ lives in (shell)/page.tsx's consumeDeepLink (after rehydrate —
+  // order matters, and one consumer, not two); here every tab CHANGE
+  // replaceState's the param back (replaceState, not push — desk switches
+  // must not spam history), merging around any other params (the loyalty
+  // desk's `view=` rides along). Boot may briefly write the pre-rehydrate
+  // default, then the consume lands the asked desk and the URL follows —
+  // the LAST write always names the REAL desk.
+  useEffect(() => {
+    const next = buildTabSearch(window.location.search, activeTab);
+    if (next) window.history.replaceState(null, '', next);
+  }, [activeTab]);
 
   // v2.6.0 IDLE TIMEOUT (30 min): reuse the EXACT 401 session-expired path -
   // clear the auth tokens and dispatch `mbt:session-expired`, which the

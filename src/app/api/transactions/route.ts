@@ -129,6 +129,12 @@ async function getTransactionsHandler(
   }
 
   const search = searchParams.get('search') || '';
+  // v2.311.0: the EXACT receipt lookup the loyalty desk's paper-trail
+  // deep-link rides. `search` stays a fuzzy contains across receiptNumber
+  // + notes; `receiptNumber` is the precision tool — receipt numbers are
+  // unique per store, so the viewer takes the first row (0 rows = the
+  // not-found face, never a wrong receipt).
+  const receiptNumber = searchParams.get('receiptNumber') || '';
   const paymentMethod = searchParams.get('paymentMethod') || '';
   const paymentStatus = searchParams.get('paymentStatus') || '';
   const transactionType = searchParams.get('transactionType') || '';
@@ -148,6 +154,12 @@ async function getTransactionsHandler(
       { receiptNumber: { contains: search } },
       { notes: { contains: search } },
     ];
+  }
+
+  // v2.311.0: exact receipt match (ANDs with the storeId scoping above —
+  // a receipt from another branch can never answer).
+  if (receiptNumber) {
+    where.receiptNumber = receiptNumber;
   }
 
   if (paymentMethod) {

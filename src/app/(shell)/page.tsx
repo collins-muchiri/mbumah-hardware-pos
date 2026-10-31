@@ -13,8 +13,9 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { useAuthStore, useAppStore, useCartStore, type AppTab } from '@/lib/stores';
+import { useAuthStore, useAppStore, useCartStore } from '@/lib/stores';
 import { TAB_CONFIG } from '@/lib/app-config';
+import { parseInitialTab } from '@/lib/tab-url';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { LoginScreen } from '@/components/login-screen';
 import { ChangePasswordScreen } from '@/components/change-password-screen';
@@ -95,23 +96,26 @@ export default function HomePage() {
   useEffect(() => {
     hydrateFromStorage();
     // v2.111.0 DEEP LINK: a URL may name the tab (?tab=<id>) and — for tabs
-    // that speak it — carry further context (?branch=<storeId>). The tab param
-    // is consumed ONCE here: it wins over the persisted tab for this boot,
-    // then the param is stripped so a refresh returns to the persisted tab.
-    // Unknown tab ids are ignored silently (the URL may belong to some other
-    // surface); ?branch is NOT consumed here — the People & Payroll tab owns
-    // that contract and strips it on its own unmount.
+    // that speak it — carry further context (?branch=<storeId>, and since
+    // v2.311.0 the loyalty desk's ?view=). v2.311.0 CHANGES THE LAW: the
+    // tab param is NO LONGER consumed-and-stripped ("a refresh returns to
+    // the persisted tab") — the URL now SPEAKS THE DESK continuously (the
+    // shell replaceStates ?tab= on every change), so a refresh, bookmark
+    // or shared link always re-lands on the desk it names. The parse is
+    // shared with the shell (tab-url.ts, one tested parser); unknown tab
+    // ids are ignored silently (the URL may belong to some other surface);
+    // ?branch is NOT consumed here — the People & Payroll tab owns that
+    // contract and strips it on its own unmount.
     // ORDER MATTERS: rehydrate() resolves async and would overwrite a
     // synchronous setActiveTab — the deep link is applied AFTER it settles.
     const consumeDeepLink = () => {
       try {
-        const sp = new URLSearchParams(window.location.search);
-        const tabParam = sp.get('tab');
-        if (tabParam && TAB_CONFIG.some((t) => t.id === tabParam)) {
-          useAppStore.getState().setActiveTab(tabParam as AppTab);
-          sp.delete('tab');
-          const qs = sp.toString();
-          window.history.replaceState(null, '', window.location.pathname + (qs ? `?${qs}` : ''));
+        const asked = parseInitialTab(
+          window.location.search,
+          TAB_CONFIG.map((t) => t.id),
+        );
+        if (asked) {
+          useAppStore.getState().setActiveTab(asked);
         }
       } catch {
         // No URL surface — boot exactly as before.
