@@ -2,6 +2,22 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.311.0] The paper trail becomes walkable
+
+v2.310.0 taught the claw to speak; this release lets you follow what it says. The refund receipt number on a clawback row is no longer dead text — tap it and the branded receipt opens where you stand. And the whole app learned the address bar: any desk can be named in the URL, bookmarked, and shared.
+
+### Added
+- **The paper-trail viewer** (`receipt-view-dialog.tsx`, NEW): the loyalty ledger's clawback reference chip and the customer card's "refund receipt {n}" sub-line are now real buttons (rose voice, focus-visible rings, dark-mode voices) that open the REFUND receipt behind the number — the SAME branded `ReceiptDocument` the transactions desk prints, with Print and Download PDF riding the shared `printReceiptElement` / `generateReceiptPdf` pipeline. Three honest faces: loading (aria-live, skeleton), not-found (the number echoed back, with the why — the paper trail may predate refunds or live on another branch), found (the receipt, no wrong receipt ever).
+- **The exact receipt lookup** (`GET /api/transactions?receiptNumber=…` + `transactionsApi.getByReceipt`): the precision tool beside the fuzzy `search` contains — receipt numbers are unique per store, the filter is exact and AND-scoped to the caller's store, so another branch's receipt can never answer. Zero rows is the not-found face, never a wrong receipt.
+- **The desk deep-links** (`tab-url.ts` NEW + `(shell)/page.tsx` + `main-app.tsx`): any desk can ride the URL — `?tab=loyalty` lands the loyalty desk, `?tab=loyalty&view=transactions` lands its ledger. The v2.111 consume-and-strip law is replaced: the URL now SPEAKS the desk continuously (the shell replaceStates `?tab=` on every change — no history spam, other params ride along), so refresh, bookmarks and shared links always re-land on the desk they name. Unknown `?tab=` values are ignored — a stale link can never hijack the desk. The boot read stays ONE consumer (`consumeDeepLink`, after rehydrate — order matters) sharing one tested parser with the shell.
+
+### Fixed
+- **The desk ask survives sign-in** (`login-screen.tsx`, the round's live QA catch): an explicit `?tab=`/`?view=` on the classic root is a destination, not decoration — the role-based `router.push` used to wipe it, stranding the deep-linker on the default desk. Like `?next=`, the ask now wins over the role default (a named `?next=` path still wins when both are present). Caught live: the first browser burst landed on the dashboard with an empty query.
+
+### Tests
+- `src/tests/receipt-trail-v2311.test.ts` (NEW, 14 pins): the URL grammar executed for real (valid/unknown/case-sensitive asks, the merge-with-other-params builder), the one-consumer boot read + the strip's removal, the exact-not-contains lookup law with the envelope unwrap, the viewer's three faces and stale-answer guard (`forReceipt`), both clawback surfaces' button wiring, and the login desk-ask survival.
+- `scripts/verify-current.mjs` (the Task 27 pin unwind, from v2.310.0) re-proves the release mechanics on VERSION 2.311.0; `verify:v2-311-0` pins this release's feature face.
+
 ## [2.310.0] The claw speaks at its desks
 
 v2.309.0 wrote the clawback row; this release gives it a face. The loyalty ledger and the customer card now recognize a refund claw the same way — one predicate, two desks — and the refund success desk prints its paper without the viewer hop.
