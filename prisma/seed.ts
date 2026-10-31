@@ -15,8 +15,45 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
+// AUDIT REMEDIATION (v2.307.0): the seeded-credential policy lives in
+// src/lib/demo-password.ts (shared with the health endpoint and the env
+// doctor). Relative import - the seed runs through bun/tsx without the app's
+// bundler, so it must not rely on the '@/' path alias.
+import { resolveSeedPassword } from '../src/lib/demo-password';
 
 const prisma = new PrismaClient();
+
+// ---------------------------------------------------------------------------
+// AUDIT REMEDIATION (v2.307.0): seeded-credential policy.
+//
+// The seed previously hardcoded 'password123' in EVERY environment, so a
+// non-development first boot silently created an admin login whose password
+// was public knowledge. resolveSeedPassword() implements the documented
+// policy:
+//   • SEED_ADMIN_PASSWORD wins everywhere (never printed).
+//   • development/test keep the documented demo default (README logins work).
+//   • anywhere else, SEED_ALLOW_DEMO_PASSWORD=1 is an explicit opt-in, and
+//     WITHOUT it a strong one-time password is generated and printed HERE,
+//     exactly once, in the seed's own setup output.
+// ---------------------------------------------------------------------------
+const seedPasswordResult = resolveSeedPassword();
+const SEED_PASSWORD = seedPasswordResult.password;
+if (seedPasswordResult.source === 'generated') {
+  // console.info (not log): the repo lint rule allows warn/error/info only.
+  console.info(
+    '\n' +
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n' +
+    '  ONE-TIME SEED PASSWORD - capture it now, it will NOT be shown again.\n' +
+    '\n' +
+    `  Every account created by this seed uses: ${SEED_PASSWORD}\n` +
+    '\n' +
+    '  Set SEED_ADMIN_PASSWORD in .env to choose your own value and skip\n' +
+    '    this banner on future seeds. Never commit or share this password.\n' +
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'
+  );
+} else if (seedPasswordResult.warning) {
+  console.warn(`[seed credential policy] ${seedPasswordResult.warning}`);
+}
 
 // Track stage progress for the final summary.
 const stageResults: { name: string; status: 'ok' | 'skipped' | 'failed'; detail?: string }[] = [];
@@ -174,7 +211,7 @@ async function ensureBranchManagerWiring(): Promise<void> {
     if (!organizationRecord) return;
     const organizationId =
       'organizationId' in organizationRecord ? organizationRecord.organizationId : organizationRecord.id;
-    const passwordHash = await bcrypt.hash('password123', 12);
+    const passwordHash = await bcrypt.hash(SEED_PASSWORD, 12);
     const wired = await upsertBranchManagers(passwordHash, organizationId);
     if (wired > 0) {
       console.info(`   Branch manager wiring ensured: ${wired} manager(s) verified or created.`);
@@ -379,7 +416,7 @@ async function seedBody() {
 
   // 3. Seed Super Admin (upsert - idempotent on re-run)
   const done3 = stage(3, TOTAL_STAGES, 'Seed Super Admin');
-  const adminPasswordHash = await bcrypt.hash('password123', 12);
+  const adminPasswordHash = await bcrypt.hash(SEED_PASSWORD, 12);
   const superAdmin = await prisma.user.upsert({
     where: { email: 'admin@mbumahhardware.co.ke' },
     update: { organizationId: org.id, storeId: store.id, role: 'SUPER_ADMIN', isActive: true },
