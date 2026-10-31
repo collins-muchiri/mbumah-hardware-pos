@@ -114,3 +114,8 @@ package-lock.json
 
 # Runtime update staging and state (never commit)
 /updater/
+
+# Agent QA burst scripts (round-scoped by the cron agent loop; never commit)
+scripts/qa-burst-*
+scripts/seed-qa-*
+scripts/targeted-tsc-*

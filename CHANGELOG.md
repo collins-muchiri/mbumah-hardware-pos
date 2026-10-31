@@ -2,6 +2,24 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.315.0] The sweep gets a face on the pulse
+
+The nightly FIFO expiry sweep has written one honest ledger row per run since v2.312.0 — but the only admin surface that could see it was the raw ledger. The org console's Automation pulse card, which already speaks the cron heartbeat, now speaks the sweep too.
+
+### Added
+- **The sweep line on the Automation pulse** (`src/lib/loyalty-expiry-pulse.ts` NEW + `org/automation/route.ts` + `org-console.tsx`): the card's sixth ledger read surfaces the last `LOYALTY_EXPIRY_RUN` row — "Last expiry sweep 3h ago · 120 wallets scanned · 2 wallets expired, 450 points returned across 3 stores", in the Expiry desk's own amber (Hourglass icon, `text-amber-700 dark:text-amber-400`), with the exact EAT stamp on the native title and an sr-only copy, and `tabular-nums` counts so digits never wobble the sentence. A healthy zero sweep speaks for itself: **"nothing to expire"** — the always-a-trace law, now visible. The line renders in BOTH card states through one render function (`expiryRunLine`): below the tick body on a ticked card, and beside the "no dispatch yet" sentence on a card whose sweeps ran before its first tick — the manager desk's POST /api/loyalty/expiry writes the same row the nightly cron does, and a sweep that happened is a sweep worth seeing.
+- **The never-a-guess reader**: `parseLoyaltyExpiryRunRow` answers a pulse only when EVERY store slice in the row carries honest non-negative finite counts; garbage JSON, a missing `stores` array, a string `"3"`, a negative, or ANY partial row renders no sweep line at all — never a sum built from a row the card does not fully understand. An empty `stores` array IS the truth (a fresh store swept nothing) and reads as the honest zero.
+
+### Fixed
+- **The loyalty-expiry chip finally speaks** (`org-console.tsx` + `docs/cron-operations.md`): the nightly's fifth sub-job (folded in v2.312.0) rendered bare on the Automation card — the hint register, the card's card-sized echo of the docs' sub-job table, had no entry for it. The chip now says what it owns on hover and to screen readers, and the docs' cadence section counts the nightly at FIVE.
+
+### Housekeeping
+- **The redeem door documents its wallet law** (`customers/[id]/loyalty/redeem/route.ts`): the dedicated redeem route's deliberate non-maintenance of the legacy `CustomerLoyalty.pointsBalance` shadow mirror (harmless by design since v2.314.0) is now written where the next reader will meet it.
+- **The QA burst scripts get their gitignored home** (`.gitignore`): the round-scoped `scripts/qa-burst-*`, `scripts/seed-qa-*` and `scripts/targeted-tsc-*` scripts are agent working artifacts — `git status` stays clean without a tracked home that would fossilize every round's throwaways.
+
+### Tests
+- `src/tests/expiry-pulse-v2315.test.ts` (NEW): the parser's truth table (multi-store sums, the honest empty-sweep zero, undefined for every unreadable shape, zero-counts-are-honest), the route's sixth read + conditional field, the card's amber line + healthy-zero voice + hint-register entry, and the two housekeeping pins.
+
 ## [2.314.0] The wallet is the only balance
 
 Three integrity holes, one law. The round's QA burst proved them live: a stale legacy loyalty record let a redeem drive a wallet to **−90**, a missing record refused a wallet holding 100 points with "0 points", and a manager could hand-write an EXPIRE that bypassed the FIFO policy entirely. One law answers all three: THE WALLET — `Customer.loyaltyPoints`, the balance the members list and the customer card voice — is the only balance the manual doors read and claim against.

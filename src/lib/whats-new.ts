@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.315.0',
+    title: 'The sweep gets a face on the pulse',
+    bullets: [
+      'The Automation pulse now shows the last loyalty expiry sweep — wallets scanned, wallets expired, points returned, across how many stores — so the nightly FIFO sweep is visible without opening the ledger.',
+      'A healthy sweep says so honestly: "nothing to expire" is its own line, not silence — the same always-a-trace law the sweep\u2019s ledger row has followed since it shipped.',
+      'The loyalty-expiry sub-job chip on the tick finally speaks its ownership line on hover, and the cron operations doc now counts the nightly\u2019s fifth sub-job.',
+    ],
+  },
+  {
     version: '2.314.0',
     title: 'The wallet is the only balance',
     bullets: [
