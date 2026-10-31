@@ -3837,7 +3837,63 @@ export const loyaltyApi = {
       });
     },
   },
+
+  // v2.312.0: the points that expire — the desk's expiry faces ride the
+  // SAME service the nightly cron runs, one plan, one writer.
+  expiry: {
+    /** The PREVIEW: per-wallet plan, zero writes (manager-or-above). */
+    preview: async (params: { storeId: string; policyDays?: number }) => {
+      const query = new URLSearchParams({ storeId: params.storeId });
+      if (params.policyDays !== undefined) query.set('policyDays', String(params.policyDays));
+      return request<LoyaltyExpiryPreview>(`/loyalty/expiry?${query.toString()}`);
+    },
+    /** The RUN: claims + EXPIRE rows (manager-or-above). No dryRun door —
+     * the preview IS the dry run, one honest door per intent. */
+    run: async (data: { storeId: string; policyDays?: number }) => {
+      return request<LoyaltyExpiryRunSummary>('/loyalty/expiry', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    },
+  },
 };
+
+// v2.312.0: the expiry desk's wire shapes (envelope-unwrapped by the
+// callers via res.data — same contract as every list endpoint).
+export interface LoyaltyExpiryPreviewRow {
+  customerId: string;
+  customerName: string;
+  walletBefore: number;
+  expirable: number;
+  lotCount: number;
+}
+
+export interface LoyaltyExpiryPreview {
+  storeId: string;
+  policyDays: number;
+  scanned: number;
+  walletsAffected: number;
+  pointsExpirable: number;
+  rows: LoyaltyExpiryPreviewRow[];
+}
+
+export interface LoyaltyExpiryRunSummary {
+  storeId: string;
+  policyDays: number;
+  scanned: number;
+  walletsExpired: number;
+  pointsExpired: number;
+  claimsLost: number;
+  outcomes: {
+    customerId: string;
+    customerName: string;
+    walletBefore: number;
+    expirable: number;
+    claimed: boolean;
+    note?: string;
+    walletAfter?: number;
+  }[];
+}
 
 export function formatRelativeTime(date: string | Date): string {
   const now = new Date();

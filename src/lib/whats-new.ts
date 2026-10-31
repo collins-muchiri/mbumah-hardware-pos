@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.312.0',
+    title: 'The points that expire',
+    bullets: [
+      'Loyalty points now expire honestly: anything unspent a year after it was earned goes home — the oldest earned points first, never more than the wallet holds, and a wallet redeemed mid-run is skipped, never driven negative.',
+      'The nightly sweep runs the expiry plan for every branch automatically; managers can also open the amber "Expiry" action on the loyalty desk to preview exactly who would lose what, set the window, and run it now.',
+      'The expiry is double-press safe: the EXPIRE row it writes is itself a spent point, so tonight\u2019s cron and tomorrow\u2019s button always answer zero — no point ever expires twice. Tiers never demote.',
+    ],
+  },
+  {
     version: '2.311.0',
     title: 'The paper trail becomes walkable',
     bullets: [

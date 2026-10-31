@@ -40,6 +40,13 @@ import { GET as hrDigestGET } from '@/app/api/cron/hr-report-digests/route';
 // the hourly one since v2.163.0) - same fold pattern, same scope rule:
 // expiresAt only, never lastActiveAt.
 import { GET as sessionReaperGET } from '@/app/api/cron/session-reaper/route';
+// v2.312.0: the loyalty expiry run joins the NIGHTLY dispatcher - the
+// points that outlive the policy window go home with the nightly tick.
+// Idempotent by construction (the EXPIRE row is itself a consumption),
+// so the nightly sweep and the desk's manual button can never
+// double-expire - whichever runs first answers the plan, the other
+// answers zero.
+import { GET as loyaltyExpiryGET } from '@/app/api/cron/loyalty-expiry/route';
 import { verifyCronSecret } from '@/lib/cron-auth';
 
 export const dynamic = 'force-dynamic';
@@ -122,6 +129,10 @@ async function nightlyCronHandler(...args: unknown[]): Promise<Response> {
     // own) - idempotent deleteMany, so the 02:30 and 03:00 UTC ticks can
     // never fight over a row.
     { name: 'session-reaper', run: () => sessionReaperGET(request) },
+    // v2.312.0: the loyalty expiry ride - the EXPIRE voice finally gets
+    // its writer, and the nightly tick is where it speaks (the desk's
+    // manual run shares the same idempotent plan).
+    { name: 'loyalty-expiry', run: () => loyaltyExpiryGET(request) },
   ]);
 
   // v2.165.0: the nightly always-row. The hourly dispatcher has written a

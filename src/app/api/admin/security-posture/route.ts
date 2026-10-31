@@ -38,7 +38,7 @@ import { withErrorBoundary } from '@/lib/logger';
  */
 
 /** The 11 cron routes the fail-closed gate covers (SEC-02, PR #343). */
-export const GATED_CRON_ROUTES = 11;
+export const GATED_CRON_ROUTES = 12; // v2.312.0: loyalty-expiry joins the gated cron family
 
 async function getHandler(): Promise<Response> {
   return runWithoutTenant(async () => {

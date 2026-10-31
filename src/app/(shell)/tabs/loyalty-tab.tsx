@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import {
   Sparkles, Plus, Search, Crown, Award, Users, Loader2, Settings2, TrendingUp, Calendar, Gift, Zap, ChevronUp, Clock,
   HandCoins, Target, Megaphone, Edit, History, RotateCcw, Receipt,
-  Trophy, Gem, Medal, Shield, Palette,
+  Trophy, Gem, Medal, Shield, Palette, Hourglass,
 } from 'lucide-react';
 
 import { useAppStore } from '@/lib/stores';
@@ -20,6 +20,7 @@ import {
 import { isRefundClawbackTx } from '@/lib/loyalty-utils';
 import { parseInitialView } from '@/lib/tab-url';
 import { ReceiptViewDialog } from '@/components/loyalty/receipt-view-dialog';
+import { ExpiryDialog } from '@/components/loyalty/expiry-dialog';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -134,6 +135,10 @@ export default function LoyaltyTab() {
     setReceiptViewNumber(receiptNumber);
     setReceiptViewOpen(true);
   };
+
+  // v2.312.0: the points that expire — the desk's door to the writer the
+  // nightly cron shares (preview → confirm → run, one honest door each).
+  const [expiryOpen, setExpiryOpen] = useState(false);
 
   // Tier dialog state
   const [tierDialogOpen, setTierDialogOpen] = useState(false);
@@ -732,6 +737,18 @@ export default function LoyaltyTab() {
             placeholder="To"
           />
           <div className="flex-1" />
+          {/* v2.312.0: the expiry desk — the EXPIRE voice's writer, one press
+              from the toolbar it describes. Amber hourglass: a policy act,
+              not a money move. */}
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-9 border-amber-600/40 text-amber-700 hover:bg-amber-50 hover:text-amber-800 focus-visible:ring-amber-400 dark:text-amber-400 dark:hover:bg-amber-950/40"
+            data-testid="open-expiry-dialog"
+            onClick={() => setExpiryOpen(true)}
+          >
+            <Hourglass className="mr-1.5 h-4 w-4" /> Expiry
+          </Button>
           <Button size="sm" className="h-9" onClick={() => {
             setManualAdjustForm({ customerId: '', points: '', transactionType: 'ADJUST', reference: '', description: '' });
             setManualAdjustOpen(true);
@@ -1009,6 +1026,22 @@ export default function LoyaltyTab() {
         receiptNumber={receiptViewNumber}
         context="clawback-desk"
       />
+
+      {/* v2.312.0: the points that expire — preview → confirm → run; a run
+          invalidates the ledger + the members (balances moved) so every
+          face re-reads the truth. Mounted CONDITIONALLY: every open is a
+          fresh dialog (preview face, no stale run summary). */}
+      {expiryOpen && (
+        <ExpiryDialog
+          open
+          onOpenChange={setExpiryOpen}
+          storeId={currentStoreId}
+          onExpired={() => {
+            void queryClient.invalidateQueries({ queryKey: ['loyalty-transactions'] });
+            void queryClient.invalidateQueries({ queryKey: ['loyalty-customers'] });
+          }}
+        />
+      )}
 
       {/* ─── Create / Edit Tier Dialog ──────────────────────────────────── */}
       <Dialog open={tierDialogOpen} onOpenChange={(open) => { setTierDialogOpen(open); if (!open) resetTierForm(); }}>

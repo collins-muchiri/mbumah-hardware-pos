@@ -2,6 +2,19 @@
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
 
+## [2.312.0] The points that expire
+
+The ledger has spoken an "Expire" voice since the desk shipped — a badge for rows nothing ever wrote. This release builds the honest writer: loyalty points unspent past the policy window go home, on the same seams the clawback taught, and the nightly tick carries them.
+
+### Added
+- **The expiry service** (`loyalty-expiry-service.ts`, NEW): the pure FIFO seam (`computeLoyaltyExpiryPlan` — old earn lots minus TOTAL consumption, capped by the CURRENT wallet; executed in tests) and `runLoyaltyExpiry` (per-wallet conditional claim `updateMany gte/decrement` — the clawback's exact pattern; lost claims skip honestly). **Idempotent by construction**: the EXPIRE row the run writes is itself a consumption, so the next plan answers zero forever — no run markers, no double-expiry. The tier NEVER demotes (earned status, not spendable balance).
+- **The nightly ride** (`/api/cron/loyalty-expiry` + the dispatcher): the session-reaper's exact fold — `verifyCronSecret`, `runWithoutTenant`, one INFO ledger row per sweep (a healthy zero-expiry sweep still leaves a trace the Automation pulse reads). Every store with loyalty history, one pass.
+- **The desk's expiry door** (`/api/loyalty/expiry` + `expiry-dialog.tsx` NEW): GET preview (per-wallet plan, ZERO writes) then POST run (manager-or-above — the same tier as manual adjustments and refunds). Two steps, one honest door per intent: preview → explicit confirm press → run → summary. The policy window is editable (floor 30 days); lost claims are voiced, not hidden; the run invalidates the ledger and the members so every face re-reads the truth. The toolbar gains the amber Hourglass "Expiry" action (focus-visible rings, dark voices).
+
+### Tests
+- `src/tests/loyalty-expiry-v2312.test.ts` (NEW, 17 pins): the FIFO plan executed (old-lot expiry, fresh-lot exclusion, FIFO consumption, the wallet cap, the idempotence chain across three consecutive plans), the claim pattern + lost-claim skip, the EXPIRE row's dual voices + EXPIRY_RUN audit thread, the no-tier-demotion law, the policy floor, the dry-run-writes-nothing law, the cron route's auth posture, the nightly dispatcher fold, the desk route's read-only preview + no-dry-run-door POST, and the dialog's preview→confirm→run wiring.
+- `scripts/walk-v2312.mjs`: 71 files · 230 pin lines · 44 counter lines (idempotent); `verify:v2-312-0` pins the release face; `verify:current` re-proves the mechanics on 2.312.0.
+
 ## [2.311.0] The paper trail becomes walkable
 
 v2.310.0 taught the claw to speak; this release lets you follow what it says. The refund receipt number on a clawback row is no longer dead text — tap it and the branded receipt opens where you stand. And the whole app learned the address bar: any desk can be named in the URL, bookmarked, and shared.
