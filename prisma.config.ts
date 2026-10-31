@@ -74,6 +74,25 @@ function loadRepoEnv(): void {
   if (!process.env.DIRECT_URL && process.env.DATABASE_URL) {
     process.env.DIRECT_URL = process.env.DATABASE_URL;
   }
+  // AUDIT REMEDIATION (v2.307.0): the deliberate override channel.
+  //
+  // The .env-WINS rule above exists so a STRAY inherited DATABASE_URL (from
+  // another project's shell, for example) can never silently redirect the
+  // CLI. But it also defeated any script that INTENTIONALLY overrides
+  // DATABASE_URL in a child environment: scripts/prepare-test-db.mjs exports
+  // the hermetic test database URL before spawning `prisma db push` / `db
+  // seed`, yet the CLI re-loaded <repo>/.env and the .env value won - the
+  // push/seed silently landed on the developer's own database and the
+  // hermetic test DB stayed empty (the audit's "environment loading is not
+  // reliable" class, second sighting).
+  //
+  // PRISMA_CONFIG_DATABASE_URL is the explicit, opt-in resolution: when set,
+  // it beats .env (only .env still beats a plain inherited DATABASE_URL).
+  // Spelled-out name so its purpose is obvious in `ps` output and CI logs.
+  if (process.env.PRISMA_CONFIG_DATABASE_URL) {
+    process.env.DATABASE_URL = process.env.PRISMA_CONFIG_DATABASE_URL;
+    process.env.DIRECT_URL = process.env.PRISMA_CONFIG_DATABASE_URL;
+  }
 }
 
 loadRepoEnv();
@@ -84,12 +103,16 @@ export default defineConfig({
   schema: join(configDir, "prisma", "schema.prisma"),
   migrations: {
     path: join(configDir, "prisma", "migrations"),
-    // Same seed command package.json#prisma carried before the migration.
-    // bun is present on every path that seeds (installers install it,
-    // Docker keeps it in the runner image for exactly this reason).
+    // AUDIT REMEDIATION (v2.307.0): runner-agnostic seed. The previous
+    // command hardcoded `bun` ("bun is present on every path that seeds"),
+    // which broke plain npm installs with `spawn bun ENOENT` - the audit's
+    // finding #1. The seed now goes through scripts/run-seed.mjs, which
+    // prefers bun when present and falls back to `node --import tsx` (tsx is
+    // a devDependency), so `npm run db:seed` works on npm-only installs
+    // while bun-based flows keep their historical path. Bun stays OPTIONAL.
     // NOTE: no surrounding quotes - the Prisma CLI shell-wraps the command
     // itself, so embedded quotes would become part of the path.
-    seed: `bun ${join(configDir, "prisma", "seed.ts")}`,
+    seed: `node ${join(configDir, "scripts", "run-seed.mjs")}`,
   },
   // The schema still declares `url = env("DATABASE_URL")` and
   // `directUrl = env("DIRECT_URL")`; the loader above guarantees both.
