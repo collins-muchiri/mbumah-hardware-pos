@@ -18,6 +18,8 @@ import {
   type CustomerItem,
 } from '@/lib/api';
 import { isRefundClawbackTx } from '@/lib/loyalty-utils';
+import { parseInitialView } from '@/lib/tab-url';
+import { ReceiptViewDialog } from '@/components/loyalty/receipt-view-dialog';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -43,6 +45,17 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 
 // Sub-tab type
 type LoyaltySubTab = 'tiers' | 'members' | 'transactions' | 'campaigns';
+
+// v2.311.0: the desk answers the address bar too — `?view=` picks the
+// sub-tab on mount (validated; anything unknown answers 'tiers'), so QA
+// and bookmarks land DIRECTLY on the ledger the shell's `?tab=loyalty`
+// already opens. The shell owns `tab` in the URL; the desk only ever
+// READS its `view` — one writer per param, no clobber.
+const LOYALTY_SUB_TABS: readonly LoyaltySubTab[] = ['tiers', 'members', 'transactions', 'campaigns'];
+function initialSubTab(): LoyaltySubTab {
+  if (typeof window === 'undefined') return 'tiers';
+  return parseInitialView(window.location.search, LOYALTY_SUB_TABS, 'tiers');
+}
 
 // Tier color presets
 const TIER_COLOR_PRESETS = [
@@ -109,8 +122,18 @@ export default function LoyaltyTab() {
   const currentStoreId = useAppStore((s) => s.currentStoreId);
   const queryClient = useQueryClient();
 
-  // Sub-tab state
-  const [activeSubTab, setActiveSubTab] = useState<LoyaltySubTab>('tiers');
+  // Sub-tab state — v2.311.0: seeded from `?view=` when the URL asks
+  const [activeSubTab, setActiveSubTab] = useState<LoyaltySubTab>(initialSubTab);
+
+  // v2.311.0: the paper-trail viewer — the ledger's clawback reference
+  // chip (and the member card's receipt sub-line) open the REFUND receipt
+  // behind the number instead of staying dead text.
+  const [receiptViewOpen, setReceiptViewOpen] = useState(false);
+  const [receiptViewNumber, setReceiptViewNumber] = useState<string | null>(null);
+  const openReceiptView = (receiptNumber: string) => {
+    setReceiptViewNumber(receiptNumber);
+    setReceiptViewOpen(true);
+  };
 
   // Tier dialog state
   const [tierDialogOpen, setTierDialogOpen] = useState(false);
@@ -786,16 +809,22 @@ export default function LoyaltyTab() {
                           {tx.points.toLocaleString()}
                         </span>
                       </TableCell>
-                      <TableCell className="text-xs text-muted-foreground max-w-[120px] truncate">
+                      <TableCell className="text-xs text-muted-foreground max-w-[120px]">
                         {isClawback && tx.reference ? (
-                          <span
-                            className="inline-flex items-center gap-1 text-rose-700 dark:text-rose-400"
-                            title={`Refund receipt ${tx.reference}`}
+                          <button
+                            type="button"
+                            data-testid={`clawback-receipt-link-${tx.id}`}
+                            onClick={() => { if (tx.reference) openReceiptView(tx.reference); }}
+                            title={`View refund receipt ${tx.reference}`}
+                            aria-label={`View refund receipt ${tx.reference}`}
+                            className="inline-flex max-w-[120px] items-center gap-1 rounded px-1 py-0.5 -mx-1 text-rose-700 underline-offset-2 transition-colors hover:bg-rose-100/70 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 focus-visible:ring-offset-1 dark:text-rose-400 dark:hover:bg-rose-900/40"
                           >
                             <Receipt className="h-3 w-3 shrink-0" aria-hidden />
-                            {tx.reference}
-                          </span>
-                        ) : (tx.referenceId ?? '-')}
+                            <span className="truncate">{tx.reference}</span>
+                          </button>
+                        ) : (
+                          <span className="block max-w-[120px] truncate">{tx.referenceId ?? '-'}</span>
+                        )}
                       </TableCell>
                       <TableCell
                         className="text-xs text-muted-foreground max-w-[160px] truncate"
@@ -970,6 +999,16 @@ export default function LoyaltyTab() {
           {renderCampaigns()}
         </TabsContent>
       </Tabs>
+
+      {/* v2.311.0: the paper-trail viewer — one dialog per desk, opened by
+          the ledger's clawback receipt chips. Only ever one open at a
+          time, so the shared print/PDF DOM id stays unambiguous. */}
+      <ReceiptViewDialog
+        open={receiptViewOpen}
+        onOpenChange={setReceiptViewOpen}
+        receiptNumber={receiptViewNumber}
+        context="clawback-desk"
+      />
 
       {/* ─── Create / Edit Tier Dialog ──────────────────────────────────── */}
       <Dialog open={tierDialogOpen} onOpenChange={(open) => { setTierDialogOpen(open); if (!open) resetTierForm(); }}>

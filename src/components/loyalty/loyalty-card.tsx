@@ -41,6 +41,7 @@ import {
   type TierProgress,
 } from '@/lib/loyalty-utils';
 import { RedeemDialog } from '@/components/loyalty/redeem-dialog';
+import { ReceiptViewDialog } from '@/components/loyalty/receipt-view-dialog';
 
 // Types matching the GET /api/customers/[id]/loyalty response
 
@@ -206,6 +207,15 @@ export function LoyaltyCard({
 }: LoyaltyCardProps) {
   const queryClient = useQueryClient();
   const [redeemOpen, setRedeemOpen] = useState(false);
+  // v2.311.0: the paper-trail viewer — the member history's "refund
+  // receipt {n}" sub-line opens the receipt behind the number (one
+  // dialog per card; only ever one open at a time).
+  const [receiptViewOpen, setReceiptViewOpen] = useState(false);
+  const [receiptViewNumber, setReceiptViewNumber] = useState<string | null>(null);
+  const openReceiptView = (receiptNumber: string) => {
+    setReceiptViewNumber(receiptNumber);
+    setReceiptViewOpen(true);
+  };
 
   const queryKey = useMemo(() => ['customer-loyalty', customerId] as const, [customerId]);
 
@@ -439,7 +449,7 @@ export function LoyaltyCard({
               <ScrollArea className="max-h-72 pr-2">
                 <div className="space-y-1.5">
                   {data.transactions.slice(0, 5).map((tx) => (
-                    <LoyaltyTxRow key={tx.id} tx={tx} />
+                    <LoyaltyTxRow key={tx.id} tx={tx} onOpenReceipt={openReceiptView} />
                   ))}
                 </div>
               </ScrollArea>
@@ -467,13 +477,31 @@ export function LoyaltyCard({
           setRedeemOpen(false);
         }}
       />
+
+      {/* v2.311.0: the paper-trail viewer — opened by the member history's
+          "refund receipt {n}" buttons. One dialog per card; cards are
+          mounted one-at-a-time per surface, so the shared print/PDF DOM
+          id stays unambiguous. */}
+      <ReceiptViewDialog
+        open={receiptViewOpen}
+        onOpenChange={setReceiptViewOpen}
+        receiptNumber={receiptViewNumber}
+        context="clawback-card"
+      />
     </Card>
   );
 }
 
 // Transaction row
 
-function LoyaltyTxRow({ tx }: { tx: LoyaltyTransactionItem }) {
+function LoyaltyTxRow({
+  tx,
+  onOpenReceipt,
+}: {
+  tx: LoyaltyTransactionItem;
+  /** v2.311.0: opens the paper-trail viewer on the refund receipt number. */
+  onOpenReceipt?: (receiptNumber: string) => void;
+}) {
   // v2.310.0: the claw speaks its own name — a refund clawback wears rose
   // and RotateCcw, never the generic blue "Adjusted" voice.
   const isClawback = isRefundClawbackTx(tx);
@@ -513,10 +541,16 @@ function LoyaltyTxRow({ tx }: { tx: LoyaltyTransactionItem }) {
           {tx.reason ?? `${cfg.label} transaction`}
         </p>
         {refundReceipt && (
-          <p className="mt-0.5 flex items-center gap-1 text-[10px] text-rose-700/80 dark:text-rose-400/80">
+          <button
+            type="button"
+            data-testid={`loyalty-card-receipt-link-${tx.id}`}
+            onClick={() => onOpenReceipt?.(refundReceipt)}
+            aria-label={`View refund receipt ${refundReceipt}`}
+            className="mt-0.5 inline-flex items-center gap-1 rounded px-0.5 py-px -mx-0.5 text-[10px] text-rose-700/80 underline-offset-2 transition-colors hover:text-rose-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 dark:text-rose-400/80 dark:hover:text-rose-400"
+          >
             <Receipt className="h-3 w-3 shrink-0" aria-hidden />
             refund receipt {refundReceipt}
-          </p>
+          </button>
         )}
       </div>
       <div className="text-right shrink-0">
