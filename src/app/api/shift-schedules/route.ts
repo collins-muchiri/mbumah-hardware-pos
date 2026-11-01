@@ -116,11 +116,13 @@ interface CreateBody {
 async function createScheduleHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.339.0: the door rides the CreateBody interface the file already
+  // declared — the loose re-cast below it is gone (the borrow precedent).
+  const door = await readJsonBody<CreateBody>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
-  const body = door.body as CreateBody;
+  const body = door.body;
 
   const {
     storeId,

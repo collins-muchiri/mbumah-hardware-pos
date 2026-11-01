@@ -195,23 +195,33 @@ describe('THE PLAN ROUTES KEEP THEIR OWN VOICE (types only)', () => {
   });
 });
 
-describe('THE LEDGER GREW HONESTLY (the exemplar graduation, three ways)', () => {
-  it('the v2.326 census carries THE CUSTOMER GRADUATE and the two-remaining list', () => {
+describe('THE LEDGER GREW HONESTLY (the exemplar graduation, three ways — plus the era-end, a fourth)', () => {
+  it('the v2.326 census carries THE CUSTOMER GRADUATE (the tombstone followed in v2.339.0 — the era is over)', () => {
     const src = read('src/tests/body-door-class-v2326.test.ts');
     expect(src.includes('THE CUSTOMER GRADUATE')).toBe(true);
-    expect(src.includes("EXEMPLARS: string[] = [\n  'src/app/api/expenses/[id]/route.ts',\n  'src/app/api/suppliers/[id]/route.ts',\n];")).toBe(true);
+    expect(src.includes('EXEMPLARS: string[] = [];')).toBe(true);
     expect(src.includes("'src/app/api/customer-credits/[id]/route.ts',\")).toBe(false);"));
   });
 
-  it('the v2.335 byte-exact pin grew with the honest list', () => {
+  it('the v2.335 byte-exact pin grew with the honest list (the tombstone now)', () => {
     const src = read('src/tests/financial-doors-v2335.test.ts');
-    expect(src.includes("EXEMPLARS: string[] = [\\n  'src/app/api/expenses/[id]/route.ts',\\n  'src/app/api/suppliers/[id]/route.ts',\\n];")).toBe(true);
+    expect(src.includes('EXEMPLARS: string[] = [];')).toBe(true);
+    expect(src.includes("expect(src.includes('readJsonBody<Record<string, unknown>>(request)')).toBe(false);")).toBe(true);
   });
 
-  it('the v2.336 presence pin flipped honestly (the graduate is absent, the two remain)', () => {
+  it('the v2.336 presence pin flipped honestly (the graduate is absent; the tombstone pinned in v2.339.0)', () => {
     const src = read('src/tests/catalog-doors-v2336.test.ts');
     expect(src.includes("expect(src.includes(\"'src/app/api/customer-credits/[id]/route.ts',\")).toBe(false);")).toBe(true);
     expect(src.includes('the customer graduate followed in v2.338.0')).toBe(true);
+    expect(src.includes('EXEMPLARS: string[] = [];')).toBe(true);
+  });
+
+  it('the era is over (v2.339.0): the tombstone is empty everywhere and the graduates ride the ABSENCE guard', () => {
+    const v2326 = read('src/tests/body-door-class-v2326.test.ts');
+    expect(v2326.includes('THE LOOSE-RECORD ERA IS OVER')).toBe(true);
+    expect(v2326.includes('GRADUATED_IN_V2339')).toBe(true);
+    const lastExemplars = read('src/tests/last-exemplars-v2339.test.ts');
+    expect(lastExemplars.includes('THE LOOSE-RECORD ERA IS OVER')).toBe(true);
   });
 });
 

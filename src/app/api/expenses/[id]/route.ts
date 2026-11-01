@@ -18,7 +18,19 @@ async function updateExpenseHandler(...args: unknown[]): Promise<Response> {
   const context = args[1] as RouteContext;
   const { id } = await context.params;
   // v2.325.0 THE BODY DOOR: an unreadable body is a client mistake — 400, never a 500.
-  const door = await readJsonBody<Record<string, unknown>>(request);
+  // v2.339.0 THE LAST EXEMPLARS: the door speaks its own shape — the five
+  // fields the route reads (the allowedFields loop's four + the amount it
+  // coerces itself). `unknown` everywhere: the route's own parseFloat(String())
+  // and the category/paymentMethod whitelist are the runtime validators; the
+  // loop's generic string index stays honest (the customer-family precedent).
+  const door = await readJsonBody<{
+    description?: unknown;
+    category?: unknown;
+    paymentMethod?: unknown;
+    notes?: unknown;
+    amount?: unknown;
+    [key: string]: unknown;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

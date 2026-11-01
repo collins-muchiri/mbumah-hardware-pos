@@ -1,3 +1,20 @@
+## [2.339.0] The last exemplars speak their body's shape
+
+The loose-Record era ends: the final two doors that still read their bodies through the loose `Record` widening (expenses/[id] and suppliers/[id]) name the exact fields they accept, and the v2.326 census runs ZERO loose doors — every API door in the system now has an honest, documented shape. The same round closes the re-cast class: six doors that borrowed a local interface via `door.body as X` now ride the interface INSIDE the generic (the stkpush/redeem borrow precedent). The wider bare-`any` class remains — 30 doors, named by the round's census — its family passes continue. RUNTIME BEHAVIOR of the door tightening is BYTE-IDENTICAL — types only.
+
+### Added
+- **THE LAST EXEMPLARS GRADUATED (2 files)**: the expenses/[id] UPDATE door names the five fields the route reads (the allowedFields loop's four + the amount it coerces itself); the suppliers/[id] UPDATE door names the eleven loop fields — `unknown` throughout, the values pass through untouched and Prisma's column types are the validators. The loop's own `Record` aggregate stays (the index signature is the loop's honest truth).
+- **THE RE-CAST CLASS IS GONE (6 files)**: the health admin doors (circuit-breaker, dlq) ride `AdminBody`, the password door rides `ChangePasswordBody`, and the shift-schedules trio rides `CreateBody`/`PatchBody`/`StatusBody` — each INSIDE the generic, the loose re-cast gone. The status-to-union narrowing in shift-schedules/[id]/status stays: it is the route's own validator, not a body re-cast.
+- **THE LAW DOC RECORDS IT** (`request-body.ts`): "v2.339.0 — THE LAST EXEMPLARS, the era's end" — the graduation, the census zero, the re-cast closure, and the 30-door map for the next passes.
+- **THE LEDGER GREW HONESTLY (four ways)**: the v2.326 census carries the era-end story with the exemplar list kept as the era's empty tombstone and its widening guard flipped to ABSENCE; the v2.335 byte-exact pin grew with the tombstone; the v2.336 presence pins grew into the tombstone pins; and the v2.338 ledger grew a fourth way (the era's end).
+
+### Styling
+- **THE EXPENSE-SHARE METER** (`financial-tab.tsx`): every active expense row grows a slim bar under its amount — the row's slice of the period's spend, the same active-total the header's "Total:" voice speaks (the meter precedent, fifth desk): emerald while the spend is spread, amber past a fifth, red when one expense dominates the period. `data-testid="expense-share-meter"`, `role="progressbar"` + aria values, the exact share on hover, silent on VOIDED rows (a voided row has no share to draw).
+
+### Tests
+- `src/tests/last-exemplars-v2339.test.ts` (NEW): the live zero-loose and zero-re-cast censuses, the 30-door bare map, the two graduates' honest bytes, the six borrow-generics, the status-narrowing pin, the era-end story across all four ledgers, the law-doc note, and the expense-share meter's styling face.
+- The walk re-anchors the treadmill (v2.339.0 pins + the unread-counter cascade 229/230/231/262 → 230/231/232/263).
+
 ## [2.338.0] The customer doors speak their body's shape
 
 The wider door class continues its per-file pass, one family at a time, and the CUSTOMER family goes fourth: ten customer-family reads (customers ×2, customer-credits ×2, customer-interactions, debt, debt-payment-plans ×2, and the installment pay/waive pair) stop reading their bodies as the default `any` or the loose `Record` and speak the body's OWN shape. customer-credits/[id] graduates out of the loose-Record exemplars (two remain). RUNTIME BEHAVIOR of the door tightening is BYTE-IDENTICAL — types only. A store-params audit walked every desk's list queries against its API's required filters and found the waking-fix class fully healed (all clean).

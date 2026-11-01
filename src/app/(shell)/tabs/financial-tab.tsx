@@ -434,6 +434,12 @@ export default function FinancialTab() {
   const accounts = Array.isArray(accountsData?.data) ? accountsData.data : [];
   const debts = Array.isArray(debtData?.data) ? debtData.data : [];
   const expenses = Array.isArray(expensesData?.data) ? expensesData.data : [];
+  // THE PERIOD'S SPEND ENVELOPE (v2.339.0): the active expenses' total — the
+  // same reduce the header's "Total:" voice speaks — is the denominator of
+  // every row's share meter (the meter precedent, fifth desk).
+  const periodExpenseTotal = expenses
+    .filter((e) => e.status !== 'VOIDED')
+    .reduce((s, e) => s + toNum(e.amount), 0);
 
   // Mutations
   const createExpenseMutation = useMutation({
@@ -2029,6 +2035,29 @@ export default function FinancialTab() {
                       <TableCell className="text-sm">{exp.paymentMethod}</TableCell>
                       <TableCell className="text-right font-medium text-sm text-orange-600 dark:text-orange-400">
                         {formatKES(exp.amount)}
+                        {/* THE EXPENSE-SHARE METER (v2.339.0): the row's slice of
+                            the period's active spend — the concentration voice:
+                            emerald while the spend is spread, amber past a fifth,
+                            red when one expense dominates the period. Silent on
+                            VOIDED rows (a voided row has no share to draw). */}
+                        {exp.status !== 'VOIDED' && periodExpenseTotal > 0 && (() => {
+                          const share = Math.min(100, (toNum(exp.amount) / periodExpenseTotal) * 100);
+                          const shareColor = share > 50 ? 'bg-red-500' : share > 20 ? 'bg-amber-500' : 'bg-emerald-500';
+                          return (
+                            <div
+                              data-testid="expense-share-meter"
+                              role="progressbar"
+                              aria-label={`Expense share: ${formatKES(exp.amount)} of ${formatKES(periodExpenseTotal)} period total (${share.toFixed(1)}%)`}
+                              aria-valuemin={0}
+                              aria-valuemax={100}
+                              aria-valuenow={Math.round(share)}
+                              title={`${formatKES(exp.amount)} of ${formatKES(periodExpenseTotal)} period total — ${share.toFixed(1)}%`}
+                              className="mt-1 h-1 w-full max-w-[140px] rounded-full bg-muted overflow-hidden ml-auto"
+                            >
+                              <div className={`h-full rounded-full ${shareColor}`} style={{ width: `${share}%` }} />
+                            </div>
+                          );
+                        })()}
                       </TableCell>
                       <TableCell>
                         {exp.status === 'VOIDED' ? (

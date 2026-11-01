@@ -53,11 +53,14 @@ async function changePasswordHandler(...args: unknown[]): Promise<Response> {
     );
   }
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.339.0: the door rides the ChangePasswordBody interface the handler
+  // already declared — the loose re-cast below it is gone (the borrow
+  // precedent).
+  const door = await readJsonBody<ChangePasswordBody>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
-  const body = door.body as ChangePasswordBody;
+  const body = door.body;
 
   const currentPassword =
     typeof body.currentPassword === 'string' ? body.currentPassword : '';

@@ -161,13 +161,14 @@ describe('THE LEDGER GREW HONESTLY (body-door-class-v2326)', () => {
     expect(src.includes('THE FINANCIAL TRIO GRADUATED')).toBe(true);
     // v2.336.0: the catalog pair graduated too (see catalog-doors-v2336.test.ts)
     // and v2.338.0: the customer graduate followed (see
-    // customer-doors-v2338.test.ts), so the exemplar list this pin guards is
-    // the REMAINING two — the honest growth of an honest list (the pin-growth
-    // law: a byte-exact pin on a line an honest change edits grows with the
-    // change).
-    expect(src.includes("EXEMPLARS: string[] = [\n  'src/app/api/expenses/[id]/route.ts',\n  'src/app/api/suppliers/[id]/route.ts',\n];")).toBe(true);
-    // the loose-generic exemplar pin still guards the two that remain
-    expect(src.includes("expect(src.includes('readJsonBody<Record<string, unknown>>(request)')).toBe(true);")).toBe(true);
+    // customer-doors-v2338.test.ts), and v2.339.0: the LAST exemplars
+    // graduated — the loose-Record era is over, the exemplar list this pin
+    // guards is the era's tombstone: empty, honestly (the pin-growth law: a
+    // byte-exact pin on a line an honest change edits grows with the change).
+    expect(src.includes('EXEMPLARS: string[] = [];')).toBe(true);
+    // the widening guard flipped with the era: the two graduates are guarded
+    // by ABSENCE now (their honest generics stand)
+    expect(src.includes("expect(src.includes('readJsonBody<Record<string, unknown>>(request)')).toBe(false);")).toBe(true);
   });
 });
 
