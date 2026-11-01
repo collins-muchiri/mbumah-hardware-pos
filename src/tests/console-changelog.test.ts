@@ -421,10 +421,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.323.0: the census-truth entry joins the feed (+1 on every anchor → 212/213/214/245 → 213/214/215/246)
     // v2.324.0: the roster's-own-word entry joins the feed (+1 on every anchor → 214/215/216/247 → 215/216/217/248)
     // v2.325.0: the body-door entry joins the feed (+1 on every anchor → 215/216/217/248 → 216/217/218/249)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(216);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(217);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(218);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(249);
+    // v2.326.0: the post-wide-door entry joins the feed (+1 on every anchor → 216/217/218/249 → 217/218/219/250)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(217);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(218);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(219);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(250);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 
@@ -702,7 +703,9 @@ describe('release metadata - v2.77.0', () => {
     expect(CHROME).toContain('{seenState.read && unreadCount > 0 && whatsNewMarkAllTarget() ? (');
     // v2.109.0: the import line grew the Home icon (the Expert Console's
     // Home action) — the pin follows the source, not the memory.
-    expect(CHROME).toContain("import { CheckCheck, ChevronDown, ChevronUp, CloudOff, ExternalLink, FileText, History, Home, Keyboard, LogIn, Package, ScrollText, Sparkles, Terminal, Store } from 'lucide-react';");
+    // v2.326.0: it grew again — AlertCircle + Loader2 (THE HONEST ERROR
+    // FACE on the login dialog: the announced mistake + the busy spinner).
+    expect(CHROME).toContain("import { AlertCircle, CheckCheck, ChevronDown, ChevronUp, CloudOff, ExternalLink, FileText, History, Home, Keyboard, Loader2, LogIn, Package, ScrollText, Sparkles, Terminal, Store } from 'lucide-react';");
     const VIEW = readRepo('src/components/org/desk-report-view.tsx');
     expect(VIEW).toContain('data-testid="desk-report-walk-announcer"');
     expect(VIEW).toContain('data-testid="desk-report-kbd-hint"');
