@@ -1,3 +1,17 @@
+## [2.329.0] The stock lens answers the address bar
+
+v2.328.0 gave the purchase-orders roster its STATUS word (`?po-status=`) and promised that the next desk's filter word would inherit the law instead of a copy. This release keeps the promise: the inventory desk's stock lens speaks its own desk-prefixed word through the SAME one-home parser, and wears the landing chip in its own amber.
+
+### Added
+- **THE STOCK LENS'S OWN WORD (`?inv-stock=`)**: the inventory desk's stock filter answers the address bar — bookmark or share `/?tab=inventory&inv-stock=low` and the lens lands with the low-stock view already chosen. The law is MEMBERSHIP through the ONE home (`parseInitialNamedMember` — the second desk to inherit it, zero new bytes of parser): the value must name a lens the desk actually offers (`all` / `ok` / `low` / `out`), case-sensitive — the desk's own words are lowercase, so `?inv-stock=LOW` is an unknown word, not a clever match — and anything missing or unknown answers `all`, so a stale bookmark can never strand the desk in a lens it does not offer. The word is desk-prefixed per the Task 44 collision law (a desk-prefixed word can never leak across client-side tab switches; the bare `?stock=` word has NO address-bar reader anywhere in src/ — collision-checked at round start). Read-on-mount ONLY (the one-writer law): the landing word is the LANDING lens, never rewritten; the Select, the banner buttons and the clear button own the state afterwards.
+
+### Styling
+- **THE LANDING WORD CHIP, SECOND WEARING** (`inventory-tab.tsx`): the portable pattern lands on its second desk — when a link lands the lens pre-filtered, the toolbar wears a chip naming the exact word it answered (`landed ?inv-stock=low`, `data-testid="inv-landing-word"`), styled in the lens's own amber family (the low-stock banner's family) with dark-mode variants, the Link2 icon, a `title` tooltip, and a one-press dismissal that clears the lens the word seeded. FOUR retirement voices — the chip's own dismissal, a hand-driven Select change, the low-stock banner's View buttons, and the honest clear-all each retire it: an honest face never claims a landing that is over.
+
+### Tests
+- `src/tests/inv-stock-deep-link-v2329.test.ts` (NEW, 17 pins): the parser's truth table for the lowercase vocabulary (membership, never-strand, the inverse case-sensitivity — `LOW` is unknown), the desk's seed bytes (the lazy initializer, the SSR guard, the one-home import, the offered-lenses const), the landing chip's bytes and its FOUR retirement voices, the amber wardrobe in both modes, the one-home promise (the law's doc carries the second desk), and the collision ledger walk (`inv-stock` speaks in exactly its two files).
+- The walk re-anchors the treadmill (v2.329.0 pins + the unread-counter cascade 219/220/221/252 → 220/221/222/253).
+
 ## [2.328.0] The roster answers the address bar
 
 v2.324.0 gave the purchase-orders roster its own PAGE word (`?po-page=` — the Task 44 collision law's desk-prefixed safe path). This release gives the roster's STATUS filter its voice, makes the landing visible, and puts the edge's layered pre-gates under CI guard.
