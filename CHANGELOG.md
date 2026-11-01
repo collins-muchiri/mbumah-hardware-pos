@@ -1,3 +1,22 @@
+## [2.319.0] The cards answer the ledger
+
+The loyalty desk’s two points cards were summed client-side from the FIRST PAGE of rows (limit 100) — the QA burst proved the lie live: with 120 seeded rows on the ledger, the issued card read 700 while the wire held 1,140, and the redeem card read 0 while the wire said 360, because the redeem rows had fallen off page one. The cards now wear the wire’s own summary — aggregates computed server-side over EVERY matching row — and say which ledger they are summing.
+
+### Added
+- **The per-type truth** (`src/app/api/loyalty/transactions/route.ts`): one `groupBy(transactionType)` answers every bucket the ledger can hold — EARN/BONUS/REDEEM/EXPIRE/ADJUST, each `{ points, count }` — over ALL matching rows (the `data` page is just its first slice), riding the same `where` the page rides. The two sign-based legacy aggregates (`totalPointsEarned`/`totalPointsRedeemed`) stay EXACTLY as they were — additive law, older readers keep their numbers.
+- **The typed summary** (`src/lib/api.ts`): the envelope carries the additive `summary` field — the two legacy totals plus the `buckets` ledger — same law as `window`/`costGated` (every other wire answers undefined).
+- **The cards wear the wire** (`src/app/(shell)/tabs/loyalty-tab.tsx`): "Points Issued" sums the EARN+BONUS buckets, "Points Redeemed" the REDEEM bucket — from `txData.summary.buckets`, never the page. The client-side page-1 reduce stays ONLY as the fallback for an envelope that somehow answers without its summary (never a NaN, never a guess).
+- **The scope label** (`src/lib/loyalty-utils.ts`): `pointsScopeLabel(windowActive, typeFilter)` is the pure truth table the desk and the tests share — `window · EXPIRE`, each voice alone, `all rows` when the ledger is whole.
+
+### Fixed
+- **The page-1 undercount is gone**: a ledger that outgrows one page can no longer lie in the cards — the aggregates are the wire’s own, computed server-side over every matching row. The burst’s proof (700 vs 1,140; 0 vs 360) is written where the next reader meets it, in the route’s own comment.
+
+### Styling
+- **The cards say their scope**: both summary cards wear a scope line under the value — amber (`text-amber-700 dark:text-amber-400`, the Expiry desk’s voice, the stamp’s family) naming the active scope (`window · EXPIRE`), muted `all rows` when the ledger is whole. The tooltip is the honest voice ("Summed over every row the query matched — the wire’s own aggregate, not just the page below"), the values earn `tabular-nums` digits, and each card carries its own `data-testid` (`scope-issued` / `scope-redeemed`).
+
+### Tests
+- `src/tests/ledger-summary-voice-v2319.test.ts` (NEW): the scope label’s truth table (both voices, each alone, `all rows`, display-uppercase + trimmed), the wire’s groupBy + bucket fold + additive summary (legacy aggregates pinned UNCHANGED), the envelope’s typed field, and the desk’s wire-wearing pins (buckets composition, the never-NaN fallback, scope testids, amber voice, tabular-nums, import line).
+
 ## [2.318.0] The window answers back
 
 The v2.317 window opened on the address bar’s word alone. Now the window can LEAVE, and the wire ANSWERS: the ledger gains a dismiss affordance for its date window, and the transactions API validates its date query through the honest-day law and echoes the window it actually applied.

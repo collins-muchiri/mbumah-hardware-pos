@@ -17,7 +17,7 @@ import {
   type LoyaltyCampaignItem,
   type CustomerItem,
 } from '@/lib/api';
-import { isRefundClawbackTx } from '@/lib/loyalty-utils';
+import { isRefundClawbackTx, pointsScopeLabel } from '@/lib/loyalty-utils';
 import {
   dockNeedsReason,
   DOCK_REASON_HINT,
@@ -336,13 +336,30 @@ export default function LoyaltyTab() {
 
   // Stats
   const totalMembers = customers.length;
-  const totalPointsIssued = transactions
-    .filter((t: LoyaltyTransactionItem) => ['EARN', 'BONUS'].includes(t.transactionType))
-    .reduce((sum: number, t: LoyaltyTransactionItem) => sum + t.points, 0);
-  const totalPointsRedeemed = transactions
-    .filter((t: LoyaltyTransactionItem) => t.transactionType === 'REDEEM')
-    .reduce((sum: number, t: LoyaltyTransactionItem) => sum + t.points, 0);
+  // v2.319.0 — THE CARDS ANSWER THE LEDGER: the wire's summary aggregates
+  // over EVERY matching row (type filter + window applied server-side);
+  // the page-1 reduce that used to feed these cards was a lie the burst
+  // proved live (120 seeded rows: the issued card read 700 while the
+  // ledger held 1,140, and the redeem card read 0 while the wire said
+  // 360 — the redeem rows had fallen off page one). The client reduce
+  // stays ONLY as the fallback for an envelope that somehow answers
+  // without its summary — never a NaN, never a guess.
+  const wireBuckets = txData?.summary?.buckets;
+  const totalPointsIssued = wireBuckets
+    ? (wireBuckets.EARN?.points ?? 0) + (wireBuckets.BONUS?.points ?? 0)
+    : transactions
+        .filter((t: LoyaltyTransactionItem) => ['EARN', 'BONUS'].includes(t.transactionType))
+        .reduce((sum: number, t: LoyaltyTransactionItem) => sum + t.points, 0);
+  const totalPointsRedeemed = wireBuckets
+    ? (wireBuckets.REDEEM?.points ?? 0)
+    : transactions
+        .filter((t: LoyaltyTransactionItem) => t.transactionType === 'REDEEM')
+        .reduce((sum: number, t: LoyaltyTransactionItem) => sum + t.points, 0);
   const activeCampaigns = campaigns.filter((c: LoyaltyCampaignItem) => c.status === 'ACTIVE').length;
+  // v2.319.0 THE SCOPE LABEL: the summary is the query's ledger — the
+  // cards SAY which ledger they are summing (the baseline burst caught
+  // the silent zero: a scoped query showed issued 0 with no word why).
+  const pointsScope = pointsScopeLabel(dateWindowActive, txTypeFilter);
 
   // Filtered members
   const filteredCustomers = (() => {
@@ -442,11 +459,20 @@ export default function LoyaltyTab() {
 
   // Render: Stats Cards
   function renderStatsCards() {
+    // v2.319.0 — the two summary cards speak the wire's scope: amber when
+    // the query is scoped (the Expiry desk's voice, the stamp's family),
+    // muted 'all rows' when the ledger is whole. The tooltip is the
+    // honest voice: the wire's own aggregate over EVERY matching row,
+    // never just the page shown below.
+    const scoped = pointsScope !== 'all rows';
+    const summaryHint = scoped
+      ? `Summed over every row the query matched — scope: ${pointsScope}. The wire's own aggregate, not just the page below.`
+      : 'Summed over every row the store\u2019s ledger holds. The wire\u2019s own aggregate, not just the page below.';
     const stats = [
-      { title: 'Total Members', value: totalMembers.toLocaleString(), icon: Users, color: 'text-emerald-700' },
-      { title: 'Points Issued', value: totalPointsIssued.toLocaleString(), icon: Sparkles, color: 'text-purple-600' },
-      { title: 'Points Redeemed', value: totalPointsRedeemed.toLocaleString(), icon: Award, color: 'text-green-700' },
-      { title: 'Active Campaigns', value: String(activeCampaigns), icon: Target, color: 'text-rose-600' },
+      { title: 'Total Members', value: totalMembers.toLocaleString(), icon: Users, color: 'text-emerald-700', summary: false, testid: undefined },
+      { title: 'Points Issued', value: totalPointsIssued.toLocaleString(), icon: Sparkles, color: 'text-purple-600', summary: true, testid: 'scope-issued' },
+      { title: 'Points Redeemed', value: totalPointsRedeemed.toLocaleString(), icon: Award, color: 'text-green-700', summary: true, testid: 'scope-redeemed' },
+      { title: 'Active Campaigns', value: String(activeCampaigns), icon: Target, color: 'text-rose-600', summary: false, testid: undefined },
     ];
     return (
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -456,7 +482,18 @@ export default function LoyaltyTab() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-muted-foreground">{stat.title}</p>
-                  <p className="text-lg font-bold mt-1">{stat.value}</p>
+                  <p className="text-lg font-bold mt-1 tabular-nums">{stat.value}</p>
+                  {stat.summary && (
+                    <p
+                      data-testid={stat.testid}
+                      title={summaryHint}
+                      className={scoped
+                        ? 'mt-0.5 text-[11px] font-medium text-amber-700 dark:text-amber-400'
+                        : 'mt-0.5 text-[11px] text-muted-foreground'}
+                    >
+                      {pointsScope}
+                    </p>
+                  )}
                 </div>
                 <stat.icon className={`h-8 w-8 ${stat.color} opacity-20`} />
               </div>

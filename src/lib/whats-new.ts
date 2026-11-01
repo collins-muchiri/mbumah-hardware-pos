@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.319.0',
+    title: 'The cards answer the ledger',
+    bullets: [
+      'The loyalty desk\u2019s "Points Issued" and "Points Redeemed" cards now show the wire\u2019s own totals \u2014 summed server-side across EVERY matching row, not just the first page \u2014 so a ledger that outgrows one page can no longer undercount what it holds.',
+      'Both cards say which ledger they are summing: an amber scope line (\u201cwindow \u00b7 EXPIRE\u201d) appears whenever a filter is active, and \u201call rows\u201d when the ledger is whole.',
+      'The transactions wire now answers a per-type breakdown (earned, redeemed, expired, adjusted \u2014 points and row counts) alongside its totals.',
+    ],
+  },
+  {
     version: '2.318.0',
     title: 'The window answers back',
     bullets: [

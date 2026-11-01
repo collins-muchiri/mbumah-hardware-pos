@@ -99,6 +99,14 @@ confirm it, and neither requires shell access:
   `/?tab=loyalty&view=transactions&type=EXPIRE`, and the loyalty desk
   reads `?type=` on mount (the tab-url vocabulary `view` already spoke),
   so the pulse's counts land on the exact rows they summarize.
+- **v2.319.0**: the cards answer the ledger — the transactions wire's
+  `summary` gains the per-type `buckets` ledger (one groupBy over ALL
+  matching rows, additive to the two sign-based totals), and the loyalty
+  desk's Points Issued / Points Redeemed cards wear the wire's numbers
+  instead of summing the visible page (a ledger that outgrows one page
+  can no longer undercount). Both cards say their scope
+  (`pointsScopeLabel` — amber `window · EXPIRE` when a filter is active,
+  muted `all rows` when whole).
 - **v2.318.0**: the ledger's window answers back — the transactions API
   reads its date query through the honest-day law (`honestDayKey`, so a
   garbage `dateFrom`/`dateTo` is dropped instead of 500-ing) and echoes

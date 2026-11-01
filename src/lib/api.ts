@@ -100,6 +100,20 @@ interface ApiResponse<T = unknown> {
     from: string | null;
     to: string | null;
   };
+  // v2.319.0 THE WIRE'S SUMMARY — the loyalty transactions wire answers
+  // its own aggregates, computed server-side over EVERY matching row
+  // (the `data` page is just its first slice): the two sign-based legacy
+  // totals (all positive / all negative movement) and the per-type
+  // `buckets` ledger (EARN/BONUS/REDEEM/EXPIRE/ADJUST, each
+  // { points, count }; an absent type has no rows). Additive — every
+  // other wire answers undefined, same law as window/costGated.
+  summary?: {
+    totalPointsEarned: number;
+    totalEarnCount: number;
+    totalPointsRedeemed: number;
+    totalRedeemCount: number;
+    buckets?: Record<string, { points: number; count: number }>;
+  };
 }
 
 // CSRF token management
