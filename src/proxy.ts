@@ -95,7 +95,13 @@ function isRateLimited(key: string, tier: RateLimitTier): { limited: boolean; re
 
 // CSRF Validation (Edge-compatible)
 
-function isCSRFValid(request: NextRequest): boolean {
+// v2.328.0 THE GATE LEDGER — the three layer validators are EXPORTED (a
+// read-only widening of the surface: zero behavior change, the edge law
+// untouched) so CI can pin each verdict table and the layer ORDER itself
+// (size 413 → CSRF 403 → content-type 415 → auth) — the pre-gate the
+// Task 46/48 handovers named. A gate whose order is not under guard is a
+// gate a future edit can silently reorder.
+export function isCSRFValid(request: NextRequest): boolean {
   const method = request.method.toUpperCase();
   if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') return true;
 
@@ -152,7 +158,7 @@ function getClientIp(request: NextRequest): string {
 
 // Request Size Validation
 
-function isRequestSizeValid(request: NextRequest, maxBytes: number): boolean {
+export function isRequestSizeValid(request: NextRequest, maxBytes: number): boolean {
   const contentLength = request.headers.get('Content-Length');
   if (!contentLength) return true;
   const length = parseInt(contentLength, 10);
@@ -162,7 +168,7 @@ function isRequestSizeValid(request: NextRequest, maxBytes: number): boolean {
 
 // Content-Type Validation
 
-function validateContentType(request: NextRequest): boolean {
+export function validateContentType(request: NextRequest): boolean {
   const method = request.method.toUpperCase();
   if (method === 'GET' || method === 'DELETE') return true;
   const contentType = request.headers.get('Content-Type');

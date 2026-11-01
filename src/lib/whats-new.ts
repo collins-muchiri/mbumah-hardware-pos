@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.328.0',
+    title: 'The roster answers the address bar',
+    bullets: [
+      'The purchase-order desk now speaks its status filter to the address bar: bookmark or share ?po-status=PENDING_APPROVAL and the roster lands with the approval queue already chosen — a desk-prefixed word the loyalty ledger\u2019s ?page= can never hear.',
+      'When a link lands the roster pre-filtered, a chip names the word it answered — and retires the moment you change or clear the filter, so the face never claims a landing that is over.',
+      'The wire\u2019s layered gates are now pinned in CI: payload size (413) → CSRF (403) → content-type (415) → authentication. A header-less write keeps answering 415 before anything else reads it — and now the order itself is under guard.',
+    ],
+  },
+  {
     version: '2.327.0',
     title: 'The swallow census',
     bullets: [

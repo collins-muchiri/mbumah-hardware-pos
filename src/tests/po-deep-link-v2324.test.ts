@@ -91,7 +91,11 @@ describe('the roster\u2019s own word — ?po-page= seeds the pager', () => {
   });
 
   it('the desk reads ?po-page= through the one home, SSR-guarded, on mount only', () => {
-    expect(tab.includes("import { parseInitialNamedPage } from '@/lib/tab-url';")).toBe(true);
+    // v2.328.0: the import grew the roster's SECOND word (parseInitialNamedMember
+    // rides the same one home) — the LAW the pin guards is that the desk
+    // imports its parsers from tab-url, never a local copy.
+    expect(tab.includes("from '@/lib/tab-url';")).toBe(true);
+    expect(tab.includes('import { parseInitialNamedMember, parseInitialNamedPage } from')).toBe(true);
     expect(tab.includes("parseInitialNamedPage(window.location.search, 'po-page', 1)")).toBe(true);
     const fn = tab.slice(tab.indexOf('function initialPoPage'), tab.indexOf('function initialPoPage') + 260);
     expect(fn.includes("typeof window === 'undefined'")).toBe(true);
