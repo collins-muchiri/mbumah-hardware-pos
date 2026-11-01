@@ -5,7 +5,7 @@
 
 import type { NextRequest } from 'next/server';
 import { hrGuard, type HrRouteContext } from '@/lib/hr/guard';
-import { deleteGoal, updateGoal } from '@/lib/hr/goal-service';
+import { deleteGoal, updateGoal, type GoalUpdateInput } from '@/lib/hr/goal-service';
 import { toErrorResponse } from '@/lib/hr/stage-g-shared';
 import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
@@ -18,11 +18,11 @@ export const PATCH = hrGuard('hr.performance.manage')(
       // without the non-null-assertion lint warning.
       const { id } = await (context as HrRouteContext).params;
       // THE SWALLOW DOOR: an unreadable body is a client mistake (v2.327.0):
-      const door = await readJsonBody<Record<string, unknown>>(request);
+      const door = await readJsonBody<GoalUpdateInput>(request);
       if (!door.ok) {
         return bodyDoorRejected();
       }
-      const body = door.body as Record<string, unknown>;
+      const body = door.body;
       return Response.json({ success: true, data: await updateGoal(id, body, session) });
     } catch (error) {
       return toErrorResponse(error);

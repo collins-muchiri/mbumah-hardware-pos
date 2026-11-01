@@ -1,3 +1,19 @@
+## [2.334.0] The API doors speak their body's shape
+
+The per-file generic tightening (Task 48 option 1, deferred five rounds) finally leads: the 20-file swallow census (v2.327) no longer reads bodies as `Record<string, unknown>` or the default `any` — every door's generic now names the fields its handler actually consumes. RUNTIME BEHAVIOR IS BYTE-IDENTICAL (the scoped tsc round-trip: 41=41, ZERO new, ZERO gone; the scoped census: 0 loose generics left).
+
+### Added
+- **THE DOORS TIGHTENED (18 routes)**: the create doors borrow the service signature itself (`readJsonBody<Parameters<typeof assignAsset>[0]>` and siblings — the door cannot drift from the handler it feeds); the update doors import the service's own exported input types (`AssetUpdateInput`, `GoalUpdateInput`, `CaseUpdateInput`, `ReviewUpdateInput`); the dispatching doors speak honest literals (the cycles door `action` + `calibrationNotes`; the erasure decision doors exactly what they String()-coerce; data-exports its six fields with `filters` still unknown — the route's typeof dispatch is its validator). The `door.body as Record<string, unknown>` re-casts are gone with them.
+- **THE LAW DOC RECORDS IT** (`request-body.ts`): "v2.334.0 — THE DOORS TIGHTENED" — the 20-door census is fully narrowed; the WIDER 67-door class keeps its documented `any` default until its own per-file pass.
+- **THE TIGHTENING LEDGER** (`src/tests/door-tightening-v2334.test.ts`, 9 pins): the zero-loose-generic census (no `readJsonBody<Record<string, unknown>>`, no bare `readJsonBody(request)`, no `door.body as Record<...>` re-casts across all 20 files), the door bytes still intact (marker + 400 voice), the specific per-file generics, the law-doc note, and the focus-ring styling face.
+
+### Styling
+- **THE QUICK CHIPS ANSWER THE KEYBOARD** (`transactions-tab.tsx`): the payment-method quick chips (the v2.333 face) gain visible `focus-visible` rings in the lens's own violet family (`ring-violet-400`, offset 1) — a Tab walk now shows where the chooser stands. The door-tightening round's UI face: the API got types, the keyboard got eyes.
+
+### Tests
+- `src/tests/door-tightening-v2334.test.ts` (NEW, 9 pins) — see Added.
+- The walk re-anchors the treadmill (v2.334.0 pins + the unread-counter cascade 224/225/226/257 → 225/226/227/258).
+
 ## [2.333.0] The ledger answers the address bar
 
 v2.328.0 gave the roster its word and promised the next desk's filter word would inherit the law; v2.329.0–v2.332.0 kept it four times. This release keeps it a FIFTH time — and the first time the desk's filter face is QUICK CHIPS, not a Select: the transactions desk's payment-method lens now answers its own desk-prefixed word through the SAME one-home parser, and wears the landing chip in its own violet.

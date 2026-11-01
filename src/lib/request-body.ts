@@ -40,10 +40,14 @@ export type BodyDoor<T> = { ok: true; body: T } | { ok: false };
  * `await request.json()` inferred `any`, so a caller that omits the
  * generic keeps the exact typing its handler was written against —
  * zero type drift across the mechanical pass (the scoped tsc
- * round-trip: zero NEW errors). Per-file generic tightening (the 19
- * v2.325 exemplars already carry narrowed generics) remains an
- * incremental follow-up; the RUNTIME class — the 500 wearing a
- * client's mistake — is what this door exists to kill.
+ * round-trip: zero NEW errors).
+ * v2.334.0 — THE DOORS TIGHTENED: the 20-file swallow census (v2.327)
+ * no longer speaks `Record<string, unknown>` or the default `any` —
+ * every door's generic now names the fields its handler actually
+ * consumes (the service's own input type where one exists, an honest
+ * literal where the route dispatches first). The default `any` remains
+ * the law for the WIDER 67-door class whose per-file tightening is
+ * still incremental follow-up.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function readJsonBody<T = any>(
