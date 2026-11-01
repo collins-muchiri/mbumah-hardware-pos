@@ -204,6 +204,10 @@ export function parseInitialNamedPage(search: string, param: string, fallback = 
  * active lens speaks it as its desk-prefixed `sup-status` (the same
  * parser, zero new bytes of law, again — the fourth desk to inherit
  * the home).
+ * v2.332.0 — THE PROMISE KEPT, THE FIFTH WORD: the suppliers desk's
+ * purchase-order lens speaks it as its desk-prefixed `sup-po` (the same
+ * parser, zero new bytes of law, again — one desk now owning TWO words
+ * of the vocabulary, one per lens).
  */
 export function parseInitialNamedMember<V extends string>(
   search: string,

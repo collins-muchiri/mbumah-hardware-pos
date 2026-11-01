@@ -1,0 +1,108 @@
+#!/usr/bin/env node
+// verify-v2-332-0.mjs — the round's FEATURE gate (v2.332.0 "the
+// purchase-order lens answers the address bar"). The release MECHANICS
+// live in verify-current.mjs. This script pins only what is NEW this
+// round. Every check reads the SOURCE OF RECORD (bytes, not memory) —
+// THE OD LAW. Pin law (Task 43-52): pins must match the SOURCE bytes —
+// straight vs curly apostrophes and line-wraps included. Run BEFORE the
+// walk.
+import { readFileSync } from 'node:fs';
+
+let pass = 0, fail = 0;
+const ok = (name, cond) => {
+  if (cond) { pass++; console.log(`  ok  ${name}`); }
+  else { fail++; console.error(`x FAIL ${name}`); }
+};
+const read = (p) => readFileSync(p, 'utf8');
+
+const home = read('src/lib/tab-url.ts');
+const desk = read('src/app/(shell)/tabs/suppliers-tab.tsx');
+const test = read('src/tests/sup-po-deep-link-v2332.test.ts');
+const custTest = read('src/tests/cust-debt-deep-link-v2330.test.ts');
+const invTest = read('src/tests/inv-stock-deep-link-v2329.test.ts');
+const poGateTest = read('src/tests/proxy-gate-layering-v2328.test.ts');
+const supTest = read('src/tests/sup-status-deep-link-v2331.test.ts');
+const whatsNew = read('src/lib/whats-new.ts');
+const changelog = read('CHANGELOG.md');
+const changelogTest = read('src/tests/console-changelog.test.ts');
+const pkg = JSON.parse(read('package.json'));
+
+console.log('— the promise kept a fourth time, one desk two words (lib/tab-url.ts) —');
+ok('the home carries the v2.332 fifth-word note (one home, fifth word)',
+  home.includes('v2.332.0 — THE PROMISE KEPT, THE FIFTH WORD') &&
+  home.includes('export function parseInitialNamedMember'));
+ok('the law itself gained zero new bytes of parser',
+  home.includes('return value as V;') && home.includes('return fallback;'));
+
+console.log('— the suppliers desk seeds and answers twice (suppliers-tab.tsx) —');
+ok('the seed reads the word through the ONE home (never a local parser)',
+  desk.includes("import { parseInitialNamedMember } from '@/lib/tab-url';") &&
+  desk.includes("parseInitialNamedMember(window.location.search, 'sup-po', SUP_PO_FILTERS, 'all')"));
+ok('the seed is the lazy initializer with the SSR guard',
+  desk.includes('const [poFilterStatus, setPoFilterStatus] = useState<string>(initialSupPo);') &&
+  desk.includes("if (typeof window === 'undefined') return 'all';"));
+ok('the desk offers exactly the lenses it names',
+  desk.includes("export const SUP_PO_FILTERS = ['all', 'DRAFT', 'SENT', 'CONFIRMED', 'RECEIVED', 'CANCELLED'] as const;"));
+ok('the landing word state exists (the chip speaks the LANDING, never the choice)',
+  desk.includes('const [landedSupPo] = useState<string>(initialSupPo);') &&
+  desk.includes('const [poLandingLive, setPoLandingLive] = useState(true);'));
+ok('the chip renders only while the landing is live AND untouched',
+  desk.includes("poLandingLive && landedSupPo !== 'all' && poFilterStatus === landedSupPo") &&
+  desk.includes('data-testid="sup-po-landing-word"') &&
+  desk.includes('landed ?sup-po={landedSupPo}'));
+ok('voice 1 — the chip\u2019s own dismissal clears the lens and retires',
+  desk.slice(desk.indexOf('data-testid="sup-po-landing-word"'), desk.indexOf('data-testid="sup-po-landing-word"') + 400)
+    .includes("setPoFilterStatus('all')"));
+ok('voice 2 — a hand-driven Select change retires the chip',
+  desk.includes('onValueChange={chooseSupPo}') &&
+  desk.includes('a hand-driven change retires the PO landing word'));
+ok('the voices are honest — the desk claims exactly the two it has',
+  desk.includes("a hand-driven Select or the chip's own dismissal") &&
+  !desk.includes('voice 3') && !desk.includes('voice 4'));
+ok('the chip wears the lens\u2019s cyan family in BOTH modes',
+  desk.includes('border-cyan-200 bg-cyan-50 text-cyan-700') &&
+  desk.includes('dark:border-cyan-500/30 dark:bg-cyan-500/10 dark:text-cyan-300'));
+ok('the chip explains itself (the tooltip law)',
+  desk.includes('title="The desk landed with this filter from the address bar — press to clear it"'));
+
+console.log('— the test pins the laws —');
+ok('the deep-link test pins the truth table and the seed bytes',
+  test.includes("parseInitialNamedMember('?sup-po=SENT', 'sup-po', SUP_PO_FILTERS, 'all')") &&
+  test.includes("parseInitialNamedMember('?sup-po=sent', 'sup-po', SUP_PO_FILTERS, 'all')"));
+ok('the deep-link test pins the two honest retirement voices',
+  test.includes('voice 1') && test.includes('voice 2') &&
+  test.includes('the voices are honest'));
+ok('the deep-link test carries the collision ledger walk',
+  test.includes('walkSrc') && test.includes("'src/app/(shell)/tabs/suppliers-tab.tsx'") &&
+  test.includes("'src/tests/sup-po-deep-link-v2332.test.ts'"));
+ok('the v2.330 ledger grew its honest speaker (the rides-along citation)',
+  custTest.includes("'src/tests/sup-po-deep-link-v2332.test.ts'"));
+ok('the v2.329 ledger grew its honest speaker (the rides-along citation)',
+  invTest.includes("'src/tests/sup-po-deep-link-v2332.test.ts'"));
+ok('the v2.328 ledger grew its honest speaker (the lineage citation + the desk)',
+  poGateTest.includes("'src/tests/sup-po-deep-link-v2332.test.ts'") &&
+  poGateTest.includes("'src/app/(shell)/tabs/suppliers-tab.tsx'"));
+ok('the v2.331 ledger grew its honest speaker (the sibling-word citation)',
+  supTest.includes("'src/tests/sup-po-deep-link-v2332.test.ts'"));
+
+console.log('— the release voice —');
+ok("whats-new leads with the round\u2019s story",
+  whatsNew.includes("version: '2.332.0',") &&
+  whatsNew.includes('The purchase-order lens answers the address bar') &&
+  whatsNew.includes('?sup-po=SENT'));
+ok('the CHANGELOG carries the round (Added + Styling + Tests)',
+  changelog.includes('## [2.332.0] The purchase-order lens answers the address bar') &&
+  changelog.includes("THE PURCHASE-ORDER LENS'S OWN WORD") &&
+  changelog.includes('THE LANDING WORD CHIP, FIFTH WEARING'));
+ok('the manifest answers 2.332.0 in all three slots',
+  pkg.version === '2.332.0' && pkg.mbumah?.releaseVersion === '2.332.0' && pkg.mbumah?.baseVersion === '2.332.0');
+ok('the verify gate itself is wired into the manifest',
+  typeof pkg.scripts['verify:v2-332-0'] === 'string');
+ok('the walk\u2019s history line landed (the cascade speaks 223/224/225/256)',
+  changelogTest.includes('// v2.332.0:') && changelogTest.includes('entry joins the feed') &&
+  changelogTest.includes("whatsNewUnreadCount('2.110.0')).toBe(223)"));
+ok('no stale anchor behind (the old counts are gone)',
+  !changelogTest.includes("whatsNewUnreadCount('2.110.0')).toBe(222)"));
+
+console.log(`\n${pass} passed, ${fail} failed`);
+process.exit(fail === 0 ? 0 : 1);

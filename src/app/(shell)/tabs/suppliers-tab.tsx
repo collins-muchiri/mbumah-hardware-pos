@@ -1898,6 +1898,30 @@ function initialSupStatus(): string {
   return parseInitialNamedMember(window.location.search, 'sup-status', SUP_STATUS_FILTERS, 'all');
 }
 
+// v2.332.0 THE PURCHASE-ORDER LENS'S OWN WORD — the suppliers desk's PO
+// status lens answers the address bar too: `?sup-po=SENT` lands the
+// purchase-orders section with the sent lens already chosen (the
+// suppliers desk's SECOND word — the desk that inherited `?sup-status=`
+// now speaks for its other lens as well). The law is the SAME
+// MEMBERSHIP through the ONE home (`parseInitialNamedMember`): the
+// value must name a lens the PO Select actually offers — case-sensitive
+// (the PO lens's own words are UPPERCASE, so `draft` is an unknown
+// word, not a clever match — the inverse voice, the po-status desk's
+// gait) — and anything missing or unknown answers 'all' (never
+// stranded). The word is desk-prefixed per the Task 44 collision law: a
+// desk-prefixed word can never leak across client-side tab switches,
+// and the purchase-orders desk's own `?po-status=` word stays the
+// roster's — this word names the suppliers SECTION's lens.
+// Collision-checked at round start: no reader of `sup-po` exists anywhere in src/.
+// Read-on-mount ONLY (the one-writer law): the landing word is the
+// LANDING lens, never rewritten; the Select owns the state after.
+export const SUP_PO_FILTERS = ['all', 'DRAFT', 'SENT', 'CONFIRMED', 'RECEIVED', 'CANCELLED'] as const;
+
+function initialSupPo(): string {
+  if (typeof window === 'undefined') return 'all';
+  return parseInitialNamedMember(window.location.search, 'sup-po', SUP_PO_FILTERS, 'all');
+}
+
 export default function SuppliersTab() {
   const currentStoreId = useAppStore((s) => s.currentStoreId);
   const _queryClient = useQueryClient();
@@ -1926,7 +1950,23 @@ export default function SuppliersTab() {
   const [addOpen, setAddOpen] = useState(false);
   const [createPOOpen, setCreatePOOpen] = useState(false);
   const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
-  const [poFilterStatus, setPoFilterStatus] = useState<string>('all');
+  // v2.332.0: the PO lens's seed reads `?sup-po=` (membership law, one
+  // home); a hand-driven Select afterwards is the human's truth.
+  const [poFilterStatus, setPoFilterStatus] = useState<string>(initialSupPo);
+  // v2.332.0 THE LANDING WORD — the address-bar word the PO section
+  // answered at mount ('all' when the landing carried no lens). The chip
+  // speaks it ONCE: dismissed or hand-changed, the landing is over and
+  // the chip retires — an honest face never claims a landing that is
+  // done (the portable chip law, worn in the lens's cyan).
+  const [landedSupPo] = useState<string>(initialSupPo);
+  const [poLandingLive, setPoLandingLive] = useState(true);
+
+  // v2.332.0: a hand-driven change retires the PO landing word — the
+  // chip speaks the ADDRESS BAR's landing, never the human's next choice.
+  const chooseSupPo = (value: string) => {
+    setPoFilterStatus(value);
+    setPoLandingLive(false);
+  };
   // Send Order dialog state
   const [sendOrderOpen, setSendOrderOpen] = useState(false);
   const [sendOrderSupplier, setSendOrderSupplier] = useState<SupplierItem | null>(null);
@@ -2383,7 +2423,9 @@ export default function SuppliersTab() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <CardTitle className="text-base">Purchase Orders</CardTitle>
             <div className="flex items-center gap-2 w-full sm:w-auto">
-              <Select value={poFilterStatus} onValueChange={setPoFilterStatus}>
+              {/* v2.332.0: the hand-driven Select is voice 2 — a
+                  hand-driven change retires the landing word. */}
+              <Select value={poFilterStatus} onValueChange={chooseSupPo}>
                 <SelectTrigger className="h-9 w-36">
                   <SelectValue />
                 </SelectTrigger>
@@ -2396,6 +2438,34 @@ export default function SuppliersTab() {
                   <SelectItem value="CANCELLED">Cancelled</SelectItem>
                 </SelectContent>
               </Select>
+              {/* v2.332.0 THE LANDING WORD CHIP, FIFTH WEARING — a link
+                  that landed the PO section pre-filtered wears a chip
+                  naming the word it answered (?sup-po=…), styled in the
+                  lens's own CYAN family (the delivery-tracking hue —
+                  the vocabulary now reads indigo/amber/rose/emerald/
+                  cyan across the five lenses) with dark-mode variants,
+                  the Link2 icon, a `title` tooltip, and a one-press
+                  dismissal that clears the lens the word seeded. The
+                  chip retires the moment the human owns the filter —
+                  a hand-driven Select or the chip's own dismissal.
+                  `data-testid="sup-po-landing-word"` — the QA walk's
+                  handle. */}
+              {poLandingLive && landedSupPo !== 'all' && poFilterStatus === landedSupPo && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPoFilterStatus('all');
+                    setPoLandingLive(false);
+                  }}
+                  className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-cyan-200 bg-cyan-50 text-cyan-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-cyan-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 dark:border-cyan-500/30 dark:bg-cyan-500/10 dark:text-cyan-300 dark:hover:bg-cyan-500/20"
+                  data-testid="sup-po-landing-word"
+                  title="The desk landed with this filter from the address bar — press to clear it"
+                >
+                  <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+                  <span className="tabular-nums">landed ?sup-po={landedSupPo}</span>
+                  <X className="h-3 w-3 shrink-0 opacity-60" aria-hidden="true" />
+                </button>
+              )}
               <Button size="sm" className="h-9" onClick={() => setCreatePOOpen(true)}>
                 <Plus className="h-4 w-4 mr-1" />
                 <span className="hidden sm:inline">New PO</span>
