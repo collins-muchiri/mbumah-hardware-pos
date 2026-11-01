@@ -140,6 +140,29 @@ export function parseInitialDateRange(search: string): InitialDateRange {
 }
 
 /**
+ * v2.320.0 — read the ledger's page (`?page=`) with the never-strand
+ * law the rest of this module speaks: the value must be a positive
+ * integer (digits only — no sign, no decimal, no whitespace), and
+ * anything missing, malformed, zero, or negative answers the fallback.
+ * A page past the ledger's end is NOT refused here — the parser's law
+ * is SHAPE, not existence (the ledger grows and shrinks between
+ * bookmark and return; the wire answers its own pagination and the
+ * desk's past-the-end face speaks). Collision-checked: no other reader
+ * of `page` exists in the address-bar vocabulary — the fifth word after
+ * view/type/from/to.
+ */
+export function parseInitialPage(search: string, fallback = 1): number {
+  try {
+    const raw = toParams(search).get('page');
+    if (!raw || !/^\d+$/.test(raw)) return fallback;
+    const page = parseInt(raw, 10);
+    return page >= 1 ? page : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+/**
  * The EAT (UTC+3, the formatEatStamp convention) calendar day of a
  * timestamp, as a URL-safe `YYYY-MM-DD` key — the day a sweep's counts
  * door names so the ledger's window opens on exactly the rows that

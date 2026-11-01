@@ -1,3 +1,20 @@
+## [2.320.0] The ledger turns the page
+
+The loyalty ledger stopped at page one (limit 100) while the wire answered its own pagination — rows 101… were invisible to the desk, and a ledger that outgrew one page could never show the rest. The desk now turns the page: the deep-link vocabulary gains its fifth word, the pager wears the wire's voice, and a page past the end finally says where the rows went.
+
+### Added
+- **The page vocabulary** (`src/lib/tab-url.ts`): `parseInitialPage` reads `?page=` with the never-strand law the rest of the module speaks — the value must be a positive integer (digits only), and anything missing, malformed, zero, negative, or float answers the fallback. The law is SHAPE, not existence: a page past the ledger's end is NOT refused here (the ledger grows and shrinks between bookmark and return; the wire answers its own pagination and the desk's past-the-end face speaks). Collision-checked: no other address-bar reader of `page` exists — the fifth word after view/type/from/to.
+- **The desk seeds and turns the page** (`src/app/(shell)/tabs/loyalty-tab.tsx`): `?page=2` lands on the wire's second page (SSR-guarded seed); the page rides BOTH the query key and the wire's `page` param — page 2 is a different ledger slice, never a cached re-render of page 1.
+- **The pager** (`loyalty-tab.tsx`): rendered only when `totalPages > 1` — a `tabular-nums` census line ("Showing rows 1–100 of 126") and a status ("Page 1 of 2") speaking the WIRE's own pagination (the same voice as the v2.318 stamp, never the state), with Prev/Next buttons (aria-labels, disabled bounds at both ends) that move the desk's state. The bar's `?page=` word is the LANDING page, never rewritten — the one-writer-per-param law.
+- **The scope-reset law** (`loyalty-tab.tsx`): a filter change that lands the desk on page 3 of a narrower ledger is a stranded page — every scope move AFTER mount returns the desk to page 1 (a scope-key ref holds the FIRST scope, so a deep-linked `?page=2` survives the landing untouched).
+- **The honest past-the-end empty** (`loyalty-tab.tsx`): a page past the end of the ledger is NOT "no transactions" — when the wire says rows exist but the page answers none, the desk says so ("Page 9 is past the end of this ledger — 126 matching rows live on earlier pages") and offers the way back ("Back to page 1").
+
+### Styling
+- **The pager earns the desk's voice**: the census line rides `text-muted-foreground tabular-nums`, the status is a medium-weight muted chip, the Prev/Next buttons are the outline `h-8` voice with chevrons and honest disabled states — the pager looks like part of the desk, not a bolt-on, and every digit in it is tabular.
+
+### Tests
+- `src/tests/ledger-pager-v2320.test.ts` (NEW): the `?page=` truth table (positive integers, leading zeros, zeros/negatives/floats/garbage → fallback, malformed search never throws, past-the-end NOT refused, explicit fallback honored), the desk's seed/key/wire/reset-law/pager pins, the honest-empty pins, and the four earlier trail files' import-line evolutions (the pin follows the import, not the round). Trail notes added in `receipt-trail-v2311`, `expiry-ledger-link-v2316`, `expiry-day-window-v2317`, `expiry-window-dismiss-v2318`.
+
 ## [2.319.0] The cards answer the ledger
 
 The loyalty desk’s two points cards were summed client-side from the FIRST PAGE of rows (limit 100) — the QA burst proved the lie live: with 120 seeded rows on the ledger, the issued card read 700 while the wire held 1,140, and the redeem card read 0 while the wire said 360, because the redeem rows had fallen off page one. The cards now wear the wire’s own summary — aggregates computed server-side over EVERY matching row — and say which ledger they are summing.

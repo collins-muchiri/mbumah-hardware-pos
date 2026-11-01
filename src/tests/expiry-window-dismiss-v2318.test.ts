@@ -112,9 +112,11 @@ describe('the desk — the window can leave, and the echo is worn (loyalty-tab.t
   const tab = readFileSync('src/app/(shell)/tabs/loyalty-tab.tsx', 'utf8');
 
   it('the tab-url import now carries the dismiss builder too (v2.318 evolution)', () => {
+    // v2.320.0 pin evolution (deliberate): parseInitialPage joins — the
+    // pager lands on `?page=`; the pin follows the import, not the round.
     expect(
       tab.includes(
-        "import { buildSearchWithoutParams, parseInitialDateRange, parseInitialType, parseInitialView } from '@/lib/tab-url';",
+        "import { buildSearchWithoutParams, parseInitialDateRange, parseInitialPage, parseInitialType, parseInitialView } from '@/lib/tab-url';",
       ),
     ).toBe(true);
   });

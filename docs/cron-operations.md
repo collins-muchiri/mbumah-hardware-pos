@@ -99,6 +99,13 @@ confirm it, and neither requires shell access:
   `/?tab=loyalty&view=transactions&type=EXPIRE`, and the loyalty desk
   reads `?type=` on mount (the tab-url vocabulary `view` already spoke),
   so the pulse's counts land on the exact rows they summarize.
+- **v2.320.0**: the ledger turns the page — the loyalty desk's
+  transactions view gains a pager (census + "Page N of M" in the wire's
+  own pagination voice, Prev/Next moving the desk's state, disabled
+  bounds) rendered only when `totalPages > 1`, seeded by the vocabulary's
+  fifth word `?page=` (`parseInitialPage` — shape law, not existence), a
+  scope-reset law returning to page 1 on any filter change, and an
+  honest past-the-end empty ("Page 9 is past the end") with a way back.
 - **v2.319.0**: the cards answer the ledger — the transactions wire's
   `summary` gains the per-type `buckets` ledger (one groupBy over ALL
   matching rows, additive to the two sign-based totals), and the loyalty

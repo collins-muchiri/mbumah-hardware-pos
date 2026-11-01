@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.320.0',
+    title: 'The ledger turns the page',
+    bullets: [
+      'The loyalty ledger can finally show its second page: Prev / Next buttons with a "Showing rows 1\u2013100 of 126" census sit under the table whenever the ledger holds more than one page \u2014 rows 101\u2026 are no longer invisible.',
+      'The pager is deep-linkable: a URL like /?tab=loyalty&view=transactions&page=2 lands on the second page, and any filter change returns you to page 1 instead of a stranded empty page.',
+      'A bookmark pointing at a page the ledger has outgrown now says so honestly ("Page 9 is past the end") with a one-press way back, instead of pretending there are no transactions.',
+    ],
+  },
+  {
     version: '2.319.0',
     title: 'The cards answer the ledger',
     bullets: [
