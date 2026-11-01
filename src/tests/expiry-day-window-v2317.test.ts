@@ -77,7 +77,9 @@ describe('the desk seeds its date window from the address bar (loyalty-tab.tsx)'
     // the desk reads the window; eatDayKey is the CARD's builder (the
     // counts door) and lives only in org-console's import — the lint law
     // carries only what each file uses.
-    expect(tab.includes("import { parseInitialDateRange, parseInitialType, parseInitialView } from '@/lib/tab-url';")).toBe(true);
+    // v2.318 trail: the import gains buildSearchWithoutParams (the
+    // dismiss builder) — the pin follows the import, not the round.
+    expect(tab.includes("import { buildSearchWithoutParams, parseInitialDateRange, parseInitialType, parseInitialView } from '@/lib/tab-url';")).toBe(true);
   });
 
   it('both date inputs seed lazily with SSR guards (empty input, never a stranded filter)', () => {

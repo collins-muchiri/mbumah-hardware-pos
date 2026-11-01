@@ -69,7 +69,10 @@ describe('the desk seeds its filter from the address bar (loyalty-tab.tsx)', () 
     // names its sweep's day); the window vocabulary's own voice is
     // pinned in expiry-day-window-v2317. (eatDayKey is the CARD's
     // builder and rides only org-console's import.)
-    expect(tab.includes("import { parseInitialDateRange, parseInitialType, parseInitialView } from '@/lib/tab-url';")).toBe(true);
+    // v2.318.0 pin evolution (deliberate): buildSearchWithoutParams
+    // joins — the window can leave (the × chip); the dismiss law's own
+    // voice is pinned in expiry-window-dismiss-v2318.
+    expect(tab.includes("import { buildSearchWithoutParams, parseInitialDateRange, parseInitialType, parseInitialView } from '@/lib/tab-url';")).toBe(true);
   });
 
   it('the register is the SAME five types the ledger Select offers', () => {
@@ -149,8 +152,8 @@ describe('the housekeeping — the 2.267.0 dead weight is gone', () => {
     };
     expect(typeof pkg.mbumah?.releaseVersion).toBe('string');
     expect(typeof pkg.mbumah?.baseVersion).toBe('string');
-    expect(pkg.mbumah?.releaseVersion).toBe('2.317.0');
-    expect(pkg.mbumah?.baseVersion).toBe('2.317.0');
+    expect(pkg.mbumah?.releaseVersion).toBe('2.318.0');
+    expect(pkg.mbumah?.baseVersion).toBe('2.318.0');
   });
 
   it('the docs register carries the deep-link note', () => {

@@ -142,7 +142,10 @@ describe('v2.311.0 — the shell answers the address bar', () => {
     // eatDayKey join too — the ledger answers ?from=/&to= (the counts
     // door names its sweep's day); the window's own voice is pinned in
     // expiry-day-window-v2317.
-    expect(loyaltyTab).toContain("import { parseInitialDateRange, parseInitialType, parseInitialView } from '@/lib/tab-url';");
+    // v2.318.0 pin evolution (deliberate): buildSearchWithoutParams joins
+    // — the window can leave (the × chip scrubs from/to from the bar);
+    // the dismiss law's own voice is pinned in expiry-window-dismiss-v2318.
+    expect(loyaltyTab).toContain("import { buildSearchWithoutParams, parseInitialDateRange, parseInitialType, parseInitialView } from '@/lib/tab-url';");
     expect(loyaltyTab).toContain(
       "const LOYALTY_SUB_TABS: readonly LoyaltySubTab[] = ['tiers', 'members', 'transactions', 'campaigns'];",
     );
