@@ -44,13 +44,13 @@ const feed = read('src/lib/whats-new.ts');
 
 describe('the round of record (v2.222.0)', () => {
   it('package.json leads 2.222.0 (all three slots)', () => {
-    expect(pkg.version).toBe('2.324.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.324.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.324.0');
+    expect(pkg.version).toBe('2.325.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.325.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.325.0');
   });
 
   it('VERSION speaks the same truth', () => {
-    expect(read('VERSION').trim()).toBe('2.324.0');
+    expect(read('VERSION').trim()).toBe('2.325.0');
   });
 
   it('the changelog of record speaks the round', () => {

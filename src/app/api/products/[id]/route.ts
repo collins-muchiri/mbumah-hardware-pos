@@ -18,6 +18,7 @@ import { hasFeaturePermission } from '@/lib/permissions';
 // v2.12.7 (PR C): manager step-up for the ±20% price guard (same credential
 // rules as checkout + /api/auth/manager-authorize - never a drifting copy).
 import { authorizeManager, clientIpFromHeaders } from '@/lib/manager-auth';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -107,7 +108,12 @@ async function updateProductHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   const context = args[1] as RouteContext;
   const { id } = await context.params;
-  const body = await request.json();
+  // v2.325.0 THE BODY DOOR: an unreadable body is a client mistake — 400, never a 500.
+  const door = await readJsonBody<{ barcode?: string; [key: string]: unknown }>(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   // v2.12.7 (PR C): session resolved once up-front (was previously re-resolved
   // inside the price-change audit block) - the price guard below needs it.

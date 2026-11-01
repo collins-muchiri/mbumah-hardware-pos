@@ -94,7 +94,7 @@ describe('the desk wears the voice (v2.266.0)', () => {
     // the announcement names a release the feed knows, newest first
     expect(WHATS_NEW.length).toBeGreaterThan(1);
     expect(WHATS_NEW[0].version).toBe(APP_VERSION);
-    expect(APP_VERSION).toBe('2.324.0');
+    expect(APP_VERSION).toBe('2.325.0');
     expect(compareWhatsNewVersions(WHATS_NEW[0].version, WHATS_NEW[1].version)).toBeGreaterThan(0);
   });
 });

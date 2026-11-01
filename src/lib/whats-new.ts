@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.325.0',
+    title: 'The body door reads every room',
+    bullets: [
+      'A request without a body can no longer crash the wire with a 500 — 21 more API doors (categories, customers, invoices, products, suppliers, vouchers, leave requests, store transfers, IP blocks and more) now answer 400 with a hint naming what the body should say.',
+      'The purchase-order roster\u2019s pager now sits beside the "page past the end" notice on a stale link, so the honest "No rows on this page" census speaks on a live page — and the way back stays one click.',
+      'The same honest-body door now guards every update and delete endpoint through one tested home, so the next door added to the house inherits the law for free.',
+    ],
+  },
+  {
     version: '2.324.0',
     title: 'The roster speaks its own word',
     bullets: [

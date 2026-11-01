@@ -22,6 +22,7 @@ import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { LogSeverity, LogComponent } from '@/lib/types';
 import { withSessionAuth, getSessionFromRequest, MANAGER_PLUS_ROLES } from '@/lib/auth';
 import { normalizeBranchCode } from '@/lib/helpers';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -69,7 +70,12 @@ async function updateBranchHandler(...args: unknown[]): Promise<Response> {
   const session = await getSessionFromRequest(request);
 
   const { id } = await context.params;
-  const body = await request.json();
+  // v2.325.0 THE BODY DOOR: an unreadable body is a client mistake — 400, never a 500.
+  const door = await readJsonBody<{ code?: string | null; [key: string]: unknown }>(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const existing = await db.store.findUnique({ where: { id } });
   if (!existing) {

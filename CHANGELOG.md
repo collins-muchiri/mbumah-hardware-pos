@@ -1,3 +1,20 @@
+## [2.325.0] The body door reads every room
+
+The v2.324.0 release fixed the body door for `purchase-orders/[id]` alone and named the class in its handover: the same bare `await request.json()` likely sat in other routes. The v2.325 sweep (a mechanical census across every route answering PUT/DELETE/PATCH — `scripts/sweep-body-door.py`, 53 call sites) found **21 more bare doors in 19 files** — each one a client mistake (a body-less or malformed request) riding `JSON.parse`'s `SyntaxError` into a 500. This release replaces every one of them with ONE tested home, and completes the roster's layout law.
+
+### Fixed
+- **THE BODY-DOOR CLASS IS GONE (21 doors, 19 files)**: `branches/[id]`, `categories/[id]`, `customer-credits/[id]`, `customers/[id]`, `delivery-notes/[id]`, `expenses/[id]`, `financial/accounts/[id]`, `financial/budgets/[id]`, `financial/periods/[id]`, `gift-cards/[id]`, `invoices/[id]`, `leaves` (create + decide), `products/[id]`, `rentals/[id]`, `security/block-ip` (block + unblock), `store-transfers/[id]`, `suppliers/[id]`, `system-config`, `vouchers/[id]` — every PUT/DELETE/PATCH body now reads through the door: an unreadable body answers **400** with the house voice (and, where the route knows its clients' vocabulary, a hint naming the shape: periods' `{"action": "CLOSE" | "LOCK" | "REOPEN"}`, the leave decision's `{"leaveRequestId", "action", "rejectionReason"}`, the IP block's `{"ipAddress", "duration", "reason"}`, the transfer receive's `{"items": [...]}`).
+
+### Added
+- **THE BODY DOOR HOME** (`src/lib/request-body.ts`): `readJsonBody(request)` never throws — a valid JSON object passes with its fields intact; null, arrays, primitives, malformed JSON and missing bodies all answer `{ ok: false }` (these routes dispatch on object fields, so a JSON array cannot describe its changes — the same honest 400 as an empty body). `bodyDoorRejected(hint?)` speaks the rejection: 400, the house's `success/error` shape, the hint only when named. THE BODY IS HONEST ABOUT ITS SHAPE — now in every room.
+
+### Styling
+- **THE PAGER SPEAKS BESIDE THE FACE** (`src/app/(shell)/tabs/purchase-orders-tab.tsx`): the roster's pager bar used to live INSIDE the rows-exist branch, so a page past the end (the wire answers no rows) rendered the amber face but never the bar — `po-census-empty` was a defensive truth-conditional no live page could reach (the Task 45 handover's named gap). Hoisted beside the empty branch (the loyalty ledger's layout law, completed): the bar renders whenever the wire says a second page exists — face or no face — and the census pill speaks its honest empty line beside the way back. The v2.323 census truth-conditional, the a11y voice and the pill wardrobe keep their bytes; only the address moved.
+
+### Tests
+- `src/tests/body-door-class-v2325.test.ts` (NEW, 31 pins): the helper's truth table (object passes; null/array/primitives/malformed/missing all `{ ok: false }`; the rejection is a 400), the class-is-gone sweep (all 19 files import the door, carry the marker, and hold NO declaring bare read), and the hoist (the conditional lives after the rows-branch ternary close, exactly ONE home, the old in-fragment comment gone, the v2.323 census pins + the v2.324 amber-face pins byte-for-byte).
+- `verify:v2-325-0` wired; the walk re-anchors the treadmill (v2.325.0 pins + the unread-counter cascade).
+
 ## [2.324.0] The roster speaks its own word
 
 The v2.324.0 QA burst proved the Task 44 handover's named gap live: a body-less DELETE on the purchase-order detail route answered HTTP 500 with "Unexpected end of JSON input" — a CLIENT mistake (a request without a body cannot name its action) wearing a SERVER-crash status. And the Task 44 deep-link collision analysis named the safe path for a second desk's address-bar word. This release ships both, and dresses the roster's honest voices.

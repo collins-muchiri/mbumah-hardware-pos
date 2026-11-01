@@ -16,6 +16,7 @@ import { db } from '@/lib/db';
 import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { LogSeverity, LogComponent } from '@/lib/types';
 import { withSessionAuth, MANAGER_PLUS_ROLES } from '@/lib/auth';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -62,7 +63,12 @@ async function updateCategoryHandler(...args: unknown[]): Promise<Response> {
     );
   }
 
-  const body = await request.json();
+  // v2.325.0 THE BODY DOOR: an unreadable body is a client mistake — 400, never a 500.
+  const door = await readJsonBody<Record<string, unknown>>(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
   const name = typeof body.name === 'string' ? body.name.trim() : undefined;
   const description =
     body.description === undefined ? undefined : body.description === null ? null : String(body.description);

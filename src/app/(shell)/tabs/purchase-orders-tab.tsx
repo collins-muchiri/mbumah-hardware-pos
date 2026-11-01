@@ -2508,56 +2508,58 @@ export default function PurchaseOrdersTab() {
                   </TableBody>
                 </Table>
               </div>
-
-              {/* Pagination — v2.323.0 THE CENSUS NEVER LIES (the loyalty
-                  ledger's v2.322 law, ported): on a page past the end the
-                  old census computed a start the roster does not have and
-                  spoke arithmetic beside the honest face. The census slot
-                  is a truth-conditional: page > totalPages renders the
-                  honest empty line, the numeric census speaks only on
-                  pages the roster HAS. The buttons wear the desk's a11y
-                  voice (aria-labels the loyalty pager has spoken since
-                  v2.320) and the digits are tabular. */}
-              {pagination && pagination.totalPages > 1 && (
-                <div className="flex items-center justify-between px-4 py-3 border-t" data-testid="po-pager">
-                  {page > pagination.totalPages ? (
-                    <p className="rounded-full bg-muted/60 px-2.5 py-1 text-xs text-muted-foreground tabular-nums" data-testid="po-census-empty">
-                      No rows on this page — the ledger ends at {pagination.total} orders.
-                    </p>
-                  ) : (
-                    <p className="rounded-full bg-muted/60 px-2.5 py-1 text-xs text-muted-foreground tabular-nums" data-testid="po-census">
-                      Showing {(page - 1) * limit + 1}-{Math.min(page * limit, pagination.total)} of{' '}
-                      {pagination.total} orders
-                    </p>
-                  )}
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      data-testid="po-pager-prev"
-                      aria-label="Previous page"
-                      disabled={page <= 1}
-                      onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <span className="rounded-md bg-muted py-0.5 font-medium text-sm px-2 tabular-nums" data-testid="po-pager-status">
-                      {page} / {pagination.totalPages}
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      data-testid="po-pager-next"
-                      aria-label="Next page"
-                      disabled={page >= pagination.totalPages}
-                      onClick={() => setPage((p) => p + 1)}
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              )}
             </>
+          )}
+
+          {/* v2.325.0 — THE PAGER SPEAKS BESIDE THE FACE (the loyalty
+              ledger's layout law, completed): THE CENSUS NEVER LIES — the
+              bar used to live INSIDE the rows-exist branch, so a page past
+              the end (the wire answers no rows) rendered the amber face
+              but never the bar — po-census-empty was a defensive
+              truth-conditional no live page could reach. Hoisted beside
+              the empty branch: the bar renders whenever the wire says a
+              second page exists, face or no face, and the census pill
+              speaks its honest empty line beside the way back. The v2.323
+              census truth-conditional and the a11y voice keep their
+              bytes; only the address moved. */}
+          {pagination && pagination.totalPages > 1 && (
+            <div className="flex items-center justify-between px-4 py-3 border-t" data-testid="po-pager">
+              {page > pagination.totalPages ? (
+                <p className="rounded-full bg-muted/60 px-2.5 py-1 text-xs text-muted-foreground tabular-nums" data-testid="po-census-empty">
+                  No rows on this page — the ledger ends at {pagination.total} orders.
+                </p>
+              ) : (
+                <p className="rounded-full bg-muted/60 px-2.5 py-1 text-xs text-muted-foreground tabular-nums" data-testid="po-census">
+                  Showing {(page - 1) * limit + 1}-{Math.min(page * limit, pagination.total)} of{' '}
+                  {pagination.total} orders
+                </p>
+              )}
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  data-testid="po-pager-prev"
+                  aria-label="Previous page"
+                  disabled={page <= 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="rounded-md bg-muted py-0.5 font-medium text-sm px-2 tabular-nums" data-testid="po-pager-status">
+                  {page} / {pagination.totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  data-testid="po-pager-next"
+                  aria-label="Next page"
+                  disabled={page >= pagination.totalPages}
+                  onClick={() => setPage((p) => p + 1)}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>

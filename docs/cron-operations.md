@@ -99,6 +99,11 @@ confirm it, and neither requires shell access:
   `/?tab=loyalty&view=transactions&type=EXPIRE`, and the loyalty desk
   reads `?type=` on mount (the tab-url vocabulary `view` already spoke),
   so the pulse's counts land on the exact rows they summarize.
+- **v2.325.0**: the body door reads every room — the v2.324 handover's named class swept:
+  21 more bare `await request.json()` doors in 19 PUT/DELETE/PATCH routes now read through
+  `src/lib/request-body.ts` (`readJsonBody` + `bodyDoorRejected`), an unreadable body answers
+  400 with a hint, and the roster's pager bar is hoisted beside the empty branch so the
+  honest census (`po-census-empty`) speaks on a live page.
 - **v2.324.0**: the roster speaks its own word — the QA burst proved the
   Task 44 handover's named gap live (a body-less DELETE on the PO detail
   route answered a 500 "Unexpected end of JSON input"), so the shared

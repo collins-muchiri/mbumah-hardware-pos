@@ -5,6 +5,7 @@ import { db } from '@/lib/db';
 import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { LogSeverity, LogComponent, RentalStatus, StockMovementType } from '@/lib/types';
 import { withSessionAuth } from '@/lib/auth';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,7 +17,12 @@ async function updateRentalHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   const context = args[1] as RouteContext;
   const { id } = await context.params;
-  const body = await request.json();
+  // v2.325.0 THE BODY DOOR: an unreadable body is a client mistake — 400, never a 500.
+  const door = await readJsonBody<{ expectedReturnDate?: string; [key: string]: unknown }>(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const rental = await db.equipmentRental.findUnique({ where: { id } });
 

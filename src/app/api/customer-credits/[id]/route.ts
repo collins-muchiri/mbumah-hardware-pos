@@ -10,6 +10,7 @@ import { withSessionAuth, MANAGER_PLUS_ROLES } from '@/lib/auth';
 // STRING-CONCATENATE (number += Decimal).
 import { toDec, round2 } from '@/lib/utils/financialMath';
 import type Decimal from 'decimal.js';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 /** Numeric-ish shape accepted by toDec (Prisma Decimal is a decimal.js Decimal). */
 type NumericLike = number | string | Decimal | null | undefined;
@@ -65,7 +66,12 @@ async function updateCustomerCreditHandler(...args: unknown[]): Promise<Response
   const request = args[0] as NextRequest;
   const context = args[1] as RouteContext;
   const { id } = await context.params;
-  const body = await request.json();
+  // v2.325.0 THE BODY DOOR: an unreadable body is a client mistake — 400, never a 500.
+  const door = await readJsonBody<Record<string, unknown>>(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const existing = await db.customerCredit.findUnique({ where: { id } });
   if (!existing) {

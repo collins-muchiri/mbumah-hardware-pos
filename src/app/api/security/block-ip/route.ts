@@ -22,6 +22,7 @@ import { requireAuth, type AuthSession } from '@/lib/auth';
 import { withErrorBoundary, systemLog } from '@/lib/logger';
 import { blockKey, resetRateLimit } from '@/lib/rate-limit';
 import { LogSeverity, LogComponent } from '@/lib/types';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,7 +30,12 @@ async function blockIPHandler(
   request: NextRequest,
   session: AuthSession
 ): Promise<Response> {
-  const body = await request.json();
+  // v2.325.0 THE BODY DOOR: an unreadable body is a client mistake — 400, never a 500.
+  const door = await readJsonBody<{ ipAddress?: string; duration?: number; reason?: string; [key: string]: unknown }>(request);
+  if (!door.ok) {
+    return bodyDoorRejected('Use {"ipAddress": "1.2.3.4", "duration": 60, "reason": "..."} (duration in minutes).');
+  }
+  const body = door.body;
   const { ipAddress, duration, reason } = body;
 
   if (!ipAddress || typeof ipAddress !== 'string') {
@@ -82,7 +88,12 @@ async function unblockIPHandler(
   request: NextRequest,
   session: AuthSession
 ): Promise<Response> {
-  const body = await request.json();
+  // v2.325.0 THE BODY DOOR: an unreadable body is a client mistake — 400, never a 500.
+  const door = await readJsonBody<{ ipAddress?: string; [key: string]: unknown }>(request);
+  if (!door.ok) {
+    return bodyDoorRejected('Use {"ipAddress": "1.2.3.4"} to unblock.');
+  }
+  const body = door.body;
   const { ipAddress } = body;
 
   if (!ipAddress || typeof ipAddress !== 'string') {

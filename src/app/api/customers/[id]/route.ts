@@ -13,6 +13,7 @@ import {
 // Task 12-b: Prisma Decimal valueOf() returns a STRING - `number + decimal`
 // concatenates. Sums run through toDec(); numbers emitted at the boundary.
 import { toDec } from '@/lib/utils/financialMath';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -108,7 +109,12 @@ async function updateCustomerHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   const context = args[1] as RouteContext;
   const { id } = await context.params;
-  const body = await request.json();
+  // v2.325.0 THE BODY DOOR: an unreadable body is a client mistake — 400, never a 500.
+  const door = await readJsonBody<{ phone?: string; [key: string]: unknown }>(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const existing = await db.customer.findUnique({ where: { id } });
   if (!existing) {
