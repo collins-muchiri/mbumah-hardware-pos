@@ -79,7 +79,9 @@ describe('the desk seeds its date window from the address bar (loyalty-tab.tsx)'
     // carries only what each file uses.
     // v2.318 trail: the import gains buildSearchWithoutParams (the
     // dismiss builder) — the pin follows the import, not the round.
-    expect(tab.includes("import { buildSearchWithoutParams, parseInitialDateRange, parseInitialType, parseInitialView } from '@/lib/tab-url';")).toBe(true);
+    // v2.320 trail: the import gains parseInitialPage (the pager's
+    // landing word) — the pin follows the import, not the round.
+    expect(tab.includes("import { buildSearchWithoutParams, parseInitialDateRange, parseInitialPage, parseInitialType, parseInitialView } from '@/lib/tab-url';")).toBe(true);
   });
 
   it('both date inputs seed lazily with SSR guards (empty input, never a stranded filter)', () => {
