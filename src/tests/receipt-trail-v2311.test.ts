@@ -135,7 +135,10 @@ describe('v2.311.0 — the shell answers the address bar', () => {
     expect(parseInitialView('?view=nope', VIEWS, 'tiers')).toBe('tiers');
     expect(parseInitialView('', VIEWS, 'tiers')).toBe('tiers');
     expect(parseInitialView('?view=MEMBERS', VIEWS, 'tiers')).toBe('tiers');
-    expect(loyaltyTab).toContain("import { parseInitialView } from '@/lib/tab-url';");
+    // v2.316.0 pin evolution (deliberate): the type parser joins the
+    // import — the ledger answers ?type= now (the sweep line's door);
+    // the type vocabulary's own voice is pinned in expiry-ledger-link-v2316.
+    expect(loyaltyTab).toContain("import { parseInitialType, parseInitialView } from '@/lib/tab-url';");
     expect(loyaltyTab).toContain(
       "const LOYALTY_SUB_TABS: readonly LoyaltySubTab[] = ['tiers', 'members', 'transactions', 'campaigns'];",
     );

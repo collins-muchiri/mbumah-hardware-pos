@@ -1065,7 +1065,31 @@ export function OrgConsole() {
      renders in BOTH card states: below the tick body on a ticked card,
      and beside the "no dispatch yet" sentence on a card that has sweeps
      but no ticks yet. One source of truth keeps the byte census (the
-     amber pairs, the sr-only copies) honest while both doors speak. */
+     amber pairs, the sr-only copies) honest while both doors speak.
+
+     v2.316.0: BOTH voices walk to the ledger. The amber counts and the
+     healthy zero link `/?tab=loyalty&view=transactions&type=EXPIRE`
+     — the loyalty desk reads `?type=` on mount (the tab-url vocabulary
+     `view` already spoke), so the pulse's counts land on the exact rows
+     they summarize instead of a dead end. One door for both voices: a
+     sweep worth seeing is a sweep worth walking to.
+
+     THE HARD-NAVIGATION LAW (the browser burst caught it): this door
+     rides a PLAIN ANCHOR, deliberately not <Link>. The shell's ask
+     capture (v2.313.0) reads the bar at HomePage's FIRST RENDER — true
+     on every boot, bookmark, and hard open, but on a CLIENT-SIDE
+     transition from /org/dashboard the render races Next's history
+     update and the capture reads the OLD bar (""), so the persisted
+     desk wins and the ask dies (the burst watched the click land on
+     ?tab=dashboard&view=transactions&type=EXPIRE). A cross-console ask
+     loads the shell fresh — the PROVEN landing path (the same law the
+     QA bursts have used since v2.311). */
+  const EXPIRY_LEDGER_HREF = '/?tab=loyalty&view=transactions&type=EXPIRE';
+  const expiryLedgerLinkClass =
+    'underline decoration-amber-600/40 underline-offset-2 rounded-sm transition-colors ' +
+    'hover:decoration-amber-600 focus-visible:outline-none focus-visible:ring-2 ' +
+    'focus-visible:ring-amber-400/70 focus-visible:ring-offset-1 ' +
+    'dark:decoration-amber-400/40 dark:hover:decoration-amber-400';
   function expiryRunLine(run: NonNullable<AutomationSummary['lastExpiryRun']>) {
     const expiredSomething = run.walletsExpired > 0;
     return (
@@ -1083,15 +1107,24 @@ export function OrgConsole() {
           Last expiry sweep {timeAgo(run.at)} · {run.scanned} wallet
           {run.scanned === 1 ? '' : 's'} scanned ·{' '}
           {expiredSomething ? (
-            <span
+            <a
+              href={EXPIRY_LEDGER_HREF}
               data-testid="automation-expiry-run-counts"
-              className="font-medium tabular-nums text-amber-700 dark:text-amber-400"
+              title="Open the loyalty ledger, filtered on Expire rows"
+              className={`font-medium tabular-nums text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 ${expiryLedgerLinkClass}`}
             >
               {run.walletsExpired} wallet{run.walletsExpired === 1 ? '' : 's'} expired,
               {' '}{run.pointsExpired} point{run.pointsExpired === 1 ? '' : 's'} returned
-            </span>
+            </a>
           ) : (
-            <span data-testid="automation-expiry-run-clean">nothing to expire</span>
+            <a
+              href={EXPIRY_LEDGER_HREF}
+              data-testid="automation-expiry-run-clean"
+              title="Open the loyalty ledger, filtered on Expire rows"
+              className={`text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 ${expiryLedgerLinkClass}`}
+            >
+              nothing to expire
+            </a>
           )}{' '}
           across {run.storeCount} store{run.storeCount === 1 ? '' : 's'}.
         </span>

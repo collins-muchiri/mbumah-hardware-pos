@@ -94,6 +94,11 @@ confirm it, and neither requires shell access:
   `src/lib/loyalty-expiry-pulse.ts` and it is never-a-guess: a row whose
   metadata cannot be FULLY read (garbage, missing stores array, any
   dishonest count) renders no sweep line at all — never a partial sum.
+- **v2.316.0**: the sweep line's voices deep-link to the ledger — the
+  amber counts AND the healthy zero are links to
+  `/?tab=loyalty&view=transactions&type=EXPIRE`, and the loyalty desk
+  reads `?type=` on mount (the tab-url vocabulary `view` already spoke),
+  so the pulse's counts land on the exact rows they summarize.
 - **v2.165.0**: BOTH dispatchers write the ledger. The nightly dispatcher
   (which had left no always-row since v2.159.0) writes its own tick row,
   and every row's metadata names its dispatcher (`dispatcher: 'hourly' |`

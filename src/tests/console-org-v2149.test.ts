@@ -120,7 +120,11 @@ describe('the org console amber family passes at cell size', () => {
     // card in the Expiry desk's own amber — the Hourglass icon and the
     // expired-counts span each mount the pair, so 7 + 2 = 9; the sweep
     // line's own voice is pinned in expiry-pulse-v2315.
-    expect(org().match(/text-amber-700 dark:text-amber-400/g)?.length).toBe(9);
+    // v2.316.0 pin evolution (deliberate): the sweep line's voices became
+    // LINKS and the healthy zero joined the amber family (it used to sit
+    // in muted-foreground) — Hourglass + counts link + clean-zero link =
+    // 9 + 1 = 10; the links' own voice is pinned in expiry-ledger-link-v2316.
+    expect(org().match(/text-amber-700 dark:text-amber-400/g)?.length).toBe(10);
     // v2.273.0 pin evolution (deliberate): the tone ternary grew the 'good'
     // face (the census's emerald) and moved to the multi-line shape — the
     // amber pair bytes are unchanged (the count above still holds at 7).

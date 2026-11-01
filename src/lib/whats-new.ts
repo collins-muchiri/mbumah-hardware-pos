@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.316.0',
+    title: 'The sweep\u2019s counts walk to the ledger',
+    bullets: [
+      'The Automation pulse\u2019s expiry sweep line no longer dead-ends: the amber counts — and the "nothing to expire" zero — are now links that open the loyalty ledger pre-filtered on Expire rows, so the numbers land on the exact entries that produced them.',
+      'The loyalty ledger\u2019s type filter answers the address bar too: links can arrive with a type pre-chosen, and an unknown or stale value falls back to "All Types" instead of stranding the ledger.',
+      'The link keeps the Expiry desk\u2019s own amber voice — underlined on hover, keyboard-focused with the same amber ring, and honest about where it goes in its tooltip.',
+    ],
+  },
+  {
     version: '2.315.0',
     title: 'The sweep gets a face on the pulse',
     bullets: [
