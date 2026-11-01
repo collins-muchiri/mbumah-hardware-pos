@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.324.0',
+    title: 'The roster speaks its own word',
+    bullets: [
+      'A body-less delete on a purchase order no longer crashes the wire with a 500 — the door reads the body honestly and answers 400 with the exact actions it accepts, so a mistake is a hint, not a crash.',
+      'The purchase-order roster\u2019s pager answers the address bar with its own word: share or bookmark ?po-page=2 and the desk lands on page 2 (a desk-prefixed word, so the loyalty ledger\u2019s ?page= can never hear it).',
+      'The "page past the end" notice grew up: it now wears an amber card with the why (a stale link after rows shrank) and a styled way back, and the pager\u2019s census and page counter ride a cleaner pill wardrobe.',
+    ],
+  },
+  {
     version: '2.323.0',
     title: 'The roster joins the truth',
     bullets: [

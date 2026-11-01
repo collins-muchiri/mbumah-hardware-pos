@@ -152,7 +152,35 @@ async function updatePurchaseOrderHandler(
   context: RouteContext,
 ): Promise<Response> {
   const { id } = await context.params;
-  const body = await request.json();
+  // v2.324.0 THE BODY'S DOOR — a body-less DELETE (or any empty /
+  // malformed JSON body) used to ride straight into request.json()'s
+  // SyntaxError and the error boundary answered a 500 for what is a
+  // CLIENT mistake (the live QA burst proved it: DELETE without a body
+  // answered 500 "Unexpected end of JSON input"). The door now reads
+  // the body honestly: an empty or malformed body answers 400 with the
+  // actions hint — the same voice the no-valid-action fallback below
+  // speaks — so a mistake is a polite rejection, never a crash.
+  // (THE BODY IS HONEST ABOUT ITS SHAPE.) The parsed shape keeps the
+  // fields the handler dispatches on; anything else still falls through
+  // to the 400 no-valid-action answer.
+  let body: {
+    status?: string;
+    notes?: string;
+    action?: string;
+    receivedItems?: { itemId: string; receivedQty: number }[];
+  } = {};
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json(
+      {
+        success: false,
+        error: 'Request body must be valid JSON (a body-less request cannot name its action).',
+        hint: 'Use {"status": "..."} for a status change, {"action": "receive", "receivedItems": [...]} for a goods receipt, or {"action": "delete"} to delete.',
+      },
+      { status: 400 }
+    );
+  }
 
   const existing = await db.purchaseOrder.findUnique({
     where: { id },
