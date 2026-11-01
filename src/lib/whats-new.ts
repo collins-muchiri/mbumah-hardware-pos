@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.330.0',
+    title: 'The debt lens answers the address bar',
+    bullets: [
+      'The customers desk now speaks its debt filter to the address bar: bookmark or share ?cust-debt=overdue and the desk lands with the high-risk lens already chosen — the third desk to inherit the roster\u2019s membership law, zero new bytes of parser.',
+      'The landing is visible here too: the lens wears its chip in the debt lens\u2019s own rose, and it retires the moment you change, dismiss, or reset the filter — four honest exits, never a stale face.',
+      'Case-sensitive by law: the desk\u2019s words are snake-case, so ?cust-debt=OVERDUE is an unknown word and answers All Customers — a stale bookmark can never strand the desk in a lens it does not offer.',
+    ],
+  },
+  {
     version: '2.329.0',
     title: 'The stock lens answers the address bar',
     bullets: [

@@ -247,6 +247,7 @@ describe('the collision ledger — desk-prefixed words stay rare', () => {
         'src/app/(shell)/tabs/purchase-orders-tab.tsx',
         'src/lib/tab-url.ts',
         'src/lib/whats-new.ts',
+        'src/tests/cust-debt-deep-link-v2330.test.ts',
         'src/tests/inv-stock-deep-link-v2329.test.ts',
         'src/tests/po-status-deep-link-v2328.test.ts',
         'src/tests/proxy-gate-layering-v2328.test.ts',

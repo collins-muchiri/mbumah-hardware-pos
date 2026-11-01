@@ -169,9 +169,11 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
     walkSrc('src', collected);
     collected.sort();
     expect(collected).toEqual([
+      'src/app/(shell)/tabs/customers-tab.tsx',
       'src/app/(shell)/tabs/inventory-tab.tsx',
       'src/lib/tab-url.ts',
       'src/lib/whats-new.ts',
+      'src/tests/cust-debt-deep-link-v2330.test.ts',
       'src/tests/inv-stock-deep-link-v2329.test.ts',
       'src/tests/proxy-gate-layering-v2328.test.ts',
     ]);
