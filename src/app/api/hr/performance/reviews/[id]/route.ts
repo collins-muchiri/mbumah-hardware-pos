@@ -4,7 +4,7 @@
 
 import type { NextRequest } from 'next/server';
 import { hrGuard, type HrRouteContext } from '@/lib/hr/guard';
-import { getReviewDetail, updateReview } from '@/lib/hr/performance-service';
+import { getReviewDetail, updateReview, type ReviewUpdateInput } from '@/lib/hr/performance-service';
 import { toErrorResponse } from '@/lib/hr/stage-g-shared';
 import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
@@ -26,11 +26,11 @@ export const PATCH = hrGuard('hr.performance.review')(
     try {
       const { id } = await context!.params;
       // THE SWALLOW DOOR: an unreadable body is a client mistake (v2.327.0):
-      const door = await readJsonBody<Record<string, unknown>>(request);
+      const door = await readJsonBody<ReviewUpdateInput>(request);
       if (!door.ok) {
         return bodyDoorRejected();
       }
-      const body = door.body as Record<string, unknown>;
+      const body = door.body;
       if (String(body.action ?? '').toUpperCase() === 'ACKNOWLEDGE') {
         return Response.json(
           {

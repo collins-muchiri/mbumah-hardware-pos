@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.334.0',
+    title: 'The API doors speak their body\u2019s shape',
+    bullets: [
+      'Every HR and data-export endpoint\u2019s request body is now typed by the fields its handler actually consumes — the service\u2019s own input type where one exists, so a door can no longer drift from the handler it feeds. Runtime behavior is byte-identical: same 400 door voice for malformed bodies, same success paths.',
+      'The transactions desk\u2019s quick payment chips now answer the keyboard: a visible violet focus ring walks the chips with Tab, matching the lens\u2019s own family.',
+      'The body-door law doc records the tightening: the 20-door swallow census is fully narrowed, and the wider door class keeps its documented `any` default until its own per-file pass.',
+    ],
+  },
+  {
     version: '2.333.0',
     title: 'The ledger answers the address bar',
     bullets: [

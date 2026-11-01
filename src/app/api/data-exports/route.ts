@@ -32,6 +32,12 @@ import {
 import { resolveExportsDir } from '@/lib/export-paths';
 import { dataRetention } from '@/lib/data-retention';
 import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
+// v2.334.0 THE DOOR TIGHTENED: the door speaks the fields the route
+// consumes and validates — the three required string fields, the two
+// optional date strings, and the free-form filters (still unknown: the
+// route's own typeof dispatch is its validator). The door can no
+// longer claim fields nothing reads (the per-file generic tightening,
+// the `any`-law's sanctioned follow-up).
 
 export const dynamic = 'force-dynamic';
 
@@ -110,7 +116,14 @@ async function listExportsHandler(...args: unknown[]): Promise<Response> {
 async function createExportHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE SWALLOW DOOR: an unreadable body is a client mistake (v2.327.0):
-  const door = await readJsonBody(request);
+  const door = await readJsonBody<{
+    storeId?: string;
+    exportType?: string;
+    format?: string;
+    dateFrom?: string;
+    dateTo?: string;
+    filters?: unknown;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

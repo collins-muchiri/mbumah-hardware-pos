@@ -56,7 +56,7 @@ describe('service — a soft delete, audited, never a hard one', () => {
     const route = readRepo('src/app/api/hr/goals/[id]/route.ts');
     expect(route).toMatch(/export const DELETE = hrGuard\('hr\.performance\.manage'\)/);
     expect(route).toContain('deleteGoal(id, session)');
-    expect(route).toContain("import { deleteGoal, updateGoal }");
+    expect(route).toContain("import { deleteGoal, updateGoal, type GoalUpdateInput }");
   });
 });
 

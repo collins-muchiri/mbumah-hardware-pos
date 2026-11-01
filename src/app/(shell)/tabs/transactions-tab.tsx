@@ -1633,7 +1633,7 @@ export default function TransactionsTab() {
               <button
                 key={method}
                 onClick={() => chooseTxnPay(method)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all flex items-center gap-1 ${
+                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-1 ${
                   paymentFilter === method
                     ? 'bg-primary text-primary-foreground border-primary shadow-sm'
                     : 'bg-muted/50 text-muted-foreground border-border hover:bg-muted hover:text-foreground'
