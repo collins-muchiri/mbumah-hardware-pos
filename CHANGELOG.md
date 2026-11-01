@@ -1,3 +1,20 @@
+## [2.318.0] The window answers back
+
+The v2.317 window opened on the address bar’s word alone. Now the window can LEAVE, and the wire ANSWERS: the ledger gains a dismiss affordance for its date window, and the transactions API validates its date query through the honest-day law and echoes the window it actually applied.
+
+### Added
+- **The window can leave** (`src/lib/tab-url.ts` + `src/app/(shell)/tabs/loyalty-tab.tsx`): `buildSearchWithoutParams` is the dismiss law — remove ONLY the named params, preserving every other voice (`tab`/`view`/`type` ride untouched; the exact mirror of `buildTabSearch`’s preserve law). The desk’s × chip (present only while a window is active) clears both inputs and scrubs `?from=`/`?to=` from the address bar — a stale `?from=` that outlives the filter it named was a lie the next refresh would resurrect. This is the desk’s ONE deliberate write to the address bar, SSR-guarded, pinned where the next reader meets it.
+- **The honest echo** (`src/app/api/loyalty/transactions/route.ts` + `src/lib/api.ts`): the wire answers `window: { from, to }` — the window this query ACTUALLY applied, post-validation, never the one it was handed (a null names the open side). The envelope carries the additive `window` field (same law as `costGated` — every other wire answers undefined), and the desk wears the echo as an amber stamp — `Window 2026-10-31 → 2026-10-31 · 3 rows` — straight from the wire, with the total matching rows.
+
+### Fixed
+- **The garbage date no longer 500s** (`src/app/api/loyalty/transactions/route.ts`): a raw `dateFrom`/`dateTo` query string went STRAIGHT into `new Date()` — a garbage param minted an Invalid Date, Prisma answered a validation error, and the route 500’d. The same honest-day law the address bar speaks (`honestDayKey`, now PUBLIC from tab-url — shape `YYYY-MM-DD`, the day must be REAL by the round-trip law) reads the query now: garbage, malformed, or impossible is DROPPED — never a 500, never a stranded filter.
+
+### Styling
+- **The chip earns the amber wardrobe** (`loyalty-tab.tsx`): the × rides the Expiry desk’s voice — `border-amber-600/40` ink `text-amber-700 dark:text-amber-400`, hover `amber-50`/`amber-800`, keyboard focus ring `focus-visible:ring-amber-400` — with the aria-label and tooltip that say exactly what it does ("Clear the date window"). The stamp wears the same voice in a `rounded-full` pill with `tabular-nums` digits and the Calendar glyph.
+
+### Tests
+- `src/tests/expiry-window-dismiss-v2318.test.ts` (NEW): the dismiss truth table (only named voices removed, unknown names a no-op, empty result answers ’’, malformed never throws), the public honest-day law (real days, impossible days, wrong shapes), the API-door pins (law import, both params, the 500-law comment, the echo), the envelope’s additive field, and the desk’s chip + scrub + stamp pins. Trail note in `expiry-day-window-v2317` (import line — the pin follows the import, not the round).
+
 ## [2.317.0] The ledger answers the day
 
 The v2.316 counts door landed on the whole Expire trail; now it names the DAY. The ledger’s date window answers the address bar, and the sweep’s own counts link carries its sweep’s EAT day — the window opens on exactly the rows that sweep wrote.

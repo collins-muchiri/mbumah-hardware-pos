@@ -187,7 +187,7 @@ describe('the laws named \u2014 the ride-along (v2.248.0)', () => {
 
 describe('the release face (v2.248.0)', () => {
   it('package.json speaks 2.248.0', () => {
-    expect(version).toBe('2.317.0');
+    expect(version).toBe('2.318.0');
   });
 
   it('the door\u2019s answer rides the changelog', () => {

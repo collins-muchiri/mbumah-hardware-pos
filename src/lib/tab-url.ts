@@ -97,7 +97,17 @@ export interface InitialDateRange {
 /** The exact shape a date input accepts and the ledger's query sends. */
 const DAY_KEY_RE = /^\d{4}-\d{2}-\d{2}$/;
 
-function honestDayKey(value: string | null): string {
+/**
+ * The honest calendar-day law, PUBLIC since v2.318.0 — the same one law
+ * now read at BOTH doors that meet a day key: the address-bar parser
+ * (`parseInitialDateRange`) and the API route's query door
+ * (`/api/loyalty/transactions`, which used to hand a raw string to
+ * `new Date()` and could answer a Prisma validation error on a garbage
+ * param). Shape must be `YYYY-MM-DD` and the day must be REAL — see the
+ * round-trip comment below; garbage, malformed, or impossible answers ''
+ * (dropped, never a 500, never a stranded filter).
+ */
+export function honestDayKey(value: string | null): string {
   if (!value || !DAY_KEY_RE.test(value)) return '';
   // a REAL calendar day only, proven by round-trip: V8's ISO parser is
   // LENIENT with day overflow (2026-02-30 parses through to 2026-03-02,
@@ -160,5 +170,29 @@ export function buildTabSearch(currentSearch: string, tab: string): string {
     return qs ? `?${qs}` : '';
   } catch {
     return `?tab=${encodeURIComponent(tab)}`;
+  }
+}
+
+/**
+ * v2.318.0 — the dismiss law: remove ONLY the named params from a search
+ * string, preserving every other voice (`tab`, `view`, `type` ride
+ * untouched — the exact mirror of `buildTabSearch`'s preserve law). The
+ * ledger's clear-window chip speaks this: when the human dismisses the
+ * date window, the address bar must stop claiming a window it no longer
+ * has — a stale `?from=` that outlives the filter it named is a lie the
+ * next refresh would resurrect. Malformed search answers the input's
+ * fallback shape ('' when nothing survives); unknown names are a no-op.
+ */
+export function buildSearchWithoutParams(
+  currentSearch: string,
+  names: readonly string[],
+): string {
+  try {
+    const params = toParams(currentSearch);
+    for (const name of names) params.delete(name);
+    const qs = params.toString();
+    return qs ? `?${qs}` : '';
+  } catch {
+    return '';
   }
 }

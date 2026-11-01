@@ -77,7 +77,9 @@ describe('the desk seeds its date window from the address bar (loyalty-tab.tsx)'
     // the desk reads the window; eatDayKey is the CARD's builder (the
     // counts door) and lives only in org-console's import — the lint law
     // carries only what each file uses.
-    expect(tab.includes("import { parseInitialDateRange, parseInitialType, parseInitialView } from '@/lib/tab-url';")).toBe(true);
+    // v2.318 trail: the import gains buildSearchWithoutParams (the
+    // dismiss builder) — the pin follows the import, not the round.
+    expect(tab.includes("import { buildSearchWithoutParams, parseInitialDateRange, parseInitialType, parseInitialView } from '@/lib/tab-url';")).toBe(true);
   });
 
   it('both date inputs seed lazily with SSR guards (empty input, never a stranded filter)', () => {
@@ -120,6 +122,13 @@ describe('the card face — the counts door names the day (org-console.tsx)', ()
 describe('the housekeeping — the qa-diag scripts join the gitignored home', () => {
   it('the gitignore rule exists (the two stale v2315 diag scripts vanish from status)', () => {
     const gitignore = readFileSync('.gitignore', 'utf8');
-    expect(gitignore.includes('scripts/qa-diag-*')).toBe(true);
+    // v2.318.0 pin evolution (deliberate): the rule broadens one byte —
+    // `scripts/qa-diag-*` → `scripts/qa-diag*` — because the stray files
+    // were named `qa-diag2-console-v2315.sh` (a digit, not a dash, after
+    // diag), and the original pattern never matched them; qa-seed-* and
+    // release-v*.sh join the same home this round.
+    expect(gitignore.includes('scripts/qa-diag*')).toBe(true);
+    expect(gitignore.includes('scripts/qa-seed-*')).toBe(true);
+    expect(gitignore.includes('scripts/release-v*.sh')).toBe(true);
   });
 });

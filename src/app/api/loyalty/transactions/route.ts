@@ -11,6 +11,7 @@ import {
   MANUAL_EXPIRE_REFUSAL_MESSAGE,
   walletInsufficientMessage,
 } from '@/lib/loyalty-adjust-policy';
+import { honestDayKey } from '@/lib/tab-url';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,8 +29,16 @@ async function getLoyaltyTransactionsHandler(...args: unknown[]): Promise<Respon
 
   const customerId = searchParams.get('customerId');
   const transactionType = searchParams.get('transactionType');
-  const dateFrom = searchParams.get('dateFrom') || '';
-  const dateTo = searchParams.get('dateTo') || '';
+  // v2.318.0 — THE WINDOW IS HONEST AT THE API DOOR TOO: the raw query
+  // strings used to go STRAIGHT into `new Date()` — a garbage `dateFrom`
+  // minted an Invalid Date, Prisma answered a validation error, and the
+  // route 500'd. The same honest-day law the address bar speaks
+  // (tab-url's `honestDayKey`) reads the query now: shape must be
+  // `YYYY-MM-DD`, the day must be REAL, and anything else is DROPPED —
+  // never a 500, never a stranded filter. The echo below answers the
+  // window the query ACTUALLY applied, never the one it was handed.
+  const dateFrom = honestDayKey(searchParams.get('dateFrom'));
+  const dateTo = honestDayKey(searchParams.get('dateTo'));
   const search = searchParams.get('search') || '';
   const page = parseInt(searchParams.get('page') || '1');
   const limit = parseInt(searchParams.get('limit') || '50');
@@ -99,6 +108,15 @@ async function getLoyaltyTransactionsHandler(...args: unknown[]): Promise<Respon
   return Response.json({
     success: true,
     data: transactions,
+    // v2.318.0 THE HONEST ECHO: the wire answers the window this query
+    // applied (post-validation, the same values that built the `where`) —
+    // the desk pins the applied range instead of guessing from its own
+    // inputs, and a null names the open side. Additive: older readers of
+    // this wire never sent or read a `window`, so nothing breaks.
+    window: {
+      from: dateFrom || null,
+      to: dateTo || null,
+    },
     summary: {
       totalPointsEarned: earnedSummary._sum.points || 0,
       totalEarnCount: earnedSummary._count,

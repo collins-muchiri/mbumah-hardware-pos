@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
   Sparkles, Plus, Search, Crown, Award, Users, Loader2, Settings2, TrendingUp, Calendar, Gift, Zap, ChevronUp, Clock,
-  HandCoins, Target, Megaphone, Edit, History, RotateCcw, Receipt,
+  HandCoins, Target, Megaphone, Edit, History, RotateCcw, Receipt, X,
   Trophy, Gem, Medal, Shield, Palette, Hourglass, AlertCircle,
 } from 'lucide-react';
 
@@ -23,7 +23,7 @@ import {
   DOCK_REASON_HINT,
   EXPIRE_POLICY_NOTE,
 } from '@/lib/loyalty-adjust-policy';
-import { parseInitialDateRange, parseInitialType, parseInitialView } from '@/lib/tab-url';
+import { buildSearchWithoutParams, parseInitialDateRange, parseInitialType, parseInitialView } from '@/lib/tab-url';
 import { ReceiptViewDialog } from '@/components/loyalty/receipt-view-dialog';
 import { ExpiryDialog } from '@/components/loyalty/expiry-dialog';
 
@@ -207,6 +207,23 @@ export default function LoyaltyTab() {
   const [txTypeFilter, setTxTypeFilter] = useState<string>(initialTxTypeFilter);
   const [txDateFrom, setTxDateFrom] = useState<string>(initialDateFrom);
   const [txDateTo, setTxDateTo] = useState<string>(initialDateTo);
+  // v2.318.0 — THE WINDOW CAN LEAVE: the desk's ONE deliberate write to
+  // the address bar. Every other param law here is read-only-on-mount;
+  // the dismiss is different ON PURPOSE — a `?from=` that outlives the
+  // filter it named is a lie the next refresh would resurrect, so the
+  // chip scrubs ONLY `from`/`to` (buildSearchWithoutParams preserves
+  // `tab`/`view`/`type`), clears both inputs, and lets the desk's own
+  // query state be the single remaining truth. SSR-guarded like every
+  // window touch in this file.
+  const clearDateWindow = () => {
+    setTxDateFrom('');
+    setTxDateTo('');
+    if (typeof window !== 'undefined') {
+      const next = buildSearchWithoutParams(window.location.search, ['from', 'to']);
+      window.history.replaceState(null, '', next ? next : window.location.pathname);
+    }
+  };
+  const dateWindowActive = Boolean(txDateFrom || txDateTo);
   const [_txSearch, _setTxSearch] = useState('');
   const [manualAdjustOpen, setManualAdjustOpen] = useState(false);
   const [manualAdjustForm, setManualAdjustForm] = useState({
@@ -774,6 +791,43 @@ export default function LoyaltyTab() {
             onChange={(e) => setTxDateTo(e.target.value)}
             placeholder="To"
           />
+          {/* v2.318.0 — THE WINDOW CAN LEAVE: an × chip, present only while
+              a window is active. The Expiry desk's amber voice (border,
+              ink, hover, focus ring — the v2.316 link wardrobe), with the
+              tooltip that says exactly what it does. */}
+          {dateWindowActive && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-9 w-9 shrink-0 p-0 border-amber-600/40 text-amber-700 hover:bg-amber-50 hover:text-amber-800 focus-visible:ring-amber-400 dark:text-amber-400 dark:hover:bg-amber-950/40"
+                    data-testid="clear-date-window"
+                    aria-label="Clear date window"
+                    onClick={clearDateWindow}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Clear the date window</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+          {/* v2.318.0 — THE HONEST ECHO, WORN: the wire's applied window
+              (NOT the inputs) rendered as an amber stamp with the total
+              matching rows, so the desk pins what the query actually
+              filtered. An open side names itself honestly. */}
+          {txData?.window && (txData.window.from || txData.window.to) && (
+            <span
+              data-testid="applied-window-stamp"
+              className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-amber-600/30 bg-amber-50 px-2.5 py-1 text-xs font-medium tabular-nums text-amber-800 dark:border-amber-500/30 dark:bg-amber-950/40 dark:text-amber-300"
+            >
+              <Calendar className="h-3.5 w-3.5" />
+              Window {txData.window.from || 'beginning'} → {txData.window.to || 'now'}
+              {typeof txData.pagination?.total === 'number' ? ` · ${txData.pagination.total} rows` : ''}
+            </span>
+          )}
           <div className="flex-1" />
           {/* v2.312.0: the expiry desk — the EXPIRE voice's writer, one press
               from the toolbar it describes. Amber hourglass: a policy act,
