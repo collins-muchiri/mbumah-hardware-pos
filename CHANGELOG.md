@@ -1,3 +1,19 @@
+## [2.336.0] The catalog doors speak their body's shape
+
+The wider door class continues its per-file pass, one family at a time, and the CATALOG family goes second: eighteen doors across eighteen files (products ×3, categories ×2, subcategories, vouchers + redeem, voucher-campaigns, gift-cards ×5, etims ×3) stop reading their bodies as loose generics or the default `any` and speak the body's OWN shape. RUNTIME BEHAVIOR IS BYTE-IDENTICAL (the scoped tsc round-trip: 34=34, ZERO new, ZERO gone) — types only.
+
+### Added
+- **THE CATALOG DOORS TIGHTENED (18 doors / 18 files)**: the CREATE doors (products, bundles, categories, subcategories, vouchers, voucher-campaigns) name every field their handler consumes — `unknown` only where the route itself coerces (`sellingUnit`/`conversionFactor`/`discountPercent` via String()/Number()); the gift-cards CREATE door names ONLY the four raw fields the zod schema does not own (the schema-validated fields flow through `validation.data`, typed by zod itself), and its four `(body as Record<string, unknown>)` re-casts are gone; the UPDATE doors (products/[id], categories/[id], gift-cards/[id]) name their directly-read fields while the allowedFields loops keep the honest index signature; the two redeem doors (vouchers/redeem, gift-cards/redeem) borrow the local `RedeemBody`/`RedeemByCodeBody` interfaces their handlers already declared — the `as` re-casts are gone; the etims trio speaks its consumed fields. vouchers/[id] already wore its own literal (untouched, pinned).
+- **THE LEDGER GREW AGAIN**: categories/[id] and gift-cards/[id] graduate out of body-door-class-v2326's loose-Record exemplar list with an honest growth comment (the remaining three exemplars still guarded; the financial-doors-v2335 ledger pin grew with them — the pin-growth law, caught and grown before push).
+- **THE LAW DOC RECORDS IT** (`request-body.ts`): "v2.336.0 — THE CATALOG FAMILY, the wider class's second pass" — the family's doors, the unknown-where-it-coerces rule, the zod split, and the borrowed interfaces.
+
+### Styling
+- **THE SHELF METER** (`catalog-tab.tsx`): the product card's stock line grows a colour-stepped micro-bar — the shelf's fill against twice the reorder level (the comfortable envelope the low-stock hint speaks): red at or below the reorder level, amber inside the envelope, emerald above it. `data-testid="product-stock-meter"`, `role="progressbar"` + aria values, exact shelf-fill figures on hover, an explicit percentage voice, in BOTH the grid card and the list row; an empty shelf stays silent (the Unavailable voice already speaks).
+
+### Tests
+- `src/tests/catalog-doors-v2336.test.ts` (NEW): the zero-loose-generic census across all eighteen catalog files (no Record, no bare door, no re-casts), the per-file honest bytes (create shapes, update shapes, the zod split, the borrowed interfaces, the untouched voucher door), the v2326 ledger growth, the law-doc note, and the shelf-meter styling face.
+- The walk re-anchors the treadmill (v2.336.0 pins + the unread-counter cascade 226/227/228/259 → 227/228/229/260).
+
 ## [2.335.0] The financial doors speak their body's shape
 
 The wider door class begins its per-file pass, one family at a time, and the FINANCIAL family goes first: nine doors across ten files (accounts ×2, budgets ×3, journal ×2, periods ×2, trial-balance snapshot) stop reading their bodies as loose generics or the default `any` and speak the body's OWN shape. One honest behavior fix rides along: the budgets-recalculate door finally performs the period↔store cross-check its comment always promised. The scoped tsc round-trip: 35=35, ZERO new, ZERO gone on the doors — types only where the doors are concerned.

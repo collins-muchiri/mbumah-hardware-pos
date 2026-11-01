@@ -42,11 +42,13 @@ async function redeemVoucherByCodeHandler(
   session: AuthSession,
 ): Promise<Response> {
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.336.0 the door speaks the RedeemBody the handler already declared —
+  // the `as` re-cast below it is gone (the door types, nothing re-widens).
+  const door = await readJsonBody<RedeemBody>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
-  const body = door.body as RedeemBody;
+  const body = door.body;
   const { code, storeId, customerId, transactionId, amount } = body;
 
   if (!code || !storeId) {

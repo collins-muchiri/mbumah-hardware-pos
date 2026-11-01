@@ -53,11 +53,13 @@ interface RedeemByCodeBody {
 async function redeemGiftCardByCodeHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.336.0 the door speaks the RedeemByCodeBody the file already declared —
+  // the `as` re-cast below it is gone (the door types, nothing re-widens).
+  const door = await readJsonBody<RedeemByCodeBody>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
-  const body = door.body as RedeemByCodeBody;
+  const body = door.body;
 
   // 1. Validate input
   const rawCode = typeof body.code === 'string' ? body.code.trim() : '';

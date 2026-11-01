@@ -29,7 +29,15 @@ async function putEtimsSettingsHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as Request;
   try {
     // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-    const door = await readJsonBody(request);
+    // v2.336.0 the door names the five config fields the handler logs
+    // (all read as unknown — the handler only inspects truthiness).
+    const door = await readJsonBody<{
+      sandbox?: unknown;
+      tin?: unknown;
+      branchId?: unknown;
+      bvsn?: unknown;
+      deviceSerial?: unknown;
+    }>(request);
     if (!door.ok) {
       return bodyDoorRejected();
     }

@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.336.0',
+    title: 'The catalog doors speak their body\u2019s shape',
+    bullets: [
+      'The catalog family\u2019s eighteen API doors (products, bundles, categories, sub-categories, vouchers, campaigns, gift cards, KRA eTIMS) now type every request body by the fields the route actually reads — the same honest pass the financial doors got last release. Same behavior, same 400 door voice, just doors that document the exact shape they accept.',
+      'The two redemption doors (voucher and gift-card by code) now reuse the request shapes their own handlers declared — the loose re-casts are gone.',
+      'Product cards grow a shelf meter: the stock line becomes a colour-stepped bar against the reorder envelope (red at the reorder level, amber as it fills, emerald in comfort), in both grid and list views.',
+    ],
+  },
+  {
     version: '2.335.0',
     title: 'The financial doors speak their body\u2019s shape',
     bullets: [

@@ -37,7 +37,8 @@ export const dynamic = 'force-dynamic';
 async function issueInvoiceHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as Request;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.336.0 the door speaks the one field the handler consumes.
+  const door = await readJsonBody<{ transactionId?: string }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

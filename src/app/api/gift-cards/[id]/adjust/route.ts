@@ -22,7 +22,10 @@ async function adjustGiftCardHandler(...args: unknown[]): Promise<Response> {
   const context = args[1] as RouteContext;
   const { id } = await context.params;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.336.0 the door speaks the adjustment's own wire shape: amount is
+  // numeric-or-null (the handler's own guard compares it to null and 0,
+  // then hands it to toDec), reason is type-narrowed by the handler.
+  const door = await readJsonBody<{ amount?: number | string | null; reason?: unknown }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

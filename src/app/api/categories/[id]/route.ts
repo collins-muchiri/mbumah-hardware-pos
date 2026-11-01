@@ -64,7 +64,16 @@ async function updateCategoryHandler(...args: unknown[]): Promise<Response> {
   }
 
   // v2.325.0 THE BODY DOOR: an unreadable body is a client mistake — 400, never a 500.
-  const door = await readJsonBody<Record<string, unknown>>(request);
+  // v2.336.0 the loose Record widens no more: the door names the six fields
+  // the handler type-narrows itself (every one read via typeof / === checks).
+  const door = await readJsonBody<{
+    name?: unknown;
+    description?: unknown;
+    icon?: unknown;
+    color?: unknown;
+    sortOrder?: unknown;
+    isActive?: unknown;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

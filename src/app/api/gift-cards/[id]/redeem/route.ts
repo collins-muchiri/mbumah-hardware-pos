@@ -33,7 +33,15 @@ async function redeemGiftCardHandler(...args: unknown[]): Promise<Response> {
   const context = args[1] as RouteContext;
   const { id } = await context.params;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.336.0 the door speaks the redemption's own wire shape: amount is the
+  // numeric-ish wire value (toDec coerces), the other three feed nullable
+  // Prisma strings through `|| null`.
+  const door = await readJsonBody<{
+    amount?: number | string;
+    transactionId?: string;
+    redeemedBy?: string;
+    notes?: string;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

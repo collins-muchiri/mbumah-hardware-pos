@@ -18,7 +18,8 @@ async function registerProductHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as Request;
   try {
     // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-    const door = await readJsonBody(request);
+    // v2.336.0 the door speaks the one field the handler consumes.
+    const door = await readJsonBody<{ productId?: string }>(request);
     if (!door.ok) {
       return bodyDoorRejected();
     }
