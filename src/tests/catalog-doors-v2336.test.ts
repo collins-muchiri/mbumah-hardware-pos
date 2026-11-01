@@ -201,15 +201,19 @@ describe('THE PER-FILE HONEST BYTES (the zod split and the borrowed interfaces)'
 });
 
 describe('THE LEDGER GREW HONESTLY (body-door-class-v2326)', () => {
-  it('the catalog pair graduated out of the loose-generic exemplar list (the customer graduate followed in v2.338.0 — two remain)', () => {
+  it('the catalog pair graduated out of the loose-generic exemplar list (the customer graduate followed in v2.338.0 — the LAST two graduated in v2.339.0 and the era is over)', () => {
     const src = read('src/tests/body-door-class-v2326.test.ts');
     expect(src.includes('THE CATALOG PAIR GRADUATED')).toBe(true);
     expect(src.includes("'src/app/api/categories/[id]/route.ts',")).toBe(false);
     expect(src.includes("'src/app/api/gift-cards/[id]/route.ts',")).toBe(false);
     // v2.338.0: the customer graduate followed (see customer-doors-v2338.test.ts)
     expect(src.includes("'src/app/api/customer-credits/[id]/route.ts',")).toBe(false);
-    expect(src.includes("'src/app/api/expenses/[id]/route.ts',")).toBe(true);
-    expect(src.includes("'src/app/api/suppliers/[id]/route.ts',")).toBe(true);
+    // v2.339.0: the last exemplars graduated — the tombstone list is empty
+    // (the graduation story lives in src/tests/last-exemplars-v2339.test.ts;
+    // the two graduates appear in v2.326 only inside its GRADUATED list,
+    // guarded by ABSENCE now)
+    expect(src.includes('THE LAST EXEMPLARS GRADUATED')).toBe(true);
+    expect(src.includes('EXEMPLARS: string[] = [];')).toBe(true);
   });
 });
 

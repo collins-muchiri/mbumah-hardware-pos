@@ -142,9 +142,14 @@ describe('THE BODY DOOR never throws (v2.326 regression table)', () => {
 // src/tests/catalog-doors-v2336.test.ts.
 // v2.338.0 — THE CUSTOMER GRADUATE: customer-credits/[id] followed (the
 // customer family's honest pass) — see src/tests/customer-doors-v2338.test.ts.
-// The remaining two exemplars still wear the v2.325 generic and are pinned
-// below unchanged.
-const EXEMPLARS: string[] = [
+// v2.339.0 — THE LAST EXEMPLARS GRADUATED: expenses/[id] and suppliers/[id]
+// speak their own body shapes — see src/tests/last-exemplars-v2339.test.ts.
+// THE LOOSE-RECORD ERA IS OVER: not one door in src/app/api reads through
+// the loose `<Record<string, unknown>>` widening any more. The list below
+// stays as the era's tombstone — empty, honestly.
+const EXEMPLARS: string[] = [];
+// the two doors whose graduation ended the era — guarded by ABSENCE now
+const GRADUATED_IN_V2339: string[] = [
   'src/app/api/expenses/[id]/route.ts',
   'src/app/api/suppliers/[id]/route.ts',
 ];
@@ -164,10 +169,13 @@ describe('THE CLASS IS GONE — 67 files read through the door', () => {
     });
   }
 
-  it('the widening never touched the remaining v2.325 exemplars (their tightened generics stand; the financial trio graduated in v2.335.0, the catalog pair in v2.336.0, the customer graduate in v2.338.0)', () => {
-    for (const exemplar of EXEMPLARS) {
+  it('the loose-Record era is over — the last exemplars graduated in v2.339.0 (their honest generics stand)', () => {
+    // the tombstone itself: empty, honestly
+    expect(EXEMPLARS).toEqual([]);
+    for (const exemplar of GRADUATED_IN_V2339) {
       const src = readFileSync(exemplar, 'utf8');
-      expect(src.includes('readJsonBody<Record<string, unknown>>(request)')).toBe(true);
+      expect(src.includes('readJsonBody<Record<string, unknown>>(request)')).toBe(false);
+      expect(src.includes('readJsonBody<{')).toBe(true);
     }
   });
 

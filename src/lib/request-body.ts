@@ -95,6 +95,20 @@ export type BodyDoor<T> = { ok: true; body: T } | { ok: false };
  * pay door borrows the route's OWN PaymentMethod union (the stkpush borrow
  * precedent); and customer-credits/[id] graduates out of the loose-Record
  * exemplars (two remain).
+ *
+ * v2.339.0 — THE LAST EXEMPLARS, the era's end: expenses/[id] (five fields —
+ * the allowedFields loop's four + the amount it coerces itself) and
+ * suppliers/[id] (the eleven loop fields, `unknown` throughout — the values
+ * pass through untouched and Prisma's column types are the validators)
+ * graduate out of the loose-Record widening. THE LOOSE-RECORD ERA IS OVER:
+ * the v2.326 census runs ZERO `<Record<string, unknown>>` doors. The SAME
+ * round ends the RE-CAST class: the six doors that borrowed a local
+ * interface via `door.body as X` now ride the interface INSIDE the generic
+ * (`readJsonBody<AdminBody>(request)` and five siblings — the stkpush/redeem
+ * borrow precedent; the status→union narrowing in shift-schedules/[id]/status
+ * stays, it is the route's own validator). The wider bare-`any` class
+ * remains — 30 doors named by the round's census — its family passes
+ * continue.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function readJsonBody<T = any>(

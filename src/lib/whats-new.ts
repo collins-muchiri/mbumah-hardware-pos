@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.339.0',
+    title: 'The last exemplars speak their body\u2019s shape',
+    bullets: [
+      'The loose-Record era is over: the final two doors that read request bodies as an untyped bag (expenses and supplier updates) now name the exact fields they accept — every API door in the system has an honest, documented shape. Six more doors now reuse the request shapes their own files declared, retiring the last body re-casts.',
+      'Expense rows grow a share meter: each active expense\u2019s slice of the period\u2019s spend becomes a slim bar under the amount (emerald while spend is spread, amber past a fifth, red when one expense dominates the period) — the concentration signal, readable at a glance.',
+      'Same behavior everywhere: the same 400 door voice, the same validations — just doors that document themselves and a spend picture that explains itself.',
+    ],
+  },
+  {
     version: '2.338.0',
     title: 'The customer doors speak their body\u2019s shape',
     bullets: [

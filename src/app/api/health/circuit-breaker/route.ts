@@ -131,11 +131,13 @@ export const POST = requireAuth(
   async (request: NextRequest, session) => {
     try {
       // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-      const door = await readJsonBody(request);
+      // v2.339.0: the door rides the AdminBody interface the handler already
+      // declared — the loose re-cast below it is gone (the borrow precedent).
+      const door = await readJsonBody<AdminBody>(request);
       if (!door.ok) {
         return bodyDoorRejected();
       }
-      const body = door.body as AdminBody;
+      const body = door.body;
 
       // Validate action
       if (!body.action || !VALID_ACTIONS.has(body.action)) {

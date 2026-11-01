@@ -74,7 +74,25 @@ async function updateSupplierHandler(...args: unknown[]): Promise<Response> {
   const context = args[1] as RouteContext;
   const { id } = await context.params;
   // v2.325.0 THE BODY DOOR: an unreadable body is a client mistake — 400, never a 500.
-  const door = await readJsonBody<Record<string, unknown>>(request);
+  // v2.339.0 THE LAST EXEMPLARS: the door speaks its own shape — the eleven
+  // fields the allowedFields loop reads. `unknown` everywhere: the values pass
+  // through the loop untouched and Prisma's own column types are the
+  // validators; the loop's generic string index stays honest (the
+  // customer-family precedent).
+  const door = await readJsonBody<{
+    name?: unknown;
+    email?: unknown;
+    phone?: unknown;
+    address?: unknown;
+    city?: unknown;
+    contactPerson?: unknown;
+    taxPin?: unknown;
+    paymentTerms?: unknown;
+    rating?: unknown;
+    isActive?: unknown;
+    notes?: unknown;
+    [key: string]: unknown;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
