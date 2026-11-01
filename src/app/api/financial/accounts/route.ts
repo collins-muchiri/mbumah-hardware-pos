@@ -155,7 +155,11 @@ export const GET = withErrorBoundary(
 async function createAccountHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.335.0 — the door borrows the SERVICE's own signature:
+  // Parameters<typeof createAccount>[0] IS the body the client must send
+  // (the route feeds it straight through), so the door cannot drift from
+  // the helper it feeds.
+  const door = await readJsonBody<Parameters<typeof createAccount>[0]>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
@@ -171,17 +175,7 @@ async function createAccountHandler(...args: unknown[]): Promise<Response> {
     description,
     isActive,
     createdByUserId,
-  } = body as {
-    organizationId?: string;
-    code?: string;
-    name?: string;
-    type?: string;
-    subType?: string;
-    normalBalance?: string;
-    description?: string;
-    isActive?: boolean;
-    createdByUserId?: string;
-  };
+  } = body;
 
   if (!organizationId) {
     return Response.json(

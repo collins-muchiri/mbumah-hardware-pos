@@ -233,6 +233,24 @@ export default function BudgetsPanel() {
     return { budgeted, actual, variance };
   }, [budgets]);
 
+  // v2.335.0 — THE CONSUMPTION METER: the summary's fourth face. Actual
+  // spend as a share of the budgeted envelope, colour-stepped (calm green
+  // while there is headroom, amber as it fills, red once the envelope is
+  // breached). Pure presentation: the numbers it shows are the same totals
+  // the three cards above it already speak.
+  const consumptionPct = totals.budgeted > 0
+    ? Math.min(100, (totals.actual / totals.budgeted) * 100)
+    : 0;
+  const consumptionLabel = totals.budgeted > 0
+    ? Math.round((totals.actual / totals.budgeted) * 100)
+    : 0;
+  const consumptionColor = consumptionPct >= 100
+    ? 'bg-red-500 dark:bg-red-400'
+    : consumptionPct >= 75
+    ? 'bg-amber-500 dark:bg-amber-400'
+    : 'bg-emerald-500 dark:bg-emerald-400';
+  const overBudget = totals.budgeted > 0 && totals.actual > totals.budgeted;
+
   const periodLocked = selectedPeriod?.status === 'LOCKED';
 
   return (
@@ -259,6 +277,7 @@ export default function BudgetsPanel() {
               size="sm"
               variant="outline"
               className="h-8 text-xs"
+              aria-label="Recalculate budget actuals from posted journal entries for the selected period"
               onClick={() => recalculateMutation.mutate()}
               disabled={recalculateMutation.isPending || !selectedPeriodId || budgets.length === 0}
             >
@@ -284,20 +303,45 @@ export default function BudgetsPanel() {
       <CardContent className="space-y-4">
         {/* Summary */}
         {budgets.length > 0 && (
-          <div className="grid grid-cols-3 gap-3">
-            <div className="p-3 rounded-lg bg-muted/30 border">
-              <p className="text-[10px] text-muted-foreground uppercase">Total Budgeted</p>
-              <p className="text-sm font-bold font-mono">{formatKES(totals.budgeted)}</p>
+          <div className="space-y-3">
+            <div className="grid grid-cols-3 gap-3">
+              <div className="p-3 rounded-lg bg-muted/30 border" title={`Budgeted: ${formatKES(totals.budgeted)}`}>
+                <p className="text-[10px] text-muted-foreground uppercase">Total Budgeted</p>
+                <p className="text-sm font-bold font-mono">{formatKES(totals.budgeted)}</p>
+              </div>
+              <div className="p-3 rounded-lg bg-muted/30 border" title={`Actual: ${formatKES(totals.actual)}`}>
+                <p className="text-[10px] text-muted-foreground uppercase">Total Actual</p>
+                <p className="text-sm font-bold font-mono">{formatKES(totals.actual)}</p>
+              </div>
+              <div className="p-3 rounded-lg bg-muted/30 border" title={`Variance: ${formatKES(totals.variance)}`}>
+                <p className="text-[10px] text-muted-foreground uppercase">Total Variance</p>
+                <p className={`text-sm font-bold font-mono ${totals.variance >= 0 ? 'text-green-700' : 'text-red-600'}`}>
+                  {formatKES(Math.abs(totals.variance))} {totals.variance >= 0 ? '↗' : '↘'}
+                </p>
+              </div>
             </div>
-            <div className="p-3 rounded-lg bg-muted/30 border">
-              <p className="text-[10px] text-muted-foreground uppercase">Total Actual</p>
-              <p className="text-sm font-bold font-mono">{formatKES(totals.actual)}</p>
-            </div>
-            <div className="p-3 rounded-lg bg-muted/30 border">
-              <p className="text-[10px] text-muted-foreground uppercase">Total Variance</p>
-              <p className={`text-sm font-bold font-mono ${totals.variance >= 0 ? 'text-green-700' : 'text-red-600'}`}>
-                {formatKES(Math.abs(totals.variance))} {totals.variance >= 0 ? '↗' : '↘'}
-              </p>
+            {/* v2.335.0 — THE CONSUMPTION METER (the summary's fourth face) */}
+            <div
+              data-testid="budget-consumption-meter"
+              className="space-y-1"
+              title={`Actual ${formatKES(totals.actual)} of ${formatKES(totals.budgeted)} budgeted${overBudget ? ' — envelope breached' : ''}`}
+            >
+              <div className="flex items-center justify-between text-[10px] text-muted-foreground uppercase">
+                <span>Consumption</span>
+                <span className={`font-mono font-bold ${overBudget ? 'text-red-600 dark:text-red-400' : 'text-foreground'}`}>
+                  {consumptionLabel}%{overBudget ? ' — over budget' : ''}
+                </span>
+              </div>
+              <div
+                className="h-2 rounded-full bg-muted overflow-hidden"
+                role="progressbar"
+                aria-label="Budget consumption"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(consumptionPct)}
+              >
+                <div className={`h-full rounded-full transition-all duration-500 ${consumptionColor}`} style={{ width: `${consumptionPct}%` }} />
+              </div>
             </div>
           </div>
         )}

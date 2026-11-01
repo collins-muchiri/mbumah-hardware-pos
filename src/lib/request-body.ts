@@ -48,6 +48,15 @@ export type BodyDoor<T> = { ok: true; body: T } | { ok: false };
  * literal where the route dispatches first). The default `any` remains
  * the law for the WIDER 67-door class whose per-file tightening is
  * still incremental follow-up.
+ *
+ * v2.335.0 — THE FINANCIAL FAMILY, the wider class's first pass: nine
+ * doors across ten files speak their body's own shape (accounts CREATE
+ * borrows Parameters<typeof createAccount>[0]; budgets ×2, recalculate,
+ * snapshot, periods ×2 and journal speak honest literals — journal's
+ * `lines` array included). journal/[id] keeps `{ reason?: unknown }`:
+ * the String()-coerce door is already honest. And the recalculate door
+ * now performs the period↔store cross-check its comment always
+ * promised (mismatch → 404 before the helper runs).
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function readJsonBody<T = any>(

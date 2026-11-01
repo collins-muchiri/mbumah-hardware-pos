@@ -55,18 +55,21 @@ async function listSnapshotsHandler(...args: unknown[]): Promise<Response> {
 async function captureSnapshotHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.335.0 — the door speaks the body's OWN shape: storeId and
+  // generatedByUserId feed the helper's positional parameters below, and
+  // periodId/snapshotDate ride the options object (honest literal).
+  const door = await readJsonBody<{
+    storeId?: string;
+    periodId?: string;
+    generatedByUserId?: string;
+    snapshotDate?: string;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
   const body = door.body;
 
-  const { storeId, periodId, generatedByUserId, snapshotDate } = body as {
-    storeId?: string;
-    periodId?: string;
-    generatedByUserId?: string;
-    snapshotDate?: string;
-  };
+  const { storeId, periodId, generatedByUserId, snapshotDate } = body;
 
   if (!storeId) {
     return Response.json(

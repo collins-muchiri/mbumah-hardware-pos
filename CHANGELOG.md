@@ -1,3 +1,19 @@
+## [2.335.0] The financial doors speak their body's shape
+
+The wider door class begins its per-file pass, one family at a time, and the FINANCIAL family goes first: nine doors across ten files (accounts ×2, budgets ×3, journal ×2, periods ×2, trial-balance snapshot) stop reading their bodies as loose generics or the default `any` and speak the body's OWN shape. One honest behavior fix rides along: the budgets-recalculate door finally performs the period↔store cross-check its comment always promised. The scoped tsc round-trip: 35=35, ZERO new, ZERO gone on the doors — types only where the doors are concerned.
+
+### Added
+- **THE FINANCIAL DOORS TIGHTENED (9 doors / 10 files)**: accounts CREATE borrows the service signature itself (`readJsonBody<Parameters<typeof createAccount>[0]>` — the door cannot drift from the helper it feeds); budgets CREATE/UPDATE, recalculate, trial-balance snapshot, periods CREATE/ACTION and journal CREATE speak honest literals — exactly the fields each route destructures, including journal's double-entry `lines` array; journal/[id] keeps `{ reason?: unknown }` (the String()-coerce door is already honest). The three financial [id] exemplars graduate out of body-door-class-v2326's loose-generic list with an honest growth comment (the remaining five exemplars still guarded).
+- **THE CROSS-CHECK THE COMMENT ALWAYS PROMISED** (`budgets/recalculate/route.ts`): the route's comment promised a period↔store membership check that did not exist — the helper only checks existence, so a budget viewer of store A could recalculate store B's actuals by guessing periodIds. The check is code now: the period must belong to the calling store, and the mismatch answers the helper's own 404 voice BEFORE `recalculateBudgetActuals()` runs.
+- **THE LAW DOC RECORDS IT** (`request-body.ts`): "v2.335.0 — THE FINANCIAL FAMILY, the wider class's first pass" — the family's doors, the borrow-vs-literal split, the honest `unknown` outlier, and the cross-check.
+
+### Styling
+- **THE CONSUMPTION METER** (`BudgetsPanel.tsx`): the Budgets summary grows its fourth face — actual spend as a share of the budgeted envelope, a colour-stepped progress bar under the three totals (emerald while there is headroom, amber as it fills, red once the envelope is breached) with an over-budget label voice, exact figures on hover for all three cards, and `role="progressbar"` + aria values for screen readers. The recalculate button now carries an explicit `aria-label`.
+
+### Tests
+- `src/tests/financial-doors-v2335.test.ts` (NEW, 20 pins): the zero-loose-generic census across all ten financial files, the per-file honest bytes (borrow + literals + the lines shape + the honest unknown), the cross-check (presence, ordering before the helper, the honest comment), the v2326 ledger growth, and the consumption-meter styling face.
+- The walk re-anchors the treadmill (v2.335.0 pins + the unread-counter cascade 225/226/227/258 → 226/227/228/259).
+
 ## [2.334.0] The API doors speak their body's shape
 
 The per-file generic tightening (Task 48 option 1, deferred five rounds) finally leads: the 20-file swallow census (v2.327) no longer reads bodies as `Record<string, unknown>` or the default `any` — every door's generic now names the fields its handler actually consumes. RUNTIME BEHAVIOR IS BYTE-IDENTICAL (the scoped tsc round-trip: 41=41, ZERO new, ZERO gone; the scoped census: 0 loose generics left).

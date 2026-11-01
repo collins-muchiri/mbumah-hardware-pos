@@ -63,20 +63,23 @@ async function listBudgetsHandler(...args: unknown[]): Promise<Response> {
 async function setBudgetHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
-  if (!door.ok) {
-    return bodyDoorRejected();
-  }
-  const body = door.body;
-
-  const { storeId, periodId, accountId, budgetedAmount, notes, createdById } = body as {
+  // v2.335.0 — the door speaks the body's OWN shape (honest literal): the
+  // wire says createdById where SetBudgetInput says userId, so borrowing the
+  // helper's signature would lie about the contract the client must send.
+  const door = await readJsonBody<{
     storeId?: string;
     periodId?: string;
     accountId?: string;
     budgetedAmount?: number | string;
     notes?: string;
     createdById?: string;
-  };
+  }>(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
+
+  const { storeId, periodId, accountId, budgetedAmount, notes, createdById } = body;
 
   if (!storeId || !periodId || !accountId) {
     return Response.json(
