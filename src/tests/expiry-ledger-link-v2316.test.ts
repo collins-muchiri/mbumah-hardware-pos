@@ -64,7 +64,12 @@ describe('the desk seeds its filter from the address bar (loyalty-tab.tsx)', () 
   const tab = readFileSync('src/app/(shell)/tabs/loyalty-tab.tsx', 'utf8');
 
   it('imports the type parser alongside the view parser', () => {
-    expect(tab.includes("import { parseInitialType, parseInitialView } from '@/lib/tab-url';")).toBe(true);
+    // v2.317.0 pin evolution (deliberate): the date-window parser joins
+    // the import — the ledger answers ?from=/&to= now (the counts door
+    // names its sweep's day); the window vocabulary's own voice is
+    // pinned in expiry-day-window-v2317. (eatDayKey is the CARD's
+    // builder and rides only org-console's import.)
+    expect(tab.includes("import { parseInitialDateRange, parseInitialType, parseInitialView } from '@/lib/tab-url';")).toBe(true);
   });
 
   it('the register is the SAME five types the ledger Select offers', () => {
@@ -93,14 +98,19 @@ describe('the card face — both voices walk (org-console.tsx)', () => {
 
   it('ONE door for both voices — the EXPIRE-filtered ledger deep-link', () => {
     expect(card.includes("const EXPIRY_LEDGER_HREF = '/?tab=loyalty&view=transactions&type=EXPIRE';")).toBe(true);
-    expect(card.split('EXPIRY_LEDGER_HREF').length - 1).toBe(3); // const + two mounts
+    // v2.317.0 pin evolution (deliberate): the counts door now rides its
+    // sweep's EAT day (a computed href built FROM the constant — const,
+    // the counts template, the garbage-stamp fallback, and the zero's
+    // own mount = 4 mentions); the day-window voice is pinned in
+    // expiry-day-window-v2317.
+    expect(card.split('EXPIRY_LEDGER_HREF').length - 1).toBe(4);
   });
 
   it('both voices are hard-navigation anchors (the racy <Link> transition is retired)', () => {
     // the browser burst caught the client-side transition eating the ask:
     // HomePage's v2.313 capture reads the bar before Next's history update,
     // so the persisted desk won. A cross-console ask loads the shell fresh.
-    expect(card.includes('<a\n              href={EXPIRY_LEDGER_HREF}\n              data-testid="automation-expiry-run-counts"')).toBe(true);
+    expect(card.includes('<a\n              href={countsHref}\n              data-testid="automation-expiry-run-counts"')).toBe(true);
     expect(card.includes('<a\n              href={EXPIRY_LEDGER_HREF}\n              data-testid="automation-expiry-run-clean"')).toBe(true);
     expect(card.includes('THE HARD-NAVIGATION LAW')).toBe(true);
     // the v2.315 amber survives the link wardrobe
@@ -139,8 +149,8 @@ describe('the housekeeping — the 2.267.0 dead weight is gone', () => {
     };
     expect(typeof pkg.mbumah?.releaseVersion).toBe('string');
     expect(typeof pkg.mbumah?.baseVersion).toBe('string');
-    expect(pkg.mbumah?.releaseVersion).toBe('2.316.0');
-    expect(pkg.mbumah?.baseVersion).toBe('2.316.0');
+    expect(pkg.mbumah?.releaseVersion).toBe('2.317.0');
+    expect(pkg.mbumah?.baseVersion).toBe('2.317.0');
   });
 
   it('the docs register carries the deep-link note', () => {

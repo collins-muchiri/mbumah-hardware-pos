@@ -23,7 +23,7 @@ import {
   DOCK_REASON_HINT,
   EXPIRE_POLICY_NOTE,
 } from '@/lib/loyalty-adjust-policy';
-import { parseInitialType, parseInitialView } from '@/lib/tab-url';
+import { parseInitialDateRange, parseInitialType, parseInitialView } from '@/lib/tab-url';
 import { ReceiptViewDialog } from '@/components/loyalty/receipt-view-dialog';
 import { ExpiryDialog } from '@/components/loyalty/expiry-dialog';
 
@@ -75,6 +75,23 @@ const LOYALTY_TX_TYPES: readonly string[] = ['EARN', 'REDEEM', 'BONUS', 'EXPIRE'
 function initialTxTypeFilter(): string {
   if (typeof window === 'undefined') return 'all';
   return parseInitialType(window.location.search, LOYALTY_TX_TYPES, 'all');
+}
+
+// v2.317.0: the ledger's DATE WINDOW answers the address bar too —
+// `?from=YYYY-MM-DD&to=YYYY-MM-DD` (the sweep line's counts door names
+// exactly this: its own EAT day, so the window opens on the rows that
+// sweep wrote). Each param validates INDEPENDENTLY (tab-url's
+// never-strand law) and anything missing or not a real calendar day
+// answers '' — an input left empty, never a stranded filter. The desk
+// only ever READS `from`/`to` on mount (the one-writer-per-param law);
+// a window changed by hand afterwards is the human's truth.
+function initialDateFrom(): string {
+  if (typeof window === 'undefined') return '';
+  return parseInitialDateRange(window.location.search).from;
+}
+function initialDateTo(): string {
+  if (typeof window === 'undefined') return '';
+  return parseInitialDateRange(window.location.search).to;
 }
 
 // Tier color presets
@@ -184,11 +201,12 @@ export default function LoyaltyTab() {
   const [memberHistoryOpen, setMemberHistoryOpen] = useState(false);
   const [memberHistoryCustomerId, setMemberHistoryCustomerId] = useState<string>('');
 
-  // Transaction state — the type filter's seed comes from the address
-  // bar (v2.316.0 deep-link law above), then belongs to the Select.
+  // Transaction state — the type filter and date window's seeds come
+  // from the address bar (v2.316/v2.317 deep-link laws above), then
+  // belong to the Select and the date inputs.
   const [txTypeFilter, setTxTypeFilter] = useState<string>(initialTxTypeFilter);
-  const [txDateFrom, setTxDateFrom] = useState('');
-  const [txDateTo, setTxDateTo] = useState('');
+  const [txDateFrom, setTxDateFrom] = useState<string>(initialDateFrom);
+  const [txDateTo, setTxDateTo] = useState<string>(initialDateTo);
   const [_txSearch, _setTxSearch] = useState('');
   const [manualAdjustOpen, setManualAdjustOpen] = useState(false);
   const [manualAdjustForm, setManualAdjustForm] = useState({

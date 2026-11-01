@@ -99,6 +99,11 @@ confirm it, and neither requires shell access:
   `/?tab=loyalty&view=transactions&type=EXPIRE`, and the loyalty desk
   reads `?type=` on mount (the tab-url vocabulary `view` already spoke),
   so the pulse's counts land on the exact rows they summarize.
+- **v2.317.0**: the counts door names the DAY — the ledger's date window
+  answers `?from=YYYY-MM-DD&to=YYYY-MM-DD` (each param validated
+  independently, never-strand law), and the amber counts link rides its
+  own sweep's EAT day (`eatDayKey`), so the window opens on exactly the
+  rows that sweep wrote; the healthy zero keeps the type-only trail door.
 - **v2.165.0**: BOTH dispatchers write the ledger. The nightly dispatcher
   (which had left no always-row since v2.159.0) writes its own tick row,
   and every row's metadata names its dispatcher (`dispatcher: 'hourly' |`

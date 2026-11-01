@@ -88,6 +88,64 @@ export function parseInitialType<V extends string>(
   }
 }
 
+/** The shape the ledger's date inputs speak: 'YYYY-MM-DD' or '' (no window). */
+export interface InitialDateRange {
+  from: string;
+  to: string;
+}
+
+/** The exact shape a date input accepts and the ledger's query sends. */
+const DAY_KEY_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+function honestDayKey(value: string | null): string {
+  if (!value || !DAY_KEY_RE.test(value)) return '';
+  // a REAL calendar day only, proven by round-trip: V8's ISO parser is
+  // LENIENT with day overflow (2026-02-30 parses through to 2026-03-02,
+  // only 2026-13-01 lands NaN), so the parsed day must re-format to the
+  // exact bytes it came from — an impossible date answers ''.
+  const parsed = new Date(`${value}T00:00:00Z`);
+  if (Number.isNaN(parsed.getTime())) return '';
+  const y = parsed.getUTCFullYear();
+  const m = String(parsed.getUTCMonth() + 1).padStart(2, '0');
+  const d = String(parsed.getUTCDate()).padStart(2, '0');
+  return `${y}-${m}-${d}` === value ? value : '';
+}
+
+/**
+ * v2.317.0 — read the ledger's date window (`?from=` / `?to=`) with the
+ * never-strand law the rest of this module speaks: each param is
+ * validated INDEPENDENTLY (a real `?from=` with a garbage `?to=` keeps
+ * the from and drops only the to), and anything missing, malformed, or
+ * not a real calendar day answers '' — no window, never a stranded
+ * filter. The desk seeds its two date inputs from this; the sweep
+ * line's counts door builds its window with `eatDayKey`.
+ */
+export function parseInitialDateRange(search: string): InitialDateRange {
+  try {
+    const params = toParams(search);
+    return { from: honestDayKey(params.get('from')), to: honestDayKey(params.get('to')) };
+  } catch {
+    return { from: '', to: '' };
+  }
+}
+
+/**
+ * The EAT (UTC+3, the formatEatStamp convention) calendar day of a
+ * timestamp, as a URL-safe `YYYY-MM-DD` key — the day a sweep's counts
+ * door names so the ledger's window opens on exactly the rows that
+ * sweep wrote. A garbage timestamp answers '' (the caller falls back
+ * to the type-only door — never a broken link).
+ */
+export function eatDayKey(iso: string): string {
+  const at = new Date(iso);
+  if (Number.isNaN(at.getTime())) return '';
+  const eat = new Date(at.getTime() + 3 * 60 * 60 * 1000);
+  const y = eat.getUTCFullYear();
+  const m = String(eat.getUTCMonth() + 1).padStart(2, '0');
+  const d = String(eat.getUTCDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 /**
  * Write a tab into a search string WITHOUT losing the other params (the
  * loyalty desk's `view` rides along). Always answers with a leading `?`
