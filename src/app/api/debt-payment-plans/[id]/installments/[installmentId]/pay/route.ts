@@ -53,13 +53,28 @@ async function payInstallmentHandler(...args: unknown[]): Promise<Response> {
   const context = args[1] as RouteContext;
   const { id, installmentId } = await context.params;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.338.0 the door speaks the installment payment's own wire shape (the
+  // customer family's honest pass): it borrows the route's OWN PaymentMethod
+  // union for the tender field (the stkpush borrow precedent), `unknown`
+  // only on amount because the route itself coerces (toNumber()).
+  const door = await readJsonBody<{
+    amount?: unknown;
+    paymentMethod?: PaymentMethod;
+    paymentReference?: string;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
   const body = door.body;
 
-  const { amount, paymentMethod, paymentReference } = body ?? {};
+  const { amount, paymentMethod, paymentReference } = (body ?? {}) as {
+    amount?: unknown;
+    // the tender field rides the route's OWN defaulting ternary (the runtime
+    // validator — the RedeemBody precedent), so the local read says REQUIRED
+    // even though the door's wire shape says optional.
+    paymentMethod: PaymentMethod;
+    paymentReference?: string;
+  };
 
   // Validate input
   const payAmount = toNumber(amount);

@@ -67,7 +67,17 @@ async function updateCustomerCreditHandler(...args: unknown[]): Promise<Response
   const context = args[1] as RouteContext;
   const { id } = await context.params;
   // v2.325.0 THE BODY DOOR: an unreadable body is a client mistake — 400, never a 500.
-  const door = await readJsonBody<Record<string, unknown>>(request);
+  // v2.338.0 THE EXEMPLAR GRADUATED: the loose Record widens no more — the
+  // door names the four fields the handler type-narrows itself (every one
+  // read via the allowedFields loop / typeof checks) while the loop's
+  // generic index stays honest.
+  const door = await readJsonBody<{
+    amount?: unknown;
+    creditType?: unknown;
+    reference?: unknown;
+    description?: unknown;
+    [key: string]: unknown;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

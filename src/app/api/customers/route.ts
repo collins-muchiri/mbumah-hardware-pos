@@ -95,7 +95,14 @@ async function getCustomersHandler(...args: unknown[]): Promise<Response> {
 async function createCustomerHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.338.0 the door names the two raw fields the zod schema does NOT own
+  // (the customer family's honest pass) — the schema-validated fields flow
+  // through parsed.data, typed by zod itself — so the two Record re-casts
+  // this file used to carry are gone; the reads are direct.
+  const door = await readJsonBody<{
+    preferredChannel?: string;
+    isActive?: boolean;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
@@ -119,8 +126,8 @@ async function createCustomerHandler(...args: unknown[]): Promise<Response> {
     debtLimit,
   } = parsed.data;
 
-  const preferredChannel = (body as Record<string, unknown>).preferredChannel || 'SMS';
-  const isActive = (body as Record<string, unknown>).isActive ?? true;
+  const preferredChannel = body.preferredChannel || 'SMS';
+  const isActive = body.isActive ?? true;
 
     if (phone) {
     const existing = await db.customer.findFirst({

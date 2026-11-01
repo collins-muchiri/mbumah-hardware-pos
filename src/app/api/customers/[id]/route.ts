@@ -110,7 +110,22 @@ async function updateCustomerHandler(...args: unknown[]): Promise<Response> {
   const context = args[1] as RouteContext;
   const { id } = await context.params;
   // v2.325.0 THE BODY DOOR: an unreadable body is a client mistake — 400, never a 500.
-  const door = await readJsonBody<{ phone?: string; [key: string]: unknown }>(request);
+  // v2.338.0 the door names every field the handler consumes (the customer
+  // family's honest pass): `phone` is read directly (the duplicate-check
+  // comparison), the other eight ride the allowedFields loop, whose generic
+  // index stays honest.
+  const door = await readJsonBody<{
+    phone?: string;
+    name?: unknown;
+    email?: unknown;
+    address?: unknown;
+    idNumber?: unknown;
+    debtLimit?: unknown;
+    preferredChannel?: unknown;
+    isActive?: unknown;
+    loyaltyPoints?: unknown;
+    [key: string]: unknown;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

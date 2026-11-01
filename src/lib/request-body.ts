@@ -83,6 +83,18 @@ export type BodyDoor<T> = { ok: true; body: T } | { ok: false };
  * its handler already declared (the redeem precedent) — the loose
  * re-cast is gone — and Daraja's queue-timeout webhook now reads its
  * contract-less body as the unknown it is.
+ *
+ * v2.338.0 — THE CUSTOMER FAMILY, the wider class's fourth pass: the ten
+ * customer-family reads (customers ×2, customer-credits ×2,
+ * customer-interactions, debt, debt-payment-plans ×2, installments pay/waive)
+ * speak their bodies' own shapes. The presence-checked fields ride REQUIRED
+ * where the route's own aggregator is the runtime validator (the RedeemBody
+ * precedent); `unknown` only where the route itself coerces (toNumber /
+ * parseInt(String()) / new Date(String()) / Boolean()); amount speaks
+ * number | string where the ledger's own toDec guard owns the widening; the
+ * pay door borrows the route's OWN PaymentMethod union (the stkpush borrow
+ * precedent); and customer-credits/[id] graduates out of the loose-Record
+ * exemplars (two remain).
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function readJsonBody<T = any>(

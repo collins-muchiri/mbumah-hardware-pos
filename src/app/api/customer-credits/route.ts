@@ -83,7 +83,19 @@ async function getCustomerCreditsHandler(...args: unknown[]): Promise<Response> 
 async function createCustomerCreditHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.338.0 the door speaks the ledger entry's own wire shape (the customer
+  // family's honest pass): the fields the handler consumes, `number | string`
+  // on amount because the ledger's own toDec guard owns the widening
+  // (Numeric in financialMath.ts).
+  const door = await readJsonBody<{
+    storeId?: string;
+    customerId?: string;
+    amount?: number | string;
+    creditType?: string;
+    reference?: string;
+    description?: string;
+    createdBy?: string;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

@@ -1269,6 +1269,34 @@ export default function CustomersTab() {
                           <span className={customer.currentDebtBalance > 0 ? 'text-red-600' : 'text-green-700'}>
                             {formatKES(customer.currentDebtBalance)}
                           </span>
+                          {/* v2.338.0 THE CREDIT-ENVELOPE METER: the debt as a
+                              share of the customer's own debt limit — the same
+                              envelope the risk badge speaks (High Risk > 50%),
+                              now a bar the eye reads at a glance. Amber while
+                              the balance rides under the half-way line, red as
+                              it crosses; a customer with no debt or no limit
+                              stays silent (there is no envelope to draw). */}
+                          {customer.currentDebtBalance > 0 && customer.debtLimit > 0 && (
+                            (() => {
+                              const pct = Math.min(100, (customer.currentDebtBalance / customer.debtLimit) * 100);
+                              const over = customer.currentDebtBalance > customer.debtLimit;
+                              const meterColor = pct > 50 ? 'bg-red-500' : 'bg-amber-500';
+                              return (
+                                <div
+                                  data-testid="cust-debt-meter"
+                                  role="progressbar"
+                                  aria-valuemin={0}
+                                  aria-valuemax={100}
+                                  aria-valuenow={Math.round(pct)}
+                                  aria-label={`Debt level: ${formatKES(customer.currentDebtBalance)} of ${formatKES(customer.debtLimit)} limit${over ? ' (over limit)' : ''}`}
+                                  title={`${formatKES(customer.currentDebtBalance)} of ${formatKES(customer.debtLimit)} limit — ${Math.round(pct)}%${over ? ' (over limit)' : ''}`}
+                                  className="mt-1 ml-auto h-1.5 w-28 max-w-full rounded-full bg-muted overflow-hidden"
+                                >
+                                  <div className={`h-full rounded-full ${meterColor}`} style={{ width: `${pct}%` }} />
+                                </div>
+                              );
+                            })()
+                          )}
                         </TableCell>
                         <TableCell>
                           <DebtStatusBadge customer={customer} />

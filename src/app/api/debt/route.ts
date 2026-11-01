@@ -146,7 +146,20 @@ async function getDebtHandler(...args: unknown[]): Promise<Response> {
 async function recordDebtPaymentHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.338.0 the door speaks the payment's own wire shape (the customer
+  // family's honest pass): the three presence-checked fields ride REQUIRED
+  // (the route's own missing-fields aggregator is the runtime validator —
+  // the RedeemBody precedent), `unknown` only where the route itself
+  // coerces (amount via parseFloat(String())); `notes` is read to be
+  // intentionally ignored (the R3 rework) and the door still names it.
+  const door = await readJsonBody<{
+    storeId: string;
+    debtLedgerId: string;
+    amount?: unknown;
+    paymentMethod: string;
+    reference?: string;
+    notes?: unknown;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
