@@ -99,6 +99,13 @@ confirm it, and neither requires shell access:
   `/?tab=loyalty&view=transactions&type=EXPIRE`, and the loyalty desk
   reads `?type=` on mount (the tab-url vocabulary `view` already spoke),
   so the pulse's counts land on the exact rows they summarize.
+- **v2.318.0**: the ledger's window answers back — the transactions API
+  reads its date query through the honest-day law (`honestDayKey`, so a
+  garbage `dateFrom`/`dateTo` is dropped instead of 500-ing) and echoes
+  the window it actually applied in the response `window` field; the
+  loyalty desk wears the echo as an amber stamp and gains the × chip
+  that clears the window and scrubs `?from=`/`?to=` from the address bar
+  (`buildSearchWithoutParams` — tab/view/type ride untouched).
 - **v2.317.0**: the counts door names the DAY — the ledger's date window
   answers `?from=YYYY-MM-DD&to=YYYY-MM-DD` (each param validated
   independently, never-strand law), and the amber counts link rides its

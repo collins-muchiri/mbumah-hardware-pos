@@ -91,6 +91,15 @@ interface ApiResponse<T = unknown> {
     total: number;
     totalPages: number;
   };
+  // v2.318.0 THE HONEST WINDOW ECHO — the loyalty transactions wire
+  // answers the date window it actually applied (post-validation), so
+  // the desk pins the applied range instead of guessing from its inputs;
+  // a null names the open side. Additive — every other wire answers
+  // undefined, same law as costGated.
+  window?: {
+    from: string | null;
+    to: string | null;
+  };
 }
 
 // CSRF token management

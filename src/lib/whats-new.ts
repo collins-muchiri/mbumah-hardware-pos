@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.318.0',
+    title: 'The window answers back',
+    bullets: [
+      'The loyalty ledger\u2019s date window can now leave: an amber \u00d7 chip sits beside the date filters while a window is active, and one press clears the filters AND the address bar \u2014 so a stale link can\u2019t resurrect the old window on refresh.',
+      'The transactions wire now answers with the window it actually applied \u2014 the desk wears it as an amber stamp ("Window 2026-10-31 \u2192 2026-10-31 \u00b7 3 rows") straight from the API\u2019s echo, never a guess from the inputs.',
+      'A malformed or impossible date sent to the transactions API is dropped at the door instead of erroring \u2014 the same honest-day law the address bar has always spoken.',
+    ],
+  },
+  {
     version: '2.317.0',
     title: 'The ledger answers the day',
     bullets: [
