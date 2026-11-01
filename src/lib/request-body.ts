@@ -72,6 +72,17 @@ export type BodyDoor<T> = { ok: true; body: T } | { ok: false };
  * declared — the `as` re-casts are gone. vouchers/[id] already wore
  * its own literal. categories/[id] and gift-cards/[id] graduated from
  * the v2.326 loose-Record exemplars (three remain).
+ *
+ * v2.337.0 — THE BANKING FAMILY, the wider class's third pass: the
+ * three banking doors (accounts, reconciliations, transactions) speak
+ * their body's own shape — `unknown` only where the route itself
+ * coerces (openingBalance/statementBalance/bookBalance via
+ * parseFloat(String())), while transactions' amount speaks
+ * number | string because the ledger's own toDec guard owns the
+ * widening. The stkpush door borrows the local StkPushBody interface
+ * its handler already declared (the redeem precedent) — the loose
+ * re-cast is gone — and Daraja's queue-timeout webhook now reads its
+ * contract-less body as the unknown it is.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function readJsonBody<T = any>(

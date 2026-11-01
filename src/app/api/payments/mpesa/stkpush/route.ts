@@ -57,11 +57,14 @@ async function stkPushHandler(
   }
 
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.337.0 the door borrows the handler's own StkPushBody interface
+  // (the redeem precedent) — the loose re-cast under the door is gone,
+  // and the shape travels with the fields the push actually reads.
+  const door = await readJsonBody<StkPushBody>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
-  const body = door.body as StkPushBody;
+  const body = door.body;
 
   const rawPhone = body.phone || body.phoneNumber;
   const amount = parseFloat(String(body.amount));

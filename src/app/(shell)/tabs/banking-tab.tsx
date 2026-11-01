@@ -85,13 +85,21 @@ export default function BankingTab() {
 
   const transactionsQuery = useQuery({
     queryKey: ['banking-transactions', storeId],
-    queryFn: () => bankingApi.transactions.list({ limit: 100 }),
+    // v2.337.0 THE WAKING FIX: the ledger GET requires bankAccountId or
+    // storeId (a 400 without one), and the desk sent NEITHER — the
+    // Transactions sub-tab had been stuck on its empty state since it
+    // shipped. The desk now speaks its store.
+    queryFn: () => bankingApi.transactions.list({ storeId: storeId ?? undefined, limit: 100 }),
     enabled: !!storeId,
   });
 
   const reconciliationsQuery = useQuery({
     queryKey: ['banking-reconciliations', storeId],
-    queryFn: () => bankingApi.reconciliations.list({ limit: 100 }),
+    // v2.337.0 THE WAKING FIX (same lie, second room): the reconciliation
+    // GET requires bankAccountId or storeId; the desk sent NEITHER — the
+    // Reconciliations sub-tab never rendered a single card. Fixed the
+    // same way, so the recon meter finally has bodies to speak for.
+    queryFn: () => bankingApi.reconciliations.list({ storeId: storeId ?? undefined, limit: 100 }),
     enabled: !!storeId,
   });
 
@@ -733,6 +741,13 @@ export default function BankingTab() {
                 };
                 const diff = recon.difference;
                 const isZeroDiff = Math.abs(diff) < 0.01;
+                // THE RECON METER (v2.337.0): divergence share against the
+                // larger of the two balances; agreement is its complement —
+                // a balanced sheet fills the bar fully emerald, a widening
+                // gap turns it red and shrinks the fill.
+                const denom = Math.max(Math.abs(recon.statementBalance), Math.abs(recon.bookBalance));
+                const pctOfLarger = denom > 0 ? Math.min(100, (Math.abs(diff) / denom) * 100) : 0;
+                const agreementPct = 100 - pctOfLarger;
                 return (
                   <Card key={recon.id}>
                     <CardContent className="p-4">
@@ -781,6 +796,30 @@ export default function BankingTab() {
                             {isZeroDiff ? '✓ Balanced' : formatKES(diff)}
                           </p>
                         </div>
+                      </div>
+                      {/* THE RECON METER (v2.337.0): the gap the desk already
+                          computes, given a body — the bar fills by how far the
+                          book sits from the statement, as a share of the larger
+                          balance; a balanced sheet stays fully emerald. */}
+                      <div className="mt-2.5">
+                        <div
+                          className="h-1.5 w-full rounded-full bg-muted overflow-hidden"
+                          role="progressbar"
+                          aria-label="Reconciliation agreement"
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                          aria-valuenow={Math.round(agreementPct)}
+                          title={`Reconciliation gap: ${isZeroDiff ? 'none — the sheet is balanced' : `${formatKES(Math.abs(diff))} against the larger balance (${pctOfLarger.toFixed(1)}%)`}`}
+                          data-testid="recon-diff-meter"
+                        >
+                          <div
+                            className={`h-full rounded-full transition-all duration-500 ${isZeroDiff ? 'bg-emerald-600 dark:bg-emerald-500' : 'bg-red-600 dark:bg-red-500'}`}
+                            style={{ width: `${agreementPct}%` }}
+                          />
+                        </div>
+                        <p className={`mt-1 text-right text-[10px] tabular-nums ${isZeroDiff ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                          {agreementPct.toFixed(1)}% in step
+                        </p>
                       </div>
                     </CardContent>
                   </Card>

@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.337.0',
+    title: 'The banking doors speak their body\u2019s shape',
+    bullets: [
+      'The banking family\u2019s API doors (bank accounts, reconciliations, bank transactions, M-Pesa STK push) now type every request body by the fields the route actually reads — the same honest pass the financial and catalog doors got. Same behavior, same 400 door voice, just doors that document the exact shape they accept.',
+      'A waking fix rides along: the Banking desk\u2019s Transactions and Reconciliations lists had been stuck on their empty states since they shipped — the queries never sent the store both APIs require. Both lists now load, and reconciliation cards finally show their real rows.',
+      'Reconciliation cards grow a meter: the statement-vs-book gap becomes a slim bar (fully emerald when the sheet is balanced, red as the gap widens) with the exact agreement share spoken beside it.',
+    ],
+  },
+  {
     version: '2.336.0',
     title: 'The catalog doors speak their body\u2019s shape',
     bullets: [

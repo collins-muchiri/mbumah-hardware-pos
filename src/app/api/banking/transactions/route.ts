@@ -127,7 +127,20 @@ async function getBankTransactionsHandler(...args: unknown[]): Promise<Response>
 async function createBankTransactionHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.337.0 the door speaks the ledger row's own wire shape (the
+  // banking family's honest pass): the fields the handler consumes.
+  // `amount` speaks number | string because the ledger's own toDec
+  // guard owns the widening (Numeric = number | string | Decimal |
+  // null | undefined); reference/description/transactionDate are used
+  // as the strings they arrive as.
+  const door = await readJsonBody<{
+    bankAccountId?: string;
+    transactionType?: string;
+    amount?: number | string;
+    reference?: string;
+    description?: string;
+    transactionDate?: string;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
