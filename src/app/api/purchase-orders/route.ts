@@ -15,6 +15,16 @@ import { withSequenceRetry } from '@/lib/sequence';
 // IEEE-754 dust into the Decimal header totals.
 import { toDec, round2 } from '@/lib/utils/financialMath';
 import { getVatRatePercent } from '@/lib/vat-settings';
+// v2.323.0 THE DOOR IS HONEST ABOUT ITS NUMBERS — the roster's pagination
+// ints read through the honest-param home (the same laws the loyalty
+// ledger's door has spoken since v2.321.0). THE 500 PROOF, LIVE: this
+// door used to read `parseInt(searchParams.get('page') || '1')`, so a
+// bookmark like ?page=abc rode NaN straight into Prisma's `skip` and the
+// route answered a 500 — the same bug class the loyalty door's QA walk
+// proved and fixed. A malformed number is now a fallback, never a crash,
+// and the take is clamped (the wire never serves more than the house's
+// largest gait).
+import { parseClampedIntParam, parsePositiveIntParam } from '@/lib/tab-url';
 // v2.252.0 THE ROSTER'S WHEN — the branch roster's sheet-born rows answer
 // when their walk aisle was last heard (the org wire's own read, ported
 // to the branch): the census's single-aisle read (one home) and the
@@ -55,8 +65,13 @@ async function getPurchaseOrdersHandler(
   const status = searchParams.get('status');
   const dateFrom = searchParams.get('dateFrom');
   const dateTo = searchParams.get('dateTo');
-  const page = parseInt(searchParams.get('page') || '1');
-  const limit = parseInt(searchParams.get('limit') || '50');
+  // v2.323.0: honest integers (parsePositiveIntParam: shape law — a
+  // missing/malformed/zero/negative/float `page` answers 1; a past-the-end
+  // page stays an honest empty, the desk's face speaks it).
+  // parseClampedIntParam: the take is served inside [1, 200] — the house's
+  // largest gait — so `?limit=5000` can never ask the shelf for the world.
+  const page = parsePositiveIntParam(searchParams.get('page'), 1);
+  const limit = parseClampedIntParam(searchParams.get('limit'), 50, 1, 200);
 
   const where: Record<string, unknown> = { storeId };
 

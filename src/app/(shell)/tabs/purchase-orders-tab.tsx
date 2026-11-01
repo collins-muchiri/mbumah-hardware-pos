@@ -7,7 +7,7 @@ import {
   ClipboardList, Search, Plus, Eye, Loader2, X,
   Package, CalendarDays, Filter, ArrowUpDown,
   FileText, Clock, CheckCircle2, Circle, AlertTriangle,
-  Truck, ChevronLeft, Trash2, Send, Ban,
+  Truck, ChevronLeft, ChevronRight, Trash2, Send, Ban,
   MoreHorizontal,
   PackageCheck, PackageX, ShieldCheck, Stamp,
   Receipt, ShoppingBag, DollarSign,
@@ -2250,14 +2250,41 @@ export default function PurchaseOrdersTab() {
           ) : sortedPOs.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <ClipboardList className="h-12 w-12 mx-auto mb-3 opacity-30" />
-              <p className="font-medium">No purchase orders found</p>
-              <p className="text-sm mt-1">
-                {metricLens !== 'all'
-                  ? `No order on this page ${poMetricEmptyVoice(metricLens)}`
-                  : hasActiveFilters
-                    ? 'Try adjusting your filters or search terms'
-                    : 'Create your first purchase order to get started'}
-              </p>
+              {/* v2.323.0 — THE HONEST EMPTY (the loyalty ledger's v2.320
+                  law, ported): a page past the end of the roster is NOT
+                  "no purchase orders" — the wire says rows EXIST, so the
+                  desk says where they went and offers the way back. The
+                  generic empty keeps its own voices below (the metric
+                  lens's honest silence, the filters' hint, the first-order
+                  invitation) for every page the roster actually has. */}
+              {pagination && pagination.total > 0 && page > pagination.totalPages ? (
+                <>
+                  <p className="font-medium" data-testid="po-past-end">
+                    Page {page} is past the end of this ledger — {pagination.total} orders live on
+                    earlier pages.
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-3"
+                    data-testid="po-back-to-one"
+                    onClick={() => setPage(1)}
+                  >
+                    Back to page 1
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <p className="font-medium">No purchase orders found</p>
+                  <p className="text-sm mt-1">
+                    {metricLens !== 'all'
+                      ? `No order on this page ${poMetricEmptyVoice(metricLens)}`
+                      : hasActiveFilters
+                        ? 'Try adjusting your filters or search terms'
+                        : 'Create your first purchase order to get started'}
+                  </p>
+                </>
+              )}
               {metricLens !== 'all' && (
                 <Button
                   size="sm"
@@ -2446,32 +2473,50 @@ export default function PurchaseOrdersTab() {
                 </Table>
               </div>
 
-              {/* Pagination */}
+              {/* Pagination — v2.323.0 THE CENSUS NEVER LIES (the loyalty
+                  ledger's v2.322 law, ported): on a page past the end the
+                  old census computed a start the roster does not have and
+                  spoke arithmetic beside the honest face. The census slot
+                  is a truth-conditional: page > totalPages renders the
+                  honest empty line, the numeric census speaks only on
+                  pages the roster HAS. The buttons wear the desk's a11y
+                  voice (aria-labels the loyalty pager has spoken since
+                  v2.320) and the digits are tabular. */}
               {pagination && pagination.totalPages > 1 && (
-                <div className="flex items-center justify-between px-4 py-3 border-t">
-                  <p className="text-xs text-muted-foreground">
-                    Showing {(page - 1) * limit + 1}-{Math.min(page * limit, pagination.total)} of{' '}
-                    {pagination.total} orders
-                  </p>
+                <div className="flex items-center justify-between px-4 py-3 border-t" data-testid="po-pager">
+                  {page > pagination.totalPages ? (
+                    <p className="text-xs text-muted-foreground tabular-nums" data-testid="po-census-empty">
+                      No rows on this page — the ledger ends at {pagination.total} orders.
+                    </p>
+                  ) : (
+                    <p className="text-xs text-muted-foreground tabular-nums" data-testid="po-census">
+                      Showing {(page - 1) * limit + 1}-{Math.min(page * limit, pagination.total)} of{' '}
+                      {pagination.total} orders
+                    </p>
+                  )}
                   <div className="flex items-center gap-1">
                     <Button
                       variant="outline"
                       size="sm"
+                      data-testid="po-pager-prev"
+                      aria-label="Previous page"
                       disabled={page <= 1}
                       onClick={() => setPage((p) => Math.max(1, p - 1))}
                     >
                       <ChevronLeft className="h-4 w-4" />
                     </Button>
-                    <span className="text-sm px-2">
+                    <span className="text-sm px-2 tabular-nums" data-testid="po-pager-status">
                       {page} / {pagination.totalPages}
                     </span>
                     <Button
                       variant="outline"
                       size="sm"
+                      data-testid="po-pager-next"
+                      aria-label="Next page"
                       disabled={page >= pagination.totalPages}
                       onClick={() => setPage((p) => p + 1)}
                     >
-                      <ChevronLeft className="h-4 w-4 rotate-180" />
+                      <ChevronRight className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
