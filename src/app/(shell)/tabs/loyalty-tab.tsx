@@ -23,7 +23,7 @@ import {
   DOCK_REASON_HINT,
   EXPIRE_POLICY_NOTE,
 } from '@/lib/loyalty-adjust-policy';
-import { parseInitialView } from '@/lib/tab-url';
+import { parseInitialType, parseInitialView } from '@/lib/tab-url';
 import { ReceiptViewDialog } from '@/components/loyalty/receipt-view-dialog';
 import { ExpiryDialog } from '@/components/loyalty/expiry-dialog';
 
@@ -61,6 +61,20 @@ const LOYALTY_SUB_TABS: readonly LoyaltySubTab[] = ['tiers', 'members', 'transac
 function initialSubTab(): LoyaltySubTab {
   if (typeof window === 'undefined') return 'tiers';
   return parseInitialView(window.location.search, LOYALTY_SUB_TABS, 'tiers');
+}
+
+// v2.316.0: the ledger's TYPE filter answers the address bar too —
+// `?type=EXPIRE` (the org console's sweep line deep-links exactly this,
+// so the pulse's amber counts walk straight to the rows they summarize).
+// The valid set is the SAME five types the ledger's own Select offers —
+// the param can never strand the ledger in a filter it does not offer —
+// and anything unknown, lowercase, or missing answers 'all'. The desk
+// only ever READS `type` on mount (the same one-writer-per-param law as
+// `view`); a filter changed by hand afterwards is the human's truth.
+const LOYALTY_TX_TYPES: readonly string[] = ['EARN', 'REDEEM', 'BONUS', 'EXPIRE', 'ADJUST'];
+function initialTxTypeFilter(): string {
+  if (typeof window === 'undefined') return 'all';
+  return parseInitialType(window.location.search, LOYALTY_TX_TYPES, 'all');
 }
 
 // Tier color presets
@@ -170,8 +184,9 @@ export default function LoyaltyTab() {
   const [memberHistoryOpen, setMemberHistoryOpen] = useState(false);
   const [memberHistoryCustomerId, setMemberHistoryCustomerId] = useState<string>('');
 
-  // Transaction state
-  const [txTypeFilter, setTxTypeFilter] = useState<string>('all');
+  // Transaction state — the type filter's seed comes from the address
+  // bar (v2.316.0 deep-link law above), then belongs to the Select.
+  const [txTypeFilter, setTxTypeFilter] = useState<string>(initialTxTypeFilter);
   const [txDateFrom, setTxDateFrom] = useState('');
   const [txDateTo, setTxDateTo] = useState('');
   const [_txSearch, _setTxSearch] = useState('');

@@ -9,7 +9,10 @@
  * build the `?tab=` / `?view=` query the shell now speaks. The write half
  * (history.replaceState on tab change) lives in main-app.tsx; the read
  * half for the loyalty desk's sub-tabs rides the same vocabulary
- * (`?view=transactions`).
+ * (`?view=transactions`), and since v2.316.0 the ledger's type filter
+ * answers `?type=EXPIRE` — the param the org console's sweep line
+ * deep-links to, so the pulse's amber counts walk straight to the rows
+ * they summarize.
  *
  * Pure string functions — no window access — so they pin and test without
  * a browser.
@@ -55,6 +58,30 @@ export function parseInitialView<V extends string>(
   try {
     const view = toParams(search).get('view');
     if (view && (validViews as readonly string[]).includes(view)) return view as V;
+    return fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+/**
+ * v2.316.0 — read a filter-type param (`?type=`) with a validated
+ * fallback. The loyalty ledger's type filter speaks this: a sweep-line
+ * link lands on the desk with the EXPIRE filter already chosen, and an
+ * unknown, missing, or malformed value answers the fallback so a stale
+ * bookmark can never strand the ledger in a filter it does not offer.
+ * Case-sensitive BY LAW — the ledger's own Select offers exactly the
+ * uppercase types, and a lowercase `expire` is an unknown value, not a
+ * clever match (the same honesty the view parser speaks).
+ */
+export function parseInitialType<V extends string>(
+  search: string,
+  validTypes: readonly V[],
+  fallback: V,
+): V {
+  try {
+    const type = toParams(search).get('type');
+    if (type && (validTypes as readonly string[]).includes(type)) return type as V;
     return fallback;
   } catch {
     return fallback;
