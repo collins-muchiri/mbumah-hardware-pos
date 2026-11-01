@@ -432,10 +432,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.334.0: the doors-tightened entry joins the feed (+1 on every anchor → 224/225/226/257 → 225/226/227/258)
     // v2.335.0: the financial-doors entry joins the feed (+1 on every anchor → 225/226/227/258 → 226/227/228/259)
     // v2.336.0: the catalog-doors entry joins the feed (+1 on every anchor → 226/227/228/259 → 227/228/229/260)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(227);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(228);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(229);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(260);
+    // v2.337.0: the banking-doors entry joins the feed (+1 on every anchor → 227/228/229/260 → 228/229/230/261)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(228);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(229);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(230);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(261);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 
