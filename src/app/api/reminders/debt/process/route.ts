@@ -23,6 +23,7 @@ import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { LogSeverity, LogComponent } from '@/lib/types';
 import { requireStoreAccess, assertBodyStoreScope } from '@/lib/auth';
 import { processPendingDebtReminders } from '@/lib/notification-helpers';
+import { readOptionalJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,7 +43,12 @@ async function processHandler(
     );
   }
 
-  const body = await request.json().catch(() => ({}));
+  // THE OPTIONAL SWALLOW DOOR (v2.327.0): an EMPTY body is a legitimate call — {} passes; a PRESENT unreadable body is the client mistake:
+  const door = await readOptionalJsonBody<Record<string, unknown>>(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   // v2.17.8 (Task 44): body storeId must pass the same store-scope policy as
   // query params (SUPER_ADMIN/STORE_OWNER/active membership; otherwise 403 +

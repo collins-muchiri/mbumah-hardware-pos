@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.327.0',
+    title: 'The swallow census',
+    bullets: [
+      'The last body-read class is classified: 20 routes that silently ran with a typo\u2019s empty body (HR assets, goals, discipline, performance, privacy, report schedules, self-service leave, data exports) now answer 400 when a body is unreadable — no more services throwing on fields that never arrived.',
+      'Four routes with genuinely optional bodies (debt-reminder process/schedule, the journal repair tool, the chat read-marker) get the new optional door: an empty call still works, a typo\u2019d payload is politely refused, and the fourteen routes whose swallows already validate stay as a now-guarded pattern.',
+      'Data exports now show their remaining lifetime: every history row wears a countdown pill — \u201cexpires in 6d\u201d, \u201cexpires in 30h\u201d, and an amber \u201cexpires soon\u201d inside the last day — so nobody plans a report around data about to be swept.',
+    ],
+  },
+  {
     version: '2.326.0',
     title: 'The door reads every room',
     bullets: [

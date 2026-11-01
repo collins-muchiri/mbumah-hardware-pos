@@ -8,6 +8,7 @@
 // to their own store; ORG scopes may target any store of their organization.
 
 import { hrGuard } from '@/lib/hr/guard';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 import {
   createSchedule,
   listSchedulesView,
@@ -28,7 +29,8 @@ export const GET = hrGuard('hr.report.branch', REPORT_ROLES)(async (_request, se
 });
 
 export const POST = hrGuard('hr.report.branch', REPORT_ROLES)(async (request, session) => {
-  const body = (await request.json().catch(() => ({}))) as {
+  // THE SWALLOW DOOR: an unreadable body is a client mistake (v2.327.0):
+  const door = await readJsonBody<{
     reportKey?: string;
     frequency?: string;
     recipients?: unknown;
@@ -36,7 +38,11 @@ export const POST = hrGuard('hr.report.branch', REPORT_ROLES)(async (request, se
     dayOfMonth?: number;
     hourUtc?: number;
     storeId?: string | null;
-  };
+  }>(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
   try {
     const row = await createSchedule(
       session.organizationId,

@@ -3,6 +3,7 @@
 //      to the session-linked employee; client-supplied ids are ignored).
 
 import type { NextRequest } from 'next/server';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 import {
   selfServiceGuard,
   listMyLeave,
@@ -22,7 +23,12 @@ export const GET = selfServiceGuard('hr.leave.read.own')(async (_request, _sessi
 
 export const POST = selfServiceGuard('hr.leave.request')(async (request: NextRequest, session, employee) => {
   try {
-    const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+    // THE SWALLOW DOOR: an unreadable body is a client mistake (v2.327.0):
+    const door = await readJsonBody<Record<string, unknown>>(request);
+    if (!door.ok) {
+      return bodyDoorRejected();
+    }
+    const body = door.body as Record<string, unknown>;
     return Response.json({ success: true, data: await requestMyLeave(employee, session, body) }, { status: 201 });
   } catch (error) {
     return selfServiceErrorResponse(error);

@@ -31,6 +31,7 @@ import {
 } from '@/lib/data-export-utils';
 import { resolveExportsDir } from '@/lib/export-paths';
 import { dataRetention } from '@/lib/data-retention';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -108,7 +109,12 @@ async function listExportsHandler(...args: unknown[]): Promise<Response> {
 
 async function createExportHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
-  const body = await request.json().catch(() => ({}));
+  // THE SWALLOW DOOR: an unreadable body is a client mistake (v2.327.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const { storeId, exportType, format, dateFrom, dateTo, filters } = body ?? {};
 
