@@ -127,7 +127,18 @@ async function getJournalEntriesHandler(...args: unknown[]): Promise<Response> {
 async function createJournalEntryHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.335.0 — the door speaks the body's OWN shape, `lines` included: the
+  // double-entry payload's Array.isArray + balance check below is the
+  // runtime validator, so the honest literal stops at what JSON can carry.
+  const door = await readJsonBody<{
+    storeId?: string;
+    description?: string;
+    referenceType?: string;
+    referenceId?: string;
+    lines?: Array<{ accountId: string; debit: number; credit: number; description?: string }>;
+    isPosted?: boolean;
+    createdBy?: string;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

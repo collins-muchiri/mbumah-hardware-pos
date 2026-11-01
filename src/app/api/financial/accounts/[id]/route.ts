@@ -20,19 +20,22 @@ async function updateAccountHandler(...args: unknown[]): Promise<Response> {
   const context = args[1] as RouteContext;
   const { id } = await context.params;
   // v2.325.0 THE BODY DOOR: an unreadable body is a client mistake — 400, never a 500.
-  const door = await readJsonBody<Record<string, unknown>>(request);
-  if (!door.ok) {
-    return bodyDoorRejected();
-  }
-  const body = door.body;
-
-  const { name, description, subType, isActive, updatedByUserId } = body as {
+  // v2.335.0 — the door speaks the body's OWN shape: updatedByUserId rides
+  // beside UpdateAccountInput's four updatable fields (it is the route's
+  // positional audit argument below, not a service-input field).
+  const door = await readJsonBody<{
     name?: string;
     description?: string;
     subType?: string;
     isActive?: boolean;
     updatedByUserId?: string;
-  };
+  }>(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
+
+  const { name, description, subType, isActive, updatedByUserId } = body;
 
   if (!updatedByUserId) {
     return Response.json(

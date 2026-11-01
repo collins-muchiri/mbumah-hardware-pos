@@ -71,20 +71,23 @@ async function listPeriodsHandler(...args: unknown[]): Promise<Response> {
 async function createPeriodHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
-  if (!door.ok) {
-    return bodyDoorRejected();
-  }
-  const body = door.body;
-
-  const { organizationId, storeId, periodName, startDate, endDate, createdByUserId } = body as {
+  // v2.335.0 — the door speaks the body's OWN shape: startDate/endDate
+  // arrive as ISO strings and are converted to Dates below (the helper
+  // takes Date objects), so the service signature cannot be borrowed.
+  const door = await readJsonBody<{
     organizationId?: string;
     storeId?: string;
     periodName?: string;
     startDate?: string;
     endDate?: string;
     createdByUserId?: string;
-  };
+  }>(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
+
+  const { organizationId, storeId, periodName, startDate, endDate, createdByUserId } = body;
 
   if (!organizationId || !storeId) {
     return Response.json(

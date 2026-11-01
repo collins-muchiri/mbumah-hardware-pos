@@ -21,17 +21,20 @@ async function updateBudgetHandler(...args: unknown[]): Promise<Response> {
   const context = args[1] as RouteContext;
   const { id } = await context.params;
   // v2.325.0 THE BODY DOOR: an unreadable body is a client mistake — 400, never a 500.
-  const door = await readJsonBody<Record<string, unknown>>(request);
+  // v2.335.0 — the door speaks the body's OWN shape: updatedById here maps
+  // to setBudget's userId below, so the helper's signature cannot be
+  // borrowed verbatim (honest literal, not a loose generic).
+  const door = await readJsonBody<{
+    budgetedAmount?: number | string;
+    notes?: string;
+    updatedById?: string;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
   const body = door.body;
 
-  const { budgetedAmount, notes, updatedById } = body as {
-    budgetedAmount?: number | string;
-    notes?: string;
-    updatedById?: string;
-  };
+  const { budgetedAmount, notes, updatedById } = body;
 
   if (!updatedById) {
     return Response.json(

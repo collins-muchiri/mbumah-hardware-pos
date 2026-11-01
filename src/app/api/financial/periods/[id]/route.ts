@@ -62,17 +62,20 @@ async function periodActionHandler(...args: unknown[]): Promise<Response> {
   const context = args[1] as RouteContext;
   const { id } = await context.params;
   // v2.325.0 THE BODY DOOR: an unreadable body is a client mistake — 400, never a 500.
-  const door = await readJsonBody<Record<string, unknown>>(request);
+  // v2.335.0 — the door speaks the body's OWN shape: the route dispatches on
+  // `action` BEFORE the period helpers see the body (its includes() check is
+  // the runtime validator — the type is the honest union, nothing looser).
+  const door = await readJsonBody<{
+    action?: 'CLOSE' | 'LOCK' | 'REOPEN';
+    userId?: string;
+    reason?: string;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected('Use {"action": "CLOSE" | "LOCK" | "REOPEN", "userId": "...", "reason": "..."}.');
   }
   const body = door.body;
 
-  const { action, userId, reason } = body as {
-    action?: 'CLOSE' | 'LOCK' | 'REOPEN';
-    userId?: string;
-    reason?: string;
-  };
+  const { action, userId, reason } = body;
 
   if (!action || !['CLOSE', 'LOCK', 'REOPEN'].includes(action)) {
     return Response.json(

@@ -133,13 +133,15 @@ describe('THE BODY DOOR never throws (v2.326 regression table)', () => {
 // ---------------------------------------------------------------------------
 
 
+// v2.335.0 — THE FINANCIAL TRIO GRADUATED: accounts/[id], budgets/[id] and
+// periods/[id] now speak HONEST LITERALS (their own body shapes) instead of
+// the loose `<Record<string, unknown>>` widening — see
+// src/tests/financial-doors-v2335.test.ts. The remaining five exemplars
+// still wear the v2.325 generic and are pinned below unchanged.
 const EXEMPLARS: string[] = [
   'src/app/api/categories/[id]/route.ts',
   'src/app/api/customer-credits/[id]/route.ts',
   'src/app/api/expenses/[id]/route.ts',
-  'src/app/api/financial/accounts/[id]/route.ts',
-  'src/app/api/financial/budgets/[id]/route.ts',
-  'src/app/api/financial/periods/[id]/route.ts',
   'src/app/api/gift-cards/[id]/route.ts',
   'src/app/api/suppliers/[id]/route.ts',
 ];
@@ -159,7 +161,7 @@ describe('THE CLASS IS GONE — 67 files read through the door', () => {
     });
   }
 
-  it('the widening never touched the v2.325 exemplars (their tightened generics stand)', () => {
+  it('the widening never touched the remaining v2.325 exemplars (their tightened generics stand; the financial trio graduated in v2.335.0)', () => {
     for (const exemplar of EXEMPLARS) {
       const src = readFileSync(exemplar, 'utf8');
       expect(src.includes('readJsonBody<Record<string, unknown>>(request)')).toBe(true);

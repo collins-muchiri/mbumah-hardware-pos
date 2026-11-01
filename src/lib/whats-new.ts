@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.335.0',
+    title: 'The financial doors speak their body\u2019s shape',
+    bullets: [
+      'The accounting API\u2019s nine financial doors (accounts, budgets, journal, periods, trial balance) now type every request body by the fields the route actually reads — the service\u2019s own input type where one exists, honest literals everywhere else. Same behavior, same 400 door voice, just doors that can no longer drift from the helpers they feed.',
+      'Budget recalculate finally performs the period\u2194store cross-check its documentation always promised: a period from another store now answers 404 instead of recalculating silently.',
+      'The Budgets summary grows a consumption meter: actual spend as a colour-stepped bar under the totals (green while there is headroom, amber as it fills, red once the envelope is breached), with exact figures on hover.',
+    ],
+  },
+  {
     version: '2.334.0',
     title: 'The API doors speak their body\u2019s shape',
     bullets: [
