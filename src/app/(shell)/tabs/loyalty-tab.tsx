@@ -1101,10 +1101,24 @@ export default function LoyaltyTab() {
             law). Disabled bounds at both ends; tabular-nums digits. */}
         {txData?.pagination && txData.pagination.totalPages > 1 && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-2" data-testid="tx-pager">
-            <p className="text-xs text-muted-foreground tabular-nums" data-testid="tx-census">
-              Showing rows {((txData.pagination.page - 1) * txData.pagination.limit) + 1}
-              –{Math.min(txData.pagination.page * txData.pagination.limit, txData.pagination.total)} of {txData.pagination.total.toLocaleString()}
-            </p>
+            {/* v2.322.0 — THE CENSUS NEVER LIES: on a page past the end the
+                old census computed start = (9−1)×100+1 = 801 and end =
+                min(900, 126) = 126, and spoke "Showing rows 801–126 of 126"
+                — a start past the end, rendered right beside the honest
+                past-the-end face. When the wire's page outruns its own
+                totalPages, this page holds NO rows; the census says so in
+                the desk's voice (same muted tabular digits) instead of
+                arithmetic that answers a page the ledger doesn't have. */}
+            {txData.pagination.page > txData.pagination.totalPages ? (
+              <p className="text-xs text-muted-foreground tabular-nums" data-testid="tx-census-empty">
+                No rows on this page — the ledger ends at {txData.pagination.total.toLocaleString()}.
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground tabular-nums" data-testid="tx-census">
+                Showing rows {((txData.pagination.page - 1) * txData.pagination.limit) + 1}
+                –{Math.min(txData.pagination.page * txData.pagination.limit, txData.pagination.total)} of {txData.pagination.total.toLocaleString()}
+              </p>
+            )}
             <div className="flex items-center gap-2">
               <Button
                 size="sm"
@@ -1137,6 +1151,15 @@ export default function LoyaltyTab() {
             </div>
           </div>
         )}
+        {/* v2.322.0 — THE FAB BAND: the Dashboard FAB is fixed bottom-right
+            (the v2.301 yield law fades it over interactive controls, but a
+            fixed FAB still VISUALLY parks on whatever scrolls beneath it).
+            The Task 42 QA measured the geometry: at short viewports the
+            pager's Next button and the FAB share the bottom-right corner.
+            This spacer is geometry, not a race — a band of empty runway
+            below the pager so the bar can always scroll clear of the FAB's
+            footprint at any viewport height. */}
+        <div aria-hidden className="h-16 sm:h-14" />
       </div>
     );
   }

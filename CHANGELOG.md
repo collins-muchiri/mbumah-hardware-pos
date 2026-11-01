@@ -1,3 +1,18 @@
+## [2.322.0] The census never lies
+
+The live QA walk (Job 490238, trace …202611011442) seeded a 126-row ledger and walked the pager's own vocabulary — and caught the desk in a lie: a deep-linked `?page=9` rendered the honest past-the-end face AND, right beside it, a census that spoke arithmetic instead of truth — "Showing rows 801–126 of 126" (start = (9−1)×100+1 = 801; end = min(900, 126) = 126). The v2.320.0 face told the truth; the census computed a page the ledger doesn't have. This release makes the census join the face, and gives the pager geometry the Task 42 QA measured but didn't ship.
+
+### Fixed
+- **THE CENSUS NEVER LIES** (`src/app/(shell)/tabs/loyalty-tab.tsx`): the pager bar's census slot is now a truth-conditional — when the wire's own page outruns its own totalPages, the slot renders the honest muted line "No rows on this page — the ledger ends at 126." (`data-testid="tx-census-empty"`); the numeric census (`data-testid="tx-census"`, start/end arithmetic with its `Math.min` end-guard intact) renders only on pages the ledger actually has. The face and the census agree now; no start can render past the end it describes.
+
+### Styling
+- **THE FAB BAND** (`loyalty-tab.tsx`): the Dashboard FAB is fixed bottom-right; the Task 42 QA measured the geometry where the pager's Next button and the FAB share the bottom-right corner at short viewports (the v2.301 yield law fades the FAB over interactive controls, but a fixed FAB still visually parks on whatever scrolls beneath it). The transactions view now ends in a `h-16 sm:h-14` aria-hidden runway below the pager — a band of empty space so the bar can always scroll clear of the FAB's footprint at any viewport height. Geometry, not a race.
+- **The honest census wears the desk's voice**: the same `text-xs text-muted-foreground tabular-nums` wardrobe as the numeric census — the empty line is part of the desk, not an error state.
+
+### Tests
+- `src/tests/ledger-census-truth-v2322.test.ts` (NEW): the truth-conditional pins (`tx-census-empty` on `page > totalPages`, the honest text, the desk-voice wardrobe), the lie-is-gone structural pin (the "Showing rows" text lives exclusively in the page-valid arm), the face's own pins still standing, the FAB band's placement (band follows the bar), and the v2.320/321 neighbor pins (wire-voice status, bounds, scope-reset law, gait keys, vocabulary imports) — the census fix touches only the census slot, and the file proves it.
+- The walk re-anchored 72 test files / 232 pin lines / 44 counter lines (the tenth consecutive round at the 72/232/44 shape); `verify:v2-322-0` wired into the treadmill.
+
 ## [2.321.0] The ledger chooses its gait
 
 The loyalty ledger walked at a fixed 100 rows/page since the desk first spoke, and the API door parsed `page`/`limit` with a raw `parseInt` — the QA burst proved the bug live: `?limit=abc` and `?page=abc` rode NaN straight into Prisma's `skip`/`take` and the route answered **500** (the same bug class the v2.318 law fixed for dates). The desk now chooses its gait (50/100/200 rows per page), the vocabulary gains its sixth word, and the door is honest about its numbers.
