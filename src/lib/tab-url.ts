@@ -180,6 +180,40 @@ export function parseInitialNamedPage(search: string, param: string, fallback = 
 }
 
 /**
+ * v2.328.0 — THE ROSTER'S SECOND WORD: the MEMBERSHIP law, param-NAMEd.
+ * The vocabulary's shape law has a named home (`parseInitialNamedPage`);
+ * this is the same generalization for the membership law
+ * `parseInitialLimit` speaks: the value must name a word the desk
+ * ACTUALLY OFFERS — case-sensitive (a lowercase `pending_approval` is an
+ * unknown word, not a clever match; the `?type=` honesty), and anything
+ * missing, malformed, or unknown answers the fallback so a stale
+ * bookmark can never strand the desk in a filter it does not offer.
+ * The purchase-orders roster speaks it as its desk-prefixed `po-status`
+ * (the Task 44 collision law's safe path — a desk-prefixed word can
+ * never leak across client-side tab switches; collision-checked at
+ * round start: the bare `?status=` word belongs to the /hr/performance
+ * route, a different URL space, and no shell reader of `po-status`
+ * exists). ONE home, many desks — the next desk's filter word inherits
+ * the law instead of a copy.
+ */
+export function parseInitialNamedMember<V extends string>(
+  search: string,
+  param: string,
+  validValues: readonly V[],
+  fallback: V,
+): V {
+  try {
+    const value = toParams(search).get(param);
+    if (value && (validValues as readonly string[]).includes(value)) {
+      return value as V;
+    }
+    return fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+/**
  * v2.321.0 — the page sizes the ledger's gait Select offers. ONE array,
  * read by the address-bar parser's membership law, the desk's Select, and
  * the API door's clamp ceiling (the wire's take never outgrows the

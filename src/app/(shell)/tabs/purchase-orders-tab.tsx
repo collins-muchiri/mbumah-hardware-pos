@@ -11,7 +11,7 @@ import {
   MoreHorizontal,
   PackageCheck, PackageX, ShieldCheck, Stamp,
   Receipt, ShoppingBag, DollarSign,
-  ArrowUpRight, History,
+  ArrowUpRight, History, Link2,
 } from 'lucide-react';
 
 import { useAppStore } from '@/lib/stores';
@@ -56,7 +56,7 @@ import { lensCarryFromParams } from '@/lib/lens-memory';
 import { SheetDrill, type SheetDrillTarget } from '@/components/org/sheet-drill';
 // v2.324.0 THE ROSTER'S OWN WORD — the address-bar parser reads from the
 // parsers' one home (the tab-url law: never a copy).
-import { parseInitialNamedPage } from '@/lib/tab-url';
+import { parseInitialNamedMember, parseInitialNamedPage } from '@/lib/tab-url';
 
 // v2.254.0 THE BRANCH'S LENS — the row's own band, read from above: the
 // family the wire's spoke wore, or the silent absence (a hand-raised
@@ -1664,13 +1664,43 @@ function initialPoPage(): number {
   return parseInitialNamedPage(window.location.search, 'po-page', 1);
 }
 
+// v2.328.0 THE ROSTER'S SECOND WORD — the roster's STATUS filter answers
+// the address bar too: `?po-status=PENDING_APPROVAL` lands the desk with
+// the approval queue already chosen (the bookmark/QA word — the loyalty
+// ledger's `?type=` law, now desk-prefixed per the Task 44 collision
+// analysis: a desk-prefixed word can never leak across client-side tab
+// switches, and the bare `?status=` word belongs to the /hr/performance
+// route, a different URL space). The law is MEMBERSHIP (one home,
+// `parseInitialNamedMember`): the value must name a status the desk
+// offers — case-sensitive, so a lowercase `pending_approval` is an
+// unknown word, not a clever match — and anything missing or unknown
+// answers 'ALL' (never stranded). Read-on-mount ONLY (the one-writer law
+// the rest of the shell speaks): the landing word is the LANDING filter,
+// never rewritten; the Select, the chips and the Clear button own the
+// state afterwards.
+function initialPoStatus(): string {
+  if (typeof window === 'undefined') return 'ALL';
+  return parseInitialNamedMember(window.location.search, 'po-status', PO_STATUSES, 'ALL');
+}
+
 export default function PurchaseOrdersTab() {
   const { currentStoreId } = useAppStore();
   const queryClient = useQueryClient();
 
   // State
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  // v2.328.0 THE ROSTER'S SECOND WORD — the seed reads `?po-status=`
+  // (membership law, one home); a hand-driven Select afterwards is the
+  // human's truth.
+  const [statusFilter, setStatusFilter] = useState<string>(initialPoStatus);
+  // v2.328.0 THE LANDING WORD — the address-bar word the desk answered at
+  // mount ('ALL' when the landing carried no status). The chip speaks it
+  // ONCE: dismissed, hand-changed, or cleared, the landing is over and
+  // the chip retires — an honest face never claims a landing that is
+  // done (the `?type=` sibling never claimed one at all; the chip is the
+  // roster's own answer to "why is this desk pre-filtered?").
+  const [landedStatus] = useState<string>(initialPoStatus);
+  const [landingLive, setLandingLive] = useState(true);
   const [supplierFilter, setSupplierFilter] = useState<string>('ALL');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
@@ -1947,6 +1977,9 @@ export default function PurchaseOrdersTab() {
     setDateFrom('');
     setDateTo('');
     setPage(1);
+    // v2.328.0: the honest clear retires the landing chip too — a cleared
+    // desk never claims a filter it no longer holds.
+    setLandingLive(false);
     // v2.254.0: the lens is one of the face's own filters now — the
     // clear-all lifts it too (the honest clear, never a partial one).
     // v2.259.0: BOTH instruments (the combined lift — one hand, one
@@ -2058,6 +2091,32 @@ export default function PurchaseOrdersTab() {
             </Button>
           )}
 
+          {/* v2.328.0 THE LANDING WORD — the desk answers the address bar
+              OUT LOUD: a link that landed the roster pre-filtered wears a
+              chip naming the word it answered (?po-status=…), styled in
+              the roster's indigo family, with a one-press dismissal that
+              clears the filter the word seeded. The chip retires the
+              moment the human owns the filter (hand-change, dismiss, or
+              clear-all) — an honest face never claims a landing that is
+              over. `data-testid="po-landing-word"` — the QA walk's handle. */}
+          {landingLive && landedStatus !== 'ALL' && statusFilter === landedStatus && (
+            <button
+              type="button"
+              onClick={() => {
+                setStatusFilter('ALL');
+                setPage(1);
+                setLandingLive(false);
+              }}
+              className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-indigo-200 bg-indigo-50 text-indigo-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-indigo-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300 dark:hover:bg-indigo-500/20"
+              data-testid="po-landing-word"
+              title="The desk landed with this filter from the address bar — press to clear it"
+            >
+              <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+              <span className="tabular-nums">landed ?po-status={landedStatus}</span>
+              <X className="h-3 w-3 shrink-0 opacity-60" aria-hidden="true" />
+            </button>
+          )}
+
           <Button onClick={() => setCreateOpen(true)} size="sm">
             <Plus className="h-4 w-4 mr-1" />
             New PO
@@ -2077,6 +2136,10 @@ export default function PurchaseOrdersTab() {
                   onValueChange={(v) => {
                     setStatusFilter(v);
                     setPage(1);
+                    // v2.328.0: a hand-driven change retires the landing
+                    // word — the chip speaks the ADDRESS BAR's landing,
+                    // never the human's choice.
+                    setLandingLive(false);
                   }}
                 >
                   <SelectTrigger>
