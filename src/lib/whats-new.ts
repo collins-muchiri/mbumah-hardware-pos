@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.323.0',
+    title: 'The roster joins the truth',
+    bullets: [
+      'The purchase-order desk learned the loyalty ledger\u2019s honesty: a page past the end of the roster now says "Page N is past the end of this ledger \u2014 N orders live on earlier pages" with a one-press way back, instead of pretending there are no orders.',
+      'Its pager census can no longer speak arithmetic for a page the roster doesn\u2019t have \u2014 a malformed ?page= at the wire now falls back instead of crashing, and an oversized page size is clamped.',
+      'The pager buttons finally speak to screen readers (Previous/Next page), the digits are tabular, and the Next chevron points the right way without a flip hack.',
+    ],
+  },
+  {
     version: '2.322.0',
     title: 'The census never lies',
     bullets: [

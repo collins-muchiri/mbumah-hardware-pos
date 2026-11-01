@@ -99,6 +99,15 @@ confirm it, and neither requires shell access:
   `/?tab=loyalty&view=transactions&type=EXPIRE`, and the loyalty desk
   reads `?type=` on mount (the tab-url vocabulary `view` already spoke),
   so the pulse's counts land on the exact rows they summarize.
+- **v2.323.0**: the roster joins the truth — the start-of-round sweep for
+  the census arithmetic class found the purchase-order roster speaking it
+  (and its wire door still raw-`parseInt`-ing page/limit — the loyalty
+  door's proven 500 class). The door reads through
+  `parsePositiveIntParam`/`parseClampedIntParam` (take clamped [1, 200]),
+  the pager census is a truth-conditional (`po-census-empty` on
+  `page > totalPages`), the empty branch grew the v2.320 honest face
+  (`po-past-end` + way back), and the pager buttons wear aria-labels,
+  tabular digits and a real ChevronRight.
 - **v2.322.0**: the census never lies — the live QA walk (126-row seeded
   ledger) caught the pager bar's census computing arithmetic for a page the
   ledger doesn't have: a deep-linked `?page=9` spoke "Showing rows 801–126

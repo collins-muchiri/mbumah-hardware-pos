@@ -1,3 +1,19 @@
+## [2.323.0] The roster joins the truth
+
+The v2.322.0 live QA walk caught the LOYALTY ledger's census lying on a page past the end — and this round's start-of-round sweep (`rg` for the `(page - 1) * limit` arithmetic class outside loyalty) found the one other UI desk speaking the same arithmetic: the purchase-order roster. Worse, the roster's wire door still read its pagination with raw `parseInt` — the exact 500 class the loyalty door's QA walk proved (`?page=abc` rode NaN into Prisma's `skip`). The roster joins the truth: same laws, same voices.
+
+### Fixed
+- **THE DOOR IS HONEST ABOUT ITS NUMBERS** (`src/app/api/purchase-orders/route.ts`): `page` reads through `parsePositiveIntParam` (shape law — missing/malformed/zero/negative/float answers 1; a past-the-end page stays an honest empty) and `limit` through `parseClampedIntParam` into [1, 200] (the house's largest gait — `?limit=5000` can never ask the shelf for the world). The raw `parseInt` door is GONE; the 500 proof is written where the next reader meets it.
+- **THE CENSUS NEVER LIES** (`src/app/(shell)/tabs/purchase-orders-tab.tsx`): the roster pager's census slot is a truth-conditional — `page > totalPages` renders the honest muted line "No rows on this page — the ledger ends at N orders." (`po-census-empty`); the numeric census (end-guard intact) speaks only on pages the roster HAS.
+- **THE HONEST EMPTY** (the v2.320 law, ported): the roster's empty branch guards on the wire truth — `total > 0 && page > totalPages` says "Page N is past the end of this ledger — N orders live on earlier pages." and offers the way back (`po-past-end`, `po-back-to-one`); the generic empty keeps its own voices (the metric lens's honest silence, the filters' hint, the first-order invitation) for every page the roster actually has.
+
+### Styling
+- **The pager speaks to every reader**: the Prev/Next buttons carry `aria-label`s ("Previous page" / "Next page") — the voice the loyalty pager has spoken since v2.320 — and testids (`po-pager-prev`/`po-pager-next`/`po-pager-status`); the census and status digits ride `tabular-nums`; the Next button is a real `ChevronRight` — the `rotate-180` flip hack is gone.
+
+### Tests
+- `src/tests/po-census-truth-v2323.test.ts` (NEW, 17 pins): the door's honest ints + the gone-parseInt pin (code, not the comment that names it) + the truth table re-pinned at the new door, the census truth-conditional + the lie-is-gone structural arm, the past-the-end face + way back + the generic empty's kept voices, the a11y voice (labels, tabular digits, the real chevron), and the house-law pin (loyalty AND roster both carry THE CENSUS NEVER LIES).
+- The walk re-anchored 71 files / 232 pin lines (counters cascaded +1 → 214/215/216/247; tenth-plus-one consecutive round on the treadmill); `verify:v2-323-0` wired.
+
 ## [2.322.0] The census never lies
 
 The live QA walk (Job 490238, trace …202611011442) seeded a 126-row ledger and walked the pager's own vocabulary — and caught the desk in a lie: a deep-linked `?page=9` rendered the honest past-the-end face AND, right beside it, a census that spoke arithmetic instead of truth — "Showing rows 801–126 of 126" (start = (9−1)×100+1 = 801; end = min(900, 126) = 126). The v2.320.0 face told the truth; the census computed a page the ledger doesn't have. This release makes the census join the face, and gives the pager geometry the Task 42 QA measured but didn't ship.
