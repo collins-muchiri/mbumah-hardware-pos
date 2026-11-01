@@ -122,6 +122,13 @@ describe('the card face — the counts door names the day (org-console.tsx)', ()
 describe('the housekeeping — the qa-diag scripts join the gitignored home', () => {
   it('the gitignore rule exists (the two stale v2315 diag scripts vanish from status)', () => {
     const gitignore = readFileSync('.gitignore', 'utf8');
-    expect(gitignore.includes('scripts/qa-diag-*')).toBe(true);
+    // v2.318.0 pin evolution (deliberate): the rule broadens one byte —
+    // `scripts/qa-diag-*` → `scripts/qa-diag*` — because the stray files
+    // were named `qa-diag2-console-v2315.sh` (a digit, not a dash, after
+    // diag), and the original pattern never matched them; qa-seed-* and
+    // release-v*.sh join the same home this round.
+    expect(gitignore.includes('scripts/qa-diag*')).toBe(true);
+    expect(gitignore.includes('scripts/qa-seed-*')).toBe(true);
+    expect(gitignore.includes('scripts/release-v*.sh')).toBe(true);
   });
 });
