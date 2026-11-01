@@ -414,10 +414,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.317.0: the ledger-link entry joins the feed (+1 on every anchor → 206/207/208/239 → 207/208/209/240)
     // v2.317.0: the day-window entry joins the feed (+1 on every anchor → 207/208/209/240 → 208/209/210/241)
     // v2.318.0: the dismiss+echo entry joins the feed (+1 on every anchor → 208/209/210/241 → 209/210/211/242)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(209);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(210);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(211);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(242);
+    // v2.319.0: the summary-voice entry joins the feed (+1 on every anchor → 209/210/211/242 → 210/211/212/243)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(210);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(211);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(212);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(243);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 
