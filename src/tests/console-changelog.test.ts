@@ -423,10 +423,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.325.0: the body-door entry joins the feed (+1 on every anchor → 215/216/217/248 → 216/217/218/249)
     // v2.326.0: the post-wide-door entry joins the feed (+1 on every anchor → 216/217/218/249 → 217/218/219/250)
     // v2.327.0: the swallow-census entry joins the feed (+1 on every anchor → 217/218/219/250 → 218/219/220/251)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(218);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(219);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(220);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(251);
+    // v2.328.0: the roster's-second-word entry joins the feed (+1 on every anchor → 218/219/220/251 → 219/220/221/252)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(219);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(220);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(221);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(252);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 
