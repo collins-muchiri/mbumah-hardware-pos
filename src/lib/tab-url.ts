@@ -98,12 +98,14 @@ export interface InitialDateRange {
 const DAY_KEY_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 /**
- * The honest calendar-day law, PUBLIC since v2.318.0 — the same one law
- * now read at BOTH doors that meet a day key: the address-bar parser
- * (`parseInitialDateRange`) and the API route's query door
+ * The honest calendar-day law, PUBLIC since v2.318.0 — the first of the
+ * honest-param laws this module now homes: the address-bar parser
+ * (`parseInitialDateRange`), the API route's query door
  * (`/api/loyalty/transactions`, which used to hand a raw string to
  * `new Date()` and could answer a Prisma validation error on a garbage
- * param). Shape must be `YYYY-MM-DD` and the day must be REAL — see the
+ * param), and — since v2.321.0 — the door's integers too
+ * (`parsePositiveIntParam` / `parseClampedIntParam` below). Shape must
+ * be `YYYY-MM-DD` and the day must be REAL — see the
  * round-trip comment below; garbage, malformed, or impossible answers ''
  * (dropped, never a 500, never a stranded filter).
  */
@@ -160,6 +162,72 @@ export function parseInitialPage(search: string, fallback = 1): number {
   } catch {
     return fallback;
   }
+}
+
+/**
+ * v2.321.0 — the page sizes the ledger's gait Select offers. ONE array,
+ * read by the address-bar parser's membership law, the desk's Select, and
+ * the API door's clamp ceiling (the wire's take never outgrows the
+ * house's largest gait) — three doors, one vocabulary.
+ */
+export const LEDGER_PAGE_SIZES = [50, 100, 200] as const;
+
+/**
+ * v2.321.0 — read the ledger's page size (`?limit=`) with the same
+ * never-strand law the rest of this module speaks — but a DIFFERENT
+ * test than the page parser's: the law here is MEMBERSHIP, not shape.
+ * The desk offers exactly the gaits LEDGER_PAGE_SIZES names, so the
+ * address bar speaks the desk's words (the `?type=` honesty): digits
+ * that name an offered gait seed the state; anything missing,
+ * malformed, or BETWEEN the offered gaits answers the fallback —
+ * 100, the gait the desk has walked since the ledger first spoke.
+ * A gait the desk cannot offer must never ride the state.
+ * Collision-checked at round start: no shell/address-bar reader of
+ * `limit` exists in src/ (the API doors that read `limit` are server
+ * routes, not the SPA's address bar) — the sixth word after
+ * view/type/from/to/page.
+ */
+export function parseInitialLimit(search: string, fallback: number = 100): number {
+  try {
+    const raw = toParams(search).get('limit');
+    if (!raw || !/^\d+$/.test(raw)) return fallback;
+    const limit = parseInt(raw, 10);
+    return (LEDGER_PAGE_SIZES as readonly number[]).includes(limit) ? limit : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+/**
+ * v2.321.0 — the API door's honest page integer, the same law the dates
+ * at this door have spoken since v2.318: a raw `parseInt` rides NaN
+ * straight into Prisma's `skip` and the route answers 500 on a garbage
+ * param (live-proven this round: `?page=abc` → 500). Shape must be
+ * digits; anything else, or a value under `min`, answers the fallback.
+ * A page PAST the ledger's end is NOT clamped away — the wire answers
+ * its own pagination and an honest empty page is a real answer (the
+ * same shape-not-existence law `parseInitialPage` speaks).
+ */
+export function parsePositiveIntParam(raw: string | null, fallback: number, min = 1): number {
+  if (!raw || !/^\d+$/.test(raw)) return fallback;
+  const n = parseInt(raw, 10);
+  return n >= min ? n : fallback;
+}
+
+/**
+ * v2.321.0 — the API door's honest take. `limit` bounds a query, so the
+ * door CLAMPS instead of refusing: digits name an intent, the intent is
+ * served inside [min, max] — `?limit=500` answers 200 (the house's
+ * largest gait), `?limit=0` answers 1, and a garbage value answers the
+ * caller's default. The wire never takes more than the house offers,
+ * and a garbage param is never a 500 again.
+ */
+export function parseClampedIntParam(raw: string | null, fallback: number, min: number, max: number): number {
+  if (!raw || !/^\d+$/.test(raw)) return fallback;
+  const n = parseInt(raw, 10);
+  if (n < min) return min;
+  if (n > max) return max;
+  return n;
 }
 
 /**

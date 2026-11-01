@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.321.0',
+    title: 'The ledger chooses its gait',
+    bullets: [
+      'The loyalty ledger no longer walks at a fixed 100 rows: a "Rows per page" picker in the toolbar offers 50 / 100 / 200, and the census line follows whichever gait you choose.',
+      'The gait is deep-linkable \u2014 a URL like /?tab=loyalty&view=transactions&limit=50&page=2 lands whole, and changing the gait (or any filter) returns you to page 1 instead of a stranded empty page.',
+      'Under the hood, the ledger\u2019s API door now parses page and size honestly \u2014 a malformed number used to crash the request with a 500; now it falls back gracefully.',
+    ],
+  },
+  {
     version: '2.320.0',
     title: 'The ledger turns the page',
     bullets: [

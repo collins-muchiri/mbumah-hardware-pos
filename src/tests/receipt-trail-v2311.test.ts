@@ -147,7 +147,9 @@ describe('v2.311.0 — the shell answers the address bar', () => {
     // the dismiss law's own voice is pinned in expiry-window-dismiss-v2318.
     // v2.320.0 pin evolution (deliberate): parseInitialPage joins — the
     // pager lands on `?page=`; the pin follows the import, not the round.
-    expect(loyaltyTab).toContain("import { buildSearchWithoutParams, parseInitialDateRange, parseInitialPage, parseInitialType, parseInitialView } from '@/lib/tab-url';");
+    // v2.321.0 pin evolution (deliberate): parseInitialLimit joins — the
+    // gait lands on `?limit=`; the pin follows the import, not the round.
+    expect(loyaltyTab).toContain("import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialPage, parseInitialType, parseInitialView } from '@/lib/tab-url';");
     expect(loyaltyTab).toContain(
       "const LOYALTY_SUB_TABS: readonly LoyaltySubTab[] = ['tiers', 'members', 'transactions', 'campaigns'];",
     );

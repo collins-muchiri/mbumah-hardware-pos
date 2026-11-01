@@ -122,3 +122,4 @@ scripts/qa-diag*
 scripts/release-v*.sh
 scripts/seed-qa-*
 scripts/targeted-tsc-*
+.vitest-reports/

@@ -11,7 +11,7 @@ import {
   MANUAL_EXPIRE_REFUSAL_MESSAGE,
   walletInsufficientMessage,
 } from '@/lib/loyalty-adjust-policy';
-import { honestDayKey } from '@/lib/tab-url';
+import { honestDayKey, parseClampedIntParam, parsePositiveIntParam } from '@/lib/tab-url';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,8 +40,17 @@ async function getLoyaltyTransactionsHandler(...args: unknown[]): Promise<Respon
   const dateFrom = honestDayKey(searchParams.get('dateFrom'));
   const dateTo = honestDayKey(searchParams.get('dateTo'));
   const search = searchParams.get('search') || '';
-  const page = parseInt(searchParams.get('page') || '1');
-  const limit = parseInt(searchParams.get('limit') || '50');
+  // v2.321.0 — THE DOOR IS HONEST ABOUT ITS NUMBERS (the v2.318 law the
+  // dates at this door already speak): a garbage `page` or `limit` used
+  // to ride parseInt's NaN straight into Prisma's skip/take — a
+  // validation error the route answered 500 (live-proven this round:
+  // ?limit=abc → 500, ?page=abc → 500). Shape must be digits; the page
+  // falls back to 1 (past-the-end stays an honest empty — shape, not
+  // existence) and the take clamps into 1..200 — the house's largest
+  // gait — so the wire never takes more than the desk offers and a
+  // garbage param is never a 500 again.
+  const page = parsePositiveIntParam(searchParams.get('page'), 1);
+  const limit = parseClampedIntParam(searchParams.get('limit'), 50, 1, 200);
   const sortBy = searchParams.get('sortBy') || 'createdAt';
   const sortOrder = searchParams.get('sortOrder') || 'desc';
 

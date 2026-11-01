@@ -81,7 +81,10 @@ describe('the API door — the window is honest at /api/loyalty/transactions too
   const route = readFileSync('src/app/api/loyalty/transactions/route.ts', 'utf8');
 
   it('the route reads the query THROUGH the honest-day law (no raw new Date())', () => {
-    expect(route.includes("import { honestDayKey } from '@/lib/tab-url';")).toBe(true);
+    // v2.321.0 pin evolution (deliberate): the door's integers join the
+    // same import (parseClampedIntParam / parsePositiveIntParam) — the
+    // honest-param laws share one home; the pin follows the import.
+    expect(route.includes("import { honestDayKey, parseClampedIntParam, parsePositiveIntParam } from '@/lib/tab-url';")).toBe(true);
     expect(route.includes("honestDayKey(searchParams.get('dateFrom'))")).toBe(true);
     expect(route.includes("honestDayKey(searchParams.get('dateTo'))")).toBe(true);
   });
@@ -114,9 +117,11 @@ describe('the desk — the window can leave, and the echo is worn (loyalty-tab.t
   it('the tab-url import now carries the dismiss builder too (v2.318 evolution)', () => {
     // v2.320.0 pin evolution (deliberate): parseInitialPage joins — the
     // pager lands on `?page=`; the pin follows the import, not the round.
+    // v2.321.0 pin evolution (deliberate): parseInitialLimit joins — the
+    // gait lands on `?limit=`; the pin follows the import, not the round.
     expect(
       tab.includes(
-        "import { buildSearchWithoutParams, parseInitialDateRange, parseInitialPage, parseInitialType, parseInitialView } from '@/lib/tab-url';",
+        "import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialPage, parseInitialType, parseInitialView } from '@/lib/tab-url';",
       ),
     ).toBe(true);
   });

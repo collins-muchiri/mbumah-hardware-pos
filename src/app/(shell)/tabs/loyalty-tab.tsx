@@ -23,7 +23,7 @@ import {
   DOCK_REASON_HINT,
   EXPIRE_POLICY_NOTE,
 } from '@/lib/loyalty-adjust-policy';
-import { buildSearchWithoutParams, parseInitialDateRange, parseInitialPage, parseInitialType, parseInitialView } from '@/lib/tab-url';
+import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialPage, parseInitialType, parseInitialView } from '@/lib/tab-url';
 import { ReceiptViewDialog } from '@/components/loyalty/receipt-view-dialog';
 import { ExpiryDialog } from '@/components/loyalty/expiry-dialog';
 
@@ -105,6 +105,19 @@ function initialDateTo(): string {
 function initialTxPage(): number {
   if (typeof window === 'undefined') return 1;
   return parseInitialPage(window.location.search, 1);
+}
+
+// v2.321.0: the ledger's GAIT answers the address bar too — `?limit=50`
+// lands the desk on the 50-rows gait (the vocabulary's sixth word after
+// view/type/from/to/page; collision-checked — no shell reader of `limit`
+// exists in src/). The parser's law is MEMBERSHIP, not shape: the desk
+// offers exactly three gaits (50/100/200), and an unknown, malformed, or
+// between-the-gaits value answers 100 — the gait the desk has walked
+// since the ledger first spoke. The desk only ever READS `limit` on
+// mount (the one-writer law); the gait Select moves the state after.
+function initialTxLimit(): number {
+  if (typeof window === 'undefined') return 100;
+  return parseInitialLimit(window.location.search, 100);
 }
 
 // Tier color presets
@@ -244,8 +257,16 @@ export default function LoyaltyTab() {
   // the landing); every scope move AFTER mount returns the desk to
   // page 1 — the never-strand law the parsers above speak, worn as
   // state.
+  // v2.321.0 — THE GAIT FOLLOWS THE SCOPE TOO: the page-size Select is
+  // in the scope key, because a page number that was honest at 100/page
+  // can be past the end at 200/page (page 2 = rows 201–400 of a
+  // 126-row ledger). A gait change re-anchors to page 1 — and the
+  // deep-linked `?page=2&limit=50` still lands whole (the ref holds
+  // the FIRST scope INCLUDING the first gait, so the mount is a
+  // no-op).
   const [txPage, setTxPage] = useState<number>(initialTxPage);
-  const txScopeKey = `${txTypeFilter}|${txDateFrom}|${txDateTo}`;
+  const [txLimit, setTxLimit] = useState<number>(initialTxLimit);
+  const txScopeKey = `${txTypeFilter}|${txDateFrom}|${txDateTo}|${txLimit}`;
   const txPrevScopeKey = useRef(txScopeKey);
   useEffect(() => {
     if (txPrevScopeKey.current !== txScopeKey) {
@@ -291,14 +312,17 @@ export default function LoyaltyTab() {
   const { data: txData, isLoading: txLoading } = useQuery({
     // v2.320.0: the page rides the key AND the wire — page 2 is a
     // different ledger slice, never a cached re-render of page 1.
-    queryKey: ['loyalty-transactions', currentStoreId, txTypeFilter, txDateFrom, txDateTo, txPage],
+    // v2.321.0: the gait rides BOTH too — 50 rows/page is a different
+    // slice of the same ledger, and the wire's take is the desk's own
+    // gait, never a constant.
+    queryKey: ['loyalty-transactions', currentStoreId, txTypeFilter, txDateFrom, txDateTo, txPage, txLimit],
     queryFn: () => loyaltyApi.transactions.list({
       storeId: currentStoreId,
       transactionType: txTypeFilter !== 'all' ? txTypeFilter : undefined,
       dateFrom: txDateFrom || undefined,
       dateTo: txDateTo || undefined,
       page: txPage,
-      limit: 100,
+      limit: txLimit,
     }),
   });
 
@@ -860,6 +884,30 @@ export default function LoyaltyTab() {
             onChange={(e) => setTxDateTo(e.target.value)}
             placeholder="To"
           />
+          {/* v2.321.0 — THE GAIT SELECT: the ledger stopped dictating its
+              rows-per-page (a fixed 100 since the desk first spoke); the
+              toolbar now offers the three gaits the wire serves. A
+              CONTROL, not a status — it lives in the toolbar so a
+              one-page ledger can still choose a tighter or wider gait
+              (the pager bar renders only when a second page exists, the
+              v2.320 law). Digits wear tabular-nums (the v2.319 digit
+              law); the trigger's aria-label names the control for the
+              desk's screen readers. */}
+          <Select value={String(txLimit)} onValueChange={(v) => setTxLimit(parseInt(v, 10))}>
+            <SelectTrigger
+              className="h-9 w-full sm:w-[124px]"
+              data-testid="tx-page-size"
+              aria-label="Rows per page"
+              title="Rows per page"
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="50"><span className="tabular-nums">50 / page</span></SelectItem>
+              <SelectItem value="100"><span className="tabular-nums">100 / page</span></SelectItem>
+              <SelectItem value="200"><span className="tabular-nums">200 / page</span></SelectItem>
+            </SelectContent>
+          </Select>
           {/* v2.318.0 — THE WINDOW CAN LEAVE: an × chip, present only while
               a window is active. The Expiry desk's amber voice (border,
               ink, hover, focus ring — the v2.316 link wardrobe), with the

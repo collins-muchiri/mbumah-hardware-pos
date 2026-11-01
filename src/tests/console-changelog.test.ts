@@ -416,10 +416,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.318.0: the dismiss+echo entry joins the feed (+1 on every anchor → 208/209/210/241 → 209/210/211/242)
     // v2.319.0: the summary-voice entry joins the feed (+1 on every anchor → 209/210/211/242 → 210/211/212/243)
     // v2.320.0: the pager entry joins the feed (+1 on every anchor → 210/211/212/243 → 211/212/213/244)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(211);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(212);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(213);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(244);
+    // v2.321.0: the page-size entry joins the feed (+1 on every anchor → 211/212/213/244 → 212/213/214/245)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(212);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(213);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(214);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(245);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 
