@@ -1,3 +1,18 @@
+## [2.330.0] The debt lens answers the address bar
+
+v2.328.0 gave the roster its word and promised the next desk's filter word would inherit the law; v2.329.0 kept it once. This release keeps it AGAIN: the customers desk's debt lens speaks its own desk-prefixed word through the SAME one-home parser, and wears the landing chip in its own rose.
+
+### Added
+- **THE DEBT LENS'S OWN WORD (`?cust-debt=`)**: the customers desk's debt filter answers the address bar — bookmark or share `/?tab=customers&cust-debt=overdue` and the desk lands with the high-risk view already chosen. The law is MEMBERSHIP through the ONE home (`parseInitialNamedMember` — the third desk to inherit it, zero new bytes of parser): the value must name a lens the desk actually offers (`all` / `no_debt` / `outstanding` / `overdue`), case-sensitive — the desk's own words are lowercase_snake, so `?cust-debt=OVERDUE` is an unknown word, not a clever match — and anything missing or unknown answers `all`, so a stale bookmark can never strand the desk in a lens it does not offer. The word is desk-prefixed per the Task 44 collision law (a desk-prefixed word can never leak across client-side tab switches; the bare `?debt=` word has NO address-bar reader anywhere in src/ — the debt plans dialog and the ledger's own state comparisons are not URL words — collision-checked at round start). Read-on-mount ONLY (the one-writer law): the landing word is the LANDING lens, never rewritten; the Select, the quick chips and the reset button own the state afterwards.
+
+### Styling
+- **THE LANDING WORD CHIP, THIRD WEARING** (`customers-tab.tsx`): the portable pattern lands on its third desk — when a link lands the lens pre-filtered, the toolbar wears a chip naming the exact word it answered (`landed ?cust-debt=overdue`, `data-testid="cust-landing-word"`), styled in the lens's own rose family (the debt/risk semantic color the desk already speaks) with dark-mode variants, the Link2 icon, a `title` tooltip, and a one-press dismissal that clears the lens the word seeded. FOUR retirement voices — the chip's own dismissal, a hand-driven Select change, the quick chips, and the honest reset each retire it: an honest face never claims a landing that is over.
+
+### Tests
+- `src/tests/cust-debt-deep-link-v2330.test.ts` (NEW, 17 pins): the parser's truth table for the snake-case vocabulary (membership, never-strand, the inverse case-sensitivity — `OVERDUE` is unknown), the rides-along landings (neighbors' words ride along untouched), the desk's seed bytes (the lazy initializer, the SSR guard, the one-home import, the offered-lenses const), the landing chip's bytes and its FOUR retirement voices, the rose wardrobe in both modes, the one-home promise (the law's doc carries the third desk), and the collision ledger walk (`cust-debt` speaks in exactly its files).
+- The collision ledgers GREW their honest speaker on BOTH sides: the new test's lineage citation joins the `inv-stock` walk AND the `po-status` walk (both ledgers updated, not silenced — the both-ledgers law).
+- The walk re-anchors the treadmill (v2.330.0 pins + the unread-counter cascade 220/221/222/253 → 221/222/223/254).
+
 ## [2.329.0] The stock lens answers the address bar
 
 v2.328.0 gave the purchase-orders roster its STATUS word (`?po-status=`) and promised that the next desk's filter word would inherit the law instead of a copy. This release keeps the promise: the inventory desk's stock lens speaks its own desk-prefixed word through the SAME one-home parser, and wears the landing chip in its own amber.

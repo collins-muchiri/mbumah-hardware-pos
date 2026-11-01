@@ -8,7 +8,9 @@ import {
   Eye, Loader2, HandCoins, Banknote, Smartphone, ShoppingBag, Phone, Mail, MapPin, CreditCard, Clock,
   ArrowUpDown, Filter, UserPlus, TrendingUp, FileText, Bell,
   History, Send, Tag, Gift, Truck, FileCheck, Receipt, Minus, Printer, MessageSquare,
+  Link2, X,
 } from 'lucide-react';
+import { parseInitialNamedMember } from '@/lib/tab-url';
 
 import { useAppStore, useAuthStore } from '@/lib/stores';
 import {
@@ -53,6 +55,29 @@ const AVATAR_GRADIENTS = [
   'from-fuchsia-500 to-pink-600',
   'from-lime-500 to-green-600',
 ];
+
+// v2.330.0 THE DEBT LENS'S OWN WORD — the customers desk's debt filter
+// answers the address bar too: `?cust-debt=overdue` lands the desk with
+// the high-risk lens already chosen (the inventory lens's `?inv-stock=`
+// law, one release later, on the next desk). The law is MEMBERSHIP, ONE
+// home (`parseInitialNamedMember`): the value must name a lens the desk
+// actually offers — case-sensitive (the desk's own words are
+// lowercase_snake, so `OVERDUE` is an unknown word, not a clever match)
+// — and anything missing or unknown answers 'all' (never stranded). The
+// word is desk-prefixed per the Task 44 collision law: a desk-prefixed
+// word can never leak across client-side tab switches, and the bare
+// `?debt=` word has NO address-bar reader anywhere in src/ (the debt
+// plans dialog and the ledger's own state comparisons are not URL words
+// — collision-checked at round start). Read-on-mount ONLY (the
+// one-writer law): the landing word is the LANDING lens, never
+// rewritten; the Select, the quick chips and the reset button own the
+// state after.
+export const CUST_DEBT_FILTERS = ['all', 'no_debt', 'outstanding', 'overdue'] as const;
+
+function initialCustDebtLens(): string {
+  if (typeof window === 'undefined') return 'all';
+  return parseInitialNamedMember(window.location.search, 'cust-debt', CUST_DEBT_FILTERS, 'all');
+}
 
 function getAvatarGradient(name: string): string {
   let hash = 0;
@@ -510,7 +535,24 @@ export default function CustomersTab() {
   const queryClient = useQueryClient();
 
   // Filter and sort state
-  const [debtFilter, setDebtFilter] = useState<string>('all');
+  // v2.330.0 THE DEBT LENS'S OWN WORD — the seed reads `?cust-debt=`
+  // (membership law, one home); a hand-driven Select afterwards is the
+  // human's truth.
+  const [debtFilter, setDebtFilter] = useState<string>(initialCustDebtLens);
+  // v2.330.0 THE LANDING WORD — the address-bar word the desk answered at
+  // mount ('all' when the landing carried no lens). The chip speaks it
+  // ONCE: dismissed, hand-changed, or reset, the landing is over and
+  // the chip retires — an honest face never claims a landing that is
+  // done (the roster's indigo chip law, worn in the lens's rose).
+  const [landedCustDebtLens] = useState<string>(initialCustDebtLens);
+  const [landingLive, setLandingLive] = useState(true);
+
+  // v2.330.0: a hand-driven change retires the landing word — the chip
+  // speaks the ADDRESS BAR's landing, never the human's next choice.
+  const chooseDebtFilter = (value: string) => {
+    setDebtFilter(value);
+    setLandingLive(false);
+  };
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [showFilters, setShowFilters] = useState(false);
@@ -867,10 +909,12 @@ export default function CustomersTab() {
           <button
             key={chip.key}
             onClick={() => {
-              if (chip.key === 'all') setDebtFilter('all');
-              else if (chip.key === 'debt') setDebtFilter('outstanding');
-              else if (chip.key === 'loyalty') setDebtFilter('all'); // loyalty filter not in current state
-              else setDebtFilter('all');
+              // v2.330.0: the quick chips are hand-driven voices too —
+              // each press retires the landing word.
+              if (chip.key === 'all') chooseDebtFilter('all');
+              else if (chip.key === 'debt') chooseDebtFilter('outstanding');
+              else if (chip.key === 'loyalty') chooseDebtFilter('all'); // loyalty filter not in current state
+              else chooseDebtFilter('all');
             }}
             className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
               (chip.key === 'all' && debtFilter === 'all') || (chip.key === 'debt' && debtFilter === 'outstanding')
@@ -932,8 +976,8 @@ export default function CustomersTab() {
           <Input placeholder="Search customers... (fuzzy match)" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
         </div>
 
-        {/* Sort and Filter */}
-        <Select value={debtFilter} onValueChange={setDebtFilter}>
+        {/* Sort and Filter — v2.330.0: the hand-driven Select is voice 2 */}
+        <Select value={debtFilter} onValueChange={chooseDebtFilter}>
           <SelectTrigger className="w-full sm:w-44">
             <SelectValue placeholder="Debt Status" />
           </SelectTrigger>
@@ -944,6 +988,33 @@ export default function CustomersTab() {
             <SelectItem value="overdue">High Risk</SelectItem>
           </SelectContent>
         </Select>
+
+        {/* v2.330.0 THE LANDING WORD CHIP, THIRD WEARING — a link that
+            landed the debt lens pre-filtered wears a chip naming the word
+            it answered (?cust-debt=…), styled in the lens's own ROSE
+            family (the debt/risk semantic color the desk already speaks)
+            with dark-mode variants, the Link2 icon, a `title` tooltip,
+            and a one-press dismissal that clears the lens the word
+            seeded. The chip retires the moment the human owns the filter
+            — a hand-driven Select or quick chip, the chip's own
+            dismissal, or the honest reset. `data-testid="cust-landing-word"`
+            — the QA walk's handle. */}
+        {landingLive && landedCustDebtLens !== 'all' && debtFilter === landedCustDebtLens && (
+          <button
+            type="button"
+            onClick={() => {
+              setDebtFilter('all');
+              setLandingLive(false);
+            }}
+            className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-rose-200 bg-rose-50 text-rose-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-rose-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300 dark:hover:bg-rose-500/20"
+            data-testid="cust-landing-word"
+            title="The desk landed with this filter from the address bar — press to clear it"
+          >
+            <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+            <span className="tabular-nums">landed ?cust-debt={landedCustDebtLens}</span>
+            <X className="h-3 w-3 shrink-0 opacity-60" aria-hidden="true" />
+          </button>
+        )}
 
         <TooltipProvider>
           <Tooltip>
@@ -1092,7 +1163,7 @@ export default function CustomersTab() {
                 variant="ghost"
                 size="sm"
                 className="h-7 text-xs"
-                onClick={() => { setDebtFilter('all'); setRegDateFrom(''); setRegDateTo(''); }}
+                onClick={() => { setDebtFilter('all'); setRegDateFrom(''); setRegDateTo(''); setLandingLive(false); }}
               >
                 Reset Filters
               </Button>

@@ -197,6 +197,9 @@ export function parseInitialNamedPage(search: string, param: string, fallback = 
  * the law instead of a copy. v2.329.0 — THE PROMISE KEPT: the inventory
  * lens speaks it as its desk-prefixed `inv-stock` (the same parser, zero
  * new bytes of law — the second desk to inherit the home).
+ * v2.330.0 — THE PROMISE KEPT, THE THIRD DESK: the customers desk's debt
+ * lens speaks it as its desk-prefixed `cust-debt` (the same parser, zero
+ * new bytes of law, again — the third desk to inherit the home).
  */
 export function parseInitialNamedMember<V extends string>(
   search: string,
