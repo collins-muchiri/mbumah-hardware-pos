@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.329.0',
+    title: 'The stock lens answers the address bar',
+    bullets: [
+      'The inventory desk now speaks its stock filter to the address bar: bookmark or share ?inv-stock=low and the lens lands with the low-stock view already chosen — the second desk to inherit the roster\u2019s membership law, zero new bytes of parser.',
+      'The landing is visible here too: the lens wears its chip in the low-stock banner\u2019s own amber, and it retires the moment you change, dismiss, or clear the filter — four honest exits, never a stale face.',
+      'Case-sensitive by law: the desk\u2019s words are lowercase, so ?inv-stock=LOW is an unknown word and answers All Stock — a stale bookmark can never strand the desk in a lens it does not offer.',
+    ],
+  },
+  {
     version: '2.328.0',
     title: 'The roster answers the address bar',
     bullets: [
