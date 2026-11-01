@@ -428,10 +428,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.330.0: the debt-lens-own-word entry joins the feed (+1 on every anchor → 220/221/222/253 → 221/222/223/254)
     // v2.331.0: the suppliers-lens-own-word entry joins the feed (+1 on every anchor → 221/222/223/254 → 222/223/224/255)
     // v2.332.0: the purchase-order-lens-own-word entry joins the feed (+1 on every anchor → 222/223/224/255 → 223/224/225/256)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(223);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(224);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(225);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(256);
+    // v2.333.0: the ledger-own-word entry joins the feed (+1 on every anchor → 223/224/225/256 → 224/225/226/257)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(224);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(225);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(226);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(257);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 
