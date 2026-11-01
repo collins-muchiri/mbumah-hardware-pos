@@ -11,6 +11,7 @@ import { withSessionAuth, getSessionFromRequest } from '@/lib/auth';
 //   expectedCash = startingCash + Σ cash sale payments + Σ CASH_IN − Σ CASH_OUT
 // (REFUND rows remain intentionally excluded per the audit spec).
 import { toDec, round2 } from '@/lib/utils/financialMath';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -95,7 +96,12 @@ async function endShiftHandler(...args: unknown[]): Promise<Response> {
   // wrapper already validated it; withSessionAuth does not forward it).
   const session = await getSessionFromRequest(request);
 
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
   const { endingCash, countedCash, notes } = body;
 
   if (endingCash === undefined || countedCash === undefined) {

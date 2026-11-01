@@ -16,6 +16,7 @@ import { db } from '@/lib/db';
 import { requireAuth, type AuthSession } from '@/lib/auth';
 import { withErrorBoundary, systemLog } from '@/lib/logger';
 import { LogSeverity, LogComponent } from '@/lib/types';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,7 +42,12 @@ async function sendSupplierOrderHandler(
 ): Promise<Response> {
   const context = rest[0] as RouteContext;
   const supplierId = (await context.params).id;
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const { purchaseOrderId, message, channel } = body as {
     purchaseOrderId?: string;

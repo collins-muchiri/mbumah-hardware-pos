@@ -11,6 +11,7 @@ import { withSessionAuth, FINANCIAL_ROLES, getSessionFromRequest } from '@/lib/a
 // STRING - the summary reduce `sum + d.balance` used to STRING-CONCATENATE
 // (0 + Decimal("123.45") → "0123.45").
 import { toDec, round2 } from '@/lib/utils/financialMath';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -144,7 +145,12 @@ async function getDebtHandler(...args: unknown[]): Promise<Response> {
 
 async function recordDebtPaymentHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const {
     storeId,

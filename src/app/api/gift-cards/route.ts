@@ -9,6 +9,7 @@ import { createGiftCardSchema, validateInput } from '@/lib/validations';
 import { withSessionAuth, FINANCIAL_ROLES } from '@/lib/auth';
 import { recordGiftCardIssuance } from '@/lib/account-helper';
 import { getSessionFromRequest } from '@/lib/auth';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -88,7 +89,12 @@ async function listGiftCardsHandler(...args: unknown[]): Promise<Response> {
 
 async function createGiftCardHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const validation = validateInput(createGiftCardSchema, body);
   if (!validation.success) {

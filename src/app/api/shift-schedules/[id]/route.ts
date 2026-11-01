@@ -12,6 +12,7 @@ import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { withFinancialAuth, getSessionFromRequest } from '@/lib/auth';
 import { LogSeverity, LogComponent } from '@/lib/types';
 import { calculateShiftDurationHours } from '@/lib/shift-schedule-utils';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -96,7 +97,12 @@ async function patchScheduleHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   const context = args[1] as RouteContext;
   const { id } = await context.params;
-  const body = (await request.json()) as PatchBody;
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body as PatchBody;
 
   const existing = await db.shiftSchedule.findUnique({ where: { id } });
   if (!existing) {

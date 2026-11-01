@@ -6,6 +6,7 @@ import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { generateJournalEntryNumber } from '@/lib/helpers';
 import { LogSeverity, LogComponent } from '@/lib/types';
 import { withFinancialAuth, FINANCIAL_ROLES } from '@/lib/auth';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -125,7 +126,12 @@ async function getJournalEntriesHandler(...args: unknown[]): Promise<Response> {
 
 async function createJournalEntryHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const {
     storeId,

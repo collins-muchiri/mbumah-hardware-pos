@@ -11,6 +11,7 @@ import { withSessionAuth, getSessionFromRequest } from '@/lib/auth';
 // STRING - `currentBalance + deposit` used to STRING-CONCATENATE, and
 // parseFloat() let IEEE-754 dust into the Decimal rate/deposit columns.
 import { toDec, round2 } from '@/lib/utils/financialMath';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -135,7 +136,12 @@ async function getRentalsHandler(...args: unknown[]): Promise<Response> {
 
 async function createRentalHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const {
     storeId,

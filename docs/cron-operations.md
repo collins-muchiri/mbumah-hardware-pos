@@ -99,6 +99,16 @@ confirm it, and neither requires shell access:
   `/?tab=loyalty&view=transactions&type=EXPIRE`, and the loyalty desk
   reads `?type=` on mount (the tab-url vocabulary `view` already spoke),
   so the pulse's counts land on the exact rows they summarize.
+- **v2.326.0**: the door reads every room — the POST-wide sweep: the census
+  (`scripts/census-post-door-v2326.py`) classified every remaining body read
+  (67 bare declaring doors, 54 try-wrapped safe, 41 `.catch` swallows) and the
+  67 bare reads across 67 routes (auth/login, debt, mpesa callback/stkpush,
+  products, invoices, shifts, whatsapp, etims…) now read through
+  `readJsonBody` — an unreadable body answers 400, never a 500. The
+  `financial/journal/[id]` catch-swallow outlier converted (the 400 no longer
+  blames "no reason given" for an unreadable body), and the org console's
+  login dialog wears THE HONEST ERROR FACE (role=alert, icon, dark variants,
+  self-clearing, spinning, gated).
 - **v2.325.0**: the body door reads every room — the v2.324 handover's named class swept:
   21 more bare `await request.json()` doors in 19 PUT/DELETE/PATCH routes now read through
   `src/lib/request-body.ts` (`readJsonBody` + `bodyDoorRejected`), an unreadable body answers

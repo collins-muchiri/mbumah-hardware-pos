@@ -293,7 +293,10 @@ describe('the contrast round - the three re-voices pinned at the source', () => 
   });
 
   it('the login error line speaks red-700 on red-50', () => {
-    expect(chrome).toContain('rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700');
+    // v2.326.0 re-anchor: the login error grew into THE HONEST ERROR FACE
+    // (role=alert + aria-live + AlertCircle icon + dark variants) — the
+    // v2.199 contrast law still holds: red-700 text on the red-50 ground.
+    expect(chrome).toContain('border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-700');
     expect(chrome).not.toContain('text-xs text-red-600');
   });
 
@@ -314,9 +317,9 @@ describe('the contrast round - the three re-voices pinned at the source', () => 
 
 describe('the release surfaces', () => {
   it('package.json slots ride at 2.199.0', () => {
-    expect(pkg.version).toBe('2.325.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.325.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.325.0');
+    expect(pkg.version).toBe('2.326.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.326.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.326.0');
   });
 
   it('whats-new leads with the desk story', () => {

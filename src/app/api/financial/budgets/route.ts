@@ -8,6 +8,7 @@ import { LogComponent } from '@/lib/types';
 import { withFinancialAuth, FINANCIAL_ROLES } from '@/lib/auth';
 import { setBudget } from '@/lib/accounting-helpers';
 import { APIError } from '@/lib/api-error';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -61,7 +62,12 @@ async function listBudgetsHandler(...args: unknown[]): Promise<Response> {
 
 async function setBudgetHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const { storeId, periodId, accountId, budgetedAmount, notes, createdById } = body as {
     storeId?: string;

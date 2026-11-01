@@ -9,6 +9,7 @@ import { getEtimsConfig, initializeEtimsClient } from '@/lib/etims-service';
 // ORM tenant scope also narrows the product lookup, so a foreign store's
 // product id answers 404 instead of being registered.
 import { requireStoreAccess, MANAGER_PLUS_ROLES } from '@/lib/auth';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,7 +17,12 @@ export const dynamic = 'force-dynamic';
 async function registerProductHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as Request;
   try {
-    const body = await request.json();
+    // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+    const door = await readJsonBody(request);
+    if (!door.ok) {
+      return bodyDoorRejected();
+    }
+    const body = door.body;
     const { productId } = body;
 
     if (!productId) {

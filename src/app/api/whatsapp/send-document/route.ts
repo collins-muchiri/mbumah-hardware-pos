@@ -9,6 +9,7 @@ import { LogSeverity, LogComponent } from '@/lib/types';
 // WhatsApp money strings (handles Decimal / string / number safely).
 import { formatKES } from '@/lib/utils/financialMath';
 import { toNum } from '@/lib/decimal-safe';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,7 +26,12 @@ type DocumentType =
   | 'statement';
 
 async function sendDocumentHandler(request: NextRequest, session: AuthSession): Promise<Response> {
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
   const { type, documentId, storeId, phone, message, customerId } = body as {
     type: DocumentType;
     documentId?: string;

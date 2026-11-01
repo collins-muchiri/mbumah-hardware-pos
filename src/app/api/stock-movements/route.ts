@@ -23,6 +23,7 @@ import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { LogSeverity, LogComponent, StockMovementType } from '@/lib/types';
 import { calculateWeightedAverageCost, getAccountIds, ACCOUNT_CODES } from '@/lib/account-helper';
 import { generateJournalEntryNumber } from '@/lib/helpers';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 import {
   requireAuth,
   requireStoreAccess,
@@ -203,7 +204,12 @@ async function createStockAdjustmentHandler(
   request: NextRequest,
   session: AuthSession,
 ): Promise<Response> {
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const {
     productId,

@@ -12,6 +12,7 @@ import { APIError } from '@/lib/api-error';
 // Task 12-b: Prisma Decimal valueOf() returns a STRING - `sum + line.debit`
 // STRING-CONCATENATED. Balances accumulate via toDec() and emit 2dp HALF_UP.
 import { toDec, round2 } from '@/lib/utils/financialMath';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -153,7 +154,12 @@ export const GET = withErrorBoundary(
 
 async function createAccountHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const {
     organizationId,

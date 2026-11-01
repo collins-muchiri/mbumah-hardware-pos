@@ -7,6 +7,7 @@ import { LogSeverity, LogComponent } from '@/lib/types';
 import { createCustomerSchema, validationErrorResponse } from '@/lib/validations';
 import { parsePagination, buildPaginationMeta } from '@/lib/api-pagination';
 import { withSessionAuth } from '@/lib/auth';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -93,7 +94,12 @@ async function getCustomersHandler(...args: unknown[]): Promise<Response> {
 
 async function createCustomerHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   // AUDIT FIX (Finding 1.4): same schema and status code as before, but the
   // failure response now uses the canonical validation shape - a summary

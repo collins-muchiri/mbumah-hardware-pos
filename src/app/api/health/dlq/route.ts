@@ -72,6 +72,7 @@ import { successResponse, errorFromThrown } from '@/lib/api-response';
 import { systemLog } from '@/lib/logger';
 import { LogSeverity, LogComponent } from '@/lib/types';
 import { dlq } from '@/lib/dead-letter-queue';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -138,7 +139,12 @@ const VALID_ACTIONS = new Set<AdminAction>(['retry', 'retryAll', 'cancel', 'purg
 export const POST = requireAuth(
   async (request: NextRequest, session) => {
     try {
-      const body = (await request.json()) as AdminBody;
+      // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+      const door = await readJsonBody(request);
+      if (!door.ok) {
+        return bodyDoorRejected();
+      }
+      const body = door.body as AdminBody;
 
       // Validate action
       if (!body.action || !VALID_ACTIONS.has(body.action)) {

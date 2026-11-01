@@ -12,6 +12,7 @@ import {
   walletInsufficientMessage,
 } from '@/lib/loyalty-adjust-policy';
 import { honestDayKey, parseClampedIntParam, parsePositiveIntParam } from '@/lib/tab-url';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -169,7 +170,12 @@ async function getLoyaltyTransactionsHandler(...args: unknown[]): Promise<Respon
 
 async function createLoyaltyTransactionHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const {
     storeId,

@@ -31,6 +31,7 @@ import { parseClampedIntParam, parsePositiveIntParam } from '@/lib/tab-url';
 // stored law (one reader).
 import { readCategoryBand, type CadenceBand } from '@/lib/cadence-band';
 import { readCadenceLaw } from '@/lib/cadence-law';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -204,7 +205,12 @@ async function createPurchaseOrderHandler(
   request: NextRequest,
   session: AuthSession,
 ): Promise<Response> {
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const { storeId, supplierId, items, notes, expectedDate, originStockTakeId } = body as {
     storeId?: string;

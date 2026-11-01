@@ -25,6 +25,7 @@ import { LogSeverity, LogComponent } from '@/lib/types';
 // decimal.js config (HALF_UP) and must load before any Decimal arithmetic.
 import { toDec, round2, max0 } from '@/lib/utils/financialMath';
 import Decimal from 'decimal.js';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,7 +41,12 @@ async function redeemVoucherByCodeHandler(
   request: NextRequest,
   session: AuthSession,
 ): Promise<Response> {
-  const body = (await request.json()) as RedeemBody;
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body as RedeemBody;
   const { code, storeId, customerId, transactionId, amount } = body;
 
   if (!code || !storeId) {

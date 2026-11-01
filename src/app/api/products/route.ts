@@ -13,6 +13,7 @@ import { requireStoreAccess, MANAGER_PLUS_ROLES, type AuthSession } from '@/lib/
 import { parsePagination, buildPaginationMeta } from '@/lib/api-pagination';
 // v2.12.2 (PR B - RBAC): supplier-cost visibility gate + product-edit roles.
 import { hasFeaturePermission } from '@/lib/permissions';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -156,7 +157,12 @@ async function createProductHandler(
   request: NextRequest,
   _session: AuthSession,
 ): Promise<Response> {
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const {
     storeId,

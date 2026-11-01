@@ -10,6 +10,7 @@ import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { LogSeverity, LogComponent } from '@/lib/types';
 import { requireAuth, requireRole } from '@/lib/auth';
 import { seedDefaultLeaveTypes } from '@/lib/payroll-helpers';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -66,7 +67,12 @@ async function createLeaveTypeHandler(
   const roleError = requireRole('SUPER_ADMIN', 'STORE_OWNER')(session);
   if (roleError) return roleError;
 
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const {
     name, code, description, defaultDaysPerYear, isPaid, isStatutory,

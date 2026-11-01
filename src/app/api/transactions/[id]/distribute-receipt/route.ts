@@ -25,6 +25,7 @@ import { withErrorBoundary } from "@/lib/logger";
 import { LogComponent } from "@/lib/types";
 import { distributeReceipt } from "@/lib/receipt-distribution";
 import { APIError } from "@/lib/api-error";
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +41,12 @@ async function distributeReceiptHandler(
   const context = rest[0] as RouteContext;
   const { id: transactionId } = await context.params;
 
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
   const { channel, email, phone, customMessage } = body as {
     channel?: "EMAIL" | "WHATSAPP" | "SMS";
     email?: string;

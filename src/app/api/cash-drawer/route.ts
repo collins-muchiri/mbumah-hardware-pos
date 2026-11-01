@@ -11,6 +11,7 @@ import { withSessionAuth, getSessionFromRequest } from '@/lib/auth';
 // STRING - the GET summary reduce `sum + e.amount` STRING-CONCATENATED and
 // the POST balance mixed `Number(_sum) + amount` float dust into the ledger.
 import { toDec, round2 } from '@/lib/utils/financialMath';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -130,7 +131,12 @@ async function getCashDrawerHandler(...args: unknown[]): Promise<Response> {
 
 async function createCashDrawerHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const { storeId, userId, eventType, amount, notes } = body;
 

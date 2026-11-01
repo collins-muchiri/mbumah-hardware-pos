@@ -26,8 +26,19 @@ export type BodyDoor<T> = { ok: true; body: T } | { ok: false };
  * door dispatches on object fields (`body.status`, `body.items`, …), and
  * a JSON array or a bare string cannot describe its changes — the same
  * honest 400 as an empty body, for the same reason.
+ *
+ * v2.326.0 — THE POST-WIDE DOOR: the sweep widened from 19 files to 67.
+ * The default generic is the pre-door semantics itself: bare
+ * `await request.json()` inferred `any`, so a caller that omits the
+ * generic keeps the exact typing its handler was written against —
+ * zero type drift across the mechanical pass (the scoped tsc
+ * round-trip: zero NEW errors). Per-file generic tightening (the 19
+ * v2.325 exemplars already carry narrowed generics) remains an
+ * incremental follow-up; the RUNTIME class — the 500 wearing a
+ * client's mistake — is what this door exists to kill.
  */
-export async function readJsonBody<T = Record<string, unknown>>(
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function readJsonBody<T = any>(
   request: Request
 ): Promise<BodyDoor<T>> {
   try {
