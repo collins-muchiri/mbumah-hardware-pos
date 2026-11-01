@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.331.0',
+    title: 'The suppliers lens answers the address bar',
+    bullets: [
+      'The suppliers desk now speaks its active filter to the address bar: bookmark or share ?sup-status=active and the roster lands with the active lens already chosen — the fourth desk to inherit the roster\u2019s membership law, zero new bytes of parser.',
+      'The landing is visible here too: the lens wears its chip in the suppliers\u2019 own emerald, and it retires the moment you change or dismiss the filter — an honest face, never a stale one.',
+      'Case-sensitive by law: the desk\u2019s words are lowercase, so ?sup-status=ACTIVE is an unknown word and answers All — a stale bookmark can never strand the roster in a lens it does not offer.',
+    ],
+  },
+  {
     version: '2.330.0',
     title: 'The debt lens answers the address bar',
     bullets: [

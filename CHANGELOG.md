@@ -1,3 +1,18 @@
+## [2.331.0] The suppliers lens answers the address bar
+
+v2.328.0 gave the roster its word and promised the next desk's filter word would inherit the law; v2.329.0 kept it once, v2.330.0 kept it again. This release keeps it a THIRD time: the suppliers desk's active lens speaks its own desk-prefixed word through the SAME one-home parser, and wears the landing chip in its own emerald.
+
+### Added
+- **THE SUPPLIERS LENS'S OWN WORD (`?sup-status=`)**: the suppliers desk's active filter answers the address bar — bookmark or share `/?tab=suppliers&sup-status=active` and the roster lands with the active lens already chosen. The law is MEMBERSHIP through the ONE home (`parseInitialNamedMember` — the fourth desk to inherit it, zero new bytes of parser): the value must name a lens the desk actually offers (`all` / `active` / `inactive`), case-sensitive — the desk's own words are lowercase, so `?sup-status=ACTIVE` is an unknown word, not a clever match — and anything missing or unknown answers `all`, so a stale bookmark can never strand the roster in a lens it does not offer. The word is desk-prefixed per the Task 44 collision law (a desk-prefixed word can never leak across client-side tab switches; the bare `?status=` word belongs to the /hr/performance route — a different URL space, pinned in the v2.328 test; collision-checked at round start: no reader of `sup-status` exists anywhere in src/). Read-on-mount ONLY (the one-writer law): the landing word is the LANDING lens, never rewritten; the Select owns the state afterwards.
+
+### Styling
+- **THE LANDING WORD CHIP, FOURTH WEARING** (`suppliers-tab.tsx`): the portable pattern lands on its fourth desk — when a link lands the roster pre-filtered, the toolbar wears a chip naming the exact word it answered (`landed ?sup-status=active`, `data-testid="sup-landing-word"`), styled in the lens's own emerald family (the active-supplier semantic color the desk already speaks) with dark-mode variants, the Link2 icon, a `title` tooltip, and a one-press dismissal that clears the lens the word seeded. TWO honest retirement voices — the chip's own dismissal and a hand-driven Select change each retire it: an honest face never claims a landing that is over, and never claims voices the desk does not have.
+
+### Tests
+- `src/tests/sup-status-deep-link-v2331.test.ts` (NEW, 17 pins): the parser's truth table for the lowercase vocabulary (membership, never-strand, the inverse case-sensitivity — `ACTIVE` is unknown), the rides-along landings (neighbors' words ride along untouched), the desk's seed bytes (the lazy initializer, the SSR guard, the one-home import, the offered-lenses const), the landing chip's bytes and its TWO retirement voices, the emerald wardrobe in both modes, the one-home promise (the law's doc carries the fourth desk), and the collision ledger walk (`sup-status` speaks in exactly its files).
+- The collision ledgers GREW their honest speaker on ALL THREE sides: the new test's lineage citation joins the `inv-stock` walk, the `po-status` walk, AND the `cust-debt` walk (all ledgers updated, not silenced — the both-ledgers law).
+- The walk re-anchors the treadmill (v2.331.0 pins + the unread-counter cascade 221/222/223/254 → 222/223/224/255).
+
 ## [2.330.0] The debt lens answers the address bar
 
 v2.328.0 gave the roster its word and promised the next desk's filter word would inherit the law; v2.329.0 kept it once. This release keeps it AGAIN: the customers desk's debt lens speaks its own desk-prefixed word through the SAME one-home parser, and wears the landing chip in its own rose.
