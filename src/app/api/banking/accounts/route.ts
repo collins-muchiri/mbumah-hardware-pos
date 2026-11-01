@@ -92,7 +92,21 @@ async function getBankAccountsHandler(...args: unknown[]): Promise<Response> {
 async function createBankAccountHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.337.0 the door speaks the bank account's own wire shape (the
+  // banking family's honest pass): the fields the handler consumes,
+  // `unknown` only where the route itself coerces (openingBalance via
+  // parseFloat(String())).
+  const door = await readJsonBody<{
+    storeId?: string;
+    bankName?: string;
+    accountName?: string;
+    accountNumber?: string;
+    branch?: string;
+    swiftCode?: string;
+    currency?: string;
+    openingBalance?: unknown;
+    accountType?: string;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

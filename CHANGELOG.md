@@ -1,3 +1,20 @@
+## [2.337.0] The banking doors speak their body's shape
+
+The wider door class continues its per-file pass, one family at a time, and the BANKING family goes third: the three banking doors (accounts, reconciliations, transactions) stop reading their bodies as the default `any` and speak the body's OWN shape; the M-Pesa stkpush door borrows the `StkPushBody` interface its handler already declared; and Daraja's queue-timeout webhook reads its contract-less body as the unknown it is. One honest behavior fix rides along: the banking desk's Transactions and Reconciliations sub-tabs had been stuck on their empty states since they shipped (the queries never sent the storeId both GET handlers require) — both now wake. RUNTIME BEHAVIOR of the door tightening is BYTE-IDENTICAL (the scoped tsc round-trip: 36=36, ZERO new, ZERO gone) — types only.
+
+### Added
+- **THE WAKING FIX** (`banking-tab.tsx`): the desk's Transactions and Reconciliations queries never sent `storeId` — both GET handlers answer 400 (`bankAccountId or storeId is required.`), so both sub-tabs have been permanently stuck on their empty states since they shipped. Both queries now speak their store, and the reconciliation meter finally has bodies to speak for.
+- **THE BANKING DOORS TIGHTENED (5 files)**: accounts CREATE speaks the nine-field account shape with `openingBalance` kept `unknown` where the route itself coerces (`parseFloat(String())`); reconciliations CREATE speaks the six-field shape with both balances `unknown` for the same reason; transactions CREATE speaks the six-field ledger shape with `amount` as `number | string` — the ledger's own `toDec` guard owns the widening (`Numeric = number | string | Decimal | null | undefined`); the stkpush door's loose re-cast is gone (the redeem precedent — the shape travels with the fields the push actually reads); the queue-timeout webhook (never a body door — it always answers success) annotates its logged body `unknown`: no shape claimed, none enforced.
+- **THE LAW DOC RECORDS IT** (`request-body.ts`): "v2.337.0 — THE BANKING FAMILY, the wider class's third pass" — the family's doors, the unknown-where-it-coerces rule, the toDec widening, the borrowed interface, and the contract-less webhook.
+- **THE CROSS-LEDGER VOICES HOLD**: the v2.326 census still counts the banking trio and stkpush among its 67 door files, the swallow-census byte still stands in queue-timeout, and the untouched honest pair (callback's `MpesaCallbackBody`, b2c/result's `B2CResultPayload`) is pinned as-is.
+
+### Styling
+- **THE RECON METER** (`banking-tab.tsx`): every reconciliation card grows a slim agreement bar under the Statement/Book/Difference grid — the gap the desk already computes, given a body: the bar fills by how far the book sits from the statement as a share of the larger balance (fully emerald when the sheet is balanced, red as the gap widens), with the exact percentage spoken beside it in tabular figures. `data-testid="recon-diff-meter"`, `role="progressbar"` + aria values, the exact gap on hover, dark-mode variants throughout.
+
+### Tests
+- `src/tests/banking-doors-v2337.test.ts` (NEW, 30 pins): the zero-loose census across all five files (no Record, no bare door, no re-casts), the per-file honest bytes (account/reconciliation/ledger shapes, the toDec widening, the borrowed interface, the unknown webhook), the untouched honest pair, the cross-ledger voices, the law-doc note, the waking-fix pins, and the recon-meter styling face.
+- The walk re-anchors the treadmill (v2.337.0 pins + the unread-counter cascade 227/228/229/260 → 228/229/230/261).
+
 ## [2.336.0] The catalog doors speak their body's shape
 
 The wider door class continues its per-file pass, one family at a time, and the CATALOG family goes second: eighteen doors across eighteen files (products ×3, categories ×2, subcategories, vouchers + redeem, voucher-campaigns, gift-cards ×5, etims ×3) stop reading their bodies as loose generics or the default `any` and speak the body's OWN shape. RUNTIME BEHAVIOR IS BYTE-IDENTICAL (the scoped tsc round-trip: 34=34, ZERO new, ZERO gone) — types only.

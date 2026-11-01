@@ -13,7 +13,12 @@ export const dynamic = 'force-dynamic';
 
 async function b2cTimeoutHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
-  const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+  // v2.337.0: Daraja's timeout webhook carries no contract this handler
+  // consumes — the body is logged verbatim (truncated) for observability,
+  // so it is read as the unknown it is: no shape claimed, none enforced,
+  // and the webhook still always answers success (a timeout is NOT a
+  // failure — the header comment owns that story).
+  const body: unknown = await request.json().catch(() => ({}));
   await systemLog({
     action: 'MPESA_B2C_QUEUE_TIMEOUT',
     component: LogComponent.PAYMENT,
