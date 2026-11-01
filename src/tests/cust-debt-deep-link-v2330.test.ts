@@ -173,6 +173,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/lib/tab-url.ts',
       'src/lib/whats-new.ts',
       'src/tests/cust-debt-deep-link-v2330.test.ts',
+      // v2.338.0 the LEDGER-CITATION RIPPLE: the customer family's census
+      // quotes the credit-envelope meter's data-testid (`cust-debt-meter`),
+      // whose substring carries this word — the honest speaker joins.
+      'src/tests/customer-doors-v2338.test.ts',
       'src/tests/inv-stock-deep-link-v2329.test.ts',
       'src/tests/proxy-gate-layering-v2328.test.ts',
       'src/tests/sup-po-deep-link-v2332.test.ts',

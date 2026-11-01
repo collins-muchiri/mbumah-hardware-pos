@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.338.0',
+    title: 'The customer doors speak their body\u2019s shape',
+    bullets: [
+      'The customer family\u2019s API doors (customers, credit ledger, CRM interactions, debt payments, payment plans and their installment pay/waive actions) now type every request body by the fields the route actually reads — the fourth honest pass after the financial, catalog and banking families. Same behavior, same 400 door voice, just doors that document the exact shape they accept.',
+      'Customer rows grow a credit-envelope meter: the outstanding debt is drawn against the customer\u2019s own debt limit as a slim bar under the amount (amber under the half-way line, red past it, silent when there is no debt or no limit) — the risk badge\u2019s envelope, readable at a glance.',
+      'A store-params audit walked every desk\u2019s list queries against its API\u2019s required filters: all clean — no other list has been hiding the banking desk\u2019s waking bug.',
+    ],
+  },
+  {
     version: '2.337.0',
     title: 'The banking doors speak their body\u2019s shape',
     bullets: [

@@ -195,6 +195,13 @@ async function createPlanHandler(...args: unknown[]): Promise<Response> {
 
   // Task 12-d: malformed JSON previously escaped as a 500 via the error
   // boundary - a client bug is a 400, not a server fault.
+  // v2.338.0 the read speaks the plan's own wire shape (the customer
+  // family's honest pass): the three presence-checked fields ride REQUIRED
+  // (the route's own missing-fields guards are the runtime validators —
+  // the RedeemBody precedent), `unknown` only where the route itself
+  // coerces (totalAmount/installmentCount/interestRate/lateFee via
+  // toNumber()/parseInt(String()), startDate via new Date(String()),
+  // autoCharge via Boolean()); notes is typeof-narrowed by the route.
   let body: Record<string, unknown>;
   try {
     body = await request.json();
@@ -217,7 +224,19 @@ async function createPlanHandler(...args: unknown[]): Promise<Response> {
     lateFee,
     notes,
     autoCharge,
-  } = (body ?? {}) as Record<string, unknown>;
+  } = (body ?? {}) as {
+    storeId: string;
+    customerId: string;
+    debtLedgerId: string;
+    totalAmount?: unknown;
+    installmentCount?: unknown;
+    frequency?: string;
+    startDate?: unknown;
+    interestRate?: unknown;
+    lateFee?: unknown;
+    notes?: unknown;
+    autoCharge?: unknown;
+  };
 
   // Validate required fields
   if (!storeId || !customerId || !debtLedgerId) {

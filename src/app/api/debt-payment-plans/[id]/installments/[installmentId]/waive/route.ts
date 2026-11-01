@@ -49,7 +49,11 @@ async function waiveInstallmentHandler(...args: unknown[]): Promise<Response> {
   const context = args[1] as RouteContext;
   const { id, installmentId } = await context.params;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.338.0 the door names the one field the handler consumes (the customer
+  // family's honest pass) — the route itself type-narrows it with typeof.
+  const door = await readJsonBody<{
+    waiverReason?: unknown;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

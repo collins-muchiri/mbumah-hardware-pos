@@ -121,7 +121,21 @@ async function getCustomerInteractionsHandler(...args: unknown[]): Promise<Respo
 async function createCustomerInteractionHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.338.0 the door speaks the CRM entry's own wire shape (the customer
+  // family's honest pass): the fields the handler consumes; followUpDate
+  // rides the wire as a string and the route's own new Date() validates it.
+  const door = await readJsonBody<{
+    storeId?: string;
+    customerId?: string;
+    interactionType?: string;
+    subject?: string;
+    content?: string;
+    followUpDate?: string;
+    status?: string;
+    priority?: string;
+    assignedTo?: string;
+    createdBy?: string;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

@@ -121,7 +121,10 @@ async function patchPlanHandler(...args: unknown[]): Promise<Response> {
   const { id } = await context.params;
 
   // Task 12-d: malformed JSON is a client bug → 400 (was a 500 via boundary).
-  let body: Record<string, unknown>;
+  // v2.338.0 the read speaks the patch's own wire shape (the customer
+  // family's honest pass): both fields the handler consumes, each one
+  // typeof-narrowed by the route itself.
+  let body: { notes?: unknown; status?: unknown };
   try {
     body = await request.json();
   } catch {

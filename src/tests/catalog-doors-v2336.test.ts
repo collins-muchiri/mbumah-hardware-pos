@@ -201,12 +201,13 @@ describe('THE PER-FILE HONEST BYTES (the zod split and the borrowed interfaces)'
 });
 
 describe('THE LEDGER GREW HONESTLY (body-door-class-v2326)', () => {
-  it('the catalog pair graduated out of the loose-generic exemplar list (three remain)', () => {
+  it('the catalog pair graduated out of the loose-generic exemplar list (the customer graduate followed in v2.338.0 — two remain)', () => {
     const src = read('src/tests/body-door-class-v2326.test.ts');
     expect(src.includes('THE CATALOG PAIR GRADUATED')).toBe(true);
     expect(src.includes("'src/app/api/categories/[id]/route.ts',")).toBe(false);
     expect(src.includes("'src/app/api/gift-cards/[id]/route.ts',")).toBe(false);
-    expect(src.includes("'src/app/api/customer-credits/[id]/route.ts',")).toBe(true);
+    // v2.338.0: the customer graduate followed (see customer-doors-v2338.test.ts)
+    expect(src.includes("'src/app/api/customer-credits/[id]/route.ts',")).toBe(false);
     expect(src.includes("'src/app/api/expenses/[id]/route.ts',")).toBe(true);
     expect(src.includes("'src/app/api/suppliers/[id]/route.ts',")).toBe(true);
   });

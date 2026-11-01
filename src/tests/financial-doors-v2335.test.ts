@@ -159,12 +159,14 @@ describe('THE LEDGER GREW HONESTLY (body-door-class-v2326)', () => {
   it('the financial trio graduated out of the loose-generic exemplar list', () => {
     const src = read('src/tests/body-door-class-v2326.test.ts');
     expect(src.includes('THE FINANCIAL TRIO GRADUATED')).toBe(true);
-    // v2.336.0: the catalog pair graduated too (see catalog-doors-v2336.test.ts),
-    // so the exemplar list this pin guards is the REMAINING three — the honest
-    // growth of an honest list (the pin-growth law: a byte-exact pin on a line
-    // an honest change edits grows with the change).
-    expect(src.includes("EXEMPLARS: string[] = [\n  'src/app/api/customer-credits/[id]/route.ts',\n  'src/app/api/expenses/[id]/route.ts',\n  'src/app/api/suppliers/[id]/route.ts',\n];")).toBe(true);
-    // the loose-generic exemplar pin still guards the three that remain
+    // v2.336.0: the catalog pair graduated too (see catalog-doors-v2336.test.ts)
+    // and v2.338.0: the customer graduate followed (see
+    // customer-doors-v2338.test.ts), so the exemplar list this pin guards is
+    // the REMAINING two — the honest growth of an honest list (the pin-growth
+    // law: a byte-exact pin on a line an honest change edits grows with the
+    // change).
+    expect(src.includes("EXEMPLARS: string[] = [\n  'src/app/api/expenses/[id]/route.ts',\n  'src/app/api/suppliers/[id]/route.ts',\n];")).toBe(true);
+    // the loose-generic exemplar pin still guards the two that remain
     expect(src.includes("expect(src.includes('readJsonBody<Record<string, unknown>>(request)')).toBe(true);")).toBe(true);
   });
 });
