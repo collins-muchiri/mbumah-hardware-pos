@@ -99,6 +99,16 @@ confirm it, and neither requires shell access:
   `/?tab=loyalty&view=transactions&type=EXPIRE`, and the loyalty desk
   reads `?type=` on mount (the tab-url vocabulary `view` already spoke),
   so the pulse's counts land on the exact rows they summarize.
+- **v2.322.0**: the census never lies — the live QA walk (126-row seeded
+  ledger) caught the pager bar's census computing arithmetic for a page the
+  ledger doesn't have: a deep-linked `?page=9` spoke "Showing rows 801–126
+  of 126" beside the honest past-the-end face. The census slot is now a
+  truth-conditional — `page > totalPages` renders the muted
+  `tx-census-empty` line ("No rows on this page — the ledger ends at N."),
+  the numeric census speaks only on pages the ledger has — and the
+  transactions view ends in a `h-16 sm:h-14` FAB-band runway so the pager
+  can always scroll clear of the fixed bottom-right Dashboard button (the
+  Task 42 geometry measurement, now a layout law).
 - **v2.321.0**: the ledger chooses its gait — the transactions toolbar
   gains a Rows-per-page Select (50/100/200, `LEDGER_PAGE_SIZES`), seeded
   by the vocabulary's sixth word `?limit=` (`parseInitialLimit` — the

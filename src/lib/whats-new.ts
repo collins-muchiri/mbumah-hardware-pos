@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.322.0',
+    title: 'The census never lies',
+    bullets: [
+      'The live QA walk caught the ledger\u2019s census telling arithmetic: a deep link like ?page=9 on a 126-row ledger spoke "Showing rows 801\u2013126 of 126" \u2014 a start AFTER the end, right beside the honest past-the-end notice.',
+      'Now a page past the end says so plainly: "No rows on this page \u2014 the ledger ends at 126." The numbered census only speaks on pages the ledger actually has.',
+      'The pager also gained a runway of clear space beneath it, so it can always scroll clear of the floating Dashboard button instead of sharing its corner on short screens.',
+    ],
+  },
+  {
     version: '2.321.0',
     title: 'The ledger chooses its gait',
     bullets: [
