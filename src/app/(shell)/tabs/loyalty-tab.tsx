@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
   Sparkles, Plus, Search, Crown, Award, Users, Loader2, Settings2, TrendingUp, Calendar, Gift, Zap, ChevronUp, Clock,
-  HandCoins, Target, Megaphone, Edit, History, RotateCcw, Receipt, X,
+  HandCoins, Target, Megaphone, Edit, History, RotateCcw, Receipt, X, ChevronLeft, ChevronRight,
   Trophy, Gem, Medal, Shield, Palette, Hourglass, AlertCircle,
 } from 'lucide-react';
 
@@ -23,7 +23,7 @@ import {
   DOCK_REASON_HINT,
   EXPIRE_POLICY_NOTE,
 } from '@/lib/loyalty-adjust-policy';
-import { buildSearchWithoutParams, parseInitialDateRange, parseInitialType, parseInitialView } from '@/lib/tab-url';
+import { buildSearchWithoutParams, parseInitialDateRange, parseInitialPage, parseInitialType, parseInitialView } from '@/lib/tab-url';
 import { ReceiptViewDialog } from '@/components/loyalty/receipt-view-dialog';
 import { ExpiryDialog } from '@/components/loyalty/expiry-dialog';
 
@@ -92,6 +92,19 @@ function initialDateFrom(): string {
 function initialDateTo(): string {
   if (typeof window === 'undefined') return '';
   return parseInitialDateRange(window.location.search).to;
+}
+
+// v2.320.0: the ledger's PAGE answers the address bar too — `?page=2`
+// lands the desk on the wire's second page (the vocabulary's fifth word
+// after view/type/from/to; collision-checked, no other reader of `page`
+// exists in the shell). The parser's law is SHAPE, not existence: a
+// positive integer seeds the pager, anything else answers 1, and a page
+// past the end is the wire's honest empty (the desk's past-the-end face
+// speaks). The desk only ever READS `page` on mount (the one-writer
+// law); the pager's own buttons move the state afterwards.
+function initialTxPage(): number {
+  if (typeof window === 'undefined') return 1;
+  return parseInitialPage(window.location.search, 1);
 }
 
 // Tier color presets
@@ -224,6 +237,22 @@ export default function LoyaltyTab() {
     }
   };
   const dateWindowActive = Boolean(txDateFrom || txDateTo);
+  // v2.320.0 — THE PAGE FOLLOWS THE SCOPE: a filter change that lands
+  // the desk on page 3 of a narrower ledger is a stranded page (the
+  // wire answers an empty table for it). The mount seed is untouched
+  // (the ref holds the FIRST scope, so a deep-linked ?page=2 survives
+  // the landing); every scope move AFTER mount returns the desk to
+  // page 1 — the never-strand law the parsers above speak, worn as
+  // state.
+  const [txPage, setTxPage] = useState<number>(initialTxPage);
+  const txScopeKey = `${txTypeFilter}|${txDateFrom}|${txDateTo}`;
+  const txPrevScopeKey = useRef(txScopeKey);
+  useEffect(() => {
+    if (txPrevScopeKey.current !== txScopeKey) {
+      txPrevScopeKey.current = txScopeKey;
+      setTxPage(1);
+    }
+  }, [txScopeKey]);
   const [_txSearch, _setTxSearch] = useState('');
   const [manualAdjustOpen, setManualAdjustOpen] = useState(false);
   const [manualAdjustForm, setManualAdjustForm] = useState({
@@ -260,12 +289,15 @@ export default function LoyaltyTab() {
   });
 
   const { data: txData, isLoading: txLoading } = useQuery({
-    queryKey: ['loyalty-transactions', currentStoreId, txTypeFilter, txDateFrom, txDateTo],
+    // v2.320.0: the page rides the key AND the wire — page 2 is a
+    // different ledger slice, never a cached re-render of page 1.
+    queryKey: ['loyalty-transactions', currentStoreId, txTypeFilter, txDateFrom, txDateTo, txPage],
     queryFn: () => loyaltyApi.transactions.list({
       storeId: currentStoreId,
       transactionType: txTypeFilter !== 'all' ? txTypeFilter : undefined,
       dateFrom: txDateFrom || undefined,
       dateTo: txDateTo || undefined,
+      page: txPage,
       limit: 100,
     }),
   });
@@ -891,7 +923,29 @@ export default function LoyaltyTab() {
           <Card>
             <CardContent className="p-8 text-center">
               <History className="h-12 w-12 mx-auto text-muted-foreground/30 mb-3" />
-              <p className="text-sm text-muted-foreground">No loyalty transactions recorded yet.</p>
+              {/* v2.320.0 — THE HONEST EMPTY: a page past the end of the
+                  ledger (a bookmark riding ?page=9 on a one-page ledger,
+                  or rows deleted since the bookmark was made) is NOT
+                  "no transactions" — the wire says rows EXIST, so the
+                  desk says where they went and offers the way back. */}
+              {txData?.pagination && txData.pagination.total > 0 ? (
+                <>
+                  <p className="text-sm text-muted-foreground" data-testid="pager-past-end">
+                    Page {txPage} is past the end of this ledger — {txData.pagination.total.toLocaleString()} matching rows live on earlier pages.
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="mt-3"
+                    data-testid="pager-back-to-one"
+                    onClick={() => setTxPage(1)}
+                  >
+                    Back to page 1
+                  </Button>
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">No loyalty transactions recorded yet.</p>
+              )}
             </CardContent>
           </Card>
         ) : (
@@ -988,6 +1042,51 @@ export default function LoyaltyTab() {
                 })}
               </TableBody>
             </Table>
+          </div>
+        )}
+        {/* v2.320.0 — THE PAGER: the ledger stopped at page one (limit 100)
+            while the wire answered totalPages — rows 101… were invisible
+            to the desk. The census and the status speak the WIRE's own
+            pagination (the same voice as the v2.318 stamp, never the
+            state); the buttons move the desk's state (the bar's ?page=
+            word is the LANDING page, never rewritten — the one-writer
+            law). Disabled bounds at both ends; tabular-nums digits. */}
+        {txData?.pagination && txData.pagination.totalPages > 1 && (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2" data-testid="tx-pager">
+            <p className="text-xs text-muted-foreground tabular-nums" data-testid="tx-census">
+              Showing rows {((txData.pagination.page - 1) * txData.pagination.limit) + 1}
+              –{Math.min(txData.pagination.page * txData.pagination.limit, txData.pagination.total)} of {txData.pagination.total.toLocaleString()}
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8"
+                data-testid="pager-prev"
+                aria-label="Previous page"
+                disabled={txData.pagination.page <= 1}
+                onClick={() => setTxPage((p) => Math.max(1, p - 1))}
+              >
+                <ChevronLeft className="mr-1 h-4 w-4" /> Prev
+              </Button>
+              <span
+                className="text-xs font-medium tabular-nums text-muted-foreground"
+                data-testid="pager-status"
+              >
+                Page {txData.pagination.page} of {txData.pagination.totalPages}
+              </span>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8"
+                data-testid="pager-next"
+                aria-label="Next page"
+                disabled={txData.pagination.page >= txData.pagination.totalPages}
+                onClick={() => setTxPage((p) => Math.min(txData?.pagination?.totalPages ?? p, p + 1))}
+              >
+                Next <ChevronRight className="ml-1 h-4 w-4" />
+              </Button>
+            </div>
           </div>
         )}
       </div>
