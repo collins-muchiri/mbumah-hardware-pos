@@ -154,7 +154,7 @@ describe('the restock door\u2019s shillings (v2.249.0)', () => {
 
 describe('the release face (v2.249.0)', () => {
   it('package.json speaks 2.249.0', () => {
-    expect(version).toBe('2.337.0');
+    expect(version).toBe('2.338.0');
   });
 
   it('the birth\u2019s ledger rides the changelog', () => {
