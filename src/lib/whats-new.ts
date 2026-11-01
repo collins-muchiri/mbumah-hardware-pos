@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.332.0',
+    title: 'The purchase-order lens answers the address bar',
+    bullets: [
+      'The suppliers desk now speaks its SECOND word: bookmark or share ?sup-po=SENT and the purchase-orders section lands with the sent lens already chosen — the fifth word of the address-bar vocabulary, inherited through the same one-home parser, zero new bytes of law.',
+      'The landing is visible here too: the lens wears its chip in the delivery-tracking cyan, and it retires the moment you change or dismiss the filter — an honest face, never a stale one.',
+      'Case-sensitive by law: the PO lens\u2019s words are UPPERCASE, so ?sup-po=sent is an unknown word and answers All Status — a stale bookmark can never strand the section in a lens it does not offer.',
+    ],
+  },
+  {
     version: '2.331.0',
     title: 'The suppliers lens answers the address bar',
     bullets: [
