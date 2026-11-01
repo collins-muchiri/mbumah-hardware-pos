@@ -200,6 +200,10 @@ export function parseInitialNamedPage(search: string, param: string, fallback = 
  * v2.330.0 — THE PROMISE KEPT, THE THIRD DESK: the customers desk's debt
  * lens speaks it as its desk-prefixed `cust-debt` (the same parser, zero
  * new bytes of law, again — the third desk to inherit the home).
+ * v2.331.0 — THE PROMISE KEPT, THE FOURTH DESK: the suppliers desk's
+ * active lens speaks it as its desk-prefixed `sup-status` (the same
+ * parser, zero new bytes of law, again — the fourth desk to inherit
+ * the home).
  */
 export function parseInitialNamedMember<V extends string>(
   search: string,

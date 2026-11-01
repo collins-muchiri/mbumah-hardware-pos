@@ -9,8 +9,9 @@ import {
   ChevronRight, Download, Package, CalendarDays,
   ClipboardCheck, AlertTriangle, Hash, Clock, CheckCircle2,
   Circle, Award, Timer, MessageSquare, Smartphone,
-  Send, MoreVertical, DollarSign, ClipboardList,
+  Send, MoreVertical, DollarSign, ClipboardList, Link2,
 } from 'lucide-react';
+import { parseInitialNamedMember } from '@/lib/tab-url';
 
 // v2.253.0 THE BIRTH'S FIFTH FACE — the supplier's roster wears the
 // violet birth (the branch roster's own chip), the aisle's band as the
@@ -1875,6 +1876,28 @@ function SendOrderDialog({
   );
 }
 
+// v2.331.0 THE SUPPLIERS LENS'S OWN WORD — the suppliers desk's active
+// filter answers the address bar too: `?sup-status=active` lands the
+// roster with the active lens already chosen (the customers desk's
+// `?cust-debt=` law, one release later, on the next desk). The law is
+// MEMBERSHIP, ONE home (`parseInitialNamedMember`): the value must name
+// a lens the desk actually offers — case-sensitive (the desk's own
+// words are lowercase, so `ACTIVE` is an unknown word, not a clever
+// match) — and anything missing or unknown answers 'all' (never
+// stranded). The word is desk-prefixed per the Task 44 collision law: a
+// desk-prefixed word can never leak across client-side tab switches,
+// and the bare `?status=` word belongs to the /hr/performance route (a
+// different URL space, pinned in the v2.328 test).
+// Collision-checked at round start: no reader of `sup-status` exists anywhere in src/.
+// Read-on-mount ONLY (the one-writer law): the landing word is the
+// LANDING lens, never rewritten; the Select owns the state after.
+export const SUP_STATUS_FILTERS = ['all', 'active', 'inactive'] as const;
+
+function initialSupStatus(): string {
+  if (typeof window === 'undefined') return 'all';
+  return parseInitialNamedMember(window.location.search, 'sup-status', SUP_STATUS_FILTERS, 'all');
+}
+
 export default function SuppliersTab() {
   const currentStoreId = useAppStore((s) => s.currentStoreId);
   const _queryClient = useQueryClient();
@@ -1882,7 +1905,24 @@ export default function SuppliersTab() {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [filterStatus, setFilterStatus] = useState<string>('all');
+  // v2.331.0 THE SUPPLIERS LENS'S OWN WORD — the seed reads `?sup-status=`
+  // (membership law, one home); a hand-driven Select afterwards is the
+  // human's truth.
+  const [filterStatus, setFilterStatus] = useState<string>(initialSupStatus);
+  // v2.331.0 THE LANDING WORD — the address-bar word the desk answered at
+  // mount ('all' when the landing carried no lens). The chip speaks it
+  // ONCE: dismissed or hand-changed, the landing is over and the chip
+  // retires — an honest face never claims a landing that is done (the
+  // customers desk's rose chip law, worn in the lens's emerald).
+  const [landedSupStatus] = useState<string>(initialSupStatus);
+  const [landingLive, setLandingLive] = useState(true);
+
+  // v2.331.0: a hand-driven change retires the landing word — the chip
+  // speaks the ADDRESS BAR's landing, never the human's next choice.
+  const chooseSupStatus = (value: string) => {
+    setFilterStatus(value);
+    setLandingLive(false);
+  };
   const [addOpen, setAddOpen] = useState(false);
   const [createPOOpen, setCreatePOOpen] = useState(false);
   const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
@@ -2112,7 +2152,9 @@ export default function SuppliersTab() {
                   className="pl-10 h-9 w-full sm:w-56"
                 />
               </div>
-              <Select value={filterStatus} onValueChange={setFilterStatus}>
+              {/* v2.331.0: the hand-driven Select is voice 2 — a
+                  hand-driven change retires the landing word. */}
+              <Select value={filterStatus} onValueChange={chooseSupStatus}>
                 <SelectTrigger className="h-9 w-28">
                   <SelectValue />
                 </SelectTrigger>
@@ -2122,6 +2164,33 @@ export default function SuppliersTab() {
                   <SelectItem value="inactive">Inactive</SelectItem>
                 </SelectContent>
               </Select>
+              {/* v2.331.0 THE LANDING WORD CHIP, FOURTH WEARING — a link
+                  that landed the roster pre-filtered wears a chip naming
+                  the word it answered (?sup-status=…), styled in the
+                  lens's own EMERALD family (the active-supplier semantic
+                  color the desk already speaks) with dark-mode variants,
+                  the Link2 icon, a `title` tooltip, and a one-press
+                  dismissal that clears the lens the word seeded. The
+                  chip retires the moment the human owns the filter —
+                  a hand-driven Select or the chip's own dismissal.
+                  `data-testid="sup-landing-word"` — the QA walk's
+                  handle. */}
+              {landingLive && landedSupStatus !== 'all' && filterStatus === landedSupStatus && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFilterStatus('all');
+                    setLandingLive(false);
+                  }}
+                  className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300 dark:hover:bg-emerald-500/20"
+                  data-testid="sup-landing-word"
+                  title="The desk landed with this filter from the address bar — press to clear it"
+                >
+                  <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+                  <span className="tabular-nums">landed ?sup-status={landedSupStatus}</span>
+                  <X className="h-3 w-3 shrink-0 opacity-60" aria-hidden="true" />
+                </button>
+              )}
               <Button variant="outline" size="sm" className="h-9" onClick={exportCSV} disabled={suppliers.length === 0}>
                 <Download className="h-4 w-4 mr-1" />
                 <span className="hidden sm:inline">Export</span>
