@@ -74,7 +74,9 @@ describe('the desk seeds its filter from the address bar (loyalty-tab.tsx)', () 
     // voice is pinned in expiry-window-dismiss-v2318.
     // v2.320.0 pin evolution (deliberate): parseInitialPage joins — the
     // pager lands on `?page=`; the pin follows the import, not the round.
-    expect(tab.includes("import { buildSearchWithoutParams, parseInitialDateRange, parseInitialPage, parseInitialType, parseInitialView } from '@/lib/tab-url';")).toBe(true);
+    // v2.321.0 pin evolution (deliberate): parseInitialLimit joins — the
+    // gait lands on `?limit=`; the pin follows the import, not the round.
+    expect(tab.includes("import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialPage, parseInitialType, parseInitialView } from '@/lib/tab-url';")).toBe(true);
   });
 
   it('the register is the SAME five types the ledger Select offers', () => {
@@ -154,8 +156,8 @@ describe('the housekeeping — the 2.267.0 dead weight is gone', () => {
     };
     expect(typeof pkg.mbumah?.releaseVersion).toBe('string');
     expect(typeof pkg.mbumah?.baseVersion).toBe('string');
-    expect(pkg.mbumah?.releaseVersion).toBe('2.320.0');
-    expect(pkg.mbumah?.baseVersion).toBe('2.320.0');
+    expect(pkg.mbumah?.releaseVersion).toBe('2.321.0');
+    expect(pkg.mbumah?.baseVersion).toBe('2.321.0');
   });
 
   it('the docs register carries the deep-link note', () => {

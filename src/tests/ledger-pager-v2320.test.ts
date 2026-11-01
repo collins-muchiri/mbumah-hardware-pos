@@ -77,12 +77,18 @@ describe('the desk — the pager wears the wire, the state turns the page', () =
   });
 
   it('the page rides BOTH the query key and the wire (a different slice, not a cached re-render)', () => {
-    expect(tab.includes('txDateFrom, txDateTo, txPage]')).toBe(true);
+    // v2.321.0 pin evolution (deliberate): the gait rides the key too —
+    // 50 rows/page is a different slice of the same ledger; the pin
+    // follows the key, not the round.
+    expect(tab.includes('txDateFrom, txDateTo, txPage, txLimit]')).toBe(true);
     expect(tab.includes('page: txPage,')).toBe(true);
   });
 
   it('the scope-reset law: a filter change returns to page 1, the mount seed survives', () => {
-    expect(tab.includes('const txScopeKey = `${txTypeFilter}|${txDateFrom}|${txDateTo}`;')).toBe(true);
+    // v2.321.0 pin evolution (deliberate): the gait wears the scope key
+    // — a page honest at 100/page can be past the end at 200/page; the
+    // pin follows the key, not the round.
+    expect(tab.includes('const txScopeKey = `${txTypeFilter}|${txDateFrom}|${txDateTo}|${txLimit}`;')).toBe(true);
     expect(tab.includes('const txPrevScopeKey = useRef(txScopeKey);')).toBe(true);
     expect(tab.includes('txPrevScopeKey.current !== txScopeKey')).toBe(true);
     expect(tab.includes('setTxPage(1);')).toBe(true);
@@ -121,13 +127,15 @@ describe('the desk — the pager wears the wire, the state turns the page', () =
     expect(tab.includes("import React, { useEffect, useRef, useState } from 'react';")).toBe(true);
   });
 
-  it('the tab-url import carries the fifth word (the four trail files evolved with it)', () => {
-    expect(tab.includes("import { buildSearchWithoutParams, parseInitialDateRange, parseInitialPage, parseInitialType, parseInitialView } from '@/lib/tab-url';")).toBe(true);
+  it('the tab-url import carries the fifth and sixth words (the trail files evolved with them)', () => {
+    // v2.321.0 pin evolution (deliberate): parseInitialLimit joins — the
+    // gait lands on `?limit=`; the pin follows the import, not the round.
+    expect(tab.includes("import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialPage, parseInitialType, parseInitialView } from '@/lib/tab-url';")).toBe(true);
     const trail2311 = readFileSync('src/tests/receipt-trail-v2311.test.ts', 'utf8');
     const trail2316 = readFileSync('src/tests/expiry-ledger-link-v2316.test.ts', 'utf8');
     const trail2317 = readFileSync('src/tests/expiry-day-window-v2317.test.ts', 'utf8');
     const trail2318 = readFileSync('src/tests/expiry-window-dismiss-v2318.test.ts', 'utf8');
-    const evolved = "import { buildSearchWithoutParams, parseInitialDateRange, parseInitialPage, parseInitialType, parseInitialView } from '@/lib/tab-url';";
+    const evolved = "import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialPage, parseInitialType, parseInitialView } from '@/lib/tab-url';";
     expect(trail2311.includes(evolved)).toBe(true);
     expect(trail2316.includes(evolved)).toBe(true);
     expect(trail2317.includes(evolved)).toBe(true);
