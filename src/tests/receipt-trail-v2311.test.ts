@@ -138,7 +138,11 @@ describe('v2.311.0 — the shell answers the address bar', () => {
     // v2.316.0 pin evolution (deliberate): the type parser joins the
     // import — the ledger answers ?type= now (the sweep line's door);
     // the type vocabulary's own voice is pinned in expiry-ledger-link-v2316.
-    expect(loyaltyTab).toContain("import { parseInitialType, parseInitialView } from '@/lib/tab-url';");
+    // v2.317.0 pin evolution (deliberate): the date-window parser and
+    // eatDayKey join too — the ledger answers ?from=/&to= (the counts
+    // door names its sweep's day); the window's own voice is pinned in
+    // expiry-day-window-v2317.
+    expect(loyaltyTab).toContain("import { parseInitialDateRange, parseInitialType, parseInitialView } from '@/lib/tab-url';");
     expect(loyaltyTab).toContain(
       "const LOYALTY_SUB_TABS: readonly LoyaltySubTab[] = ['tiers', 'members', 'transactions', 'campaigns'];",
     );

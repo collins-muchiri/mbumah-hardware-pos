@@ -74,6 +74,7 @@ import { authorizedFetchJson } from '@/lib/api';
 // v2.165.0: the Automation pulse's "Last tick" line gains the exact EAT
 // stamp as its tooltip - the same stamp format the payroll surfaces speak
 // (payslip-bundle is client-safe: it imports only csvCell from digest-csv).
+import { eatDayKey } from '@/lib/tab-url';
 import { formatEatStamp } from '@/lib/hr/payroll/payslip-bundle';
 // v2.172.0: the heartbeat EXPECTATION — pure math (slots, grace, EAT
 // clocks) that turns "Last tick 3h ago" into "when is the next tick due,
@@ -1074,6 +1075,14 @@ export function OrgConsole() {
      they summarize instead of a dead end. One door for both voices: a
      sweep worth seeing is a sweep worth walking to.
 
+     v2.317.0: the counts door names the DAY. The ledger's date window
+     answers `?from=`/`?to=` now (tab-url's validated vocabulary), so
+     the counts link rides its own sweep's EAT day (`eatDayKey`) and
+     the window opens on exactly the rows that sweep wrote — not the
+     whole history. The healthy zero keeps the type-only trail door:
+     nothing to expire is a statement about the window, and no day is
+     named twice.
+
      THE HARD-NAVIGATION LAW (the browser burst caught it): this door
      rides a PLAIN ANCHOR, deliberately not <Link>. The shell's ask
      capture (v2.313.0) reads the bar at HomePage's FIRST RENDER — true
@@ -1092,6 +1101,13 @@ export function OrgConsole() {
     'dark:decoration-amber-400/40 dark:hover:decoration-amber-400';
   function expiryRunLine(run: NonNullable<AutomationSummary['lastExpiryRun']>) {
     const expiredSomething = run.walletsExpired > 0;
+    // v2.317.0: the counts door names the sweep's own EAT day — the
+    // window opens on the rows that sweep wrote. A garbage stamp falls
+    // back to the type-only door (never a broken link).
+    const sweepDay = eatDayKey(run.at);
+    const countsHref = sweepDay
+      ? `${EXPIRY_LEDGER_HREF}&from=${sweepDay}&to=${sweepDay}`
+      : EXPIRY_LEDGER_HREF;
     return (
       <p
         role="note"
@@ -1108,9 +1124,9 @@ export function OrgConsole() {
           {run.scanned === 1 ? '' : 's'} scanned ·{' '}
           {expiredSomething ? (
             <a
-              href={EXPIRY_LEDGER_HREF}
+              href={countsHref}
               data-testid="automation-expiry-run-counts"
-              title="Open the loyalty ledger, filtered on Expire rows"
+              title="Open the loyalty ledger, filtered on Expire rows from this sweep's day"
               className={`font-medium tabular-nums text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 ${expiryLedgerLinkClass}`}
             >
               {run.walletsExpired} wallet{run.walletsExpired === 1 ? '' : 's'} expired,
