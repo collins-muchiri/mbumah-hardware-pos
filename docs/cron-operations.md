@@ -99,6 +99,19 @@ confirm it, and neither requires shell access:
   `/?tab=loyalty&view=transactions&type=EXPIRE`, and the loyalty desk
   reads `?type=` on mount (the tab-url vocabulary `view` already spoke),
   so the pulse's counts land on the exact rows they summarize.
+- **v2.321.0**: the ledger chooses its gait — the transactions toolbar
+  gains a Rows-per-page Select (50/100/200, `LEDGER_PAGE_SIZES`), seeded
+  by the vocabulary's sixth word `?limit=` (`parseInitialLimit` — the
+  MEMBERSHIP law: only an offered gait rides the state, everything else
+  answers 100), the gait rides the query key + the wire's `limit` and
+  the scope-reset law extends to it (a gait change re-anchors to page
+  1), and the API door's integers go honest (`parsePositiveIntParam` /
+  `parseClampedIntParam` — a garbage `?limit=` or `?page=` used to ride
+  NaN into Prisma and answer 500; now fallback/clamp, take bounded
+  1..200). Task 27's pin unwind, part two: `verify:ancestors`
+  (scripts/verify-ancestors.mjs) runs the whole stale-by-design
+  verify-v2-* fleet under one command and classifies its drift
+  (PASS / version-tide / SIGNAL).
 - **v2.320.0**: the ledger turns the page — the loyalty desk's
   transactions view gains a pager (census + "Page N of M" in the wire's
   own pagination voice, Prev/Next moving the desk's state, disabled
