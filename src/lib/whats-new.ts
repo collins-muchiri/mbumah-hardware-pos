@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.317.0',
+    title: 'The ledger answers the day',
+    bullets: [
+      'The expiry sweep\u2019s amber counts now open the ledger on the sweep\u2019s own day: the date window rides the link, so you land on exactly the rows that sweep wrote instead of the whole history.',
+      'The loyalty ledger\u2019s date filters answer the address bar too — ?from= and ?to= seed the window, each validated on its own, and a malformed or impossible date is simply ignored rather than stranding you in an empty ledger.',
+      'The two deep-link doors now tell themselves apart: the counts open the sweep\u2019s day, the healthy "nothing to expire" zero opens the full Expire trail.',
+    ],
+  },
+  {
     version: '2.316.0',
     title: 'The sweep\u2019s counts walk to the ledger',
     bullets: [

@@ -117,5 +117,6 @@ package-lock.json
 
 # Agent QA burst scripts (round-scoped by the cron agent loop; never commit)
 scripts/qa-burst-*
+scripts/qa-diag-*
 scripts/seed-qa-*
 scripts/targeted-tsc-*

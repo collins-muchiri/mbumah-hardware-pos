@@ -411,10 +411,12 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.314.0: the wallet-is-the-only-balance entry joins the feed (+1 on every anchor → 204/205/206/237 → 205/206/207/238)
     // v2.315.0: the expiry-pulse entry joins the feed (+1 on every anchor → 205/206/207/238 → 206/207/208/239)
     // v2.316.0: the ledger-link entry joins the feed (+1 on every anchor → 206/207/208/239 → 207/208/209/240)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(207);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(208);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(209);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(240);
+    // v2.317.0: the ledger-link entry joins the feed (+1 on every anchor → 206/207/208/239 → 207/208/209/240)
+    // v2.317.0: the day-window entry joins the feed (+1 on every anchor → 207/208/209/240 → 208/209/210/241)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(208);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(209);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(210);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(241);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 

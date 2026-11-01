@@ -1,3 +1,18 @@
+## [2.317.0] The ledger answers the day
+
+The v2.316 counts door landed on the whole Expire trail; now it names the DAY. The ledger’s date window answers the address bar, and the sweep’s own counts link carries its sweep’s EAT day — the window opens on exactly the rows that sweep wrote.
+
+### Added
+- **The window vocabulary** (`src/lib/tab-url.ts`): `parseInitialDateRange` reads `?from=`/`?to=` with the never-strand law — each param validates INDEPENDENTLY (a real `from` with a garbage `to` keeps the from), the shape must be `YYYY-MM-DD`, and the day must be REAL (2026-02-30 parses to NaN, answers ''). `eatDayKey` maps a timestamp to its EAT (UTC+3, the `formatEatStamp` convention) calendar day — midnight-straddling sweeps land on the right day; garbage answers ''.
+- **The desk seeds its window** (`src/app/(shell)/tabs/loyalty-tab.tsx`): both date inputs seed lazily from the parser (SSR-guarded, ’’ = the input left empty). One reader per param, the same law `view`/`type` spoke before it.
+- **The counts door names the day** (`org-console.tsx`): the amber counts href is computed FROM the type-only constant — `&from=<sweepDay>&to=<sweepDay>` — and a garbage stamp falls back to the type-only door, never a broken link. The healthy zero keeps the trail door; the two tooltips tell themselves apart ("filtered on Expire rows from this sweep’s day" vs "filtered on Expire rows").
+
+### Housekeeping
+- **The qa-diag scripts join the gitignored home** (`.gitignore`): `scripts/qa-diag-*` joins the round-scoped rule — the two stale v2.315 diag scripts vanish from `git status`.
+
+### Tests
+- `src/tests/expiry-day-window-v2317.test.ts` (NEW): the window truth table (independent validation, non-calendar days, malformed search), the EAT day key (rollover at 21:00Z, garbage → ’’), the desk’s lazy seeds + SSR guards, the card’s computed href + fallback + the two tooltips, and the gitignore pin. Pin evolutions with trail notes in `expiry-ledger-link-v2316` (import line, computed counts href, the constant’s 4 mentions) and `receipt-trail-v2311` (import line).
+
 ## [2.316.0] The sweep’s counts walk to the ledger
 
 The Automation pulse’s expiry sweep line (v2.315.0) answered "what happened?" but dead-ended at "where?". Both of its voices now walk: the amber counts and the healthy zero deep-link to the loyalty ledger, pre-filtered on the exact rows that produced them.
