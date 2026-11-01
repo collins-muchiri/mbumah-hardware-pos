@@ -420,10 +420,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.322.0: the census-truth entry joins the feed (+1 on every anchor → 212/213/214/245 → 213/214/215/246)
     // v2.323.0: the census-truth entry joins the feed (+1 on every anchor → 212/213/214/245 → 213/214/215/246)
     // v2.324.0: the roster's-own-word entry joins the feed (+1 on every anchor → 214/215/216/247 → 215/216/217/248)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(215);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(216);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(217);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(248);
+    // v2.325.0: the body-door entry joins the feed (+1 on every anchor → 215/216/217/248 → 216/217/218/249)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(216);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(217);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(218);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(249);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 
