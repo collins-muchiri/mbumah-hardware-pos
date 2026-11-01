@@ -1,3 +1,20 @@
+## [2.316.0] The sweep’s counts walk to the ledger
+
+The Automation pulse’s expiry sweep line (v2.315.0) answered "what happened?" but dead-ended at "where?". Both of its voices now walk: the amber counts and the healthy zero deep-link to the loyalty ledger, pre-filtered on the exact rows that produced them.
+
+### Added
+- **The ledger answers `?type=`** (`src/lib/tab-url.ts` + `src/app/(shell)/tabs/loyalty-tab.tsx`): the deep-link vocabulary `view` already spoke gains its filter sibling. The loyalty desk’s type filter seeds from `?type=EXPIRE` on mount, validated against the SAME five types the ledger’s own Select offers — a lowercase, unknown, or stale value falls back to "All Types" instead of stranding the ledger in a filter it does not offer (case-sensitive BY LAW: `expire` is an unknown value, not a clever match). One reader per param, the same law `view` has followed since v2.311.0.
+- **The sweep line’s both voices are links** (`org-console.tsx`): the amber counts ("2 wallets expired, 450 points returned") AND the healthy zero ("nothing to expire") deep-link `/?tab=loyalty&view=transactions&type=EXPIRE` — one door for both, because a sweep worth seeing is a sweep worth walking to. The v2.315 amber survives the link wardrobe: `tabular-nums` digits, the Expiry desk’s `text-amber-700 dark:text-amber-400`, the sr-only stamp copy. The door rides a PLAIN ANCHOR, deliberately not `<Link>`: the browser burst caught Next’s client-side transition racing the shell’s ask capture (the click landed on `?tab=dashboard&view=transactions&type=EXPIRE` — the persisted desk ate the ask), so a cross-console ask loads the shell fresh, the landing path every hard open, bookmark, and QA burst has proven since v2.311.0.
+
+### Styling
+- **The link earns its affordance** (`org-console.tsx`): amber underline (`decoration-amber-600/40`, offset 2), hover deepens both ink and rule (`hover:text-amber-800` / `hover:decoration-amber-600`, dark twins), and the keyboard focus ring is the Expiry desk’s own amber (`focus-visible:ring-amber-400/70`) on a `rounded-sm` — the pulse looks clickable because it is, and says where it goes in its tooltip ("Open the loyalty ledger, filtered on Expire rows").
+
+### Housekeeping
+- **The 2.267.0 dead weight retires** (`package.json`): the stale top-level `releaseVersion`/`baseVersion` keys (untouched since v2.267.0, read by nothing — the deploy scripts and the verify law all read the LIVE keys under `mbumah.`) are deleted. The manifest’s two version truths collapse into the one that answers.
+
+### Tests
+- `src/tests/expiry-ledger-link-v2316.test.ts` (NEW): the `?type=` truth table (valid rides; lowercase/unknown/missing/malformed fall back; `view` rides untouched on the same search), the desk’s five-type register + SSR guard + lazy seed, the card’s one-door/both-voices links with the amber + focus-ring pins, the both-mounts law, and the housekeeping (no top-level keys; the live `mbumah.` keys intact).
+
 # Changelog
 
 All notable changes to Mbumah Hardware POS are documented in this file (Keep a Changelog format; versions follow package.json).
