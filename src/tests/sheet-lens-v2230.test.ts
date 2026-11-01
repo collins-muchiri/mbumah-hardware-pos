@@ -47,13 +47,13 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.230.0)', () => {
   it('package.json leads 2.230.0 (all three slots)', () => {
-    expect(version).toBe('2.329.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.329.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.329.0');
+    expect(version).toBe('2.330.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.330.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.330.0');
   });
 
   it('VERSION speaks 2.230.0 and the verify gate is wired', () => {
-    expect(read('VERSION').trim()).toBe('2.329.0');
+    expect(read('VERSION').trim()).toBe('2.330.0');
     expect(pkg.scripts['verify:v2-230-0']).toBe('node scripts/verify-v2-230-0.mjs');
   });
 

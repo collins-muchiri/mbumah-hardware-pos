@@ -425,10 +425,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.327.0: the swallow-census entry joins the feed (+1 on every anchor → 217/218/219/250 → 218/219/220/251)
     // v2.328.0: the roster's-second-word entry joins the feed (+1 on every anchor → 218/219/220/251 → 219/220/221/252)
     // v2.329.0: the stock-lens-own-word entry joins the feed (+1 on every anchor → 219/220/221/252 → 220/221/222/253)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(220);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(221);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(222);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(253);
+    // v2.330.0: the debt-lens-own-word entry joins the feed (+1 on every anchor → 220/221/222/253 → 221/222/223/254)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(221);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(222);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(223);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(254);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 
