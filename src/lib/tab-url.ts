@@ -208,6 +208,10 @@ export function parseInitialNamedPage(search: string, param: string, fallback = 
  * purchase-order lens speaks it as its desk-prefixed `sup-po` (the same
  * parser, zero new bytes of law, again — one desk now owning TWO words
  * of the vocabulary, one per lens).
+ * v2.333.0 — THE PROMISE KEPT, THE SIXTH WORD: the transactions desk's
+ * payment-method lens speaks it as its desk-prefixed `txn-pay` (the same
+ * parser, zero new bytes of law, again — the QUICK-CHIPS desk inherits;
+ * the chip hand-off is now proven on a Select face AND a chip face).
  */
 export function parseInitialNamedMember<V extends string>(
   search: string,
