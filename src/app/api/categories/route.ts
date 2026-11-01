@@ -214,7 +214,17 @@ async function getCategoriesHandler(...args: unknown[]): Promise<Response> {
 async function createCategoryHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.336.0 the door speaks the category's own wire shape; sortOrder
+  // carries null because the handler's own auto-pick branch checks it.
+  const door = await readJsonBody<{
+    storeId?: string;
+    name?: string;
+    description?: string;
+    icon?: string;
+    color?: string;
+    sortOrder?: number | null;
+    isActive?: boolean;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

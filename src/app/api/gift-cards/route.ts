@@ -90,7 +90,16 @@ async function listGiftCardsHandler(...args: unknown[]): Promise<Response> {
 async function createGiftCardHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.336.0 the door names the four raw fields the zod schema does NOT own
+  // (the schema-validated fields flow through validation.data, typed by zod
+  // itself), so the four Record re-casts this file used to carry are gone —
+  // the reads are direct.
+  const door = await readJsonBody<{
+    currency?: unknown;
+    issuedBy?: unknown;
+    issuedTo?: unknown;
+    expiresAt?: unknown;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
@@ -111,18 +120,16 @@ async function createGiftCardHandler(...args: unknown[]): Promise<Response> {
     autoAdjustItems,
   } = validation.data;
 
-  // Fields from body that are not in the schema but still used.
-  // v2.32.0: explicit runtime coercion - the raw `unknown || fallback`
-  // expressions typed as {} and failed the string-field assignments
-  // (TS2322/TS2769 baseline noise).
+  // Fields from body that are not in the schema but still used. The door
+  // (v2.336.0) now types these four directly, so no re-cast is needed; the
+  // asTrimmedString coercion stays (it is the runtime voice, not the type's).
   const asTrimmedString = (v: unknown): string | null =>
     typeof v === 'string' && v.trim() !== '' ? v : null;
-  const currency = asTrimmedString((body as Record<string, unknown>).currency) ?? 'KES';
+  const currency = asTrimmedString(body.currency) ?? 'KES';
   // SYS-2: issuer identity comes from the session inside the tx (body ignored).
-  const _issuedBy = asTrimmedString((body as Record<string, unknown>).issuedBy);
-  const issuedTo = asTrimmedString((body as Record<string, unknown>).issuedTo);
-  const rawExpiresAt =
-    (body as Record<string, unknown>).expiresAt ?? validation.data.expiryDate ?? null;
+  const _issuedBy = asTrimmedString(body.issuedBy);
+  const issuedTo = asTrimmedString(body.issuedTo);
+  const rawExpiresAt = body.expiresAt ?? validation.data.expiryDate ?? null;
   const expiresAt: string | Date | null =
     typeof rawExpiresAt === 'string' || rawExpiresAt instanceof Date ? rawExpiresAt : null;
 

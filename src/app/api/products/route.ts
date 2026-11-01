@@ -158,7 +158,29 @@ async function createProductHandler(
   _session: AuthSession,
 ): Promise<Response> {
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.336.0 the door speaks the product's own wire shape (the catalog
+  // family's honest pass): the fields the handler consumes, `unknown`
+  // only where the route itself coerces (sellingUnit via String(),
+  // conversionFactor via Number()).
+  const door = await readJsonBody<{
+    storeId?: string;
+    name?: string;
+    sku?: string;
+    barcode?: string;
+    description?: string;
+    categoryId?: string;
+    unitType?: string;
+    sellingUnit?: unknown;
+    conversionFactor?: unknown;
+    quantityInStock?: number;
+    reorderLevel?: number;
+    pricePerUnit?: number;
+    costPrice?: number;
+    taxRate?: number;
+    isRental?: boolean;
+    isBundle?: boolean;
+    imageUrl?: string;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

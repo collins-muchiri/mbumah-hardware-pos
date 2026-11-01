@@ -109,7 +109,9 @@ async function updateProductHandler(...args: unknown[]): Promise<Response> {
   const context = args[1] as RouteContext;
   const { id } = await context.params;
   // v2.325.0 THE BODY DOOR: an unreadable body is a client mistake — 400, never a 500.
-  const door = await readJsonBody<{ barcode?: string; [key: string]: unknown }>(request);
+  // v2.336.0 names the other directly-read field too: `sku` (String()-coerced
+  // below), while the allowedFields loop keeps the honest index signature.
+  const door = await readJsonBody<{ sku?: unknown; barcode?: string; [key: string]: unknown }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

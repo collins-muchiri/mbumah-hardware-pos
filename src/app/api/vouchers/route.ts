@@ -100,7 +100,24 @@ async function getVouchersHandler(...args: unknown[]): Promise<Response> {
 async function createVoucherHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.336.0 the door speaks the voucher's own wire shape — the fourteen
+  // fields the create handler consumes.
+  const door = await readJsonBody<{
+    storeId?: string;
+    name?: string;
+    voucherType?: string;
+    value?: number;
+    description?: string;
+    minimumPurchase?: number;
+    maxDiscount?: number | null;
+    freeProductId?: string;
+    maxUses?: number;
+    maxUsesPerUser?: number;
+    startDate?: string;
+    endDate?: string;
+    campaignId?: string;
+    createdBy?: string;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

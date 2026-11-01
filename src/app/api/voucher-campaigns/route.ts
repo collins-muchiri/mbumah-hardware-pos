@@ -81,7 +81,18 @@ async function getVoucherCampaignsHandler(...args: unknown[]): Promise<Response>
 async function createVoucherCampaignHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.336.0 the door speaks the campaign's own wire shape.
+  const door = await readJsonBody<{
+    storeId?: string;
+    name?: string;
+    campaignType?: string;
+    description?: string;
+    startDate?: string;
+    endDate?: string;
+    budget?: number;
+    targetAudience?: string;
+    createdBy?: string;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

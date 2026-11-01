@@ -57,6 +57,21 @@ export type BodyDoor<T> = { ok: true; body: T } | { ok: false };
  * the String()-coerce door is already honest. And the recalculate door
  * now performs the period↔store cross-check its comment always
  * promised (mismatch → 404 before the helper runs).
+ *
+ * v2.336.0 — THE CATALOG FAMILY, the wider class's second pass: the
+ * eighteen catalog doors (products ×3, categories ×2, subcategories,
+ * vouchers + redeem, voucher-campaigns, gift-cards ×5, etims ×3) speak
+ * their body's own shape — the create doors name every field their
+ * handler consumes (`unknown` only where the route itself coerces:
+ * sellingUnit/conversionFactor/discountPercent via String()/Number(),
+ * the zod-validated gift-card fields flowing through validation.data
+ * so the door only names the four RAW fields), the update doors name
+ * their directly-read fields while the allowedFields loops keep the
+ * honest index signature, and the two redeem doors borrow the local
+ * RedeemBody/RedeemByCodeBody interfaces their handlers already
+ * declared — the `as` re-casts are gone. vouchers/[id] already wore
+ * its own literal. categories/[id] and gift-cards/[id] graduated from
+ * the v2.326 loose-Record exemplars (three remain).
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function readJsonBody<T = any>(

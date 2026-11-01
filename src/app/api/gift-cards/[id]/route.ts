@@ -48,7 +48,10 @@ async function updateGiftCardHandler(...args: unknown[]): Promise<Response> {
   const context = args[1] as RouteContext;
   const { id } = await context.params;
   // v2.325.0 THE BODY DOOR: an unreadable body is a client mistake — 400, never a 500.
-  const door = await readJsonBody<Record<string, unknown>>(request);
+  // v2.336.0 the loose Record widens no more: the door names the two fields
+  // the handler reads directly (the toggle shortcut and the expiry clearing)
+  // while the allowedFields loop keeps the honest index signature.
+  const door = await readJsonBody<{ toggleVisibility?: unknown; expiresAt?: unknown; [key: string]: unknown }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

@@ -77,6 +77,47 @@ function getStockStatus(qty: number, reorder: number) {
   return { label: 'In Stock', color: 'bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400', tone: 'ok' as const };
 }
 
+// THE SHELF METER (v2.336.0): the product card's stock line grows a
+// colour-stepped micro-bar — the shelf's fill against TWICE the reorder
+// level (the "comfortable" envelope the low-stock hint speaks). Red ≤ the
+// reorder level, amber ≤ the envelope, emerald above it — the same three
+// voices the BudgetsPanel consumption meter uses, now on the catalog desk.
+function StockMeter({ qty, reorder }: { qty: number; reorder: number }) {
+  if (qty <= 0) return null; // the Unavailable voice already speaks for an empty shelf
+  const envelope = Math.max(reorder * 2, 1);
+  const percentage = Math.min((qty / envelope) * 100, 100);
+  const barColor =
+    qty <= reorder
+      ? 'bg-red-500 dark:bg-red-400'
+      : qty <= envelope
+        ? 'bg-amber-500 dark:bg-amber-400'
+        : 'bg-emerald-500 dark:bg-emerald-400';
+  return (
+    <div
+      className="mt-1.5 flex items-center gap-2"
+      data-testid="product-stock-meter"
+      title={`Shelf fill: ${qty} on hand against a ${reorder}-unit reorder level (${envelope}-unit comfortable envelope)`}
+    >
+      <div
+        className="h-1.5 flex-1 rounded-full bg-muted overflow-hidden"
+        role="progressbar"
+        aria-label={`Stock level: ${qty} on hand, reorder level ${reorder}`}
+        aria-valuemin={0}
+        aria-valuemax={envelope}
+        aria-valuenow={Math.min(qty, envelope)}
+      >
+        <div
+          className={`h-full rounded-full transition-all duration-500 ${barColor}`}
+          style={{ width: `${percentage}%` }}
+        />
+      </div>
+      <span className="text-[10px] tabular-nums text-muted-foreground shrink-0">
+        {Math.round(percentage)}%
+      </span>
+    </div>
+  );
+}
+
 // Empty product form shape
 const EMPTY_PRODUCT: ProductFormState = {
   name: '', sku: '', barcode: '', categoryId: '',
@@ -574,6 +615,8 @@ export default function CatalogTab() {
           ) : (
             <p className="text-[11px] text-red-600 mt-1">Unavailable</p>
           )}
+          {/* THE SHELF METER (v2.336.0): the shelf's fill against its reorder envelope */}
+          <StockMeter qty={product.quantityInStock} reorder={product.reorderLevel} />
           {/* Restock hint */}
           {stock.tone === 'low' && (
             <div className="mt-2 rounded-md border border-amber-200 dark:border-amber-800/60 bg-amber-50 dark:bg-amber-950/30 px-2 py-1 flex items-center gap-1.5">
@@ -683,6 +726,10 @@ export default function CatalogTab() {
             <span className="font-bold text-primary">{formatKES(product.pricePerUnit)}</span>
             <span className="text-[11px] text-muted-foreground">per {unitLabel(product.unitType)}</span>
             <span className="text-[11px] text-muted-foreground">• {product.quantityInStock} in stock</span>
+          </div>
+          {/* THE SHELF METER (v2.336.0): the list row carries the same voice */}
+          <div className="max-w-xs">
+            <StockMeter qty={product.quantityInStock} reorder={product.reorderLevel} />
           </div>
         </div>
 

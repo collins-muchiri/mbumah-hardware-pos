@@ -100,7 +100,24 @@ async function getBundlesHandler(...args: unknown[]): Promise<Response> {
 async function createBundleHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.336.0 the door speaks the bundle's two interfaces — the route's own
+  // map annotations ARE the element contract, so the door repeats them as
+  // the handler declares them (required: the either-or guard below 400s
+  // when neither interface carries the body, exactly the RedeemBody
+  // precedent); discountPercent stays `unknown` (parseFloat(String())).
+  const door = await readJsonBody<{
+    storeId?: string;
+    name?: string;
+    description?: string;
+    categoryId?: string;
+    pricePerUnit?: number;
+    costPrice?: number;
+    taxRate?: number;
+    sku?: string;
+    items: Array<{ childProductId: string; quantityRequired: number }>;
+    componentProducts: Array<{ productId: string; quantity: number }>;
+    discountPercent?: unknown;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
