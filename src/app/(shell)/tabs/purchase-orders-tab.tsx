@@ -54,6 +54,9 @@ import { readLensMemory, writeLensMemory } from '@/lib/lens-memory';
 // byte, and the growth adds, never rewrites).
 import { lensCarryFromParams } from '@/lib/lens-memory';
 import { SheetDrill, type SheetDrillTarget } from '@/components/org/sheet-drill';
+// v2.324.0 THE ROSTER'S OWN WORD — the address-bar parser reads from the
+// parsers' one home (the tab-url law: never a copy).
+import { parseInitialNamedPage } from '@/lib/tab-url';
 
 // v2.254.0 THE BRANCH'S LENS — the row's own band, read from above: the
 // family the wire's spoke wore, or the silent absence (a hand-raised
@@ -1644,6 +1647,23 @@ function SummaryCard({
 
 // Main Component
 
+// v2.324.0 THE ROSTER'S OWN WORD — the roster's PAGE answers the address
+// bar too — `?po-page=2` lands the desk on the wire's second page. The
+// DESK-PREFIXED word is the deep-link collision law's own safe path (the
+// Task 44 analysis: two desks reading the SAME `?page=` word leak across
+// client-side tab switches — loyalty's one-writer law keeps `page`, so
+// the roster speaks its own). The parser's law is SHAPE, not existence:
+// a positive integer seeds the pager, anything else answers 1, and a
+// page past the end is the wire's honest empty (the past-the-end face
+// speaks). The desk only ever READS `po-page` on mount (the
+// one-writer-per-param law the rest of the shell speaks); the pager's
+// own buttons move the state afterwards — the bar's word is the LANDING
+// page, never rewritten.
+function initialPoPage(): number {
+  if (typeof window === 'undefined') return 1;
+  return parseInitialNamedPage(window.location.search, 'po-page', 1);
+}
+
 export default function PurchaseOrdersTab() {
   const { currentStoreId } = useAppStore();
   const queryClient = useQueryClient();
@@ -1654,7 +1674,10 @@ export default function PurchaseOrdersTab() {
   const [supplierFilter, setSupplierFilter] = useState<string>('ALL');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
-  const [page, setPage] = useState(1);
+  // v2.324.0 THE ROSTER'S OWN WORD — the pager's seed reads `?po-page=`
+  // (shape law, one home); a hand-driven pager afterwards is the human's
+  // truth.
+  const [page, setPage] = useState<number>(initialPoPage);
   const [sortField, setSortField] = useState<'orderDate' | 'totalAmount' | 'status'>('orderDate');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [createOpen, setCreateOpen] = useState(false);
@@ -2258,21 +2281,34 @@ export default function PurchaseOrdersTab() {
                   lens's honest silence, the filters' hint, the first-order
                   invitation) for every page the roster actually has. */}
               {pagination && pagination.total > 0 && page > pagination.totalPages ? (
-                <>
-                  <p className="font-medium" data-testid="po-past-end">
+                // v2.324.0 THE FACE WEARS THE AMBER — the past-the-end face
+                // is attention, not error (the red AlertTriangle block above
+                // owns error), so it wears the house's amber card: the
+                // History icon, the honest line, the WHY (a stale bookmark
+                // after rows shrank), and the way back. The testids keep
+                // their names — the voice changed clothes, not identity.
+                <div
+                  data-testid="po-past-end-card"
+                  className="mx-auto max-w-md rounded-xl border border-amber-200 bg-amber-50/70 p-4 dark:border-amber-900/50 dark:bg-amber-950/30"
+                >
+                  <History className="mx-auto h-6 w-6 text-amber-500" aria-hidden="true" />
+                  <p className="mt-2 text-sm font-medium text-amber-900 dark:text-amber-200" data-testid="po-past-end">
                     Page {page} is past the end of this ledger — {pagination.total} orders live on
                     earlier pages.
+                  </p>
+                  <p className="mt-1 text-xs text-amber-700/80 dark:text-amber-300/80" data-testid="po-past-end-hint">
+                    The link may be stale — rows were deleted or the ledger shrank since it was made.
                   </p>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="mt-3"
+                    className="mt-3 border-amber-300 text-amber-800 hover:bg-amber-100 dark:border-amber-800 dark:text-amber-200 dark:hover:bg-amber-900/40"
                     data-testid="po-back-to-one"
                     onClick={() => setPage(1)}
                   >
                     Back to page 1
                   </Button>
-                </>
+                </div>
               ) : (
                 <>
                   <p className="font-medium">No purchase orders found</p>
@@ -2485,11 +2521,11 @@ export default function PurchaseOrdersTab() {
               {pagination && pagination.totalPages > 1 && (
                 <div className="flex items-center justify-between px-4 py-3 border-t" data-testid="po-pager">
                   {page > pagination.totalPages ? (
-                    <p className="text-xs text-muted-foreground tabular-nums" data-testid="po-census-empty">
+                    <p className="rounded-full bg-muted/60 px-2.5 py-1 text-xs text-muted-foreground tabular-nums" data-testid="po-census-empty">
                       No rows on this page — the ledger ends at {pagination.total} orders.
                     </p>
                   ) : (
-                    <p className="text-xs text-muted-foreground tabular-nums" data-testid="po-census">
+                    <p className="rounded-full bg-muted/60 px-2.5 py-1 text-xs text-muted-foreground tabular-nums" data-testid="po-census">
                       Showing {(page - 1) * limit + 1}-{Math.min(page * limit, pagination.total)} of{' '}
                       {pagination.total} orders
                     </p>
@@ -2505,7 +2541,7 @@ export default function PurchaseOrdersTab() {
                     >
                       <ChevronLeft className="h-4 w-4" />
                     </Button>
-                    <span className="text-sm px-2 tabular-nums" data-testid="po-pager-status">
+                    <span className="rounded-md bg-muted py-0.5 font-medium text-sm px-2 tabular-nums" data-testid="po-pager-status">
                       {page} / {pagination.totalPages}
                     </span>
                     <Button

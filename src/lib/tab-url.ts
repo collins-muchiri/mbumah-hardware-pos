@@ -154,8 +154,23 @@ export function parseInitialDateRange(search: string): InitialDateRange {
  * view/type/from/to.
  */
 export function parseInitialPage(search: string, fallback = 1): number {
+  return parseInitialNamedPage(search, 'page', fallback);
+}
+
+/**
+ * v2.324.0 — THE ROSTER'S OWN WORD: the same never-strand shape law,
+ * param-NAMEd. The deep-link collision analysis (Task 44) showed two
+ * desks reading the SAME `?page=` word leak across client-side tab
+ * switches — loyalty's one-writer law keeps `page`, so a second desk
+ * speaks a DESK-PREFIXED word (`po-page`) through THIS parser instead
+ * of a copy. The law is unchanged: digits-only positive integer seeds,
+ * anything missing/malformed/zero/negative answers the fallback, and a
+ * page past the desk's end is the wire's honest empty (shape, not
+ * existence). `parseInitialPage` delegates here — ONE home, two words.
+ */
+export function parseInitialNamedPage(search: string, param: string, fallback = 1): number {
   try {
-    const raw = toParams(search).get('page');
+    const raw = toParams(search).get(param);
     if (!raw || !/^\d+$/.test(raw)) return fallback;
     const page = parseInt(raw, 10);
     return page >= 1 ? page : fallback;

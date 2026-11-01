@@ -99,6 +99,18 @@ confirm it, and neither requires shell access:
   `/?tab=loyalty&view=transactions&type=EXPIRE`, and the loyalty desk
   reads `?type=` on mount (the tab-url vocabulary `view` already spoke),
   so the pulse's counts land on the exact rows they summarize.
+- **v2.324.0**: the roster speaks its own word — the QA burst proved the
+  Task 44 handover's named gap live (a body-less DELETE on the PO detail
+  route answered a 500 "Unexpected end of JSON input"), so the shared
+  PUT/DELETE door now reads the body in a try/catch and answers **400**
+  with the actions hint (THE BODY IS HONEST ABOUT ITS SHAPE). The Task 44
+  deep-link collision analysis's safe path shipped: `?po-page=N` seeds the
+  roster's pager through a param-NAMEd `parseInitialNamedPage` (one home,
+  `parseInitialPage` delegates; the desk reads on mount only — loyalty
+  keeps `?page=`). The past-the-end face wears the amber card (icon + why
+  + way back; `po-past-end-card`/`po-past-end-hint`), and the census slots
+  and pager status ride a pill wardrobe with the v2.323 desk-voice pin
+  intact.
 - **v2.323.0**: the roster joins the truth — the start-of-round sweep for
   the census arithmetic class found the purchase-order roster speaking it
   (and its wire door still raw-`parseInt`-ing page/limit — the loyalty

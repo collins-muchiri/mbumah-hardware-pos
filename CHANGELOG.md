@@ -1,3 +1,21 @@
+## [2.324.0] The roster speaks its own word
+
+The v2.324.0 QA burst proved the Task 44 handover's named gap live: a body-less DELETE on the purchase-order detail route answered HTTP 500 with "Unexpected end of JSON input" — a CLIENT mistake (a request without a body cannot name its action) wearing a SERVER-crash status. And the Task 44 deep-link collision analysis named the safe path for a second desk's address-bar word. This release ships both, and dresses the roster's honest voices.
+
+### Fixed
+- **THE BODY'S DOOR** (`src/app/api/purchase-orders/[id]/route.ts`): the shared PUT/DELETE handler's `request.json()` rode into a `SyntaxError` on an empty or malformed body and the error boundary answered a 500 for what is a client mistake (the live QA burst proved it: DELETE without a body → 500 "Unexpected end of JSON input"). The door now reads the body in a try/catch: an empty or malformed body answers **400** with the actions hint — the same voice the no-valid-action fallback speaks ("Use {"status": "..."} for a status change, {"action": "receive", ...} for a goods receipt, or {"action": "delete"} to delete"). THE BODY IS HONEST ABOUT ITS SHAPE; the delete dispatch's status and receipts guards stand untouched.
+
+### Added
+- **THE ROSTER'S OWN WORD** (`src/lib/tab-url.ts` + `src/app/(shell)/tabs/purchase-orders-tab.tsx`): the roster's pager answers the address bar — `?po-page=2` lands the desk on the wire's second page. The DESK-PREFIXED word is the Task 44 collision analysis's own safe path (two desks reading the SAME `?page=` word leak across client-side tab switches — loyalty's one-writer law keeps `page`, so the roster speaks its own). The parser is ONE home: `parseInitialNamedPage(search, param, fallback)` carries the v2.320 shape law (digits-only positive integer seeds; anything missing, malformed, zero, negative answers 1; a page past the end is the wire's honest empty) and `parseInitialPage` delegates to it. The desk only ever READS `po-page` on mount — the pager's own buttons move the state afterwards; the bar's word is the LANDING page, never rewritten.
+
+### Styling
+- **THE FACE WEARS THE AMBER** (`purchase-orders-tab.tsx`): the past-the-end face is attention, not error (the red AlertTriangle block above owns error), so it wears the house's amber card — the History icon, the honest line, a NEW why line ("The link may be stale — rows were deleted or the ledger shrank since it was made." `po-past-end-hint`), and the way back in the same wardrobe. The testids keep their names — the voice changed clothes, not identity.
+- **THE CENSUS WEARS THE PILL**: both census slots ride a `rounded-full bg-muted/60` pill and the pager's page counter a `rounded-md bg-muted` pill — the digits stay tabular and the v2.323 desk-voice pin still holds byte-for-byte (the class order kept it).
+
+### Tests
+- `src/tests/po-deep-link-v2324.test.ts` (NEW, 19 pins): the body door (try/catch structure, the gone-bare-assign pin, the 400 + hint bytes, the proof comment, the delete guards still standing), the named parser's truth table + param isolation (one desk's word never reads another's param), the mount-only one-writer law (no replaceState/pushState writes `po-page`), the collision law (loyalty keeps `page`, the roster speaks `po-page`), the amber card's bytes, and the pill wardrobe with the v2.323 desk-voice pins intact.
+- `verify:v2-324-0` wired; the walk re-anchors the treadmill (v2.324.0 pins + the unread-counter cascade).
+
 ## [2.323.0] The roster joins the truth
 
 The v2.322.0 live QA walk caught the LOYALTY ledger's census lying on a page past the end — and this round's start-of-round sweep (`rg` for the `(page - 1) * limit` arithmetic class outside loyalty) found the one other UI desk speaking the same arithmetic: the purchase-order roster. Worse, the roster's wire door still read its pagination with raw `parseInt` — the exact 500 class the loyalty door's QA walk proved (`?page=abc` rode NaN into Prisma's `skip`). The roster joins the truth: same laws, same voices.
