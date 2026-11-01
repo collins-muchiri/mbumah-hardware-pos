@@ -9,7 +9,7 @@ import {
   Minus, BarChart3, ChevronUp, ChevronDown, ChevronsUpDown,
   Download, History, RotateCcw, X,
   Filter, ChevronRight, Tag, Palette, Zap, ShoppingCart, Info,
-  MessageCircle, RefreshCw, Pencil, Settings2, Check, PackagePlus
+  MessageCircle, RefreshCw, Pencil, Settings2, Check, PackagePlus, Link2
 } from 'lucide-react';
 
 import { useAppStore, useAuthStore } from '@/lib/stores';
@@ -23,6 +23,7 @@ import {
 } from '@/lib/api';
 import { formatQtyWithUnit } from '@/lib/utils/financialMath';
 import { unitLabel } from '@/lib/units';
+import { parseInitialNamedMember } from '@/lib/tab-url';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -175,6 +176,28 @@ function StockStatusBadge({ product }: { product: ProductListItem }) {
   );
 }
 
+// v2.329.0 THE STOCK LENS'S OWN WORD — the inventory desk's stock filter
+// answers the address bar too: `?inv-stock=low` lands the desk with the
+// low-stock lens already chosen (the bookmark/QA word — the roster's
+// `?po-status=` law, one release later, on the next desk). The law is
+// MEMBERSHIP, ONE home (`parseInitialNamedMember`): the value must name
+// a lens the desk actually offers — case-sensitive (the desk's own words
+// are lowercase; `LOW` is an unknown word, not a clever match) — and
+// anything missing or unknown answers 'all' (never stranded). The word
+// is desk-prefixed per the Task 44 collision law: a desk-prefixed word
+// can never leak across client-side tab switches, and the bare `?stock=`
+// word has NO address-bar reader anywhere in src/ (the sort keys and
+// state comparisons containing "stock" are not URL words —
+// collision-checked at round start). Read-on-mount ONLY (the one-writer
+// law): the landing word is the LANDING lens, never rewritten; the
+// Select, the banner buttons and the clear button own the state after.
+export const INV_STOCK_FILTERS = ['all', 'ok', 'low', 'out'] as const;
+
+function initialStockLens(): string {
+  if (typeof window === 'undefined') return 'all';
+  return parseInitialNamedMember(window.location.search, 'inv-stock', INV_STOCK_FILTERS, 'all');
+}
+
 export default function InventoryTab() {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -184,7 +207,17 @@ export default function InventoryTab() {
   const productsScrollRef = useRef<HTMLDivElement | null>(null);
   const [addProductOpen, setAddProductOpen] = useState(false);
   const [editProduct, setEditProduct] = useState<ProductListItem | null>(null);
-  const [stockFilter, setStockFilter] = useState<string>('all');
+  // v2.329.0 THE STOCK LENS'S OWN WORD — the seed reads `?inv-stock=`
+  // (membership law, one home); a hand-driven Select afterwards is the
+  // human's truth.
+  const [stockFilter, setStockFilter] = useState<string>(initialStockLens);
+  // v2.329.0 THE LANDING WORD — the address-bar word the desk answered at
+  // mount ('all' when the landing carried no lens). The chip speaks it
+  // ONCE: dismissed, hand-changed, or cleared, the landing is over and
+  // the chip retires — an honest face never claims a landing that is
+  // done (the roster's indigo chip law, worn in the lens's amber).
+  const [landedStockLens] = useState<string>(initialStockLens);
+  const [landingLive, setLandingLive] = useState(true);
   const [adjustStockProduct, setAdjustStockProduct] = useState<ProductListItem | null>(null);
   const [stockAdjustAmount, setStockAdjustAmount] = useState(0);
   const [stockAdjustReason, setStockAdjustReason] = useState('');
@@ -800,11 +833,11 @@ export default function InventoryTab() {
           </div>
           <div className="flex gap-2">
             {outOfStockCount > 0 && (
-              <Button variant="outline" size="sm" className="h-7 text-xs border-red-300 dark:border-red-700 text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30" onClick={() => setStockFilter('out')}>
+              <Button variant="outline" size="sm" className="h-7 text-xs border-red-300 dark:border-red-700 text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30" onClick={() => { setStockFilter('out'); setLandingLive(false); }}>
                 View Out of Stock
               </Button>
             )}
-            <Button variant="outline" size="sm" className="h-7 text-xs border-amber-300 dark:border-amber-700" onClick={() => setStockFilter(lowStockCount > 0 ? 'low' : 'out')}>
+            <Button variant="outline" size="sm" className="h-7 text-xs border-amber-300 dark:border-amber-700" onClick={() => { setStockFilter(lowStockCount > 0 ? 'low' : 'out'); setLandingLive(false); }}>
               View Issues
             </Button>
           </div>
@@ -901,7 +934,16 @@ export default function InventoryTab() {
             ))}
           </SelectContent>
         </Select>
-        <Select value={stockFilter} onValueChange={setStockFilter}>
+        <Select
+          value={stockFilter}
+          onValueChange={(v) => {
+            setStockFilter(v);
+            // v2.329.0: a hand-driven change retires the landing word —
+            // the chip speaks the ADDRESS BAR's landing, never the
+            // human's choice.
+            setLandingLive(false);
+          }}
+        >
           <SelectTrigger className="w-full sm:w-40"><SelectValue placeholder="Stock Status" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Stock</SelectItem>
@@ -949,6 +991,32 @@ export default function InventoryTab() {
           </Tooltip>
         </TooltipProvider>
 
+        {/* v2.329.0 THE LANDING WORD — the desk answers the address bar
+            OUT LOUD: a link that landed the lens pre-filtered wears a chip
+            naming the word it answered (?inv-stock=…), styled in the lens's
+            amber family (the low-stock banner's own family) with dark-mode
+            variants, the Link2 icon, a `title` tooltip, and a one-press
+            dismissal that clears the lens the word seeded. The chip retires
+            the moment the human owns the filter — a hand-driven Select or
+            banner button, the chip's own dismissal, or the honest
+            clear-all. `data-testid="inv-landing-word"` — the QA walk's
+            handle. */}
+        {landingLive && landedStockLens !== 'all' && stockFilter === landedStockLens && (
+          <button
+            type="button"
+            onClick={() => {
+              setStockFilter('all');
+              setLandingLive(false);
+            }}
+            className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-amber-200 bg-amber-50 text-amber-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300 dark:hover:bg-amber-500/20"
+            data-testid="inv-landing-word"
+            title="The desk landed with this filter from the address bar — press to clear it"
+          >
+            <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+            <span className="tabular-nums">landed ?inv-stock={landedStockLens}</span>
+            <X className="h-3 w-3 shrink-0 opacity-60" aria-hidden="true" />
+          </button>
+        )}
         <Button
           className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-sm"
           onClick={() => setAddProductOpen(true)}
@@ -1288,7 +1356,7 @@ export default function InventoryTab() {
                             </p>
                           </div>
                           {(searchQuery || stockFilter !== 'all' || selectedCategory !== 'all') ? (
-                            <Button variant="outline" size="sm" className="text-xs mt-1" onClick={() => { setSearchQuery(''); setStockFilter('all'); setSelectedCategory('all'); }}>
+                            <Button variant="outline" size="sm" className="text-xs mt-1" onClick={() => { setSearchQuery(''); setStockFilter('all'); setSelectedCategory('all'); setLandingLive(false); }}>
                               Clear Filters
                             </Button>
                           ) : (

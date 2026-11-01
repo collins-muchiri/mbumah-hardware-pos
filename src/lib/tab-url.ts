@@ -194,7 +194,9 @@ export function parseInitialNamedPage(search: string, param: string, fallback = 
  * round start: the bare `?status=` word belongs to the /hr/performance
  * route, a different URL space, and no shell reader of `po-status`
  * exists). ONE home, many desks — the next desk's filter word inherits
- * the law instead of a copy.
+ * the law instead of a copy. v2.329.0 — THE PROMISE KEPT: the inventory
+ * lens speaks it as its desk-prefixed `inv-stock` (the same parser, zero
+ * new bytes of law — the second desk to inherit the home).
  */
 export function parseInitialNamedMember<V extends string>(
   search: string,
