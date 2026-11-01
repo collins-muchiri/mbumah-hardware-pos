@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.333.0',
+    title: 'The ledger answers the address bar',
+    bullets: [
+      'The transactions desk now speaks to the address bar too: bookmark or share ?txn-pay=CASH (or MPESA / DEBT) and the ledger lands with that payment-method lens already chosen — the sixth word of the vocabulary, inherited through the same one-home parser, zero new bytes of law.',
+      'The landing is visible here too: the lens wears its chip in the ledger\u2019s own violet, and it retires the moment you press a quick chip or dismiss it — an honest face, never a stale one.',
+      'Case-sensitive by law: the lens\u2019s words are UPPERCASE, so ?txn-pay=cash is an unknown word and answers All Methods — a stale bookmark can never strand the ledger in a lens it does not offer.',
+    ],
+  },
+  {
     version: '2.332.0',
     title: 'The purchase-order lens answers the address bar',
     bullets: [

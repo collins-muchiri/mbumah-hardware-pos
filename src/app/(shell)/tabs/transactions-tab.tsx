@@ -5,13 +5,14 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
   ShoppingBag, Search, Download, ChevronDown, ChevronUp,
-  CalendarDays, TrendingUp, Hash, CreditCard, Smartphone, Banknote, Wallet,
+  CalendarDays, TrendingUp, Hash, CreditCard, Smartphone, Banknote, Wallet, Link2,
   Filter, FileText, RotateCcw, Ban, Eye, Printer, AlertTriangle, Receipt, X, MessageCircle,
   Mail, Send, Loader2, MessageSquare, PackageOpen, ShieldAlert, CheckCircle2, Sparkles,
 } from 'lucide-react';
 
 import { transactionsApi, whatsappApi, formatKES, formatDateTime, type TransactionItem, type SaleItemDetail, type ReceiptDistributionResult, type RefundableLine, type RefundableLinesResult, type RefundResult } from '@/lib/api';
 import { composeDailyRevenueVoice } from '@/lib/report-voices';
+import { parseInitialNamedMember } from '@/lib/tab-url';
 import { useAppStore, useAuthStore } from '@/lib/stores';
 import { hasFeaturePermission } from '@/lib/permissions';
 import { getStoreInfo, getLogoUrl, COMPANY } from '@/lib/store-info';
@@ -1183,6 +1184,26 @@ function TransactionRow({
   );
 }
 
+// v2.333.0 THE LEDGER'S OWN WORD — the transactions desk's payment-method
+// lens answers the address bar too: `?txn-pay=CASH` lands the ledger with
+// the cash lens already chosen (the sixth word of the vocabulary, and the
+// desk with the QUICK-CHIPS face inherits the membership law instead of a
+// copy). The law is MEMBERSHIP, ONE home (`parseInitialNamedMember`): the
+// value must name a lens the desk actually offers — case-sensitive (the
+// lens's own words are UPPERCASE, so `cash` is an unknown word, not a
+// clever match) — and anything missing or unknown answers 'all' (never
+// stranded). The word is desk-prefixed per the Task 44 collision law: a
+// desk-prefixed word can never leak across client-side tab switches.
+// Collision-checked at round start: no reader of `txn-pay` exists anywhere in src/.
+// Read-on-mount ONLY (the one-writer law): the landing word is the
+// LANDING lens, never rewritten; the quick chips own the state after.
+export const TXN_PAY_FILTERS = ['all', 'CASH', 'MPESA', 'DEBT'] as const;
+
+function initialTxnPay(): string {
+  if (typeof window === 'undefined') return 'all';
+  return parseInitialNamedMember(window.location.search, 'txn-pay', TXN_PAY_FILTERS, 'all');
+}
+
 export default function TransactionsTab() {
   const currentStoreId = useAppStore((s) => s.currentStoreId);
   const [searchQuery, setSearchQuery] = useState('');
@@ -1191,7 +1212,22 @@ export default function TransactionsTab() {
   const [customDateFrom, setCustomDateFrom] = useState('');
   const [customDateTo, setCustomDateTo] = useState('');
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
-  const [paymentFilter, setPaymentFilter] = useState<string>('all');
+  // v2.333.0: the payment lens's seed reads `?txn-pay=` (membership law,
+  // one home); a hand-driven quick chip afterwards is the human's truth.
+  const [paymentFilter, setPaymentFilter] = useState<string>(initialTxnPay);
+  // v2.333.0 THE LANDING WORD — the address-bar word the desk answered at
+  // mount ('all' when the landing carried no lens). The chip speaks it
+  // ONCE: dismissed or hand-changed, the landing is over and the chip
+  // retires — an honest face never claims a landing that is done.
+  const [landedTxnPay] = useState<string>(initialTxnPay);
+  const [txnLandingLive, setTxnLandingLive] = useState(true);
+
+  // v2.333.0: a hand-driven change retires the landing word — the chip
+  // speaks the ADDRESS BAR's landing, never the human's next choice.
+  const chooseTxnPay = (value: string) => {
+    setPaymentFilter(value);
+    setTxnLandingLive(false);
+  };
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [amountFilterMin, setAmountFilterMin] = useState('');
   const [amountFilterMax, setAmountFilterMax] = useState('');
@@ -1563,10 +1599,40 @@ export default function TransactionsTab() {
           {/* Payment method filter */}
           <div className="flex flex-wrap items-center gap-2">
             <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
+            {/* v2.333.0 THE LANDING WORD CHIP, SIXTH WEARING — a link
+                that landed the ledger pre-filtered wears a chip naming
+                the word it answered (?txn-pay=…), styled in the lens's
+                own VIOLET family (the sixth family of the vocabulary —
+                indigo/amber/rose/emerald/cyan now gain the ledger's
+                violet) with dark-mode variants, the Link2 icon, a
+                `title` tooltip, and a one-press dismissal that clears
+                the lens the word seeded. The chip retires the moment
+                the human owns the filter — a hand-driven quick chip or
+                the chip's own dismissal.
+                `data-testid="txn-landing-word"` — the QA walk's
+                handle. */}
+            {txnLandingLive && landedTxnPay !== 'all' && paymentFilter === landedTxnPay && (
+              <button
+                type="button"
+                onClick={() => {
+                  setPaymentFilter('all');
+                  setTxnLandingLive(false);
+                }}
+                className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-violet-200 bg-violet-50 text-violet-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-violet-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 dark:border-violet-500/30 dark:bg-violet-500/10 dark:text-violet-300 dark:hover:bg-violet-500/20"
+                data-testid="txn-landing-word"
+                title="The desk landed with this filter from the address bar — press to clear it"
+              >
+                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+                <span className="tabular-nums">landed ?txn-pay={landedTxnPay}</span>
+                <X className="h-3 w-3 shrink-0 opacity-60" aria-hidden="true" />
+              </button>
+            )}
+            {/* v2.333.0: the hand-driven quick chips are voice 2 — a
+                hand-driven change retires the landing word. */}
             {['all', 'CASH', 'MPESA', 'DEBT'].map((method) => (
               <button
                 key={method}
-                onClick={() => setPaymentFilter(method)}
+                onClick={() => chooseTxnPay(method)}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all flex items-center gap-1 ${
                   paymentFilter === method
                     ? 'bg-primary text-primary-foreground border-primary shadow-sm'
