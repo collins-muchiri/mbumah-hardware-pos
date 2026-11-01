@@ -105,6 +105,29 @@ async function getLoyaltyTransactionsHandler(...args: unknown[]): Promise<Respon
     _count: true,
   });
 
+  // v2.319.0 THE PER-TYPE TRUTH — one groupBy answers every bucket the
+  // ledger can hold, over ALL matching rows (the `data` page below is
+  // just its first slice; a desk that sums the page lies when the ledger
+  // outgrows it — the baseline burst proved the lie live: 120 seeded
+  // rows, the page-1 sum read 700 while the wire held 1,140, and the
+  // redeem card read 0 while the wire said 360 because the redeem rows
+  // had fallen off page one). The two sign-based aggregates above stay
+  // EXACTLY as they were (additive law): older readers keep their
+  // numbers unchanged. Absent type = no rows of that kind.
+  const bucketRows = await db.loyaltyTransaction.groupBy({
+    by: ['transactionType'],
+    where,
+    _sum: { points: true },
+    _count: { _all: true },
+  });
+  const buckets: Record<string, { points: number; count: number }> = {};
+  for (const b of bucketRows) {
+    buckets[b.transactionType] = {
+      points: b._sum.points || 0,
+      count: b._count._all,
+    };
+  }
+
   return Response.json({
     success: true,
     data: transactions,
@@ -122,6 +145,9 @@ async function getLoyaltyTransactionsHandler(...args: unknown[]): Promise<Respon
       totalEarnCount: earnedSummary._count,
       totalPointsRedeemed: Math.abs(redeemedSummary._sum.points || 0),
       totalRedeemCount: redeemedSummary._count,
+      // v2.319.0 — the per-type ledger (EARN/BONUS/REDEEM/EXPIRE/ADJUST,
+      // each { points, count }); additive to the two totals above.
+      buckets,
     },
     pagination: {
       page,

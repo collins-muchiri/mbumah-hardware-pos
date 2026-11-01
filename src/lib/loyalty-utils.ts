@@ -336,3 +336,20 @@ export function parseClawbackOriginalReceipt(
   const match = reason.match(/^Refund clawback for (\S+)/);
   return match ? (match[1] ?? null) : null;
 }
+
+/**
+ * v2.319.0 THE SCOPE LABEL — the loyalty desk's two points cards wear the
+ * wire's own summary, which is scoped by whatever the query applied (the
+ * type filter, the date window). A card that changes under a filter must
+ * SAY its scope — the baseline burst caught the silent zero (a scoped
+ * query showed "Points Issued 0" with no word as to why). Pure so the
+ * desk and the tests speak the same truth table; the unscoped voice is
+ * 'all rows' (the aggregate really does cover the store's whole ledger).
+ */
+export function pointsScopeLabel(windowActive: boolean, typeFilter: string): string {
+  const pieces: string[] = [];
+  if (windowActive) pieces.push('window');
+  const type = String(typeFilter || '').trim().toUpperCase();
+  if (type && type !== 'ALL') pieces.push(type);
+  return pieces.length > 0 ? pieces.join(' · ') : 'all rows';
+}
