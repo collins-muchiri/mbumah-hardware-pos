@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.326.0',
+    title: 'The door reads every room',
+    bullets: [
+      'The honest-body door swept the POST routes — 67 API routes (products, invoices, debt, mpesa, shifts, whatsapp and the rest of the write surface) now answer 400 when a request body is unreadable, never a server-crash 500.',
+      'The org console\u2019s login dialog now announces its mistakes: the error speaks with an icon in light and dark mode, clears the moment you fix what was wrong, and an empty sign-in is answered before the network round-trip.',
+      'Journal voids can no longer mislead: a malformed reason body answers "your body was unreadable" instead of "no reason given", and the login dialog\u2019s honest gate wears the same law.',
+    ],
+  },
+  {
     version: '2.325.0',
     title: 'The body door reads every room',
     bullets: [

@@ -10,6 +10,7 @@ import { withSessionAuth, FINANCIAL_ROLES } from '@/lib/auth';
 // `newBalance += parseFloat(...)` on `account.currentBalance` silently
 // STRING-CONCATENATED ("1000.00" + 5 → "1000.005") into the ledger.
 import { toDec, toNum, round2 } from '@/lib/utils/financialMath';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 // Typed in-transaction failure for the conditional WITHDRAWAL claim (count 0).
 // Caught in the handler and surfaced as the client-facing 400 - a failed
@@ -125,7 +126,12 @@ async function getBankTransactionsHandler(...args: unknown[]): Promise<Response>
 
 async function createBankTransactionHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const {
     bankAccountId,

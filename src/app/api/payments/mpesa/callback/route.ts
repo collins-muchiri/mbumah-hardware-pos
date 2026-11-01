@@ -36,6 +36,7 @@ import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { LogSeverity, LogComponent, PaymentStatus } from '@/lib/types';
 import { isRateLimited } from '@/lib/rate-limit';
 import { getClientIp } from '@/lib/security';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -220,7 +221,12 @@ async function mpesaCallbackHandler(...args: unknown[]): Promise<Response> {
   const rejection = await authorizeCallback(request);
   if (rejection) return rejection;
 
-  const body: MpesaCallbackBody = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody<MpesaCallbackBody>(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
   const data = extractCallbackData(body);
 
   // F6-1 - reject the flat mock shape outside explicitly-enabled environments.

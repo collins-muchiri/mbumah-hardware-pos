@@ -23,6 +23,7 @@ import {
 // (HALF_EVEN) rounding for all persisted filing totals.
 import { grossRevenue } from '@/lib/profit';
 import { KES, Money } from '@/lib/money';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -122,7 +123,12 @@ async function createTaxFilingHandler(...args: unknown[]): Promise<Response> {
   // session (unlike requireStoreAccess), so the session is re-resolved here -
   // the established in-handler pattern (gift-cards / debt / data-exports).
   const session: AuthSession | null = await getSessionFromRequest(request);
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const {
     storeId,

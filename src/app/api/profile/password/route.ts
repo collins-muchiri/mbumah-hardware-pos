@@ -28,6 +28,7 @@ import { LogSeverity, LogComponent } from '@/lib/types';
 import { withSessionAuth, getSessionFromRequest } from '@/lib/auth';
 import { sendEmail, NotificationType } from '@/lib/email-service';
 import { passwordChangedTemplate } from '@/lib/email-templates';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -51,7 +52,12 @@ async function changePasswordHandler(...args: unknown[]): Promise<Response> {
       { status: 401 }
     );
   }
-  const body = (await request.json()) as ChangePasswordBody;
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body as ChangePasswordBody;
 
   const currentPassword =
     typeof body.currentPassword === 'string' ? body.currentPassword : '';

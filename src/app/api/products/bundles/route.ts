@@ -7,6 +7,7 @@ import { generateSKU } from '@/lib/helpers';
 import { LogSeverity, LogComponent } from '@/lib/types';
 import { withSessionAuth, MANAGER_PLUS_ROLES } from '@/lib/auth';
 import { toNum } from '@/lib/decimal-safe';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -98,7 +99,12 @@ async function getBundlesHandler(...args: unknown[]): Promise<Response> {
 
 async function createBundleHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const {
     storeId,

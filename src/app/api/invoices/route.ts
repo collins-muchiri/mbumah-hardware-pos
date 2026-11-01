@@ -8,6 +8,7 @@ import { withSessionAuth } from '@/lib/auth';
 import Decimal from 'decimal.js';
 import { toDec, max0 } from '@/lib/utils/financialMath';
 import { getVatRatePercent } from '@/lib/vat-settings';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -170,7 +171,12 @@ async function getInvoicesHandler(...args: unknown[]): Promise<Response> {
 
 async function createInvoiceHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const {
     storeId,

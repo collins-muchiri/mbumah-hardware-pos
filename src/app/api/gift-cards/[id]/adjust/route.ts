@@ -9,6 +9,7 @@ import { withSessionAuth, FINANCIAL_ROLES } from '@/lib/auth';
 // STRING - `giftCard.currentBalance + amount` used to STRING-CONCATENATE
 // ("500.00" + 100 → "500.00100") instead of adding.
 import { toDec, round2 } from '@/lib/utils/financialMath';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,7 +21,12 @@ async function adjustGiftCardHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   const context = args[1] as RouteContext;
   const { id } = await context.params;
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const { amount, reason } = body;
 

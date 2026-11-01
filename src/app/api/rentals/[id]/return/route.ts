@@ -13,6 +13,7 @@ import { getSessionFromRequest } from '@/lib/auth';
 // `rental.securityDeposit - totalCharges` coerced through float (and the
 // charge line fed a Decimal into a number-typed helper).
 import { toDec, round2 } from '@/lib/utils/financialMath';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,7 +25,12 @@ async function processRentalReturnHandler(...args: unknown[]): Promise<Response>
   const request = args[0] as NextRequest;
   const context = args[1] as RouteContext;
   const { id } = await context.params;
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const {
     damageAssessment,

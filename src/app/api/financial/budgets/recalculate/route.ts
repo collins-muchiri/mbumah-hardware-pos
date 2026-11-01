@@ -10,12 +10,18 @@ import { LogComponent } from '@/lib/types';
 import { withFinancialAuth, FINANCIAL_ROLES } from '@/lib/auth';
 import { recalculateBudgetActuals } from '@/lib/accounting-helpers';
 import { APIError } from '@/lib/api-error';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
 async function recalculateHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const { storeId, periodId } = body as { storeId?: string; periodId?: string };
 

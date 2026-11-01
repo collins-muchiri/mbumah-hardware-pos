@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getEtimsConfig } from '@/lib/etims-service';
 import { withErrorBoundary } from '@/lib/logger';
 import { withSessionAuth, MANAGER_PLUS_ROLES } from '@/lib/auth';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,7 +28,12 @@ async function getEtimsSettingsHandler(..._args: unknown[]): Promise<Response> {
 async function putEtimsSettingsHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as Request;
   try {
-    const body = await request.json();
+    // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+    const door = await readJsonBody(request);
+    if (!door.ok) {
+      return bodyDoorRejected();
+    }
+    const body = door.body;
     const { sandbox, tin, branchId, bvsn, deviceSerial } = body;
 
     // In a real implementation, these would be saved to environment or database

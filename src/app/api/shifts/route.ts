@@ -5,6 +5,7 @@ import { db } from '@/lib/db';
 import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { LogSeverity, LogComponent, UserRole } from '@/lib/types';
 import { withSessionAuth } from '@/lib/auth';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -73,7 +74,12 @@ async function getShiftsHandler(...args: unknown[]): Promise<Response> {
 
 async function createShiftHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const { storeId, userId, startingCash } = body;
 

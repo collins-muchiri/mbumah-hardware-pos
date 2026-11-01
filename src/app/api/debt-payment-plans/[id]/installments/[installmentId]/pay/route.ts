@@ -25,6 +25,7 @@ import { toNumber, recalculatePlanTotals, getPlanStatus, serializePlanRow, seria
 // conditional claims (updateMany + count check), mirroring the R3 pattern
 // in src/app/api/debt/route.ts.
 import { toDec, round2 } from '@/lib/utils/financialMath';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 // Typed in-transaction conflict for the optimistic claims (count 0).
 // Caught in the handler → client-facing 400 (same pattern as
@@ -51,7 +52,12 @@ async function payInstallmentHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   const context = args[1] as RouteContext;
   const { id, installmentId } = await context.params;
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const { amount, paymentMethod, paymentReference } = body ?? {};
 

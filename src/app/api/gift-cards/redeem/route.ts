@@ -31,6 +31,7 @@ import {
   assertBodyStoreScope,
 } from '@/lib/auth';
 import { toDec, round2 } from '@/lib/utils/financialMath';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 class InsufficientGiftCardBalanceError extends Error {
   constructor(message: string) {
@@ -51,7 +52,12 @@ interface RedeemByCodeBody {
 
 async function redeemGiftCardByCodeHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
-  const body = (await request.json()) as RedeemByCodeBody;
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body as RedeemByCodeBody;
 
   // 1. Validate input
   const rawCode = typeof body.code === 'string' ? body.code.trim() : '';

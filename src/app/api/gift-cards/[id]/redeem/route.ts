@@ -10,6 +10,7 @@ import { withSessionAuth } from '@/lib/auth';
 // coerced through float, and the absolute-balance write was a double-spend
 // race (two concurrent redemptions both passed the same stale read).
 import { toDec, round2 } from '@/lib/utils/financialMath';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 // Typed in-transaction failure for the atomic balance claim (count 0).
 // Caught in the handler → client-facing 400 (same pattern as
@@ -31,7 +32,12 @@ async function redeemGiftCardHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   const context = args[1] as RouteContext;
   const { id } = await context.params;
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const { amount, transactionId, redeemedBy, notes } = body;
 

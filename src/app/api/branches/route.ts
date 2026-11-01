@@ -10,6 +10,7 @@ import { db } from '@/lib/db';
 import { withErrorBoundary, systemLog } from '@/lib/logger';
 import { requireStoreAccess, OWNER_ROLES } from '@/lib/auth';
 import { normalizeBranchCode } from '@/lib/helpers';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -114,7 +115,12 @@ async function createBranchHandler(...args: unknown[]): Promise<Response> {
   }
 
   // 3. Parse & validate request body
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
   const { organizationId, name, location, address, phone, email, taxPin, status } = body;
 
   if (!name || !organizationId) {

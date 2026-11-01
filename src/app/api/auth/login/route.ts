@@ -37,6 +37,7 @@ import { verifyPassword, isLegacyPasswordHash } from '@/lib/password';
 import { sanitizeInput, getClientIp } from '@/lib/security';
 // v2.16.0 (subdomain workspaces): shared session cookie for cross-subdomain SSO.
 import { buildSessionCookieHeaders } from '@/lib/workspace/session-cookie';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 // Force this route to be dynamically rendered at request time.
 // This prevents Next.js from attempting to collect page data / statically
@@ -80,7 +81,12 @@ async function loginHandler(...args: unknown[]): Promise<Response> {
     // If it's missing/malformed, EnvValidationError is thrown and caught below.
     void env.DATABASE_URL;
 
-    const body = await request.json();
+    // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+    const door = await readJsonBody(request);
+    if (!door.ok) {
+      return bodyDoorRejected();
+    }
+    const body = door.body;
 
     // 1. Parse and validate input
     const validation = validateInput(loginSchema, body);

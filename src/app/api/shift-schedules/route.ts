@@ -20,6 +20,7 @@ import { db } from '@/lib/db';
 import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { withFinancialAuth, getSessionFromRequest } from '@/lib/auth';
 import { LogSeverity, LogComponent } from '@/lib/types';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 import {
   calculateShiftDurationHours,
   type ShiftScheduleStatus,
@@ -114,7 +115,12 @@ interface CreateBody {
 
 async function createScheduleHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
-  const body = (await request.json()) as CreateBody;
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body as CreateBody;
 
   const {
     storeId,

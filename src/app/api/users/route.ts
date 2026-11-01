@@ -14,6 +14,7 @@ import { createUserSchema, validateInput, STORE_BOUND_ROLES } from '@/lib/valida
 import { hasFeaturePermission, PERMISSION_DENIED_MESSAGES } from '@/lib/permissions';
 // v2.18.1 (branch-manager binding): tamper-evident audit entry on create.
 import { auditTrail } from '@/lib/audit-trail';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -100,7 +101,12 @@ async function createUserHandler(
   request: NextRequest,
   session: AuthSession
 ): Promise<Response> {
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const validation = validateInput(createUserSchema, body);
   if (!validation.success) {

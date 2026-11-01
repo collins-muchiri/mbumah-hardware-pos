@@ -13,6 +13,7 @@ import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { requireStoreAccess, type AuthSession } from '@/lib/auth';
 import { LogSeverity, LogComponent } from '@/lib/types';
 import crypto from 'crypto';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -120,7 +121,12 @@ async function createStoreTransferHandler(
   session: AuthSession,
   ..._args: unknown[]
 ): Promise<Response> {
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const {
     fromStoreId,

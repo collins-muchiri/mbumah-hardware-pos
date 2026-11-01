@@ -9,6 +9,7 @@ import { requireAuth, withSessionAuth, MANAGER_PLUS_ROLES } from '@/lib/auth';
 import { distributeReceipt } from '@/lib/receipt-distribution';
 import { APIError } from '@/lib/api-error';
 import { toNum } from '@/lib/decimal-safe';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -268,7 +269,12 @@ async function distributeReceiptHandler(
   request: NextRequest,
   session: { userId: string; storeId: string | null; role: string; email: string },
 ): Promise<Response> {
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
   const {
     transactionId,
     channel,

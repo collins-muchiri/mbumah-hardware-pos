@@ -12,7 +12,7 @@ import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, C
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import { CheckCheck, ChevronDown, ChevronUp, CloudOff, ExternalLink, FileText, History, Home, Keyboard, LogIn, Package, ScrollText, Sparkles, Terminal, Store } from 'lucide-react';
+import { AlertCircle, CheckCheck, ChevronDown, ChevronUp, CloudOff, ExternalLink, FileText, History, Home, Keyboard, Loader2, LogIn, Package, ScrollText, Sparkles, Terminal, Store } from 'lucide-react';
 import { CurrencySwitcher } from '@/components/currency-switcher';
 import { goHomeToPos } from '@/components/console/unified-console';
 import { APP_BUILD_LABEL, APP_VERSION } from '@/lib/version';
@@ -631,6 +631,13 @@ export function LoginDialog({ open, onOpenChange, onToast, onSignedIn }: {
   const [err, setErr] = useState<string | null>(null);
 
   const submit = async () => {
+    // THE HONEST GATE (v2.326.0): an empty submission is a client mistake —
+    // answer it inline before the network round-trip, in the same voice the
+    // server's door uses (a mistake is a polite rejection, never a crash).
+    if (!email.trim() || !password) {
+      setErr('Enter both your email and your password to sign in.');
+      return;
+    }
     setBusy(true); setErr(null);
     try {
       const res = await fetch('/api/auth/login', {
@@ -665,11 +672,30 @@ export function LoginDialog({ open, onOpenChange, onToast, onSignedIn }: {
           <DialogTitle className="flex items-center gap-2"><img src="/logo.webp" alt="" className="h-7 w-7 rounded-md" /> Sign in - Mbumah Hardware</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
-          <Input value={email} onChange={(e) => setEmail(e.target.value)} aria-label="Email" placeholder="you@mbumahhardware.co.ke" autoComplete="username" />
-          <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && submit()} aria-label="Password" placeholder="Password" autoComplete="current-password" />
-          {err && <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700">{err}</p>}
-          <Button className="w-full bg-orange-500 hover:bg-orange-600" onClick={submit} disabled={busy}>{busy ? 'Signing in...' : 'Sign in'}</Button>
-          <p className="text-center text-[10px] text-slate-400">Login is rate-limited (5 attempts / 15 minutes). Seeded demo accounts use password123 on local databases only.</p>
+          {/* THE HONEST ERROR FACE (v2.326.0): the login dialog now wears the
+              same law as the main LoginScreen — the mistake is announced
+              (role=alert + aria-live), carries an icon, survives dark mode,
+              and clears itself the moment the user edits what was wrong
+              (a stale error that outlives its cause is its own lie). */}
+          <Input value={email} onChange={(e) => { setEmail(e.target.value); if (err) setErr(null); }} aria-label="Email" placeholder="you@mbumahhardware.co.ke" autoComplete="username" />
+          <Input type="password" value={password} onChange={(e) => { setPassword(e.target.value); if (err) setErr(null); }} onKeyDown={(e) => e.key === 'Enter' && submit()} aria-label="Password" placeholder="Password" autoComplete="current-password" />
+          {err && (
+            <div role="alert" aria-live="assertive" data-testid="login-dialog-error" className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
+              <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              <span>{err}</span>
+            </div>
+          )}
+          <Button className="w-full bg-orange-500 hover:bg-orange-600" onClick={submit} disabled={busy}>
+            {busy ? (
+              <span className="inline-flex items-center gap-2">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+                Signing in...
+              </span>
+            ) : (
+              'Sign in'
+            )}
+          </Button>
+          <p className="text-center text-[10px] text-slate-400 dark:text-slate-500">Login is rate-limited (5 attempts / 15 minutes). Seeded demo accounts use password123 on local databases only.</p>
         </div>
       </DialogContent>
     </Dialog>

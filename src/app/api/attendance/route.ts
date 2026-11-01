@@ -15,6 +15,7 @@ import { toNum } from '@/lib/decimal-safe';
 import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { LogSeverity, LogComponent } from '@/lib/types';
 import { requireStoreAccess } from '@/lib/auth';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -104,7 +105,12 @@ async function clockInOutHandler(
   request: NextRequest,
   session: { userId: string; role: string; storeId: string | null; email: string }
 ): Promise<Response> {
-  const body = await request.json();
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  const door = await readJsonBody(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const { employeeId, storeId, action, location, notes } = body;
 
