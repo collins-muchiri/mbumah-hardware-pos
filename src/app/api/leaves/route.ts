@@ -24,6 +24,7 @@ import {
 } from '@/lib/hr/leave-notify';
 import { sendEmail } from '@/lib/email-service';
 import { validateLeaveAttachmentUrl } from '@/lib/hr/leave-attachment';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -230,7 +231,12 @@ async function createLeaveHandler(
   // supplies it — the narrower inline type was a copy waiting to drift).
   session: AuthSession
 ): Promise<Response> {
-  const body = await request.json();
+  // v2.325.0 THE BODY DOOR: an unreadable body is a client mistake — 400, never a 500.
+  const door = await readJsonBody<{ employeeId?: string; storeId?: string; leaveTypeId?: string; startDate?: string; endDate?: string; halfDay?: unknown; reason?: unknown; attachmentUrl?: string | null; emergencyContact?: unknown }>(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const { employeeId, storeId, leaveTypeId, startDate, endDate, halfDay, reason, attachmentUrl, emergencyContact } = body;
 
@@ -409,7 +415,12 @@ async function updateLeaveHandler(
   // supplies it — the narrower inline type was a copy waiting to drift).
   session: AuthSession
 ): Promise<Response> {
-  const body = await request.json();
+  // v2.325.0 THE BODY DOOR: an unreadable body is a client mistake — 400, never a 500.
+  const door = await readJsonBody<{ leaveRequestId?: string; action?: string; rejectionReason?: string | null }>(request);
+  if (!door.ok) {
+    return bodyDoorRejected('Use {"leaveRequestId": "...", "action": "APPROVE" | "REJECT" | "CANCEL" | "EDIT", "rejectionReason": "..."} (rejectionReason required for REJECT).');
+  }
+  const body = door.body;
 
   const { leaveRequestId, action, rejectionReason } = body;
 

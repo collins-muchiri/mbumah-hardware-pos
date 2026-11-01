@@ -13,6 +13,7 @@ import {
   reopenFinancialPeriod,
 } from '@/lib/accounting-helpers';
 import { APIError } from '@/lib/api-error';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -60,7 +61,12 @@ async function periodActionHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   const context = args[1] as RouteContext;
   const { id } = await context.params;
-  const body = await request.json();
+  // v2.325.0 THE BODY DOOR: an unreadable body is a client mistake — 400, never a 500.
+  const door = await readJsonBody<Record<string, unknown>>(request);
+  if (!door.ok) {
+    return bodyDoorRejected('Use {"action": "CLOSE" | "LOCK" | "REOPEN", "userId": "...", "reason": "..."}.');
+  }
+  const body = door.body;
 
   const { action, userId, reason } = body as {
     action?: 'CLOSE' | 'LOCK' | 'REOPEN';

@@ -27,6 +27,7 @@ import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { requireStoreAccess, type AuthSession } from '@/lib/auth';
 import { deriveTransferDestinationSku } from '@/lib/helpers';
 import { LogSeverity, LogComponent } from '@/lib/types';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -104,7 +105,12 @@ async function updateStoreTransferHandler(
 ): Promise<Response> {
   const context = args[0] as RouteContext;
   const { id } = await context.params;
-  const body = await request.json();
+  // v2.325.0 THE BODY DOOR: an unreadable body is a client mistake — 400, never a 500.
+  const door = await readJsonBody<{ items?: Array<{ productId: string; receivedQty?: number }>; notes?: string; [key: string]: unknown }>(request);
+  if (!door.ok) {
+    return bodyDoorRejected('Use {"items": [{"productId": "...", "receivedQty": 1}]} to receive, or {"notes": "..."} for a notes-only update.');
+  }
+  const body = door.body;
 
   const existing = (await db.storeTransfer.findUnique({
     where: { id },

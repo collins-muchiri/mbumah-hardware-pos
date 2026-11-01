@@ -5,6 +5,7 @@ import { type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { withErrorBoundary, systemLog } from '@/lib/logger';
 import { requireAuth, type AuthSession } from '@/lib/auth';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -61,7 +62,12 @@ async function updateSystemConfigHandler(
   request: NextRequest,
   session: AuthSession
 ): Promise<Response> {
-  const body = await request.json();
+  // v2.325.0 THE BODY DOOR: an unreadable body is a client mistake — 400, never a 500.
+  const door = await readJsonBody<{ id?: string; key?: string; value?: unknown }>(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
 
   const { id, key, value } = body;
 
