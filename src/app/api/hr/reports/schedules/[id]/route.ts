@@ -7,6 +7,7 @@
 // their own branch's schedule — org-wide is out of their scope).
 
 import { hrGuard } from '@/lib/hr/guard';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 import {
   deleteSchedule,
   toScheduleView,
@@ -21,7 +22,8 @@ const REPORT_ROLES = ['HR_MANAGER', 'STORE_OWNER', 'ACCOUNTANT', 'BRANCH_MANAGER
 export const PATCH = hrGuard('hr.report.branch', REPORT_ROLES)(
   async (request, session, context?: { params: Promise<{ id: string }> }) => {
     const { id } = (await context?.params) ?? { id: '' };
-    const body = (await request.json().catch(() => ({}))) as {
+    // THE SWALLOW DOOR: an unreadable body is a client mistake (v2.327.0):
+    const door = await readJsonBody<{
       reportKey?: string;
       frequency?: string;
       recipients?: unknown;
@@ -30,7 +32,11 @@ export const PATCH = hrGuard('hr.report.branch', REPORT_ROLES)(
       hourUtc?: number;
       active?: boolean;
       storeId?: string | null;
-    };
+    }>(request);
+    if (!door.ok) {
+      return bodyDoorRejected();
+    }
+    const body = door.body;
     try {
       const row = await updateSchedule(
         session.organizationId,

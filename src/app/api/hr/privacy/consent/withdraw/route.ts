@@ -7,6 +7,7 @@ import type { NextRequest } from 'next/server';
 import { hrGuard } from '@/lib/hr/guard';
 import { canDecideErasure, withdrawConsent } from '@/lib/hr/data-protection';
 import { toErrorResponse } from '@/lib/hr/stage-g-shared';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,7 +23,12 @@ export const POST = hrGuard('hr.report.branch')(async (request: NextRequest, ses
         { status: 403 },
       );
     }
-    const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+    // THE SWALLOW DOOR: an unreadable body is a client mistake (v2.327.0):
+    const door = await readJsonBody<Record<string, unknown>>(request);
+    if (!door.ok) {
+      return bodyDoorRejected();
+    }
+    const body = door.body as Record<string, unknown>;
     return Response.json({ success: true, data: await withdrawConsent(body, session) });
   } catch (error) {
     return toErrorResponse(error);

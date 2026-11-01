@@ -1,3 +1,21 @@
+## [2.327.0] The swallow census
+
+The v2.324–326 doors killed every DECLARING bare read (89 files across three rounds). What remained was the chained class — `.catch(() => ({}))` / `.catch(() => null)` — 40 sites that swallow a malformed body instead of throwing. The Task 48 census classified every one of them, and the classification is the release: not all swallows are lies.
+
+### Fixed
+- **THE SILENT-PROCEED CLASS IS DOORED (20 files)**: the swallows that made a malformed body become `{}` and RAN — hr assets/goals/discipline/performance (cycles + reviews, `[id]` + collections), hr privacy (consent grant/withdraw, erasure requests + execute/reject, legal hold), hr report schedules (create + update), self-service leave, and data-exports. A typo'd payload used to reach the service with every field undefined — the service then threw and the error boundary wore whatever face the throw produced, a message that lied about what went wrong (data-exports literally blamed the client for "missing" fields the client had sent). Every one now reads through `readJsonBody`: an unreadable body answers **400** with the door's voice.
+- **THE OPTIONAL-BODY CLASS READS THE NEW DOOR (4 files)**: `reminders/debt/process` + `/schedule` (`{ storeId? }` defaults to the session's store — a hard door would have 400'd the legitimate empty-body call), `admin/repair-journal-headers` (`dryRun` defaults true), and the chat read-marker (`{ messageId? }`). The NEW `readOptionalJsonBody` (one home, tested): an EMPTY body passes as `{}` — the legitimate call; a PRESENT unreadable body is still the client mistake and answers the door's 400. The old swallow conflated the two.
+
+### Added
+- **THE KEEP-LAW IS NOW GUARDED**: the other 14 swallows are the class done RIGHT — the catch feeds an explicit validation that already answers 400 (messages ×3 + kra ×2 + etims null-checks, stock-takes' required-field 400s, vouchers/send, bulk-seed's own honest 400, chat channels' zod `safeParse`, the refund schema's `validateInput`) — and the 2 DARAJA webhooks keep their leniency (the integration contract). `src/tests/swallow-census-v2327.test.ts` pins every one of the 16 so the pattern can't silently rot: a future editor who removes a validation trips the guard.
+
+### Styling
+- **THE RETENTION COUNTDOWN** (`src/components/data-exports/exports-history-table.tsx`): the wire keeps an export for 7 days, but the history row only said so AFTER the file was already gone — the Expired badge owns the past, never the future. Now every row's created-at wears a countdown pill: "expires in 6d" (muted), "expires in 30h", and an amber "expires soon" inside the last day — `data-testid="export-retention"`, tabular digits, dark-mode variants, the Clock icon. Nobody plans a report around data that is about to be swept.
+
+### Tests
+- `src/tests/swallow-census-v2327.test.ts` (NEW, 42 pins): the silent-proceed sweep (20 files: door import, marker, no chained read), the optional door's truth table (empty → `{}` ok; object ok; null/array/primitive/malformed → reject; the two doors differ exactly where they must), the keep-law guard (all 16 sites' validations pinned byte-for-byte), the door home's census note, and the retention countdown (helper + truth table + pill bytes).
+- `verify:v2-327-0` wired; the walk re-anchors the treadmill (v2.327.0 pins + the unread-counter cascade 217/218/219/250 → 218/219/220/251).
+
 ## [2.326.0] The door reads every room
 
 The v2.325.0 handover named the next door class itself: the sweep had covered PUT/DELETE/PATCH, but the POST routes — most of the API's write surface — still read their bodies bare. The v2.326 census (`scripts/census-post-door-v2326.py`: 157 route files scanned, every `await request.json()` classified) found **67 bare declaring reads across 67 files**, 54 try-wrapped safe reads, and 41 `.catch()` swallows. The bare reads were the same 500 class v2.324/25 killed — a client mistake riding `JSON.parse`'s `SyntaxError` into a server-crash status. This release replaces every one of them with the same tested home, converts the named catch-swallow outlier, and dresses the login dialog's error in the same honesty.

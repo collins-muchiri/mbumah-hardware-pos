@@ -28,6 +28,7 @@ import { round2 } from '@/lib/utils/financialMath';
 // client extension. Header re-derivation is a SANCTIONED correction flow, so
 // the writes run inside withImmutabilityBypass() (audited via systemLog below).
 import { withImmutabilityBypass } from '@/lib/db';
+import { readOptionalJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,7 +36,12 @@ const BALANCE_EPSILON = 0.009;
 const MAX_REPAIRS_PER_CALL = 50;
 
 async function repairJournalHeadersHandler(request: NextRequest): Promise<Response> {
-  const body = await request.json().catch(() => ({}));
+  // THE OPTIONAL SWALLOW DOOR (v2.327.0): an EMPTY body is a legitimate call — {} passes; a PRESENT unreadable body is the client mistake:
+  const door = await readOptionalJsonBody<Record<string, unknown>>(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
   const dryRun = body?.dryRun !== false; // default true - must opt in to repair
 
   // Candidates: unbalanced RENTAL headers. Aggregate line sums per entry.

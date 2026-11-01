@@ -1,5 +1,13 @@
 // THE BODY DOOR (v2.325.0): one home for the honest body read in
-// PUT/DELETE/PATCH handlers.
+// PUT/DELETE/PATCH handlers. v2.326.0 widened it POST-wide (67 files).
+//
+// v2.327.0 — THE SWALLOW CENSUS: the chained `.catch(() => ({}))` reads
+// were classified three ways — the SILENT-PROCEED class (a malformed body
+// became `{}` and ran anyway) now reads through `readJsonBody`; the
+// OPTIONAL-BODY class (an empty body is a legitimate call) reads through
+// `readOptionalJsonBody` below; and the HONEST-SWALLOW class (the catch
+// feeds an explicit validation that already answers 400) stays as the
+// documented exemplar pattern. The DARAJA webhooks keep their leniency.
 //
 // THE LAW: a body-less or malformed request is a CLIENT mistake, and a
 // client mistake must answer 400 with a hint — never a JSON.parse
@@ -68,4 +76,34 @@ export function bodyDoorRejected(hint?: string): Response {
     },
     { status: 400 }
   );
+}
+
+/**
+ * THE OPTIONAL-BODY DOOR (v2.327.0): for routes whose body is genuinely
+ * optional — the cron-adjacent reminder runners whose `{ storeId? }`
+ * defaults to the session's store, the repair tool whose dryRun defaults
+ * true, the read-marker whose `{ messageId? }` is one-of-many — an EMPTY
+ * body is a legitimate call, so it passes as `{}`; but a body that is
+ * PRESENT and unreadable (malformed JSON, an array, a primitive) is
+ * still a client mistake and answers `{ ok: false }` for the caller's
+ * bodyDoorRejected(). The old `.catch(() => ({}))` swallow conflated the
+ * two: a malformed body silently became "no body", and a typo'd payload
+ * ran with every field defaulted — the one lie this door refuses.
+ */
+export async function readOptionalJsonBody<T = Record<string, unknown>>(
+  request: Request
+): Promise<BodyDoor<T>> {
+  const raw = await request.text().catch(() => '');
+  if (!raw.trim()) {
+    return { ok: true, body: {} as T };
+  }
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return { ok: false };
+    }
+    return { ok: true, body: parsed as T };
+  } catch {
+    return { ok: false };
+  }
 }

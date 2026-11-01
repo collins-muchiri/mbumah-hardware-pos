@@ -9,6 +9,7 @@ import { db, runWithoutTenant } from '@/lib/db';
 import { requireAuth, type AuthSession } from '@/lib/auth';
 import { withErrorBoundary } from '@/lib/logger';
 import { canAccessChannel, parseReadStatus } from '@/lib/workspace/chat';
+import { readOptionalJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,8 +20,12 @@ interface RouteContext {
 async function markReadHandler(request: NextRequest, session: AuthSession, ...args: unknown[]): Promise<Response> {
   const context = args[0] as RouteContext;
   const { channelId } = await context.params;
-  const body = (await request.json().catch(() => ({}))) as { messageId?: string };
-
+  // THE OPTIONAL SWALLOW DOOR (v2.327.0): an EMPTY body is a legitimate call — {} passes; a PRESENT unreadable body is the client mistake:
+  const door = await readOptionalJsonBody<Record<string, unknown>>(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body as { messageId?: string };
   const access = await canAccessChannel(session, channelId);
   if (!access.ok) {
     return Response.json(
@@ -28,9 +33,7 @@ async function markReadHandler(request: NextRequest, session: AuthSession, ...ar
       { status: 403 },
     );
   }
-
   const nowIso = new Date().toISOString();
-
   await runWithoutTenant(async () => {
     if (body.messageId) {
       const message = await db.conversationMessage.findUnique({
@@ -47,7 +50,6 @@ async function markReadHandler(request: NextRequest, session: AuthSession, ...ar
       }
       return;
     }
-
     // No explicit message id: mark the latest message of the channel read.
     const latest = await db.conversationMessage.findFirst({
       where: { conversationId: channelId },
@@ -63,8 +65,6 @@ async function markReadHandler(request: NextRequest, session: AuthSession, ...ar
       });
     }
   });
-
   return Response.json({ success: true, data: { lastReadAt: nowIso } });
 }
-
 export const POST = withErrorBoundary(requireAuth(markReadHandler), 'CHAT_READ');

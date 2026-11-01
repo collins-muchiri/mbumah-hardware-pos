@@ -8,6 +8,7 @@ import type { NextRequest } from 'next/server';
 import { hrGuard } from '@/lib/hr/guard';
 import { createReview, listReviews } from '@/lib/hr/performance-service';
 import { toErrorResponse } from '@/lib/hr/stage-g-shared';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,7 +28,12 @@ export const GET = hrGuard('hr.performance.review')(async (request: NextRequest,
 
 export const POST = hrGuard('hr.performance.manage')(async (request: NextRequest, session) => {
   try {
-    const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+    // THE SWALLOW DOOR: an unreadable body is a client mistake (v2.327.0):
+    const door = await readJsonBody<Record<string, unknown>>(request);
+    if (!door.ok) {
+      return bodyDoorRejected();
+    }
+    const body = door.body as Record<string, unknown>;
     return Response.json({ success: true, data: await createReview(body, session) }, { status: 201 });
   } catch (error) {
     return toErrorResponse(error);

@@ -99,6 +99,15 @@ confirm it, and neither requires shell access:
   `/?tab=loyalty&view=transactions&type=EXPIRE`, and the loyalty desk
   reads `?type=` on mount (the tab-url vocabulary `view` already spoke),
   so the pulse's counts land on the exact rows they summarize.
+- **v2.327.0**: the swallow census — the chained `.catch` body reads classified
+  three ways: the 20 SILENT-PROCEED routes (a malformed body became `{}` and
+  ran) now read through `readJsonBody`; the 4 OPTIONAL-BODY routes
+  (reminders/debt process+schedule, repair-journal-headers, chat read-marker)
+  read the NEW `readOptionalJsonBody` (empty body = legitimate `{}` call,
+  unreadable body = 400); the 16 HONEST-SWALLOW sites (explicit validation →
+  400, plus the DARAJA webhooks' contract leniency) stay and are pinned by
+  `src/tests/swallow-census-v2327.test.ts`. Data-exports history rows wear a
+  retention countdown (7-day lifetime spoken before it expires).
 - **v2.326.0**: the door reads every room — the POST-wide sweep: the census
   (`scripts/census-post-door-v2326.py`) classified every remaining body read
   (67 bare declaring doors, 54 try-wrapped safe, 41 `.catch` swallows) and the

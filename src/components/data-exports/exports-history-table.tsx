@@ -136,6 +136,27 @@ function formatDateRange(from: string | null, to: string | null): string {
   return `Until ${fmt(to as string)}`;
 }
 
+/**
+ * THE RETENTION COUNTDOWN (v2.327.0): the wire keeps an export for 7
+ * days, but the history row only said so AFTER the file was already
+ * gone (the expired badge above). The countdown speaks while there is
+ * still time: days beyond 48h, hours inside the last two days, and an
+ * amber "expires soon" inside the last day — the honest voice for a
+ * file with a lifespan, so nobody plans a report around data that is
+ * about to be swept.
+ */
+function retentionCountdown(
+  expiresAt: string | null | undefined,
+): { label: string; soon: boolean } | null {
+  if (!expiresAt) return null;
+  const ms = new Date(expiresAt).getTime() - Date.now();
+  if (ms <= 0) return null; // the Expired badge owns the past
+  const hours = Math.floor(ms / 3_600_000);
+  if (hours >= 48) return { label: `expires in ${Math.floor(hours / 24)}d`, soon: false };
+  if (hours >= 1) return { label: `expires in ${hours}h`, soon: hours < 24 };
+  return { label: 'expires soon', soon: true };
+}
+
 function StatusBadge({ status }: { status: DataExportStatus }) {
   switch (status) {
     case 'COMPLETED':
@@ -388,7 +409,26 @@ export function ExportsHistoryTable({
                     })()}
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">
-                    {formatDateTime(item.createdAt)}
+                    <div className="flex flex-col items-start gap-0.5">
+                      <span>{formatDateTime(item.createdAt)}</span>
+                      {(() => {
+                        const retention = retentionCountdown(item.expiresAt);
+                        if (!retention) return null;
+                        return (
+                          <span
+                            data-testid="export-retention"
+                            className={
+                              retention.soon
+                                ? 'inline-flex items-center gap-1 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-950/40 dark:text-amber-400'
+                                : 'inline-flex items-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground dark:bg-muted/50'
+                            }
+                          >
+                            <Clock className="h-2.5 w-2.5" aria-hidden="true" />
+                            {retention.label}
+                          </span>
+                        );
+                      })()}
+                    </div>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
