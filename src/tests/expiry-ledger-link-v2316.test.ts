@@ -156,8 +156,8 @@ describe('the housekeeping — the 2.267.0 dead weight is gone', () => {
     };
     expect(typeof pkg.mbumah?.releaseVersion).toBe('string');
     expect(typeof pkg.mbumah?.baseVersion).toBe('string');
-    expect(pkg.mbumah?.releaseVersion).toBe('2.321.0');
-    expect(pkg.mbumah?.baseVersion).toBe('2.321.0');
+    expect(pkg.mbumah?.releaseVersion).toBe('2.322.0');
+    expect(pkg.mbumah?.baseVersion).toBe('2.322.0');
   });
 
   it('the docs register carries the deep-link note', () => {
