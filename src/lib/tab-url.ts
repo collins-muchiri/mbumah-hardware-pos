@@ -234,6 +234,14 @@ export function parseInitialNamedPage(search: string, param: string, fallback = 
  * stores is now an address; UPPERCASE words, the landing chip wears the
  * tenth family, blue — the logistics hue — and the desk's own counting
  * lens voice keeps its emerald beside it).
+ * v2.358.0 — THE PROMISE KEPT, THE ELEVENTH WORD: the gift cards desk's
+ * status lens speaks it as its desk-prefixed `gc-status` (the same
+ * parser, zero new bytes of law, again — the card's life from issue to
+ * redemption is now an address; UPPERCASE words, and the landing chip
+ * wears the eleventh family, lime — the redemption hue the desk had not
+ * spoken; the NEUTRAL is capitalized here, the desk's own all-lens
+ * spelling, the first const in the family to carry an UPPERCASE
+ * neutral).
  */
 export function parseInitialNamedMember<V extends string>(
   search: string,

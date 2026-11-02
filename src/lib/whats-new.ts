@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.358.0',
+    title: 'The gift card\u2019s life answers the address bar',
+    bullets: [
+      'A gift cards link can now name its lens: ?gc-status=ACTIVE, REDEEMED, EXPIRED, CANCELLED or PARTIALLY_REDEEMED lands the ledger pre-filtered, with a dismissible chip naming the word it answered — the eleventh word of the address-bar vocabulary.',
+      'The landing chip wears the vocabulary\u2019s eleventh family (lime — the redemption hue) beside the desk\u2019s reason voices — one bar, honest voices, no masquerade.',
+      'Unknown, missing, or wrong-case words never strand the ledger: the lens falls back to All Statuses, case-sensitively — and this desk\u2019s all-lens is spelled ALL, so a lowercase all names nothing.',
+    ],
+  },
+  {
     version: '2.357.0',
     title: 'The stock\u2019s journey answers the address bar',
     bullets: [

@@ -227,6 +227,7 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/cust-debt-deep-link-v2330.test.ts',
       // and this file joins its own ledger (an admission line carries the
       // word it admits — the ripple's second-order form, pinned above)
+      'src/tests/gc-status-deep-link-v2358.test.ts',
       'src/tests/inv-status-deep-link-v2356.test.ts',
       'src/tests/inv-stock-deep-link-v2329.test.ts',
       // the po-status word's ledger lives beside the proxy-gate suite

@@ -9,8 +9,9 @@ import {
   Mail, User, FileText, AlertTriangle, CheckCircle2, Clock, ChevronDown, Settings2, Sparkles,
   TrendingDown, TrendingUp, Ban, RefreshCw, Wallet,
   MoreHorizontal, Pencil, Trash2, ShieldAlert, Info,
-  MessageCircle, MessageSquare,
+  MessageCircle, MessageSquare, Link2, X,
 } from 'lucide-react';
+import { parseInitialNamedMember } from '@/lib/tab-url';
 
 import {
   giftCardsApi,
@@ -338,6 +339,40 @@ function EmptyState({ onCreateClick, canCreateCards }: { onCreateClick: () => vo
   );
 }
 
+// v2.358.0 THE GIFT CARD DESK'S OWN WORD — the gift cards desk's status
+// lens answers the address bar too: `?gc-status=ACTIVE` lands the ledger
+// with the active lens already chosen (the ELEVENTH word of the
+// vocabulary — the card's life from issue to redemption is now an
+// address). The law is MEMBERSHIP, ONE home (`parseInitialNamedMember`):
+// the value must name a lens the desk actually offers — case-sensitive
+// (the lens's own words are UPPERCASE, so `active` is an unknown word,
+// not a clever match — the payment word's voice) — and anything missing
+// or unknown answers 'ALL' (never stranded). The desk-prefix law (Task
+// 44): a desk-prefixed word can never leak across client-side tab
+// switches.
+// Collision-checked at round start: the only status word the desk spoke
+// was the badge config's own vocabulary (a different string — the
+// labels a StatusBadge renders); never a reader of this word. The
+// desk's reason voices keep their own families beside the chip — pink
+// for the gifting reason, purple for the employee award, the redeem
+// banner's rose-tinted helper panel — a voice must not masquerade as a
+// badge, and the chip wears the family the desk had NOT spoken: lime.
+// Read-on-mount ONLY (the one-writer law): the landing word is the
+// LANDING lens, never rewritten; the status Select owns the state after.
+// THE NEUTRAL VOICE, CAPITALIZED: this desk's all-lens is spelled 'ALL'
+// (the Select's own value since the desk first shipped), so the word's
+// neutral is UPPERCASE — the first FILTERS const in the vocabulary whose
+// neutral member is capitalized (an older desk's const predates the
+// pattern and carries its fallback separately); a lowercase spelling of
+// the neutral is an unknown word here, the inverse of the desks whose
+// neutral is lowercase.
+export const GC_STATUS_FILTERS = ['ALL', 'ACTIVE', 'REDEEMED', 'EXPIRED', 'CANCELLED', 'PARTIALLY_REDEEMED'] as const;
+
+function initialGcStatus(): (typeof GC_STATUS_FILTERS)[number] {
+  if (typeof window === 'undefined') return 'ALL';
+  return parseInitialNamedMember(window.location.search, 'gc-status', GC_STATUS_FILTERS, 'ALL');
+}
+
 // Main Component
 export default function GiftCardsTab({ storeId, userRole, userId: _userId }: GiftCardsTabProps) {
   const queryClient = useQueryClient();
@@ -345,8 +380,21 @@ export default function GiftCardsTab({ storeId, userRole, userId: _userId }: Gif
   // State
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [statusFilter, setStatusFilter] = useState<(typeof GC_STATUS_FILTERS)[number]>(initialGcStatus);
   const [reasonFilter, setReasonFilter] = useState<string>('ALL');
+  // v2.358.0 THE LANDING WORD — the address-bar word the desk answered at
+  // mount ('ALL' when the landing carried no lens). The chip speaks it
+  // ONCE: dismissed or hand-changed, the landing is over and the chip
+  // retires — an honest face never claims a landing that is done.
+  const [landedGcStatus] = useState<(typeof GC_STATUS_FILTERS)[number]>(initialGcStatus);
+  const [gcLandingLive, setGcLandingLive] = useState(true);
+
+  // v2.358.0: a hand-driven change retires the landing word — the chip
+  // speaks the ADDRESS BAR's landing, never the human's next choice.
+  const chooseGcStatus = (value: (typeof GC_STATUS_FILTERS)[number]) => {
+    setStatusFilter(value);
+    setGcLandingLive(false);
+  };
   const [sortField, setSortField] = useState<SortField>('date');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const [showFilters, setShowFilters] = useState(false);
@@ -852,11 +900,47 @@ export default function GiftCardsTab({ storeId, userRole, userId: _userId }: Gif
           </Button>
         </div>
 
+        {/* v2.358.0 THE LANDING WORD CHIP, ELEVENTH WEARING — a link
+            that landed the ledger pre-filtered wears a chip naming
+            the word it answered (?gc-status=…), styled in the lens's
+            own LIME family (the ELEVENTH family of the vocabulary —
+            indigo/amber/rose/emerald/cyan/violet/fuchsia/orange/teal/
+            blue now gain the card lens's lime, the redemption hue;
+            the desk's reason voices keep their own families beside it
+            — a voice must not masquerade as a badge) with dark-mode
+            variants, the Link2 icon, a `title` tooltip, and a
+            one-press dismissal that clears the lens the word seeded.
+            The chip retires the moment the human owns the filter.
+            THE TWO VOICES:
+            hand-driven Select change or the chip's own dismissal.
+            `data-testid="gc-status-landing-word"` — the QA walk's
+            handle. */}
+        {gcLandingLive && landedGcStatus !== 'ALL' && statusFilter === landedGcStatus && (
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setStatusFilter('ALL');
+                setGcLandingLive(false);
+              }}
+              className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-lime-200 bg-lime-50 text-lime-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-lime-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime-400 dark:border-lime-500/30 dark:bg-lime-500/10 dark:text-lime-300 dark:hover:bg-lime-500/20"
+              data-testid="gc-status-landing-word"
+              title="The desk landed with this filter from the address bar — press to clear it"
+            >
+              <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+              <span className="tabular-nums">landed ?gc-status={landedGcStatus}</span>
+              <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+            </button>
+          </div>
+        )}
+
         {showFilters && (
           <div className="flex flex-wrap gap-2 p-3 rounded-lg border bg-card">
             <div className="flex items-center gap-2">
               <Label className="text-xs whitespace-nowrap">Status:</Label>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
+              {/* v2.358.0: the hand-driven Select is voice 2 — a hand-driven
+                  change retires the landing word. */}
+              <Select value={statusFilter} onValueChange={chooseGcStatus}>
                 <SelectTrigger className="w-[160px] h-8 text-xs">
                   <SelectValue />
                 </SelectTrigger>
