@@ -217,6 +217,12 @@ export function parseInitialNamedPage(search: string, param: string, fallback = 
  * zero new bytes of law, again — one desk now owning TWO words of the
  * vocabulary, one per lens; the census voice keeps its sky, the landing
  * chip wears the seventh family, fuchsia).
+ * v2.355.0 — THE PROMISE KEPT, THE EIGHTH WORD: the rentals desk's status
+ * lens speaks it as its desk-prefixed `rent-status` (the same parser,
+ * zero new bytes of law, again — the desk's DAILY QUESTION becomes a
+ * bookmark; the lens's words are UPPERCASE like the payment word's, and
+ * the landing chip wears the eighth family, orange — the overdue-warning
+ * hue).
  */
 export function parseInitialNamedMember<V extends string>(
   search: string,

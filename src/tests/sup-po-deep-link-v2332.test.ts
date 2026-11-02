@@ -191,6 +191,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/cust-debt-deep-link-v2330.test.ts',
       'src/tests/inv-stock-deep-link-v2329.test.ts',
       'src/tests/proxy-gate-layering-v2328.test.ts',
+      // v2.355.0: the rentals desk's status lens joins the vocabulary — its
+      // deep-link suite is admitted (an admission line carries the word it
+      // admits — the LEDGER-CITATION RIPPLE, second-order form)
+      'src/tests/rent-status-deep-link-v2355.test.ts',
       'src/tests/sup-po-deep-link-v2332.test.ts',
       'src/tests/sup-status-deep-link-v2331.test.ts',
       'src/tests/txn-pay-deep-link-v2333.test.ts',

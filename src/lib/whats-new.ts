@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.355.0',
+    title: 'The rental desk answers its daily question',
+    bullets: [
+      'A rentals link can now name its status lens: ?rent-status=ACTIVE, OVERDUE, RETURNED or DAMAGED lands the desk pre-filtered, with a dismissible chip naming the word it answered — the eighth word of the address-bar vocabulary, and the manager\u2019s morning check is now a bookmark.',
+      'The landing chip wears the vocabulary\u2019s eighth family (orange — the overdue-warning hue) with the same one-press dismissal and hand-off to the status Select as every word before it.',
+      'Unknown, missing, or wrong-case words never strand the desk: the lens falls back to All Statuses, case-sensitively.',
+    ],
+  },
+  {
     version: '2.354.0',
     title: 'The type lens answers the address bar',
     bullets: [

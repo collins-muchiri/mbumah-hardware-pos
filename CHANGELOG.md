@@ -1,3 +1,15 @@
+## [2.355.0] The rental desk answers its daily question
+
+The round the vocabulary gained its eighth word. Every deep-link round since v2.328.0 kept the same promise: a desk's lens answers the address bar through the ONE home (`parseInitialNamedMember`), case-sensitively, never stranding a stale bookmark. This round the rentals desk's STATUS lens speaks its desk-prefixed word — `?rent-status=ACTIVE|OVERDUE|RETURNED|DAMAGED` — landing the desk pre-filtered with a dismissible chip naming the exact word it answered: the manager's morning question ("what is late?") is now a bookmark.
+
+### Added
+- **THE EIGHTH WORD** (`src/app/(shell)/tabs/rentals-tab.tsx`): the status lens's seed reads `?rent-status=` through the one home (membership law, SSR-guarded, read-on-mount); the landing word is held separately so the chip speaks the ADDRESS BAR's landing and retires the moment a human owns the filter — by dismissal or by a hand-driven Select change (the two honest voices). The seed is cast-free: the generic parser IS the `'all' | 'ACTIVE' | 'OVERDUE' | 'RETURNED' | 'DAMAGED'` union, so the state names it directly.
+- **src/tests/rent-status-deep-link-v2355.test.ts**: the parser's truth table (offered lenses seed, unknown/missing/empty answer All Statuses, a lowercase `overdue` is an unknown word — the UPPERCASE voice of the payment word, the inverse of the type word), the cast-free seed typing, the chip's bytes, the rides-along case (one bar carrying the whole vocabulary: `?rent-status=OVERDUE&txn-pay=CASH`, `&txn-type=refund`, `&po-status=…`, `&inv-stock=…`, `&cust-debt=…`, `&sup-status=…`, `&sup-po=…`), and the collision ledger — eleven files, all seven neighbor ledgers admitted (the LEDGER-CITATION RIPPLE, second-order form).
+- **scripts/verify-v2-355-0.mjs** (wired `verify:v2-355-0`) and **scripts/walk-v2355.mjs** (the release-pin re-anchor + the unread-counter cascade).
+
+### Styling
+- **THE EIGHTH WEARING** (`src/app/(shell)/tabs/rentals-tab.tsx`): the landing chip wears the vocabulary's eighth family — orange, the overdue-warning hue, light and dark — with the Link2 icon, a `title` tooltip, and a dismiss hint that sharpens on hover (the X fades up from 60%, the group-hover detail). Amber's neighbor lives on the inventory desk: the two chips never share a bar, and the status Select keeps its own shadcn voice beside the chip — no masquerade.
+
 ## [2.354.0] The type lens answers the address bar
 
 The round the vocabulary gained its seventh word — and the first time one desk owns two. Every deep-link round since v2.328.0 kept the same promise: a desk's lens answers the address bar through the ONE home (`parseInitialNamedMember`), case-sensitively, never stranding a stale bookmark. This round the transactions desk's TYPE lens speaks its desk-prefixed word — `?txn-type=sale|refund|void` — landing the ledger pre-filtered beside the census row v2.353.0 gave it, with a dismissible chip naming the exact word it answered.
