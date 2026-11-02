@@ -1,3 +1,18 @@
+## [2.353.0] The doors are counted
+
+The round the body-door census became a living registry. Every round since v2.324.0 doored the API's body reads one family at a time; this round the WHOLE TREE is the tombstone — a test that walks all 380 route files on every run and derives the census from the source bytes: 116 hard doors and 8 optional doors, every one carrying its explicit generic, zero bare calls, zero loose widening generics, and every remaining raw read answering a polite 400 (with one pinned exemption: the Daraja queue-timeout webhook whose leniency is the integration contract).
+
+### Fixed
+- **THE SILENT-PROCEED CLASS ENDS** — four doors whose empty-body call is legitimate stopped swallowing malformed bodies into silence: leave approval (`src/app/api/leave/requests/[id]/approve/route.ts`, the delegation id) and rejection (`.../reject/route.ts`, the reason default), candidate withdrawal (`src/app/api/recruitment/applicants/[id]/withdraw/route.ts`, the optional note) and count-sheet cancellation (`src/app/api/stock-takes/[id]/cancel/route.ts`, the optional reason) now ride `readOptionalJsonBody` — an empty body still passes as `{}`, a PRESENT unreadable body answers the door's 400 instead of proceeding on a default the sender never chose.
+- **TWO PARAMETER ANNOTATIONS DISSOLVED** (`src/app/(shell)/tabs/transactions-tab.tsx`): the type-chip map now maps the census keyset itself (the `as const` union), so the icon and label lookups needed no annotations — and the type filter's state rides its honest `'all' | TransactionType` union.
+
+### Added
+- **THE DOOR-SHAPE REGISTRY** (`src/tests/door-shape-registry-v2353.test.ts`): 18 pins — the derived census (380 route files, 116 + 8 doors), the bare/loose tombstones tree-wide, the raw-swallow registry (58 call sites, every file answering 400 either spelling, the ONE lenient webhook pinned by name), the four v2.353.0 optional-door graduates, and the ledger's census bytes.
+- **scripts/verify-v2-353-0.mjs** (wired `verify:v2-353-0`) and **scripts/walk-v2353.mjs** (the release-pin re-anchor + the unread-counter cascade).
+
+### Styling
+- **THE LEDGER SPEAKS ITS CENSUS** (`src/app/(shell)/tabs/transactions-tab.tsx`): every type chip carries its live tally (`All Types · N`, `Sale · N`, `Refund · N`, `Void · N` — `data-testid="txn-type-census"`), and the active type lens wears a count voice (`data-testid="txn-type-lens-voice"`, sky with dark variants — never the refund amber, never the payment violet; gone when the whole ledger is shown, no news no voice). The tallies ride the SAME array the desk renders via a PLAIN count function — the memo-lint law, the transfers precedent kept.
+
 ## [2.352.0] The wrapper seam speaks its shape
 
 The round the export-line cast family dissolved. The house route wrappers (requireAuth / requireStoreAccess) declared their handler families with a variadic rest, so a handler that named its third parameter honestly \u2014 `context: RouteContext`, the shape Next.js actually passes \u2014 was assignable only through a `as (...args: unknown[]) => Promise<Response>` launder pasted at every export line. The rest is the family's own parameter now: `AuthedHandler<Rest>` / `StoreScopedHandler<Rest>` carry it as a generic (default `unknown[]`, every quiet handler untouched), the two wrappers are generic over the same Rest, and the wrapper owns the ONE seam cast at each forward \u2014 the same boundary where the `args[0] as NextRequest` unpack already lives. Thirteen handler-argument casts died with the generic; eleven wrapper-result casts were pure noise (requireStoreAccess's return is INFERRED as the variadic shape already) and died as deletions.

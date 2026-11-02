@@ -181,7 +181,7 @@ describe('v2.352.0 — the wrapper seam speaks its shape', () => {
     expect(desk.includes('data-testid="cadence-contract-voice"')).toBe(true);
   });
 
-  it('THE RELEASE SLOT IS HONEST: 2.352.0 shipped, 2.349.0 still reserved for the gated audit PR', () => {
-    expect(read('VERSION').trim()).toBe('2.352.0');
+  it('THE RELEASE SLOT IS HONEST: the version file names the shipped slot (the audit PR merged 03aec8e1 — no slot is reserved any more)', () => {
+    expect(read('VERSION').trim()).toBe('2.353.0');
   });
 });

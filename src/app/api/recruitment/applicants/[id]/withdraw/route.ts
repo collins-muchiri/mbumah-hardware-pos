@@ -11,6 +11,7 @@
 import { hrGuard } from '@/lib/hr/guard';
 import { withdrawApplicant } from '@/lib/hr/recruitment-service';
 import { RECRUITMENT_WRITE_ROLES } from '@/lib/hr/recruitment-policy';
+import { readOptionalJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,15 +19,14 @@ export const POST = hrGuard('hr.recruitment.manage', RECRUITMENT_WRITE_ROLES)(
   async (request, session, context?: { params: Promise<{ id: string }> }) => {
     const { id } = (await context?.params) ?? { id: '' };
 
-    // The note is optional — an empty body is a valid withdrawal.
-    let body: Record<string, unknown> = {};
-    try {
-      body = (await request.json()) as Record<string, unknown>;
-    } catch {
-      body = {};
-    }
+    // THE OPTIONAL SWALLOW DOOR (v2.353.0): the note is optional — an empty
+    // body is a valid withdrawal, so the optional door passes {}. But a
+    // PRESENT unreadable body is a client mistake and answers the door's
+    // 400 (the old catch withdrew the candidate in silence).
+    const door = await readOptionalJsonBody<{ note?: unknown }>(request);
+    if (!door.ok) return bodyDoorRejected();
 
-    const note = typeof body.note === 'string' ? body.note.trim().slice(0, 500) : '';
+    const note = typeof door.body.note === 'string' ? door.body.note.trim().slice(0, 500) : '';
 
     try {
       const result = await withdrawApplicant(id, session.userId, session.role, note || undefined);

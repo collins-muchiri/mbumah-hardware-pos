@@ -31,6 +31,7 @@ import { db } from '@/lib/db';
 import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { requireStoreAccess, type AuthSession } from '@/lib/auth';
 import { LogSeverity, LogComponent } from '@/lib/types';
+import { readOptionalJsonBody, bodyDoorRejected } from '@/lib/request-body';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,9 +41,14 @@ interface RouteContext {
 
 async function cancelStockTakeHandler(request: NextRequest, session: AuthSession, context: RouteContext): Promise<Response> {
   const { id } = await context.params;
-  const body = await request.json().catch(() => null);
-  const reason = typeof body?.reason === 'string' && body.reason.trim()
-    ? body.reason.trim().slice(0, 300)
+  // THE OPTIONAL SWALLOW DOOR (v2.353.0): the cancel reason is OPTIONAL
+  // (the sheet can die unnamed), so an EMPTY body is the legitimate call —
+  // but a PRESENT unreadable body is a client mistake and answers the
+  // door's 400 (the old catch cancelled the sheet in silence).
+  const door = await readOptionalJsonBody<{ reason?: unknown }>(request);
+  if (!door.ok) return bodyDoorRejected();
+  const reason = typeof door.body.reason === 'string' && door.body.reason.trim()
+    ? door.body.reason.trim().slice(0, 300)
     : null;
 
   const sheet = await db.stockTake.findUnique({ where: { id }, select: { id: true, status: true, notes: true, storeId: true } });
