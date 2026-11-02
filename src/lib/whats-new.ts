@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.362.0',
+    title: 'The workforce\u2019s standing answers the address bar',
+    bullets: [
+      'A payroll link can now name its lens: ?pr-status=ACTIVE, ON_LEAVE or TERMINATED lands the employees roster pre-filtered, with a dismissible chip naming the word it answered — the fifteenth word of the address-bar vocabulary.',
+      'The landing chip wears the vocabulary\u2019s fifteenth family (stone — the quarry hue) beside the desk\u2019s own badge voices — one bar, honest voices, no masquerade; the leave sub-tab keeps its own filter, untouched.',
+      'Unknown, missing, or wrong-case words never strand the roster: the lens falls back to All Statuses, case-sensitively — and the capitalized neutral (ALL) seeds itself.',
+    ],
+  },
+  {
     version: '2.361.0',
     title: 'The credit ledger answers the address bar',
     bullets: [

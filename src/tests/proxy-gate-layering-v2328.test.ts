@@ -255,6 +255,7 @@ describe('the collision ledger — desk-prefixed words stay rare', () => {
         'src/tests/inv-status-deep-link-v2356.test.ts',
         'src/tests/inv-stock-deep-link-v2329.test.ts',
         'src/tests/po-status-deep-link-v2328.test.ts',
+        'src/tests/pr-status-deep-link-v2362.test.ts',
         'src/tests/proxy-gate-layering-v2328.test.ts',
         // v2.355.0: the rentals desk's status lens joins the vocabulary — its
         // deep-link suite is admitted (an admission line carries the word it

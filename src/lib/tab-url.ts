@@ -266,6 +266,16 @@ export function parseInitialNamedPage(search: string, param: string, fallback = 
  * the desk had not spoken — and the NEUTRAL is lowercase here, the
  * desk's own all-lens spelling; the desk's customer lens keeps its own
  * Select, untouched, and may earn its own word someday).
+ * v2.362.0 — THE PROMISE KEPT, THE FIFTEENTH WORD: the payroll desk's
+ * roster status lens speaks it as its desk-prefixed `pr-status` (the
+ * same parser, zero new bytes of law, again — the workforce's standing
+ * from Active through On Leave to Terminated is now an address;
+ * UPPERCASE words, the landing chip wears the fifteenth family, stone —
+ * the quarry hue the desk had not spoken — and the NEUTRAL is
+ * CAPITALIZED here, the desk's own all-lens spelling, the gift cards
+ * desk's voice; the lens rides the desk's DEFAULT sub-tab, the survey
+ * law's first amended case — the chip is visible on landing, and a
+ * non-default sub-tab lens stays blocked).
  */
 export function parseInitialNamedMember<V extends string>(
   search: string,
