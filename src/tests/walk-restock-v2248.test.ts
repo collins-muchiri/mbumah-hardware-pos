@@ -83,7 +83,10 @@ describe('the restock\u2019s birth \u2014 the schema (v2.248.0)', () => {
 
 describe('the restock\u2019s birth \u2014 the wire (v2.248.0)', () => {
   it('the create wire reads originStockTakeId and allowlists it (same store, CLOSED, or rejected)', () => {
-    expect(poWire).toContain('const { storeId, supplierId, items, notes, expectedDate, originStockTakeId } = body as {');
+    // v2.343.0 THE PIN GREW: the de-facto re-cast dissolved — the wire's
+    // shape rides INSIDE the door generic now (the originStockTakeId
+    // optional column included), the birth allowlist bytes unchanged.
+    expect(poWire).toContain('originStockTakeId?: string;');
     expect(poWire).toContain('if (!birthSheet || birthSheet.storeId !== storeId) {');
     expect(poWire).toContain("originStockTakeId does not name a count sheet in this store.");
     expect(poWire).toContain("if (birthSheet.status !== 'CLOSED') {");
@@ -187,7 +190,7 @@ describe('the laws named \u2014 the ride-along (v2.248.0)', () => {
 
 describe('the release face (v2.248.0)', () => {
   it('package.json speaks 2.248.0', () => {
-    expect(version).toBe('2.342.0');
+    expect(version).toBe('2.343.0');
   });
 
   it('the door\u2019s answer rides the changelog', () => {

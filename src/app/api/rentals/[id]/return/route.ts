@@ -26,7 +26,18 @@ async function processRentalReturnHandler(...args: unknown[]): Promise<Response>
   const context = args[1] as RouteContext;
   const { id } = await context.params;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.343.0 — the door speaks its shape: the assessment and notes ride
+  // optionals (the route's own || resolutions), the damage charge rides
+  // number | string (the route's own toDec chain owns the widening), and
+  // processedBy rides the unknown it IS — SYS-2: actor identity comes from
+  // the authenticated session; the body field is read to be IGNORED
+  // (spoofable actor).
+  const door = await readJsonBody<{
+    damageAssessment?: string;
+    damageCharge?: number | string;
+    notes?: string;
+    processedBy?: unknown;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

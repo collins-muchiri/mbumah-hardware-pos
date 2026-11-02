@@ -133,22 +133,31 @@ describe('THE OPTIONAL-BODY CLASS READS THE NEW DOOR (4 files)', () => {
 });
 
 // ---------------------------------------------------------------------------
-// 3. THE HONEST-SWALLOW CLASS IS PINNED AS THE PATTERN (16 sites)
+// 3. THE HONEST-SWALLOW CLASS IS PINNED AS THE PATTERN (16 sites — three
+//    graduated to the door in v2.343.0, their BOTH-voices stay pinned)
 // ---------------------------------------------------------------------------
 
-describe('THE HONEST-SWALLOW CLASS IS THE PATTERN, NOT A FORGOTTEN ONE (16 sites)', () => {
+describe('THE HONEST-SWALLOW CLASS IS THE PATTERN, NOT A FORGOTTEN ONE (16 sites, three graduated in v2.343.0)', () => {
   const honest = (file: string) => readFileSync(file, 'utf8');
 
-  it('messages/conversations validates after the catch (explicit 400)', () => {
+  it('messages/conversations graduated to the door in v2.343.0 (BOTH voices stay)', () => {
+    // v2.343.0 THE PIN GREW: the trio's raw swallow graduated to the door —
+    // the door's rejection answers an unreadable body, the routes' own 400s
+    // answer well-formed bodies without their required fields.
     for (const file of [
       'src/app/api/messages/conversations/route.ts',
       'src/app/api/messages/conversations/[id]/route.ts',
       'src/app/api/messages/conversations/[id]/messages/route.ts',
     ]) {
       const src = honest(file);
-      expect(src.includes("request.json().catch(() => null)")).toBe(true);
-      expect(src.includes("'Invalid JSON body.'")).toBe(true);
+      expect(src.includes("from '@/lib/request-body'")).toBe(true);
+      expect(src.includes('readJsonBody')).toBe(true);
+      expect(src.includes('bodyDoorRejected')).toBe(true);
+      expect(src.includes("request.json().catch(() => null)")).toBe(false);
     }
+    // the routes' own voices stay honest after the door
+    expect(honest('src/app/api/messages/conversations/route.ts').includes('storeId is required (session has no store assignment).')).toBe(true);
+    expect(honest('src/app/api/messages/conversations/[id]/messages/route.ts').includes("'content is required.'")).toBe(true);
   });
 
   it('kra validates after the catch (explicit 400)', () => {

@@ -42,7 +42,7 @@ const HR_DOORS = [
   'src/app/api/shifts/[id]/end/route.ts',
 ];
 
-describe('THE BARE CLASS FALLS 30 → 25 (v2.340.0) — the fall CONTINUES (v2.341.0, v2.342.0)', () => {
+describe('THE BARE CLASS FALLS 30 → 25 (v2.340.0) — the fall CONTINUES (v2.341.0, v2.342.0, v2.343.0)', () => {
   // v2.341.0 THE PIN GREW (the pin-growth law: a byte-exact pin on a line
   // an honest change edits grows with the change): the loyalty trio + tax
   // duo followed the HR family — the census this file first spoke (25)
@@ -51,8 +51,11 @@ describe('THE BARE CLASS FALLS 30 → 25 (v2.340.0) — the fall CONTINUES (v2.3
   // v2.342.0 THE PIN GREW AGAIN: the messaging four followed — the census
   // walks on (16). The doors that left after this file's round are guarded
   // below, family by family.
-  it('exactly 16 bare doors remain', () => {
-    expect(BARE.length).toBe(16);
+  // v2.343.0 THE PIN GREW AGAIN: THE RE-CAST CLASS ENDED — fourteen doors
+  // speak their shapes, eight of them bare, so the census walks on (8);
+  // the other six graduated from raw honest-swallow reads.
+  it('exactly 8 bare doors remain', () => {
+    expect(BARE.length).toBe(8);
   });
 
   it('the five HR doors left the census', () => {
@@ -79,6 +82,22 @@ describe('THE BARE CLASS FALLS 30 → 25 (v2.340.0) — the fall CONTINUES (v2.3
       'src/app/api/messaging/bulk/route.ts',
       'src/app/api/whatsapp/send/route.ts',
       'src/app/api/whatsapp/send-document/route.ts',
+    ]) {
+      expect(BARE.includes(door)).toBe(false);
+    }
+  });
+
+  it('the re-cast singles + the rental doors left the census too (v2.343.0)', () => {
+    for (const door of [
+      'src/app/api/stock-movements/route.ts',
+      'src/app/api/kra/submit/route.ts',
+      'src/app/api/purchase-orders/route.ts',
+      'src/app/api/transactions/[id]/distribute-receipt/route.ts',
+      'src/app/api/rentals/route.ts',
+      'src/app/api/rentals/[id]/return/route.ts',
+      'src/app/api/cash-drawer/route.ts',
+      'src/app/api/reports/export/route.ts',
+      'src/app/api/suppliers/[id]/send-order/route.ts',
     ]) {
       expect(BARE.includes(door)).toBe(false);
     }

@@ -137,7 +137,21 @@ async function getRentalsHandler(...args: unknown[]): Promise<Response> {
 async function createRentalHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.343.0 — the door speaks its shape: the trio + expectedReturnDate ride
+  // REQUIRED strings (the route's own truthiness guard is the validator),
+  // and the money columns ride number | string — the route's own
+  // toDec(Numeric) chain owns the widening (the debt precedent).
+  const door = await readJsonBody<{
+    storeId: string;
+    productId: string;
+    customerId: string;
+    expectedReturnDate: string;
+    ratePerDay: number | string;
+    securityDeposit?: number | string;
+    ratePerWeek?: number | string;
+    ratePerMonth?: number | string;
+    notes?: string;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

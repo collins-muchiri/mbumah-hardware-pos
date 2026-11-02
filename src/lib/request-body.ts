@@ -163,6 +163,37 @@ export type BodyDoor<T> = { ok: true; body: T } | { ok: false };
  * door widens to number | string because the chain's own signature IS the
  * widening (the filings precedent). The bare class falls to 16 doors —
  * the rental family and the catalog-adjacent singles remain.
+ *
+ * v2.343.0 — THE RE-CAST CLASS ENDS (the re-cast singles + the rental
+ * family, the bare class's fourth pass): FOURTEEN reads speak their
+ * bodies' own shapes — eight of them bare doors, so the bare class
+ * falls to 8 doors (kra/submit, notifications/email, etims/cancel-invoice
+ * and the conversations trio graduate from their raw honest-swallow
+ * reads instead). THE ELEVEN DE-FACTO RE-CASTS (the `= body as { ... }` blocks
+ * the v2.339 census regex never caught — stock-movements, kra/submit,
+ * purchase-orders, transactions/[id]/distribute-receipt,
+ * notifications/email, reports/export, etims/cancel-invoice,
+ * suppliers/[id]/send-order and the conversations trio) dissolve into the
+ * generic, and THE DE-FACTO RE-CAST CLASS ENDS: not one door in src/app/api
+ * destructures through a cast any more (this round's tombstone census:
+ * zero `} = body as {` matches). THE HONEST-SWALLOW EXEMPLARS GRADUATE:
+ * the raw json-catch swallows (the v2.327 documented pattern whose null
+ * fallback fed each route's own 400) now ride the door and keep BOTH
+ * voices — the door's rejection for an unreadable body, the route's own
+ * 400 for a well-formed body without its required field. The rental
+ * family joins (rentals, rentals/[id]/return, cash-drawer): the money
+ * columns ride number | string where the route's own toDec(Numeric) chain
+ * owns the widening (the debt precedent), and cash-drawer's amount rides
+ * the both-absences widening its own `=== undefined || === null` guard
+ * and parseFloat(String()) chain demand (the maxPoints precedent,
+ * widened — a REQUIRED door would turn the route's own comparison dead).
+ * The receipt-distribution twins (distribute-receipt, reports/export)
+ * ride the REQUIRED channel union whose presence + membership guard IS
+ * the validator. And purchase-orders' items ride the element shape the
+ * route validates — each element names its productId while its figures
+ * stay unknown under the F1-5 loop's Number() + isFinite chains, and the
+ * create data now rides those VALIDATED numbers instead of the raw wire
+ * bytes (the answering-chain cousin).
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function readJsonBody<T = any>(

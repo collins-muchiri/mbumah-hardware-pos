@@ -205,7 +205,25 @@ async function createStockAdjustmentHandler(
   session: AuthSession,
 ): Promise<Response> {
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.343.0 — the door speaks its shape: productId rides REQUIRED (the
+  // route's own truthiness guard is the validator), the resolved movement
+  // pair (type/adjustmentType) and the audit governance columns ride
+  // optionals, and the figures ride the unknown their parseFloat(String())
+  // chains own (the shifts precedent — the chain is the validator).
+  const door = await readJsonBody<{
+    productId: string;
+    type?: string;
+    adjustmentType?: string;
+    quantity?: unknown;
+    reason?: string;
+    note?: string;
+    storeId?: string;
+    // AUDIT FIX (governance): `category` carries the DAMAGED/STOLEN/EXPIRED
+    // write-off classification. The old `performedBy` body field was removed:
+    // actor identity MUST come from the authenticated session only.
+    category?: string;
+    unitCost?: unknown;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
@@ -224,20 +242,7 @@ async function createStockAdjustmentHandler(
     storeId: bodyStoreId,
     category,
     unitCost,
-  } = body as {
-    productId?: string;
-    type?: string;
-    adjustmentType?: string;
-    quantity?: number | string;
-    reason?: string;
-    note?: string;
-    storeId?: string;
-    // AUDIT FIX (governance): `category` carries the DAMAGED/STOLEN/EXPIRED
-    // write-off classification. The old `performedBy` body field was removed:
-    // actor identity MUST come from the authenticated session only.
-    category?: string;
-    unitCost?: number | string;
-  };
+  } = body;
 
   if (!productId) {
     return Response.json(

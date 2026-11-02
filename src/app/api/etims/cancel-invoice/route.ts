@@ -23,6 +23,7 @@ import { db } from '@/lib/db';
 import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { LogSeverity, LogComponent } from '@/lib/types';
 import { requireStoreAccess, assertBodyStoreScope } from '@/lib/auth';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 import { initializeEtimsClientFromStore } from '@/lib/etims-service';
 import { EtimsInvoiceStatus } from '@/lib/etims-types';
 
@@ -41,15 +42,31 @@ async function cancelInvoiceHandler(
     );
   }
 
-  const body = await request.json().catch(() => null);
-  if (!body || !body.invoiceNumber || !body.reason) {
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  // v2.343.0 — the door speaks its shape and the honest-swallow read
+  // graduates: the raw json-catch swallow (whose null fallback fed the
+  // route's own 400) rides the door like every other reader. The pair
+  // rides REQUIRED strings (the route's own truthiness guard is the
+  // validator), storeId rides the optional cross-store column, and BOTH
+  // storeId casts dissolve.
+  const door = await readJsonBody<{
+    invoiceNumber: string;
+    reason: string;
+    storeId?: string;
+  }>(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
+
+  const { invoiceNumber, reason } = body;
+
+  if (!invoiceNumber || !reason) {
     return Response.json(
       { success: false, error: 'invoiceNumber and reason are required.' },
       { status: 400 },
     );
   }
-
-  const { invoiceNumber, reason } = body as { invoiceNumber: string; reason: string };
   if (reason.trim().length < 5) {
     return Response.json(
       { success: false, error: 'Cancellation reason must be at least 5 characters.' },
@@ -63,12 +80,12 @@ async function cancelInvoiceHandler(
   const scopeDenied = await assertBodyStoreScope(
     request,
     session,
-    body.storeId as string | undefined,
+    body.storeId,
   );
   if (scopeDenied) return scopeDenied;
 
   const url = new URL(request.url);
-  const storeId = (body.storeId as string) || url.searchParams.get('storeId') || session.storeId;
+  const storeId = body.storeId || url.searchParams.get('storeId') || session.storeId;
   if (!storeId) {
     return Response.json({ success: false, error: 'storeId is required.' }, { status: 400 });
   }

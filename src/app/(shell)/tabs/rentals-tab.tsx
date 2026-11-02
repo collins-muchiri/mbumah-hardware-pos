@@ -62,6 +62,22 @@ function RentalTimeline({ rental }: { rental: RentalItem }) {
     ? Math.ceil((now - expected) / 86400000)
     : 0;
 
+  // THE RENTAL-DAY METER (v2.343.0): the timeline's fill was already the
+  // honest walk — it just never SPOKE. The track now carries the meter
+  // semantics while the hire term is running (a returned rental's walk is
+  // over, so the bar keeps its gray face but drops the progressbar role):
+  // the aria + hover voices speak the exact day figures against the term
+  // the desk already computes, and the fill keeps the desk's own journey
+  // (green while the road is long, amber inside the three-day window, red
+  // once the return is overdue).
+  const termMs = Math.max(expected - start, 86400000);
+  const elapsedPct = Math.min(Math.max(Math.round(((now - start) / termMs) * 100), 0), 100);
+  const dayOfTerm = Math.max(Math.ceil((now - start) / 86400000), 0);
+  const daysInTerm = Math.ceil(termMs / 86400000);
+  const meterVoice = isOverdue
+    ? `Rental day ${dayOfTerm} of ${daysInTerm} (${elapsedPct}%) — ${daysOverdue}d overdue`
+    : `Rental day ${dayOfTerm} of ${daysInTerm} (${elapsedPct}%) — ${daysRemaining}d remaining`;
+
   const isCloseToDue = !isOverdue && !isReturned && daysRemaining <= 3 && daysRemaining > 0;
   const statusColor = isOverdue ? 'red' : isCloseToDue ? 'amber' : isActive ? 'green' : isReturned ? 'gray' : 'green';
 
@@ -86,7 +102,20 @@ function RentalTimeline({ rental }: { rental: RentalItem }) {
           <div className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-sm shadow-blue-500/50" />
           <span className="text-[8px] text-muted-foreground mt-0.5 whitespace-nowrap">{formatDate(rental.rentalStartDate).slice(0, 6)}</span>
         </div>
-        <div className="flex-1 h-0.5 mx-1 relative">
+        <div
+          className="flex-1 h-0.5 mx-1 relative"
+          {...(isReturned
+            ? {}
+            : {
+                'data-testid': 'rental-day-meter',
+                role: 'progressbar',
+                'aria-label': meterVoice,
+                'aria-valuemin': 0,
+                'aria-valuemax': 100,
+                'aria-valuenow': elapsedPct,
+                title: meterVoice,
+              })}
+        >
           <div className={`absolute inset-0 ${isReturned ? lineColors.gray : lineColors[statusColor]}`} style={{ opacity: 0.4 }} />
           <div
             className={`absolute top-0 left-0 h-full ${isReturned ? lineColors.gray : lineColors[statusColor]}`}

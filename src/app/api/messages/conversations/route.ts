@@ -21,6 +21,7 @@
 //             join any store thread from the UI toggle.
 
 import { type NextRequest } from 'next/server';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 import { db } from '@/lib/db';
 import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { LogSeverity, LogComponent } from '@/lib/types';
@@ -132,20 +133,25 @@ async function createConversationHandler(
   request: NextRequest,
   session: { userId: string; role: string; storeId: string | null; email: string },
 ): Promise<Response> {
-  const body = await request.json().catch(() => null);
-  if (!body) {
-    return Response.json(
-      { success: false, error: 'Invalid JSON body.' },
-      { status: 400 },
-    );
-  }
-
-  const { storeId, type = 'INTERNAL', title, participantIds = [] } = body as {
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  // v2.343.0 — the door speaks its shape and the honest-swallow read
+  // graduates: the raw json-catch swallow (whose null fallback answered the
+  // route's own 400) rides the door like every other reader. storeId rides
+  // the optional session fallback, type/title ride optionals (the
+  // destructure defaults + the VALID_TYPES membership stay the runtime
+  // truth), and the de-facto re-cast dissolves.
+  const door = await readJsonBody<{
     storeId?: string;
     type?: string;
     title?: string;
     participantIds?: string[];
-  };
+  }>(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
+
+  const { storeId, type = 'INTERNAL', title, participantIds = [] } = body;
 
   const resolvedStoreId = storeId || session.storeId;
   if (!resolvedStoreId) {

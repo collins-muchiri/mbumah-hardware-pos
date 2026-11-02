@@ -48,14 +48,17 @@ const FAMILY_DOORS = [
   'src/app/api/tax/filings/route.ts',
 ];
 
-describe('THE BARE CLASS FALLS 25 → 20 (v2.341.0) — the fall CONTINUES (v2.342.0)', () => {
+describe('THE BARE CLASS FALLS 25 → 20 (v2.341.0) — the fall CONTINUES (v2.342.0, v2.343.0)', () => {
   // v2.342.0 THE PIN GREW (the pin-growth law: a byte-exact pin on a line
   // an honest change edits grows with the change): the messaging four
   // followed the loyalty + tax families — the census this file first spoke
   // (20) walks on (16). The doors that left after this file's round are
   // guarded by the family tests (hr-doors-v2340 carries the family walk).
-  it('exactly 16 bare doors remain', () => {
-    expect(BARE.length).toBe(16);
+  // v2.343.0 THE PIN GREW AGAIN: THE RE-CAST CLASS ENDED — fourteen doors
+  // speak their shapes, eight of them bare, so the census walks on (8);
+  // the other six graduated from raw honest-swallow reads.
+  it('exactly 8 bare doors remain', () => {
+    expect(BARE.length).toBe(8);
   });
 
   it('the five loyalty + tax doors left the census', () => {

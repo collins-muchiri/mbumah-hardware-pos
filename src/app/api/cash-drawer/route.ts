@@ -132,7 +132,20 @@ async function getCashDrawerHandler(...args: unknown[]): Promise<Response> {
 async function createCashDrawerHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.343.0 — the door speaks its shape: the trio rides REQUIRED strings
+  // (the route's own truthiness guard is the validator; eventType's
+  // VALID_DRAWER_ACTIONS membership stays the runtime validator — the
+  // campaigns validTypes precedent), and amount rides the both-absences
+  // widening the route's own `=== undefined || === null` guard and
+  // parseFloat(String()) chain own (the maxPoints precedent, widened — a
+  // REQUIRED door would turn the route's own comparison dead).
+  const door = await readJsonBody<{
+    storeId: string;
+    userId: string;
+    eventType: string;
+    amount?: number | string | null;
+    notes?: string;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

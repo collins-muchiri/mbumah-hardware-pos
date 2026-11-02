@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.343.0',
+    title: 'The re-cast class ends, the rental doors speak their bodies\u2019 shapes',
+    bullets: [
+      'Fourteen API doors now type every request body by the fields the route actually reads \u2014 rentals, rental returns, the cash drawer, stock movements, purchase orders, receipt distribution, KRA submission, supplier send-order, email notifications, invoice cancellation and the internal conversation threads. Same behavior, same 400 door voice, just doors that document the exact shape they accept. 8 untyped doors remain.',
+      'The hidden re-cast class ends: eleven doors still read their bodies through \u201cas {\u2026}\u201d casts after the door \u2014 every one now carries its shape inside the door itself, and a census pins the class closed.',
+      'Purchase order lines now ride the figures the route validated (its own Number() output) into the database, instead of the raw wire bytes.',
+      'Rental cards\u2019 timeline speaks: the day-by-day walk now carries an exact voice for screen readers and hover (\u201cRental day 3 of 7 (43%) \u2014 4d remaining\u201d), keeping the desk\u2019s own colour journey \u2014 green while the road is long, amber inside three days, red once overdue.',
+    ],
+  },
+  {
     version: '2.342.0',
     title: 'The messaging doors speak their bodies\u2019 shapes',
     bullets: [
