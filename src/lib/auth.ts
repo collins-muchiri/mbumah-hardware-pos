@@ -291,7 +291,7 @@ export const OWNER_ROLES: readonly string[] = ['SUPER_ADMIN', 'STORE_OWNER'];
 
 // Route wrapper: requireAuth
 
-// v2.351.0 — THE WRAPPER SEAM SPEAKS ITS SHAPE (the field-level casts
+// v2.352.0 — THE WRAPPER SEAM SPEAKS ITS SHAPE (the field-level casts
 // census, phase 3): the handler families carry their REST as a generic now.
 // A handler that names its third parameter honestly (`context:
 // RouteContext`) used to be assignable to these families only through a
@@ -373,7 +373,7 @@ export function requireAuth<Rest extends unknown[] = unknown[]>(
 
     // Run the handler inside the ORM-level tenant context so every
     // store-scoped Prisma query is automatically filtered by storeId.
-    // v2.351.0 — the wrapper's own rest seam: the caller's variadic tail is
+    // v2.352.0 — the wrapper's own rest seam: the caller's variadic tail is
     // forwarded as the handler family's declared rest (the ONE cast the
     // wrapper owns; the call sites dropped theirs with the generic).
     return runWithSessionTenant(session, () =>
@@ -874,7 +874,7 @@ export function requireStoreAccess<Rest extends unknown[] = unknown[]>(
     }
 
     // SUPER_ADMIN can access any store's data
-    // v2.351.0 — the wrapper's own rest seam (see AuthedHandler note).
+    // v2.352.0 — the wrapper's own rest seam (see AuthedHandler note).
     if (session.role === 'SUPER_ADMIN') {
       return handler(request, session, ...(args.slice(1) as Rest));
     }
@@ -899,7 +899,7 @@ export function requireStoreAccess<Rest extends unknown[] = unknown[]>(
 
     // Run the handler inside the ORM-level tenant context. Non-admin users
     // are scoped to their own store; SUPER_ADMIN runs without enforcement.
-    // v2.351.0 — the wrapper's own rest seam (see AuthedHandler note).
+    // v2.352.0 — the wrapper's own rest seam (see AuthedHandler note).
     return runWithSessionTenant(session, () =>
       handler(request, session, ...(args.slice(1) as Rest)), tenantOverride
     );
