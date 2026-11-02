@@ -61,6 +61,9 @@ import { formatKES, formatDate, formatDateTime } from '@/lib/api';
 // gives guardrail codes their human voice.
 import { PayrollRunDialog } from '@/components/hr/payroll-run-dialog';
 import { payrollGuardrailVoice } from '@/lib/hr/payroll/error-voice';
+// v2.362.0: the landing word rides the ONE home — the same address-bar
+// parser every desk has spoken since v2.328.0 (never a local copy).
+import { parseInitialNamedMember } from '@/lib/tab-url';
 
 // MONEY GUARD (v2.3.1): salary fields were typed as number in the contract but
 // the API (before the v2.3.1 boundary fix) delivered Prisma Decimals as
@@ -538,10 +541,70 @@ const EMPTY_FORM: EmployeeFormState = {
   emergencyContactName: '', emergencyContactPhone: '', notes: '',
 };
 
+// ═══════════════ THE PAYROLL DESK'S OWN WORD (v2.362.0) ═══════════════
+// The roster's status lens answers the address bar: a landing that names
+// `?pr-status=ACTIVE` (or ON_LEAVE, TERMINATED) seeds the employees
+// roster's status filter through the ONE home — the same promise every
+// desk has kept since v2.328.0. The law is MEMBERSHIP: the value must
+// name a lens the desk actually offers — case-sensitive (the lens's own
+// words are UPPERCASE, so `active` is an unknown word, not a clever
+// match — the payment word's voice) — and anything missing or unknown
+// answers the neutral (never stranded).
+// Collision-checked at round start: the word is grep-FREE tree-wide; the
+// only status vocabulary the desk spoke was the badge helpers' own map
+// (different strings — the labels a badge renders) and the leave
+// sub-tab's own filter state (a DIFFERENT lens with its own Select and
+// its own re-check voice — the word binds to the roster's lens ONLY;
+// the second-lens desks' precedent).
+// THE DEFAULT-SUB-TAB AMENDMENT (the sub-tab survey law's first new
+// case): the roster's lens lives inside the employees sub-tab — the
+// desk's DEFAULT face — so a landing that carries the word mounts with
+// the chip visible: the always-visible-toolbar law's intent holds on
+// the landing face. A sub-tab round-trip remounts the lens and re-lands
+// the word from the unchanged address — the same honest remount
+// semantics every desk already speaks across tab switches. A lens in a
+// NON-default sub-tab stays blocked (the campaigns lens's rule).
+// The desk's own voices keep their families beside the chip — the
+// active badge's green, the terminated badge's red, the on-leave badge's
+// amber, the stat cards' emerald and violet, the portal links' blue — a
+// voice must not masquerade as a badge, and the chip wears the family
+// the desk had NOT spoken: stone (unspoken on this desk, and the
+// FIFTEENTH lens family — none of the fourteen families the other
+// bars' chips wear) — the quarry hue, the material this yard sells.
+// THE NEUTRAL VOICE, CAPITALIZED: this desk's all-lens has been spelled
+// 'ALL' since it first shipped (the gift cards desk's precedent), so
+// the const carries an UPPERCASE neutral — a lowercase spelling of the
+// neutral is an unknown word here, the exact inverse of the desks whose
+// neutral is lowercase.
+// Read-on-mount ONLY (the one-writer law): the landing word is the
+// LANDING lens, never rewritten; the status Select owns the state after.
+export const PR_STATUS_FILTERS = ['ALL', 'ACTIVE', 'ON_LEAVE', 'TERMINATED'] as const;
+
+function initialPrStatus(): (typeof PR_STATUS_FILTERS)[number] {
+  if (typeof window === 'undefined') return 'ALL';
+  return parseInitialNamedMember(window.location.search, 'pr-status', PR_STATUS_FILTERS, 'ALL');
+}
+
 function EmployeesSubTab({ storeId }: { storeId: string }) {
   const qc = useQueryClient();
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('ALL');
+  // v2.362.0 THE LANDING WORD — the roster's seed reads the word through
+  // the ONE home, cast-free: the generic parser IS the union, so the
+  // state names it directly.
+  const [statusFilter, setStatusFilter] = useState<(typeof PR_STATUS_FILTERS)[number]>(initialPrStatus);
+  // v2.362.0 — the address-bar word the desk answered at mount ('ALL'
+  // when the landing carried no lens). The chip speaks it ONCE: dismissed
+  // or hand-changed, the landing is over and the chip retires — an
+  // honest face never claims a landing that is done.
+  const [landedPrStatus] = useState<(typeof PR_STATUS_FILTERS)[number]>(initialPrStatus);
+  const [prLandingLive, setPrLandingLive] = useState(true);
+
+  // v2.362.0: a hand-driven change retires the landing word — the chip
+  // speaks the ADDRESS BAR's landing, never the human's next choice.
+  const choosePrStatus = (value: (typeof PR_STATUS_FILTERS)[number]) => {
+    setStatusFilter(value);
+    setPrLandingLive(false);
+  };
   const [typeFilter, setTypeFilter] = useState('ALL');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -715,7 +778,37 @@ function EmployeesSubTab({ storeId }: { storeId: string }) {
                 className="pl-9"
               />
             </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            {/* v2.362.0 THE LANDING WORD, out loud: while the landing is
+                live AND the lens still wears the word it seeded, the chip
+                names the exact word — an honest face. It wears the
+                FIFTEENTH family (stone — the quarry hue, unspoken on
+                this desk; the desk's own badge voices keep theirs beside
+                it: the active badge's green, the terminated badge's red,
+                the on-leave badge's amber — a voice must not masquerade
+                as a badge) with dark-mode variants, the Link2 icon, a
+                `title` tooltip, and a one-press dismissal that clears the
+                lens the word seeded. The chip retires the moment the
+                human owns the filter. THE TWO VOICES:
+                hand-driven Select change or the chip's own dismissal.
+                `data-testid="pr-status-landing-word"` — the QA walk's
+                handle. */}
+            {prLandingLive && landedPrStatus !== 'ALL' && statusFilter === landedPrStatus && (
+              <button
+                type="button"
+                onClick={() => {
+                  setStatusFilter('ALL');
+                  setPrLandingLive(false);
+                }}
+                className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-stone-200 bg-stone-50 text-stone-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 dark:border-stone-500/30 dark:bg-stone-500/10 dark:text-stone-300 dark:hover:bg-stone-500/20"
+                data-testid="pr-status-landing-word"
+                title="The desk landed with this filter from the address bar — press to clear it"
+              >
+                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+                <span className="tabular-nums">landed ?pr-status={landedPrStatus}</span>
+                <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+              </button>
+            )}
+            <Select value={statusFilter} onValueChange={choosePrStatus}>
               <SelectTrigger className="w-full sm:w-40"><SelectValue placeholder="Status" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="ALL">All Statuses</SelectItem>
