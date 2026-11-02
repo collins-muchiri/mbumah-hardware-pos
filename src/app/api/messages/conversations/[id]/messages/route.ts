@@ -15,6 +15,7 @@
 
 import { type NextRequest } from 'next/server';
 import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
+import { parseParticipantIds } from '@/lib/participant-ids';
 import { db } from '@/lib/db';
 import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { LogSeverity, LogComponent } from '@/lib/types';
@@ -47,12 +48,10 @@ async function authorizeParticipant(
   }
 
   if (session.role !== 'SUPER_ADMIN') {
-    let ids: string[] = [];
-    try {
-      ids = JSON.parse(conversation.participantIds) as string[];
-    } catch {
-      ids = [];
-    }
+    // v2.350.0 — the list reads honestly; non-strings are dropped and
+    // malformed JSON answers the empty list the old catch chose (the
+    // caller then hears the same not-a-participant refusal).
+    const ids = parseParticipantIds(conversation.participantIds);
     if (!ids.includes(session.userId)) {
       return {
         ok: false,
@@ -105,11 +104,20 @@ async function listMessagesHandler(
   // (We don't persist the read-mark here - that's a separate PATCH - but we
   // return the parsed readStatus so the UI can show "unread" badges.)
   const data = messages.map((m) => {
-    let readStatus: Record<string, string> = {};
+    // v2.350.0 — the read-status bag is built honestly: only string entries
+    // survive (the old cast asserted the wire's values were strings; now
+    // the door makes that true, dropping anything else).
+    let rawRead: unknown;
     try {
-      readStatus = JSON.parse(m.readStatus) as Record<string, string>;
+      rawRead = JSON.parse(m.readStatus);
     } catch {
-      readStatus = {};
+      rawRead = undefined;
+    }
+    const readStatus: Record<string, string> = {};
+    if (typeof rawRead === 'object' && rawRead !== null && !Array.isArray(rawRead)) {
+      for (const [key, value] of Object.entries(rawRead)) {
+        if (typeof value === 'string') readStatus[key] = value;
+      }
     }
     return {
       id: m.id,

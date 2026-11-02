@@ -51,6 +51,16 @@ export const dynamic = 'force-dynamic';
 // `env.X` property access inside the handler, where withErrorBoundary catches it.
 void env;
 
+// v2.350.0 — the honest error-code read (the field-level casts census,
+// phase 2): a caught value is `unknown` and the code is spoken only when
+// the value is an object that carries a string under `code`. The old cast
+// laundered the wire's own truth into a maybe-string; this reads it.
+function errorCodeOf(err: unknown): string | undefined {
+  if (typeof err !== 'object' || err === null || !('code' in err)) return undefined;
+  const { code } = err;
+  return typeof code === 'string' ? code : undefined;
+}
+
 // v2.212.1 (SEC-01): the local verifyPassword with the legacy "hashed_"
 // plaintext fallback was REMOVED. Password verification now lives in
 // @/lib/password - the single source of truth shared by login, manager
@@ -162,7 +172,7 @@ async function loginHandler(...args: unknown[]): Promise<Response> {
       console.error('[AUTH_LOGIN_DB_ERROR]', {
         name: dbError instanceof Error ? dbError.name : typeof dbError,
         message: dbError instanceof Error ? dbError.message : 'Unknown DB error',
-        code: (dbError as { code?: string } | null)?.code,
+        code: errorCodeOf(dbError),
         stack: dbError instanceof Error ? dbError.stack : undefined,
         email,
         durationMs: Date.now() - requestStartTime,
@@ -176,7 +186,7 @@ async function loginHandler(...args: unknown[]): Promise<Response> {
 
       const dbErrName = dbError instanceof Error ? dbError.name : typeof dbError;
       const dbErrMsg = dbError instanceof Error ? dbError.message : 'Unknown DB error';
-      const dbErrCode = (dbError as { code?: string } | null)?.code;
+      const dbErrCode = errorCodeOf(dbError);
       const dbErrStack = dbError instanceof Error ? dbError.stack : undefined;
 
       return Response.json(
@@ -369,7 +379,7 @@ async function loginHandler(...args: unknown[]): Promise<Response> {
         new Set([
           ...membershipRows.map((m) => m.storeId),
           user.storeId,
-        ].filter(Boolean) as string[]),
+        ].filter((v): v is string => typeof v === 'string' && v.length > 0)),
       ),
     };
 
@@ -399,7 +409,7 @@ async function loginHandler(...args: unknown[]): Promise<Response> {
     console.error('[AUTH_LOGIN_FATAL_ERROR]', {
       name: error instanceof Error ? error.name : typeof error,
       message: error instanceof Error ? error.message : 'Unknown error',
-      code: (error as { code?: string } | null)?.code,
+      code: errorCodeOf(error),
       stack: error instanceof Error ? error.stack : undefined,
       durationMs: Date.now() - requestStartTime,
       timestamp: new Date().toISOString(),

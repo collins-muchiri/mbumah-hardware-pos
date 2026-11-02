@@ -84,7 +84,17 @@ async function updateGiftCardHandler(...args: unknown[]): Promise<Response> {
 
   // Handle expiresAt conversion
   if (updateData.expiresAt) {
-    updateData.expiresAt = new Date(updateData.expiresAt as string);
+    // v2.350.0 — the wire's own truth: an expiry arrives as an ISO string
+    // or an epoch number; any other truthy shape is refused (400) instead
+    // of being laundered into new Date() as garbage.
+    const rawExpires: unknown = updateData.expiresAt;
+    if (typeof rawExpires !== 'string' && typeof rawExpires !== 'number') {
+      return Response.json(
+        { success: false, error: 'expiresAt must be a date string or a timestamp.' },
+        { status: 400 }
+      );
+    }
+    updateData.expiresAt = new Date(rawExpires);
   } else if (body.expiresAt === null || body.expiresAt === '') {
     // Allow clearing the expiry date
     updateData.expiresAt = null;

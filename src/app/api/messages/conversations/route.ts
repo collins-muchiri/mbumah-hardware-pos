@@ -22,6 +22,7 @@
 
 import { type NextRequest } from 'next/server';
 import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
+import { parseParticipantIds } from '@/lib/participant-ids';
 import { db } from '@/lib/db';
 import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { LogSeverity, LogComponent } from '@/lib/types';
@@ -81,12 +82,10 @@ async function listConversationsHandler(
   // Resolve participant user names for the UI.
   const allParticipantIds = new Set<string>();
   for (const c of conversations) {
-    try {
-      const ids = JSON.parse(c.participantIds) as string[];
-      ids.forEach((id) => allParticipantIds.add(id));
-    } catch {
-      // ignore parse errors - defensive
-    }
+    // v2.350.0 — the list reads honestly (non-strings dropped, malformed
+    // JSON answered with the empty list the old catch already chose).
+    const ids = parseParticipantIds(c.participantIds);
+    ids.forEach((id) => allParticipantIds.add(id));
   }
 
   const participants =
@@ -100,12 +99,9 @@ async function listConversationsHandler(
   const participantMap = new Map(participants.map((p) => [p.id, p]));
 
   const data = conversations.map((c) => {
-    let ids: string[] = [];
-    try {
-      ids = JSON.parse(c.participantIds) as string[];
-    } catch {
-      ids = [];
-    }
+    // v2.350.0 — the list reads honestly; the try/catch the old launder
+    // needed is gone with it.
+    const ids = parseParticipantIds(c.participantIds);
     return {
       id: c.id,
       storeId: c.storeId,

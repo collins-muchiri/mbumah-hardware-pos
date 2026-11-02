@@ -126,9 +126,11 @@ async function orgAutomationHandler(_request: NextRequest): Promise<Response> {
       if (!r.metadata) return null;
       try {
         const parsed: unknown = JSON.parse(r.metadata);
+        // v2.350.0 — the field is read through the `in` narrowing (the
+        // object's own truth), not through a shape cast.
         const path =
-          parsed && typeof parsed === 'object'
-            ? (parsed as { path?: unknown }).path
+          parsed && typeof parsed === 'object' && 'path' in parsed
+            ? parsed.path
             : undefined;
         if (typeof path !== 'string') return null;
         if (path.endsWith('/hourly')) return 'hourly';
@@ -153,9 +155,10 @@ async function orgAutomationHandler(_request: NextRequest): Promise<Response> {
       if (!r.metadata) return null;
       try {
         const parsed: unknown = JSON.parse(r.metadata);
+        // v2.350.0 — same `in` reading for the standardized dispatcher.
         const d =
-          parsed && typeof parsed === 'object'
-            ? (parsed as { dispatcher?: unknown }).dispatcher
+          parsed && typeof parsed === 'object' && 'dispatcher' in parsed
+            ? parsed.dispatcher
             : undefined;
         return typeof d === 'string' && d.trim().length > 0 ? d : null;
       } catch {
@@ -173,32 +176,34 @@ async function orgAutomationHandler(_request: NextRequest): Promise<Response> {
     if (latestTick?.metadata) {
       try {
         const parsed: unknown = JSON.parse(latestTick.metadata);
+        // v2.350.0 — the results bag is reached through the `in` narrowing
+        // and its elements are narrowed for real: the predicate validates
+        // each field off the record the narrowing hands over — no shape
+        // cast bridges the wire to SubJobResult anymore.
         if (
           parsed &&
           typeof parsed === 'object' &&
-          Array.isArray((parsed as { results?: unknown }).results)
+          'results' in parsed &&
+          Array.isArray(parsed.results)
         ) {
-          subJobs = ((parsed as { results: unknown[] }).results as SubJobResult[]).filter(
-            (r): r is SubJobResult => {
-              if (!r || typeof r !== 'object') return false;
-              const job = r as SubJobResult;
-              // deleted rides only when it is honestly absent or a real
-              // non-negative number - a string "3" or a negative never does.
-              // (Destructured once: TS cannot narrow a cast-property access
-              // across a || / && chain, and no-non-null-assertion is house
-              // lint policy.)
-              const { name, ok, status, deleted } = job;
-              if (typeof name !== 'string' || typeof ok !== 'boolean' || typeof status !== 'number') {
-                return false;
-              }
-              if (deleted === undefined) return true;
-              return typeof deleted === 'number' && Number.isFinite(deleted) && deleted >= 0;
-            },
-          );
+          const rawResults: unknown[] = parsed.results;
+          subJobs = rawResults.filter((r): r is SubJobResult => {
+            if (!r || typeof r !== 'object' || Array.isArray(r)) return false;
+            if (!('name' in r) || !('ok' in r) || !('status' in r)) return false;
+            const { name, ok, status } = r;
+            if (typeof name !== 'string' || typeof ok !== 'boolean' || typeof status !== 'number') {
+              return false;
+            }
+            // deleted rides only when it is honestly absent or a real
+            // non-negative number - a string "3" or a negative never does.
+            const deleted: unknown = 'deleted' in r ? r.deleted : undefined;
+            if (deleted === undefined) return true;
+            return typeof deleted === 'number' && Number.isFinite(deleted) && deleted >= 0;
+          });
           // v2.165.0: which dispatcher fired ('hourly' | 'nightly'). Rows
           // older than v2.165.0 lack the field - absent or garbage keeps it
           // undefined and the card renders no source label (never a guess).
-          const rawDispatcher = (parsed as { dispatcher?: unknown }).dispatcher;
+          const rawDispatcher = 'dispatcher' in parsed ? parsed.dispatcher : undefined;
           if (typeof rawDispatcher === 'string' && rawDispatcher.length > 0) {
             tickDispatcher = rawDispatcher;
           }

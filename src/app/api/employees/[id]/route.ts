@@ -17,6 +17,7 @@
 // ORM interceptor already scopes reads/writes, this route re-checks).
 
 import { type NextRequest } from 'next/server';
+import type { Prisma } from '@prisma/client';
 import { db } from '@/lib/db';
 import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { LogSeverity, LogComponent } from '@/lib/types';
@@ -62,7 +63,8 @@ function tenantCheck(
 }
 
 function serializeEmployee(e: NonNullable<Awaited<ReturnType<typeof loadEmployee>>>) {
-  // MONEY FIX (v2.3.1): serialize Prisma Decimal money fields as numbers at the
+  // MONEY FIX (v2.3.1): serialize Prisma Decimal money fields into JSON
+  // numbers at the
   // API boundary (see /api/employees route for the incident rationale).
   const toMoney = (v: unknown): number => (v === null || v === undefined ? 0 : Number(v));
   return {
@@ -148,7 +150,10 @@ async function updateEmployeeHandler(
   const denied = tenantCheck(existing.storeId, session);
   if (denied) return denied;
 
-  const data: Record<string, unknown> = {};
+  // v2.350.0 — the update payload speaks Prisma's own EmployeeUpdateInput:
+  // every writer below is checked against the shape the door really stores,
+  // and the update no longer rides an anything-goes silence.
+  const data: Prisma.EmployeeUpdateInput = {};
 
   // Identity (trimmed strings, null allowed for optionals)
   const strFields = [
@@ -159,7 +164,11 @@ async function updateEmployeeHandler(
   ] as const;
   for (const f of strFields) {
     if (body[f] !== undefined) {
-      const v = typeof body[f] === 'string' ? (body[f] as string).trim() : '';
+      // v2.350.0 — the wire's own truth, narrowed on a local (TS cannot
+      // narrow an indexed access through a union key): a string trims, any
+      // other shape answers the honest empty string — no launder.
+      const raw: unknown = body[f];
+      const v = typeof raw === 'string' ? raw.trim() : '';
       if (f === 'firstName' || f === 'lastName') {
         if (v.length < 1) {
           return Response.json({ success: false, error: `${f} cannot be empty.` }, { status: 400 });
@@ -173,17 +182,26 @@ async function updateEmployeeHandler(
 
   // Email uniqueness (per store) when changing
   if (data.email !== undefined && data.email !== null && data.email !== existing.email) {
+    // v2.350.0 — the honest email read: the door refuses a non-string email
+    // instead of laundering it (the strFields loop above is the only writer
+    // and always stores a string, so this is the unreachable-in-practice
+    // refusal that keeps the shape true).
+    const nextEmail: unknown = data.email;
+    if (typeof nextEmail !== 'string') {
+      return Response.json({ success: false, error: 'email must be a string.' }, { status: 400 });
+    }
+    const email = nextEmail.toLowerCase();
     const clash = await db.employee.findUnique({
-      where: { storeId_email: { storeId: existing.storeId, email: (data.email as string).toLowerCase() } },
+      where: { storeId_email: { storeId: existing.storeId, email } },
       select: { id: true },
     });
     if (clash && clash.id !== id) {
       return Response.json(
-        { success: false, error: `An employee with email "${data.email}" already exists for this store.` },
+        { success: false, error: `An employee with email "${email}" already exists for this store.` },
         { status: 409 }
       );
     }
-    data.email = (data.email as string).toLowerCase();
+    data.email = email;
   }
 
   // Employee staff number (branch-coded, globally unique)
@@ -218,16 +236,21 @@ async function updateEmployeeHandler(
 
   // Enums
   if (body.role !== undefined) {
-    if (!VALID_ROLES.includes(String(body.role))) {
+    // v2.350.0 — the wire's own truth: the raw value is validated as a
+    // string (the old String()-form check let a non-string whose string
+    // form matched sail through and be stored verbatim).
+    const rawRole: unknown = body.role;
+    if (typeof rawRole !== 'string' || !VALID_ROLES.includes(rawRole)) {
       return Response.json({ success: false, error: `role must be one of: ${VALID_ROLES.join(', ')}` }, { status: 400 });
     }
-    data.role = body.role;
+    data.role = rawRole;
   }
   if (body.employmentType !== undefined) {
-    if (!VALID_EMPLOYMENT_TYPES.includes(String(body.employmentType))) {
+    const rawType: unknown = body.employmentType;
+    if (typeof rawType !== 'string' || !VALID_EMPLOYMENT_TYPES.includes(rawType)) {
       return Response.json({ success: false, error: `employmentType must be one of: ${VALID_EMPLOYMENT_TYPES.join(', ')}` }, { status: 400 });
     }
-    data.employmentType = body.employmentType;
+    data.employmentType = rawType;
   }
 
   // Dates
@@ -250,7 +273,14 @@ async function updateEmployeeHandler(
       if (!Number.isFinite(n) || n < 0) {
         return Response.json({ success: false, error: `${f} must be a non-negative number.` }, { status: 400 });
       }
-      data[f] = f === 'hourlyRate' && n === 0 ? null : toDec(n);
+      // v2.350.0 — the nullable field writes ITS OWN key (a union-key write
+      // must satisfy every field's shape, and the required salaries refuse
+      // null); the honest zero-hourly answer clears exactly hourlyRate.
+      if (f === 'hourlyRate' && n === 0) {
+        data.hourlyRate = null;
+      } else {
+        data[f] = toDec(n);
+      }
     }
   }
 
@@ -298,7 +328,7 @@ async function updateEmployeeHandler(
 
   const updated = await db.employee.update({
     where: { id },
-    data: data as never,
+    data,
     include: {
       user: { select: { id: true, email: true, name: true, role: true } },
       _count: { select: { payrollDetails: true, leaveRequests: true } },

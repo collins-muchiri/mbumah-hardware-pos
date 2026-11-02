@@ -576,12 +576,18 @@ async function createTransactionInner(
   // children are converted by the CHILD's own factor (default 1). The
   // map also accumulates SELLING-unit totals so the StockMovement notes can
   // carry "sold 6 FOOT (×0.3048)"-style audit context.
+  // v2.350.0 — the deduction's product row is typed by DERIVATION (the
+  // bundle child's own shape — the parent rows, carrying the extra
+  // bundleItems include, assign to it cleanly). The old bridge cast
+  // claimed every child carried the parent's include; nothing reads
+  // bundleItems off a deduction, so the lie died with the cast.
+  type DeductionProduct = typeof products[0]['bundleItems'][number]['childProduct'];
   const stockDeductions = new Map<
     string,
     {
       /** Total to deduct in BASE units (what quantityInStock counts). */
       quantity: number;
-      product: typeof products[0];
+      product: DeductionProduct;
       /** Total in SELLING units - movement-note audit context. */
       soldUnits: number;
     }
@@ -652,7 +658,7 @@ async function createTransactionInner(
 
         stockDeductions.set(childProduct.id, {
           quantity: totalNeeded,
-          product: childProduct as typeof products[0],
+          product: childProduct,
           soldUnits: totalSoldUnits,
         });
       }
@@ -813,7 +819,10 @@ async function createTransactionInner(
   const totalAmount = KES(subtotal - totalDiscount).round().toNumber();
   // F5-1: discount cap - a discount larger than the line-discounted total
   // used to produce a NEGATIVE finalTotal (negative Payment, negative debt).
-  const appliedDiscount = Math.max(0, Math.min(round2(toDec(discountAmount as number | undefined)), totalAmount));
+  // v2.350.0 — discountAmount is the validated door's own number
+  // (checkoutSchema coerces it); the old cast re-narrowed what the door
+  // had already typed — pure deletion, the coerce speaks.
+  const appliedDiscount = Math.max(0, Math.min(round2(toDec(discountAmount)), totalAmount));
   const finalTotal = KES(totalAmount - appliedDiscount).round().toNumber();
 
   // v2.13.1 VAT LEDGER ALIGNMENT (spec formula)
@@ -929,7 +938,7 @@ async function createTransactionInner(
   let changeDueAmount: number | null = null;
   if (paymentMethod === PaymentMethod.CASH) {
     const rendered = paymentDetails?.cashAmount != null
-      ? toNum(paymentDetails.cashAmount as number)
+      ? toNum(paymentDetails.cashAmount)
       : finalTotal; // no explicit tender captured → exact amount (legacy)
     if (rendered + 0.005 < finalTotal) {
       return Response.json(
@@ -947,7 +956,7 @@ async function createTransactionInner(
     // no change is due; the cash leg is still persisted for the till log.
     const cashLegs = paymentDetails.splits
       .filter((s) => s.method === PaymentMethod.CASH)
-      .reduce((acc, s) => acc.plus(toDec(s.amount as number)), new Decimal(0));
+      .reduce((acc, s) => acc.plus(toDec(s.amount)), new Decimal(0));
     if (cashLegs.gt(0)) {
       cashTendered = round2(cashLegs);
       changeDueAmount = 0;
@@ -1917,7 +1926,7 @@ async function createTransactionInner(
       paymentBreakdown.giftCard = finalTotal;
     } else if (paymentMethod === PaymentMethod.SPLIT && paymentDetails?.splits) {
       for (const split of paymentDetails.splits) {
-        const splitAmount = toNum(split.amount as number);
+        const splitAmount = toNum(split.amount);
         if (split.method === PaymentMethod.CASH) {
           paymentBreakdown.cash = round2(toDec(paymentBreakdown.cash ?? 0).plus(splitAmount));
         } else if (split.method === PaymentMethod.MPESA) {

@@ -55,7 +55,9 @@ async function listSchedulesHandler(...args: unknown[]): Promise<Response> {
   const where: Record<string, unknown> = { storeId };
   if (userId) where.userId = userId;
   if (status) {
-    if (!VALID_STATUSES.includes(status as ShiftScheduleStatus)) {
+    // v2.350.0 — the query-string's own truth: the status is a plain string
+    // from the URL; some() reads it against the enum without a launder.
+    if (!VALID_STATUSES.some((v) => v === status)) {
       return Response.json(
         { success: false, error: `Invalid status: ${status}` },
         { status: 400 },
@@ -229,7 +231,17 @@ async function createScheduleHandler(...args: unknown[]): Promise<Response> {
   // specificDate / recurrenceEndDate
   let specificDateVal: Date | null = null;
   if (hasSpecific) {
-    specificDateVal = new Date(specificDate as string);
+    // v2.350.0 — the wire's own truth: a specific date arrives as an ISO
+    // string or an epoch number; any other shape is refused by the same
+    // voice the malformed-ISO check below already speaks.
+    const rawSpecific: unknown = specificDate;
+    if (typeof rawSpecific !== 'string' && typeof rawSpecific !== 'number') {
+      return Response.json(
+        { success: false, error: 'specificDate must be a valid ISO date string.' },
+        { status: 400 },
+      );
+    }
+    specificDateVal = new Date(rawSpecific);
     if (Number.isNaN(specificDateVal.getTime())) {
       return Response.json(
         { success: false, error: 'specificDate must be a valid ISO date string.' },

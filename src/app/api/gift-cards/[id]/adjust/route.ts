@@ -62,7 +62,9 @@ async function adjustGiftCardHandler(...args: unknown[]): Promise<Response> {
     );
   }
 
-  const previousStatus = giftCard.status as string;
+  // v2.350.0 — the row's own column needs no launder: GiftCard.status is
+  // typed string by Prisma, the old cast was noise (and, once gone, the
+  // type system showed the dead REDEEMED branch below — see newStatus).
 
   // Task 12-c: Decimal arithmetic (was `giftCard.currentBalance + amount` -
   // a number + Prisma-Decimal STRING concat). Rounded HALF_UP to 2dp.
@@ -78,13 +80,17 @@ async function adjustGiftCardHandler(...args: unknown[]): Promise<Response> {
     );
   }
 
-  // Determine new status
+  // Determine new status. v2.350.0 — the honest dissolve: once the row's
+  // status stopped being laundered through a string cast, the type system
+  // showed the old "fully redeemed, adding balance back" branch could
+  // never fire — the guard above refuses every card that is not ACTIVE or
+  // PARTIALLY_REDEEMED, so a REDEEMED card never reaches this block. The
+  // dead branch (and its now-unused previousStatus read) is gone (runtime
+  // behavior identical); re-admitting redeemed cards is a door-contract
+  // change, not a casts fix.
   let newStatus = giftCard.status;
   if (newBalanceDec.isZero()) {
     newStatus = 'REDEEMED';
-  } else if (previousStatus === 'REDEEMED' && newBalanceDec.gt(0)) {
-    // If card was fully redeemed and we're adding balance back
-    newStatus = 'PARTIALLY_REDEEMED';
   }
 
   // Auto-adjust visibility

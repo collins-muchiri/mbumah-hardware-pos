@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.350.0',
+    title: 'The casts census, phase 2: fifteen doors stop laundering the wire',
+    bullets: [
+      'Fifteen more API doors now read your data exactly as it arrives \u2014 participant lists, read receipts, error codes, gift-card expiries and employee updates all validate the real value instead of trusting a cast to have gotten it right.',
+      'Cleaner refusals: a malformed participant list, a non-string role, or a bad expiry date now earns an honest 400 (or the same graceful empty state as before) instead of garbage silently flowing into the database.',
+      'Fully-redeemed gift cards were already un-adjustable \u2014 the dead code that pretended otherwise is gone, and the employee update payload is now checked field-by-field against the real database shape.',
+      'The shift editor names the trade before you save it: switching a shift between weekly and one-off now tells you exactly which schedule pattern is retired.',
+    ],
+  },
+  {
     version: '2.348.0',
     title: 'The field-level casts census, three doors speak the wire',
     bullets: [

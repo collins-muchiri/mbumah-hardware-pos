@@ -110,7 +110,11 @@ async function updateCustomerCreditHandler(...args: unknown[]): Promise<Response
   // Validate creditType if being changed
   if (updateData.creditType) {
     const validTypes = ['CREDIT', 'DEBIT', 'ADJUSTMENT', 'REFUND'];
-    if (!validTypes.includes(updateData.creditType as string)) {
+    // v2.350.0 — the wire's own truth: the type is spoken only when it is a
+    // string (a truthy non-string used to ride the old cast into
+    // includes() and answer the same 400 by accident, not by reading).
+    const rawType: unknown = updateData.creditType;
+    if (typeof rawType !== 'string' || !validTypes.includes(rawType)) {
       return Response.json(
         { success: false, error: `Invalid creditType. Must be one of: ${validTypes.join(', ')}` },
         { status: 400 }
@@ -140,7 +144,11 @@ async function updateCustomerCreditHandler(...args: unknown[]): Promise<Response
   // Recalculate running balance if amount or creditType changed
   if (updateData.amount !== undefined || updateData.creditType !== undefined) {
     const effectiveAmount = Number(updateData.amount ?? existing.amount);
-    const effectiveType = (updateData.creditType ?? existing.creditType) as string;
+    // v2.350.0 — the honest effective type: the wire's value when it is a
+    // string (the 400 above already refused every other truthy shape),
+    // otherwise the stored row's own type — no laundered fallback.
+    const rawEffectiveType: unknown = updateData.creditType ?? existing.creditType;
+    const effectiveType = typeof rawEffectiveType === 'string' ? rawEffectiveType : existing.creditType;
 
     // Get all credit entries for this customer up to and including this one, ordered by date
     const allCredits = await db.customerCredit.findMany({
