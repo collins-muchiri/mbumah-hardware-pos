@@ -42,9 +42,9 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.224.0)', () => {
   it('package.json leads 2.224.0 (all three slots)', () => {
-    expect(version).toBe('2.348.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.348.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.348.0');
+    expect(version).toBe('2.350.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.350.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.350.0');
   });
 
   it('the changelog anchors the section ABOVE its ancestor (the structural pin — headers, never bare strings)', () => {
@@ -62,8 +62,13 @@ describe('the round of record (v2.224.0)', () => {
 
 describe('the hint names its source (v2.224.0)', () => {
   it('the named wire grew the receipt fields, additively', () => {
-    expect(kpi.includes('lastSupplierPoNumber: null as string | null,')).toBe(true);
-    expect(kpi.includes('lastSupplierAt: null as string | null,')).toBe(true);
+    // v2.350.0 THE PIN GREW (the pin-growth law): the five seed casts moved
+    // into the ReorderHint interface — the seeds are plain nulls now, and
+    // the nullability lives in the named declaration (additive, same fields).
+    expect(kpi.includes('lastSupplierPoNumber: null,')).toBe(true);
+    expect(kpi.includes('lastSupplierAt: null,')).toBe(true);
+    expect(kpi.includes('lastSupplierPoNumber: string | null;')).toBe(true);
+    expect(kpi.includes('lastSupplierAt: string | null;')).toBe(true);
   });
 
   it('the hint select carries the PO number and the day it spoke', () => {

@@ -83,7 +83,10 @@ describe('the hourly dispatcher - the ledger row names its heartbeat', () => {
 describe('the automation API - the dispatcher name is read tolerantly', () => {
   it('parses the dispatcher only when an honest non-empty string', () => {
     expect(automationApi).toContain('let tickDispatcher: string | undefined;');
-    expect(automationApi).toContain("const rawDispatcher = (parsed as { dispatcher?: unknown }).dispatcher;");
+    // v2.350.0 THE PIN GREW (the pin-growth law): the dispatcher field is
+    // read through the `in` narrowing now — the shape cast is gone, the
+    // tolerant typeof read that follows is unchanged.
+    expect(automationApi).toContain("const rawDispatcher = 'dispatcher' in parsed ? parsed.dispatcher : undefined;");
     expect(automationApi).toContain("typeof rawDispatcher === 'string' && rawDispatcher.length > 0");
   });
 

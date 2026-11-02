@@ -53,13 +53,16 @@ describe('the dispatcher - the ledger carries the honest count', () => {
 describe('the automation API - the tolerant guard passes honest counts', () => {
   it('SubJobResult is optional-deleted and the guard enforces the shape', () => {
     expect(automationApi).toContain('deleted?: number;');
-    // The guard destructures once (TS cannot narrow cast-property accesses
-    // across a chain; no-non-null-assertion is house lint policy).
-    const guard = automationApi.split('const { name, ok, status, deleted } = job;')[1];
+    // v2.350.0 THE PIN GREW (the pin-growth law): the guard's shape cast is
+    // dissolved — the `in`-narrowing hands over the record, the destructure
+    // owns name/ok/status, and `deleted` is read honestly off the narrowed
+    // record (absent = undefined). The shape enforcement pins are unchanged.
+    const guard = automationApi.split("const { name, ok, status } = r;")[1];
     expect(guard).toContain("typeof deleted === 'number'");
     expect(guard).toContain('Number.isFinite(deleted)');
     expect(guard).toContain('deleted >= 0');
     expect(guard).toContain('if (deleted === undefined) return true;');
+    expect(guard).toContain("const deleted: unknown = 'deleted' in r ? r.deleted : undefined;");
   });
 
   it('absent deleted still passes - older ticks stay readable', () => {
