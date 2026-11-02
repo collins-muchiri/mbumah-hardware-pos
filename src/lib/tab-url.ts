@@ -250,6 +250,14 @@ export function parseInitialNamedPage(search: string, param: string, fallback = 
  * hue the desk had not spoken — and the NEUTRAL is lowercase here, the
  * desk's own all-lens spelling, so an UPPERCASE spelling of it is an
  * unknown word).
+ * v2.360.0 — THE PROMISE KEPT, THE THIRTEENTH WORD: the vouchers desk's
+ * status lens speaks it as its desk-prefixed `vc-status` (the same
+ * parser, zero new bytes of law, again — the voucher's life from issue
+ * through pause to expiry is now an address; UPPERCASE words, the
+ * landing chip wears the thirteenth family, pink — the promo hue the
+ * desk had not spoken — and the NEUTRAL is lowercase here, the desk's
+ * own all-lens spelling; the desk's campaign lens keeps its own Select,
+ * untouched, and may earn its own word someday).
  */
 export function parseInitialNamedMember<V extends string>(
   search: string,

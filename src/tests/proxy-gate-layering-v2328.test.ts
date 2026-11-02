@@ -264,6 +264,7 @@ describe('the collision ledger — desk-prefixed words stay rare', () => {
         'src/tests/transfer-status-deep-link-v2357.test.ts',
         'src/tests/txn-pay-deep-link-v2333.test.ts',
         'src/tests/txn-type-deep-link-v2354.test.ts',
+      'src/tests/vc-status-deep-link-v2360.test.ts',
       ].sort()
     );
   });

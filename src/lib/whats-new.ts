@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.360.0',
+    title: 'The voucher\u2019s life answers the address bar',
+    bullets: [
+      'A vouchers link can now name its lens: ?vc-status=ACTIVE, PAUSED, EXPIRED or CANCELLED lands the ledger pre-filtered, with a dismissible chip naming the word it answered — the thirteenth word of the address-bar vocabulary.',
+      'The landing chip wears the vocabulary\u2019s thirteenth family (pink — the promo hue) beside the desk\u2019s own badge voices — one bar, honest voices, no masquerade; the campaign lens keeps its own Select, untouched.',
+      'Unknown, missing, or wrong-case words never strand the ledger: the lens falls back to All Statuses, case-sensitively.',
+    ],
+  },
+  {
     version: '2.359.0',
     title: 'The delivery\u2019s road answers the address bar',
     bullets: [
