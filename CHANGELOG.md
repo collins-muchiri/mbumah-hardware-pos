@@ -1,3 +1,19 @@
+## [2.345.0] The loyalty desk speaks the wire’s own truth
+
+The loyalty desk speaks the wire's own truth — the round live-probed the tiers and campaigns wires and found the interfaces laundering a half-dozen lies past the compiler: `LoyaltyTierItem` declared `pointsThreshold` (a field ZERO readers use — the schema, the route and the desk all say `minPoints`), hid `maxPoints` and the `_count.customerTiers` tally, and `LoyaltyCampaignItem` declared `pointsMultiplier` and `isActive` while the schema says `multiplier` and `status`. The desk's EIGHT any-sites — five `(X as any)?.data` derived-data lines, two `const payload: any` create bodies, one `v as any` Select cast — all existed to keep those lies compiling. All eight dissolve, the interfaces speak the wire's own shapes, and the tombstone census pins every tab cast-free.
+
+### Fixed
+- **THE MEMBERS BUG**: the tier cards read `tier.customerTiers?.length` — a key the tiers wire NEVER sends (its include is `_count: { select: { customerTiers: true } }`) — so the Members cell stood at 0 forever regardless of the roster. The card reads `tier._count?.customerTiers ?? 0` now, the tally the wire actually answers.
+
+### Added
+- **THE HONEST MAPPING** (`api.ts`): `LoyaltyTierItem` speaks `minPoints`, the `maxPoints` ceiling, the Prisma Decimal serialization truth (`discountPercent`/`pointsMultiplier` ride JSON strings) and the `_count` tally; `LoyaltyCampaignItem` speaks `bonusPoints`, `multiplier`, `targetTierId`, `status` and both tallies — the dead `pointsThreshold`/`isActive`/`pointsMultiplier` lies are buried (a byte census pins `pointsThreshold` at ZERO appearances in api.ts). Both create signatures speak their doors' own shapes (minPoints required; the maxPoints/pointsMultiplier/bonusPoints/multiplier/targetTierId optionals the doors read and validate).
+- **THE TOMBSTONE CENSUS**: `as any` and `: any` match ZERO files under src/app/(shell)/tabs — the tab-level cast class the loyalty desk alone carried is closed.
+- **THE ADVISORY BASELINE DROPS BY NINE**: the scoped tsc round-trip proved the casts were hiding NINE real TS2339 errors (the interface misses themselves) — the honest types end them; the round-trip ledger: 7=7, zero new, NINE gone.
+- **THE ERA TEST** (`src/tests/loyalty-wire-truth-v2345.test.ts`): 11 pins — the tombstone walk, the five honest narrowings, the Members fix, the dead lie's burial, both interface blocks, both create signatures, both payload types, the Number() wraps at the Decimal reads, the widened campaign-type state, and the bracket voice bytes.
+
+### Styling
+- **THE BRACKET VOICE** (`loyalty-tab.tsx`, the desk's eleventh styled face): each tier card's range line speaks the FULL points bracket the schema stores — "9,000 – 14,999 pts bracket" when `maxPoints` closes the ceiling, "9,000+ pts bracket" when it never closes — `data-testid="tier-bracket-voice"`, with the exact sentence in the title ("Members enter at 9,000 points; the bracket closes at 14,999." / "…the bracket never closes — every balance above the floor holds this tier.").
+
 ## [2.344.0] The bare class ends, the last eight doors speak their shapes
 
 The bare-door class's FINAL pass — the last eight doors (auth/login, branches, delivery-notes, expenses, invoices, store-transfers, suppliers, users) speak their bodies' own shapes, and the tombstone census pins the class closed: the bare `readJsonBody(request)` call — a door with NO generic — now matches ZERO API files. Three hidden de-facto map re-casts dissolve along the way, and the invoices desk draws the create door's own discount cap before the invoice is filed.

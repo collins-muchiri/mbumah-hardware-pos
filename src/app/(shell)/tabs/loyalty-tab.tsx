@@ -291,7 +291,12 @@ export default function LoyaltyTab() {
   const [campaignForm, setCampaignForm] = useState({
     name: '',
     description: '',
-    campaignType: 'BONUS_POINTS' as const,
+    // v2.345.0: the field is a plain string — the Select's own vocabulary
+    // (BONUS_POINTS / DOUBLE_POINTS / TIER_UPGRADE / SPECIAL_EVENT) is what
+    // it holds. The old `as const` literal made the state a one-value type
+    // and forced an any-cast on every selection below; the widened type
+    // ends both.
+    campaignType: 'BONUS_POINTS' as string,
     bonusPoints: 0,
     multiplier: 1,
     startDate: new Date().toISOString().split('T')[0],
@@ -385,11 +390,18 @@ export default function LoyaltyTab() {
   });
 
   // Derived data
-  const tiers = Array.isArray((tiersData as any)?.data) ? (tiersData as any).data : [];
-  const customers = Array.isArray((customersData as any)?.data) ? (customersData as any).data : [];
-  const transactions = Array.isArray((txData as any)?.data) ? (txData as any).data : [];
-  const campaigns = Array.isArray((campaignsData as any)?.data) ? (campaignsData as any).data : [];
-  const memberHistory = Array.isArray((memberHistoryData as any)?.data) ? (memberHistoryData as any).data : [];
+  // v2.345.0 — THE CASTS LEAVE: every one of these five lines used to wrap
+  // its query data in an any-cast, laundering a half-dozen interface lies
+  // past the compiler (pointsThreshold, the missing maxPoints/status rows,
+  // the Members cell that read a `customerTiers` array the wire never
+  // sent). With the interfaces speaking the wire's own truth (api.ts), the
+  // envelope type does the narrowing honestly: Array.isArray answers the
+  // array or the empty fallback, no cast in sight.
+  const tiers = Array.isArray(tiersData?.data) ? tiersData.data : [];
+  const customers = Array.isArray(customersData?.data) ? customersData.data : [];
+  const transactions = Array.isArray(txData?.data) ? txData.data : [];
+  const campaigns = Array.isArray(campaignsData?.data) ? campaignsData.data : [];
+  const memberHistory = Array.isArray(memberHistoryData?.data) ? memberHistoryData.data : [];
 
   // Stats
   const totalMembers = customers.length;
@@ -500,12 +512,15 @@ export default function LoyaltyTab() {
 
   function openEditTier(tier: LoyaltyTierItem) {
     setEditingTier(tier);
+    // v2.345.0: discountPercent/pointsMultiplier ride the wire as Prisma
+    // Decimal JSON strings — the form's number fields take the honest
+    // Number() wrap, exactly the answering-chain shape the doors use.
     setTierForm({
       name: tier.name,
       minPoints: tier.minPoints,
       maxPoints: tier.maxPoints != null ? String(tier.maxPoints) : '',
-      discountPercent: tier.discountPercent,
-      pointsMultiplier: tier.pointsMultiplier,
+      discountPercent: Number(tier.discountPercent),
+      pointsMultiplier: Number(tier.pointsMultiplier),
       benefits: tier.benefits ?? '',
       color: tier.color || '#CD7F32',
       icon: tier.icon ?? '',
@@ -606,7 +621,24 @@ export default function LoyaltyTab() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {sortedTiers.map((tier: LoyaltyTierItem) => {
               const TierIcon = getTierIcon(tier.name);
-              const memberCount = tier.customerTiers?.length ?? 0;
+              // v2.345.0 — THE MEMBERS CELL READS THE WIRE: the route's
+              // include is `_count: { select: { customerTiers: true } }`, so
+              // the row answers `_count.customerTiers` — never a
+              // `customerTiers` array. The old read (`tier.customerTiers?.
+              // length ?? 0`) read a key the wire never sends and the card's
+              // Members cell stood at 0 forever; the _count read is the
+              // tally the wire actually speaks.
+              const memberCount = tier._count?.customerTiers ?? 0;
+              // THE BRACKET VOICE (v2.345.0): the card's range line speaks
+              // the FULL points bracket the schema stores — floor to
+              // ceiling when maxPoints closes it, floor-plus when the
+              // ceiling is open — with the exact sentence in the title.
+              const bracketVoice = tier.maxPoints != null
+                ? `${tier.minPoints.toLocaleString()} – ${tier.maxPoints.toLocaleString()} pts bracket`
+                : `${tier.minPoints.toLocaleString()}+ pts bracket`;
+              const bracketTitle = tier.maxPoints != null
+                ? `Members enter at ${tier.minPoints.toLocaleString()} points; the bracket closes at ${tier.maxPoints.toLocaleString()}.`
+                : `Members enter at ${tier.minPoints.toLocaleString()} points; the bracket never closes — every balance above the floor holds this tier.`;
               return (
                 <Card
                   key={tier.id}
@@ -626,8 +658,12 @@ export default function LoyaltyTab() {
                         </div>
                         <div>
                           <p className="font-semibold text-sm">{tier.name}</p>
-                          <p className="text-[10px] text-muted-foreground">
-                            {tier.minPoints.toLocaleString()} pts minimum
+                          <p
+                            data-testid="tier-bracket-voice"
+                            className="text-[10px] text-muted-foreground"
+                            title={bracketTitle}
+                          >
+                            {bracketVoice}
                           </p>
                         </div>
                       </div>
@@ -1278,7 +1314,7 @@ export default function LoyaltyTab() {
                                 {campaign.bonusPoints.toLocaleString()} bonus pts
                               </span>
                             )}
-                            {campaign.multiplier > 1 && (
+                            {Number(campaign.multiplier) > 1 && (
                               <span className="flex items-center gap-1">
                                 <Zap className="h-3 w-3" />
                                 {campaign.multiplier}x multiplier
@@ -1517,7 +1553,11 @@ export default function LoyaltyTab() {
               className="h-8"
               disabled={!tierForm.name || createTierMutation.isPending}
               onClick={() => {
-                const payload: any = {
+                // v2.345.0: the payload wears the create signature's own
+                // type — the any-annotation that used to launder it (and
+                // the door's minPoints) out of the compiler's sight is
+                // gone; the conditional optional adds type-check honestly.
+                const payload: Parameters<typeof loyaltyApi.tiers.create>[0] = {
                   storeId: currentStoreId,
                   name: tierForm.name,
                   minPoints: tierForm.minPoints,
@@ -1826,7 +1866,7 @@ export default function LoyaltyTab() {
                 <Label className="text-xs">Campaign Type</Label>
                 <Select
                   value={campaignForm.campaignType}
-                  onValueChange={(v) => setCampaignForm({ ...campaignForm, campaignType: v as any })}
+                  onValueChange={(v) => setCampaignForm({ ...campaignForm, campaignType: v })}
                 >
                   <SelectTrigger className="h-9 mt-1">
                     <SelectValue />
@@ -1917,7 +1957,10 @@ export default function LoyaltyTab() {
               className="h-8"
               disabled={!campaignForm.name || createCampaignMutation.isPending}
               onClick={() => {
-                const payload: any = {
+                // v2.345.0: the payload wears the create signature's own
+                // type — bonusPoints/multiplier/targetTierId are the door's
+                // own optionals now, no any-annotation laundering.
+                const payload: Parameters<typeof loyaltyApi.campaigns.create>[0] = {
                   storeId: currentStoreId,
                   name: campaignForm.name,
                   campaignType: campaignForm.campaignType,
