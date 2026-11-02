@@ -1,3 +1,21 @@
+## [2.347.0] The tier lifecycle completes
+
+The round the loyalty tier's family closed. v2.346.0 gave the tier its update door; a tier could be created and edited but never read back alone and never retired — the desk had no delete affordance on a tier card at all. Three doors now answer the family's full verb set, and the retirement is guarded by the wire's own truth: a tier that still holds members is refused with the reassignment named, and the desk's confirm dialog reads the CURRENT tally through the prefill door before it offers the destructive confirm — a stale list can never talk the server into stranding a membership.
+
+### Added
+- **THE PREFILL DOOR** (GET `src/app/api/loyalty/tiers/[id]/route.ts`): the row PLUS its `_count` include — the member tally the desk's confirm dialog speaks — riding the same read gate the family list owns (SUPER_ADMIN / STORE_OWNER / BRANCH_MANAGER / CASHIER / ACCOUNTANT). A missing id and a foreign-store id answer the SAME 404 (no existence leak — the family law holds for every verb now).
+- **THE GUARDED RETIREMENT** (DELETE `src/app/api/loyalty/tiers/[id]/route.ts`): RBAC mirrors the family create gate (SUPER_ADMIN / STORE_OWNER), and a tier with `_count.customerTiers > 0` is refused with a 409 whose voice names the reassignment ("This tier still holds N members — reassign them to another tier before deleting."). The deletion writes the LOYALTY_TIER_DELETED system log and answers the row it retired.
+- **api.ts gains `tiers.get` and `tiers.remove`**: the prefill read and the guarded DELETE.
+- **THE DESK'S GUARDED QUESTION** (`loyalty-tab.tsx`): the card carries the retirement affordance at last — `deleteTierMutation` rides `remove()`, the confirm dialog is an AlertDialog (the invoices desk's destructive pattern), and the prefill door's fresh tally (`loyalty-tier-fresh` query) decides whether the confirm is offered. A tier that vanished between click and read closes the dialog instead of asking a ghost question; a 409 surfaces the route's own voice in the toast.
+- **THE ERA TEST** (`src/tests/tier-lifecycle-completes-v2347.test.ts`): 15 pins — the prefill door's shape + tally include + no-existence-leak (counted per verb), the guarded retirement's 409 voice + RBAC + system log, the api.ts get/remove signatures, the desk's ask + prefill-at-work + blocker tally + blocker line, the retirement affordance, the members tally voice, and the PUT era holds.
+
+### Fixed
+- **THE VOICELESS TALLY**: the tier card's Members figure was a bare number — it carries its own title voice now (what the count means for the tier's retirement) and rides tabular figures (`data-testid="tier-member-count"`).
+
+### Styling
+- **THE RETIREMENT AFFORDANCE**: the rose-tinted trash rides the card beside the edit pen (`data-testid="tier-delete"`, `text-rose-600 hover:bg-rose-50` + dark variants), with a title voice that names the wire's reassignment ask when members hold the tier.
+- **THE GUARDED QUESTION'S FACE**: the confirm dialog wears the tier's own colour chip in its title, the blocker line renders the mirrored 409 voice in the rose panel (`data-testid="tier-delete-blocked"`) while a "Reading the current member tally from the wire…" line bridges the prefill flight (`data-testid="tier-delete-reading"`), and the destructive confirm (`bg-rose-600`, `data-testid="tier-delete-confirm"`) sits disabled behind the blocker.
+
 ## [2.346.0] The tier lifecycle, honestly
 
 The round the loyalty tier's lifecycle stopped lying in two voices at once: the desk's tier form has carried an Active / Inactive toggle forever while the create door dropped the flag on the floor (the create data hardcoded `isActive: true`, so every tier came out Active), and the edit dialog wore the words "Update Tier" while its submit re-ran the CREATE door — every "update" duplicated the tier and left the original untouched, because NO update route existed anywhere.
