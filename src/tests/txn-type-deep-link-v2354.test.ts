@@ -215,6 +215,7 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // v2.353.0's registry pinned the census testids, whose substring
       // carries this word — the honest speaker joins (the same ripple)
       'src/tests/door-shape-registry-v2353.test.ts',
+      'src/tests/inv-status-deep-link-v2356.test.ts',
       'src/tests/inv-stock-deep-link-v2329.test.ts',
       'src/tests/proxy-gate-layering-v2328.test.ts',
       // v2.355.0: the rentals desk's status lens joins the vocabulary — its

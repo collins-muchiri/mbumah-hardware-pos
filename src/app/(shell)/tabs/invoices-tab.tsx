@@ -10,9 +10,11 @@ import {
   FileCheck, FileMinus, FilePlus, ChevronDown,
   Trash2, ArrowUpDown, Send, CheckCircle2, Phone, MessageSquare,
   Download, FileDown, QrCode, ExternalLink,
+  Link2, X,
 } from 'lucide-react';
 
 import { useAppStore } from '@/lib/stores';
+import { parseInitialNamedMember } from '@/lib/tab-url';
 import { useVatRate, getCachedVatRate } from '@/hooks/use-vat-rate';
 import {
   invoicesApi, productsApi, customersApi, whatsappApi,
@@ -185,6 +187,30 @@ function createEmptyLineItem(taxRate?: number): LineItemDraft {
 
 // Main Component
 
+// v2.356.0 THE INVOICE DESK'S OWN WORD — the invoices desk's status lens
+// answers the address bar too: `?inv-status=PAID` lands the desk with
+// the paid lens already chosen (the NINTH word of the vocabulary — the
+// invoicing pipeline's stage, DRAFT through EXPIRED, is now an address).
+// The law is MEMBERSHIP, ONE home (`parseInitialNamedMember`): the value
+// must name a lens the desk actually offers — case-sensitive (the lens's
+// own words are UPPERCASE, so `paid` is an unknown word, not a clever
+// match — the payment word's voice) — and anything missing or unknown
+// answers 'all' (never stranded). The word is desk-prefixed per the
+// Task 44 collision law: a desk-prefixed word can never leak across
+// client-side tab switches.
+// Collision-checked at round start: no reader of `inv-status` exists
+// anywhere in src/ — the inventory lens's word carries the stock suffix
+// (a different string), and the desk's own type lens is unsuffixed
+// state (never a reader).
+// Read-on-mount ONLY (the one-writer law): the landing word is the
+// LANDING lens, never rewritten; the status Select owns the state after.
+export const INV_STATUS_FILTERS = ['all', 'DRAFT', 'SENT', 'ACCEPTED', 'INVOICED', 'PAID', 'CANCELLED', 'EXPIRED'] as const;
+
+function initialInvStatus(): (typeof INV_STATUS_FILTERS)[number] {
+  if (typeof window === 'undefined') return 'all';
+  return parseInitialNamedMember(window.location.search, 'inv-status', INV_STATUS_FILTERS, 'all');
+}
+
 export default function InvoicesTab() {
   const currentStoreId = useAppStore((s) => s.currentStoreId);
   const queryClient = useQueryClient();
@@ -209,7 +235,20 @@ export default function InvoicesTab() {
   const [typeFilter, setTypeFilter] = useState<TypeFilterTab>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<(typeof INV_STATUS_FILTERS)[number]>(initialInvStatus);
+  // v2.356.0 THE LANDING WORD — the address-bar word the desk answered at
+  // mount ('all' when the landing carried no lens). The chip speaks it
+  // ONCE: dismissed or hand-changed, the landing is over and the chip
+  // retires — an honest face never claims a landing that is done.
+  const [landedInvStatus] = useState<(typeof INV_STATUS_FILTERS)[number]>(initialInvStatus);
+  const [invLandingLive, setInvLandingLive] = useState(true);
+
+  // v2.356.0: a hand-driven change retires the landing word — the chip
+  // speaks the ADDRESS BAR's landing, never the human's next choice.
+  const chooseInvStatus = (value: (typeof INV_STATUS_FILTERS)[number]) => {
+    setStatusFilter(value);
+    setInvLandingLive(false);
+  };
 
   // Debounce search input (300ms) so the client-side filter doesn't run on every keystroke.
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -902,7 +941,40 @@ export default function InvoicesTab() {
               />
             </div>
 
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            {/* v2.356.0 THE LANDING WORD CHIP, NINTH WEARING — a link
+                that landed the desk pre-filtered wears a chip naming
+                the word it answered (?inv-status=…), styled in the
+                lens's own TEAL family (the NINTH family of the
+                vocabulary — indigo/amber/rose/emerald/cyan/violet/
+                fuchsia/orange now gain the invoice lens's teal, the
+                pipeline hue; cyan's neighbor lives on the suppliers
+                desk, the two never share a bar) with dark-mode
+                variants, the Link2 icon, a `title` tooltip, and a
+                one-press dismissal that clears the lens the word
+                seeded. The chip retires the moment the human owns the
+                filter. THE TWO VOICES:
+                hand-driven Select change or the chip's own dismissal.
+                `data-testid="inv-status-landing-word"` — the QA walk's
+                handle. */}
+            {invLandingLive && landedInvStatus !== 'all' && statusFilter === landedInvStatus && (
+              <button
+                type="button"
+                onClick={() => {
+                  setStatusFilter('all');
+                  setInvLandingLive(false);
+                }}
+                className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-teal-200 bg-teal-50 text-teal-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-teal-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 dark:border-teal-500/30 dark:bg-teal-500/10 dark:text-teal-300 dark:hover:bg-teal-500/20"
+                data-testid="inv-status-landing-word"
+                title="The desk landed with this filter from the address bar — press to clear it"
+              >
+                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+                <span className="tabular-nums">landed ?inv-status={landedInvStatus}</span>
+                <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+              </button>
+            )}
+            {/* v2.356.0: the hand-driven Select is voice 2 — a hand-driven
+                change retires the landing word. */}
+            <Select value={statusFilter} onValueChange={chooseInvStatus}>
               <SelectTrigger className="w-[140px] h-9 text-sm">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>

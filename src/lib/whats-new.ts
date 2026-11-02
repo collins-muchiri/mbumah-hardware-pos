@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.356.0',
+    title: 'The invoice pipeline answers the address bar',
+    bullets: [
+      'An invoices link can now name its stage: ?inv-status=DRAFT, SENT, ACCEPTED, INVOICED, PAID, CANCELLED or EXPIRED lands the desk pre-filtered, with a dismissible chip naming the word it answered — the ninth word of the address-bar vocabulary.',
+      'The landing chip wears the vocabulary\u2019s ninth family (teal — the pipeline hue) with the same one-press dismissal and hand-off to the status Select as every word before it.',
+      'Unknown, missing, or wrong-case words never strand the desk: the lens falls back to All Statuses, case-sensitively.',
+    ],
+  },
+  {
     version: '2.355.0',
     title: 'The rental desk answers its daily question',
     bullets: [
