@@ -1,0 +1,135 @@
+#!/usr/bin/env node
+/**
+ * walk-v2353.mjs — the v2.353.0 re-anchor codemod (one-off, BY WRITE —
+ * the Task 234/43-70 law: a fresh Write, never a sed of last round's
+ * script).
+ *
+ * The treadmill law, assert-line-only (same law as walk-v2323/…/v2352):
+ *   1. VERSION RE-ANCHOR — on every pinnable assert line, the STANDALONE
+ *      quoted release pin `'2.352.0'` becomes `'2.353.0'`. The quote-quote
+ *      form is the law: an EMBEDDED reference inside a longer string is
+ *      release HISTORY, not a release pin — it never re-anchors.
+ *      Comment-only lines keep their history. The v2.316 GUARD (carried):
+ *      historical DOC-NOTE pins (`docs.includes('**`) are skipped.
+ *   2. THE UNREAD-COUNTER CASCADE — a new WHATS_NEW entry shifts every
+ *      `whatsNewUnreadCount` anchor by +1. Current anchors after
+ *      v2.352.0: 242 / 243 / 244 / 275 → 243 / 244 / 245 / 276.
+ *   3. THE HISTORY BLOCK — (a) the MIS-TITLED line the v2.351→v2.352
+ *      mid-air re-version left behind ("v2.352.0: the wrapper-seam entry
+ *      joins the feed" carrying the AUDIT entry's transition numbers
+ *      240→241) is re-titled to the release whose entry really joined
+ *      then: the v2.351.0 audit-remediation entry. (b) the cascade block
+ *      gains its v2.353.0 line (242/243/244/275 → 243/244/245/276).
+ *
+ * Scope: test files under src/ ONLY. Ancestor verify:/check-merge:
+ * scripts are stale-by-design and are never touched.
+ * THE DERIVATION-ASSERT LAW: every replacement class prints its raw
+ * count, and a re-run of this script must answer ZERO everywhere
+ * (idempotence is the proof the cascade landed exactly once).
+ */
+import { readFileSync, writeFileSync } from 'node:fs';
+import { execSync } from 'node:child_process';
+
+const files = execSync("rg -l --glob '*.test.ts' '2\\.352\\.0|whatsNewUnreadCount' src/", {
+  encoding: 'utf8',
+  cwd: new URL('..', import.meta.url).pathname,
+})
+  .split('\n')
+  .filter(Boolean);
+
+const ANCHORS = [
+  ["whatsNewUnreadCount('2.110.0')).toBe(242)", "whatsNewUnreadCount('2.110.0')).toBe(243)"],
+  ["whatsNewUnreadCount('2.109.0')).toBe(243)", "whatsNewUnreadCount('2.109.0')).toBe(244)"],
+  ["whatsNewUnreadCount('2.108.0')).toBe(244)", "whatsNewUnreadCount('2.108.0')).toBe(245)"],
+  ["whatsNewUnreadCount('2.77.0')).toBe(275)", "whatsNewUnreadCount('2.77.0')).toBe(276)"],
+];
+
+// (3a) the mis-titled duplicate: the audit entry's numbers wore the wrong
+// release title. The honest line names the release whose entry joined.
+const MISTITLED_LINE =
+  "    // v2.352.0: the wrapper-seam entry joins the feed (+1 on every anchor → 240/241/242/273 → 241/242/243/274)";
+const AUDIT_LINE =
+  "    // v2.351.0: the audit-remediation entry joins the feed (+1 on every anchor → 240/241/242/273 → 241/242/243/274)";
+
+// (3b) this round's cascade line
+const HISTORY_LINE =
+  "    // v2.353.0: the door-registry entry joins the feed (+1 on every anchor → 242/243/244/275 → 243/244/245/276)";
+
+let pinLines = 0;
+let counterLines = 0;
+let docNoteSkips = 0;
+let historyFixes = 0;
+const touched = [];
+
+for (const rel of files) {
+  const abs = new URL(`../${rel}`, import.meta.url).pathname;
+  const before = readFileSync(abs, 'utf8');
+  const lines = before.split('\n');
+  let fileChanged = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+    const isComment = trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*');
+    const isAssert = line.includes('toBe(') || line.includes('toContain(');
+    const isDocNote = line.includes("docs.includes('**");
+    const isPinnable = isAssert && !isComment && !isDocNote;
+
+    // (1) the release re-anchor — STANDALONE quoted pins only (the law:
+    // '2.352.0' with both quotes; embedded v2.352.0 references are history)
+    if (isPinnable && line.includes("'2.352.0'")) {
+      lines[i] = line.replaceAll("'2.352.0'", "'2.353.0'");
+      pinLines++;
+      fileChanged = true;
+      continue;
+    }
+    if (isAssert && isDocNote && line.includes("'2.352.0'")) {
+      docNoteSkips++;
+      continue;
+    }
+
+    // (2) the unread-counter cascade
+    for (const [from, to] of ANCHORS) {
+      if (line.includes(from)) {
+        lines[i] = line.split(from).join(to);
+        counterLines++;
+        fileChanged = true;
+        break;
+      }
+    }
+  }
+
+  // (3) the history block rides the cascade block it documents
+  if (rel.endsWith('console-changelog.test.ts')) {
+    const joined = lines.join('\n');
+    // (3a) re-title the mis-titled duplicate (the v2.351 audit entry)
+    const mistitledIdx = lines.findIndex((l) => l === MISTITLED_LINE);
+    if (mistitledIdx !== -1) {
+      lines[mistitledIdx] = AUDIT_LINE;
+      historyFixes++;
+      fileChanged = true;
+    }
+    // (3b) this round's line, spliced once above the first anchor
+    if (!joined.includes(HISTORY_LINE)) {
+      const anchorIdx = lines.findIndex((l) => l.includes("whatsNewUnreadCount('2.110.0'))"));
+      if (anchorIdx !== -1) {
+        lines.splice(anchorIdx, 0, HISTORY_LINE);
+        historyFixes++;
+        fileChanged = true;
+      }
+    }
+  }
+
+  if (fileChanged) {
+    writeFileSync(abs, lines.join('\n'));
+    touched.push(rel);
+  }
+}
+
+console.log(`files scanned: ${files.length}`);
+console.log(`pin lines re-anchored: ${pinLines}`);
+console.log(`counter lines cascaded: ${counterLines}`);
+console.log(`doc-note skips: ${docNoteSkips}`);
+console.log(`history fixes: ${historyFixes}`);
+console.log(`files touched: ${touched.length}`);
+for (const t of touched) console.log(`  - ${t}`);
