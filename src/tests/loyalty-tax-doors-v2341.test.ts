@@ -48,9 +48,14 @@ const FAMILY_DOORS = [
   'src/app/api/tax/filings/route.ts',
 ];
 
-describe('THE BARE CLASS FALLS 25 → 20 (v2.341.0)', () => {
-  it('exactly 20 bare doors remain', () => {
-    expect(BARE.length).toBe(20);
+describe('THE BARE CLASS FALLS 25 → 20 (v2.341.0) — the fall CONTINUES (v2.342.0)', () => {
+  // v2.342.0 THE PIN GREW (the pin-growth law: a byte-exact pin on a line
+  // an honest change edits grows with the change): the messaging four
+  // followed the loyalty + tax families — the census this file first spoke
+  // (20) walks on (16). The doors that left after this file's round are
+  // guarded by the family tests (hr-doors-v2340 carries the family walk).
+  it('exactly 16 bare doors remain', () => {
+    expect(BARE.length).toBe(16);
   });
 
   it('the five loyalty + tax doors left the census', () => {
@@ -82,8 +87,15 @@ describe('THE FIVE DOORS SPEAK THEIR OWN SHAPES', () => {
     expect(src.includes('name: string;')).toBe(true);
     expect(src.includes('campaignType?: string;')).toBe(true);
     expect(src.includes('description?: string;')).toBe(true);
-    expect(src.includes('bonusPoints?: number;')).toBe(true);
-    expect(src.includes('multiplier?: number;')).toBe(true);
+    // v2.342.0 THE PIN GREW: the answering chain owns the widening — the
+    // figures speak number | string (the filings precedent), the chain
+    // truncates bonusPoints to the Int the column demands, and a
+    // non-numeric anything answers the route's own 400.
+    expect(src.includes('bonusPoints?: number | string;')).toBe(true);
+    expect(src.includes('multiplier?: number | string;')).toBe(true);
+    expect(src.includes('function coerceFigure(value: number | string): number | null')).toBe(true);
+    expect(src.includes('bonusPoints and multiplier must be numbers.')).toBe(true);
+    expect(src.includes('const bonusPointsInt = Math.trunc(bonusPointsValue);')).toBe(true);
     expect(src.includes('startDate?: string;')).toBe(true);
     expect(src.includes('endDate?: string;')).toBe(true);
     expect(src.includes('targetTierId?: string;')).toBe(true);

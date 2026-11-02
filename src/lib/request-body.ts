@@ -142,6 +142,27 @@ export type BodyDoor<T> = { ok: true; body: T } | { ok: false };
  * (a "1,234.50" string and a bare number both parse). The bare class
  * falls to 20 doors — the messaging, rental and catalog-adjacent families
  * remain.
+ *
+ * v2.342.0 — THE MESSAGING FAMILY, the bare class's third pass: the four
+ * messaging reads (messages, messaging/bulk, whatsapp/send,
+ * whatsapp/send-document) speak their bodies' own shapes. The
+ * truthiness-guarded fields ride REQUIRED strings where the route's own
+ * guard is the validator (messages' storeId/content pair, bulk's
+ * storeId/message pair, send's phone/message pair, send-document's
+ * type/storeId pair); the narrowed unions ride their own validators (bulk's
+ * channel/audience ride the file's own Channel/Audience with the route's
+ * resolution as the runtime truth, send-document's type rides the
+ * DocumentType union whose switch default is the validator); and the TWO
+ * DE-FACTO RE-CASTS dissolve — the `= body as { ... }` blocks the v2.339
+ * census regex (`door.body as X`) never caught, now riding their shapes
+ * INSIDE the generic (the borrow precedent). The same round answers THE
+ * WAKING PROBE: campaigns' bonusPoints and multiplier grow the answering
+ * chain — a numeric string becomes the number it names (the tiers
+ * parseInt(String()) precedent, kept honest) and a non-numeric anything
+ * answers the route's own 400 instead of a 500 from the ORM's depths; the
+ * door widens to number | string because the chain's own signature IS the
+ * widening (the filings precedent). The bare class falls to 16 doors —
+ * the rental family and the catalog-adjacent singles remain.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function readJsonBody<T = any>(

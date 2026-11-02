@@ -42,14 +42,17 @@ const HR_DOORS = [
   'src/app/api/shifts/[id]/end/route.ts',
 ];
 
-describe('THE BARE CLASS FALLS 30 → 25 (v2.340.0) — the fall CONTINUES (v2.341.0)', () => {
+describe('THE BARE CLASS FALLS 30 → 25 (v2.340.0) — the fall CONTINUES (v2.341.0, v2.342.0)', () => {
   // v2.341.0 THE PIN GREW (the pin-growth law: a byte-exact pin on a line
   // an honest change edits grows with the change): the loyalty trio + tax
   // duo followed the HR family — the census this file first spoke (25)
   // walks on (20). The five doors that left after this file's round are
   // guarded below.
-  it('exactly 20 bare doors remain', () => {
-    expect(BARE.length).toBe(20);
+  // v2.342.0 THE PIN GREW AGAIN: the messaging four followed — the census
+  // walks on (16). The doors that left after this file's round are guarded
+  // below, family by family.
+  it('exactly 16 bare doors remain', () => {
+    expect(BARE.length).toBe(16);
   });
 
   it('the five HR doors left the census', () => {
@@ -65,6 +68,17 @@ describe('THE BARE CLASS FALLS 30 → 25 (v2.340.0) — the fall CONTINUES (v2.3
       'src/app/api/loyalty/transactions/route.ts',
       'src/app/api/tax/categories/route.ts',
       'src/app/api/tax/filings/route.ts',
+    ]) {
+      expect(BARE.includes(door)).toBe(false);
+    }
+  });
+
+  it('the four messaging doors left the census too (v2.342.0)', () => {
+    for (const door of [
+      'src/app/api/messages/route.ts',
+      'src/app/api/messaging/bulk/route.ts',
+      'src/app/api/whatsapp/send/route.ts',
+      'src/app/api/whatsapp/send-document/route.ts',
     ]) {
       expect(BARE.includes(door)).toBe(false);
     }

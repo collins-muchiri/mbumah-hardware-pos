@@ -61,7 +61,20 @@ async function bulkMessagingHandler(
   session: AuthSession,
 ): Promise<Response> {
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.342.0 — the door speaks its shape: the pair rides REQUIRED strings
+  // (the route's own truthiness guard is the validator), channel and
+  // audience ride the file's own Channel/Audience unions with the route's
+  // resolution as the runtime truth, and the de-facto re-cast (the
+  // `= body as { ... }` block the census regex never caught) dissolves —
+  // the shape rides INSIDE the generic (the v2.339 borrow precedent).
+  const door = await readJsonBody<{
+    storeId: string;
+    message: string;
+    channel?: Channel;
+    audience?: Audience;
+    subject?: string;
+    scheduledAt?: string;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
@@ -73,14 +86,7 @@ async function bulkMessagingHandler(
     audience,
     subject,
     scheduledAt,
-  } = body as {
-    storeId: string;
-    message: string;
-    channel: Channel;
-    audience: Audience;
-    subject?: string;
-    scheduledAt?: string;
-  };
+  } = body;
 
   if (!storeId || !message) {
     return Response.json(
@@ -90,11 +96,17 @@ async function bulkMessagingHandler(
   }
 
   const resolvedChannel: Channel = channel === 'SMS' ? 'SMS' : 'WHATSAPP';
-  const resolvedAudience: Audience = ['ALL', 'CUSTOMERS_WITH_PHONES', 'DEBTORS', 'LOYALTY_MEMBERS'].includes(
-    audience,
-  )
-    ? audience
-    : 'ALL';
+  // v2.342.0: the door makes audience OPTIONAL, so the membership check
+  // names the undefined case explicitly (same runtime truth: anything the
+  // route does not name resolves to ALL).
+  const VALID_AUDIENCES: readonly Audience[] = [
+    'ALL',
+    'CUSTOMERS_WITH_PHONES',
+    'DEBTORS',
+    'LOYALTY_MEMBERS',
+  ];
+  const resolvedAudience: Audience =
+    audience !== undefined && VALID_AUDIENCES.includes(audience) ? audience : 'ALL';
 
   // Build the customer query depending on the audience
   const where: Record<string, unknown> = {
