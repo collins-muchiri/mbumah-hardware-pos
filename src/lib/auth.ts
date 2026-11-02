@@ -291,10 +291,19 @@ export const OWNER_ROLES: readonly string[] = ['SUPER_ADMIN', 'STORE_OWNER'];
 
 // Route wrapper: requireAuth
 
-type AuthedHandler = (
+// v2.351.0 — THE WRAPPER SEAM SPEAKS ITS SHAPE (the field-level casts
+// census, phase 3): the handler families carry their REST as a generic now.
+// A handler that names its third parameter honestly (`context:
+// RouteContext`) used to be assignable to these families only through a
+// `as (...args: unknown[])` launder at every call site; the rest is the
+// family's own parameter, so the call sites drop the cast and the wrapper
+// owns the ONE seam (the `as Rest` at each forward — the same boundary the
+// `args[0] as NextRequest` unpack already lives at). `unknown[]` stays the
+// default: every handler that never names its rest is untouched.
+type AuthedHandler<Rest extends unknown[] = unknown[]> = (
   request: NextRequest,
   session: AuthSession,
-  ...args: unknown[]
+  ...args: Rest
 ) => Promise<Response>;
 
 interface RequireAuthOptions {
@@ -309,8 +318,8 @@ interface RequireAuthOptions {
  * export const POST = requireAuth(handler, { roles: ['SUPER_ADMIN', 'STORE_OWNER'] });
  * ```
  */
-export function requireAuth(
-  handler: AuthedHandler,
+export function requireAuth<Rest extends unknown[] = unknown[]>(
+  handler: AuthedHandler<Rest>,
   options?: RequireAuthOptions
 ) {
   return async (...args: unknown[]): Promise<Response> => {
@@ -364,8 +373,11 @@ export function requireAuth(
 
     // Run the handler inside the ORM-level tenant context so every
     // store-scoped Prisma query is automatically filtered by storeId.
+    // v2.351.0 — the wrapper's own rest seam: the caller's variadic tail is
+    // forwarded as the handler family's declared rest (the ONE cast the
+    // wrapper owns; the call sites dropped theirs with the generic).
     return runWithSessionTenant(session, () =>
-      handler(request, session, ...args.slice(1))
+      handler(request, session, ...(args.slice(1) as Rest))
     );
   };
 }
@@ -799,10 +811,10 @@ export async function auditRecordMiss(options: {
 
 // Store-scoped access
 
-type StoreScopedHandler = (
+type StoreScopedHandler<Rest extends unknown[] = unknown[]> = (
   request: NextRequest,
   session: AuthSession,
-  ...args: unknown[]
+  ...args: Rest
 ) => Promise<Response>;
 
 /**
@@ -815,8 +827,8 @@ type StoreScopedHandler = (
  * export const GET = requireStoreAccess(async (request, session) => { ... });
  * ```
  */
-export function requireStoreAccess(
-  handler: StoreScopedHandler,
+export function requireStoreAccess<Rest extends unknown[] = unknown[]>(
+  handler: StoreScopedHandler<Rest>,
   rolesOrOptions?: readonly string[] | SessionGuardOptions
 ) {
   const { roles: allowedRoles } = normalizeRoleOptions(rolesOrOptions);
@@ -862,8 +874,9 @@ export function requireStoreAccess(
     }
 
     // SUPER_ADMIN can access any store's data
+    // v2.351.0 — the wrapper's own rest seam (see AuthedHandler note).
     if (session.role === 'SUPER_ADMIN') {
-      return handler(request, session, ...args.slice(1));
+      return handler(request, session, ...(args.slice(1) as Rest));
     }
 
     // R7/R9 (v2.5): shared store-scope validation - replaces the previous
@@ -886,8 +899,9 @@ export function requireStoreAccess(
 
     // Run the handler inside the ORM-level tenant context. Non-admin users
     // are scoped to their own store; SUPER_ADMIN runs without enforcement.
+    // v2.351.0 — the wrapper's own rest seam (see AuthedHandler note).
     return runWithSessionTenant(session, () =>
-      handler(request, session, ...args.slice(1)), tenantOverride
+      handler(request, session, ...(args.slice(1) as Rest)), tenantOverride
     );
   };
 }

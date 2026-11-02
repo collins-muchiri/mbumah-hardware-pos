@@ -150,6 +150,6 @@ async function managerAuthorizeHandler(
 }
 
 export const POST = withErrorBoundary(
-  requireAuth(managerAuthorizeHandler as (...args: unknown[]) => Promise<Response>),
+  requireAuth(managerAuthorizeHandler),
   'MANAGER_AUTHORIZE'
 );

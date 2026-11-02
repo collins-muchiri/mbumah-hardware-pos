@@ -126,6 +126,6 @@ async function stkPushHandler(
 // SYS-1: session required - any authenticated staff role may trigger a push
 // for a sale they are serving (cashiers initiate; the callback settles).
 export const POST = withErrorBoundary(
-  requireAuth(stkPushHandler as (...args: unknown[]) => Promise<Response>),
+  requireAuth(stkPushHandler),
   'MPESA_STK_PUSH'
 );

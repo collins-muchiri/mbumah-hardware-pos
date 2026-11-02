@@ -119,10 +119,10 @@ async function unlinkHandler(
 }
 
 export const POST = withErrorBoundary(
-  requireStoreAccess(linkHandler as (...args: unknown[]) => Promise<Response>),
+  requireStoreAccess(linkHandler),
   'EMPLOYEES_PORTAL_LINK'
 );
 export const DELETE = withErrorBoundary(
-  requireStoreAccess(unlinkHandler as (...args: unknown[]) => Promise<Response>),
+  requireStoreAccess(unlinkHandler),
   'EMPLOYEES_PORTAL_UNLINK'
 );

@@ -399,14 +399,14 @@ async function terminateEmployeeHandler(
 }
 
 export const GET = withErrorBoundary(
-  requireStoreAccess(getEmployeeHandler as (...args: unknown[]) => Promise<Response>),
+  requireStoreAccess(getEmployeeHandler),
   'EMPLOYEES_DETAIL'
 );
 export const PATCH = withErrorBoundary(
-  requireStoreAccess(updateEmployeeHandler as (...args: unknown[]) => Promise<Response>),
+  requireStoreAccess(updateEmployeeHandler),
   'EMPLOYEES_UPDATE'
 );
 export const DELETE = withErrorBoundary(
-  requireStoreAccess(terminateEmployeeHandler as (...args: unknown[]) => Promise<Response>),
+  requireStoreAccess(terminateEmployeeHandler),
   'EMPLOYEES_TERMINATE'
 );
