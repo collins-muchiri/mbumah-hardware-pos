@@ -212,6 +212,11 @@ export function parseInitialNamedPage(search: string, param: string, fallback = 
  * payment-method lens speaks it as its desk-prefixed `txn-pay` (the same
  * parser, zero new bytes of law, again — the QUICK-CHIPS desk inherits;
  * the chip hand-off is now proven on a Select face AND a chip face).
+ * v2.354.0 — THE PROMISE KEPT, THE SEVENTH WORD: the transactions desk's
+ * type lens speaks it as its desk-prefixed `txn-type` (the same parser,
+ * zero new bytes of law, again — one desk now owning TWO words of the
+ * vocabulary, one per lens; the census voice keeps its sky, the landing
+ * chip wears the seventh family, fuchsia).
  */
 export function parseInitialNamedMember<V extends string>(
   search: string,

@@ -1218,6 +1218,29 @@ function initialTxnPay(): string {
   return parseInitialNamedMember(window.location.search, 'txn-pay', TXN_PAY_FILTERS, 'all');
 }
 
+// v2.354.0 THE TYPE LENS'S OWN WORD — the transactions desk's type lens
+// answers the address bar too: `?txn-type=refund` lands the ledger with
+// the refund lens already chosen (the seventh word of the vocabulary,
+// and the SECOND word on this desk after v2.333.0's payment lens). The
+// law is MEMBERSHIP, ONE home (`parseInitialNamedMember`): the value
+// must name a lens the desk actually offers — case-sensitive (the
+// lens's own words are lowercase, so `REFUND` is an unknown word, not a
+// clever match — the inverse voice of the UPPERCASE payment word) — and
+// anything missing or unknown answers 'all' (never stranded). The word
+// is desk-prefixed per the Task 44 collision law: a desk-prefixed word
+// can never leak across client-side tab switches. Collision-checked at
+// round start: the only `txn-type` bytes in src/ were this desk's own
+// census testids (a different string — `txn-type-census`,
+// `txn-type-lens-voice`), never a reader of the word.
+// Read-on-mount ONLY (the one-writer law): the landing word is the
+// LANDING lens, never rewritten; the census chips own the state after.
+export const TXN_TYPE_FILTERS = ['all', 'sale', 'refund', 'void'] as const;
+
+function initialTxnType(): (typeof TXN_TYPE_FILTERS)[number] {
+  if (typeof window === 'undefined') return 'all';
+  return parseInitialNamedMember(window.location.search, 'txn-type', TXN_TYPE_FILTERS, 'all');
+}
+
 export default function TransactionsTab() {
   const currentStoreId = useAppStore((s) => s.currentStoreId);
   const [searchQuery, setSearchQuery] = useState('');
@@ -1242,7 +1265,22 @@ export default function TransactionsTab() {
     setPaymentFilter(value);
     setTxnLandingLive(false);
   };
-  const [typeFilter, setTypeFilter] = useState<'all' | TransactionType>('all');
+  // v2.354.0: the type lens's seed reads `?txn-type=` (membership law,
+  // one home); a hand-driven census chip afterwards is the human's truth.
+  const [typeFilter, setTypeFilter] = useState<'all' | TransactionType>(initialTxnType);
+  // v2.354.0 THE LANDING WORD — the address-bar word the desk answered at
+  // mount ('all' when the landing carried no lens). The chip speaks it
+  // ONCE: dismissed or hand-changed, the landing is over and the chip
+  // retires — an honest face never claims a landing that is done.
+  const [landedTxnType] = useState<(typeof TXN_TYPE_FILTERS)[number]>(initialTxnType);
+  const [txnTypeLandingLive, setTxnTypeLandingLive] = useState(true);
+
+  // v2.354.0: a hand-driven change retires the landing word — the chip
+  // speaks the ADDRESS BAR's landing, never the human's next choice.
+  const chooseTxnType = (value: 'all' | TransactionType) => {
+    setTypeFilter(value);
+    setTxnTypeLandingLive(false);
+  };
   const [amountFilterMin, setAmountFilterMin] = useState('');
   const [amountFilterMax, setAmountFilterMax] = useState('');
   const [showAmountFilter, setShowAmountFilter] = useState(false);
@@ -1675,7 +1713,7 @@ export default function TransactionsTab() {
             {(['all', 'sale', 'refund', 'void'] as const).map((type) => (
               <button
                 key={type}
-                onClick={() => setTypeFilter(type)}
+                onClick={() => chooseTxnType(type)}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all flex items-center gap-1 ${
                   typeFilter === type
                     ? 'bg-primary text-primary-foreground border-primary shadow-sm'
@@ -1687,6 +1725,36 @@ export default function TransactionsTab() {
                 <span className="tabular-nums opacity-70">· {typeCensus[type]}</span>
               </button>
             ))}
+            {/* v2.354.0 THE LANDING WORD CHIP, SEVENTH WEARING — a link
+                that landed the ledger pre-filtered wears a chip naming
+                the word it answered (?txn-type=…), styled in the lens's
+                own SEVENTH family, fuchsia (indigo/amber/rose/emerald/
+                cyan/violet now gain the type lens's fuchsia; the census
+                voice keeps its sky — a voice must not masquerade as a
+                badge) with dark-mode variants, the Link2 icon, a `title`
+                tooltip, and a one-press dismissal that clears the lens
+                the word seeded. The dismiss hint sharpens on hover (the
+                X fades up from 60% — the group-hover detail). The chip
+                retires the moment the human owns the filter — a
+                hand-driven census chip or the chip's own dismissal.
+                `data-testid="txn-type-landing-word"` — the QA walk's
+                handle. */}
+            {txnTypeLandingLive && landedTxnType !== 'all' && typeFilter === landedTxnType && (
+              <button
+                type="button"
+                onClick={() => {
+                  setTypeFilter('all');
+                  setTxnTypeLandingLive(false);
+                }}
+                className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-fuchsia-200 bg-fuchsia-50 text-fuchsia-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-fuchsia-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400 dark:border-fuchsia-500/30 dark:bg-fuchsia-500/10 dark:text-fuchsia-300 dark:hover:bg-fuchsia-500/20"
+                data-testid="txn-type-landing-word"
+                title="The desk landed with this filter from the address bar — press to clear it"
+              >
+                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+                <span className="tabular-nums">landed ?txn-type={landedTxnType}</span>
+                <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+              </button>
+            )}
             {typeFilter !== 'all' && (
               // the lens voice: the active type filter names how many
               // transactions it holds (sky with dark variants; gone when

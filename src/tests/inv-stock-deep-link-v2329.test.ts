@@ -179,6 +179,7 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/sup-po-deep-link-v2332.test.ts',
       'src/tests/sup-status-deep-link-v2331.test.ts',
       'src/tests/txn-pay-deep-link-v2333.test.ts',
+      'src/tests/txn-type-deep-link-v2354.test.ts',
     ]);
   });
 
