@@ -93,6 +93,23 @@ interface PatchBody {
   notes?: string | null;
 }
 
+// v2.350.0 — the APPLIED patch's own shape (the field-level casts census,
+// phase 2): the wire's PatchBody after this door's conversions — ISO
+// strings have become Dates, the enum-or-null dayOfWeek has been
+// validated to an integer. Every `updates.x` writer below stores exactly
+// the type this interface declares, so the four read-back casts on the
+// exclusivity/times checks dissolved with it.
+interface PatchApplied {
+  title?: string;
+  dayOfWeek?: number | null;
+  specificDate?: Date | null;
+  startTime?: Date;
+  endTime?: Date;
+  recurrenceEndDate?: Date | null;
+  color?: string;
+  notes?: string | null;
+}
+
 async function patchScheduleHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   const context = args[1] as RouteContext;
@@ -129,7 +146,7 @@ async function patchScheduleHandler(...args: unknown[]): Promise<Response> {
   const session = await getSessionFromRequest(request);
   const userId = session?.userId;
 
-  const updates: Record<string, unknown> = {};
+  const updates: PatchApplied = {};
 
   if (typeof body.title === 'string') {
     const trimmed = body.title.trim();
@@ -173,9 +190,10 @@ async function patchScheduleHandler(...args: unknown[]): Promise<Response> {
   }
 
   // Enforce mutual exclusivity after the patch is applied.
-  const finalDow = updates.dayOfWeek !== undefined ? (updates.dayOfWeek as number | null) : existing.dayOfWeek;
+  // v2.350.0 — the reads speak PatchApplied's own types; no launder.
+  const finalDow = updates.dayOfWeek !== undefined ? updates.dayOfWeek : existing.dayOfWeek;
   const finalSpecific =
-    updates.specificDate !== undefined ? (updates.specificDate as Date | null) : existing.specificDate;
+    updates.specificDate !== undefined ? updates.specificDate : existing.specificDate;
   if (finalDow != null && finalSpecific != null) {
     return Response.json(
       { success: false, error: 'Cannot set both dayOfWeek and specificDate.' },
@@ -212,8 +230,9 @@ async function patchScheduleHandler(...args: unknown[]): Promise<Response> {
 
   // Validate times: for one-off shifts, endTime must be after startTime on
   // the same day. For recurring shifts, allow overnight (end before start).
-  const finalStart = (updates.startTime as Date | undefined) ?? existing.startTime;
-  const finalEnd = (updates.endTime as Date | undefined) ?? existing.endTime;
+  // v2.350.0 — PatchApplied's own Dates, read directly.
+  const finalStart = updates.startTime ?? existing.startTime;
+  const finalEnd = updates.endTime ?? existing.endTime;
   const startMin = finalStart.getHours() * 60 + finalStart.getMinutes();
   const endMin = finalEnd.getHours() * 60 + finalEnd.getMinutes();
   if (startMin === endMin) {

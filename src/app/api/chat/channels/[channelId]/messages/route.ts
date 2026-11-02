@@ -49,7 +49,7 @@ async function listMessagesHandler(request: NextRequest, session: AuthSession, .
 
     // Origin store names for branch badges (batch, never N+1 per message).
     const originIds = Array.from(
-      new Set(messages.map((m) => m.storeId).filter(Boolean) as string[]),
+      new Set(messages.map((m) => m.storeId).filter((v): v is string => typeof v === 'string' && v.length > 0)),
     );
     const originStores = originIds.length
       ? await db.store.findMany({

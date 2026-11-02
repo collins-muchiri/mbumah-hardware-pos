@@ -98,6 +98,9 @@ export function EditScheduleDialog({
   // Form state
   const [title, setTitle] = useState('');
   const [scheduleType, setScheduleType] = useState<ScheduleType>('recurring');
+  // v2.350.0 — the cadence the shift CARRIES today; the contract voice only
+  // speaks when the manager switches away from it (no news, no voice).
+  const [originalType, setOriginalType] = useState<ScheduleType>('recurring');
   const [dayOfWeek, setDayOfWeek] = useState<number>(1);
   const [specificDate, setSpecificDate] = useState<string>('');
   const [startTime, setStartTime] = useState('09:00');
@@ -114,6 +117,7 @@ export function EditScheduleDialog({
       setTitle(schedule.title);
       const isRecurring = schedule.dayOfWeek != null && !schedule.specificDate;
       setScheduleType(isRecurring ? 'recurring' : 'one-off');
+      setOriginalType(isRecurring ? 'recurring' : 'one-off');
       setDayOfWeek(schedule.dayOfWeek ?? 1);
       setSpecificDate(schedule.specificDate ? dateToDateInputValue(schedule.specificDate) : '');
       setStartTime(dateToTimeInputValue(schedule.startTime) || '09:00');
@@ -429,6 +433,59 @@ export function EditScheduleDialog({
                   </button>
                 </div>
               </div>
+
+              {/* v2.350.0 — THE CADENCE CONTRACT VOICE: the PATCH door enforces
+                  the cadence exclusively (dayOfWeek XOR specificDate — saving
+                  one side retires the other), so a type switch is a lifecycle
+                  change, not a field edit. The voice names what the switch
+                  retires BEFORE the flight, and only when there is a switch. */}
+              {scheduleType !== originalType && !isCompleted && (
+                <div
+                  data-testid="cadence-contract-voice"
+                  className={cn(
+                    'flex items-start gap-2 rounded-lg border px-3 py-2',
+                    scheduleType === 'one-off'
+                      ? 'border-amber-200 bg-amber-50 dark:border-amber-500/30 dark:bg-amber-500/10'
+                      : 'border-emerald-200 bg-emerald-50 dark:border-emerald-500/30 dark:bg-emerald-500/10',
+                  )}
+                >
+                  {scheduleType === 'one-off' ? (
+                    <CalendarDays className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-700 dark:text-amber-300" />
+                  ) : (
+                    <Repeat className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-700 dark:text-emerald-300" />
+                  )}
+                  <p
+                    className={cn(
+                      'text-xs',
+                      scheduleType === 'one-off'
+                        ? 'text-amber-800 dark:text-amber-200'
+                        : 'text-emerald-800 dark:text-emerald-200',
+                    )}
+                  >
+                    {scheduleType === 'one-off' ? (
+                      <>
+                        Saving makes this shift a{' '}
+                        <span className="font-semibold">one-off</span>
+                        {specificDate
+                          ? ` on ${new Date(specificDate).toLocaleDateString('en-US', {
+                              weekday: 'long',
+                              month: 'short',
+                              day: 'numeric',
+                            })}`
+                          : ''}{' '}
+                        — the weekly recurrence is retired from the schedule.
+                      </>
+                    ) : (
+                      <>
+                        Saving makes this shift{' '}
+                        <span className="font-semibold">recurring</span> every{' '}
+                        {DAY_NAMES[dayOfWeek] ?? 'week'} — any single date on it
+                        is retired.
+                      </>
+                    )}
+                  </p>
+                </div>
+              )}
 
               {/* Conditional fields */}
               {scheduleType === 'recurring' ? (

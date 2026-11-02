@@ -76,7 +76,7 @@ async function getMeHandler(...args: unknown[]): Promise<Response> {
     select: { storeId: true },
   });
   const membershipStoreIds = Array.from(
-    new Set([...memberships.map((m) => m.storeId), user.storeId].filter(Boolean) as string[]),
+    new Set([...memberships.map((m) => m.storeId), user.storeId].filter((v): v is string => typeof v === 'string' && v.length > 0)),
   );
 
   return Response.json({

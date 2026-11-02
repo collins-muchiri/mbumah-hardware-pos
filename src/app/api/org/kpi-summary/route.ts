@@ -51,6 +51,29 @@ const ORG_ROLES = ['SUPER_ADMIN', 'STORE_OWNER', 'BRANCH_MANAGER'];
 
 const DAY_MS = 86_400_000;
 
+// v2.350.0 — THE REORDER HINT'S OWN SHAPE (the field-level casts census,
+// phase 2): the watchlist row the bridge composes. The five supplier-hint
+// fields are nullable HERE, in the named declaration — so the map literal
+// below seeds plain nulls and the PO-line reduction fills them in place;
+// the five per-field seed casts are gone, the shape still keeps tsc honest.
+interface ReorderHint {
+  id: string;
+  sku: string;
+  name: string;
+  category: string;
+  store: string | null;
+  stockQty: number;
+  reorderLevel: number;
+  storeId: string | null;
+  costPrice: number;
+  suggestedQty: number;
+  lastUnitCost: number | null;
+  lastSupplierId: string | null;
+  lastSupplierName: string | null;
+  lastSupplierPoNumber: string | null;
+  lastSupplierAt: string | null;
+}
+
 /** Mask a phone number for display (keep first 3 + last 3). */
 function maskPhone(phone: string | null | undefined): string | null {
   if (!phone) return null;
@@ -220,7 +243,7 @@ async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Pr
       .slice()
       .sort((a, b) => toDec(a.quantityInStock).minus(toDec(a.reorderLevel)).toNumber() - toDec(b.quantityInStock).minus(toDec(b.reorderLevel)).toNumber())
       .slice(0, 12)
-      .map((p) => ({
+      .map((p): ReorderHint => ({
         id: p.id,
         sku: p.sku,
         name: p.name,
@@ -239,18 +262,21 @@ async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Pr
         storeId: p.store?.id ?? null,
         costPrice: toDec(p.costPrice).toNumber(),
         suggestedQty: Math.max(0, Math.ceil(toDec(p.reorderLevel).mul(1.5).minus(toDec(p.quantityInStock)).toNumber())),
-        // The supplier-hint fields, pre-declared nullable so the PO-line
-        // reduction below can fill them in place (tsc keeps the literal's
-        // shape — no assignment-to-unknown-key errors).
-        lastUnitCost: null as number | null,
-        lastSupplierId: null as string | null,
-        lastSupplierName: null as string | null,
+        // The supplier-hint fields, pre-declared nullable by the
+        // ReorderHint shape itself so the PO-line reduction below can fill
+        // them in place (tsc keeps the literal's shape —
+        // no assignment-to-unknown-key errors; v2.350.0 moved the
+        // nullability into the named interface and the five seed casts
+        // dissolved with it).
+        lastUnitCost: null,
+        lastSupplierId: null,
+        lastSupplierName: null,
         // v2.224.0 THE SPOKEN HINT: the hint names its SOURCE — which PO
         // spoke, and when. The hint-law (the latest PO of ANY status by
         // orderDate) had a known failure shape (the v2.221 flattening);
         // a hint that shows its receipt is legible BEFORE it bites.
-        lastSupplierPoNumber: null as string | null,
-        lastSupplierAt: null as string | null,
+        lastSupplierPoNumber: null,
+        lastSupplierAt: null,
       }));
 
     // v2.217.0: the supplier hint — each named item's most recent purchase
@@ -458,9 +484,12 @@ async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Pr
       : [];
     const aisleNames = new Map(aisleRows.map((c) => [c.id, c.name]));
     const doorBornByAisle = doorBornByAisleGroups
+      // v2.350.0 — the aisle key is narrowed for real (the SQL where clause
+      // already refuses nulls; the predicate makes the type say so too).
+      .filter((g): g is typeof g & { walkCategoryId: string } => typeof g.walkCategoryId === 'string')
       .map((g) => ({
-        categoryId: g.walkCategoryId as string,
-        name: aisleNames.get(g.walkCategoryId as string) ?? 'a named aisle',
+        categoryId: g.walkCategoryId,
+        name: aisleNames.get(g.walkCategoryId) ?? 'a named aisle',
         doorBorn: g._count._all,
       }))
       .sort((a, b) => b.doorBorn - a.doorBorn)
@@ -509,7 +538,7 @@ async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Pr
             where: { stockTakeId: { in: closed30dIds } },
             select: { stockTakeId: true, productId: true },
           })
-        : Promise.resolve([] as Array<{ stockTakeId: string; productId: string }>),
+        : Promise.resolve<Array<{ stockTakeId: string; productId: string }>>([]),
     ]);
     const cadenceCategoryIds = cadenceCategoryRows.map((c) => c.id);
     const [heardEverGroups, productCountGroups] = await Promise.all([
@@ -521,14 +550,14 @@ async function orgKpiSummaryHandler(_request: unknown, session: AuthSession): Pr
               product: { categoryId: { in: cadenceCategoryIds } },
             },
           })
-        : Promise.resolve([] as Array<{ productId: string }>),
+        : Promise.resolve<Array<{ productId: string }>>([]),
       cadenceCategoryIds.length
         ? rawDb.product.groupBy({
             by: ['categoryId'],
             where: { categoryId: { in: cadenceCategoryIds }, isActive: true },
             _count: { _all: true },
           })
-        : Promise.resolve([] as Array<{ categoryId: string | null; _count: { _all: number } }>),
+        : Promise.resolve<Array<{ categoryId: string | null; _count: { _all: number } }>>([]),
     ]);
     const heardEverProductIds = heardEverGroups.map((g) => g.productId);
     const cadenceProductRows = heardEverProductIds.length

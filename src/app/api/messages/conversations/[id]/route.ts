@@ -7,6 +7,7 @@
 
 import { type NextRequest } from 'next/server';
 import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
+import { parseParticipantIds } from '@/lib/participant-ids';
 import { db } from '@/lib/db';
 import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { LogSeverity, LogComponent } from '@/lib/types';
@@ -48,12 +49,10 @@ async function loadConversationForCaller(
 
   // Participant check (SUPER_ADMIN bypasses).
   if (session.role !== 'SUPER_ADMIN') {
-    let ids: string[] = [];
-    try {
-      ids = JSON.parse(conversation.participantIds) as string[];
-    } catch {
-      ids = [];
-    }
+    // v2.350.0 — the list reads honestly; non-strings are dropped and
+    // malformed JSON answers the empty list the old catch chose (the
+    // caller then hears the same not-a-participant refusal).
+    const ids = parseParticipantIds(conversation.participantIds);
     if (!ids.includes(session.userId)) {
       return {
         ok: false,
@@ -81,12 +80,9 @@ async function getConversationHandler(
   if (!loaded.ok) return loaded.response;
   const c = loaded.conversation;
 
-  let ids: string[] = [];
-  try {
-    ids = JSON.parse(c.participantIds) as string[];
-  } catch {
-    ids = [];
-  }
+  // v2.350.0 — the list reads honestly; the catch the old launder needed
+  // (malformed JSON answered []) is the helper's own answer now.
+  const ids = parseParticipantIds(c.participantIds);
 
   const participants = await db.user.findMany({
     where: { id: { in: ids } },
@@ -180,11 +176,8 @@ async function patchConversationHandler(
 
   // Resolve current participant IDs.
   let currentIds: string[] = [];
-  try {
-    currentIds = JSON.parse(existing.participantIds) as string[];
-  } catch {
-    currentIds = [];
-  }
+  // v2.350.0 — the list reads honestly (same helper, same answer).
+  currentIds = parseParticipantIds(existing.participantIds);
 
   // Apply add/remove operations.
   if (addParticipantIds?.length) {
