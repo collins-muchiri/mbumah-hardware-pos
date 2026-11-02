@@ -42,17 +42,22 @@ async function distributeReceiptHandler(
   const { id: transactionId } = await context.params;
 
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.343.0 — the door speaks its shape: channel rides the REQUIRED union
+  // (the route's own presence + membership guard IS the validator), the
+  // SUPER_ADMIN cross-store column rides optional (the session ?? body
+  // resolution), and the de-facto re-cast dissolves (the borrow precedent).
+  const door = await readJsonBody<{
+    channel: "EMAIL" | "WHATSAPP" | "SMS";
+    storeId?: string;
+    email?: string;
+    phone?: string;
+    customMessage?: string;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
   const body = door.body;
-  const { channel, email, phone, customMessage } = body as {
-    channel?: "EMAIL" | "WHATSAPP" | "SMS";
-    email?: string;
-    phone?: string;
-    customMessage?: string;
-  };
+  const { channel, email, phone, customMessage } = body;
 
   if (!channel || (channel !== "EMAIL" && channel !== "WHATSAPP" && channel !== "SMS")) {
     return Response.json(

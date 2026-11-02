@@ -43,17 +43,21 @@ async function sendSupplierOrderHandler(
   const context = rest[0] as RouteContext;
   const supplierId = (await context.params).id;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.343.0 — the door speaks its shape: the PO reference and message ride
+  // optionals (the route's own if/|| resolutions), channel rides the
+  // optional union with the route's resolution as the runtime truth, and
+  // the de-facto re-cast dissolves.
+  const door = await readJsonBody<{
+    purchaseOrderId?: string;
+    message?: string;
+    channel?: 'WHATSAPP' | 'EMAIL';
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
   const body = door.body;
 
-  const { purchaseOrderId, message, channel } = body as {
-    purchaseOrderId?: string;
-    message?: string;
-    channel?: 'WHATSAPP' | 'EMAIL';
-  };
+  const { purchaseOrderId, message, channel } = body;
 
   const resolvedChannel: 'WHATSAPP' | 'EMAIL' =
     channel === 'EMAIL' ? 'EMAIL' : 'WHATSAPP';

@@ -30,6 +30,7 @@ import { db } from '@/lib/db';
 import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { LogSeverity, LogComponent } from '@/lib/types';
 import { requireStoreAccess, assertBodyStoreScope } from '@/lib/auth';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 import {
   kraApiService,
   SubmissionStatus,
@@ -142,18 +143,31 @@ async function submitHandler(
     );
   }
 
-  const body = await request.json().catch(() => null);
-  if (!body || !body.transactionId) {
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  // v2.343.0 — the honest-swallow exemplar graduates to the door: the raw
+  // json-catch swallow (whose null fallback fed the route's own
+  // transactionId 400 — the v2.327 documented exemplar pattern) now rides
+  // the door like every other reader. The route keeps BOTH voices: the
+  // door's own rejection answers an unreadable body, the route's own 400
+  // answers a well-formed body without its required field.
+  const door = await readJsonBody<{
+    transactionId: string;
+    dryRun?: boolean;
+    storeId?: string;
+  }>(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
+
+  const { transactionId, dryRun = false } = body;
+
+  if (!transactionId) {
     return Response.json(
       { success: false, error: 'transactionId is required.' },
       { status: 400 },
     );
   }
-
-  const { transactionId, dryRun = false } = body as {
-    transactionId: string;
-    dryRun?: boolean;
-  };
 
   // v2.17.8 (Task 44): body storeId must pass the same store-scope policy as
   // query params (SUPER_ADMIN/STORE_OWNER/active membership; otherwise 403 +
@@ -161,13 +175,13 @@ async function submitHandler(
   const scopeDenied = await assertBodyStoreScope(
     request,
     session,
-    body.storeId as string | undefined,
+    body.storeId,
   );
   if (scopeDenied) return scopeDenied;
 
   // Resolve the store - prefer the request body, then the session.
   const url = new URL(request.url);
-  const storeId = (body.storeId as string) || url.searchParams.get('storeId') || session.storeId;
+  const storeId = body.storeId || url.searchParams.get('storeId') || session.storeId;
   if (!storeId) {
     return Response.json(
       { success: false, error: 'storeId is required.' },

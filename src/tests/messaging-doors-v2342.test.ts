@@ -58,9 +58,16 @@ const FAMILY_DOORS = [
   'src/app/api/whatsapp/send-document/route.ts',
 ];
 
-describe('THE BARE CLASS FALLS 20 → 16 (v2.342.0)', () => {
-  it('exactly 16 bare doors remain', () => {
-    expect(BARE.length).toBe(16);
+describe('THE BARE CLASS FALLS 20 → 16 (v2.342.0) — the fall CONTINUES (v2.343.0)', () => {
+  // v2.343.0 THE PIN GREW (the pin-growth law: a byte-exact pin on a line
+  // an honest change edits grows with the change): THE RE-CAST CLASS
+  // ENDED — fourteen doors speak their shapes, eight of them bare, so the
+  // census this file first spoke (16) walks on (8); the other six
+  // graduated from raw honest-swallow reads. The doors that left after
+  // this file's round are guarded by the family tests (hr-doors-v2340
+  // carries the family walk).
+  it('exactly 8 bare doors remain', () => {
+    expect(BARE.length).toBe(8);
   });
 
   it('the four messaging doors left the census', () => {

@@ -6,6 +6,7 @@
 //   DELETE - soft delete a conversation (cascades to messages via onDelete: Cascade)
 
 import { type NextRequest } from 'next/server';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 import { db } from '@/lib/db';
 import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { LogSeverity, LogComponent } from '@/lib/types';
@@ -129,20 +130,24 @@ async function patchConversationHandler(
   const context = args[0] as { params: Promise<{ id: string }> };
   const { id: conversationId } = await context.params;
 
-  const body = await request.json().catch(() => null);
-  if (!body) {
-    return Response.json(
-      { success: false, error: 'Invalid JSON body.' },
-      { status: 400 },
-    );
-  }
-
-  const { title, type, addParticipantIds, removeParticipantIds } = body as {
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  // v2.343.0 — the door speaks its shape and the honest-swallow read
+  // graduates: the raw json-catch swallow (whose null fallback answered the
+  // route's own 400) rides the door like every other reader, and the
+  // de-facto re-cast dissolves — the participant columns ride the optional
+  // arrays the self-join logic already Array.isArray-guards.
+  const door = await readJsonBody<{
     title?: string;
     type?: string;
     addParticipantIds?: string[];
     removeParticipantIds?: string[];
-  };
+  }>(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
+
+  const { title, type, addParticipantIds, removeParticipantIds } = body;
 
   const loaded = await loadConversationForCaller(conversationId, session);
 

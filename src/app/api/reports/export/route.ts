@@ -270,7 +270,18 @@ async function distributeReceiptHandler(
   session: { userId: string; storeId: string | null; role: string; email: string },
 ): Promise<Response> {
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.343.0 — the door speaks its shape: the transactionId/channel pair
+  // rides REQUIRED (the route's own presence + membership guards ARE the
+  // validators — the distribute-receipt twin), the delivery columns ride
+  // optionals, and the de-facto re-cast dissolves.
+  const door = await readJsonBody<{
+    transactionId: string;
+    channel: 'EMAIL' | 'WHATSAPP' | 'SMS';
+    email?: string;
+    phone?: string;
+    customMessage?: string;
+    storeId?: string;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
@@ -282,14 +293,7 @@ async function distributeReceiptHandler(
     phone,
     customMessage,
     storeId: bodyStoreId,
-  } = body as {
-    transactionId?: string;
-    channel?: 'EMAIL' | 'WHATSAPP' | 'SMS';
-    email?: string;
-    phone?: string;
-    customMessage?: string;
-    storeId?: string;
-  };
+  } = body;
 
   if (!transactionId) {
     return Response.json(

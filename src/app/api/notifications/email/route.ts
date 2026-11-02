@@ -18,6 +18,7 @@
 import { type NextRequest } from 'next/server';
 import { withErrorBoundary } from '@/lib/logger';
 import { requireAuth, type AuthSession } from '@/lib/auth';
+import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 import {
   sendReceiptEmail,
   sendLowStockAlert,
@@ -51,21 +52,23 @@ async function sendEmailHandler(
   request: NextRequest,
   session: AuthSession,
 ): Promise<Response> {
-  let body: Record<string, unknown>;
-  try {
-    body = await request.json();
-  } catch {
-    return Response.json(
-      { success: false, error: 'Invalid JSON body.' },
-      { status: 400 },
-    );
+  // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
+  // v2.343.0 — the door speaks its shape and the honest-swallow read
+  // graduates: the try/catch json read (whose catch answered the route's
+  // own 400) rides the door like every other reader. The trio rides
+  // REQUIRED (the route's own truthiness + typeof + membership guards are
+  // the validators), and the de-facto re-cast dissolves.
+  const door = await readJsonBody<{
+    type: string;
+    recipient: string;
+    data: Record<string, unknown>;
+  }>(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
   }
+  const body = door.body;
 
-  const { type, recipient, data } = body as {
-    type?: string;
-    recipient?: string;
-    data?: Record<string, unknown>;
-  };
+  const { type, recipient, data } = body;
 
   // Validate required fields
   if (!type || !ALLOWED_TYPES.has(type)) {

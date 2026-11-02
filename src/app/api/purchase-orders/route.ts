@@ -206,22 +206,28 @@ async function createPurchaseOrderHandler(
   session: AuthSession,
 ): Promise<Response> {
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
-  if (!door.ok) {
-    return bodyDoorRejected();
-  }
-  const body = door.body;
-
-  const { storeId, supplierId, items, notes, expectedDate, originStockTakeId } = body as {
-    storeId?: string;
-    supplierId?: string;
-    items?: unknown;
+  // v2.343.0 — the door speaks its shape: the store/supplier pair rides
+  // REQUIRED (the route's own truthiness guard is the validator), the items
+  // array rides the element shape the route validates (each element names a
+  // productId while its figures stay unknown — the route's own Number() +
+  // isFinite chains ARE the validators, the F1-5 loop), and the de-facto
+  // re-cast dissolves (the borrow precedent).
+  const door = await readJsonBody<{
+    storeId: string;
+    supplierId: string;
+    items: Array<{ productId: string; quantity: unknown; unitCost: unknown; notes?: string }>;
     notes?: string;
     expectedDate?: string;
     // v2.248.0 THE RESTOCK'S BIRTH — the drill's restock door is the only
     // writer; the wire never guesses a birth the caller did not name.
     originStockTakeId?: string;
-  };
+  }>(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
+
+  const { storeId, supplierId, items, notes, expectedDate, originStockTakeId } = body;
 
   if (!storeId || !supplierId) {
     return Response.json(
@@ -293,7 +299,7 @@ async function createPurchaseOrderHandler(
   // F1-5 remediation: validate quantities/costs BEFORE computing totals.
   // Negative/zero/NaN/Infinity values used to flow straight into Decimal
   // columns and corrupt supplier-spend reporting.
-  for (const item of items as Array<{ productId: string; quantity: number; unitCost: number }>) {
+  for (const item of items) {
     const qty = Number(item.quantity);
     const cost = Number(item.unitCost);
     if (!Number.isFinite(qty) || qty <= 0) {
@@ -331,15 +337,21 @@ async function createPurchaseOrderHandler(
     //   taxAmount      = round2(subTotal × 16%)
     //   totalAmount    = subTotal + taxAmount
     let subTotalDec = toDec(0);
-    const poItems = items.map((item: { productId: string; quantity: number; unitCost: number; notes?: string }) => {
+    const poItems = items.map((item) => {
       const product = productMap.get(item.productId);
-      const totalCost = round2(toDec(item.quantity).mul(toDec(item.unitCost)));
+      // v2.343.0: the figures ride the numbers the F1-5 loop validated — the
+      // raw wire bytes stay behind, the columns see the route's own
+      // Number() output (the answering-chain cousin: the chain speaks the
+      // columns' shape before they see anything).
+      const qty = Number(item.quantity);
+      const cost = Number(item.unitCost);
+      const totalCost = round2(toDec(qty).mul(toDec(cost)));
       subTotalDec = subTotalDec.plus(totalCost);
       return {
         productId: item.productId,
         productName: product?.name || 'Unknown Product',
-        quantity: item.quantity,
-        unitCost: item.unitCost,
+        quantity: qty,
+        unitCost: cost,
         totalCost,
         notes: item.notes || null,
       };
