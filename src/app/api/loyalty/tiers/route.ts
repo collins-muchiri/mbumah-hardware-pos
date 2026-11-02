@@ -103,7 +103,24 @@ async function createLoyaltyTierHandler(
   session: AuthSession,
 ): Promise<Response> {
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.341.0 — the door speaks its shape: minPoints rides an OPTIONAL number
+  // because the route's own `=== undefined` guard IS the validator (a
+  // REQUIRED door would turn that guard into a dead comparison), the
+  // comparison-validated figures (discountPercent/pointsMultiplier) ride
+  // numbers, maxPoints speaks number | null (the route handles both
+  // absences), and the columns ride the types the create data feeds.
+  const door = await readJsonBody<{
+    storeId: string;
+    name: string;
+    minPoints?: number;
+    maxPoints?: number | null;
+    discountPercent?: number;
+    pointsMultiplier?: number;
+    benefits?: string;
+    color?: string;
+    icon?: string;
+    sortOrder?: number;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

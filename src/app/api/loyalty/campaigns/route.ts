@@ -75,7 +75,23 @@ async function getLoyaltyCampaignsHandler(...args: unknown[]): Promise<Response>
 async function createLoyaltyCampaignHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.341.0 — the door speaks its shape: the pair rides REQUIRED strings
+  // (the route's own truthiness guard is the validator), campaignType rides
+  // the route's own validTypes validator, and the columns ride the types
+  // the create data feeds (Int/Decimal numbers, string columns, the ISO
+  // date strings new Date() reads).
+  const door = await readJsonBody<{
+    storeId: string;
+    name: string;
+    campaignType?: string;
+    description?: string;
+    bonusPoints?: number;
+    multiplier?: number;
+    startDate?: string;
+    endDate?: string;
+    targetTierId?: string;
+    createdBy?: string;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

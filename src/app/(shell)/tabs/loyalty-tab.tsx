@@ -46,7 +46,8 @@ import {
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Progress } from '@/components/ui/progress';
+// v2.341.0: the bare Progress import left the desk — the Next Tier cell
+// draws the honest tier-progress meter now (the aria meter precedent).
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 // Sub-tab type
@@ -457,7 +458,10 @@ export default function LoyaltyTab() {
     });
   }
 
-  function getCustomerTierInfo(loyaltyPoints: number): { tier: LoyaltyTierItem | null; nextTier: LoyaltyTierItem | null; progress: number } {
+  // v2.341.0: the return grows `gained` + `range` — the exact figures the
+  // tier-progress meter draws and voices (additive: `progress` keeps its
+  // exact math, the meter only borrows the bracket it already used).
+  function getCustomerTierInfo(loyaltyPoints: number): { tier: LoyaltyTierItem | null; nextTier: LoyaltyTierItem | null; progress: number; gained: number; range: number } {
     const sortedTiers = [...tiers]
       .filter((t: LoyaltyTierItem) => t.isActive)
       .sort((a: LoyaltyTierItem, b: LoyaltyTierItem) => a.minPoints - b.minPoints);
@@ -479,15 +483,19 @@ export default function LoyaltyTab() {
     }
 
     let progress = 100;
+    let gained = 0;
+    let range = 0;
     if (currentTier && nextTier) {
-      const range = nextTier.minPoints - currentTier.minPoints;
-      const gained = loyaltyPoints - currentTier.minPoints;
+      range = nextTier.minPoints - currentTier.minPoints;
+      gained = loyaltyPoints - currentTier.minPoints;
       progress = range > 0 ? Math.min(100, Math.round((gained / range) * 100)) : 100;
     } else if (!currentTier && nextTier) {
+      gained = loyaltyPoints;
+      range = nextTier.minPoints;
       progress = nextTier.minPoints > 0 ? Math.min(100, Math.round((loyaltyPoints / nextTier.minPoints) * 100)) : 0;
     }
 
-    return { tier: currentTier, nextTier, progress };
+    return { tier: currentTier, nextTier, progress, gained, range };
   }
 
   function openEditTier(tier: LoyaltyTierItem) {
@@ -742,7 +750,7 @@ export default function LoyaltyTab() {
               </TableHeader>
               <TableBody>
                 {filteredCustomers.map((customer: CustomerItem) => {
-                  const { tier, nextTier, progress } = getCustomerTierInfo(customer.loyaltyPoints ?? 0);
+                  const { tier, nextTier, progress, gained, range } = getCustomerTierInfo(customer.loyaltyPoints ?? 0);
                   const TierIcon = tier ? getTierIcon(tier.name) : Shield;
                   return (
                     <TableRow key={customer.id} className="hover:bg-muted/50">
@@ -783,7 +791,29 @@ export default function LoyaltyTab() {
                         {nextTier ? (
                           <div className="space-y-0.5 min-w-[80px]">
                             <p className="text-[10px] text-muted-foreground">{nextTier.name}</p>
-                            <Progress value={progress} className="h-1.5" />
+                            {/* THE TIER-PROGRESS METER (v2.341.0): the member's
+                                walk toward the next tier draws against the
+                                bracket the desk already computes — the aria +
+                                hover voices speak the exact figures. Colour
+                                steps with the journey: sky while the road is
+                                long, amber past a quarter, emerald when the
+                                tier is nearly theirs. Silent at Max Tier
+                                (there is no next rung to draw). */}
+                            <div
+                              data-testid="tier-progress-meter"
+                              role="progressbar"
+                              aria-label={`Tier progress: ${gained.toLocaleString()} of ${range.toLocaleString()} points to ${nextTier.name} (${progress}%)`}
+                              aria-valuemin={0}
+                              aria-valuemax={100}
+                              aria-valuenow={progress}
+                              title={`${gained.toLocaleString()} of ${range.toLocaleString()} points to ${nextTier.name} — ${progress}%`}
+                              className="h-1 w-full rounded-full bg-muted overflow-hidden"
+                            >
+                              <div
+                                className={`h-full rounded-full ${progress >= 75 ? 'bg-emerald-500' : progress >= 25 ? 'bg-amber-500' : 'bg-sky-500'}`}
+                                style={{ width: `${progress}%` }}
+                              />
+                            </div>
                           </div>
                         ) : (
                           <span className="text-[10px] text-emerald-700 font-medium">Max Tier</span>
