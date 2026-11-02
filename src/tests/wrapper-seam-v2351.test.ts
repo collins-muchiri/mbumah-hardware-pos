@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
 
 // ---------------------------------------------------------------------------
-// v2.351.0 — THE WRAPPER SEAM SPEAKS ITS SHAPE (the field-level casts census,
+// v2.352.0 — THE WRAPPER SEAM SPEAKS ITS SHAPE (the field-level casts census,
 // phase 3: the export-line family dissolves).
 //
 // The house route wrappers (requireAuth / requireStoreAccess) declared their
@@ -105,7 +105,7 @@ function censusCastTokens(src: string): string[] {
   return tokens.filter((t) => stripped.includes(t));
 }
 
-describe('v2.351.0 — the wrapper seam speaks its shape', () => {
+describe('v2.352.0 — the wrapper seam speaks its shape', () => {
   it('THE HANDLER FAMILIES CARRY THEIR REST: the generic with the unknown[] default', () => {
     const src = read(AUTH);
     expect(src.includes('type AuthedHandler<Rest extends unknown[] = unknown[]> = (')).toBe(true);
@@ -124,7 +124,7 @@ describe('v2.351.0 — the wrapper seam speaks its shape', () => {
   it('THE SEAM IS THE WRAPPER\u2019S OWN: one documented forward cast per seam, three seams', () => {
     const src = read(AUTH);
     expect(src.match(/\.\.\.\(args\.slice\(1\) as Rest\)/g)?.length).toBe(3);
-    expect(src.includes("v2.351.0 — the wrapper's own rest seam")).toBe(true);
+    expect(src.includes("v2.352.0 — the wrapper's own rest seam")).toBe(true);
   });
 
   it('THE THIRTEEN HANDLER-ARGUMENT CASTS ARE GONE: the generic infers [RouteContext]', () => {
@@ -181,7 +181,7 @@ describe('v2.351.0 — the wrapper seam speaks its shape', () => {
     expect(desk.includes('data-testid="cadence-contract-voice"')).toBe(true);
   });
 
-  it('THE RELEASE SLOT IS HONEST: 2.351.0 shipped, 2.349.0 still reserved for the gated audit PR', () => {
-    expect(read('VERSION').trim()).toBe('2.351.0');
+  it('THE RELEASE SLOT IS HONEST: 2.352.0 shipped, 2.349.0 still reserved for the gated audit PR', () => {
+    expect(read('VERSION').trim()).toBe('2.352.0');
   });
 });

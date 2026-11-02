@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// verify-v2-351-0.mjs — the round's FEATURE gate (v2.351.0 "the wrapper seam
+// verify-v2-351-0.mjs — the round's FEATURE gate (v2.352.0 "the wrapper seam
 // speaks its shape"). The release MECHANICS live in verify-current.mjs. This
 // script pins only what is NEW this round. THE OD LAW: bytes, not memory.
 // Run BEFORE the walk; the walk-dependent pins sit in the tail section.
@@ -72,7 +72,7 @@ ok('THE WRAPPERS ARE GENERIC OVER THE REST',
   && AUTH.includes('handler: StoreScopedHandler<Rest>,'));
 ok('THE SEAM IS THE WRAPPER\u2019S OWN (three documented forwards)',
   (AUTH.match(/\.\.\.\(args\.slice\(1\) as Rest\)/g) || []).length === 3
-  && AUTH.includes("v2.351.0 — the wrapper's own rest seam"));
+  && AUTH.includes("v2.352.0 — the wrapper's own rest seam"));
 ok('THE THIRTEEN HANDLER-ARGUMENT CASTS ARE GONE',
   SHAPE_A.every((f) => !read(f).includes('as (...args: unknown[]) => Promise<Response>'))
   && USERS.includes('requireAuth(getUserHandler,')
@@ -113,9 +113,9 @@ ok('THE TRANSFERS FILTER SPEAKS ITS CENSUS + the lens voice',
 ok('THE ERA TEST EXISTS with the census helper',
   test.includes('function censusCastTokens(src: string): string[] {')
   && test.includes('as (...args: unknown[])'));
-ok('WHATS-NEW 2.351.0 leads the feed', whatsNew.includes("version: '2.351.0',") && whatsNew.indexOf("'2.351.0'") < whatsNew.indexOf("'2.350.0'"));
-ok('CHANGELOG 2.351.0 leads', changelog.startsWith('## [2.351.0]'));
-ok('VERSION + package.json say 2.351.0 (three slots)', version === '2.351.0' && pkg.version === '2.351.0' && pkg.mbumah.releaseVersion === '2.351.0' && pkg.mbumah.baseVersion === '2.351.0');
+ok('WHATS-NEW 2.352.0 leads the feed', whatsNew.includes("version: '2.352.0',") && whatsNew.indexOf("'2.352.0'") < whatsNew.indexOf("'2.350.0'"));
+ok('CHANGELOG 2.352.0 leads', changelog.startsWith('## [2.352.0]'));
+ok('VERSION + package.json say 2.352.0 (three slots)', version === '2.352.0' && pkg.version === '2.352.0' && pkg.mbumah.releaseVersion === '2.352.0' && pkg.mbumah.baseVersion === '2.352.0');
 
 console.log('— walk-dependent pins (green after walk-v2351) —');
 const changelogTest = read('src/tests/console-changelog.test.ts');
@@ -125,7 +125,7 @@ ok('THE UNREAD-COUNTER CASCADE landed (241/242/243/274)',
   && changelogTest.includes("whatsNewUnreadCount('2.108.0')).toBe(243)")
   && changelogTest.includes("whatsNewUnreadCount('2.77.0')).toBe(274)"));
 ok('THE HISTORY COMMENT rode the cascade block',
-  changelogTest.includes('v2.351.0: the wrapper-seam entry joins the feed'));
+  changelogTest.includes('v2.352.0: the wrapper-seam entry joins the feed'));
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
