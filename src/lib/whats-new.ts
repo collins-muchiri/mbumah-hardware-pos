@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.347.0',
+    title: 'The tier lifecycle completes',
+    bullets: [
+      'Loyalty tiers can finally be retired: every tier card carries a delete affordance now, and the confirmation reads the member tally straight from the wire before offering the destructive confirm \u2014 a stale page can never talk the server into stranding a membership.',
+      'A tier that still holds members refuses deletion with its own voice: the store is told to reassign those customers first, and the confirmation panel mirrors that refusal while the confirm sits disabled.',
+      'The Members figure on a tier card speaks what it means on hover, and the confirmation dialog wears the tier\u2019s own colour while it asks.',
+    ],
+  },
+  {
     version: '2.346.0',
     title: 'The tier lifecycle, honestly',
     bullets: [

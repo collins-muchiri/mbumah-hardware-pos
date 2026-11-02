@@ -3847,6 +3847,18 @@ export const loyaltyApi = {
         body: JSON.stringify(data),
       });
     },
+    // v2.347.0 — THE LIFECYCLE COMPLETES: the single read (the prefill
+    // door — the row plus its _count member tally) and the guarded
+    // retirement (the wire refuses a tier that still holds members with
+    // its own 409; the desk only mirrors that truth).
+    get: async (id: string) => {
+      return request<LoyaltyTierItem>(`/loyalty/tiers/${id}`);
+    },
+    remove: async (id: string) => {
+      return request<LoyaltyTierItem>(`/loyalty/tiers/${id}`, {
+        method: 'DELETE',
+      });
+    },
   },
   transactions: {
     list: async (params?: { storeId?: string; customerId?: string; transactionType?: string; dateFrom?: string; dateTo?: string; search?: string; page?: number; limit?: number; sortBy?: string; sortOrder?: string }) => {

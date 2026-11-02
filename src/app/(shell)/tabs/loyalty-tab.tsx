@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import {
   Sparkles, Plus, Search, Crown, Award, Users, Loader2, Settings2, TrendingUp, Calendar, Gift, Zap, ChevronUp, Clock,
   HandCoins, Target, Megaphone, Edit, History, RotateCcw, Receipt, X, ChevronLeft, ChevronRight,
-  Trophy, Gem, Medal, Shield, Palette, Hourglass, AlertCircle,
+  Trophy, Gem, Medal, Shield, Palette, Hourglass, AlertCircle, Trash2,
 } from 'lucide-react';
 
 import { useAppStore } from '@/lib/stores';
@@ -40,6 +40,11 @@ import {
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
+// v2.347.0: the tier's guarded retirement asks its question in an
+// AlertDialog — the destructive-confirm pattern the invoices desk rides.
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
@@ -206,6 +211,11 @@ export default function LoyaltyTab() {
   // Tier dialog state
   const [tierDialogOpen, setTierDialogOpen] = useState(false);
   const [editingTier, setEditingTier] = useState<LoyaltyTierItem | null>(null);
+  // v2.347.0 — THE GUARDED RETIREMENT's target: the tier the desk is asking
+  // its delete question about. The dialog holds the LIST row's face
+  // instantly while the prefill door fetches the wire's CURRENT truth
+  // (the fresh member tally decides whether the confirm is even offered).
+  const [deleteTierTarget, setDeleteTierTarget] = useState<LoyaltyTierItem | null>(null);
   const [tierForm, setTierForm] = useState({
     name: '',
     minPoints: 0,
@@ -352,6 +362,38 @@ export default function LoyaltyTab() {
     enabled: !!memberHistoryCustomerId,
   });
 
+  // v2.347.0 — THE PREFILL DOOR AT WORK: the confirm dialog reads the
+  // wire's CURRENT tier (row + _count tally) before it offers the
+  // destructive confirm. The list slice the card rendered from can be
+  // seconds stale — a member assigned between render and click must
+  // speak. The query is keyed by the target's id and only lives while a
+  // target is held. The guard answers the enabled-window's blind spot
+  // without a non-null assertion, and the catch closes the ghost
+  // question: the prefill door's 404 speaks once (retry is off — a
+  // not-found is definitive), the target clears, the dialog shuts.
+  const { data: deleteTierFresh, isLoading: deleteTierFreshLoading } = useQuery({
+    queryKey: ['loyalty-tier-fresh', deleteTierTarget?.id],
+    queryFn: async () => {
+      if (!deleteTierTarget) throw new Error('No tier selected.');
+      try {
+        return await loyaltyApi.tiers.get(deleteTierTarget.id);
+      } catch (err) {
+        setDeleteTierTarget(null);
+        toast.error(err instanceof Error ? err.message : 'Loyalty tier not found.');
+        throw err;
+      }
+    },
+    enabled: !!deleteTierTarget,
+    retry: false,
+  });
+
+  // THE BLOCKER TALLY: the wire's fresh count once it lands, the list
+  // slice's count while the prefill door is in flight. Zero is the only
+  // number the destructive confirm is allowed behind.
+  const freshDeleteTier = deleteTierFresh?.data;
+  const freshMemberTally = freshDeleteTier?._count?.customerTiers;
+  const deleteBlockerTally = freshMemberTally ?? deleteTierTarget?._count?.customerTiers ?? 0;
+
   // Mutations
   const createTierMutation = useMutation({
     mutationFn: (data: Parameters<typeof loyaltyApi.tiers.create>[0]) => loyaltyApi.tiers.create(data),
@@ -380,6 +422,21 @@ export default function LoyaltyTab() {
       resetTierForm();
     },
     onError: (err: Error) => toast.error(err.message || 'Failed to update tier'),
+  });
+
+  // v2.347.0 — THE RETIREMENT: the desk asks, the wire answers. A 409
+  // (members still hold the tier) surfaces the route's own voice in the
+  // toast; a success retires the card and re-reads the roster. The
+  // confirm dialog's blocker is the COURTESY mirror — this wire guard
+  // is the authority a stale face can never talk around.
+  const deleteTierMutation = useMutation({
+    mutationFn: (id: string) => loyaltyApi.tiers.remove(id),
+    onSuccess: () => {
+      toast.success('Tier deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ['loyalty-tiers'] });
+      setDeleteTierTarget(null);
+    },
+    onError: (err: Error) => toast.error(err.message || 'Failed to delete tier'),
   });
 
   const createTxMutation = useMutation({
@@ -697,14 +754,32 @@ export default function LoyaltyTab() {
                           </p>
                         </div>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 w-7 p-0"
-                        onClick={() => openEditTier(tier)}
-                      >
-                        <Edit className="h-3.5 w-3.5" />
-                      </Button>
+                      <div className="flex items-center gap-0.5">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 w-7 p-0"
+                          onClick={() => openEditTier(tier)}
+                          title="Edit tier"
+                        >
+                          <Edit className="h-3.5 w-3.5" />
+                        </Button>
+                        {/* v2.347.0 — THE RETIREMENT AFFORDANCE: the
+                            destructive voice the card never had. The button
+                            opens the guarded question; the wire's own tally
+                            — fresh-read by the prefill door — decides
+                            whether the confirm is offered. */}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          data-testid="tier-delete"
+                          className="h-7 w-7 p-0 text-rose-600 hover:bg-rose-50 hover:text-rose-700 dark:text-rose-400 dark:hover:bg-rose-950/40"
+                          onClick={() => setDeleteTierTarget(tier)}
+                          title={memberCount > 0 ? `${memberCount} ${memberCount === 1 ? 'member' : 'members'} still hold this tier — the wire will ask for a reassignment first.` : 'Delete tier'}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
                     </div>
 
                     <Separator />
@@ -720,7 +795,15 @@ export default function LoyaltyTab() {
                       </div>
                       <div>
                         <p className="text-muted-foreground">Members</p>
-                        <p className="font-semibold">{memberCount}</p>
+                        {/* v2.347.0: the tally carries its own voice — what
+                            the number means for the tier's retirement. */}
+                        <p
+                          data-testid="tier-member-count"
+                          className="font-semibold tabular-nums"
+                          title={memberCount > 0 ? `${memberCount} ${memberCount === 1 ? 'customer' : 'customers'} hold this tier — deleting it requires a reassignment first.` : 'No customers hold this tier yet.'}
+                        >
+                          {memberCount}
+                        </p>
                       </div>
                       <div>
                         <p className="text-muted-foreground">Status</p>
@@ -1630,6 +1713,64 @@ export default function LoyaltyTab() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* ─── v2.347.0: The guarded retirement question (AlertDialog) ──────
+          The dialog asks in the wire's own terms: the tier's colour chip
+          rides the question, the prefill door's fresh tally speaks in the
+          body, and the destructive confirm sits disabled behind the blocker
+          line while members hold the tier — the desk's courtesy mirror of
+          the route's 409, which remains the authority. */}
+      <AlertDialog open={!!deleteTierTarget} onOpenChange={(open) => !open && setDeleteTierTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <span
+                className="inline-block h-3 w-3 rounded-full border border-black/10 dark:border-white/20"
+                style={{ backgroundColor: deleteTierTarget?.color || '#CD7F32' }}
+              />
+              Delete the {deleteTierTarget?.name} tier?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              This permanently removes the tier and its configuration. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {deleteTierFreshLoading && (
+            <p data-testid="tier-delete-reading" className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Reading the current member tally from the wire…
+            </p>
+          )}
+          {deleteBlockerTally > 0 && (
+            <p
+              data-testid="tier-delete-blocked"
+              className="flex items-start gap-2 rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300"
+            >
+              <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              This tier still holds {deleteBlockerTally} {deleteBlockerTally === 1 ? 'member' : 'members'} — reassign them to another tier before deleting.
+            </p>
+          )}
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteTierMutation.isPending}>Keep tier</AlertDialogCancel>
+            <AlertDialogAction
+              data-testid="tier-delete-confirm"
+              className="bg-rose-600 text-white hover:bg-rose-700"
+              disabled={deleteBlockerTally > 0 || deleteTierMutation.isPending}
+              onClick={(e) => {
+                e.preventDefault();
+                if (deleteTierTarget) deleteTierMutation.mutate(deleteTierTarget.id);
+              }}
+            >
+              {deleteTierMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Deleting…
+                </>
+              ) : (
+                'Delete tier'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* ─── Adjust Points Dialog (from member row) ────────────────────── */}
       <Dialog open={adjustPointsOpen} onOpenChange={setAdjustPointsOpen}>
