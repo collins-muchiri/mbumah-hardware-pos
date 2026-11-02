@@ -364,6 +364,24 @@ export default function LoyaltyTab() {
     onError: (err: Error) => toast.error(err.message || 'Failed to create tier'),
   });
 
+  // v2.346.0 — THE UPDATE PATH: the edit dialog finally PUTs. Until this
+  // mutation existed the "Update Tier" button re-ran the CREATE door —
+  // every edit duplicated the tier and left the original untouched. The
+  // update writes only the fields the form carries; the route owns the
+  // validations.
+  const updateTierMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Parameters<typeof loyaltyApi.tiers.update>[1] }) =>
+      loyaltyApi.tiers.update(id, data),
+    onSuccess: () => {
+      toast.success('Tier updated successfully');
+      queryClient.invalidateQueries({ queryKey: ['loyalty-tiers'] });
+      setTierDialogOpen(false);
+      setEditingTier(null);
+      resetTierForm();
+    },
+    onError: (err: Error) => toast.error(err.message || 'Failed to update tier'),
+  });
+
   const createTxMutation = useMutation({
     mutationFn: (data: Parameters<typeof loyaltyApi.transactions.create>[0]) => loyaltyApi.transactions.create(data),
     onSuccess: () => {
@@ -531,6 +549,11 @@ export default function LoyaltyTab() {
   }
 
   function openCreateTier() {
+    // v2.346.0 — THE STALE-EDIT GUARD: the form reset alone left a stale
+    // editingTier behind (edit → cancel → Add Tier silently turned the
+    // create into an UPDATE of the stale tier). The create path clears
+    // the edit target FIRST.
+    setEditingTier(null);
     resetTierForm();
     setTierForm(prev => ({ ...prev, sortOrder: tiers.length }));
     setTierDialogOpen(true);
@@ -642,11 +665,18 @@ export default function LoyaltyTab() {
               return (
                 <Card
                   key={tier.id}
-                  className="relative overflow-hidden border-2 hover:shadow-md transition-shadow"
+                  data-testid="tier-card"
+                  data-tier-active={String(tier.isActive)}
+                  className={`relative overflow-hidden border-2 hover:shadow-md transition-shadow ${tier.isActive ? '' : 'opacity-60 grayscale-[0.4]'}`}
                   style={{ borderColor: tier.color || '#CD7F32' }}
                 >
-                  {/* Top accent bar */}
-                  <div className="h-2 w-full" style={{ backgroundColor: tier.color || '#CD7F32' }} />
+                  {/* Top accent bar — an inactive tier's bar fades with it
+                      (v2.346.0: the muted face says the lifecycle state
+                      before the badge has to). */}
+                  <div
+                    className={`h-2 w-full ${tier.isActive ? '' : 'opacity-50'}`}
+                    style={{ backgroundColor: tier.color || '#CD7F32' }}
+                  />
                   <CardContent className="p-4 space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -1414,7 +1444,7 @@ export default function LoyaltyTab() {
       )}
 
       {/* ─── Create / Edit Tier Dialog ──────────────────────────────────── */}
-      <Dialog open={tierDialogOpen} onOpenChange={(open) => { setTierDialogOpen(open); if (!open) resetTierForm(); }}>
+      <Dialog open={tierDialogOpen} onOpenChange={(open) => { setTierDialogOpen(open); if (!open) { setEditingTier(null); resetTierForm(); } }}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>{editingTier ? 'Edit Tier' : 'Create Loyalty Tier'}</DialogTitle>
@@ -1545,7 +1575,7 @@ export default function LoyaltyTab() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" size="sm" className="h-8" onClick={() => { setTierDialogOpen(false); resetTierForm(); }}>
+            <Button variant="outline" size="sm" className="h-8" onClick={() => { setTierDialogOpen(false); setEditingTier(null); resetTierForm(); }}>
               Cancel
             </Button>
             <Button
@@ -1553,6 +1583,27 @@ export default function LoyaltyTab() {
               className="h-8"
               disabled={!tierForm.name || createTierMutation.isPending}
               onClick={() => {
+                if (editingTier) {
+                  // v2.346.0 — the honest branch: an edit PUTs the update
+                  // door (the old path re-ran CREATE and duplicated the
+                  // tier). Only the fields the form carries ride along.
+                  updateTierMutation.mutate({
+                    id: editingTier.id,
+                    data: {
+                      name: tierForm.name,
+                      minPoints: tierForm.minPoints,
+                      discountPercent: tierForm.discountPercent,
+                      pointsMultiplier: tierForm.pointsMultiplier,
+                      color: tierForm.color,
+                      sortOrder: tierForm.sortOrder,
+                      isActive: tierForm.isActive,
+                      ...(tierForm.maxPoints ? { maxPoints: Number(tierForm.maxPoints) } : {}),
+                      ...(tierForm.benefits ? { benefits: tierForm.benefits } : {}),
+                      ...(tierForm.icon ? { icon: tierForm.icon } : {}),
+                    },
+                  });
+                  return;
+                }
                 // v2.345.0: the payload wears the create signature's own
                 // type — the any-annotation that used to launder it (and
                 // the door's minPoints) out of the compiler's sight is
@@ -1573,7 +1624,7 @@ export default function LoyaltyTab() {
                 createTierMutation.mutate(payload);
               }}
             >
-              {createTierMutation.isPending && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
+              {(createTierMutation.isPending || updateTierMutation.isPending) && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
               {editingTier ? 'Update Tier' : 'Create Tier'}
             </Button>
           </DialogFooter>

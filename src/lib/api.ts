@@ -3837,6 +3837,16 @@ export const loyaltyApi = {
         body: JSON.stringify(data),
       });
     },
+    // v2.346.0 — THE UPDATE DOOR: the desk's edit dialog finally speaks to
+    // a route that UPDATES. Every field optional — the route writes only
+    // what the body carries; the figures ride the create door's own
+    // validations, applied only when present.
+    update: async (id: string, data: { name?: string; minPoints?: number; maxPoints?: number | null; discountPercent?: number; pointsMultiplier?: number; benefits?: string; color?: string; icon?: string; sortOrder?: number; isActive?: boolean }) => {
+      return request<LoyaltyTierItem>(`/loyalty/tiers/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+    },
   },
   transactions: {
     list: async (params?: { storeId?: string; customerId?: string; transactionType?: string; dateFrom?: string; dateTo?: string; search?: string; page?: number; limit?: number; sortBy?: string; sortOrder?: string }) => {

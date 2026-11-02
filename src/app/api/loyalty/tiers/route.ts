@@ -120,6 +120,11 @@ async function createLoyaltyTierHandler(
     color?: string;
     icon?: string;
     sortOrder?: number;
+    // v2.346.0 — THE SWALLOW ENDS: the desk has sent isActive since the
+    // form existed and the door dropped it on the floor (the schema's
+    // `default(true)` always won). The door names it now; the create data
+    // keeps the schema default ONLY for the absent-field truth.
+    isActive?: boolean;
   }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
@@ -137,6 +142,7 @@ async function createLoyaltyTierHandler(
     color,
     icon,
     sortOrder,
+    isActive,
   } = body;
 
   if (!storeId || !name || minPoints === undefined) {
@@ -178,7 +184,7 @@ async function createLoyaltyTierHandler(
       benefits: benefits || null,
       color: color || '#6B7280',
       icon: icon || null,
-      isActive: true,
+      isActive: isActive ?? true,
       sortOrder: sortOrder ?? 0,
     },
   });

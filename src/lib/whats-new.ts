@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.346.0',
+    title: 'The tier lifecycle, honestly',
+    bullets: [
+      'Loyalty tiers can finally be updated: the edit dialog’s “Update Tier” used to silently create a duplicate tier instead — a real update route exists now, and edits write only the fields you changed.',
+      'The Active / Inactive toggle on a tier is heard at last: the create door used to drop the flag on the floor (every new tier came out Active), and an inactive tier now wears a muted face on its card.',
+      'Missing or foreign tiers answer the same “not found” on update — no existence leak — and the update re-runs the same validations the create door owns.',
+    ],
+  },
+  {
     version: '2.345.0',
     title: 'The loyalty desk speaks the wire\u2019s own truth',
     bullets: [

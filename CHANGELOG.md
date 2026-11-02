@@ -1,3 +1,20 @@
+## [2.346.0] The tier lifecycle, honestly
+
+The round the loyalty tier's lifecycle stopped lying in two voices at once: the desk's tier form has carried an Active / Inactive toggle forever while the create door dropped the flag on the floor (the create data hardcoded `isActive: true`, so every tier came out Active), and the edit dialog wore the words "Update Tier" while its submit re-ran the CREATE door — every "update" duplicated the tier and left the original untouched, because NO update route existed anywhere.
+
+### Fixed
+- **THE ISACTIVE SWALLOW**: the create door names `isActive` now (`isActive?: boolean` in the door, the destructure, and `isActive: isActive ?? true` in the create data — the schema default stays the absent-field truth only). "Inactive" is a word the wire hears.
+- **THE EDIT-THAT-CREATED**: the desk's submit branches honestly — an edit PUTs the new update door (`updateTierMutation`), a create POSTs, and the toasts speak apart ("Tier updated successfully"). The stale-edit life is safe: only openCreateTier / openEditTier open the dialog and create clears the edit target.
+
+### Added
+- **THE UPDATE DOOR EXISTS** (`src/app/api/loyalty/tiers/[id]/route.ts`, NEW): PUT with the body door naming every consumed field (all optional — an update writes only what the body carries, the conditional-spread data), the create door's own validations applied only when present (minPoints >= 0, discountPercent 0–100, pointsMultiplier > 0), a missing id and a foreign-store id answering the SAME 404 (no existence leak), RBAC mirroring the family's create gate (SUPER_ADMIN / STORE_OWNER), and the LOYALTY_TIER_UPDATED system log. The handler rides the house variadic pattern (requireAuth injects the session as the 2nd positional argument, the context rides args[2]).
+- **api.ts gains `tiers.update`**: the PUT with the honest optional shape.
+- **THE ERA TEST** (`src/tests/tier-lifecycle-v2346.test.ts`): 11 pins — the swallow's end, the update door's shape + both-voices 400s + the no-existence-leak 404 + the conditional-spread data + the RBAC gate, the api.ts update signature, the desk's honest branch, the muted face, the stale-edit safety, and the v2.345 era holds (the Members tally read + the bracket voice).
+- **THE SILENT-INCLUDE LAW lands in the round-trip** (scripts): tsc silently ignores include entries whose files do not exist — the v2346 round-trip asserts every include file on its side and prints RAW error counts beside the uniq'd signatures. With the symmetric include the ledger reads **34=34 signatures (raw 43=43), ZERO new, ZERO gone** — the route's db-graph now rides the include honestly (32 raw pre-existing advisory-baseline signatures, first seen by a round-trip).
+
+### Styling
+- **THE MUTED FACE** (`loyalty-tab.tsx`): an inactive tier's card wears its lifecycle state before the badge has to — `data-testid="tier-card"` + `data-tier-active={String(tier.isActive)}`, opacity-60 + grayscale on the card, a faded accent bar.
+
 ## [2.345.0] The loyalty desk speaks the wire’s own truth
 
 The loyalty desk speaks the wire's own truth — the round live-probed the tiers and campaigns wires and found the interfaces laundering a half-dozen lies past the compiler: `LoyaltyTierItem` declared `pointsThreshold` (a field ZERO readers use — the schema, the route and the desk all say `minPoints`), hid `maxPoints` and the `_count.customerTiers` tally, and `LoyaltyCampaignItem` declared `pointsMultiplier` and `isActive` while the schema says `multiplier` and `status`. The desk's EIGHT any-sites — five `(X as any)?.data` derived-data lines, two `const payload: any` create bodies, one `v as any` Select cast — all existed to keep those lies compiling. All eight dissolve, the interfaces speak the wire's own shapes, and the tombstone census pins every tab cast-free.
