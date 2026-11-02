@@ -441,10 +441,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.343.0: the rental entry joins the feed (+1 on every anchor → 233/234/235/266 → 234/235/236/267)
     // v2.344.0: the bare-class-final entry joins the feed (+1 on every anchor → 234/235/236/267 → 235/236/237/268)
     // v2.345.0: the loyalty-wire-truth entry joins the feed (+1 on every anchor → 235/236/237/268 → 236/237/238/269)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(236);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(237);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(238);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(269);
+    // v2.346.0: the tier-lifecycle entry joins the feed (+1 on every anchor → 236/237/238/269 → 237/238/239/270)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(237);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(238);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(239);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(270);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 
