@@ -205,7 +205,7 @@ export function ManagerAuthorizationModal({
           ) : null}
 
           {confirmOnly ? (
-            <p className="rounded-md border border-amber-200 bg-amber-50 p-2.5 text-xs leading-relaxed text-amber-800">
+            <p className="rounded-md border border-amber-200 bg-amber-50 p-2.5 text-xs leading-relaxed text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300">
               You are signed in as a manager. Approving will resubmit this sale with your
               authorization - the action is recorded in the audit trail.
             </p>
@@ -235,12 +235,31 @@ export function ManagerAuthorizationModal({
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={submitting}
                 />
+                {/* v2.348.0 THE SECURITY VOICE: the wipe contract is user-visible
+                    - the password never lingers (state cleared on close + submit). */}
+                <p
+                  data-testid="manager-auth-password-voice"
+                  className="flex items-center gap-1 text-[11px] leading-snug text-muted-foreground"
+                >
+                  <ShieldCheck className="h-3 w-3 shrink-0" aria-hidden="true" />
+                  The password is wiped from memory the moment this dialog closes or
+                  succeeds.
+                </p>
               </div>
             </>
           )}
 
           <div className="space-y-1.5">
-            <Label htmlFor="manager-auth-reason">Reason (optional)</Label>
+            <div className="flex items-baseline justify-between gap-2">
+              <Label htmlFor="manager-auth-reason">Reason (optional)</Label>
+              {/* v2.348.0 THE COUNTER VOICE: the 500-byte ceiling made visible. */}
+              <span
+                data-testid="manager-auth-reason-count"
+                className="text-[11px] tabular-nums text-muted-foreground"
+              >
+                {reasonText.length}/500
+              </span>
+            </div>
             <Input
               id="manager-auth-reason"
               placeholder="Why is this override needed?"
@@ -250,6 +269,18 @@ export function ManagerAuthorizationModal({
               disabled={submitting}
             />
           </div>
+
+          {/* v2.348.0 THE AUDIT VOICE: what the wire records, said where the
+              credential is typed - the override door writes the approving
+              manager's identity to the tamper-evident trail (MANAGER_OVERRIDE). */}
+          <p
+            data-testid="manager-auth-audit-voice"
+            className="flex items-start gap-1.5 rounded-md border border-emerald-200 bg-emerald-50 p-2 text-[11px] leading-snug text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300"
+          >
+            <ShieldCheck className="mt-0.5 h-3 w-3 shrink-0" aria-hidden="true" />
+            The approving manager’s name, role and email are written to the
+            tamper-evident audit trail with this override.
+          </p>
 
           <DialogFooter className="gap-2 pt-1">
             <Button

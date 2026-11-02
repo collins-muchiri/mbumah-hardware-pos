@@ -132,9 +132,13 @@ describe('THE PER-FILE HONEST BYTES (create doors name their consumed fields)', 
 describe('THE PER-FILE HONEST BYTES (update doors name their directly-read fields)', () => {
   it('products UPDATE names sku beside barcode, the loop keeps the index signature', () => {
     const src = read('src/app/api/products/[id]/route.ts');
-    expect(
-      src.includes('readJsonBody<{ sku?: unknown; barcode?: string; [key: string]: unknown }>(request)')
-    ).toBe(true);
+    // v2.348.0: the door's generic GREW the price-guard override block —
+    // the same law, one more directly-read field named (managerOverride).
+    expect(src.includes('readJsonBody<{')).toBe(true);
+    expect(src.includes('sku?: unknown;')).toBe(true);
+    expect(src.includes('barcode?: string;')).toBe(true);
+    expect(src.includes('managerOverride?: {')).toBe(true);
+    expect(src.includes('[key: string]: unknown;')).toBe(true);
   });
 
   it('categories UPDATE graduates from the loose Record to its six type-narrowed fields', () => {
