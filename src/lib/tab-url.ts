@@ -242,6 +242,14 @@ export function parseInitialNamedPage(search: string, param: string, fallback = 
  * spoken; the NEUTRAL is capitalized here, the desk's own all-lens
  * spelling, the first const in the family to carry an UPPERCASE
  * neutral).
+ * v2.359.0 — THE PROMISE KEPT, THE TWELFTH WORD: the delivery notes
+ * desk's status lens speaks it as its desk-prefixed `dn-status` (the
+ * same parser, zero new bytes of law, again — the note's road from
+ * Pending through In Transit to Delivered is now an address; UPPERCASE
+ * words, the landing chip wears the twelfth family, sky — the open-road
+ * hue the desk had not spoken — and the NEUTRAL is lowercase here, the
+ * desk's own all-lens spelling, so an UPPERCASE spelling of it is an
+ * unknown word).
  */
 export function parseInitialNamedMember<V extends string>(
   search: string,

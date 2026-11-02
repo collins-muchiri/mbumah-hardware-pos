@@ -217,10 +217,11 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/app/(shell)/tabs/rentals-tab.tsx',
       'src/lib/tab-url.ts',
       'src/lib/whats-new.ts',
-      // the seven neighbor ledgers admitted this test file — and an
+      // the eight neighbor ledgers admitted this test file — and an
       // admission line carries the word it admits (the LEDGER-CITATION
       // RIPPLE: a ledger is an honest speaker of every word it lists)
       'src/tests/cust-debt-deep-link-v2330.test.ts',
+      'src/tests/dn-status-deep-link-v2359.test.ts',
       'src/tests/gc-status-deep-link-v2358.test.ts',
       'src/tests/inv-status-deep-link-v2356.test.ts',
       'src/tests/inv-stock-deep-link-v2329.test.ts',

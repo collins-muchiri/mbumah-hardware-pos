@@ -10,9 +10,11 @@ import {
   Printer, CalendarDays, Hash, Navigation,
   ChevronRight, CircleDot, MessageSquare, Smartphone,
   Trash2, Download, FileDown, QrCode, ExternalLink,
+  Link2, X,
 } from 'lucide-react';
 
 import { useAppStore } from '@/lib/stores';
+import { parseInitialNamedMember } from '@/lib/tab-url';
 import {
   deliveryNotesApi, whatsappApi,
   formatDate, formatDateTime, formatKES,
@@ -91,6 +93,42 @@ function getStatusLabel(status: string) {
   }
 }
 
+// v2.359.0 THE DELIVERY DESK'S OWN WORD — the delivery notes desk's status
+// lens answers the address bar too: `?dn-status=IN_TRANSIT` lands the
+// board with the transit lens already chosen (the TWELFTH word of the
+// vocabulary — the note's road from Pending through In Transit to
+// Delivered is now an address). The law is MEMBERSHIP, ONE home
+// (`parseInitialNamedMember`): the value must name a lens the desk
+// actually offers — case-sensitive (the lens's own words are UPPERCASE,
+// so `pending` is an unknown word, not a clever match — the payment
+// word's voice) — and anything missing or unknown answers 'all' (never
+// stranded). The desk-prefix law (Task 44): a desk-prefixed word can
+// never leak across client-side tab switches.
+// Collision-checked at round start: the only status word the desk spoke
+// was the badge helpers' own vocabulary (different strings — the labels
+// a badge renders); never a reader of this word. The desk's own voices
+// keep their families beside the chip — the pending badge's amber, the
+// transit badge's blue, the delivered badge's green, the cancelled
+// badge's red, the stats cards' gray — a voice must not masquerade as a
+// badge, and the chip wears the family the desk had NOT spoken: sky
+// (unspoken on this desk, and the twelfth lens family — none of the
+// eleven families the other bars' chips wear; one foreign desk's badge
+// voice does speak this hue, but on its own bar, and the two never
+// share one — the law only disqualifies a family when the bars share).
+// Read-on-mount ONLY (the one-writer law): the landing word is the
+// LANDING lens, never rewritten; the status Select owns the state after.
+// THE NEUTRAL VOICE, LOWERCASE: this desk's all-lens is spelled 'all'
+// (the Select's own value since the desk first shipped), so the word's
+// neutral is lowercase — the payment word's spelling; an UPPERCASE
+// spelling of the neutral is an unknown word here, the exact inverse of
+// the desk whose neutral is capitalized.
+export const DN_STATUS_FILTERS = ['all', 'PENDING', 'IN_TRANSIT', 'DELIVERED', 'CANCELLED'] as const;
+
+function initialDnStatus(): (typeof DN_STATUS_FILTERS)[number] {
+  if (typeof window === 'undefined') return 'all';
+  return parseInitialNamedMember(window.location.search, 'dn-status', DN_STATUS_FILTERS, 'all');
+}
+
 // Delivery status timeline
 function DeliveryTimeline({ status }: { status: string }) {
   const steps = ['PENDING', 'IN_TRANSIT', 'DELIVERED'];
@@ -160,10 +198,26 @@ export default function DeliveryNotesTab() {
   // State
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  // v2.359.0: the lens is the word's own union — the generic parser IS
+  // the type, no cast between the address bar and the state.
+  const [statusFilter, setStatusFilter] = useState<(typeof DN_STATUS_FILTERS)[number]>(initialDnStatus);
   const [createOpen, setCreateOpen] = useState(false);
   const [viewOpen, setViewOpen] = useState(false);
   const [selectedNote, setSelectedNote] = useState<DeliveryNoteItem | null>(null);
+
+  // v2.359.0 THE LANDING WORD — the address-bar word the desk answered at
+  // mount ('all' when the landing carried no lens). The chip speaks it
+  // ONCE: dismissed or hand-changed, the landing is over and the chip
+  // retires — an honest face never claims a landing that is done.
+  const [landedDnStatus] = useState<(typeof DN_STATUS_FILTERS)[number]>(initialDnStatus);
+  const [dnLandingLive, setDnLandingLive] = useState(true);
+
+  // v2.359.0: a hand-driven change retires the landing word — the chip
+  // speaks the ADDRESS BAR's landing, never the human's next choice.
+  const chooseDnStatus = (value: (typeof DN_STATUS_FILTERS)[number]) => {
+    setStatusFilter(value);
+    setDnLandingLive(false);
+  };
 
   // v2.8.0: enlarged WhatsApp/SMS output preview (visibility fix),
   // delete-with-confirmation target, and per-row PDF busy marker.
@@ -659,7 +713,40 @@ export default function DeliveryNotesTab() {
                 className="pl-9"
               />
             </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            {/* v2.359.0 THE LANDING WORD CHIP, TWELFTH WEARING — a link
+                that landed the board pre-filtered wears a chip naming
+                the word it answered (?dn-status=…), styled in the lens's
+                own SKY family (the TWELFTH family of the vocabulary —
+                the desk's own badge voices keep theirs beside it: the
+                pending lens's amber, the transit lens's blue, the
+                delivered lens's green, the cancelled lens's red — a
+                voice must not masquerade as a badge) with dark-mode
+                variants, the Link2 icon, a `title` tooltip, and a
+                one-press dismissal that clears the lens the word seeded.
+                The chip retires the moment the human owns the filter.
+                THE TWO VOICES:
+                hand-driven Select change or the chip's own dismissal.
+                `data-testid="dn-status-landing-word"` — the QA walk's
+                handle. */}
+            {dnLandingLive && landedDnStatus !== 'all' && statusFilter === landedDnStatus && (
+              <button
+                type="button"
+                onClick={() => {
+                  setStatusFilter('all');
+                  setDnLandingLive(false);
+                }}
+                className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-sky-200 bg-sky-50 text-sky-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-sky-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-300 dark:hover:bg-sky-500/20"
+                data-testid="dn-status-landing-word"
+                title="The desk landed with this filter from the address bar — press to clear it"
+              >
+                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+                <span className="tabular-nums">landed ?dn-status={landedDnStatus}</span>
+                <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+              </button>
+            )}
+            {/* v2.359.0: the hand-driven Select is voice 2 — a hand-driven
+                change retires the landing word. */}
+            <Select value={statusFilter} onValueChange={chooseDnStatus}>
               <SelectTrigger className="w-full sm:w-44">
                 <SelectValue placeholder="All Statuses" />
               </SelectTrigger>

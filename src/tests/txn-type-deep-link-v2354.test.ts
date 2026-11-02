@@ -208,10 +208,11 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/app/(shell)/tabs/transactions-tab.tsx',
       'src/lib/tab-url.ts',
       'src/lib/whats-new.ts',
-      // the six neighbor ledgers admitted this test file — and an
+      // the seven neighbor ledgers admitted this test file — and an
       // admission line carries the word it admits (the LEDGER-CITATION
       // RIPPLE: a ledger is an honest speaker of every word it lists)
       'src/tests/cust-debt-deep-link-v2330.test.ts',
+      'src/tests/dn-status-deep-link-v2359.test.ts',
       // v2.353.0's registry pinned the census testids, whose substring
       // carries this word — the honest speaker joins (the same ripple)
       'src/tests/door-shape-registry-v2353.test.ts',

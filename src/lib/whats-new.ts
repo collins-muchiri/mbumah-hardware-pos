@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.359.0',
+    title: 'The delivery\u2019s road answers the address bar',
+    bullets: [
+      'A delivery notes link can now name its lens: ?dn-status=PENDING, IN_TRANSIT, DELIVERED or CANCELLED lands the board pre-filtered, with a dismissible chip naming the word it answered — the twelfth word of the address-bar vocabulary.',
+      'The landing chip wears the vocabulary\u2019s twelfth family (sky — the open-road hue) beside the desk\u2019s own badge voices — one bar, honest voices, no masquerade.',
+      'Unknown, missing, or wrong-case words never strand the board: the lens falls back to All Statuses, case-sensitively.',
+    ],
+  },
+  {
     version: '2.358.0',
     title: 'The gift card\u2019s life answers the address bar',
     bullets: [
