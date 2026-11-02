@@ -2242,5 +2242,5 @@ async function createTransactionInner(
   return Response.json({ success: true, data: fullTransaction }, { status: 201 });
 }
 
-export const GET = withErrorBoundary(requireStoreAccess(getTransactionsHandler) as (...args: unknown[]) => Promise<Response>, 'TRANSACTIONS_LIST');
-export const POST = withErrorBoundary(requireStoreAccess(createTransactionHandler) as (...args: unknown[]) => Promise<Response>, 'TRANSACTIONS_CREATE');
+export const GET = withErrorBoundary(requireStoreAccess(getTransactionsHandler), 'TRANSACTIONS_LIST');
+export const POST = withErrorBoundary(requireStoreAccess(createTransactionHandler), 'TRANSACTIONS_CREATE');

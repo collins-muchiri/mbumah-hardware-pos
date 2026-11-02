@@ -109,6 +109,6 @@ async function getReceiptsHandler(
 }
 
 export const GET = withErrorBoundary(
-  requireStoreAccess(getReceiptsHandler) as (...args: unknown[]) => Promise<Response>,
+  requireStoreAccess(getReceiptsHandler),
   'RECEIPTS_LIST',
 );

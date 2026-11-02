@@ -311,7 +311,9 @@ async function updateStoreTransferHandler(
       const claimStatuses = ['IN_TRANSIT', 'PARTIAL'];
       const claimed = await tx.storeTransfer.updateMany({
         where: { id, status: { in: claimStatuses }, shippedAt: { not: null } },
-        data: { status: 'RECEIVING' as string }, // transient in-transaction state
+        // v2.351.0 — the transient claim state needs no launder: the column
+        // is a plain String, the literal fits the update input as-is.
+        data: { status: 'RECEIVING' }, // transient in-transaction state
       });
       if (claimed.count === 0) return { ok: false as const };
 
@@ -556,5 +558,5 @@ async function updateStoreTransferHandler(
 
 // SYS-1: these endpoints mutate stock in two stores - session + membership
 // enforced (F3-3/P0-3). withErrorBoundary composes around the auth wrapper.
-export const GET = withErrorBoundary(requireStoreAccess(getStoreTransferHandler) as (...args: unknown[]) => Promise<Response>, 'STORE_TRANSFER_DETAIL');
-export const PUT = withErrorBoundary(requireStoreAccess(updateStoreTransferHandler) as (...args: unknown[]) => Promise<Response>, 'STORE_TRANSFER_UPDATE');
+export const GET = withErrorBoundary(requireStoreAccess(getStoreTransferHandler), 'STORE_TRANSFER_DETAIL');
+export const PUT = withErrorBoundary(requireStoreAccess(updateStoreTransferHandler), 'STORE_TRANSFER_UPDATE');

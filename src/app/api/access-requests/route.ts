@@ -148,6 +148,6 @@ async function accessRequestHandler(
 }
 
 export const POST = withErrorBoundary(
-  requireAuth(accessRequestHandler as (...args: unknown[]) => Promise<Response>),
+  requireAuth(accessRequestHandler),
   'ACCESS_REQUESTS'
 );

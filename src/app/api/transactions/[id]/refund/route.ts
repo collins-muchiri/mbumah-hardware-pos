@@ -156,7 +156,7 @@ async function refundTransactionHandler(...args: unknown[]): Promise<Response> {
 }
 
 export const POST = withErrorBoundary(
-  requireStoreAccess(refundTransactionHandler) as (...args: unknown[]) => Promise<Response>,
+  requireStoreAccess(refundTransactionHandler),
   'TRANSACTION_REFUND',
 );
 
@@ -226,7 +226,10 @@ async function refundableLinesHandler(...args: unknown[]): Promise<Response> {
       receiptNumber: original.receiptNumber,
       totalAmount: Number(original.totalAmount),
       paymentStatus: original.paymentStatus,
-      customerName: null as string | null,
+      // v2.351.0 — the seed is an honest null: this literal answers the wire
+      // directly (Response.json), so the old maybe-string annotation was
+      // noise; the client contract reads the field's absence the same way.
+      customerName: null,
       lines,
       refundableTotal: toRefundableTotal(lines),
     },
@@ -234,6 +237,6 @@ async function refundableLinesHandler(...args: unknown[]): Promise<Response> {
 }
 
 export const GET = withErrorBoundary(
-  requireStoreAccess(refundableLinesHandler) as (...args: unknown[]) => Promise<Response>,
+  requireStoreAccess(refundableLinesHandler),
   'TRANSACTION_REFUND_LINES',
 );

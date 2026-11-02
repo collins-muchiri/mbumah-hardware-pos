@@ -55,6 +55,6 @@ async function candidatesHandler(
 }
 
 export const GET = withErrorBoundary(
-  requireStoreAccess(candidatesHandler as (...args: unknown[]) => Promise<Response>),
+  requireStoreAccess(candidatesHandler),
   'EMPLOYEES_PORTAL_CANDIDATES'
 );

@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.351.0',
+    title: 'The wrapper seam speaks its shape',
+    bullets: [
+      'Twenty-four export-line type casts are gone from the API layer: the route wrappers now understand handlers that name their own parameters, so the honest signatures no longer need a cast to fit.',
+      'User management and refund doors stop laundering row shapes \u2014 the query result types are derived from the queries themselves.',
+      'The store-transfers board now shows how many transfers each status filter holds, with a live count voice when a lens is active.',
+    ],
+  },
+  {
     version: '2.350.0',
     title: 'The casts census, phase 2: fifteen doors stop laundering the wire',
     bullets: [
