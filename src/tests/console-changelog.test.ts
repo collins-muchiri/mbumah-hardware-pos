@@ -454,10 +454,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.357.0: the transfers entry joins the feed (+1 on every anchor → 246/247/248/279 → 247/248/249/280)
     // v2.358.0: the gift-card-status entry joins the feed (+1 on every anchor → 247/248/249/280 → 248/249/250/281)
     // v2.359.0: the delivery-note-status entry joins the feed (+1 on every anchor → 248/249/250/281 → 249/250/251/282)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(249);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(250);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(251);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(282);
+    // v2.360.0: the voucher-status entry joins the feed (+1 on every anchor → 249/250/251/282 → 250/251/252/283)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(250);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(251);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(252);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(283);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 
