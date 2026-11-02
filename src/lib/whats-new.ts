@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.348.0',
+    title: 'The field-level casts census, three doors speak the wire',
+    bullets: [
+      'Three wire doors stopped trusting cast spells: the product price-guard override, the payroll M-Pesa disbursement and the Safaricom callback now read exactly the fields they consume \u2014 no type escapes between the wire and the handler.',
+      'The Safaricom callback validates each metadata field it reads now: a missing receipt, date or phone answers empty and a non-finite amount answers zero, instead of a cast smuggling whatever arrived into a number slot.',
+      'The manager-authorization dialog says its security contract out loud \u2014 the password-wipe promise, an audit-trail voice naming what gets recorded, and a live 0/500 counter on the reason field.',
+    ],
+  },
+  {
     version: '2.347.0',
     title: 'The tier lifecycle completes',
     bullets: [

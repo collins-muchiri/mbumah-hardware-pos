@@ -36,12 +36,20 @@ const DISBURSE_ROLES = ['STORE_OWNER'] as const;
 export const POST = hrGuard('hr.payroll.disburse', DISBURSE_ROLES)(
   async (request, session, context?: { params: Promise<{ id: string }> }) => {
     const { id } = (await context?.params) ?? { id: '' };
-    const body = (await readJson(request)) as { mode?: string; detailIds?: unknown };
+    // v2.348.0 — the field-level casts census: readJson already answers the
+    // wire's own Record<string, unknown>; the old object-shape cast down-cast
+    // it into a shape the handler never validated. The honest read keeps the
+    // record and lets the equality checks narrow `mode` themselves (unknown
+    // compares fine — no cast, no lie).
+    const body = await readJson(request);
     const mode = body.mode === 'retry-failed' || body.mode === 'refresh-stuck' ? body.mode : 'all';
     // v2.34.0: row-level Retry targeting — only string ids, deduped, capped
     // so a malformed payload can never widen the query beyond reason.
+    // v2.348.0: the raw list is held as unknown[] — the honest widening of
+    // Array.isArray on an unknown field (the narrowed any[] never escapes).
+    const rawDetailIds: unknown[] = Array.isArray(body.detailIds) ? body.detailIds : [];
     const detailIds = Array.isArray(body.detailIds)
-      ? [...new Set(body.detailIds.filter((v): v is string => typeof v === 'string' && v.length > 0 && v.length <= 64))].slice(0, 50)
+      ? [...new Set(rawDetailIds.filter((v): v is string => typeof v === 'string' && v.length > 0 && v.length <= 64))].slice(0, 50)
       : undefined;
     try {
       if (mode === 'refresh-stuck') {
@@ -102,8 +110,13 @@ export const POST = hrGuard('hr.payroll.disburse', DISBURSE_ROLES)(
           storeId: actor.storeId,
           mode: summary.mode === 'mock' ? 'mpesa-mock' : 'mpesa',
           paidDetails: (summary.results ?? [])
-            .filter((r) => r.status === 'PAID' && typeof r.detailId === 'string')
-            .map((r) => ({ detailId: r.detailId as string, receipt: r.receipt ?? null })),
+            // v2.348.0: flatMap keeps the string narrowing INSIDE one expression —
+            // the old filter().map() pair needed a cast to carry it across.
+            .flatMap((r) =>
+              r.status === 'PAID' && typeof r.detailId === 'string'
+                ? [{ detailId: r.detailId, receipt: r.receipt ?? null }]
+                : [],
+            ),
           disbursedAtIso: new Date().toISOString(),
         }).catch((err) => {
           console.warn('[payroll] b2c paid notices failed (best-effort):', err);

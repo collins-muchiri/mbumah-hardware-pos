@@ -160,9 +160,17 @@ async function authorizeCallback(request: NextRequest): Promise<Response | null>
 function extractCallbackData(body: MpesaCallbackBody) {
   if (body.Body?.stkCallback) {
     const stk = body.Body.stkCallback;
-    const metadata: Record<string, unknown> = {};
+    // v2.348.0 — the field-level casts census: the bag carries exactly what
+    // Daraja's Item.Value declares (string | number), so it is TYPED as that —
+    // not Record<string, unknown> — and the four reads below ask typeof
+    // instead of casting. A non-string receipt/date/phone is an absent value
+    // (the same `|| ''` answer); a non-finite amount is 0 — the old cast would
+    // have laundered a string "1.00" into a number field as the string itself.
+    const metadata: Record<string, string | number> = {};
     if (stk.CallbackMetadata?.Item) {
-      for (const item of stk.CallbackMetadata.Item) metadata[item.Name] = item.Value;
+      for (const item of stk.CallbackMetadata.Item) {
+        if (item.Value !== undefined) metadata[item.Name] = item.Value;
+      }
     }
     return {
       isDarajaShape: true as const,
@@ -170,10 +178,14 @@ function extractCallbackData(body: MpesaCallbackBody) {
       merchantRequestId: stk.MerchantRequestID || '',
       resultCode: String(stk.ResultCode),
       resultDesc: stk.ResultDesc,
-      mpesaReceiptNumber: (metadata.MpesaReceiptNumber as string) || '',
-      transactionDate: (metadata.TransactionDate as string) || '',
-      phoneNumber: (metadata.PhoneNumber as string) || '',
-      amount: (metadata.Amount as number) || 0,
+      mpesaReceiptNumber:
+        typeof metadata.MpesaReceiptNumber === 'string' ? metadata.MpesaReceiptNumber : '',
+      transactionDate: typeof metadata.TransactionDate === 'string' ? metadata.TransactionDate : '',
+      phoneNumber: typeof metadata.PhoneNumber === 'string' ? metadata.PhoneNumber : '',
+      amount:
+        typeof metadata.Amount === 'number' && Number.isFinite(metadata.Amount)
+          ? metadata.Amount
+          : 0,
     };
   }
   // Flat mock shape - only permitted when explicitly enabled (dev/docker).

@@ -111,7 +111,19 @@ async function updateProductHandler(...args: unknown[]): Promise<Response> {
   // v2.325.0 THE BODY DOOR: an unreadable body is a client mistake — 400, never a 500.
   // v2.336.0 names the other directly-read field too: `sku` (String()-coerced
   // below), while the allowedFields loop keeps the honest index signature.
-  const door = await readJsonBody<{ sku?: unknown; barcode?: string; [key: string]: unknown }>(request);
+  // v2.348.0 names the price-guard override block: the door's generic speaks
+  // `managerOverride` in the wire's own shape, so the handler reads the field
+  // it consumes WITHOUT an object-shape cast (the field-level casts census).
+  const door = await readJsonBody<{
+    sku?: unknown;
+    barcode?: string;
+    managerOverride?: {
+      approverEmail?: unknown;
+      approverPassword?: unknown;
+      reason?: unknown;
+    };
+    [key: string]: unknown;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
@@ -248,13 +260,11 @@ async function updateProductHandler(...args: unknown[]): Promise<Response> {
         : 0;
 
     if (Number.isFinite(newPrice) && deviation > 0.2) {
+      // v2.348.0: the cast is gone — the door's generic carries the shape, so
+      // the guard reads the typed field directly (same truth, zero laundering).
       const overrideObject =
         body?.managerOverride && typeof body.managerOverride === 'object'
-          ? (body.managerOverride as {
-              approverEmail?: unknown;
-              approverPassword?: unknown;
-              reason?: unknown;
-            })
+          ? body.managerOverride
           : null;
 
       let approved = false;
@@ -376,7 +386,7 @@ async function updateProductHandler(...args: unknown[]): Promise<Response> {
   // v2.6.0: price-change audit - any change to pricePerUnit or costPrice is
   // a money-moving event and gets a tamper-evident trail entry with the old
   // and new prices. Values are Number()-coerced plain JSON (Prisma Decimals
-  // serialize as strings through Response.json - never let them reach the
+  // arrive as text through Response.json - never let them reach the
   // audit chain).
   const priceChanged =
     updateData.pricePerUnit !== undefined &&
