@@ -6,9 +6,11 @@ import { toast } from 'sonner';
 import {
   ArrowUpDown, Package, CheckCircle, ArrowRight, Plus, Search,
   Truck, Clock, X, Eye, Send, Check, AlertCircle, Loader2, MapPin, Store,
+  Link2,
 } from 'lucide-react';
 
 import { useAppStore } from '@/lib/stores';
+import { parseInitialNamedMember } from '@/lib/tab-url';
 import {
   storeTransfersApi, productsApi, authorizedFetchJson, formatKES, formatDate, formatDateTime,
   type StoreTransferItem,
@@ -247,11 +249,49 @@ function TransferDetailDialog({
 
 // Main Component
 
+// v2.357.0 THE TRANSFER DESK'S OWN WORD — the transfers desk's status
+// lens answers the address bar too: `?transfer-status=IN_TRANSIT` lands
+// the board with the in-transit lens already chosen (the TENTH word of
+// the vocabulary — the stock's journey between stores is now an
+// address). The law is MEMBERSHIP, ONE home (`parseInitialNamedMember`):
+// the value must name a lens the desk actually offers — case-sensitive
+// (the lens's own words are UPPERCASE, so `in_transit` is an unknown
+// word, not a clever match — the payment word's voice) — and anything
+// missing or unknown answers 'all' (never stranded). The word is
+// desk-prefixed per the Task 44 collision law: a desk-prefixed word can
+// never leak across client-side tab switches.
+// Collision-checked at round start: the only transfer-status bytes in
+// src/ were this desk's OWN filter testid (a different string —
+// `transfer-status-filter`, the desk's control since v2.351.0 — the
+// same-desk precedent the type word set in v2.354.0) and the wrapper
+// suite's pin of that testid; never a reader of the word.
+// Read-on-mount ONLY (the one-writer law): the landing word is the
+// LANDING lens, never rewritten; the status Select owns the state after.
+export const TRANSFER_STATUS_FILTERS = ['all', 'PENDING', 'IN_TRANSIT', 'RECEIVED', 'CANCELLED', 'PARTIAL'] as const;
+
+function initialTransferStatus(): (typeof TRANSFER_STATUS_FILTERS)[number] {
+  if (typeof window === 'undefined') return 'all';
+  return parseInitialNamedMember(window.location.search, 'transfer-status', TRANSFER_STATUS_FILTERS, 'all');
+}
+
 export default function TransfersTab() {
   const currentStoreId = useAppStore((s) => s.currentStoreId);
   const queryClient = useQueryClient();
   const [innerTab, setInnerTab] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState<(typeof TRANSFER_STATUS_FILTERS)[number]>(initialTransferStatus);
+  // v2.357.0 THE LANDING WORD — the address-bar word the desk answered at
+  // mount ('all' when the landing carried no lens). The chip speaks it
+  // ONCE: dismissed or hand-changed, the landing is over and the chip
+  // retires — an honest face never claims a landing that is done.
+  const [landedTransferStatus] = useState<(typeof TRANSFER_STATUS_FILTERS)[number]>(initialTransferStatus);
+  const [transferLandingLive, setTransferLandingLive] = useState(true);
+
+  // v2.357.0: a hand-driven change retires the landing word — the chip
+  // speaks the ADDRESS BAR's landing, never the human's next choice.
+  const chooseTransferStatus = (value: (typeof TRANSFER_STATUS_FILTERS)[number]) => {
+    setStatusFilter(value);
+    setTransferLandingLive(false);
+  };
   const [fromStoreFilter, setFromStoreFilter] = useState('all');
   const [toStoreFilter, setToStoreFilter] = useState('all');
   const [selectedTransfer, setSelectedTransfer] = useState<StoreTransferItem | null>(null);
@@ -426,7 +466,40 @@ export default function TransfersTab() {
         {/* ── All Transfers ───────────────────────────── */}
         <TabsContent value="all" className="space-y-4">
           <div className="flex flex-wrap items-center gap-2">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            {/* v2.357.0 THE LANDING WORD CHIP, TENTH WEARING — a link
+                that landed the board pre-filtered wears a chip naming
+                the word it answered (?transfer-status=…), styled in
+                the lens's own BLUE family (the TENTH family of the
+                vocabulary — indigo/amber/rose/emerald/cyan/violet/
+                fuchsia/orange/teal now gain the transfer lens's blue,
+                the logistics hue; the lens voice keeps its emerald
+                beside it — a voice must not masquerade as a badge)
+                with dark-mode variants, the Link2 icon, a `title`
+                tooltip, and a one-press dismissal that clears the
+                lens the word seeded. The chip retires the moment the
+                human owns the filter. THE TWO VOICES:
+                hand-driven Select change or the chip's own dismissal.
+                `data-testid="transfer-status-landing-word"` — the QA
+                walk's handle. */}
+            {transferLandingLive && landedTransferStatus !== 'all' && statusFilter === landedTransferStatus && (
+              <button
+                type="button"
+                onClick={() => {
+                  setStatusFilter('all');
+                  setTransferLandingLive(false);
+                }}
+                className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-blue-200 bg-blue-50 text-blue-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-300 dark:hover:bg-blue-500/20"
+                data-testid="transfer-status-landing-word"
+                title="The desk landed with this filter from the address bar — press to clear it"
+              >
+                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+                <span className="tabular-nums">landed ?transfer-status={landedTransferStatus}</span>
+                <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+              </button>
+            )}
+            {/* v2.357.0: the hand-driven Select is voice 2 — a hand-driven
+                change retires the landing word. */}
+            <Select value={statusFilter} onValueChange={chooseTransferStatus}>
               <SelectTrigger className="w-[140px] h-9 text-xs" data-testid="transfer-status-filter">
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
