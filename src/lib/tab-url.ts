@@ -223,6 +223,11 @@ export function parseInitialNamedPage(search: string, param: string, fallback = 
  * bookmark; the lens's words are UPPERCASE like the payment word's, and
  * the landing chip wears the eighth family, orange — the overdue-warning
  * hue).
+ * v2.356.0 — THE PROMISE KEPT, THE NINTH WORD: the invoices desk's status
+ * lens speaks it as its desk-prefixed `inv-status` (the same parser,
+ * zero new bytes of law, again — the invoicing pipeline's stage, DRAFT
+ * through EXPIRED, is now an address; UPPERCASE words, and the landing
+ * chip wears the ninth family, teal — the pipeline hue).
  */
 export function parseInitialNamedMember<V extends string>(
   search: string,

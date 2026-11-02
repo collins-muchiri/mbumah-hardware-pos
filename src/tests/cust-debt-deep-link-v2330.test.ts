@@ -177,6 +177,7 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // quotes the credit-envelope meter's data-testid (`cust-debt-meter`),
       // whose substring carries this word — the honest speaker joins.
       'src/tests/customer-doors-v2338.test.ts',
+      'src/tests/inv-status-deep-link-v2356.test.ts',
       'src/tests/inv-stock-deep-link-v2329.test.ts',
       'src/tests/proxy-gate-layering-v2328.test.ts',
       // v2.355.0: the rentals desk's status lens joins the vocabulary — its
