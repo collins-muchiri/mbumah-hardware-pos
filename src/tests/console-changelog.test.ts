@@ -438,10 +438,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.340.0: the hr-doors entry joins the feed (+1 on every anchor → 230/231/232/263 → 231/232/233/264)
     // v2.341.0: the loyalty-tax entry joins the feed (+1 on every anchor → 231/232/233/264 → 232/233/234/265)
     // v2.342.0: the messaging entry joins the feed (+1 on every anchor → 232/233/234/265 → 233/234/235/266)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(233);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(234);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(235);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(266);
+    // v2.343.0: the rental entry joins the feed (+1 on every anchor → 233/234/235/266 → 234/235/236/267)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(234);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(235);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(236);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(267);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 
