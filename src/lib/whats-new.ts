@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.340.0',
+    title: 'The HR doors speak their bodies\u2019 shapes',
+    bullets: [
+      'The HR family\u2019s API doors (attendance clock-in/out, employees, leave types, shifts and shift closing) now type every request body by the fields the route actually reads — the first honest pass over the remaining untyped doors. Same behavior, same 400 door voice, just doors that document the exact shape they accept.',
+      'End-of-shift closing grows a variance meter and a third voice: a small over/short still speaks amber, but a materially wrong drawer count (KES 1,000+) now speaks red — with the variance drawn against the counted cash as a slim bar. A waking fix rides along: the closing summary used to be snatched away the moment the shift ended (the dashboard refetch retired the card it lived in) — it now stays readable until you dismiss it.',
+      '25 untyped doors remain on the map — the messaging, loyalty, tax and rental families are next.',
+    ],
+  },
+  {
     version: '2.339.0',
     title: 'The last exemplars speak their body\u2019s shape',
     bullets: [

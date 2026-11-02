@@ -75,7 +75,16 @@ async function getShiftsHandler(...args: unknown[]): Promise<Response> {
 async function createShiftHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.340.0 THE HR FAMILY: the door speaks its own shape — the open-shift
+  // pair rides REQUIRED strings (the route's own guard is the runtime
+  // validator and Prisma's where consumes them); startingCash stays
+  // `unknown` — the route's own Number() coercion is its validator (the
+  // opening-cash AUDIT FIX below owns the widening).
+  const door = await readJsonBody<{
+    storeId: string;
+    userId: string;
+    startingCash?: unknown;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
