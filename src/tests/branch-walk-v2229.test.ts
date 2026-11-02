@@ -49,13 +49,13 @@ const watcher = read('src/tests/a11y-shell-v2148.test.ts');
 
 describe('the round of record (v2.229.0)', () => {
   it('package.json leads 2.229.0 (all three slots)', () => {
-    expect(version).toBe('2.350.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.350.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.350.0');
+    expect(version).toBe('2.351.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.351.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.351.0');
   });
 
   it('VERSION speaks 2.229.0 and the verify gate is wired', () => {
-    expect(read('VERSION').trim()).toBe('2.350.0');
+    expect(read('VERSION').trim()).toBe('2.351.0');
     expect(pkg.scripts['verify:v2-229-0']).toBe('node scripts/verify-v2-229-0.mjs');
   });
 
@@ -71,7 +71,7 @@ describe('the round of record (v2.229.0)', () => {
   });
 
   it('the treadmill bumped the version pins (the watchers track the head)', () => {
-    expect(watcher).toContain("expect(pkg.version).toBe('2.350.0');");
+    expect(watcher).toContain("expect(pkg.version).toBe('2.351.0');");
     expect(watcher).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(241);");
   });
 

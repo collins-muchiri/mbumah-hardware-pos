@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// MBUMAH HARDWARE POS - Release verification gate for v2.307.0 (audit remediation)
+// MBUMAH HARDWARE POS - Release verification gate for v2.351.0 (audit remediation)
 //
 // Pins the audit-remediation release face: the runner-agnostic seed, the
 // provider-consistency root-cause fix, the seeded-credential policy, the
@@ -41,12 +41,12 @@ const has = (p) => existsSync(join(root, p));
 const pkg = JSON.parse(read('package.json'));
 
 // ── Release face ────────────────────────────────────────────────────────────
-check('package.json version is 2.307.0', () => pkg.version === '2.307.0');
-check('package.json releaseVersion is 2.307.0', () => pkg.mbumah?.releaseVersion === '2.307.0');
-check('package.json baseVersion is 2.307.0', () => pkg.mbumah?.baseVersion === '2.307.0');
-check('VERSION is 2.307.0', () => read('VERSION').trim() === '2.307.0');
-check('CHANGELOG heads [2.307.0]', () => read('CHANGELOG.md').includes('## [2.307.0]'));
-check('whats-new head is 2.307.0', () => read('src/lib/whats-new.ts').includes("version: '2.307.0',"));
+check('package.json version is 2.351.0', () => pkg.version === '2.351.0');
+check('package.json releaseVersion is 2.351.0', () => pkg.mbumah?.releaseVersion === '2.351.0');
+check('package.json baseVersion is 2.351.0', () => pkg.mbumah?.baseVersion === '2.351.0');
+check('VERSION is 2.351.0', () => read('VERSION').trim() === '2.351.0');
+check('CHANGELOG heads [2.351.0]', () => read('CHANGELOG.md').includes('## [2.351.0]'));
+check('whats-new head is 2.351.0', () => read('src/lib/whats-new.ts').includes("version: '2.351.0',"));
 check('this gate is wired (verify:v2-307-0)', () => pkg.scripts['verify:v2-307-0'] === 'node scripts/verify-v2-307-0.mjs');
 
 // ── Finding #1: runner-agnostic seed ────────────────────────────────────────

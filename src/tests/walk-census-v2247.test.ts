@@ -119,10 +119,10 @@ describe('the walk\u2019s mirror — the faces (v2.247.0)', () => {
 
 describe('the walk\u2019s mirror — the release face (v2.247.0)', () => {
   it('the release face speaks 2.247.0', () => {
-    expect(version).toBe('2.350.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.350.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.350.0');
-    expect(read('VERSION').trim()).toBe('2.350.0');
+    expect(version).toBe('2.351.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.351.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.351.0');
+    expect(read('VERSION').trim()).toBe('2.351.0');
   });
 
   it('the verify gate is wired', () => {
