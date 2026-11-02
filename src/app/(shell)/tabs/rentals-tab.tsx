@@ -9,9 +9,11 @@ import {
   ShieldAlert, ShieldCheck, ShieldOff, CalendarDays, Activity, Package, Search, LayoutGrid,
   List, Camera,
   Phone, Printer, Pencil, Trash2, Smartphone,
+  Link2, X,
 } from 'lucide-react';
 
 import { useAppStore } from '@/lib/stores';
+import { parseInitialNamedMember } from '@/lib/tab-url';
 import { handleError } from '@/lib/error-handler';
 // R13 FIX: Decimal-safe money aggregation (decimal-string concat audit).
 import { toDec, round2 } from '@/lib/utils/financialMath';
@@ -816,8 +818,48 @@ function RentalCardView({ rentals, onReturn, onEdit, onDelete, onSendReceipt, on
 
 // Main Rentals Tab Component
 
+// v2.355.0 THE RENTAL DESK'S OWN WORD — the rentals desk's status lens
+// answers the address bar too: `?rent-status=OVERDUE` lands the desk with
+// the overdue lens already chosen (the EIGHTH word of the vocabulary, and
+// the desk's DAILY QUESTION — the manager's morning check is now a
+// bookmark). The law is MEMBERSHIP, ONE home (`parseInitialNamedMember`):
+// the value must name a lens the desk actually offers — case-sensitive
+// (the lens's own words are UPPERCASE, so `overdue` is an unknown word,
+// not a clever match — the payment word's voice, not the type word's) —
+// and anything missing or unknown answers 'all' (never stranded). The
+// word is desk-prefixed per the Task 44 collision law: a desk-prefixed
+// word can never leak across client-side tab switches.
+// Collision-checked at round start: no reader of `rent-status` exists
+// anywhere in src/ (the report-voices comment's "rental-status" is a
+// chart title's prose — a different string, and not a reader).
+// Read-on-mount ONLY (the one-writer law): the landing word is the
+// LANDING lens, never rewritten; the status Select owns the state after.
+export const RENT_STATUS_FILTERS = ['all', 'ACTIVE', 'OVERDUE', 'RETURNED', 'DAMAGED'] as const;
+
+function initialRentStatus(): (typeof RENT_STATUS_FILTERS)[number] {
+  if (typeof window === 'undefined') return 'all';
+  return parseInitialNamedMember(window.location.search, 'rent-status', RENT_STATUS_FILTERS, 'all');
+}
+
 export default function RentalsTab() {
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  // v2.355.0: the status lens's seed reads `?rent-status=` (membership
+  // law, one home); a hand-driven Select change afterwards is the human's
+  // truth. The generic parser IS the union — the seed names it directly,
+  // zero casts.
+  const [statusFilter, setStatusFilter] = useState<(typeof RENT_STATUS_FILTERS)[number]>(initialRentStatus);
+  // v2.355.0 THE LANDING WORD — the address-bar word the desk answered at
+  // mount ('all' when the landing carried no lens). The chip speaks it
+  // ONCE: dismissed or hand-changed, the landing is over and the chip
+  // retires — an honest face never claims a landing that is done.
+  const [landedRentStatus] = useState<(typeof RENT_STATUS_FILTERS)[number]>(initialRentStatus);
+  const [rentLandingLive, setRentLandingLive] = useState(true);
+
+  // v2.355.0: a hand-driven change retires the landing word — the chip
+  // speaks the ADDRESS BAR's landing, never the human's next choice.
+  const chooseRentStatus = (value: (typeof RENT_STATUS_FILTERS)[number]) => {
+    setStatusFilter(value);
+    setRentLandingLive(false);
+  };
   const [returnDialogOpen, setReturnDialogOpen] = useState(false);
   const [selectedRental, setSelectedRental] = useState<RentalItem | null>(null);
   const [newRentalOpen, setNewRentalOpen] = useState(false);
@@ -1313,7 +1355,39 @@ export default function RentalsTab() {
 
           {/* Toolbar */}
           <div className="flex flex-wrap items-center gap-3">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            {/* v2.355.0 THE LANDING WORD CHIP, EIGHTH WEARING — a link
+                that landed the desk pre-filtered wears a chip naming
+                the word it answered (?rent-status=…), styled in the
+                lens's own ORANGE family (the EIGHTH family of the
+                vocabulary — indigo/amber/rose/emerald/cyan/violet/fuchsia
+                now gain the rental lens's orange, the overdue-warning
+                hue; amber's neighbor lives on the inventory desk, the
+                two never share a bar) with dark-mode variants, the
+                Link2 icon, a `title` tooltip, and a one-press dismissal
+                that clears the lens the word seeded. The chip retires
+                the moment the human owns the filter. THE TWO VOICES:
+                hand-driven Select change or the chip's own dismissal.
+                `data-testid="rent-status-landing-word"` — the QA walk's
+                handle. */}
+            {rentLandingLive && landedRentStatus !== 'all' && statusFilter === landedRentStatus && (
+              <button
+                type="button"
+                onClick={() => {
+                  setStatusFilter('all');
+                  setRentLandingLive(false);
+                }}
+                className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-orange-200 bg-orange-50 text-orange-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-orange-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 dark:border-orange-500/30 dark:bg-orange-500/10 dark:text-orange-300 dark:hover:bg-orange-500/20"
+                data-testid="rent-status-landing-word"
+                title="The desk landed with this filter from the address bar — press to clear it"
+              >
+                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+                <span className="tabular-nums">landed ?rent-status={landedRentStatus}</span>
+                <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+              </button>
+            )}
+            {/* v2.355.0: the hand-driven Select is voice 2 — a hand-driven
+                change retires the landing word. */}
+            <Select value={statusFilter} onValueChange={chooseRentStatus}>
               <SelectTrigger className="w-48"><SelectValue placeholder="All Statuses" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Statuses</SelectItem>
