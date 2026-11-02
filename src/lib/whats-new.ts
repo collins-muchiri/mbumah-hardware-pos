@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.342.0',
+    title: 'The messaging doors speak their bodies\u2019 shapes',
+    bullets: [
+      'The messaging family\u2019s API doors (customer messages, bulk broadcast, WhatsApp send and WhatsApp documents) now type every request body by the fields the route actually reads \u2014 the third honest pass over the remaining untyped doors, four more doors off the map. Same behavior, same 400 door voice, just doors that document the exact shape they accept.',
+      'Campaign creation no longer crashes on a mistyped figure: bonus points or a multiplier sent as a number-like string (\u201c50\u201d) now stores the number it names instead of answering a server error \u2014 and a non-numeric anything gets an honest 400 with the route\u2019s own voice.',
+      'The bulk broadcast composer grows a forecast meter: before you press Send, the desk draws how many of the chosen audience will actually get the message \u2014 and how many lack a valid phone and will be skipped. Emerald when every candidate answers, amber past 90%, red when most would be skipped.',
+      '16 untyped doors remain on the map \u2014 the rental family and the catalog-adjacent singles are next.',
+    ],
+  },
+  {
     version: '2.341.0',
     title: 'The loyalty and tax doors speak their bodies\u2019 shapes',
     bullets: [

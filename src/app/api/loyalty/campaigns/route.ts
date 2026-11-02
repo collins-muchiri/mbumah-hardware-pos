@@ -72,6 +72,22 @@ async function getLoyaltyCampaignsHandler(...args: unknown[]): Promise<Response>
   });
 }
 
+// THE ANSWERING CHAIN (v2.342.0 — the waking probe's fix): bonusPoints and
+// multiplier feed Int/Decimal columns, but v2.341.0's live QA showed a
+// numeric string ("bonusPoints": "50") riding the create data untouched
+// (`bonusPoints ?? 0`) and dying in Prisma's depths as a 500
+// PrismaClientValidationError (Expected Int, provided String). The route
+// now speaks the columns' shape first: a numeric string becomes the number
+// it names (the tiers parseInt(String()) precedent, kept honest — the
+// chain also truncates to the Int the column demands), and a non-numeric
+// anything is the client's own mistake, answered with the route's own 400
+// voice instead of a 500 from the ORM. The door widens to number | string
+// (the filings precedent — the chain's own signature IS the widening).
+function coerceFigure(value: number | string): number | null {
+  const n = typeof value === 'number' ? value : Number(String(value).trim());
+  return Number.isFinite(n) ? n : null;
+}
+
 async function createLoyaltyCampaignHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
@@ -80,13 +96,15 @@ async function createLoyaltyCampaignHandler(...args: unknown[]): Promise<Respons
   // the route's own validTypes validator, and the columns ride the types
   // the create data feeds (Int/Decimal numbers, string columns, the ISO
   // date strings new Date() reads).
+  // v2.342.0 — the figures widen to number | string: the answering chain
+  // below owns the widening, so the door may not lie about it.
   const door = await readJsonBody<{
     storeId: string;
     name: string;
     campaignType?: string;
     description?: string;
-    bonusPoints?: number;
-    multiplier?: number;
+    bonusPoints?: number | string;
+    multiplier?: number | string;
     startDate?: string;
     endDate?: string;
     targetTierId?: string;
@@ -126,14 +144,28 @@ async function createLoyaltyCampaignHandler(...args: unknown[]): Promise<Respons
     );
   }
 
+  // THE ANSWERING CHAIN (v2.342.0): the figures pass the chain before the
+  // columns see them — a numeric string becomes the number it names, a
+  // non-numeric anything answers 400, and bonusPoints truncates to the Int
+  // the column demands (a 50.7 used to die in Prisma as a non-integer too).
+  const bonusPointsValue = bonusPoints === undefined ? 0 : coerceFigure(bonusPoints);
+  const multiplierValue = multiplier === undefined ? 1 : coerceFigure(multiplier);
+  if (bonusPointsValue === null || multiplierValue === null) {
+    return Response.json(
+      { success: false, error: 'bonusPoints and multiplier must be numbers.' },
+      { status: 400 }
+    );
+  }
+  const bonusPointsInt = Math.trunc(bonusPointsValue);
+
   const campaign = await db.loyaltyCampaign.create({
     data: {
       storeId,
       name,
       campaignType: cType,
       description: description || null,
-      bonusPoints: bonusPoints ?? 0,
-      multiplier: multiplier ?? 1,
+      bonusPoints: bonusPointsInt,
+      multiplier: multiplierValue,
       startDate: startDate ? new Date(startDate) : new Date(),
       endDate: endDate ? new Date(endDate) : null,
       targetTierId: targetTierId || null,
@@ -151,7 +183,7 @@ async function createLoyaltyCampaignHandler(...args: unknown[]): Promise<Respons
     message: `Loyalty campaign "${name}" created (${cType})`,
     storeId,
     userId: createdBy || undefined,
-    metadata: { campaignId: campaign.id, campaignType: cType, bonusPoints: bonusPoints || 0, multiplier: multiplier || 1 },
+    metadata: { campaignId: campaign.id, campaignType: cType, bonusPoints: bonusPointsInt, multiplier: multiplierValue },
   });
 
   return Response.json({ success: true, data: campaign }, { status: 201 });

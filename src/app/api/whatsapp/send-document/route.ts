@@ -27,19 +27,24 @@ type DocumentType =
 
 async function sendDocumentHandler(request: NextRequest, session: AuthSession): Promise<Response> {
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
-  if (!door.ok) {
-    return bodyDoorRejected();
-  }
-  const body = door.body;
-  const { type, documentId, storeId, phone, message, customerId } = body as {
+  // v2.342.0 — the door speaks its shape: the pair rides REQUIRED (the
+  // route's own truthiness guard is the validator), type rides the file's
+  // own DocumentType union whose switch default is the validator, and the
+  // de-facto re-cast (`= body as { ... }` in the destructure) dissolves —
+  // the shape rides INSIDE the generic (the v2.339 borrow precedent).
+  const door = await readJsonBody<{
     type: DocumentType;
     documentId?: string;
     storeId: string;
     phone?: string;
     message?: string;
     customerId?: string;
-  };
+  }>(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const body = door.body;
+  const { type, documentId, storeId, phone, message, customerId } = body;
 
   if (!type || !storeId) {
     return Response.json(

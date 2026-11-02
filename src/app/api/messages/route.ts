@@ -45,7 +45,21 @@ async function getMessagesHandler(...args: unknown[]): Promise<Response> {
 async function sendMessageHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.342.0 — the door speaks its shape: the pair rides REQUIRED strings
+  // (the route's own truthiness guard is the validator), the resolved
+  // columns ride optionals (channel/messageType default via the route's
+  // own || resolution), and phone/customerId/subject/createdBy ride the
+  // shapes the || chains already handle.
+  const door = await readJsonBody<{
+    storeId: string;
+    content: string;
+    customerId?: string;
+    channel?: string;
+    messageType?: string;
+    subject?: string;
+    phone?: string;
+    createdBy?: string;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

@@ -17,6 +17,7 @@ import {
   openWhatsApp, openEmail, openSMS,
   type BulkMessageResult,
   type BulkMessageRecipient,
+  type CustomerItem,
 } from '@/lib/api';
 import { handleError } from '@/lib/error-handler';
 import type { MessageItem } from '@/lib/types';
@@ -222,6 +223,39 @@ const HOLIDAY_TEMPLATES: { id: string; label: string; content: string }[] = [
 ];
 
 type BulkAudience = 'ALL' | 'CUSTOMERS_WITH_PHONES' | 'DEBTORS' | 'LOYALTY_MEMBERS';
+
+// THE BROADCAST FORECAST (v2.342.0): the desk's own customers ledger
+// previews the broadcast BEFORE the send button is pressed — the same
+// predicates the bulk route runs server-side (isActive plus the audience
+// filter) and the same Kenyan phone shape its normalisePhone accepts
+// (separators stripped, leading + dropped, leading 0 swapped for 254,
+// then 254XXXXXXXXX or a 9-digit local number). The meter draws reachable
+// against candidates; the fill steps with the reach — emerald when every
+// candidate answers, amber past the 90% mark, red when most of the
+// audience would be skipped. The ledger is the list query's page (the
+// desk reads the first 500 customers; the route caps at 5000), so the
+// forecast speaks of "candidates", never a promise.
+function forecastBroadcastReach(
+  list: CustomerItem[],
+  audience: BulkAudience
+): { candidates: number; reachable: number } {
+  let candidates = 0;
+  let reachable = 0;
+  for (const c of list) {
+    if (!c.isActive) continue;
+    if (audience === 'CUSTOMERS_WITH_PHONES' && !c.phone) continue;
+    if (audience === 'DEBTORS' && !(c.currentDebtBalance > 0)) continue;
+    if (audience === 'LOYALTY_MEMBERS' && !(c.loyaltyPoints > 0)) continue;
+    candidates++;
+    let p = (c.phone || '').replace(/[\s\-()]/g, '');
+    if (p.startsWith('+')) p = p.slice(1);
+    if (p.startsWith('0')) p = '254' + p.slice(1);
+    const valid = (p.startsWith('254') && p.length === 12) || /^\d{9}$/.test(p);
+    if (valid) reachable++;
+  }
+  return { candidates, reachable };
+}
+
 type BulkChannel = 'WHATSAPP' | 'SMS';
 
 const AUDIENCE_LABELS: Record<BulkAudience, string> = {
@@ -314,6 +348,17 @@ export default function MessagingTab() {
 
   const messages = Array.isArray(messagesQuery.data?.data) ? messagesQuery.data.data : [];
   const customers = Array.isArray(customersQuery.data?.data) ? customersQuery.data.data : [];
+
+  // THE BROADCAST FORECAST (v2.342.0): computed against the customers the
+  // desk already holds — re-spoken on every render and every audience flip
+  // (a pure pass over the desk's own ledger; the memo machinery would cost
+  // a lint warning for a loop this cheap).
+  const broadcastForecast = forecastBroadcastReach(customers, bulkAudience);
+  const forecastCandidates = broadcastForecast.candidates;
+  const forecastReachable = broadcastForecast.reachable;
+  const forecastSkipped = forecastCandidates - forecastReachable;
+  const forecastPct =
+    forecastCandidates > 0 ? Math.round((forecastReachable / forecastCandidates) * 100) : 0;
   const overdueDebts = Array.isArray(debtQuery.data?.data) ? debtQuery.data.data : [];
   const outstandingDebts = Array.isArray(debtOutstandingQuery.data?.data) ? debtOutstandingQuery.data.data : [];
 
@@ -1517,6 +1562,38 @@ export default function MessagingTab() {
                     <> · scheduled for <span className="font-medium">{formatDateTime(bulkScheduledAt)}</span></>
                   )}
                 </p>
+                {/* THE BROADCAST FORECAST METER (v2.342.0): the reach the
+                    desk's own ledger predicts for THIS audience, drawn before
+                    the send button is pressed. The aria + hover voices speak
+                    the exact counts; the fill steps with the reach — emerald
+                    when every candidate answers, amber past the 90% mark, red
+                    when most of the audience would be skipped. Silent while
+                    the ledger is empty (no candidates to forecast for). */}
+                {forecastCandidates > 0 && (
+                  <div className="w-full sm:w-60 space-y-1">
+                    <div
+                      data-testid="broadcast-forecast-meter"
+                      role="progressbar"
+                      aria-label={`Broadcast reach: ${forecastReachable.toLocaleString()} of ${forecastCandidates.toLocaleString()} candidates (${forecastPct}%) — ${forecastSkipped.toLocaleString()} without a valid phone will be skipped`}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-valuenow={forecastPct}
+                      title={`Broadcast reach: ${forecastReachable.toLocaleString()} of ${forecastCandidates.toLocaleString()} candidates (${forecastPct}%) — ${forecastSkipped.toLocaleString()} without a valid phone will be skipped`}
+                      className="h-1 w-full rounded-full bg-muted overflow-hidden"
+                    >
+                      <div
+                        className={`h-full rounded-full ${forecastPct >= 90 ? 'bg-emerald-500' : forecastPct >= 60 ? 'bg-amber-500' : 'bg-red-500'}`}
+                        style={{ width: `${forecastPct}%` }}
+                      />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      {forecastReachable.toLocaleString()} of {forecastCandidates.toLocaleString()} candidates will get it
+                      {forecastSkipped > 0 && (
+                        <> · {forecastSkipped.toLocaleString()} skipped (no valid phone)</>
+                      )}
+                    </p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

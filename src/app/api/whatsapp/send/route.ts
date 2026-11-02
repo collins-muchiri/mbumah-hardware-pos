@@ -11,7 +11,16 @@ export const dynamic = 'force-dynamic';
 async function sendWhatsAppHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.342.0 — the door speaks its shape: the pair rides REQUIRED strings
+  // (the route's own truthiness guard is the validator), and the
+  // observability columns ride the optionals the || chains already handle.
+  const door = await readJsonBody<{
+    phone: string;
+    message: string;
+    storeId?: string;
+    customerId?: string;
+    messageType?: string;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
