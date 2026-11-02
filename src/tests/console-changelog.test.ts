@@ -450,10 +450,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.353.0: the door-registry entry joins the feed (+1 on every anchor → 242/243/244/275 → 243/244/245/276)
     // v2.354.0: the type-lens entry joins the feed (+1 on every anchor → 243/244/245/276 → 244/245/246/277)
     // v2.355.0: the rental-status entry joins the feed (+1 on every anchor → 244/245/246/277 → 245/246/247/278)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(245);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(246);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(247);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(278);
+    // v2.356.0: the invoice-status entry joins the feed (+1 on every anchor → 245/246/247/278 → 246/247/248/279)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(246);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(247);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(248);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(279);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 

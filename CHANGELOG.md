@@ -1,3 +1,15 @@
+## [2.356.0] The invoice pipeline answers the address bar
+
+The round the vocabulary gained its ninth word. Every deep-link round since v2.328.0 kept the same promise: a desk's lens answers the address bar through the ONE home (`parseInitialNamedMember`), case-sensitively, never stranding a stale bookmark. This round the invoices desk's STATUS lens speaks its desk-prefixed word — `?inv-status=DRAFT|SENT|ACCEPTED|INVOICED|PAID|CANCELLED|EXPIRED` — landing the desk pre-filtered with a dismissible chip naming the exact word it answered: the invoicing pipeline's stage is now an address.
+
+### Added
+- **THE NINTH WORD** (`src/app/(shell)/tabs/invoices-tab.tsx`): the status lens's seed reads `?inv-status=` through the one home (membership law, SSR-guarded, read-on-mount); the landing word is held separately so the chip speaks the ADDRESS BAR's landing and retires the moment a human owns the filter — by dismissal or by a hand-driven Select change (the two honest voices). The seed is cast-free: the generic parser IS the seven-stage union, so the state names it directly.
+- **src/tests/inv-status-deep-link-v2356.test.ts**: the parser's truth table (offered lenses seed, unknown/missing/empty answer All Statuses, a lowercase `paid` is an unknown word — the UPPERCASE voice), the cast-free seed typing, the chip's bytes, the rides-along case (one bar carrying the whole nine-word vocabulary, including the eighth word: `?inv-status=INVOICED&rent-status=OVERDUE`), and the collision ledger — twelve files, all EIGHT neighbor ledgers admitted (the LEDGER-CITATION RIPPLE, now three ledgers deep).
+- **scripts/verify-v2-356-0.mjs** (wired `verify:v2-356-0`) and **scripts/walk-v2356.mjs** (the release-pin re-anchor + the unread-counter cascade).
+
+### Styling
+- **THE NINTH WEARING** (`src/app/(shell)/tabs/invoices-tab.tsx`): the landing chip wears the vocabulary's ninth family — teal, the pipeline hue, light and dark — with the Link2 icon, a `title` tooltip, and a dismiss hint that sharpens on hover (the X fades up from 60%, the group-hover detail). Cyan's neighbor lives on the suppliers desk: the two chips never share a bar, and the status Select keeps its own shadcn voice beside the chip — no masquerade.
+
 ## [2.355.0] The rental desk answers its daily question
 
 The round the vocabulary gained its eighth word. Every deep-link round since v2.328.0 kept the same promise: a desk's lens answers the address bar through the ONE home (`parseInitialNamedMember`), case-sensitively, never stranding a stale bookmark. This round the rentals desk's STATUS lens speaks its desk-prefixed word — `?rent-status=ACTIVE|OVERDUE|RETURNED|DAMAGED` — landing the desk pre-filtered with a dismissible chip naming the exact word it answered: the manager's morning question ("what is late?") is now a bookmark.
