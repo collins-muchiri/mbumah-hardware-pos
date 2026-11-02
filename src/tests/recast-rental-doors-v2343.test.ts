@@ -73,9 +73,12 @@ const FAMILY_DOORS = [
   'src/app/api/messages/conversations/[id]/messages/route.ts',
 ];
 
-describe('THE BARE CLASS FALLS 16 → 8 (v2.343.0)', () => {
-  it('exactly 8 bare doors remain', () => {
-    expect(BARE.length).toBe(8);
+describe('THE BARE CLASS FALLS 16 → 8 (v2.343.0) — the fall ENDS (v2.344.0)', () => {
+  // v2.344.0 THE PIN GREW THE LAST TIME: THE BARE CLASS ENDED — the final
+  // eight doors speak their shapes and the tombstone census pins the class
+  // closed: the bare call matches ZERO API files.
+  it('the bare class is closed — zero bare doors remain (the v2.344.0 tombstone)', () => {
+    expect(BARE.length).toBe(0);
   });
 
   it('the fourteen doors left the census (the eight bare ones) and the re-cast rolls', () => {

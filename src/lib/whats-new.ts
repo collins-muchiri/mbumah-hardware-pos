@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.344.0',
+    title: 'The bare class ends, the last eight doors speak their shapes',
+    bullets: [
+      'The final eight untyped doors now name every request body by the fields the route actually reads \u2014 login, branches, delivery notes, expenses, invoices, store transfers, suppliers and users. The zero-untyped-doors census is pinned: the bare class is over.',
+      'The invoice composer now draws the discount cap before you file: the meter runs the create route\u2019s own cap math and warns when a document discount exceeds the pre-tax subtotal, so the trim is never a surprise.',
+      'Three hidden re-casts dissolved along the way \u2014 the invoice, delivery-note and store-transfer line mappers now ride the shapes their doors speak, and the invoice route\u2019s own discount cast is gone.',
+    ],
+  },
+  {
     version: '2.343.0',
     title: 'The re-cast class ends, the rental doors speak their bodies\u2019 shapes',
     bullets: [

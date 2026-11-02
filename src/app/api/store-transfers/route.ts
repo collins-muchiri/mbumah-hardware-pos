@@ -122,7 +122,24 @@ async function createStoreTransferHandler(
   ..._args: unknown[]
 ): Promise<Response> {
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.344.0 — the door speaks its shape: the store pair rides REQUIRED
+  // strings (the route's own truthiness guard is the validator and the
+  // store-existence + own-store checks consume them), and items ride the
+  // element shape the route's own loop validates — the create map's
+  // de-facto `(item: { ... })` re-cast dissolves into the generic (the
+  // v2.343 purchase-orders precedent); the create's parseFloat(String())
+  // chain stays the honest normalizer it is.
+  const door = await readJsonBody<{
+    fromStoreId: string;
+    toStoreId: string;
+    notes?: string;
+    items: Array<{
+      productId: string;
+      quantity: number;
+      unitType?: string;
+      notes?: string;
+    }>;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
@@ -211,7 +228,7 @@ async function createStoreTransferHandler(
       requestedBy: requestedBy || null,
       notes: notes || null,
       items: {
-        create: items.map((item: { productId: string; quantity: number; unitType?: string; notes?: string }) => ({
+        create: items.map((item) => ({
           productId: item.productId,
           quantity: parseFloat(String(item.quantity)),
           receivedQty: 0,

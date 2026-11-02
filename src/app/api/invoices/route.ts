@@ -172,7 +172,42 @@ async function getInvoicesHandler(...args: unknown[]): Promise<Response> {
 async function createInvoiceHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.344.0 — the door speaks its shape: storeId + customerName ride
+  // REQUIRED strings (the route's own truthiness guard is the validator),
+  // the document columns ride the optionals their `|| null` / `||
+  // 'INVOICE'` defaults own (the dates ride the `new Date(String())`
+  // chain they feed), the document discount rides the number its own
+  // toDec cap chain consumes — dissolving the route's own
+  // `as number | undefined` cast (toDec's Numeric already owns the
+  // absence) — and items ride the element shape the route's own loop
+  // validates: the create map's de-facto `(item: { ... })` re-cast
+  // dissolves into the generic (the v2.343 purchase-orders precedent),
+  // and taxRate is NOT named — the admin-controlled VAT rate is
+  // authoritative for new invoices, the wire field is never read.
+  const door = await readJsonBody<{
+    storeId: string;
+    invoiceType?: string;
+    customerId?: string;
+    customerName: string;
+    customerPhone?: string;
+    customerEmail?: string;
+    customerAddress?: string;
+    issueDate?: string;
+    dueDate?: string;
+    discountAmount?: number;
+    notes?: string;
+    terms?: string;
+    createdBy?: string;
+    items: Array<{
+      productId?: string;
+      productName: string;
+      description?: string;
+      quantity: number;
+      unitType?: string;
+      pricePerUnit: number;
+      discountPercent?: number;
+    }>;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
@@ -315,16 +350,7 @@ async function createInvoiceHandler(...args: unknown[]): Promise<Response> {
   const adminVatRate = await getVatRatePercent();
   let subtotalAcc = new Decimal(0);
   let taxAmountAcc = new Decimal(0);
-  const invoiceItems = items.map((item: {
-    productId?: string;
-    productName: string;
-    description?: string;
-    quantity: number;
-    unitType?: string;
-    pricePerUnit: number;
-    discountPercent?: number;
-    taxRate?: number;
-  }) => {
+  const invoiceItems = items.map((item) => {
     if (!item.productName || item.quantity === undefined || item.pricePerUnit === undefined) {
       throw new Error('Each item must have productName, quantity, and pricePerUnit.');
     }
@@ -369,7 +395,7 @@ async function createInvoiceHandler(...args: unknown[]): Promise<Response> {
   // subtotal) - a negative or oversized discount previously could push the
   // invoice total negative or inflate it via the update route.
   const totalDiscount = Math.min(
-    max0(toDec(discountAmount as number | undefined)).toNumber(),
+    max0(toDec(discountAmount)).toNumber(),
     subtotal,
   );
   const totalAmount = max0(subtotal - totalDiscount + taxAmount).toNumber();

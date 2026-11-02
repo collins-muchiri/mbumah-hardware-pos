@@ -116,7 +116,22 @@ async function createBranchHandler(...args: unknown[]): Promise<Response> {
 
   // 3. Parse & validate request body
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.344.0 — the door speaks its shape: organizationId + name ride
+  // REQUIRED strings (the route's own truthiness guard is the validator and
+  // Prisma's where/data consume them); the create columns ride the optionals
+  // their `|| null` / `|| 'ACTIVE'` defaults own, and code rides the
+  // optional normalizeBranchCode already accepts.
+  const door = await readJsonBody<{
+    organizationId: string;
+    name: string;
+    code?: string;
+    location?: string;
+    address?: string;
+    phone?: string;
+    email?: string;
+    taxPin?: string;
+    status?: string;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
