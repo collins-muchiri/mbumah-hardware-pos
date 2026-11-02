@@ -42,7 +42,7 @@ const HR_DOORS = [
   'src/app/api/shifts/[id]/end/route.ts',
 ];
 
-describe('THE BARE CLASS FALLS 30 → 25 (v2.340.0) — the fall CONTINUES (v2.341.0, v2.342.0, v2.343.0)', () => {
+describe('THE BARE CLASS FALLS 30 → 25 (v2.340.0) — the fall CONTINUES (v2.341.0, v2.342.0, v2.343.0, v2.344.0 — the fall ENDS)', () => {
   // v2.341.0 THE PIN GREW (the pin-growth law: a byte-exact pin on a line
   // an honest change edits grows with the change): the loyalty trio + tax
   // duo followed the HR family — the census this file first spoke (25)
@@ -54,8 +54,11 @@ describe('THE BARE CLASS FALLS 30 → 25 (v2.340.0) — the fall CONTINUES (v2.3
   // v2.343.0 THE PIN GREW AGAIN: THE RE-CAST CLASS ENDED — fourteen doors
   // speak their shapes, eight of them bare, so the census walks on (8);
   // the other six graduated from raw honest-swallow reads.
-  it('exactly 8 bare doors remain', () => {
-    expect(BARE.length).toBe(8);
+  // v2.344.0 THE PIN GREW THE LAST TIME: THE BARE CLASS ENDED — the final
+  // eight doors speak their shapes and the tombstone census pins the class
+  // closed: the bare call matches ZERO API files.
+  it('the bare class is closed — zero bare doors remain (the v2.344.0 tombstone)', () => {
+    expect(BARE.length).toBe(0);
   });
 
   it('the five HR doors left the census', () => {

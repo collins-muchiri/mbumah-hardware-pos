@@ -23,7 +23,7 @@ import {
   type CustomerItem,
 } from '@/lib/api';
 import { handleError } from '@/lib/error-handler';
-import { formatQtyWithUnit } from '@/lib/utils/financialMath';
+import { formatQtyWithUnit, toDec, max0 } from '@/lib/utils/financialMath';
 import {
   buildBrandedDocumentHtml,
   buildDocumentQrDataUrl,
@@ -436,6 +436,17 @@ export default function InvoicesTab() {
   const totalTax = useMemo(() => lineItems.reduce((s, item) => s + computeLineTax(item), 0), [lineItems]);
   const discountNum = parseFloat(discountAmount) || 0;
   const grandTotal = subtotal - discountNum + totalTax;
+
+  // v2.344.0 — THE DISCOUNT-CAP METER: the create door's own cap chain —
+  // Math.min(max0(toDec(discountAmount)), subtotal) — drawn BEFORE the
+  // invoice is filed (the forecast-meter precedent, tenth desk). The meter
+  // runs the route's own financial-math chain (the same toDec/max0 the
+  // create route uses) and speaks the trim honestly: a discount typed
+  // beyond the pre-tax gross subtotal is capped by the door, and the
+  // composer says so before the invoice ever leaves the desk.
+  const discountCapped = Math.min(max0(toDec(discountAmount)).toNumber(), subtotal);
+  const discountCapPct = subtotal > 0 ? Math.min(100, Math.round((discountCapped / subtotal) * 100)) : 0;
+  const discountTrimmed = subtotal > 0 && discountNum > subtotal;
 
   // Helpers
   const resetCreateForm = useCallback(() => {
@@ -1450,6 +1461,35 @@ export default function InvoicesTab() {
                       onChange={(e) => setDiscountAmount(e.target.value)}
                       className="w-28 h-8 text-sm text-right"
                     />
+                  </div>
+                  {/* v2.344.0 — THE DISCOUNT-CAP METER: the create door's own
+                      cap chain (Math.min(max0(toDec(discountAmount)),
+                      subtotal)) drawn before the invoice is filed — the
+                      composer mirrors the route's own financial-math chain
+                      and speaks the trim before it happens. */}
+                  <div className="mt-1 space-y-1" data-testid="invoice-discount-meter">
+                    <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                      <span>Discount vs the pre-tax subtotal cap</span>
+                      <span data-testid="invoice-discount-cap-value">{formatKES(discountCapped)}</span>
+                    </div>
+                    <div
+                      role="progressbar"
+                      aria-label={`Document discount ${formatKES(discountCapped)} of the ${formatKES(subtotal)} pre-tax subtotal cap`}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-valuenow={discountCapPct}
+                      className="h-1.5 w-full overflow-hidden rounded-full bg-muted"
+                    >
+                      <div
+                        className={`h-full rounded-full transition-all ${discountTrimmed ? 'bg-amber-500' : 'bg-primary'}`}
+                        style={{ width: `${discountCapPct}%` }}
+                      />
+                    </div>
+                    {discountTrimmed && (
+                      <p className="text-[11px] text-amber-600 dark:text-amber-400" data-testid="invoice-discount-cap-voice">
+                        The create door caps the document discount at the pre-tax subtotal — the filed invoice carries {formatKES(discountCapped)}.
+                      </p>
+                    )}
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Tax</span>

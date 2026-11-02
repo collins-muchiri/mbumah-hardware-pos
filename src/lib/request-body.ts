@@ -194,6 +194,31 @@ export type BodyDoor<T> = { ok: true; body: T } | { ok: false };
  * stay unknown under the F1-5 loop's Number() + isFinite chains, and the
  * create data now rides those VALIDATED numbers instead of the raw wire
  * bytes (the answering-chain cousin).
+ *
+ * v2.344.0 — THE BARE CLASS ENDS: the final eight bare doors (auth/login,
+ * branches, delivery-notes, expenses, invoices, store-transfers, suppliers,
+ * users) speak their bodies' own shapes, and the tombstone census pins the
+ * class closed: `readJsonBody(request)` — the call with NO generic — now
+ * matches ZERO API files. The zod trio (auth/login, expenses, users) names
+ * the fields its schemas read as unknowns — the zod validation owns the
+ * shapes, the door only names what the body is expected to carry (the
+ * gift-card precedent). The truthiness-guarded fields ride REQUIRED
+ * strings where the route's own guard is the validator and Prisma's
+ * where/data consume them (branches' organizationId+name, invoices' and
+ * delivery-notes' storeId+customerName, suppliers' storeId+name,
+ * store-transfers' store pair); the item arrays ride the element shapes
+ * the routes' own loops validate, dissolving the THREE de-facto map
+ * re-casts (invoices, delivery-notes, store-transfers' `(item: { ... })`
+ * annotations — the v2.343 purchase-orders precedent), and invoices
+ * deliberately does NOT name its items' taxRate: the admin-controlled VAT
+ * rate is authoritative for new invoices, the wire field is never read.
+ * invoices' document discount rides `?: number`, dissolving the route's
+ * own `as number | undefined` cast — toDec's Numeric already owns the
+ * absence. The styling face: the invoices desk's DISCOUNT-CAP METER — the
+ * composer draws the create door's own cap chain
+ * (Math.min(max0(toDec(discountAmount)), subtotal)) BEFORE the invoice is
+ * filed and speaks the trim honestly when the typed discount exceeds the
+ * pre-tax subtotal (the forecast-meter precedent, TENTH desk).
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function readJsonBody<T = any>(

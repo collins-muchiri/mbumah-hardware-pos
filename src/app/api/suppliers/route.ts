@@ -88,7 +88,26 @@ async function getSuppliersHandler(...args: unknown[]): Promise<Response> {
 async function createSupplierHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.344.0 — the door speaks its shape: storeId + name ride REQUIRED
+  // strings (the route's own truthiness guard is the validator), the text
+  // columns ride the optionals their `|| null` / `|| 'NET_30'` defaults
+  // own, and the two typed columns ride the types the create data feeds —
+  // rating the Int its `?? 3` default owns, isActive the Boolean its `??
+  // true` default owns (the v2.340 columns law).
+  const door = await readJsonBody<{
+    storeId: string;
+    name: string;
+    email?: string;
+    phone?: string;
+    address?: string;
+    city?: string;
+    contactPerson?: string;
+    taxPin?: string;
+    paymentTerms?: string;
+    rating?: number;
+    isActive?: boolean;
+    notes?: string;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

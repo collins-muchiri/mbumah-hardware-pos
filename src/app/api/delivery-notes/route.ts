@@ -92,7 +92,32 @@ async function getDeliveryNotesHandler(...args: unknown[]): Promise<Response> {
 async function createDeliveryNoteHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.344.0 — the door speaks its shape: storeId + customerName ride
+  // REQUIRED strings (the route's own truthiness guard is the validator),
+  // the delivery columns ride the optionals their `|| null` defaults own,
+  // and items ride the element shape the route's own loop validates — the
+  // create map's de-facto `(item: { ... })` re-cast dissolves into the
+  // generic (the v2.343 purchase-orders precedent).
+  const door = await readJsonBody<{
+    storeId: string;
+    transactionId?: string;
+    customerId?: string;
+    customerName: string;
+    customerPhone?: string;
+    deliveryAddress?: string;
+    driverName?: string;
+    vehicleNumber?: string;
+    scheduledDate?: string;
+    notes?: string;
+    createdBy?: string;
+    items: Array<{
+      productId?: string;
+      productName: string;
+      quantity: number;
+      unitType?: string;
+      notes?: string;
+    }>;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
@@ -174,7 +199,7 @@ async function createDeliveryNoteHandler(...args: unknown[]): Promise<Response> 
       notes: notes || null,
       createdBy: createdBy || null,
       items: {
-        create: items.map((item: { productId?: string; productName: string; quantity: number; unitType?: string; notes?: string }) => ({
+        create: items.map((item) => ({
           productId: item.productId || null,
           productName: item.productName,
           quantity: item.quantity,

@@ -82,7 +82,10 @@ async function loginHandler(...args: unknown[]): Promise<Response> {
     void env.DATABASE_URL;
 
     // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-    const door = await readJsonBody(request);
+    // v2.344.0 — the door names the two fields the login schema reads; the
+    // zod validation owns the shapes (the gift-card precedent) — the raw
+    // bytes stay unknown until validateInput answers.
+    const door = await readJsonBody<{ email?: unknown; password?: unknown }>(request);
     if (!door.ok) {
       return bodyDoorRejected();
     }

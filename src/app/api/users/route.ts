@@ -102,7 +102,19 @@ async function createUserHandler(
   session: AuthSession
 ): Promise<Response> {
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.344.0 — the door names the eight fields the user schema reads; the
+  // zod validation owns the shapes (the gift-card precedent) — the raw
+  // bytes stay unknown until validateInput answers.
+  const door = await readJsonBody<{
+    name?: unknown;
+    email?: unknown;
+    role?: unknown;
+    phone?: unknown;
+    storeId?: unknown;
+    organizationId?: unknown;
+    password?: unknown;
+    mustChangePassword?: unknown;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
