@@ -124,7 +124,26 @@ async function createTaxFilingHandler(...args: unknown[]): Promise<Response> {
   // the established in-handler pattern (gift-cards / debt / data-exports).
   const session: AuthSession | null = await getSessionFromRequest(request);
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.341.0 — the door speaks its shape: the trio rides REQUIRED strings
+  // (the route's own truthiness guard is the validator, filingType also
+  // rides the validTypes validator), the declared figures ride
+  // string | number because Money.tryParse's own signature IS the widening
+  // (a "1,234.50" string and a bare number both parse — the route's own
+  // defensive parse, the audit's voice), and the date columns ride the ISO
+  // strings new Date() reads.
+  const door = await readJsonBody<{
+    storeId: string;
+    filingPeriod: string;
+    filingType: string;
+    totalSales?: string | number;
+    totalTax?: string | number;
+    totalWht?: string | number;
+    filingDate?: string;
+    dueDate?: string;
+    etimsReference?: string;
+    notes?: string;
+    filedBy?: string;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

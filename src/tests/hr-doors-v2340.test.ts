@@ -42,14 +42,31 @@ const HR_DOORS = [
   'src/app/api/shifts/[id]/end/route.ts',
 ];
 
-describe('THE BARE CLASS FALLS 30 → 25 (v2.340.0)', () => {
-  it('exactly 25 bare doors remain', () => {
-    expect(BARE.length).toBe(25);
+describe('THE BARE CLASS FALLS 30 → 25 (v2.340.0) — the fall CONTINUES (v2.341.0)', () => {
+  // v2.341.0 THE PIN GREW (the pin-growth law: a byte-exact pin on a line
+  // an honest change edits grows with the change): the loyalty trio + tax
+  // duo followed the HR family — the census this file first spoke (25)
+  // walks on (20). The five doors that left after this file's round are
+  // guarded below.
+  it('exactly 20 bare doors remain', () => {
+    expect(BARE.length).toBe(20);
   });
 
   it('the five HR doors left the census', () => {
     for (const hr of HR_DOORS) {
       expect(BARE.includes(hr)).toBe(false);
+    }
+  });
+
+  it('the five loyalty + tax doors left the census too (v2.341.0)', () => {
+    for (const door of [
+      'src/app/api/loyalty/campaigns/route.ts',
+      'src/app/api/loyalty/tiers/route.ts',
+      'src/app/api/loyalty/transactions/route.ts',
+      'src/app/api/tax/categories/route.ts',
+      'src/app/api/tax/filings/route.ts',
+    ]) {
+      expect(BARE.includes(door)).toBe(false);
     }
   });
 

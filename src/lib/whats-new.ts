@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.341.0',
+    title: 'The loyalty and tax doors speak their bodies\u2019 shapes',
+    bullets: [
+      'The loyalty and tax families\u2019 API doors (campaigns, tiers, points ledger, tax categories and filings) now type every request body by the fields the route actually reads \u2014 the second honest pass over the remaining untyped doors, five more doors off the map. Same behavior, same 400 door voice, just doors that document the exact shape they accept.',
+      'Loyalty members\u2019 Next Tier cells grow a progress meter: the walk toward the next tier now draws against the exact bracket \u2014 the hover and screen-reader voices speak the exact points (e.g. \u201c750 of 1,000 points to GOLD (75%)\u201d), and the bar changes colour as the tier comes close: sky while the road is long, amber past a quarter, emerald when the tier is nearly theirs.',
+      '20 untyped doors remain on the map \u2014 the messaging and rental families are next.',
+    ],
+  },
+  {
     version: '2.340.0',
     title: 'The HR doors speak their bodies\u2019 shapes',
     bullets: [

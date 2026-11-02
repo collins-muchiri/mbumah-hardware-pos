@@ -123,6 +123,25 @@ export type BodyDoor<T> = { ok: true; body: T } | { ok: false };
  * the employeeCode read rides its own String() coercion). The bare class
  * falls to 25 doors — the messaging, loyalty, tax, rental and catalog-adjacent
  * families remain.
+ *
+ * v2.341.0 — THE LOYALTY + TAX FAMILIES, the bare class's second pass: the
+ * five loyalty and tax reads (campaigns, tiers, transactions, categories,
+ * filings) speak their bodies' own shapes. The truthiness-guarded fields
+ * ride REQUIRED strings where the route's own guard is the validator
+ * (campaigns' storeId/name pair, transactions' storeId/customerId pair,
+ * filings' storeId/filingPeriod/filingType trio); the figures under the
+ * routes' own `=== undefined` equality guards (tiers' minPoints,
+ * categories' rate) ride OPTIONAL numbers — a REQUIRED door would turn the
+ * route's own guard into a dead comparison, and the comparison validators
+ * (0..100, >=0, >0) stay the runtime truth; maxPoints speaks number | null
+ * because the route handles both absences; and the coerced reads stay
+ * honest under their own chains — transactions' points is the door's FIRST
+ * REQUIRED unknown (the !points guard demands presence, the String() +
+ * parseInt chain owns the widening) and filings' declared trio rides
+ * string | number because Money.tryParse's own signature IS the widening
+ * (a "1,234.50" string and a bare number both parse). The bare class
+ * falls to 20 doors — the messaging, rental and catalog-adjacent families
+ * remain.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function readJsonBody<T = any>(

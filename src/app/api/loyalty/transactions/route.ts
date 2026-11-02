@@ -171,7 +171,21 @@ async function getLoyaltyTransactionsHandler(...args: unknown[]): Promise<Respon
 async function createLoyaltyTransactionHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.341.0 — the door speaks its shape: the pair rides REQUIRED strings
+  // (the route's own truthiness guard is the validator), transactionType
+  // rides the route's own validTypes validator, and points is the door's
+  // FIRST REQUIRED unknown — the door demands presence (the !points guard
+  // is the validator) while the String() + parseInt chain owns the widening.
+  const door = await readJsonBody<{
+    storeId: string;
+    customerId: string;
+    points: unknown;
+    transactionType?: string;
+    reference?: string;
+    referenceId?: string;
+    description?: string;
+    createdBy?: string;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

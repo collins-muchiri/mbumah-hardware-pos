@@ -79,7 +79,18 @@ async function getTaxCategoriesHandler(...args: unknown[]): Promise<Response> {
 async function createTaxCategoryHandler(...args: unknown[]): Promise<Response> {
   const request = args[0] as NextRequest;
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.341.0 — the door speaks its shape: rate rides an OPTIONAL number
+  // because the route's own `=== undefined` guard IS the validator (a
+  // REQUIRED door would turn that guard into a dead comparison) and the
+  // route's own 0..100 comparison validates it; the columns ride the types
+  // the create data feeds.
+  const door = await readJsonBody<{
+    storeId: string;
+    name: string;
+    rate?: number;
+    description?: string;
+    etimsCode?: string;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
