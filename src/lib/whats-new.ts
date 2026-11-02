@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.361.0',
+    title: 'The credit ledger answers the address bar',
+    bullets: [
+      'A credits link can now name its lens: ?cr-type=CREDIT, DEBIT, ADJUSTMENT or REFUND lands the ledger pre-filtered, with a dismissible chip naming the word it answered — the fourteenth word of the address-bar vocabulary.',
+      'The landing chip wears the vocabulary\u2019s fourteenth family (yellow — the ledger hue) beside the desk\u2019s own badge voices — one bar, honest voices, no masquerade; the customer lens keeps its own Select, untouched.',
+      'Unknown, missing, or wrong-case words never strand the ledger: the lens falls back to All Types, case-sensitively.',
+    ],
+  },
+  {
     version: '2.360.0',
     title: 'The voucher\u2019s life answers the address bar',
     bullets: [

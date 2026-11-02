@@ -172,6 +172,7 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/app/(shell)/tabs/suppliers-tab.tsx',
       'src/lib/tab-url.ts',
       'src/lib/whats-new.ts',
+      'src/tests/cr-type-deep-link-v2361.test.ts',
       'src/tests/cust-debt-deep-link-v2330.test.ts',
       // v2.338.0 the LEDGER-CITATION RIPPLE: the customer family's census
       // quotes the credit-envelope meter's data-testid (`cust-debt-meter`),

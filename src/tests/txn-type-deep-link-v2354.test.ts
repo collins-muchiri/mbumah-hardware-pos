@@ -211,6 +211,7 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // the eight neighbor ledgers admitted this test file — and an
       // admission line carries the word it admits (the LEDGER-CITATION
       // RIPPLE: a ledger is an honest speaker of every word it lists)
+      'src/tests/cr-type-deep-link-v2361.test.ts',
       'src/tests/cust-debt-deep-link-v2330.test.ts',
       'src/tests/dn-status-deep-link-v2359.test.ts',
       // v2.353.0's registry pinned the census testids, whose substring

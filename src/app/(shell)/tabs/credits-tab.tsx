@@ -7,8 +7,9 @@ import {
   CreditCard, Search, Plus, ArrowUpRight, ArrowDownRight,
   Minus, RotateCcw, Loader2, Filter, Users, Wallet, Scale, ChevronUp, ChevronDown,
   FileText, User, CircleDollarSign, AlertCircle, MoreHorizontal,
-  Pencil, Trash2, MessageCircle, MessageSquare, Printer,
+  Pencil, Trash2, MessageCircle, MessageSquare, Printer, Link2, X,
 } from 'lucide-react';
+import { parseInitialNamedMember } from '@/lib/tab-url';
 
 import { useAppStore } from '@/lib/stores';
 import {
@@ -137,6 +138,44 @@ function getAmountPrefix(creditType: string): string {
 }
 
 type SortField = 'date' | 'customer' | 'type' | 'amount' | 'balance';
+// ═══════════════ THE CREDITS DESK'S OWN WORD (v2.361.0) ═══════════════
+// The ledger's type lens answers the address bar: a landing that names
+// `?cr-type=DEBIT` (or CREDIT, ADJUSTMENT, REFUND) seeds the customer
+// credits ledger's type filter through the ONE home — the same promise
+// every desk has kept since v2.328.0. The law is MEMBERSHIP: the value
+// must name a lens the desk actually offers — case-sensitive (the lens's
+// own words are UPPERCASE, so `debit` is an unknown word, not a clever
+// match — the payment word's voice) — and anything missing or unknown
+// answers 'all' (never stranded). The desk-prefix law (Task 44): a
+// desk-prefixed word can never leak across client-side tab switches.
+// Collision-checked at round start: the word is grep-FREE tree-wide; the
+// only type vocabulary the desk spoke was the badge helpers' own map
+// (different strings — the labels a badge renders) and the form state's
+// default (an edit-dialog value, never a reader of this word). The
+// desk's own voices keep their families beside the chip — the credit
+// badge's green, the debit badge's red, the adjustment badge's amber,
+// the refund badge's blue, the stat cards' purple — a voice must not
+// masquerade as a badge, and the chip wears the family the desk had NOT
+// spoken: yellow (unspoken on this desk, and the FOURTEENTH lens family
+// — none of the thirteen families the other bars' chips wear) — the
+// ledger hue, the book this desk keeps.
+// Read-on-mount ONLY (the one-writer law): the landing word is the
+// LANDING lens, never rewritten; the type Select owns the state after.
+// THE NEUTRAL VOICE, LOWERCASE: this desk's all-lens is spelled 'all'
+// (the Select's own value since the desk first shipped), so the word's
+// neutral is lowercase — the payment word's spelling; an UPPERCASE
+// spelling of the neutral is an unknown word here, the exact inverse of
+// the desk whose neutral is capitalized.
+// THE WORD BINDS TO THE TYPE LENS ONLY — the desk also carries a
+// customer lens with its own Select, untouched, which may earn its own
+// word someday (the two-word desks' precedent, visible in the survey).
+export const CR_TYPE_FILTERS = ['all', 'CREDIT', 'DEBIT', 'ADJUSTMENT', 'REFUND'] as const;
+
+function initialCrType(): (typeof CR_TYPE_FILTERS)[number] {
+  if (typeof window === 'undefined') return 'all';
+  return parseInitialNamedMember(window.location.search, 'cr-type', CR_TYPE_FILTERS, 'all');
+}
+
 type SortDirection = 'asc' | 'desc';
 
 // Sort icon component declared outside render
@@ -155,7 +194,23 @@ export default function CreditsTab() {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('all');
-  const [creditTypeFilter, setCreditTypeFilter] = useState<string>('all');
+  // v2.361.0 THE LANDING WORD — the type lens's seed reads the word
+  // through the ONE home, cast-free: the generic parser IS the union, so
+  // the state names it directly.
+  const [creditTypeFilter, setCreditTypeFilter] = useState<(typeof CR_TYPE_FILTERS)[number]>(initialCrType);
+  // v2.361.0 — the address-bar word the desk answered at mount ('all'
+  // when the landing carried no lens). The chip speaks it ONCE: dismissed
+  // or hand-changed, the landing is over and the chip retires — an
+  // honest face never claims a landing that is done.
+  const [landedCrType] = useState<(typeof CR_TYPE_FILTERS)[number]>(initialCrType);
+  const [crLandingLive, setCrLandingLive] = useState(true);
+
+  // v2.361.0: a hand-driven change retires the landing word — the chip
+  // speaks the ADDRESS BAR's landing, never the human's next choice.
+  const chooseCrType = (value: (typeof CR_TYPE_FILTERS)[number]) => {
+    setCreditTypeFilter(value);
+    setCrLandingLive(false);
+  };
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -702,6 +757,37 @@ export default function CreditsTab() {
                 className="pl-9"
               />
             </div>
+            {/* v2.361.0 THE LANDING WORD, out loud: while the landing is
+                live AND the lens still wears the word it seeded, the chip
+                names the exact word — an honest face. It wears the
+                FOURTEENTH family (yellow — the ledger hue, unspoken on
+                this desk; the desk's own badge voices keep theirs beside
+                it: the credit badge's green, the debit badge's red, the
+                adjustment badge's amber, the refund badge's blue, the
+                stat cards' purple — a voice must not masquerade as a
+                badge) with dark-mode variants, the Link2 icon, a `title`
+                tooltip, and a one-press dismissal that clears the lens
+                the word seeded. The chip retires the moment the human
+                owns the filter. THE TWO VOICES:
+                hand-driven Select change or the chip's own dismissal.
+                `data-testid="cr-type-landing-word"` — the QA walk's
+                handle. */}
+            {crLandingLive && landedCrType !== 'all' && creditTypeFilter === landedCrType && (
+              <button
+                type="button"
+                onClick={() => {
+                  setCreditTypeFilter('all');
+                  setCrLandingLive(false);
+                }}
+                className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-yellow-200 bg-yellow-50 text-yellow-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-yellow-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 dark:border-yellow-500/30 dark:bg-yellow-500/10 dark:text-yellow-300 dark:hover:bg-yellow-500/20"
+                data-testid="cr-type-landing-word"
+                title="The desk landed with this filter from the address bar — press to clear it"
+              >
+                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+                <span className="tabular-nums">landed ?cr-type={landedCrType}</span>
+                <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+              </button>
+            )}
             <div className="flex gap-2">
               <Select value={selectedCustomerId} onValueChange={setSelectedCustomerId}>
                 <SelectTrigger className="w-[180px]">
@@ -716,7 +802,9 @@ export default function CreditsTab() {
                   ))}
                 </SelectContent>
               </Select>
-              <Select value={creditTypeFilter} onValueChange={setCreditTypeFilter}>
+              {/* v2.361.0: the hand-driven Select is voice 2 — a hand-driven
+                  change retires the landing word. */}
+              <Select value={creditTypeFilter} onValueChange={chooseCrType}>
                 <SelectTrigger className="w-[150px]">
                   <SelectValue placeholder="All Types" />
                 </SelectTrigger>
