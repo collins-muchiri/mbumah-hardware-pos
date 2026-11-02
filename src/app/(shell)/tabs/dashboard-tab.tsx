@@ -429,6 +429,17 @@ function ActiveShiftCard({ shift }: { shift: ShiftSnapshot }) {
   const [isEnding, setIsEnding] = useState(false);
   const [endResult, setEndResult] = useState<{ countedCash: number; cashDifference: number } | null>(null);
 
+  // THE CASH-VARIANCE VOICE (v2.340.0): the closing result steps through
+  // THREE honest voices now — balanced (<KES 1), drift (a small over/short),
+  // and MATERIAL (KES 1,000+ — a drawer count error, not rounding noise).
+  // The meter draws the |variance| against the counted envelope (the
+  // recon-meter precedent, sixth desk).
+  const endVariance = endResult ? Math.abs(endResult.cashDifference) : 0;
+  const endVarianceLevel = endVariance < 1 ? 'balanced' : endVariance >= 1000 ? 'material' : 'drift';
+  const endVariancePct = endResult && endResult.countedCash > 0
+    ? Math.min(100, (endVariance / endResult.countedCash) * 100)
+    : 0;
+
   // v2.6.0 pattern: the AUTHORITATIVE expected-cash figure for closing comes
   // from the server X-read (blind=1 withholds it from non-owner roles). The
   // card's "Expected Cash" stat above is the DASH-BE snapshot formula and is
@@ -477,8 +488,12 @@ function ActiveShiftCard({ shift }: { shift: ShiftSnapshot }) {
         setCountedCash('');
         setEndingCash('');
         setEndNotes('');
-        void queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-        void queryClient.invalidateQueries({ queryKey: ['shifts'] });
+        // v2.340.0 THE WAKING FIX: the queries are invalidated when the dialog
+        // CLOSES (closeEndDialog), not here — invalidating immediately made the
+        // ['shifts'] refetch return no open shift, which unmounted the card
+        // this dialog lives in and SNATCHED the closing summary away before it
+        // could be read. The card stays until Done/Cancel; the refetch that
+        // retires it fires after the dialog is gone.
       } else {
         toast.error(res.error || 'Failed to end shift.');
       }
@@ -491,7 +506,13 @@ function ActiveShiftCard({ shift }: { shift: ShiftSnapshot }) {
 
   const closeEndDialog = (open: boolean) => {
     setEndOpen(open);
-    if (!open) setEndResult(null);
+    if (!open) {
+      setEndResult(null);
+      // v2.340.0 THE WAKING FIX: the refetch lands here — after the dialog is
+      // gone — so the closing summary is always readable before the card retires.
+      void queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      void queryClient.invalidateQueries({ queryKey: ['shifts'] });
+    }
     else void refetchXread();
   };
 
@@ -576,29 +597,65 @@ function ActiveShiftCard({ shift }: { shift: ShiftSnapshot }) {
                 <div
                   role="status"
                   className={`space-y-2 rounded-xl border p-4 ${
-                    Math.abs(endResult.cashDifference) < 1
-                      ? 'border-emerald-300 bg-emerald-50'
-                      : 'border-amber-300 bg-amber-50'
+                    endVarianceLevel === 'balanced'
+                      ? 'border-emerald-300 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/40'
+                      : endVarianceLevel === 'material'
+                        ? 'border-red-300 bg-red-50 dark:border-red-800 dark:bg-red-950/40'
+                        : 'border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/40'
                   }`}
                 >
-                  <p className={`flex items-center gap-2 text-sm font-semibold ${Math.abs(endResult.cashDifference) < 1 ? 'text-emerald-700' : 'text-amber-700'}`}>
+                  <p className={`flex items-center gap-2 text-sm font-semibold ${
+                    endVarianceLevel === 'balanced'
+                      ? 'text-emerald-700 dark:text-emerald-300'
+                      : endVarianceLevel === 'material'
+                        ? 'text-red-700 dark:text-red-300'
+                        : 'text-amber-700 dark:text-amber-300'
+                  }`}>
                     <ShieldCheck className="h-4 w-4" aria-hidden="true" />
                     Shift closed - cash variance
                   </p>
                   <div className="flex items-baseline justify-between gap-2">
-                    <span className="text-xs text-slate-500">Counted</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">Counted</span>
                     <span className="font-mono font-bold">{formatKES(endResult.countedCash)}</span>
                   </div>
                   <div className="flex items-baseline justify-between gap-2">
-                    <span className="text-xs text-slate-500">
-                      {Math.abs(endResult.cashDifference) < 1 ? 'Balanced' : endResult.cashDifference > 0 ? 'Over' : 'Short'}
+                    <span className="text-xs text-slate-500 dark:text-slate-400">
+                      {endVarianceLevel === 'balanced' ? 'Balanced' : endResult.cashDifference > 0 ? 'Over' : 'Short'}
                     </span>
-                    <span className={`font-mono text-base font-extrabold ${Math.abs(endResult.cashDifference) < 1 ? 'text-emerald-700' : 'text-amber-700'}`}>
-                      {Math.abs(endResult.cashDifference) < 1
+                    <span className={`font-mono text-base font-extrabold ${
+                      endVarianceLevel === 'balanced'
+                        ? 'text-emerald-700 dark:text-emerald-300'
+                        : endVarianceLevel === 'material'
+                          ? 'text-red-700 dark:text-red-300'
+                          : 'text-amber-700 dark:text-amber-300'
+                    }`}>
+                      {endVarianceLevel === 'balanced'
                         ? 'KES 0.00'
                         : `${endResult.cashDifference > 0 ? '+' : '−'}${formatKES(Math.abs(endResult.cashDifference))}`}
                     </span>
                   </div>
+                  {/* THE SHIFT-VARIANCE METER (v2.340.0): the |variance| against
+                      the counted envelope — emerald while the drawer balances,
+                      amber as drift grows, red once the count is material. */}
+                  {endResult.countedCash > 0 && (
+                    <div
+                      data-testid="shift-variance-meter"
+                      role="progressbar"
+                      aria-label={`Cash variance: ${formatKES(endVariance)} of ${formatKES(endResult.countedCash)} counted (${endVariancePct.toFixed(1)}%)`}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-valuenow={Math.round(endVariancePct)}
+                      title={`Variance ${formatKES(endVariance)} against ${formatKES(endResult.countedCash)} counted — ${endVariancePct.toFixed(1)}%`}
+                      className="h-1 w-full rounded-full bg-muted overflow-hidden"
+                    >
+                      <div
+                        className={`h-full rounded-full ${
+                          endVarianceLevel === 'balanced' ? 'bg-emerald-500' : endVarianceLevel === 'material' ? 'bg-red-500' : 'bg-amber-500'
+                        }`}
+                        style={{ width: `${endVariancePct}%` }}
+                      />
+                    </div>
+                  )}
                 </div>
                 <Button className="h-10 w-full" onClick={() => closeEndDialog(false)}>
                   Done

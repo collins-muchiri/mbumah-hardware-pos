@@ -97,7 +97,15 @@ async function endShiftHandler(...args: unknown[]): Promise<Response> {
   const session = await getSessionFromRequest(request);
 
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.340.0 THE HR FAMILY: the door speaks its own shape — the two cash
+  // figures stay `unknown` because the route's own Number() + isFinite
+  // coercion chain is their validator (the AUDIT FIX below owns the
+  // widening); notes rides the string column it feeds.
+  const door = await readJsonBody<{
+    endingCash?: unknown;
+    countedCash?: unknown;
+    notes?: string;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

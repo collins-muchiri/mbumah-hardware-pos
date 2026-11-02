@@ -109,6 +109,20 @@ export type BodyDoor<T> = { ok: true; body: T } | { ok: false };
  * stays, it is the route's own validator). The wider bare-`any` class
  * remains — 30 doors named by the round's census — its family passes
  * continue.
+ *
+ * v2.340.0 — THE HR FAMILY, the bare class's first pass: the five HR reads
+ * (attendance, employees, leave-types, shifts, shifts/[id]/end) speak their
+ * bodies' own shapes. The presence-guarded fields ride REQUIRED strings
+ * where the route's own guard is the runtime validator and Prisma's
+ * where/data consume them (attendance's clock trio, employees' four,
+ * leave-types' name/code, shifts' open pair); the columns ride the types
+ * the create data feeds (string columns string, money columns number,
+ * the exemption flags boolean); and the coerced figures stay `unknown` —
+ * startingCash and the end-shift cash pair ride the routes' own
+ * Number() + isFinite chains (the AUDIT FIX coercion owns the widening;
+ * the employeeCode read rides its own String() coercion). The bare class
+ * falls to 25 doors — the messaging, loyalty, tax, rental and catalog-adjacent
+ * families remain.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function readJsonBody<T = any>(

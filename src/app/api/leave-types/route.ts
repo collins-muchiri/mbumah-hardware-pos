@@ -68,7 +68,20 @@ async function createLeaveTypeHandler(
   if (roleError) return roleError;
 
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.340.0 THE HR FAMILY: the door speaks its own shape — the name/code
+  // pair rides REQUIRED strings (the route's own guard is the runtime
+  // validator and .trim() consumes them); the columns ride the types the
+  // create data feeds (string | number | boolean).
+  const door = await readJsonBody<{
+    name: string;
+    code: string;
+    description?: string;
+    defaultDaysPerYear?: number;
+    isPaid?: boolean;
+    isStatutory?: boolean;
+    carryForwardAllowed?: boolean;
+    maxCarryForwardDays?: number;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

@@ -125,7 +125,45 @@ async function createEmployeeHandler(
   session: { userId: string; role: string; storeId: string | null; email: string }
 ): Promise<Response> {
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.340.0 THE HR FAMILY: the door speaks its own shape — the four
+  // presence-guarded fields ride REQUIRED (the route's own guard is the
+  // runtime validator); the string columns ride string, the money columns
+  // number, the exemption flags boolean; employeeCode stays `unknown` — the
+  // route's own String() coercion is its validator.
+  const door = await readJsonBody<{
+    storeId: string;
+    firstName: string;
+    lastName: string;
+    hireDate: string;
+    email?: string;
+    phone?: string;
+    nationalId?: string;
+    kraPin?: string;
+    nssfNumber?: string;
+    nhifNumber?: string;
+    jobTitle?: string;
+    role?: string;
+    employmentType?: string;
+    basicSalary?: number;
+    hourlyRate?: number;
+    houseAllowance?: number;
+    transportAllowance?: number;
+    medicalAllowance?: number;
+    otherAllowances?: number;
+    payeExempt?: boolean;
+    nssfExempt?: boolean;
+    nhifExempt?: boolean;
+    bankName?: string;
+    bankAccountName?: string;
+    bankAccountNumber?: string;
+    bankBranchCode?: string;
+    emergencyContactName?: string;
+    emergencyContactPhone?: string;
+    emergencyContactRelation?: string;
+    notes?: string;
+    userId?: string;
+    employeeCode?: unknown;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

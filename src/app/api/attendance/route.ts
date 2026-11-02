@@ -106,7 +106,17 @@ async function clockInOutHandler(
   session: { userId: string; role: string; storeId: string | null; email: string }
 ): Promise<Response> {
   // THE BODY DOOR: an unreadable body is a client mistake (v2.326.0):
-  const door = await readJsonBody(request);
+  // v2.340.0 THE HR FAMILY: the door speaks its own shape — the clock trio
+  // rides REQUIRED strings (the route's own guard is the runtime validator
+  // and Prisma's where/data consume them as strings); the optional pair
+  // rides the nullable-string columns they feed.
+  const door = await readJsonBody<{
+    employeeId: string;
+    storeId: string;
+    action: string;
+    location?: string;
+    notes?: string;
+  }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }

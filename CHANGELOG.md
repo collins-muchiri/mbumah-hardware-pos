@@ -1,3 +1,20 @@
+## [2.340.0] The HR doors speak their bodies' shapes
+
+The bare-door class begins its family passes, and the HR family goes first: the five HR reads (attendance clock-in/out, employees, leave types, shifts, shift closing) stop reading their bodies as the default `any` and speak the body's OWN shape — the presence-guarded fields ride REQUIRED strings where the route's own guard is the runtime validator, the columns ride the types the create data feeds, and the coerced figures stay `unknown` under the routes' own Number()/String() chains. The bare class falls 30 → 25. RUNTIME BEHAVIOR of the door tightening is BYTE-IDENTICAL — types only.
+
+### Added
+- **THE HR DOORS TIGHTENED (5 files)**: the attendance door speaks the clock trio (REQUIRED strings — the guard is the validator) plus the optional location/notes columns; the employees CREATE door names all 33 consumed fields (four REQUIRED strings, string columns string, money columns number, exemption flags boolean, employeeCode unknown under its String() coercion); the leave-types door speaks the REQUIRED name/code pair plus the column types; the shifts door speaks the REQUIRED open-shift pair with startingCash unknown (the opening-cash Number() coercion owns the widening); the shifts/[id]/end door speaks the cash pair as unknown (the Number() + isFinite chain owns the widening) with notes on its string column.
+- **THE LAW DOC RECORDS IT** (`request-body.ts`): "v2.340.0 — THE HR FAMILY, the bare class's first pass" — the required-where-guarded rule, the column-type rule, the unknown-where-coerced rule, and the 25-door map (the v2.339.0 note's 30 stands as history).
+- **THE BARE-DOOR MAP**: 25 doors remain — messaging (messages, messaging/bulk, whatsapp ×2), loyalty (×3), tax (×2), rentals (×2), and the catalog-adjacent/financial-adjacent singles.
+
+### Styling
+- **THE SHIFT-VARIANCE METER + THE MATERIAL VOICE** (`dashboard-tab.tsx`): the end-of-shift closing result steps through THREE honest voices now — balanced under KES 1 (emerald), small drift (amber), and a MATERIAL count error at KES 1,000+ (red — a drawer miscount is not rounding noise), on the panel border, both text lines and the new fill. The variance is drawn against the counted envelope as a slim bar: `data-testid="shift-variance-meter"`, `role="progressbar"` + aria values, the exact share in the aria + hover voices, silent when nothing was counted. All three voices gained their dark-mode variants.
+- **THE WAKING FIX** (`dashboard-tab.tsx`): the end-of-shift closing summary was snatched away the moment the shift ended — the mutation invalidated the shifts query immediately, the refetch returned no open shift, and the card (and the dialog with the closing summary inside it) unmounted before the result could be read. The invalidation now rides the dialog's CLOSE path: the summary stays readable until Done/Cancel, and the refetch that retires the card fires after the dialog is gone.
+
+### Tests
+- `src/tests/hr-doors-v2340.test.ts` (NEW, 11 pins): the 25-door live census (the five HR names gone from it), the five doors' honest bytes (REQUIRED-where-guarded, column types, the two unknown-where-coerced figures), the law-doc note (history keeps the 30), and the variance meter + three-voice face.
+- The walk re-anchors the treadmill (v2.340.0 pins + the unread-counter cascade 230/231/232/263 → 231/232/233/264).
+
 ## [2.339.0] The last exemplars speak their body's shape
 
 The loose-Record era ends: the final two doors that still read their bodies through the loose `Record` widening (expenses/[id] and suppliers/[id]) name the exact fields they accept, and the v2.326 census runs ZERO loose doors — every API door in the system now has an honest, documented shape. The same round closes the re-cast class: six doors that borrowed a local interface via `door.body as X` now ride the interface INSIDE the generic (the stkpush/redeem borrow precedent). The wider bare-`any` class remains — 30 doors, named by the round's census — its family passes continue. RUNTIME BEHAVIOR of the door tightening is BYTE-IDENTICAL — types only.
