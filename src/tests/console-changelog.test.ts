@@ -448,10 +448,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.351.0: the audit-remediation entry joins the feed (+1 on every anchor → 240/241/242/273 → 241/242/243/274)
     // v2.352.0: the wrapper-seam entry joins the feed (+1 on every anchor → 241/242/243/274 → 242/243/244/275)
     // v2.353.0: the door-registry entry joins the feed (+1 on every anchor → 242/243/244/275 → 243/244/245/276)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(243);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(244);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(245);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(276);
+    // v2.354.0: the type-lens entry joins the feed (+1 on every anchor → 243/244/245/276 → 244/245/246/277)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(244);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(245);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(246);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(277);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 

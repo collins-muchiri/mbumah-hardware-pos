@@ -1,3 +1,15 @@
+## [2.354.0] The type lens answers the address bar
+
+The round the vocabulary gained its seventh word — and the first time one desk owns two. Every deep-link round since v2.328.0 kept the same promise: a desk's lens answers the address bar through the ONE home (`parseInitialNamedMember`), case-sensitively, never stranding a stale bookmark. This round the transactions desk's TYPE lens speaks its desk-prefixed word — `?txn-type=sale|refund|void` — landing the ledger pre-filtered beside the census row v2.353.0 gave it, with a dismissible chip naming the exact word it answered.
+
+### Added
+- **THE SEVENTH WORD** (`src/app/(shell)/tabs/transactions-tab.tsx`): the type lens's seed reads `?txn-type=` through the one home (membership law, SSR-guarded, read-on-mount); the landing word is held separately so the chip speaks the ADDRESS BAR's landing and retires the moment a human owns the filter — by dismissal or by a hand-driven census chip (the two honest voices).
+- **src/tests/txn-type-deep-link-v2354.test.ts**: the parser's truth table (offered lenses seed, unknown/missing/empty answer All Types, `REFUND` is an unknown word — the inverse voice of the UPPERCASE payment word), the cast-free seed typing (the generic parser IS the `'all' | TransactionType` union — zero new casts), the chip's bytes, the rides-along case (one bar, two words, one desk: `?txn-type=refund&txn-pay=CASH`), and the collision ledger — which now counts the v2.353.0 registry among the word's honest speakers (the LEDGER-CITATION RIPPLE: the census testids' substring carries the word).
+- **scripts/verify-v2-354-0.mjs** (wired `verify:v2-354-0`) and **scripts/walk-v2354.mjs** (the release-pin re-anchor + the unread-counter cascade).
+
+### Styling
+- **THE SEVENTH WEARING** (`src/app/(shell)/tabs/transactions-tab.tsx`): the landing chip wears the vocabulary's seventh family — fuchsia, light and dark — with the Link2 icon, a `title` tooltip, and a dismiss hint that sharpens on hover (the X fades up from 60%, the group-hover detail). The census row's sky voice keeps its own family: a voice must not masquerade as a badge, and now neither borrows the other's clothes.
+
 ## [2.353.0] The doors are counted
 
 The round the body-door census became a living registry. Every round since v2.324.0 doored the API's body reads one family at a time; this round the WHOLE TREE is the tombstone — a test that walks all 380 route files on every run and derives the census from the source bytes: 116 hard doors and 8 optional doors, every one carrying its explicit generic, zero bare calls, zero loose widening generics, and every remaining raw read answering a polite 400 (with one pinned exemption: the Daraja queue-timeout webhook whose leniency is the integration contract).
