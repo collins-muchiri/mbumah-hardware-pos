@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.354.0',
+    title: 'The type lens answers the address bar',
+    bullets: [
+      'A transactions link can now name its type lens: ?txn-type=sale, refund or void lands the ledger pre-filtered, with a dismissible chip naming the word it answered — the seventh word of the address-bar vocabulary.',
+      'The landing chip wears the vocabulary\u2019s seventh family (fuchsia) beside the census row\u2019s count voice — one bar, honest voices, no masquerade.',
+      'Unknown, missing, or wrong-case words never strand the desk: the lens falls back to All Types, case-sensitively.',
+    ],
+  },
+  {
     version: '2.353.0',
     title: 'The doors are counted',
     bullets: [

@@ -202,7 +202,9 @@ describe("THE LEDGER'S CENSUS — the type chips count, the lens speaks", () => 
     expect(desk.includes('getTransactionTypeIcon(type as')).toBe(false);
     expect(desk.includes('getTransactionTypeLabel(type as')).toBe(false);
     // the state rides its honest union — the lens voice reads the census without a cast
-    expect(desk.includes("useState<'all' | TransactionType>('all')")).toBe(true);
+    // (v2.354.0: the seed grew a landing word — the initializer is now
+    // `initialTxnType`, the SAME honest union through the generic parser)
+    expect(desk.includes("useState<'all' | TransactionType>(initialTxnType)")).toBe(true);
   });
 
   it('each chip carries its live tally; the census row carries its handle', () => {
