@@ -79,6 +79,6 @@ export const GET = withErrorBoundary(
   // The route context (params) is Next.js' second handler argument; the auth
   // wrapper forwards it as the third. The cast mirrors the repo pattern used
   // by the other dynamic-param routes (src/app/api/employees/[id]/route.ts).
-  requireAuth(branchDiagnosticHandler as (...args: unknown[]) => Promise<Response>),
+  requireAuth(branchDiagnosticHandler),
   LogComponent.API,
 );

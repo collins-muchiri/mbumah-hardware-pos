@@ -1,3 +1,23 @@
+## [2.352.0] The wrapper seam speaks its shape
+
+The round the export-line cast family dissolved. The house route wrappers (requireAuth / requireStoreAccess) declared their handler families with a variadic rest, so a handler that named its third parameter honestly \u2014 `context: RouteContext`, the shape Next.js actually passes \u2014 was assignable only through a `as (...args: unknown[]) => Promise<Response>` launder pasted at every export line. The rest is the family's own parameter now: `AuthedHandler<Rest>` / `StoreScopedHandler<Rest>` carry it as a generic (default `unknown[]`, every quiet handler untouched), the two wrappers are generic over the same Rest, and the wrapper owns the ONE seam cast at each forward \u2014 the same boundary where the `args[0] as NextRequest` unpack already lives. Thirteen handler-argument casts died with the generic; eleven wrapper-result casts were pure noise (requireStoreAccess's return is INFERRED as the variadic shape already) and died as deletions.
+
+### Fixed
+- **THE WRAPPER SEAM** (`src/lib/auth.ts`): `AuthedHandler<Rest>` / `StoreScopedHandler<Rest>` generic families + generic `requireAuth` / `requireStoreAccess`; the three forwards speak `...(args.slice(1) as Rest)` with the seam documented \u2014 the one cast per wrapper replaces twenty-four.
+- **THE MANAGED-USER ROW** (`src/app/api/users/[id]/route.ts`): the loader's return is DERIVED from its own query (`Prisma.UserGetPayload<{ select: typeof USER_SELECT & { organizationId: true } }>`) \u2014 the hand-typed intersection and the `as never` anything-goes silence are gone.
+- **THE REFUND SEED** (`src/app/api/transactions/[id]/refund/route.ts`): the `customerName: null as string | null` seed on an inline Response literal was noise \u2014 the honest null answers the wire directly (the sixth member of the v2.350 seed family, found by the wider-sweep law).
+- **THE RECEIVING CLAIM** (`src/app/api/store-transfers/[id]/route.ts`): `status: 'RECEIVING' as string` on a plain String column \u2014 the literal fits the update input as-is.
+
+### Removed
+- **THE TWENTY-FOUR EXPORT-LINE CASTS**: thirteen handler-argument launders (employees \u00d73, portal-link \u00d73, users \u00d73, branch-diagnostics, access-requests, manager-authorize, stkpush) and eleven wrapper-result no-ops (refund \u00d72, transaction detail, transactions \u00d72, store-transfers \u00d74, receipts \u00d72) \u2014 zero tokens remain across the census files.
+
+### Styling
+- **THE TRANSFERS FILTER SPEAKS ITS CENSUS** (`src/app/(shell)/tabs/transfers-tab.tsx`): every status option carries its live count (`All Status \u00b7 N`, \u2026 \u2014 `data-testid="transfer-status-filter"`), and an active-lens voice names how many transfers the chosen lens holds (`data-testid="transfer-lens-voice"`, emerald with dark variants, gone when the whole board is shown \u2014 no news, no voice). The counts ride the SAME array the table renders, never a second read.
+
+### Added
+- **THE ERA TEST** (`src/tests/wrapper-seam-v2351.test.ts`): 10 pins \u2014 the generic families, the generic wrappers, the three documented seams, the thirteen + eleven dissolutions, the tombstone across the census files (now including `as (...args: unknown[])`), the boundary documented-present, the transfers census voice, the v2.348/350 era holds, and the release-slot honesty.
+- **scripts/verify-v2-351-0.mjs** (wired `verify:v2-351-0`) and **scripts/walk-v2351.mjs** (BY WRITE; the re-anchor skips the reserved 2.349.0 slot).
+
 ## [2.351.0] The audit remediation lands
 
 The prior audit (run against v2.305.0) produced a findings list; this release remediates it end to end: reproducible local setup, a runner-agnostic seed, the login-500 root cause, environment-aware seeded credentials, sanitized production errors, the missing POS integrity tests, a PostgreSQL concurrency gate in CI, and the repository cleanup — verified by the existing 6,700-test suite plus 31 new pins, with every command recorded.

@@ -20,6 +20,7 @@
 //   • Every mutation is written to the SystemLog audit trail.
 
 import { type NextRequest } from 'next/server';
+import type { Prisma } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { db } from '@/lib/db';
 import { withErrorBoundary, systemLog } from '@/lib/logger';
@@ -57,6 +58,13 @@ const USER_SELECT = {
   store: { select: { id: true, name: true } },
 } as const;
 
+// v2.351.0 — the managed-user row speaks the query's OWN shape (derived
+// from USER_SELECT plus the loader's organizationId add-on); the loader's
+// return needed no hand-typed intersection and no anything-goes silence.
+type ManagedUserRow = Prisma.UserGetPayload<{
+  select: typeof USER_SELECT & { organizationId: true };
+}>;
+
 /** Standard 403 body for any mutation that would damage the engraved admin. */
 function engravedAdminProtected(): Response {
   return Response.json(
@@ -73,7 +81,7 @@ function engravedAdminProtected(): Response {
 async function loadAuthorizedTarget(
   id: string,
   session: AuthSession
-): Promise<{ user: Awaited<ReturnType<typeof db.user.findUnique>> & { storeId: string | null; role: string } } | { error: Response }> {
+): Promise<{ user: ManagedUserRow } | { error: Response }> {
   const user = await db.user.findUnique({
     where: { id },
     select: { ...USER_SELECT, organizationId: true },
@@ -94,7 +102,7 @@ async function loadAuthorizedTarget(
   if (user.role === 'SUPER_ADMIN' && session.role !== 'SUPER_ADMIN') {
     return { error: Response.json({ success: false, error: 'Only a SUPER_ADMIN can modify a SUPER_ADMIN account.' }, { status: 403 }) };
   }
-  return { user: user as never };
+  return { user };
 }
 
 // GET: user detail (never leaks passwordHash)
@@ -372,14 +380,14 @@ async function deactivateUserHandler(
 }
 
 export const GET = withErrorBoundary(
-  requireAuth(getUserHandler as (...args: unknown[]) => Promise<Response>, { roles: ['SUPER_ADMIN', 'STORE_OWNER'] }),
+  requireAuth(getUserHandler, { roles: ['SUPER_ADMIN', 'STORE_OWNER'] }),
   'USERS_DETAIL'
 );
 export const PATCH = withErrorBoundary(
-  requireAuth(updateUserHandler as (...args: unknown[]) => Promise<Response>, { roles: ['SUPER_ADMIN', 'STORE_OWNER'] }),
+  requireAuth(updateUserHandler, { roles: ['SUPER_ADMIN', 'STORE_OWNER'] }),
   'USERS_UPDATE'
 );
 export const DELETE = withErrorBoundary(
-  requireAuth(deactivateUserHandler as (...args: unknown[]) => Promise<Response>, { roles: ['SUPER_ADMIN', 'STORE_OWNER'] }),
+  requireAuth(deactivateUserHandler, { roles: ['SUPER_ADMIN', 'STORE_OWNER'] }),
   'USERS_DEACTIVATE'
 );

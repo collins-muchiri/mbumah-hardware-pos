@@ -38,6 +38,20 @@ interface StoreInfo {
 
 // Helpers
 
+
+// v2.351.0 — the status census: the filter speaks what each lens holds (the
+// counts ride the SAME array the table renders, never a second read). A
+// plain per-render count on purpose: wrapping this conditional-sourced array
+// in another useMemo would add to the desk's pre-existing exhaustive-deps
+// debt instead of staying silent beside it.
+function countTransferStatuses(transfers: StoreTransferItem[]): Record<string, number> {
+  const c: Record<string, number> = { all: transfers.length, PENDING: 0, IN_TRANSIT: 0, RECEIVED: 0, CANCELLED: 0, PARTIAL: 0 };
+  for (const t of transfers) {
+    if (t.status in c) c[t.status] += 1;
+  }
+  return c;
+}
+
 function transferStatusBadge(status: StoreTransferItem['status']) {
   const map: Record<string, { label: string; className: string; icon?: React.ReactNode }> = {
     PENDING: { label: 'Pending', className: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400', icon: <Clock className="h-3 w-3" /> },
@@ -296,6 +310,7 @@ export default function TransfersTab() {
   // Stats
   const pendingCount = useMemo(() => transfers.filter(t => t.status === 'PENDING').length, [transfers]);
   const inTransitCount = useMemo(() => transfers.filter(t => t.status === 'IN_TRANSIT').length, [transfers]);
+  const statusCounts = countTransferStatuses(transfers);
   const completedThisMonth = useMemo(() => {
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -412,18 +427,30 @@ export default function TransfersTab() {
         <TabsContent value="all" className="space-y-4">
           <div className="flex flex-wrap items-center gap-2">
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[140px] h-9 text-xs">
+              <SelectTrigger className="w-[140px] h-9 text-xs" data-testid="transfer-status-filter">
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="PENDING">Pending</SelectItem>
-                <SelectItem value="IN_TRANSIT">In Transit</SelectItem>
-                <SelectItem value="RECEIVED">Received</SelectItem>
-                <SelectItem value="CANCELLED">Cancelled</SelectItem>
-                <SelectItem value="PARTIAL">Partial</SelectItem>
+                <SelectItem value="all">All Status · {statusCounts.all}</SelectItem>
+                <SelectItem value="PENDING">Pending · {statusCounts.PENDING}</SelectItem>
+                <SelectItem value="IN_TRANSIT">In Transit · {statusCounts.IN_TRANSIT}</SelectItem>
+                <SelectItem value="RECEIVED">Received · {statusCounts.RECEIVED}</SelectItem>
+                <SelectItem value="CANCELLED">Cancelled · {statusCounts.CANCELLED}</SelectItem>
+                <SelectItem value="PARTIAL">Partial · {statusCounts.PARTIAL}</SelectItem>
               </SelectContent>
             </Select>
+            {statusFilter !== 'all' && (
+              // v2.351.0 — the lens voice: the active filter names how many
+              // transfers it holds (emerald with dark variants; gone when
+              // the whole board is shown — no news, no voice).
+              <span
+                data-testid="transfer-lens-voice"
+                className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300"
+              >
+                <ArrowUpDown className="h-3 w-3" />
+                {statusCounts[statusFilter] ?? 0} in this lens
+              </span>
+            )}
             <Select value={fromStoreFilter} onValueChange={setFromStoreFilter}>
               <SelectTrigger className="w-[150px] h-9 text-xs">
                 <SelectValue placeholder="From Store" />

@@ -267,5 +267,5 @@ async function createStoreTransferHandler(
   return Response.json({ success: true, data: transfer }, { status: 201 });
 }
 
-export const GET = withErrorBoundary(requireStoreAccess(getStoreTransfersHandler) as (...args: unknown[]) => Promise<Response>, 'STORE_TRANSFERS_LIST');
-export const POST = withErrorBoundary(requireStoreAccess(createStoreTransferHandler) as (...args: unknown[]) => Promise<Response>, 'STORE_TRANSFERS_CREATE');
+export const GET = withErrorBoundary(requireStoreAccess(getStoreTransfersHandler), 'STORE_TRANSFERS_LIST');
+export const POST = withErrorBoundary(requireStoreAccess(createStoreTransferHandler), 'STORE_TRANSFERS_CREATE');

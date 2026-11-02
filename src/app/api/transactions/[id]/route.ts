@@ -129,6 +129,6 @@ async function getTransactionDetailHandler(...args: unknown[]): Promise<Response
 }
 
 export const GET = withErrorBoundary(
-  requireStoreAccess(getTransactionDetailHandler) as (...args: unknown[]) => Promise<Response>,
+  requireStoreAccess(getTransactionDetailHandler),
   'TRANSACTION_DETAIL',
 );
