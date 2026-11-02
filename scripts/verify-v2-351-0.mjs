@@ -119,11 +119,11 @@ ok('VERSION + package.json say 2.352.0 (three slots)', version === '2.352.0' && 
 
 console.log('— walk-dependent pins (green after walk-v2351) —');
 const changelogTest = read('src/tests/console-changelog.test.ts');
-ok('THE UNREAD-COUNTER CASCADE landed (241/242/243/274)',
-  changelogTest.includes("whatsNewUnreadCount('2.110.0')).toBe(241)")
-  && changelogTest.includes("whatsNewUnreadCount('2.109.0')).toBe(242)")
-  && changelogTest.includes("whatsNewUnreadCount('2.108.0')).toBe(243)")
-  && changelogTest.includes("whatsNewUnreadCount('2.77.0')).toBe(274)"));
+ok('THE UNREAD-COUNTER CASCADE landed (242/243/244/275)',
+  changelogTest.includes("whatsNewUnreadCount('2.110.0')).toBe(242)")
+  && changelogTest.includes("whatsNewUnreadCount('2.109.0')).toBe(243)")
+  && changelogTest.includes("whatsNewUnreadCount('2.108.0')).toBe(244)")
+  && changelogTest.includes("whatsNewUnreadCount('2.77.0')).toBe(275)"));
 ok('THE HISTORY COMMENT rode the cascade block',
   changelogTest.includes('v2.352.0: the wrapper-seam entry joins the feed'));
 
