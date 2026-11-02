@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.345.0',
+    title: 'The loyalty desk speaks the wire\u2019s own truth',
+    bullets: [
+      'The loyalty tiers and campaigns now read by the fields the database actually answers \u2014 the tier cards\u2019 Members tally was silently pinned to zero because the page asked for a list the wire never sends; it reads the real count now.',
+      'Tier cards speak the full points bracket: each card\u2019s range line shows floor to ceiling (\u201c9,000 \u2013 14,999 pts bracket\u201d) or floor-plus when the ceiling is open, with the exact sentence on hover.',
+      'A hidden cast class ended on the desks: eight type escapes on the loyalty desk dissolved into the shapes the wire already speaks, and a census pins every desk cast-free \u2014 nine phantom type errors leave the advisory checker with them.',
+    ],
+  },
+  {
     version: '2.344.0',
     title: 'The bare class ends, the last eight doors speak their shapes',
     bullets: [

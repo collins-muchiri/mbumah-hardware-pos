@@ -3742,13 +3742,22 @@ export function formatDateTime(date: string | Date): string {
 
 // Loyalty API
 
+// v2.345.0 — THE WIRE'S OWN TRUTH: this interface now speaks the fields the
+// /loyalty/tiers wire actually answers (the Prisma row + its _count include).
+// The old threshold field was a dead lie — zero readers anywhere; the
+// schema, the route, and the desk all say `minPoints`. maxPoints joins (the
+// bracket's ceiling), pointsMultiplier/discountPercent speak the Prisma
+// Decimal serialization the wire really rides (JSON strings), and _count
+// carries the member tally the desk's tier cards read.
 export interface LoyaltyTierItem {
   id: string;
   storeId: string;
   name: string;
   description: string | null;
-  pointsThreshold: number;
-  discountPercent: number;
+  minPoints: number;
+  maxPoints: number | null;
+  discountPercent: string | number;
+  pointsMultiplier: string | number;
   benefits: string | null;
   color: string | null;
   icon: string | null;
@@ -3756,6 +3765,7 @@ export interface LoyaltyTierItem {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  _count?: { customerTiers: number };
 }
 
 export interface LoyaltyTransactionItem {
@@ -3781,16 +3791,25 @@ export interface LoyaltyTransactionItem {
   tier?: { id: string; name: string; color: string | null };
 }
 
+// v2.345.0 — THE WIRE'S OWN TRUTH, campaigns edition: the old interface
+// declared `pointsMultiplier` (the schema says `multiplier`) and `isActive`
+// (the schema says `status`) — both dead lies the desk's `as any` laundered.
+// The real scalar row joins: bonusPoints, multiplier (Decimal → JSON
+// string), targetTierId, status, totalPointsAwarded, totalParticipants.
 export interface LoyaltyCampaignItem {
   id: string;
   storeId: string;
   name: string;
   description: string | null;
   campaignType: string;
-  pointsMultiplier: number;
+  bonusPoints: number;
+  multiplier: string | number;
   startDate: string;
   endDate: string | null;
-  isActive: boolean;
+  targetTierId: string | null;
+  status: string;
+  totalPointsAwarded: number;
+  totalParticipants: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -3809,7 +3828,10 @@ export const loyaltyApi = {
       const qs = query.toString();
       return request<LoyaltyTierItem[]>(`/loyalty/tiers${qs ? `?${qs}` : ''}`);
     },
-    create: async (data: { storeId: string; name: string; description?: string; pointsThreshold: number; discountPercent: number; benefits?: string; color?: string; icon?: string; sortOrder?: number; isActive?: boolean }) => {
+    // v2.345.0: the create signature speaks the door's own shape —
+    // minPoints (never the dead threshold name), the optional maxPoints
+    // and pointsMultiplier the door reads and validates.
+    create: async (data: { storeId: string; name: string; description?: string; minPoints: number; maxPoints?: number | null; discountPercent: number; pointsMultiplier?: number; benefits?: string; color?: string; icon?: string; sortOrder?: number; isActive?: boolean }) => {
       return request<LoyaltyTierItem>('/loyalty/tiers', {
         method: 'POST',
         body: JSON.stringify(data),
@@ -3856,7 +3878,10 @@ export const loyaltyApi = {
       const qs = query.toString();
       return request<LoyaltyCampaignItem[]>(`/loyalty/campaigns${qs ? `?${qs}` : ''}`);
     },
-    create: async (data: { storeId: string; name: string; description?: string; campaignType: string; pointsMultiplier?: number; startDate: string; endDate?: string; isActive?: boolean }) => {
+    // v2.345.0: the create signature speaks the door's own shape —
+    // bonusPoints/multiplier ride the door's own `number | string` widening
+    // (the answering chain coerces), targetTierId rides alongside.
+    create: async (data: { storeId: string; name: string; description?: string; campaignType: string; bonusPoints?: number | string; multiplier?: number | string; startDate: string; endDate?: string; targetTierId?: string; isActive?: boolean }) => {
       return request<LoyaltyCampaignItem>('/loyalty/campaigns', {
         method: 'POST',
         body: JSON.stringify(data),
