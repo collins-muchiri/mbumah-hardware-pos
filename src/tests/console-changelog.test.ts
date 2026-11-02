@@ -439,10 +439,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.341.0: the loyalty-tax entry joins the feed (+1 on every anchor → 231/232/233/264 → 232/233/234/265)
     // v2.342.0: the messaging entry joins the feed (+1 on every anchor → 232/233/234/265 → 233/234/235/266)
     // v2.343.0: the rental entry joins the feed (+1 on every anchor → 233/234/235/266 → 234/235/236/267)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(234);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(235);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(236);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(267);
+    // v2.344.0: the bare-class-final entry joins the feed (+1 on every anchor → 234/235/236/267 → 235/236/237/268)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(235);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(236);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(237);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(268);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 
