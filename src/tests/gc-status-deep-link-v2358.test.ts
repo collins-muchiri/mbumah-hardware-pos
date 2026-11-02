@@ -226,8 +226,8 @@ describe('the address-bar vocabulary — the constitution\u2019s eleventh row', 
     ).toBe(true);
   });
 
-  it('the constitution\u2019s title counts eleven words over nine desk files', () => {
-    expect(registry.includes('(eleven words, nine desks)')).toBe(true);
+  it('the constitution\u2019s title counts twelve words over ten desk files', () => {
+    expect(registry.includes('(twelve words, ten desks)')).toBe(true);
   });
 
   it('the home\u2019s promise roll carries the ELEVENTH alongside its elders', () => {
@@ -268,12 +268,13 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/app/(shell)/tabs/gift-cards-tab.tsx',
       'src/lib/tab-url.ts',
       'src/lib/whats-new.ts',
-      // the ten neighbor ledgers admitted this test file — and an
+      // the eleven neighbor ledgers admitted this test file — and an
       // admission line carries the word it admits (the LEDGER-CITATION
       // RIPPLE: a ledger is an honest speaker of every word it lists)
       'src/tests/cust-debt-deep-link-v2330.test.ts',
       // and this file joins its own ledger (an admission line carries the
       // word it admits — the ripple's second-order form, pinned above)
+      'src/tests/dn-status-deep-link-v2359.test.ts',
       'src/tests/gc-status-deep-link-v2358.test.ts',
       'src/tests/inv-status-deep-link-v2356.test.ts',
       'src/tests/inv-stock-deep-link-v2329.test.ts',

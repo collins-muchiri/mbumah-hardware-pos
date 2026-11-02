@@ -249,19 +249,20 @@ describe('the collision ledger — desk-prefixed words stay rare', () => {
         'src/lib/tab-url.ts',
         'src/lib/whats-new.ts',
         'src/tests/cust-debt-deep-link-v2330.test.ts',
+        'src/tests/dn-status-deep-link-v2359.test.ts',
         'src/tests/gc-status-deep-link-v2358.test.ts',
         'src/tests/inv-status-deep-link-v2356.test.ts',
-      'src/tests/inv-stock-deep-link-v2329.test.ts',
+        'src/tests/inv-stock-deep-link-v2329.test.ts',
         'src/tests/po-status-deep-link-v2328.test.ts',
         'src/tests/proxy-gate-layering-v2328.test.ts',
         // v2.355.0: the rentals desk's status lens joins the vocabulary — its
-      // deep-link suite is admitted (an admission line carries the word it
-      // admits — the LEDGER-CITATION RIPPLE, second-order form)
-      'src/tests/rent-status-deep-link-v2355.test.ts',
-      'src/tests/sup-po-deep-link-v2332.test.ts',
+        // deep-link suite is admitted (an admission line carries the word it
+        // admits — the LEDGER-CITATION RIPPLE, second-order form)
+        'src/tests/rent-status-deep-link-v2355.test.ts',
+        'src/tests/sup-po-deep-link-v2332.test.ts',
         'src/tests/sup-status-deep-link-v2331.test.ts',
         'src/tests/transfer-status-deep-link-v2357.test.ts',
-      'src/tests/txn-pay-deep-link-v2333.test.ts',
+        'src/tests/txn-pay-deep-link-v2333.test.ts',
         'src/tests/txn-type-deep-link-v2354.test.ts',
       ].sort()
     );
