@@ -258,6 +258,14 @@ export function parseInitialNamedPage(search: string, param: string, fallback = 
  * desk had not spoken — and the NEUTRAL is lowercase here, the desk's
  * own all-lens spelling; the desk's campaign lens keeps its own Select,
  * untouched, and may earn its own word someday).
+ * v2.361.0 — THE PROMISE KEPT, THE FOURTEENTH WORD: the credits desk's
+ * type lens speaks it as its desk-prefixed `cr-type` (the same parser,
+ * zero new bytes of law, again — the ledger's types from Credit through
+ * Debit and Adjustment to Refund are now an address; UPPERCASE words,
+ * the landing chip wears the fourteenth family, yellow — the ledger hue
+ * the desk had not spoken — and the NEUTRAL is lowercase here, the
+ * desk's own all-lens spelling; the desk's customer lens keeps its own
+ * Select, untouched, and may earn its own word someday).
  */
 export function parseInitialNamedMember<V extends string>(
   search: string,
