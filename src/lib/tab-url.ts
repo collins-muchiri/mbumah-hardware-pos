@@ -228,6 +228,12 @@ export function parseInitialNamedPage(search: string, param: string, fallback = 
  * zero new bytes of law, again — the invoicing pipeline's stage, DRAFT
  * through EXPIRED, is now an address; UPPERCASE words, and the landing
  * chip wears the ninth family, teal — the pipeline hue).
+ * v2.357.0 — THE PROMISE KEPT, THE TENTH WORD: the transfers desk's
+ * status lens speaks it as its desk-prefixed `transfer-status` (the same
+ * parser, zero new bytes of law, again — the stock's journey between
+ * stores is now an address; UPPERCASE words, the landing chip wears the
+ * tenth family, blue — the logistics hue — and the desk's own counting
+ * lens voice keeps its emerald beside it).
  */
 export function parseInitialNamedMember<V extends string>(
   search: string,

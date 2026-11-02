@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.357.0',
+    title: 'The stock\u2019s journey answers the address bar',
+    bullets: [
+      'A transfers link can now name its lens: ?transfer-status=PENDING, IN_TRANSIT, RECEIVED, CANCELLED or PARTIAL lands the board pre-filtered, with a dismissible chip naming the word it answered — the tenth word of the address-bar vocabulary.',
+      'The landing chip wears the vocabulary\u2019s tenth family (blue — the logistics hue) beside the counting lens voice\u2019s emerald — one bar, honest voices, no masquerade.',
+      'Unknown, missing, or wrong-case words never strand the board: the lens falls back to All Status, case-sensitively.',
+    ],
+  },
+  {
     version: '2.356.0',
     title: 'The invoice pipeline answers the address bar',
     bullets: [
