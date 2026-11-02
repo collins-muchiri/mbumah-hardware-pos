@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.353.0',
+    title: 'The doors are counted',
+    bullets: [
+      'Every API body door now lives under one living registry: the test suite walks all 380 route files and proves each door names its shape, no door reads a body bare, and every remaining raw read answers a polite 400.',
+      'Four quiet doors stopped accepting garbage in silence \u2014 leave approvals and rejections, candidate withdrawals and count-sheet cancellations now answer a malformed body with a clear 400 instead of proceeding on a default.',
+      'The transactions ledger\u2019s type chips each show their live count, and an active type lens speaks how many transactions it holds.',
+    ],
+  },
+  {
     version: '2.352.0',
     title: 'The wrapper seam speaks its shape',
     bullets: [

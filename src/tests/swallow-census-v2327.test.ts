@@ -168,8 +168,11 @@ describe('THE HONEST-SWALLOW CLASS IS THE PATTERN, NOT A FORGOTTEN ONE (16 sites
   it('stock-takes validate after the catch (required-field 400s, null-optional reads)', () => {
     expect(honest('src/app/api/stock-takes/route.ts').includes("'storeId is required.'")).toBe(true);
     expect(honest('src/app/api/stock-takes/[id]/count/route.ts').includes("'lineId is required.'")).toBe(true);
-    // the cancel route reads an OPTIONAL reason (null-optional, honest default)
-    expect(honest('src/app/api/stock-takes/[id]/cancel/route.ts').includes("typeof body?.reason === 'string'")).toBe(true);
+    // v2.353.0 THE PIN GREW: the cancel route graduated to the optional door
+    // (the reason stays optional; an unreadable body now answers 400 instead
+    // of cancelling the sheet in silence)
+    expect(honest('src/app/api/stock-takes/[id]/cancel/route.ts').includes('readOptionalJsonBody<{ reason?: unknown }>')).toBe(true);
+    expect(honest('src/app/api/stock-takes/[id]/cancel/route.ts').includes("typeof door.body.reason === 'string'")).toBe(true);
   });
 
   it('vouchers/send validates after the catch', () => {

@@ -164,6 +164,20 @@ function getTransactionTypeLabel(type: TransactionType): string {
   }
 }
 
+// v2.353.0 — THE LEDGER SPEAKS ITS CENSUS: each type chip carries its
+// lens's live tally and the active lens wears a count voice (the transfers
+// desk's treatment, propagated to the busiest ledger). The tally rides the
+// SAME array the desk renders via a PLAIN count function — the memo-lint
+// law: a useMemo here would birth a fifth exhaustive-deps warning on the
+// desk's pre-existing conditional-array debt, so the honest kill is the
+// plain call, and the desk's own derivation helper is the runtime truth
+// (REFUNDED/VOIDED/CANCELLED speak their kinds, everything else is a sale).
+function countTransactionTypes(rows: TransactionItem[]): Record<'all' | TransactionType, number> {
+  const census: Record<'all' | TransactionType, number> = { all: rows.length, sale: 0, refund: 0, void: 0 };
+  for (const row of rows) census[getTransactionType(row)] += 1;
+  return census;
+}
+
 function getPaymentMethodColor(method: string): string {
   switch (method) {
     case 'CASH': return 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300';
@@ -1228,7 +1242,7 @@ export default function TransactionsTab() {
     setPaymentFilter(value);
     setTxnLandingLive(false);
   };
-  const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [typeFilter, setTypeFilter] = useState<'all' | TransactionType>('all');
   const [amountFilterMin, setAmountFilterMin] = useState('');
   const [amountFilterMax, setAmountFilterMax] = useState('');
   const [showAmountFilter, setShowAmountFilter] = useState(false);
@@ -1296,6 +1310,10 @@ export default function TransactionsTab() {
     () => (Array.isArray(transactionsData) ? transactionsData : []),
     [transactionsData],
   );
+
+  // v2.353.0 the census: a PLAIN call on the same array the desk renders —
+  // the chips' tallies and the lens voice both read it (the memo-lint law).
+  const typeCensus = countTransactionTypes(transactions);
 
   // Filter by search query, type, and amount
   const filteredTransactions = useMemo(() => {
@@ -1645,10 +1663,16 @@ export default function TransactionsTab() {
             ))}
           </div>
 
-          {/* Transaction type filter */}
-          <div className="flex flex-wrap items-center gap-2">
+          {/* Transaction type filter — v2.353.0 THE LEDGER SPEAKS ITS
+              CENSUS: the chip map is the census keyset itself (as const),
+              so each chip names its lens's live tally and the two
+              parameter annotations the map used to need are gone — the
+              keyset IS the union. The active lens wears a count voice in
+              the desk's sky family (never the refund amber, never the
+              payment violet — a voice must not masquerade as a badge). */}
+          <div className="flex flex-wrap items-center gap-2" data-testid="txn-type-census">
             <ShoppingBag className="h-4 w-4 text-muted-foreground shrink-0" />
-            {['all', 'sale', 'refund', 'void'].map((type) => (
+            {(['all', 'sale', 'refund', 'void'] as const).map((type) => (
               <button
                 key={type}
                 onClick={() => setTypeFilter(type)}
@@ -1658,10 +1682,23 @@ export default function TransactionsTab() {
                     : 'bg-muted/50 text-muted-foreground border-border hover:bg-muted hover:text-foreground'
                 }`}
               >
-                {type !== 'all' && getTransactionTypeIcon(type as TransactionType)}
-                {type === 'all' ? 'All Types' : getTransactionTypeLabel(type as TransactionType)}
+                {type !== 'all' && getTransactionTypeIcon(type)}
+                {type === 'all' ? 'All Types' : getTransactionTypeLabel(type)}
+                <span className="tabular-nums opacity-70">· {typeCensus[type]}</span>
               </button>
             ))}
+            {typeFilter !== 'all' && (
+              // the lens voice: the active type filter names how many
+              // transactions it holds (sky with dark variants; gone when
+              // the whole ledger is shown — no news, no voice).
+              <span
+                data-testid="txn-type-lens-voice"
+                className="inline-flex items-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-300"
+              >
+                <ShoppingBag className="h-3 w-3" />
+                <span className="tabular-nums">{typeCensus[typeFilter]} in this lens</span>
+              </span>
+            )}
             <button
               onClick={() => setShowAmountFilter(!showAmountFilter)}
               className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${

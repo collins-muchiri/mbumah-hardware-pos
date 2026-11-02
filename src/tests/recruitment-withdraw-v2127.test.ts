@@ -113,9 +113,10 @@ describe('route — same gate, optional note, honest status codes', () => {
     expect(route).toContain("from '@/lib/hr/recruitment-policy'");
   });
 
-  it('an empty body is a valid withdrawal — the note is optional', () => {
-    expect(route).toContain('body = {};');
-    expect(route).toContain("body.note === 'string'");
+  it('an empty body is a valid withdrawal — the note is optional (the optional door since v2.353.0)', () => {
+    expect(route).toContain('readOptionalJsonBody<{ note?: unknown }>');
+    expect(route).toContain('bodyDoorRejected()');
+    expect(route).toContain("door.body.note === 'string'");
     expect(route).toContain('note || undefined');
     // no required-reason wall like reject has
     expect(route).not.toContain('A rejection reason is required');
