@@ -457,10 +457,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.360.0: the voucher-status entry joins the feed (+1 on every anchor → 249/250/251/282 → 250/251/252/283)
     // v2.361.0: the credit-type entry joins the feed (+1 on every anchor → 250/251/252/283 → 251/252/253/284)
     // v2.362.0: the payroll entry joins the feed (+1 on every anchor → 251/252/253/284 → 252/253/254/285)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(252);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(253);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(254);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(285);
+    // v2.363.0: the conversations entry joins the feed (+1 on every anchor → 252/253/254/285 → 253/254/255/286)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(253);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(254);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(255);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(286);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 
