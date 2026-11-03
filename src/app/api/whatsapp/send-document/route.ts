@@ -121,7 +121,24 @@ async function sendDocumentHandler(request: NextRequest, session: AuthSession): 
         recipientPhone = recipientPhone || transaction.customer?.phone || '';
         documentTitle = `Receipt ${transaction.receiptNumber}`;
 
-        whatsappMessage = `\u{1F9FE} *RECEIPT* ${transaction.receiptNumber}\n`;
+        // v2.375.0 THE SERVER PATH SPEAKS THE KIND TOO: the desk's
+        // WhatsApp panel sends THIS message, and a refund/settlement
+        // receipt used to borrow the sale voice wholesale ("Thank you
+        // for shopping with us!" on a receipt that IS the refund).
+        // The same law the share-text builder speaks: the kind banner,
+        // the "Refund of" chain line the service always rides, the
+        // zero-item settlement naming its header-level nature, and an
+        // honest footer. Sale receipts stay byte-identical.
+        const isRefundTx = transaction.transactionType === 'REFUND';
+        const isSettlementTx = isRefundTx
+          && (!transaction.items || (Array.isArray(transaction.items) && transaction.items.length === 0));
+        const refundOfReceiptTx = isRefundTx
+          ? (transaction.notes?.match(/Refund of (\S+)/)?.[1] ?? null)
+          : null;
+
+        whatsappMessage = `\u{1F9FE} *${isRefundTx ? 'REFUND RECEIPT' : 'RECEIPT'}* ${transaction.receiptNumber}\n`;
+        if (isRefundTx)
+          whatsappMessage += `\u21A9 Refund of: ${refundOfReceiptTx ?? 'original sale'}\n`;
         whatsappMessage += `From: ${transaction.store?.name || 'Mbumah Hardware'}\n`;
         whatsappMessage += `\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n`;
         if (transaction.customer)
@@ -136,6 +153,8 @@ async function sendDocumentHandler(request: NextRequest, session: AuthSession): 
             whatsappMessage += `\u2022 ${item.productName} x${item.quantity} @ ${formatKES(item.pricePerUnit || 0)} = ${formatKES(item.lineTotal || 0)}\n`;
           }
         }
+        if (isSettlementTx)
+          whatsappMessage += `\u2139 Type: Header-level settlement (no line items)\n`;
 
         whatsappMessage += `\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n`;
         whatsappMessage += `\u{1F4B0} Subtotal: ${formatKES(transaction.subtotal)}\n`;
@@ -145,7 +164,11 @@ async function sendDocumentHandler(request: NextRequest, session: AuthSession): 
         whatsappMessage += `\u{1F4B5} *TOTAL: ${formatKES(transaction.totalAmount)}*\n`;
         whatsappMessage += `\u{1F4B3} Payment: ${transaction.paymentMethod}\n`;
         if (message) whatsappMessage += `\n\u{1F4AC} ${message}\n`;
-        whatsappMessage += `\nThank you for shopping with us! \u{1F64F}`;
+        if (isRefundTx) {
+          whatsappMessage += `\nRefund processed - the money is on its way back. \u{1F64F}`;
+        } else {
+          whatsappMessage += `\nThank you for shopping with us! \u{1F64F}`;
+        }
         break;
       }
 

@@ -1,3 +1,20 @@
+## [2.375.0] The settlement speaks its name
+
+The settle family's third round. v2.373.0 taught the desk to speak the settle truth, v2.374.0 made the paper follow the money; this round the settlement's own kind reaches every voice it has - the row chip, the paper, and the share text a customer actually receives.
+
+### Added
+- **THE SHARE TEXT SPEAKS ITS KIND** (`receipt-share-text.ts`): a REFUND transaction's Copy / WhatsApp / SMS text used to borrow the sale voice wholesale - "Thank you for shopping at MBUMAH HARDWARE!" above "Goods sold are not refundable." - on a receipt that IS the refund. A refund now speaks the refund voice: a `** REFUND RECEIPT **` banner, the `Refund of:` chain line the paper trail already carries, and a footer that acknowledges the return. The SALE contract above the banner is byte-identical - the v2.14.0 spec stands and the suite pins the sale lines.
+- **THE ZERO-ITEM SETTLEMENT VOICE** (the share text + the desk + the paper): the stranded-gap settlement's refund event carries NO line items (the money is the header remainder the line world could not reach). Where a sale receipt skips the items table silently, the settlement's share text says so - `Type: Header-level settlement (no line items)` - so the recipient never reads the empty table as a rendering bug.
+- **THE SETTLEMENT'S OWN KIND** (`transactions-tab.tsx` isSettlementEvent + the wearing branch): a REFUND event with zero items wears the emerald settle ink with the HandCoins kind icon, the amount in the compact money voice, and a tooltip that teaches the when-and-why - the SAME law the row-level settle affordance speaks (emerald settles). Itemized refunds keep the amber RotateCcw chip and the reason voice; the two money-out shapes never masquerade as each other. The CSV export speaks the settlement kind too.
+- **THE SERVER'S WHATSAPP PATH SPEAKS THE KIND TOO** (`api/whatsapp/send-document/route.ts`): the desk's WhatsApp panel sends the server-built message, and a refund/settlement receipt used to borrow the sale voice there as well ("Thank you for shopping with us!" on a receipt that IS the refund). The route now speaks the same law: the `*REFUND RECEIPT*` banner, the `Refund of:` chain line, the zero-item settlement's nature line, and an honest footer. Sale messages stay byte-identical. Found LIVE in the round's QA burst: the View Receipt dialog's Send WhatsApp panel on settlement MBM-20261103-SZJLZ.
+- **THE SETTLEMENT'S PAPER** (`receipt-print.tsx`): the banner band branches on the zero-item shape - the settlement wears the emerald settle band ("Settlement receipt - the stranded gap is settled") while an itemized refund keeps the v2.309.0 amber band; the paper, the row chip and the share text speak one kind.
+
+### Fixed
+- **THE DAEMON'S STALE PIN** (`scripts/ems-daemon-3200.cjs`): the launcher's own pin law says the pin must speak the QA database .env speaks, but .env moved to db/audit-dev.db (the QA seeds' world) while the launcher stayed on db/ems-dev.db - a zero-byte file with no schema. Every launcher-born daemon served an EMPTY world while the shell's own server served the seeded one. The pin follows .env again.
+
+### Tests
+- `src/tests/receipt-refund-voice-v2375.test.ts` (15 pins): the sale contract byte-identical (the four unconditional lines, the items table, the sale footer), the refund voice's banner/chain-line/footer live truth table, the zero-item settlement line, the kind guard (a SALE can never wear the refund voice), the settlement wearing bytes (emerald + HandCoins + tooltip + data-kind), the CSV voice, and the paper's banner variant.
+
 ## [2.374.0] The paper follows the settle
 
 The settle family's second round. v2.373.0 taught the desk to SPEAK the settle truth and gave the stranded rows the heal; this round the paper follows the money and the quiet rows come home.

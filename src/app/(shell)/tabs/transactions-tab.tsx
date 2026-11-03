@@ -8,6 +8,7 @@ import {
   CalendarDays, TrendingUp, Hash, CreditCard, Smartphone, Banknote, Wallet, Link2,
   Filter, FileText, RotateCcw, Ban, Eye, Printer, AlertTriangle, Receipt, X, MessageCircle,
   Mail, Send, Loader2, MessageSquare, PackageOpen, ShieldAlert, CheckCircle2, Sparkles,
+  HandCoins,
 } from 'lucide-react';
 
 import { transactionsApi, whatsappApi, formatKES, formatDateTime, type ApiResponse, type TransactionItem, type SaleItemDetail, type ReceiptDistributionResult, type RefundableLine, type RefundableLinesResult, type RefundResult, type RefundRowState } from '@/lib/api';
@@ -238,7 +239,9 @@ function exportTransactionsCSV(transactions: TransactionItem[]): void {
     t.receiptNumber,
     formatDateTime(t.createdAt),
     t.customer?.name || 'Walk-in',
-    getTransactionTypeLabel(getTransactionType(t)),
+    // v2.375.0: the CSV speaks the settlement's kind too — the exported
+    // ledger never calls the zero-item event a plain "Refund".
+    isSettlementEvent(t) ? 'Settlement' : getTransactionTypeLabel(getTransactionType(t)),
     String(t.items?.length || 0),
     String(t.subtotal),
     String(t.taxAmount),
@@ -567,6 +570,24 @@ export function refundReasonOf(notes: string | null | undefined): string | null 
   const m = notes.match(/^Refund reason: ([A-Z_]+)(?=$| ·)/);
   if (!m || !(m[1] in REFUND_REASON_LABELS)) return null;
   return REFUND_REASON_LABELS[m[1]];
+}
+
+/**
+ * v2.375.0 — the settlement kind. A REFUND event with NO line items is
+ * the stranded-gap settlement (the heal's HEALED mode writes exactly
+ * one: `items: { create: [] }`, the header remainder as its total, the
+ * service's own notes voice). The desk gives it its own wearing: where
+ * an itemized refund wears the amber RotateCcw chip, the settlement
+ * wears the emerald settle ink (the SAME law the row-level settle
+ * affordance speaks — emerald settles) so the two money-out shapes
+ * never masquerade as each other. Exported for the kind suite's live
+ * truth table (the refundReasonOf precedent).
+ */
+export function isSettlementEvent(t: {
+  transactionType: string;
+  items?: unknown[] | null;
+}): boolean {
+  return t.transactionType === 'REFUND' && (t.items?.length ?? 0) === 0;
 }
 
 // v2.372.0 THE DIALOG'S ENVELOPE FIX: request() speaks the {success,data}
@@ -1282,11 +1303,29 @@ function TransactionRow({
                  the notes carry the service's `Refund reason:` prefix.
                  The refunded ORIGINAL keeps its blue Refunded status
                  badge — the event and the state are two voices, and the
-                 desk now speaks both. */
-              <Badge variant="secondary" className="text-[10px] px-1.5 py-0 gap-0.5 bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
-                <RotateCcw className="h-3 w-3 shrink-0" aria-hidden="true" />
-                Refund{refundReasonOf(transaction.notes) ? ` · ${refundReasonOf(transaction.notes)}` : ''}
-              </Badge>
+                 desk now speaks both.
+                 v2.375.0 THE SETTLEMENT'S OWN KIND: the zero-item event
+                 (the stranded-gap settlement) wears the emerald settle
+                 ink with the HandCoins kind icon — the SAME law the
+                 row-level settle affordance speaks, so the two money-out
+                 shapes never masquerade as each other. */
+              isSettlementEvent(transaction) ? (
+                <Badge
+                  variant="secondary"
+                  data-testid="refund-row-kind"
+                  data-kind="SETTLEMENT"
+                  className="text-[10px] px-1.5 py-0 gap-0.5 bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300"
+                  title={`Header-level settlement — the stranded remainder ${formatKES(transaction.totalAmount)} the line world could not reach, settled as ${transaction.receiptNumber}`}
+                >
+                  <HandCoins className="h-3 w-3 shrink-0" aria-hidden="true" />
+                  <span className="font-mono">Settlement · {formatKES(transaction.totalAmount)}</span>
+                </Badge>
+              ) : (
+                <Badge variant="secondary" className="text-[10px] px-1.5 py-0 gap-0.5 bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+                  <RotateCcw className="h-3 w-3 shrink-0" aria-hidden="true" />
+                  Refund{refundReasonOf(transaction.notes) ? ` · ${refundReasonOf(transaction.notes)}` : ''}
+                </Badge>
+              )
             )}
             <Badge variant="secondary" className={`text-[10px] px-1.5 py-0 ${getPaymentStatusColor(transaction.paymentStatus)}`}>
               {getPaymentStatusLabel(transaction.paymentStatus)}
