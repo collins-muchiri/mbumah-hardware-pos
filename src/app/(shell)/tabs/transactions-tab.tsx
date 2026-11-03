@@ -10,7 +10,7 @@ import {
   Mail, Send, Loader2, MessageSquare, PackageOpen, ShieldAlert, CheckCircle2, Sparkles,
 } from 'lucide-react';
 
-import { transactionsApi, whatsappApi, formatKES, formatDateTime, type ApiResponse, type TransactionItem, type SaleItemDetail, type ReceiptDistributionResult, type RefundableLine, type RefundableLinesResult, type RefundResult } from '@/lib/api';
+import { transactionsApi, whatsappApi, formatKES, formatDateTime, type ApiResponse, type TransactionItem, type SaleItemDetail, type ReceiptDistributionResult, type RefundableLine, type RefundableLinesResult, type RefundResult, type RefundRowState } from '@/lib/api';
 import { composeDailyRevenueVoice } from '@/lib/report-voices';
 import { buildSearchWithoutParams, parseInitialNamedMember } from '@/lib/tab-url';
 import { useAppStore, useAuthStore } from '@/lib/stores';
@@ -1114,12 +1114,86 @@ function RefundDialog({
   );
 }
 
+/**
+ * v2.373.0 THE ROW-LEVEL SETTLE AFFORDANCE — the desk's settle truth on
+ * the ROW, before the dialog opens. The chip speaks the server-derived
+ * `refundState` (deriveRefundRowState's voice — the same SUMs the dialog
+ * and the POST re-derive), one ink per kind:
+ *   • SETTLES_FULL .......... emerald — a full refund settles this sale.
+ *   • SETTLES_FULL_WITH_GAP . amber (the dialog hint's own family) — the
+ *                             same settle, and the gap it rides above
+ *                             the line totals is NAMED.
+ *   • STRANDED .............. rose — the legacy remainder no live refund
+ *                             can reach; the heal's affordance points at
+ *                             it.
+ *   • SETTLED ............... muted — nothing left, nothing owed.
+ * The tabular amounts keep the desk's money voice; the tooltips carry
+ * the when-why so the chip teaches even before it is pressed.
+ */
+function RefundStateChip({ state, receiptNumber }: { state: RefundRowState; receiptNumber: string }) {
+  if (state.kind === 'SETTLES_FULL') {
+    return (
+      <Badge
+        variant="secondary"
+        data-testid="refund-row-state"
+        data-kind="SETTLES_FULL"
+        className="text-[10px] px-1.5 py-0 gap-0.5 bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300"
+        title={`A full refund returns ${formatKES(state.fullRefundAmount)} and settles sale ${receiptNumber} completely`}
+      >
+        <CheckCircle2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+        <span className="font-mono">Settles in full · {formatKES(state.fullRefundAmount)}</span>
+      </Badge>
+    );
+  }
+  if (state.kind === 'SETTLES_FULL_WITH_GAP') {
+    return (
+      <Badge
+        variant="secondary"
+        data-testid="refund-row-state"
+        data-kind="SETTLES_FULL_WITH_GAP"
+        className="text-[10px] px-1.5 py-0 gap-0.5 bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300"
+        title={`A full refund returns ${formatKES(state.fullRefundAmount)} — includes ${formatKES(state.settleGap)} above the line totals (VAT added on top of the lines)`}
+      >
+        <AlertTriangle className="h-3 w-3 shrink-0" aria-hidden="true" />
+        <span className="font-mono">Settles in full · {formatKES(state.fullRefundAmount)} (+{formatKES(state.settleGap)} gap)</span>
+      </Badge>
+    );
+  }
+  if (state.kind === 'STRANDED') {
+    return (
+      <Badge
+        variant="secondary"
+        data-testid="refund-row-state"
+        data-kind="STRANDED"
+        className="text-[10px] px-1.5 py-0 gap-0.5 bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-300"
+        title={`Every line on sale ${receiptNumber} is already refunded, but ${formatKES(state.strandedAmount)} of the total was never reachable — settle the gap to close this sale`}
+      >
+        <AlertTriangle className="h-3 w-3 shrink-0" aria-hidden="true" />
+        <span className="font-mono">{formatKES(state.strandedAmount)} stranded</span>
+      </Badge>
+    );
+  }
+  return (
+    <Badge
+      variant="outline"
+      data-testid="refund-row-state"
+      data-kind="SETTLED"
+      className="text-[10px] px-1.5 py-0 gap-0.5 text-muted-foreground"
+      title={`Nothing is left to refund on sale ${receiptNumber} — the lines and the header are both settled`}
+    >
+      <CheckCircle2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+      Nothing left to refund
+    </Badge>
+  );
+}
+
 function TransactionRow({
   transaction,
   isExpanded,
   onToggle,
   onViewReceipt,
   onRefund,
+  onHeal,
   onVoid,
   onSendWhatsApp,
   onPrint,
@@ -1129,6 +1203,7 @@ function TransactionRow({
   onToggle: () => void;
   onViewReceipt: () => void;
   onRefund: () => void;
+  onHeal: () => void;
   onVoid: () => void;
   onSendWhatsApp: () => void;
   onPrint: () => void;
@@ -1214,6 +1289,13 @@ function TransactionRow({
             <Badge variant="secondary" className={`text-[10px] px-1.5 py-0 ${getPaymentStatusColor(transaction.paymentStatus)}`}>
               {getPaymentStatusLabel(transaction.paymentStatus)}
             </Badge>
+            {txType === 'sale' && transaction.refundState && (
+              /* v2.373.0 THE ROW-LEVEL SETTLE AFFORDANCE: the settle truth
+                 on the row — emerald settles, amber gap, rose stranded,
+                 muted settled. The server derived it from the SAME chain
+                 SUMs the dialog re-derives; the row never guesses. */
+              <RefundStateChip state={transaction.refundState} receiptNumber={transaction.receiptNumber} />
+            )}
           </div>
         </TableCell>
       </TableRow>
@@ -1271,7 +1353,13 @@ function TransactionRow({
                 <Button variant="outline" size="sm" className="h-7 text-xs" onClick={(e) => { e.stopPropagation(); onPrint(); }}>
                   <Printer className="h-3 w-3 mr-1" /> Print
                 </Button>
-                {txType === 'sale' && ['COMPLETED', 'PARTIAL'].includes(transaction.paymentStatus) && canRefund && (
+                {/* v2.373.0: the Refund button yields the row when the row
+                    itself knows better — a STRANDED sale has no refundable
+                    line left (the dialog would open dead) and a SETTLED one
+                    has nothing to refund at all; the stranded voice gets
+                    its own affordance below. */}
+                {txType === 'sale' && ['COMPLETED', 'PARTIAL'].includes(transaction.paymentStatus) && canRefund
+                  && transaction.refundState?.kind !== 'STRANDED' && transaction.refundState?.kind !== 'SETTLED' && (
                   <Button
                     variant="outline"
                     size="sm"
@@ -1280,6 +1368,21 @@ function TransactionRow({
                     aria-label={`Refund sale ${transaction.receiptNumber}`}
                   >
                     <RotateCcw className="h-3 w-3 mr-1" /> Refund
+                  </Button>
+                )}
+                {txType === 'sale' && transaction.refundState?.kind === 'STRANDED' && canRefund && (
+                  /* v2.373.0 THE STRANDED-GAP HEAL affordance: the legacy
+                     remainder the live refund can never reach gets its own
+                     rose settle button — one confirm, the zero-item refund
+                     event pays the header remainder, the sale closes. */
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-xs text-rose-700 hover:text-rose-800 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                    onClick={(e) => { e.stopPropagation(); onHeal(); }}
+                    aria-label={`Settle stranded gap on sale ${transaction.receiptNumber}`}
+                  >
+                    <Sparkles className="h-3 w-3 mr-1" /> Settle stranded gap
                   </Button>
                 )}
                 {txType === 'sale' && transaction.paymentStatus === 'COMPLETED' && (
@@ -1411,6 +1514,37 @@ export default function TransactionsTab() {
   // Refund/Void dialog state
   const [refundTransaction, setRefundTransaction] = useState<TransactionItem | null>(null);
   const [voidTransaction, setVoidTransaction] = useState<TransactionItem | null>(null);
+
+  // v2.373.0 THE STRANDED-GAP HEAL state: the row affordance opens ONE
+  // confirm; the confirm settles the legacy remainder through
+  // POST /transactions/[id]/refund-heal (healStrandedOriginal's atomic
+  // transaction), toasts the settled truth, and retires the list.
+  const [healTransaction, setHealTransaction] = useState<TransactionItem | null>(null);
+  const [healBusy, setHealBusy] = useState(false);
+  const queryClient = useQueryClient();
+
+  const handleHealConfirm = useCallback(async () => {
+    if (!healTransaction) return;
+    setHealBusy(true);
+    try {
+      const settled = unwrapDialogResult(
+        await transactionsApi.healStranded(healTransaction.id),
+      );
+      if (!settled) {
+        throw new Error('The heal wire returned no result to record.');
+      }
+      toast.success(
+        `Stranded gap settled — ${formatKES(settled.refundTotal)} returned${settled.loyalty ? ` · ${settled.loyalty.clawedBack} loyalty points home` : ''}`,
+        { description: `${settled.originalReceiptNumber} is fully settled — nothing remains refundable` },
+      );
+      await queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      setHealTransaction(null);
+    } catch (err) {
+      handleError(err, 'Failed to settle the stranded gap. Please try again.');
+    } finally {
+      setHealBusy(false);
+    }
+  }, [healTransaction, queryClient]);
 
   // Compute date range
   const dateRange = useMemo(() => {
@@ -2001,6 +2135,7 @@ export default function TransactionsTab() {
                       onToggle={() => handleToggleRow(transaction.id)}
                       onViewReceipt={() => handleViewReceipt(transaction)}
                       onRefund={() => handleRefund(transaction)}
+                      onHeal={() => setHealTransaction(transaction)}
                       onVoid={() => handleVoid(transaction)}
                       onSendWhatsApp={() => handleSendReceiptWhatsApp(transaction)}
                       onPrint={() => handlePrintReceipt(transaction)}
@@ -2048,6 +2183,25 @@ export default function TransactionsTab() {
           setReceiptAutoPrint(true);
           setReceiptOpen(true);
         }}
+      />
+
+      {/* v2.373.0 THE STRANDED-GAP HEAL confirm: the rose affordance's
+          one gate — the description speaks the exact remainder, what the
+          settlement records (the zero-item refund event, ledger balanced),
+          and the sale's closure; the confirm hands over to the atomic
+          healStrandedOriginal transaction. */}
+      <ConfirmActionDialog
+        open={!!healTransaction}
+        onOpenChange={(open) => { if (!open) setHealTransaction(null); }}
+        title="Settle stranded gap"
+        description={
+          healTransaction
+            ? `Every item on ${healTransaction.receiptNumber} is already refunded, but ${formatKES(healTransaction.refundState?.strandedAmount ?? 0)} of the sale's total was never reachable by any refund. Settling records one refund event for exactly that remainder — money out, the ledger, drawer and journal balanced — and closes the sale as REFUNDED. This cannot be undone.`
+            : ''
+        }
+        onConfirm={handleHealConfirm}
+        isPending={healBusy}
+        variant="default"
       />
 
       {/* Void Confirmation */}

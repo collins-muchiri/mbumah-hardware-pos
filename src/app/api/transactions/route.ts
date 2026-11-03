@@ -38,6 +38,7 @@ import { auditTrail } from '@/lib/audit-trail';
 import { KES } from '@/lib/money';
 import Decimal from 'decimal.js';
 import { toDec, toNum, round2, changeDue as calcChangeDue } from '@/lib/utils/financialMath';
+import { refundableLinesFrom, deriveRefundRowState } from '@/lib/sale-refund-service';
 import { getVatRatePercent } from '@/lib/vat-settings';
 import { enqueueOutbox } from '@/lib/outbox';
 import { withSequenceRetry, isP2002 } from '@/lib/sequence';
@@ -218,6 +219,56 @@ async function getTransactionsHandler(
     db.salesTransaction.count({ where }),
   ]);
 
+  // v2.373.0 THE ROW-LEVEL SETTLE AFFORDANCE: the page's refund chain
+  // SUMs in ONE grouped query (refunds pointing at any row on this page,
+  // their per-line links + totals), so each SALE row can speak its settle
+  // truth through deriveRefundRowState - the SAME pure law the dialog
+  // and the live refund POST re-derive, never a client guess. The chips:
+  // SETTLES_FULL (emerald), SETTLES_FULL_WITH_GAP (amber - the dialog's
+  // settle hint promoted to the row), STRANDED (rose - the legacy rows
+  // the v2.372.0 closure can never reach; the heal settles them),
+  // SETTLED (muted - nothing left, nothing owed).
+  const pageIds = transactions.map((t) => t.id);
+  const chainRefunds = pageIds.length
+    ? await db.salesTransaction.findMany({
+        where: { refundedTransactionId: { in: pageIds } },
+        select: {
+          refundedTransactionId: true,
+          totalAmount: true,
+          items: { select: { refundedSaleItemId: true, quantity: true, lineTotal: true } },
+        },
+      })
+    : [];
+  const chainByOriginalId = new Map<string, {
+    priorQtyBySaleItemId: Map<string, number>;
+    priorGrossBySaleItemId: Map<string, number>;
+    priorTotal: number;
+  }>();
+  for (const refund of chainRefunds) {
+    if (!refund.refundedTransactionId) continue;
+    let entry = chainByOriginalId.get(refund.refundedTransactionId);
+    if (!entry) {
+      entry = {
+        priorQtyBySaleItemId: new Map(),
+        priorGrossBySaleItemId: new Map(),
+        priorTotal: 0,
+      };
+      chainByOriginalId.set(refund.refundedTransactionId, entry);
+    }
+    for (const item of refund.items) {
+      if (!item.refundedSaleItemId) continue;
+      entry.priorQtyBySaleItemId.set(
+        item.refundedSaleItemId,
+        (entry.priorQtyBySaleItemId.get(item.refundedSaleItemId) ?? 0) + Number(item.quantity),
+      );
+      entry.priorGrossBySaleItemId.set(
+        item.refundedSaleItemId,
+        (entry.priorGrossBySaleItemId.get(item.refundedSaleItemId) ?? 0) + Number(item.lineTotal),
+      );
+    }
+    entry.priorTotal = round2(entry.priorTotal + Number(refund.totalAmount));
+  }
+
   return Response.json({
     success: true,
     // DECIMAL-STRING AUDIT FIX (v2.5.0): Prisma Decimals serialize as STRINGS
@@ -225,7 +276,18 @@ async function getTransactionsHandler(
     // numbers - emit numbers so client money math (totals, discounts,
     // change-due, daily-takings sums) can never string-concatenate. Same
     // class of bug as the v2.3.0 P&L 3.8e+90 incident.
-    data: transactions.map((t) => ({
+    data: transactions.map((t) => {
+      const chain = chainByOriginalId.get(t.id);
+      const views = chain
+        ? refundableLinesFrom(t.items, chain.priorQtyBySaleItemId, chain.priorGrossBySaleItemId)
+        : refundableLinesFrom(t.items, new Map(), new Map());
+      const refundState = deriveRefundRowState({
+        transactionType: t.transactionType,
+        paymentStatus: t.paymentStatus,
+        views,
+        headerRemaining: Number(t.totalAmount) - (chain?.priorTotal ?? 0),
+      });
+      return {
       ...t,
       subtotal: Number(t.subtotal),
       taxAmount: Number(t.taxAmount),
@@ -242,7 +304,9 @@ async function getTransactionsHandler(
         taxRate: Number(i.taxRate),
         lineTotal: Number(i.lineTotal),
       })),
-    })),
+      refundState,
+      };
+    }),
     pagination: {
       page,
       limit,
