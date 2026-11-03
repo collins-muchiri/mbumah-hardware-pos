@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.367.0',
+    title: 'The watchtower answers the address bar',
+    bullets: [
+      'A security link can now name its lens: ?sec-type=BRUTE_FORCE (or RATE_LIMITED, CSRF_FAILED, INVALID_INPUT, SUSPICIOUS_ACTIVITY, ACCOUNT_LOCKED, SESSION_HIJACK_ATTEMPT, UNAUTHORIZED_ACCESS) lands the watchtower pre-filtered \u2014 the twentieth word of the address-bar vocabulary, and its longest lens: the owner\u2019s morning question \u2014 was anyone banging on the door last night? \u2014 is now a bookmark.',
+      'The landing chip wears the vocabulary\u2019s twentieth family (gray \u2014 the watchtower\u2019s own shadow: every remaining standard hue is already a voice on this desk, and a surface is not a voice) and raises the filters panel it lands into, so the chip is visible right away; the events feed the filter straight into its query.',
+      'Unknown, missing, or wrong-case words never strand the watchtower: the lens falls back to All, case-sensitively \u2014 the largest case-sensitive dictionary in the family (nine words).',
+    ],
+  },
+  {
     version: '2.366.0',
     title: 'The audit log answers the address bar',
     bullets: [

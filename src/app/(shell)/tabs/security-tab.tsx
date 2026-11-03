@@ -8,7 +8,7 @@ import {
 } from 'recharts';
 import {
   Shield, ShieldOff, AlertTriangle, Users,
-  Activity, Eye, Ban, RefreshCw, Filter, X, ScrollText, Loader2, Download,
+  Activity, Eye, Ban, RefreshCw, Filter, X, ScrollText, Loader2, Download, Link2,
 } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { parseInitialNamedMember } from '@/lib/tab-url';
 import { toast } from 'sonner';
 import { composeScoreVoice } from '@/lib/report-voices';
 // v2.12.8 (PR C): Audit Trail - second view inside the Security tab.
@@ -327,6 +328,28 @@ function SeverityBadge({ severity }: { severity: string }) {
 
 // Main Security Tab
 
+// THE SECURITY DESK'S OWN WORD (v2.367.0): the watchtower answers the
+// address bar.
+// v2.367.0 THE TWENTIETH WORD — the security desk's event-type lens answers
+// the address bar. `?sec-type=BRUTE_FORCE` is the owner's morning question
+// ("did anybody try the door last night?"), now a bookmark — the
+// vocabulary's LONGEST lens (nine words: RATE_LIMITED through
+// UNAUTHORIZED_ACCESS, the event wire's own UPPERCASE keys; a capitalized
+// `Brute_Force` or an UPPERCASE `ALL` names nothing here, and the neutral is
+// the lowercase `all`). The lens rides the desk's collapsible filters panel,
+// and THE COLLAPSIBLE-FACE AMENDMENT makes the landing raise the panel it
+// lands into — the chip is visible on landing (the survey law's second
+// amended case, the catalog desk's precedent). The read is QUERY-FED
+// (`params.eventType = filterEventType`), so a landed word filters the
+// EVENTS, not just the Select's face (the conversations desk's precedent).
+export const SEC_TYPE_FILTERS = ['all', 'RATE_LIMITED', 'BRUTE_FORCE', 'CSRF_FAILED', 'INVALID_INPUT', 'SUSPICIOUS_ACTIVITY', 'ACCOUNT_LOCKED', 'SESSION_HIJACK_ATTEMPT', 'UNAUTHORIZED_ACCESS'] as const;
+type SecTypeFilter = (typeof SEC_TYPE_FILTERS)[number];
+
+function initialSecType(): SecTypeFilter {
+  if (typeof window === 'undefined') return 'all';
+  return parseInitialNamedMember(window.location.search, 'sec-type', SEC_TYPE_FILTERS, 'all');
+}
+
 export default function SecurityTab() {
   // v2.12.8 (PR C): local view toggle
   // The Security tab now hosts TWO views: the existing Security Dashboard
@@ -337,9 +360,24 @@ export default function SecurityTab() {
   // Filter state
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
-  const [filterEventType, setFilterEventType] = useState('all');
+  const [filterEventType, setFilterEventType] = useState<SecTypeFilter>(initialSecType);
   const [filterSeverity, setFilterSeverity] = useState('all');
-  const [showFilters, setShowFilters] = useState(false);
+  // v2.367.0 THE LANDING WORD — the watchtower's seed reads `?sec-type=`
+  // through the ONE home, cast-free: the generic parser IS the nine-word
+  // union, so the state names it directly.
+  const [landedSecType] = useState<SecTypeFilter>(initialSecType);
+  const [secLandingLive, setSecLandingLive] = useState(true);
+  // v2.367.0: a hand-driven Select change retires the landing word — the
+  // chip speaks the ADDRESS BAR's landing, never the human's next choice.
+  const chooseSecType = (value: SecTypeFilter) => {
+    setFilterEventType(value);
+    setSecLandingLive(false);
+  };
+  // v2.367.0 THE COLLAPSIBLE-FACE AMENDMENT, applied: a landing that
+  // carries the word RAISES the panel it lands into — the panel's seed
+  // reads the same landed word, so the chip is visible on landing (a
+  // neutral `all` lands NO chip and the panel stays down).
+  const [showFilters, setShowFilters] = useState<boolean>(() => landedSecType !== 'all');
   // v2.294.0: the Most denied gates card's time lens (24h / 7d / 30d).
   const [gateRange, setGateRange] = useState<GateRange>('24h');
   // v2.295.0: the gate drill — the card's rows are handles; the drilled
@@ -676,7 +714,34 @@ export default function SecurityTab() {
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-medium">Event Type</Label>
-                <Select value={filterEventType} onValueChange={setFilterEventType}>
+                {/* v2.367.0 THE TWENTIETH WEARING: the chip wears GRAY — the
+                    watchtower's own shadow. THE PALETTE-EXHAUSTION AMENDMENT:
+                    the family has spoken nineteen hues (indigo through
+                    neutral), and every remaining standard hue is spoken by
+                    this desk — red (the alarm tones), green (the all-clear
+                    tones), gray (the muted surfaces).
+                    A surface is not a voice: the desk's gray bytes are muted
+                    text and panel fills, never badges, and the chip's own
+                    shades (gray-50 / gray-200 / gray-700 / the dark forms)
+                    are byte-free on this desk. The chip borrows the
+                    surface's hue and none of its clothes. */}
+                {secLandingLive && landedSecType !== 'all' && filterEventType === landedSecType && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFilterEventType('all');
+                      setSecLandingLive(false);
+                    }}
+                    className="group inline-flex items-center gap-1 h-6 px-2 rounded-full border border-gray-200 bg-gray-50 text-gray-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 dark:border-gray-500/30 dark:bg-gray-500/10 dark:text-gray-300 dark:hover:bg-gray-500/20"
+                    data-testid="sec-type-landing-word"
+                    title="The watchtower landed with this event type from the address bar — press to clear it"
+                  >
+                    <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+                    <span className="tabular-nums">landed ?sec-type={landedSecType}</span>
+                    <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+                  </button>
+                )}
+                <Select value={filterEventType} onValueChange={chooseSecType}>
                   <SelectTrigger className="h-9 text-sm">
                     <SelectValue placeholder="All Types" />
                   </SelectTrigger>
