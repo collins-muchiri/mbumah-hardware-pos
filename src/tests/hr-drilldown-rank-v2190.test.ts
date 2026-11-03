@@ -254,9 +254,9 @@ describe('the styling math - the avatar-hue family carries its numbers', () => {
 
 describe('docs and release surfaces', () => {
   it('package.json rides at 2.190.0 (all three slots) and the verify script is wired', () => {
-    expect(pkg.version).toBe('2.369.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.369.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.369.0');
+    expect(pkg.version).toBe('2.370.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.370.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.370.0');
     expect(pkg.scripts['verify:v2-190-0']).toBe('node scripts/verify-v2-190-0.mjs');
     expect(pkg.scripts['verify:v2-189-0']).toBe('node scripts/verify-v2-189-0.mjs');
     expect(readRepo('scripts/verify-v2-190-0.mjs')).toContain('v2.190.0 verification');
@@ -277,6 +277,6 @@ describe('docs and release surfaces', () => {
 
   it('the workspace doc carries the rank sentence', () => {
     const doc = readRepo('docs/multi-store-workspaces.md');
-    expect(doc).toContain('v2.190.0 — the payroll column sorts by STATUS RANK');
+    expect(doc).toContain('v2.190.0: the payroll column sorts by STATUS RANK');
   });
 });

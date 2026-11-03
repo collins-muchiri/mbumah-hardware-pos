@@ -310,7 +310,7 @@ describe('the page wiring - no second fetch', () => {
 describe('docs and release surfaces', () => {
   it('multi-store-workspaces.md carries the matrix-week bullet and the KPI row', () => {
     expect(doc).toContain('- The matrix reads the week (v2.179.0):');
-    expect(doc).toContain('| Matrix · week by store | v2.179.0 —');
+    expect(doc).toContain('| Matrix · week by store | v2.179.0:');
   });
 
   it('the CHANGELOG heads with this release', () => {
@@ -325,9 +325,9 @@ describe('docs and release surfaces', () => {
   });
 
   it('package.json leads the current version in all three slots (re-anchored for 2.181.0) and the verify script is wired', () => {
-    expect(pkg.version).toBe('2.369.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.369.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.369.0');
+    expect(pkg.version).toBe('2.370.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.370.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.370.0');
     expect(pkg.scripts['verify:v2-179-0']).toBe('node scripts/verify-v2-179-0.mjs');
     expect(readRepo('scripts/verify-v2-179-0.mjs')).toContain('v2.179.0 verification');
   });
@@ -340,7 +340,7 @@ describe('docs and release surfaces', () => {
       'src/tests/branch-variance-v2177.test.ts',
       'src/tests/branches-csv-week-v2178.test.ts',
     ]) {
-      expect(readRepo(f)).toContain("expect(pkg.version).toBe('2.369.0');");
+      expect(readRepo(f)).toContain("expect(pkg.version).toBe('2.370.0');");
     }
   });
 
