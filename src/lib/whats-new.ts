@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.375.0',
+    title: 'The settlement speaks its name',
+    bullets: [
+      'Sharing a refund receipt no longer borrows the sale voice: Copy, WhatsApp and SMS now speak the refund voice \u2014 a REFUND RECEIPT banner, the "Refund of" chain line, and a footer that acknowledges the return instead of telling the customer that goods are not refundable.',
+      'The zero-item settlement says what it is on every surface: the share text prints "Header-level settlement (no line items)", the desk row wears the emerald Settlement chip with the amount (the same ink the settle affordance speaks), and the paper\u2019s banner turns emerald \u2014 "the stranded gap is settled".',
+      'Sale receipts keep their v2.14.0 contract byte-identical \u2014 the suite pins the four unconditional lines, the items table and the sale footer, so the customer-facing sale text never moved.',
+    ],
+  },
+  {
     version: '2.374.0',
     title: 'The paper follows the settle',
     bullets: [

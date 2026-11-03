@@ -469,10 +469,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.372.0: the gap comes home — the refund chain settles the header (+1 on every anchor → 261/262/263/294 → 262/263/264/295)
     // v2.373.0: the stranded gap settles — the desk speaks the settle truth on the row and the stranded rows heal (+1 on every anchor → 262/263/264/295 → 263/264/265/296)
     // v2.374.0: the paper follows the settle — the repair catches the badge up and the paper follows the money (+1 on every anchor → 263/264/265/296 → 264/265/266/297)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(264);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(265);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(266);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(297);
+    // v2.375.0: the settlement speaks its name — the share text, the row chip and the paper all wear the settlement's own kind (+1 on every anchor → 264/265/266/297 → 265/266/267/298)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(265);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(266);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(267);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(298);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 
