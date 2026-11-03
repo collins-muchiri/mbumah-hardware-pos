@@ -1112,9 +1112,13 @@ export function OrgConsole() {
     // v2.317.0: the counts door names the sweep's own EAT day — the
     // window opens on the rows that sweep wrote. A garbage stamp falls
     // back to the type-only door (never a broken link).
+    // v2.369.0 THE ISLAND MIGRATION: the window words moved to their
+    // desk-prefixed canonical forms (`ly-from` / `ly-to`) — the bare
+    // `from`/`to` keep answering as legacy aliases in tab-url, but no
+    // NEW in-repo link speaks them (the sweep line moved this round).
     const sweepDay = eatDayKey(run.at);
     const countsHref = sweepDay
-      ? `${EXPIRY_LEDGER_HREF}&from=${sweepDay}&to=${sweepDay}`
+      ? `${EXPIRY_LEDGER_HREF}&ly-from=${sweepDay}&ly-to=${sweepDay}`
       : EXPIRY_LEDGER_HREF;
     return (
       <p

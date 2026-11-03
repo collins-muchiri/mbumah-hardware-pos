@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.369.0',
+    title: 'The bare-word island comes home',
+    bullets: [
+      'The loyalty desk\u2019s remaining address-bar words moved to their desk-prefixed names: ?ly-view= lands the sub-tab, ?ly-from= and ?ly-to= open the date window, ?ly-page= and ?ly-limit= seed the pager and its gait \u2014 and the original bare words (view, from, to, page, limit) keep answering as legacy aliases for the bookmarks already in the wild. A desk-prefixed word wins whenever both are present.',
+      'A landing that carried a window now announces itself: a chip beside the date inputs names the window the address bar asked for (?ly-from=\u2026&ly-to=\u2026) and retires the moment you own the window by hand \u2014 the same honest face the type word wears. The stage, page and gait stay chip-free on purpose: the sub-tab strip and the pager already speak for themselves.',
+      'The expiry sweep\u2019s counts door in the org console now names the window in the desk\u2019s own words, a deep link that names the stage (?ly-view=) survives sign-in, and the fresh-recycle playbook \u2014 the sandbox-rebuild ritual \u2014 is codified as a script (scripts/fresh-recycle.mjs) so the QA world stands up in one command.',
+    ],
+  },
+  {
     version: '2.368.0',
     title: 'The ledger answers the address bar in its own name',
     bullets: [
