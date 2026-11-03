@@ -316,6 +316,16 @@ export function parseInitialNamedPage(search: string, param: string, fallback = 
  * nineteenth family, neutral — the unbiased record's voice, an audit
  * speaks no colour; the lens is always rendered on the desk's top-level
  * pane, the always-visible face without an amendment).
+ * v2.367.0 — THE PROMISE KEPT, THE TWENTIETH WORD: the security desk's
+ * event-type lens speaks it as its desk-prefixed `sec-type` (the same
+ * parser, zero new bytes of law, again — the owner's morning question,
+ * "was anyone banging on the door last night?", is now an address; the
+ * vocabulary's LONGEST lens, nine words, the event wire's own UPPERCASE
+ * keys, and the landing chip wears the twentieth family, gray — the
+ * watchtower's own shadow, the palette-exhaustion amendment; the lens
+ * rides the desk's collapsible filters panel and the landing raises the
+ * panel it lands into, the collapsible-face amendment's second
+ * application).
  */
 export function parseInitialNamedMember<V extends string>(
   search: string,
