@@ -23,7 +23,12 @@ import {
   DOCK_REASON_HINT,
   EXPIRE_POLICY_NOTE,
 } from '@/lib/loyalty-adjust-policy';
-import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialNamedMemberWithAlias, parseInitialPage, parseInitialStage } from '@/lib/tab-url';
+// v2.369.0 THE BARE-WORD ISLAND COMES HOME: the desk's five remaining
+// pre-constitution params moved to their desk-prefixed canonical words
+// (`ly-view` / `ly-from` / `ly-to` / `ly-page` / `ly-limit`), the bare
+// words keep answering as legacy aliases — every shape through the
+// alias parser it owns, ONE home per shape in tab-url.
+import { buildSearchWithoutParams, parseInitialDateRangeWithAlias, parseInitialLimitWithAlias, parseInitialNamedMemberWithAlias, parseInitialPageWithAlias, parseInitialStageWithAlias } from '@/lib/tab-url';
 import { ReceiptViewDialog } from '@/components/loyalty/receipt-view-dialog';
 import { ExpiryDialog } from '@/components/loyalty/expiry-dialog';
 
@@ -66,6 +71,10 @@ type LoyaltySubTab = 'tiers' | 'members' | 'transactions' | 'campaigns';
 // v2.368.0 THE TWO-ADDRESS DESIGN: the sub-tab seed moved into the
 // component (see the stage seed below) — the type word now fills
 // view's silence, so the seed needs the landed word in hand.
+// v2.369.0 THE BARE-WORD ISLAND COMES HOME: the stage word moved to
+// its desk-prefixed canonical `?ly-view=` (the bare `view=` keeps
+// answering as the legacy alias; the canonical wins when both are
+// present — the sunset law, one home in tab-url's stage parser).
 const LOYALTY_SUB_TABS: readonly LoyaltySubTab[] = ['tiers', 'members', 'transactions', 'campaigns'];
 
 // THE LOYALTY DESK'S OWN WORD (v2.368.0): the ledger answers the address
@@ -103,13 +112,19 @@ function initialLyType(): LyTypeFilter {
 // answers '' — an input left empty, never a stranded filter. The desk
 // only ever READS `from`/`to` on mount (the one-writer-per-param law);
 // a window changed by hand afterwards is the human's truth.
+// v2.369.0 THE ISLAND MIGRATION: the window answers its canonical
+// `?ly-from=` / `?ly-to=` first, the bare `?from=` / `?to=` keep
+// answering as legacy aliases (the sweep line's counts door moved to the
+// canonical form this round; the bookmarks stay working). Each side
+// still validates INDEPENDENTLY, and the canonical presence silences
+// the alias per side (one address bar, one word per side).
 function initialDateFrom(): string {
   if (typeof window === 'undefined') return '';
-  return parseInitialDateRange(window.location.search).from;
+  return parseInitialDateRangeWithAlias(window.location.search, 'ly-from', 'ly-to', 'from', 'to').from;
 }
 function initialDateTo(): string {
   if (typeof window === 'undefined') return '';
-  return parseInitialDateRange(window.location.search).to;
+  return parseInitialDateRangeWithAlias(window.location.search, 'ly-from', 'ly-to', 'from', 'to').to;
 }
 
 // v2.320.0: the ledger's PAGE answers the address bar too — `?page=2`
@@ -122,7 +137,7 @@ function initialDateTo(): string {
 // law); the pager's own buttons move the state afterwards.
 function initialTxPage(): number {
   if (typeof window === 'undefined') return 1;
-  return parseInitialPage(window.location.search, 1);
+  return parseInitialPageWithAlias(window.location.search, 'ly-page', 'page', 1);
 }
 
 // v2.321.0: the ledger's GAIT answers the address bar too — `?limit=50`
@@ -135,7 +150,7 @@ function initialTxPage(): number {
 // mount (the one-writer law); the gait Select moves the state after.
 function initialTxLimit(): number {
   if (typeof window === 'undefined') return 100;
-  return parseInitialLimit(window.location.search, 100);
+  return parseInitialLimitWithAlias(window.location.search, 'ly-limit', 'limit', 100);
 }
 
 // Tier color presets
@@ -218,9 +233,13 @@ export default function LoyaltyTab() {
   // word implies 'transactions' — the stage the lens lives on — so a
   // bare `?ly-type=EXPIRE` lands whole (the parseInitialStage law,
   // one home in tab-url). SSR-guarded like every seed in this file.
+  // v2.369.0 THE ISLAND MIGRATION: the stage answers its canonical
+  // `?ly-view=` first, the bare `view=` keeping on as the legacy alias
+  // — the canonical presence silences the alias (the sunset law, the
+  // stage parser's own form).
   const [activeSubTab, setActiveSubTab] = useState<LoyaltySubTab>(() => {
     if (typeof window === 'undefined') return 'tiers';
-    return parseInitialStage(window.location.search, LOYALTY_SUB_TABS, 'transactions', landedLyType !== 'all', 'tiers');
+    return parseInitialStageWithAlias(window.location.search, 'ly-view', 'view', LOYALTY_SUB_TABS, 'transactions', landedLyType !== 'all', 'tiers');
   });
 
   // v2.311.0: the paper-trail viewer — the ledger's clawback reference
@@ -283,19 +302,38 @@ export default function LoyaltyTab() {
   };
   const [txDateFrom, setTxDateFrom] = useState<string>(initialDateFrom);
   const [txDateTo, setTxDateTo] = useState<string>(initialDateTo);
+  // v2.369.0 THE LANDED WINDOW — the window the address bar asked for
+  // at mount (through the canonical `?ly-from=`/`?ly-to=` or the bare
+  // legacy aliases, the alias parser's precedence; both empty when the
+  // landing carried neither). The chip speaks it ONCE, exactly like the
+  // type word's chip: dismissed, hand-changed, or cleared, the landing
+  // is over and the chip retires — an honest face never claims a
+  // landing that is done. The STAGE, PAGE and GAIT wear NO chip BY
+  // DESIGN: the sub-tab strip IS the stage's face (the two-address
+  // design already landed visibly), and the pager's own status bar
+  // already speaks the page and gait — chips there would be noise
+  // saying what the desk already says.
+  const [landedWindowFrom] = useState<string>(initialDateFrom);
+  const [landedWindowTo] = useState<string>(initialDateTo);
+  const [windowLandingLive, setWindowLandingLive] = useState(true);
   // v2.318.0 — THE WINDOW CAN LEAVE: the desk's ONE deliberate write to
   // the address bar. Every other param law here is read-only-on-mount;
-  // the dismiss is different ON PURPOSE — a `?from=` that outlives the
-  // filter it named is a lie the next refresh would resurrect, so the
-  // chip scrubs ONLY `from`/`to` (buildSearchWithoutParams preserves
-  // `tab`/`view`/`type`), clears both inputs, and lets the desk's own
-  // query state be the single remaining truth. SSR-guarded like every
-  // window touch in this file.
+  // the dismiss is different ON PURPOSE — a window word that outlives
+  // the filter it named is a lie the next refresh would resurrect, so
+  // the dismissal scrubs BOTH dialects (the canonical `ly-from`/`ly-to`
+  // and the bare aliases — v2.369.0), clears both inputs, and lets the
+  // desk's own query state be the single remaining truth. SSR-guarded
+  // like every window touch in this file.
   const clearDateWindow = () => {
     setTxDateFrom('');
     setTxDateTo('');
+    setWindowLandingLive(false);
     if (typeof window !== 'undefined') {
-      const next = buildSearchWithoutParams(window.location.search, ['from', 'to']);
+      // v2.369.0 THE ISLAND SCRUB: the dismissal removes BOTH dialects —
+      // the canonical `ly-from`/`ly-to` and the bare aliases `from`/`to`
+      // — because a stale word of EITHER dialect that outlives the
+      // window it named is a lie the next refresh would resurrect.
+      const next = buildSearchWithoutParams(window.location.search, ['ly-from', 'ly-to', 'from', 'to']);
       window.history.replaceState(null, '', next ? next : window.location.pathname);
     }
   };
@@ -1123,18 +1161,57 @@ export default function LoyaltyTab() {
               <SelectItem value="ADJUST">Adjust</SelectItem>
             </SelectContent>
           </Select>
+          {/* v2.369.0 THE LANDED WINDOW'S WEARING: the chip wears AMBER —
+              the window's OWN voice on this desk (the × clear button and
+              the wire's applied-window stamp already speak it), so this
+              is not an impersonation but the address bar's echo of the
+              voice the window landed into: the wardrobe is the stamp's
+              bytes (border/ink/surface + the dark forms), the icon is the
+              family's chain-link, and the text speaks the CANONICAL
+              spellings even when the landing rode the bare aliases —
+              the alias is old clothes for the same word. Only the sides
+              the address bar actually named appear in the text (an open
+              side stays silent — the chip never claims a word the bar
+              did not speak). The position law: immediately BEFORE the
+              date inputs it landed into; the honest-face law: the chip
+              renders only while the landing is live AND the inputs still
+              hold exactly what landed. Light+dark, the shared tooltip,
+              the group-hover dismiss detail. */}
+          {windowLandingLive && (landedWindowFrom || landedWindowTo) && txDateFrom === landedWindowFrom && txDateTo === landedWindowTo && (
+            <button
+              type="button"
+              onClick={clearDateWindow}
+              className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-amber-600/30 bg-amber-50 text-amber-800 text-xs font-medium whitespace-nowrap transition-colors hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 dark:border-amber-500/30 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-950/60"
+              data-testid="ly-window-landing-word"
+              title="The ledger landed with this window from the address bar — press to clear it"
+            >
+              <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+              <span className="tabular-nums">
+                landed {landedWindowFrom ? `?ly-from=${landedWindowFrom}` : ''}{landedWindowFrom && landedWindowTo ? '&' : ''}{landedWindowTo ? `?ly-to=${landedWindowTo}` : ''}
+              </span>
+              <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+            </button>
+          )}
           <Input
             type="date"
             className="h-9 w-full sm:w-auto"
             value={txDateFrom}
-            onChange={(e) => setTxDateFrom(e.target.value)}
+            onChange={(e) => {
+              setTxDateFrom(e.target.value);
+              // v2.369.0: a hand change owns the window — the landing is
+              // over and the chip retires (the honest-face law).
+              setWindowLandingLive(false);
+            }}
             placeholder="From"
           />
           <Input
             type="date"
             className="h-9 w-full sm:w-auto"
             value={txDateTo}
-            onChange={(e) => setTxDateTo(e.target.value)}
+            onChange={(e) => {
+              setTxDateTo(e.target.value);
+              setWindowLandingLive(false);
+            }}
             placeholder="To"
           />
           {/* v2.321.0 — THE GAIT SELECT: the ledger stopped dictating its

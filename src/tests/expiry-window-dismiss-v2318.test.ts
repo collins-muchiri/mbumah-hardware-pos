@@ -124,13 +124,13 @@ describe('the desk — the window can leave, and the echo is worn (loyalty-tab.t
     // now; the pin follows the import, not the round.
     expect(
       tab.includes(
-        "import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialNamedMemberWithAlias, parseInitialPage, parseInitialStage } from '@/lib/tab-url';",
+        "import { buildSearchWithoutParams, parseInitialDateRangeWithAlias, parseInitialLimitWithAlias, parseInitialNamedMemberWithAlias, parseInitialPageWithAlias, parseInitialStageWithAlias } from '@/lib/tab-url';",
       ),
     ).toBe(true);
   });
 
   it('the chip scrubs ONLY from/to, preserving tab/view/type (the one deliberate write)', () => {
-    expect(tab.includes("buildSearchWithoutParams(window.location.search, ['from', 'to'])")).toBe(true);
+    expect(tab.includes("buildSearchWithoutParams(window.location.search, ['ly-from', 'ly-to', 'from', 'to'])")).toBe(true);
     expect(tab.includes('window.history.replaceState(null')).toBe(true);
     expect(tab.includes('typeof window !== \'undefined\'')).toBe(true); // SSR guard on the write
   });

@@ -113,7 +113,7 @@ describe('the desk — the gait rides the toolbar, the scope, and the wire', () 
 
   it('the gait seed is SSR-guarded and reads the sixth vocabulary word', () => {
     expect(tab.includes('function initialTxLimit(): number {')).toBe(true);
-    expect(tab.includes('return parseInitialLimit(window.location.search, 100);')).toBe(true);
+    expect(tab.includes("return parseInitialLimitWithAlias(window.location.search, 'ly-limit', 'limit', 100);")).toBe(true);
     expect(tab.includes("if (typeof window === 'undefined') return 100;")).toBe(true);
   });
 
@@ -161,7 +161,7 @@ describe('the trail — the pin follows the import, not the round', () => {
     // v2.368.0 pin evolution (deliberate): the loyalty migration — the
     // desk reads the canonical pair through the alias and stage parsers
     // now; the pin follows the import, not the round.
-    const evolved = "import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialNamedMemberWithAlias, parseInitialPage, parseInitialStage } from '@/lib/tab-url';";
+    const evolved = "import { buildSearchWithoutParams, parseInitialDateRangeWithAlias, parseInitialLimitWithAlias, parseInitialNamedMemberWithAlias, parseInitialPageWithAlias, parseInitialStageWithAlias } from '@/lib/tab-url';";
     const desk = readFileSync('src/app/(shell)/tabs/loyalty-tab.tsx', 'utf8');
     expect(desk.includes(evolved)).toBe(true);
     for (const trail of [

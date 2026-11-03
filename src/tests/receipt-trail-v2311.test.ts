@@ -152,7 +152,7 @@ describe('v2.311.0 — the shell answers the address bar', () => {
     // v2.368.0 pin evolution (deliberate): the loyalty migration — the
     // desk reads the canonical pair through the alias and stage parsers
     // now; the pin follows the import, not the round.
-    expect(loyaltyTab).toContain("import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialNamedMemberWithAlias, parseInitialPage, parseInitialStage } from '@/lib/tab-url';");
+    expect(loyaltyTab).toContain("import { buildSearchWithoutParams, parseInitialDateRangeWithAlias, parseInitialLimitWithAlias, parseInitialNamedMemberWithAlias, parseInitialPageWithAlias, parseInitialStageWithAlias } from '@/lib/tab-url';");
     expect(loyaltyTab).toContain(
       "const LOYALTY_SUB_TABS: readonly LoyaltySubTab[] = ['tiers', 'members', 'transactions', 'campaigns'];",
     );
@@ -160,7 +160,7 @@ describe('v2.311.0 — the shell answers the address bar', () => {
     // component (the two-address design — view wins, the landed word
     // implies the transactions ledger); the pin follows the seed, not
     // the round.
-    expect(loyaltyTab).toContain("parseInitialStage(window.location.search, LOYALTY_SUB_TABS, 'transactions', landedLyType !== 'all', 'tiers')");
+    expect(loyaltyTab).toContain("parseInitialStageWithAlias(window.location.search, 'ly-view', 'view', LOYALTY_SUB_TABS, 'transactions', landedLyType !== 'all', 'tiers')");
     // SSR guard: the tab only renders client-side inside the SPA shell
     expect(loyaltyTab).toContain("if (typeof window === 'undefined') return 'tiers';");
     expect(loyaltyTab).toContain('useState<LoyaltySubTab>(() => {');
@@ -170,7 +170,7 @@ describe('v2.311.0 — the shell answers the address bar', () => {
     // the role-based push used to wipe ?tab=/?view= — the deep-linker
     // landed on the default desk. Now: ?next= (a named path) wins first,
     // then the desk ask, then the role default.
-    expect(loginScreen).toContain('const deskAsk = (pathname === \'/\' || pathname === \'\') && /[?&](tab|view)=/.test(search);');
+    expect(loginScreen).toContain('const deskAsk = (pathname === \'/\' || pathname === \'\') && /[?&](tab|view|ly-view)=/.test(search);');
     expect(loginScreen).toContain(
       'safeReturnPath(nextParam) ?? (deskAsk ? `/${search}` : postLoginRedirect(flaggedUser));',
     );

@@ -72,7 +72,7 @@ describe('the desk — the pager wears the wire, the state turns the page', () =
 
   it('the seed is SSR-guarded and reads the fifth vocabulary word', () => {
     expect(tab.includes('function initialTxPage(): number {')).toBe(true);
-    expect(tab.includes("return parseInitialPage(window.location.search, 1);")).toBe(true);
+    expect(tab.includes("return parseInitialPageWithAlias(window.location.search, 'ly-page', 'page', 1);")).toBe(true);
     expect(tab.includes("if (typeof window === 'undefined') return 1;")).toBe(true);
   });
 
@@ -133,12 +133,12 @@ describe('the desk — the pager wears the wire, the state turns the page', () =
     // v2.368.0 pin evolution (deliberate): the loyalty migration — the
     // desk reads the canonical pair through the alias and stage parsers
     // now; the pin follows the import, not the round.
-    expect(tab.includes("import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialNamedMemberWithAlias, parseInitialPage, parseInitialStage } from '@/lib/tab-url';")).toBe(true);
+    expect(tab.includes("import { buildSearchWithoutParams, parseInitialDateRangeWithAlias, parseInitialLimitWithAlias, parseInitialNamedMemberWithAlias, parseInitialPageWithAlias, parseInitialStageWithAlias } from '@/lib/tab-url';")).toBe(true);
     const trail2311 = readFileSync('src/tests/receipt-trail-v2311.test.ts', 'utf8');
     const trail2316 = readFileSync('src/tests/expiry-ledger-link-v2316.test.ts', 'utf8');
     const trail2317 = readFileSync('src/tests/expiry-day-window-v2317.test.ts', 'utf8');
     const trail2318 = readFileSync('src/tests/expiry-window-dismiss-v2318.test.ts', 'utf8');
-    const evolved = "import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialNamedMemberWithAlias, parseInitialPage, parseInitialStage } from '@/lib/tab-url';";
+    const evolved = "import { buildSearchWithoutParams, parseInitialDateRangeWithAlias, parseInitialLimitWithAlias, parseInitialNamedMemberWithAlias, parseInitialPageWithAlias, parseInitialStageWithAlias } from '@/lib/tab-url';";
     expect(trail2311.includes(evolved)).toBe(true);
     expect(trail2316.includes(evolved)).toBe(true);
     expect(trail2317.includes(evolved)).toBe(true);

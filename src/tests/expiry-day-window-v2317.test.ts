@@ -86,7 +86,7 @@ describe('the desk seeds its date window from the address bar (loyalty-tab.tsx)'
     // v2.368.0 trail: the loyalty migration — the desk reads the
     // canonical pair through the alias and stage parsers now; the pin
     // follows the import, not the round.
-    expect(tab.includes("import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialNamedMemberWithAlias, parseInitialPage, parseInitialStage } from '@/lib/tab-url';")).toBe(true);
+    expect(tab.includes("import { buildSearchWithoutParams, parseInitialDateRangeWithAlias, parseInitialLimitWithAlias, parseInitialNamedMemberWithAlias, parseInitialPageWithAlias, parseInitialStageWithAlias } from '@/lib/tab-url';")).toBe(true);
   });
 
   it('both date inputs seed lazily with SSR guards (empty input, never a stranded filter)', () => {
@@ -107,7 +107,7 @@ describe('the card face — the counts door names the day (org-console.tsx)', ()
 
   it('the counts href is computed FROM the type-only constant (one source, one build)', () => {
     expect(card.includes('const sweepDay = eatDayKey(run.at);')).toBe(true);
-    expect(card.includes('`${EXPIRY_LEDGER_HREF}&from=${sweepDay}&to=${sweepDay}`')).toBe(true);
+    expect(card.includes('`${EXPIRY_LEDGER_HREF}&ly-from=${sweepDay}&ly-to=${sweepDay}`')).toBe(true);
     expect(card.includes(': EXPIRY_LEDGER_HREF;')).toBe(true); // the garbage-stamp fallback
   });
 

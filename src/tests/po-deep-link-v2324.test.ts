@@ -110,7 +110,7 @@ describe('the roster\u2019s own word — ?po-page= seeds the pager', () => {
   });
 
   it('the collision law holds: loyalty keeps ?page=, the roster speaks ?po-page=', () => {
-    expect(loyalty.includes('parseInitialPage(window.location.search, 1)')).toBe(true);
+    expect(loyalty.includes("parseInitialPageWithAlias(window.location.search, 'ly-page', 'page', 1)")).toBe(true);
     expect(loyalty.includes("'po-page'")).toBe(false);
     expect(tab.includes("'po-page'")).toBe(true);
   });

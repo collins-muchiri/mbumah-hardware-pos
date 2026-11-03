@@ -119,9 +119,14 @@ export function LoginScreen() {
       // desk. Like ?next=, the ask wins over the role-based default
       // (rooted: the SPA shell at / reads the query; ?next= still wins
       // when BOTH are present — a named path is the more specific ask).
+      // v2.369.0 THE ISLAND MIGRATION: the loyalty desk's canonical
+      // stage word `ly-view` joins the ask's vocabulary (its bare
+      // `view` keeps answering — the aliases' speakers are already
+      // covered by the names above; the desk-prefixed word is the NEW
+      // form a tab-less ask may arrive in).
       const search = typeof window !== 'undefined' ? window.location.search : '';
       const pathname = typeof window !== 'undefined' ? window.location.pathname : '/';
-      const deskAsk = (pathname === '/' || pathname === '') && /[?&](tab|view)=/.test(search);
+      const deskAsk = (pathname === '/' || pathname === '') && /[?&](tab|view|ly-view)=/.test(search);
       const target =
         safeReturnPath(nextParam) ?? (deskAsk ? `/${search}` : postLoginRedirect(flaggedUser));
       if (target) router.push(target);

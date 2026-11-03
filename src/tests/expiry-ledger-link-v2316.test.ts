@@ -79,7 +79,7 @@ describe('the desk seeds its filter from the address bar (loyalty-tab.tsx)', () 
     // v2.368.0 pin evolution (deliberate): the loyalty migration — the
     // desk reads the canonical pair through the alias parser and the
     // stage parser now; the pin follows the import, not the round.
-    expect(tab.includes("import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialNamedMemberWithAlias, parseInitialPage, parseInitialStage } from '@/lib/tab-url';")).toBe(true);
+    expect(tab.includes("import { buildSearchWithoutParams, parseInitialDateRangeWithAlias, parseInitialLimitWithAlias, parseInitialNamedMemberWithAlias, parseInitialPageWithAlias, parseInitialStageWithAlias } from '@/lib/tab-url';")).toBe(true);
   });
 
   it('the register is the SAME five types the ledger Select offers', () => {
@@ -170,8 +170,8 @@ describe('the housekeeping — the 2.267.0 dead weight is gone', () => {
     };
     expect(typeof pkg.mbumah?.releaseVersion).toBe('string');
     expect(typeof pkg.mbumah?.baseVersion).toBe('string');
-    expect(pkg.mbumah?.releaseVersion).toBe('2.368.0');
-    expect(pkg.mbumah?.baseVersion).toBe('2.368.0');
+    expect(pkg.mbumah?.releaseVersion).toBe('2.369.0');
+    expect(pkg.mbumah?.baseVersion).toBe('2.369.0');
   });
 
   it('the docs register carries the deep-link note', () => {

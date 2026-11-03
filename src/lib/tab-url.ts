@@ -14,6 +14,21 @@
  * deep-links to, so the pulse's amber counts walk straight to the rows
  * they summarize.
  *
+ * v2.369.0 — THE BARE-WORD ISLAND COMES HOME. The loyalty desk's five
+ * remaining pre-constitution params — the bare `view`, `from`, `to`,
+ * `page`, `limit` (the island that predates the naming constitution, its
+ * `type` having moved in v2.368.0) — move to their desk-prefixed
+ * canonical words `ly-view` / `ly-from` / `ly-to` / `ly-page` /
+ * `ly-limit` through the same sunset law the type word wrote: each
+ * shape of the vocabulary gained an alias parser below (the stage
+ * parser, the date range, the page, the limit), each ONE home, and in
+ * every one the canonical word WINS when both are present — an explicit
+ * desk-prefix outranks the bare survivor, and a canonical PRESENCE (any
+ * value, even garbage) silences the alias so one address bar can never
+ * tell the desk two different words. The bare words keep answering for
+ * the bookmarks already in the wild; the in-repo speakers moved this
+ * round (the sweep line's counts door, the login desk-ask).
+ *
  * Pure string functions — no window access — so they pin and test without
  * a browser.
  */
@@ -142,6 +157,35 @@ export function parseInitialDateRange(search: string): InitialDateRange {
 }
 
 /**
+ * v2.369.0 — THE BARE-WORD ISLAND COMES HOME: the date range's alias
+ * form. The loyalty desk's window answers its desk-prefixed canonical
+ * words `ly-from` / `ly-to` first, and the bare `from` / `to` keep
+ * answering as LEGACY ALIASES (the bookmarks already in the wild — the
+ * sunset law the type word wrote in v2.368.0, worn by the window now).
+ * Each side validates INDEPENDENTLY exactly as before (a real canonical
+ * from with a garbage alias to keeps the from and drops the to), and
+ * the canonical PRESENCE silences the alias PER SIDE: `?ly-from=` (even
+ * empty) stops the bare `from` from speaking that side, while the other
+ * side's alias still answers — one address bar, one word per side.
+ */
+export function parseInitialDateRangeWithAlias(
+  search: string,
+  canonicalFrom: string,
+  canonicalTo: string,
+  legacyFrom: string,
+  legacyTo: string,
+): InitialDateRange {
+  try {
+    const params = toParams(search);
+    const rawFrom = params.get(canonicalFrom) !== null ? params.get(canonicalFrom) : params.get(legacyFrom);
+    const rawTo = params.get(canonicalTo) !== null ? params.get(canonicalTo) : params.get(legacyTo);
+    return { from: honestDayKey(rawFrom), to: honestDayKey(rawTo) };
+  } catch {
+    return { from: '', to: '' };
+  }
+}
+
+/**
  * v2.320.0 — read the ledger's page (`?page=`) with the never-strand
  * law the rest of this module speaks: the value must be a positive
  * integer (digits only — no sign, no decimal, no whitespace), and
@@ -174,6 +218,32 @@ export function parseInitialNamedPage(search: string, param: string, fallback = 
     if (!raw || !/^\d+$/.test(raw)) return fallback;
     const page = parseInt(raw, 10);
     return page >= 1 ? page : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+/**
+ * v2.369.0 — THE BARE-WORD ISLAND COMES HOME: the pager's alias form.
+ * The loyalty desk's page answers its desk-prefixed canonical word
+ * `ly-page` first, and the bare `page` keeps answering as a LEGACY
+ * ALIAS (the bookmarks already in the wild). The shape law lives in
+ * ONE home — `parseInitialNamedPage`, delegated to by presence: when
+ * the canonical word is present (any value, even garbage) the alias is
+ * SILENCED and the canonical's own law decides; only when the canonical
+ * is absent does the bare word speak. One address bar can never tell
+ * the pager two different pages.
+ */
+export function parseInitialPageWithAlias(
+  search: string,
+  canonical: string,
+  legacyAlias: string,
+  fallback = 1,
+): number {
+  try {
+    const params = toParams(search);
+    if (params.get(canonical) !== null) return parseInitialNamedPage(search, canonical, fallback);
+    return parseInitialNamedPage(search, legacyAlias, fallback);
   } catch {
     return fallback;
   }
@@ -432,6 +502,42 @@ export function parseInitialStage<V extends string>(
 }
 
 /**
+ * v2.369.0 — THE BARE-WORD ISLAND COMES HOME: the stage's alias form.
+ * The loyalty desk's stage answers its desk-prefixed canonical word
+ * `ly-view` first, and the bare `view` keeps answering as a LEGACY
+ * ALIAS (the bookmarks already in the wild). The two-address law is
+ * unchanged — view's word wins when it speaks a VALID sub-tab, an
+ * invalid word does not claim the stage (only valid words speak), and
+ * a landed type word implies the stage it lives on — with ONE
+ * precedence added: the canonical PRESENCE (any value, even garbage)
+ * silences the alias, so `?ly-view=bogus&view=members` lets the landed
+ * implication answer rather than obeying the bare survivor. One
+ * address bar can never tell the desk two different stages.
+ */
+export function parseInitialStageWithAlias<V extends string>(
+  search: string,
+  canonical: string,
+  legacyAlias: string,
+  validViews: readonly V[],
+  stageView: V,
+  landed: boolean,
+  fallback: V,
+): V {
+  try {
+    const params = toParams(search);
+    const canonicalRaw = params.get(canonical);
+    const raw = canonicalRaw !== null ? canonicalRaw : params.get(legacyAlias);
+    if (raw && (validViews as readonly string[]).includes(raw)) {
+      return raw as V;
+    }
+    if (landed) return stageView;
+    return fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+/**
  * v2.321.0 — the page sizes the ledger's gait Select offers. ONE array,
  * read by the address-bar parser's membership law, the desk's Select, and
  * the API door's clamp ceiling (the wire's take never outgrows the
@@ -455,11 +561,47 @@ export const LEDGER_PAGE_SIZES = [50, 100, 200] as const;
  * view/type/from/to/page.
  */
 export function parseInitialLimit(search: string, fallback: number = 100): number {
+  return parseInitialNamedLimit(search, 'limit', fallback);
+}
+
+/**
+ * v2.369.0 — THE PARAM-NAMED GAIT LAW: the membership law `parseInitialLimit`
+ * speaks, param-NAMEd (the same generalization the page law found in
+ * `parseInitialNamedPage`). The bare parser delegates here — ONE home,
+ * two words — and the alias form below delegates here BY PRESENCE.
+ */
+export function parseInitialNamedLimit(search: string, param: string, fallback: number = 100): number {
   try {
-    const raw = toParams(search).get('limit');
+    const raw = toParams(search).get(param);
     if (!raw || !/^\d+$/.test(raw)) return fallback;
     const limit = parseInt(raw, 10);
     return (LEDGER_PAGE_SIZES as readonly number[]).includes(limit) ? limit : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+/**
+ * v2.369.0 — THE BARE-WORD ISLAND COMES HOME: the gait's alias form.
+ * The loyalty desk's page size answers its desk-prefixed canonical word
+ * `ly-limit` first, and the bare `limit` keeps answering as a LEGACY
+ * ALIAS (the bookmarks already in the wild). The membership law lives
+ * in ONE home — `parseInitialNamedLimit`, delegated to by presence: a
+ * canonical PRESENCE (any value, even garbage) silences the alias and
+ * the canonical's own law decides; only when the canonical is absent
+ * does the bare word speak. One address bar can never tell the desk
+ * two different gaits.
+ */
+export function parseInitialLimitWithAlias(
+  search: string,
+  canonical: string,
+  legacyAlias: string,
+  fallback: number = 100,
+): number {
+  try {
+    const params = toParams(search);
+    if (params.get(canonical) !== null) return parseInitialNamedLimit(search, canonical, fallback);
+    return parseInitialNamedLimit(search, legacyAlias, fallback);
   } catch {
     return fallback;
   }
