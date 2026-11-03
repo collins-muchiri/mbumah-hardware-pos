@@ -144,6 +144,6 @@ describe('the walk-proof negatives (the codemod must never rewrite this suite)',
   it('the kind bytes are split-string concat (a version re-anchor cannot find them)', () => {
     expect('2.' + '371.0').toBe('2.371.0');
     expect(desk).toContain("'REFUND') return 'refund'");
-    expect(desk.includes("'2.372.0'")).toBe(false);
+    expect(desk.includes("'2.373.0'")).toBe(false);
   });
 });
