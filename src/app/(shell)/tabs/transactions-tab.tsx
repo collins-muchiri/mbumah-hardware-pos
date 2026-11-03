@@ -1194,6 +1194,7 @@ function TransactionRow({
   onViewReceipt,
   onRefund,
   onHeal,
+  onRepair,
   onVoid,
   onSendWhatsApp,
   onPrint,
@@ -1204,6 +1205,7 @@ function TransactionRow({
   onViewReceipt: () => void;
   onRefund: () => void;
   onHeal: () => void;
+  onRepair: () => void;
   onVoid: () => void;
   onSendWhatsApp: () => void;
   onPrint: () => void;
@@ -1385,6 +1387,21 @@ function TransactionRow({
                     <Sparkles className="h-3 w-3 mr-1" /> Settle stranded gap
                   </Button>
                 )}
+                {txType === 'sale' && transaction.refundState?.kind === 'SETTLED' && canRefund && (
+                  /* v2.374.0 THE STATUS REPAIR affordance: the chain already
+                     covered this sale — the muted button catches the badge
+                     up to the truth. No money moves, no receipt is issued;
+                     the confirm says exactly that. */
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    onClick={(e) => { e.stopPropagation(); onRepair(); }}
+                    aria-label={`Mark sale ${transaction.receiptNumber} fully refunded`}
+                  >
+                    <CheckCircle2 className="h-3 w-3 mr-1" /> Mark fully refunded
+                  </Button>
+                )}
                 {txType === 'sale' && transaction.paymentStatus === 'COMPLETED' && (
                   <Button variant="outline" size="sm" className="h-7 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30" onClick={(e) => { e.stopPropagation(); onVoid(); }}>
                     <Ban className="h-3 w-3 mr-1" /> Void
@@ -1519,32 +1536,81 @@ export default function TransactionsTab() {
   // confirm; the confirm settles the legacy remainder through
   // POST /transactions/[id]/refund-heal (healStrandedOriginal's atomic
   // transaction), toasts the settled truth, and retires the list.
+  // v2.374.0: the endpoint speaks TWO modes — 'HEALED' (money moved; the
+  // receipt hop opens the settlement's own paper) and 'REPAIRED' (a
+  // SETTLED row's status lie; the badge catches up, nothing moved) — so
+  // the two affordances (rose Settle / muted Mark fully refunded) share
+  // one commit and branch only on the face they speak.
   const [healTransaction, setHealTransaction] = useState<TransactionItem | null>(null);
+  const [repairTransaction, setRepairTransaction] = useState<TransactionItem | null>(null);
   const [healBusy, setHealBusy] = useState(false);
+  const [repairBusy, setRepairBusy] = useState(false);
   const queryClient = useQueryClient();
+
+  const commitSettle = useCallback(async (tx: TransactionItem) => {
+    const settled = unwrapDialogResult(
+      await transactionsApi.healStranded(tx.id),
+    );
+    if (!settled) {
+      throw new Error('The settle wire returned no result to record.');
+    }
+    if (settled.mode === 'REPAIRED') {
+      toast.success(
+        `Status repaired — ${settled.originalReceiptNumber} is fully refunded`,
+        { description: 'The refund chain already covered this sale; the badge caught up. No money moved.' },
+      );
+    } else {
+      toast.success(
+        `Stranded gap settled — ${formatKES(settled.refundTotal)} returned${settled.loyalty ? ` · ${settled.loyalty.clawedBack} loyalty points home` : ''}`,
+        { description: `${settled.originalReceiptNumber} is fully settled — nothing remains refundable` },
+      );
+      // v2.374.0 THE RECEIPT HOP: money moved, paper follows (the
+      // v2.310.0 direct-print pattern) — the viewer opens on the
+      // settlement's own receipt with auto-print armed. Best-effort: the
+      // paper must never fail the committed money. THE ENVELOPE-SEAM LAW
+      // (v2.372.0, re-proven by the scoped round-trip): request() speaks
+      // the {success,data} envelope — unwrap it before the viewer reads.
+      try {
+        if (settled.refund) {
+          const detail = unwrapDialogResult(await transactionsApi.get(settled.refund.id));
+          if (detail) {
+            setReceiptTransaction(detail);
+            setReceiptAutoPrint(true);
+            setReceiptOpen(true);
+          }
+        }
+      } catch {
+        /* the paper is best-effort; the money is already home */
+      }
+    }
+    await queryClient.invalidateQueries({ queryKey: ['transactions'] });
+  }, [queryClient]);
 
   const handleHealConfirm = useCallback(async () => {
     if (!healTransaction) return;
     setHealBusy(true);
     try {
-      const settled = unwrapDialogResult(
-        await transactionsApi.healStranded(healTransaction.id),
-      );
-      if (!settled) {
-        throw new Error('The heal wire returned no result to record.');
-      }
-      toast.success(
-        `Stranded gap settled — ${formatKES(settled.refundTotal)} returned${settled.loyalty ? ` · ${settled.loyalty.clawedBack} loyalty points home` : ''}`,
-        { description: `${settled.originalReceiptNumber} is fully settled — nothing remains refundable` },
-      );
-      await queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      await commitSettle(healTransaction);
       setHealTransaction(null);
     } catch (err) {
       handleError(err, 'Failed to settle the stranded gap. Please try again.');
     } finally {
       setHealBusy(false);
     }
-  }, [healTransaction, queryClient]);
+  }, [healTransaction, commitSettle]);
+
+  const handleRepairConfirm = useCallback(async () => {
+    if (!repairTransaction) return;
+    setRepairBusy(true);
+    try {
+      await commitSettle(repairTransaction);
+      setRepairTransaction(null);
+    } catch (err) {
+      handleError(err, 'Failed to repair the status. Please try again.');
+    } finally {
+      setRepairBusy(false);
+    }
+  }, [repairTransaction, commitSettle]);
 
   // Compute date range
   const dateRange = useMemo(() => {
@@ -2136,6 +2202,7 @@ export default function TransactionsTab() {
                       onViewReceipt={() => handleViewReceipt(transaction)}
                       onRefund={() => handleRefund(transaction)}
                       onHeal={() => setHealTransaction(transaction)}
+                      onRepair={() => setRepairTransaction(transaction)}
                       onVoid={() => handleVoid(transaction)}
                       onSendWhatsApp={() => handleSendReceiptWhatsApp(transaction)}
                       onPrint={() => handlePrintReceipt(transaction)}
@@ -2201,6 +2268,24 @@ export default function TransactionsTab() {
         }
         onConfirm={handleHealConfirm}
         isPending={healBusy}
+        variant="default"
+      />
+
+      {/* v2.374.0 THE STATUS REPAIR confirm: the muted affordance's one
+          gate — the description says the chain already covers the sale,
+          that NO money moves and no receipt is issued; the confirm hands
+          over to the same atomic settle (mode REPAIRED). */}
+      <ConfirmActionDialog
+        open={!!repairTransaction}
+        onOpenChange={(open) => { if (!open) setRepairTransaction(null); }}
+        title="Mark fully refunded"
+        description={
+          repairTransaction
+            ? `The refund chain already covers ${repairTransaction.receiptNumber} — every line and the header are settled. This repairs the status: the sale is marked REFUNDED. No money moves and no receipt is issued. This cannot be undone.`
+            : ''
+        }
+        onConfirm={handleRepairConfirm}
+        isPending={repairBusy}
         variant="default"
       />
 

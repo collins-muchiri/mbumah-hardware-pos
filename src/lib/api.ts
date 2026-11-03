@@ -1018,9 +1018,13 @@ export interface RefundResult {
 }
 
 // v2.373.0 THE STRANDED-GAP HEAL: the POST /transactions/[id]/refund-heal
-// response body - a zero-item REFUND event that settles a legacy stranded
-// original's header remainder exactly (the healed marker rides the wire).
+// response body. v2.374.0 the route speaks TWO modes: 'HEALED' — the
+// zero-item REFUND event settled a legacy stranded original's header
+// remainder (refund present, money moved); 'REPAIRED' — the chain already
+// covered the sale and only the badge was lying (refund null, nothing
+// moved). Both flip the original to REFUNDED (the healed marker rides).
 export interface HealStrandedResult {
+  mode: 'HEALED' | 'REPAIRED';
   refund: {
     id: string;
     receiptNumber: string;
@@ -1028,7 +1032,8 @@ export interface HealStrandedResult {
     taxAmount: number;
     paymentStatus: string;
     transactionType: string;
-  };
+  } | null;
+  originalId: string;
   originalReceiptNumber: string;
   originalPaymentStatus: string;
   originalPriorPaymentStatus: string;

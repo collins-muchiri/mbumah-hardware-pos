@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.374.0',
+    title: 'The paper follows the settle',
+    bullets: [
+      'Settling a stranded gap now hands you the paper: the moment the zero-item refund event records, the receipt viewer opens straight onto it with print armed \\u2014 the same money-moved-paper-follows law the refund desk has spoken since v2.310.0.',
+      'The quiet rows can come home too: a sale whose refund chain already covered every line and the header (but whose badge still says Partial) now wears a \\u201cMark fully refunded\\u201d action \\u2014 one confirm, the badge catches up, and NO money moves, no receipt is issued.',
+      'The repair is honest at the seams: an over-refunded header is refused (the anomaly stays visible for a human), a 1-cent remainder is still money (the settle path, not the repair), and the desk now reads the refund chain the same way the settlement does \\u2014 the row voice and the money can never disagree.',
+    ],
+  },
+  {
     version: '2.373.0',
     title: 'The stranded gap settles',
     bullets: [
