@@ -216,7 +216,7 @@ export function calculateTotalWithInterest(
   const durationYears = safeCount / unitsPerYear;
 
   const growthFactor = toDec(1).plus(safeRate.div(100).mul(durationYears));
-  return safeTotal.mul(growthFactor);
+  return safeTotal.mul(growthFactor).toNumber();
 }
 
 /**

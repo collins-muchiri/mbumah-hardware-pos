@@ -75,7 +75,10 @@ function handleSessionExpired(): void {
   }
 }
 
-interface ApiResponse<T = unknown> {
+// Exported (v2.366.0): the honest wire envelope's own name — the faces that
+// annotate a union of two API calls (the toggle-active mutation's deactivate
+// | update pair) name the envelope instead of a cast.
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
@@ -123,9 +126,10 @@ async function fetchCSRFToken(): Promise<string> {
   try {
     const res = await fetch(`${API_BASE}/security/csrf-token`, { credentials: 'same-origin' });
     const json = await res.json();
-    if (json.success && json.data?.token) {
-      csrfToken = json.data.token;
-      return csrfToken;
+    const token: unknown = json.data?.token;
+    if (json.success && typeof token === 'string' && token) {
+      csrfToken = token;
+      return token;
     }
     // Fallback: try reading from cookie
     const cookieMatch = document.cookie.match(/csrf_token=([^;]+)/);
