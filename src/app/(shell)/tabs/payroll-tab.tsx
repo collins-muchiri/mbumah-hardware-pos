@@ -64,6 +64,7 @@ import { payrollGuardrailVoice } from '@/lib/hr/payroll/error-voice';
 // v2.362.0: the landing word rides the ONE home — the same address-bar
 // parser every desk has spoken since v2.328.0 (never a local copy).
 import { parseInitialNamedMember } from '@/lib/tab-url';
+import { useAskText } from '@/components/send-prompt-dialog';
 
 // MONEY GUARD (v2.3.1): salary fields were typed as number in the contract but
 // the API (before the v2.3.1 boundary fix) delivered Prisma Decimals as
@@ -3487,6 +3488,11 @@ interface RunForm {
 function RunsSubTab({ storeId }: { storeId: string }) {
   const qc = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
+  // v2.377.0: the void-reason ask rides the app's own multiline dialog —
+  // the LAST native window.prompt in the product tree retires (a native
+  // prompt was swallowed in embedded webviews and could not carry a real
+  // multi-line audit voice).
+  const { ask: askVoidReason, dialog: askTextDialog } = useAskText();
   // v2.300.0: the run finds its door — every row's Manage action opens the
   // SAME PayrollRunDialog the /hr/payroll page opens; the dialog itself
   // decides which lifecycle steps exist (via the server's `can`), so the
@@ -3535,11 +3541,21 @@ function RunsSubTab({ storeId }: { storeId: string }) {
     onError: (e: Error) => toast.error(payrollGuardrailVoice(e.message)),
   });
 
-  function handleVoid(run: PayrollRun) {
-    const reason = window.prompt(
-      `Void the ${run.runType} pay run for ${run.periodName}?\n\nTotals stay visible for audit; status becomes VOIDED.\nOnly possible because nothing was paid and nothing was posted to the ledger.\n\nReason:`,
-      'Deductions booked without earnings - superseded by corrected run'
-    );
+  async function handleVoid(run: PayrollRun) {
+    // v2.377.0: the ask-dialog replaces the native prompt — the multiline
+    // reason speaks the run's own facts, pre-fills the working default, and
+    // dresses the confirm in the destructive tone. Cancel still resolves
+    // null; an empty confirm rides the same 'Voided by admin' fallback the
+    // old prompt carried (the mutation's voice is byte-identical).
+    const reason = await askVoidReason({
+      title: `Void the ${run.runType} pay run for ${run.periodName}?`,
+      description: 'Totals stay visible for audit; status becomes VOIDED. Only possible because nothing was paid and nothing was posted to the ledger.',
+      label: 'Reason (recorded in the audit log)',
+      prefill: 'Deductions booked without earnings - superseded by corrected run',
+      confirmLabel: 'Void pay run',
+      destructive: true,
+      rows: 4,
+    });
     if (reason === null) return;
     voidRunMutation.mutate({ runId: run.id, reason: reason.trim() || 'Voided by admin' });
   }
@@ -3725,6 +3741,10 @@ function RunsSubTab({ storeId }: { storeId: string }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* v2.377.0 THE ASK-TEXT DIALOG: the void reason's face — the app's
+          own multiline voice, not the swallowed native prompt. Mounted
+          once; opened by handleVoid. The LAST native prompt retires. */}
+      {askTextDialog}
     </div>
   );
 }

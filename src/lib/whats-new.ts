@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.377.0',
+    title: 'The last native prompt retires',
+    bullets: [
+      'Voiding a pay run now asks for the reason through the app\u2019s own dialog \u2014 a real multi-line textarea that speaks the run\u2019s facts (which run, which period, what voiding means), pre-fills the working reason, and dresses the confirm in the destructive tone the action deserves. The browser\u2019s bare prompt window \u2014 invisible in embedded webviews \u2014 is gone from the entire product.',
+      'Cancel means cancel and an empty reason keeps the old "Voided by admin" fallback: the mutation\u2019s voice is byte-identical, only the face changed.',
+      'The send asks and the prose asks now share one dialog family \u2014 the same validation honesty (errors speak under the field and heal as you type), the same Escape-to-cancel contract, the same audit-ready output.',
+    ],
+  },
+  {
     version: '2.376.0',
     title: 'The ask-dialog retires the native prompt',
     bullets: [
