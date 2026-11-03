@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.370.0',
+    title: 'The constitution walks itself',
+    bullets: [
+      'The deep-link vocabulary\u2019s registry \u2014 twenty-one words across nineteen desks \u2014 is now derived against the code on every test run: each word\u2019s desk file, landing chip, wardrobe and its own test suite are proven from the constitution\u2019s own rows, so registry drift fails CI instead of waiting for a round to notice.',
+      'The landing window\u2019s chip now speaks the exact bytes a URL would carry (?ly-from=X&ly-to=Y) \u2014 the second word drops its separate ? when the first one spoke.',
+      'The sandbox-rebuild playbook gained its handle: npm run qa:recycle -- <clone-url> <target-dir> stands the whole QA world up in one command.',
+    ],
+  },
+  {
     version: '2.369.0',
     title: 'The bare-word island comes home',
     bullets: [

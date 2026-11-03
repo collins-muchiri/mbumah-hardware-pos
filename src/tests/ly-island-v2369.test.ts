@@ -278,9 +278,12 @@ describe('the landed-window chip — the face names the window it answered', () 
     expect(desk.includes('data-testid="ly-window-landing-word"')).toBe(true);
   });
 
-  it('the chip speaks the CANONICAL spellings even when the landing rode the aliases', () => {
+  it('the chip speaks the CANONICAL spellings even when the landing rode the aliases (the URL-honest text)', () => {
+    // v2.370.0: the second word drops its own ask-voice when the first
+    // spoke — the chip renders the exact bytes a URL would carry.
     expect(desk.includes('?ly-from=${landedWindowFrom}')).toBe(true);
-    expect(desk.includes('?ly-to=${landedWindowTo}')).toBe(true);
+    expect(desk.includes('ly-to=${landedWindowTo}')).toBe(true);
+    expect(desk.includes("landedWindowFrom ? '&' : '?'")).toBe(true);
   });
 
   it('the chip sits BEFORE the date inputs it landed into (the position law)', () => {

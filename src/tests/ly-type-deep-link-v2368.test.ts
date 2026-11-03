@@ -351,6 +351,7 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // the v2.316 suite walked its state pins to the alias parser this
       // round — the walk itself carries the word (an honest speaker)
       'src/tests/expiry-ledger-link-v2316.test.ts',
+      'src/tests/family-registry-stress-v2370.test.ts',
       'src/tests/gc-status-deep-link-v2358.test.ts',
       'src/tests/inv-status-deep-link-v2356.test.ts',
       'src/tests/inv-stock-deep-link-v2329.test.ts',

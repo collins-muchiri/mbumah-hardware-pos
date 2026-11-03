@@ -193,6 +193,7 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/cv-type-deep-link-v2363.test.ts',
       'src/tests/dn-status-deep-link-v2359.test.ts',
       'src/tests/dp-status-deep-link-v2365.test.ts',
+      'src/tests/family-registry-stress-v2370.test.ts',
       'src/tests/gc-status-deep-link-v2358.test.ts',
       'src/tests/inv-status-deep-link-v2356.test.ts',
       'src/tests/inv-stock-deep-link-v2329.test.ts',
