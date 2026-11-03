@@ -31,7 +31,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { buildReceiptText } from '@/lib/receipt-share-text';
-import type { TransactionItem } from '@/lib/api';
+import type { TransactionItem, SaleItemDetail } from '@/lib/api';
 
 const DESK_PATH = 'src/app/(shell)/tabs/transactions-tab.tsx';
 const desk = readFileSync(DESK_PATH, 'utf8');
@@ -81,7 +81,7 @@ function saleFixture(): TransactionItem {
         pricePerUnit: 400,
         lineTotal: 800,
         taxRate: 16,
-      } as TransactionItem['items'][number],
+      } as unknown as SaleItemDetail,
     ],
     cashier: { id: 'user-1', name: 'Jane Wanjiku' },
   } as unknown as TransactionItem;
