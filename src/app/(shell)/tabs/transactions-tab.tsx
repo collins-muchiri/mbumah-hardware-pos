@@ -135,6 +135,16 @@ function getInitials(name: string): string {
 }
 
 function getTransactionType(transaction: TransactionItem): TransactionType {
+  // v2.371.0 THE ROW'S OWN KIND COMES FIRST: a REFUND transaction row
+  // carries paymentStatus COMPLETED — the status-derived type called it
+  // a 'sale' and the money-out rows masqueraded in the sales lens (the
+  // refund lens only ever showed the refunded ORIGINALS, never the
+  // refund events themselves). The row's own transactionType outranks
+  // the derived status; the status checks stay as the ORIGINALS' voice
+  // (a sale whose paymentStatus became REFUNDED or VOIDED still speaks
+  // its state — the two sides of the refund story share the lens).
+  if (transaction.transactionType === 'REFUND') return 'refund';
+  if (transaction.transactionType === 'VOID') return 'void';
   if (transaction.paymentStatus === 'REFUNDED') return 'refund';
   if (transaction.paymentStatus === 'VOIDED' || transaction.paymentStatus === 'CANCELLED') return 'void';
   return 'sale';
@@ -542,6 +552,22 @@ const REFUND_REASON_LABELS: Record<string, string> = {
   WARRANTY_CLAIM: 'Warranty claim',
   OTHER: 'Other',
 };
+
+/**
+ * v2.371.0 — the refund row's reason voice. The refund service writes
+ * `Refund reason: {KEY}` as the notes' FIRST segment when the clerk
+ * picked a reason (the custom note rides after the ` · ` separator, and
+ * a custom-note-only refund has no prefix at all); the chip reads the
+ * KNOWN vocabulary only and stays silent otherwise — an honest chip
+ * never invents a reason the notes did not speak. Exported for the
+ * kind suite's live truth table (the TXN_TYPE_FILTERS precedent).
+ */
+export function refundReasonOf(notes: string | null | undefined): string | null {
+  if (!notes) return null;
+  const m = notes.match(/^Refund reason: ([A-Z_]+)(?=$| ·)/);
+  if (!m || !(m[1] in REFUND_REASON_LABELS)) return null;
+  return REFUND_REASON_LABELS[m[1]];
+}
 
 function RefundDialog({
   open,
@@ -1111,9 +1137,25 @@ function TransactionRow({
           </Badge>
         </TableCell>
         <TableCell>
-          <Badge variant="secondary" className={`text-[10px] px-1.5 py-0 ${getPaymentStatusColor(transaction.paymentStatus)}`}>
-            {getPaymentStatusLabel(transaction.paymentStatus)}
-          </Badge>
+          <div className="flex flex-col items-start gap-1">
+            {transaction.transactionType === 'REFUND' && (
+              /* v2.371.0 THE REFUND EVENT'S WEARING: the row speaks its
+                 kind — amber, this desk's own refund ink (the amount cell
+                 has worn the amber minus since the refund lens shipped),
+                 the RotateCcw kind icon, and the reason label only when
+                 the notes carry the service's `Refund reason:` prefix.
+                 The refunded ORIGINAL keeps its blue Refunded status
+                 badge — the event and the state are two voices, and the
+                 desk now speaks both. */
+              <Badge variant="secondary" className="text-[10px] px-1.5 py-0 gap-0.5 bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+                <RotateCcw className="h-3 w-3 shrink-0" aria-hidden="true" />
+                Refund{refundReasonOf(transaction.notes) ? ` · ${refundReasonOf(transaction.notes)}` : ''}
+              </Badge>
+            )}
+            <Badge variant="secondary" className={`text-[10px] px-1.5 py-0 ${getPaymentStatusColor(transaction.paymentStatus)}`}>
+              {getPaymentStatusLabel(transaction.paymentStatus)}
+            </Badge>
+          </div>
         </TableCell>
       </TableRow>
       {isExpanded && (

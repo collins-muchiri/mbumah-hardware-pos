@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.371.0',
+    title: 'The refund rows come home',
+    bullets: [
+      'Refund transactions no longer masquerade as sales: the money desk reads each row\u2019s own kind first, so the refund lens (?txn-type=refund) now shows every refund event \u2014 receipt, reason and money-out amount \u2014 alongside the refunded originals, and the sales lens is sales again.',
+      'Each refund row wears its kind in the status cell: an amber chip with the rotate-back icon and the reason the clerk picked (defective goods, wrong item, warranty claim\u2026), while the refunded original keeps its blue Refunded badge \u2014 the event and the state are two voices.',
+      'The lens census tells the truth: \u201cN in this lens\u201d now counts the refund events the name promises.',
+    ],
+  },
+  {
     version: '2.370.0',
     title: 'The constitution walks itself',
     bullets: [

@@ -236,6 +236,9 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/sup-po-deep-link-v2332.test.ts',
       'src/tests/sup-status-deep-link-v2331.test.ts',
       'src/tests/transfer-status-deep-link-v2357.test.ts',
+      // the v2.371.0 kind suite pins the lens's composition (the refund
+      // rows come home) — the ledger is the honest speaker here
+      'src/tests/txn-kind-v2371.test.ts',
       'src/tests/txn-pay-deep-link-v2333.test.ts',
       'src/tests/txn-type-deep-link-v2354.test.ts',
       'src/tests/vc-status-deep-link-v2360.test.ts',
