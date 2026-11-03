@@ -216,12 +216,12 @@ confirm it, and neither requires shell access:
 
 ## The sub-jobs (ten, as of v2.315.0)
 
-<!-- v2.167.0: the table grew from six to nine — the nightly dispatcher's
+<!-- v2.167.0: the table grew from six to nine; the nightly dispatcher's
      three exclusive sub-jobs (reconciliation, retention, hr-report-digests)
      had only lived in the cadence prose since v2.165.0; the register is now
      the COMPLETE card-sized echo of AUTOMATION_SUBJOB_HINTS, and a drift pin
      asserts every hint key has a row here.
-     v2.315.0: the register grew to ten — `loyalty-expiry` (folded into the
+     v2.315.0: the register grew to ten, with `loyalty-expiry` (folded into the
      nightly as its fifth sub-job in v2.312.0) finally has its row; the
      drift pin now covers it in both directions. -->
 
