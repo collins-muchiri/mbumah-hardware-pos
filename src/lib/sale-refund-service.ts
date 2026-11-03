@@ -892,6 +892,12 @@ export interface HealStrandedOriginalParams {
 }
 
 export interface HealStrandedOriginalResult {
+  /** v2.374.0: which heal fired — 'HEALED' (money moved: the zero-item
+   * REFUND event settled the stranded remainder) or 'REPAIRED' (the status
+   * caught up: the chain already covered the sale, nothing was left, no
+   * money moved). Both flip the original to REFUNDED. */
+  mode: 'HEALED' | 'REPAIRED';
+  /** The settlement event — null when REPAIRED (nothing moved). */
   refund: {
     id: string;
     receiptNumber: string;
@@ -899,15 +905,15 @@ export interface HealStrandedOriginalResult {
     taxAmount: number;
     paymentStatus: string;
     transactionType: string;
-  };
+  } | null;
+  originalId: string;
   originalReceiptNumber: string;
   originalPaymentStatus: string;
   /** The status the original wore BEFORE the heal (the audit row's oldValues). */
   originalPriorPaymentStatus: string;
-  /** The stranded remainder the heal settled - exactly the header gap. */
+  /** The stranded remainder the heal settled (0 when REPAIRED). */
   refundTotal: number;
-  /** The v2.373.0 marker: this REFUND event carries NO items - it settles
-   * the header's unreachable remainder, nothing else. */
+  /** The v2.373.0 marker: the row came home (either mode). */
   healed: true;
   loyalty: { clawedBack: number; balanceAfter: number } | null;
 }
@@ -942,6 +948,14 @@ export interface HealStrandedOriginalResult {
  *      can remain) and creates the refund's Receipt row;
  *   7. claws back the loyalty points the settled money earned (the same
  *      floor law, capped by the wallet's current balance).
+ *
+ * v2.374.0 THE STATUS-REPAIR PATH: when the assessment finds an EXHAUSTED
+ * sale with NOTHING left on the header (0 ≤ expected ≤ epsilon) the row is
+ * a status LIE, not a money problem - the repair flips the badge to
+ * REFUNDED and NOTHING ELSE (no money, no receipt, no journal; result mode
+ * 'REPAIRED', refund null). An over-refunded header (expected < 0) is
+ * refused - the anomaly stays visible; open lines throw NOT_STRANDED as
+ * before. The result's `mode` tells the two apart.
  *
  * If ANY step throws, the whole heal rolls back - no partial settlements.
  */
@@ -999,7 +1013,33 @@ export async function healStrandedOriginal(
     const views = refundableLinesFrom(original.items, priorQtyBySaleItemId, priorGrossBySaleItemId);
     const expectedTotal = round2(toDec(toNum(original.totalAmount)).minus(priorTotal));
     const assessment = assessStrandedOriginal(views, expectedTotal);
+    // v2.374.0 THE STATUS-REPAIR PATH: an exhausted sale with NOTHING left
+    // on the header (0 ≤ expected ≤ epsilon) is a status lie — the refund
+    // chain already covered it, the badge never caught up. The repair
+    // flips the status and NOTHING ELSE: no money moves, no Payment row,
+    // no receipt, no journal, no loyalty. An OVER-REFUNDED header
+    // (expected < 0) is NOT repaired — the anomaly stays visible for a
+    // human; an OPEN line is NOT repaired — the live refund or the gap
+    // closure owns it (NOT_STRANDED as before).
     if (!assessment.stranded) {
+      const allExhausted = views.every((l) => l.refundableQuantity <= 1e-9);
+      if (allExhausted && expectedTotal >= 0) {
+        await tx.salesTransaction.update({
+          where: { id: original.id },
+          data: { paymentStatus: 'REFUNDED' },
+        });
+        return {
+          mode: 'REPAIRED',
+          refund: null,
+          originalId: original.id,
+          originalReceiptNumber: original.receiptNumber,
+          originalPaymentStatus: 'REFUNDED',
+          originalPriorPaymentStatus: original.paymentStatus,
+          refundTotal: 0,
+          healed: true,
+          loyalty: null,
+        };
+      }
       throw new RefundError('NOT_STRANDED', {
         openLines: views.filter((l) => l.refundableQuantity > 1e-9).length,
         headerRemaining: expectedTotal,
@@ -1219,6 +1259,7 @@ export async function healStrandedOriginal(
     }
 
     return {
+      mode: 'HEALED',
       refund: {
         id: refundTx.id,
         receiptNumber: refundTx.receiptNumber,
@@ -1227,6 +1268,7 @@ export async function healStrandedOriginal(
         paymentStatus: 'COMPLETED',
         transactionType: 'REFUND',
       },
+      originalId: original.id,
       originalReceiptNumber: original.receiptNumber,
       originalPaymentStatus: 'REFUNDED',
       originalPriorPaymentStatus: original.paymentStatus,

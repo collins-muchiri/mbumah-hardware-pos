@@ -367,8 +367,9 @@ describe('v2.373.0 the stranded-gap heal (the transactional truth, on the house 
 
     // The REFUND event: ZERO items - the money settles the HEADER, and its
     // notes carry the chain reference the receipt's meta line reads.
+    const refundEvent = must(result.refund, 'heal refund event');
     const refundTx = await db.salesTransaction.findUnique({
-      where: { id: result.refund.id },
+      where: { id: refundEvent.id },
       include: { items: true, payments: true, receipt: true },
     });
     expect(must(refundTx).refundedTransactionId).toBe(sale.id);
@@ -386,7 +387,7 @@ describe('v2.373.0 the stranded-gap heal (the transactional truth, on the house 
     // The drawer: the CASH portion hits the ledger SIGNED NEGATIVE (the
     // notes speak the refund's receipt number, not its id).
     const drawer = await db.cashDrawerLog.findFirst({
-      where: { notes: { contains: result.refund.receiptNumber } },
+      where: { notes: { contains: refundEvent.receiptNumber } },
     });
     expect(drawer).toBeTruthy();
     expect(toDec(must(drawer).amount as never).toNumber()).toBe(-1200);
@@ -395,7 +396,7 @@ describe('v2.373.0 the stranded-gap heal (the transactional truth, on the house 
     // The journal: REFUND-typed, balanced to the cent, the full
     // consideration reversed.
     const je = await db.journalEntry.findFirst({
-      where: { referenceId: result.refund.id },
+      where: { referenceId: refundEvent.id },
       include: { lines: true },
     });
     expect(must(je).referenceType).toBe('REFUND');
@@ -441,11 +442,12 @@ describe('v2.373.0 the stranded-gap heal (the transactional truth, on the house 
     expect(count).toBe(0);
   });
 
-  it('exhausted lines with no header remainder are NOT stranded either', async () => {
+  it('an exhausted sale with nothing left on the header is REPAIRED (v2.374.0: the badge catches up, no money moves)', async () => {
     const product = await makeTestProduct(10);
     // A VAT-INCLUSIVE sale fully refunded by its chain: nothing remains on
-    // the header (the sale is a legacy status lie at worst - the heal
-    // refuses to invent money).
+    // the header - the row is a status LIE (still PARTIAL), not a money
+    // problem. v2.373.0 refused it NOT_STRANDED; v2.374.0's repair path
+    // flips the badge and NOTHING ELSE.
     const sale = await makeGapSale(product, {
       quantity: 1,
       lineTotal: 8700,
@@ -454,17 +456,30 @@ describe('v2.373.0 the stranded-gap heal (the transactional truth, on the house 
     });
     await makeLegacyChainRefund(sale, { quantity: 1, lineTotal: 8700 });
 
-    try {
-      await healStrandedOriginal(db, {
-        originalId: sale.id,
-        storeId: STORE_ID,
-        organizationId: ORG_ID,
-        actorUserId: ACTOR_ID,
-      });
-      expect.unreachable('must throw');
-    } catch (err) {
-      expect((err as RefundError).code).toBe('NOT_STRANDED');
-    }
+    const paymentsBefore = await db.payment.count({ where: { transactionId: { in: [sale.id] } } });
+    const journalsBefore = await db.journalEntry.count({ where: { referenceId: { in: [sale.id] } } });
+    const receiptsBefore = await db.receipt.count({ where: { transactionId: { in: [sale.id] } } });
+
+    const result = await healStrandedOriginal(db, {
+      originalId: sale.id,
+      storeId: STORE_ID,
+      organizationId: ORG_ID,
+      actorUserId: ACTOR_ID,
+    });
+    expect(result.mode).toBe('REPAIRED');
+    expect(result.refund).toBeNull();
+    expect(result.refundTotal).toBe(0);
+    expect(result.healed).toBe(true);
+    expect(result.originalPriorPaymentStatus).toBe('PARTIAL');
+    expect(result.originalPaymentStatus).toBe('REFUNDED');
+
+    // The original flipped; NO money artifact was created.
+    const original = await db.salesTransaction.findUnique({ where: { id: sale.id } });
+    expect(must(original, 'original sale').paymentStatus).toBe('REFUNDED');
+    expect(await db.payment.count({ where: { transactionId: { in: [sale.id] } } })).toBe(paymentsBefore);
+    expect(await db.journalEntry.count({ where: { referenceId: { in: [sale.id] } } })).toBe(journalsBefore);
+    expect(await db.receipt.count({ where: { transactionId: { in: [sale.id] } } })).toBe(receiptsBefore);
+    expect(await db.salesTransaction.count({ where: { refundedTransactionId: sale.id } })).toBe(1);
   });
 
   it('the guards: unknown id, foreign tenant, non-sale rows, already-REFUNDED', async () => {

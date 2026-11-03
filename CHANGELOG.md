@@ -1,3 +1,17 @@
+## [2.374.0] The paper follows the settle
+
+The settle family's second round. v2.373.0 taught the desk to SPEAK the settle truth and gave the stranded rows the heal; this round the paper follows the money and the quiet rows come home.
+
+### Added
+- **THE RECEIPT HOP** (`transactions-tab.tsx` commitSettle): a committed stranded-gap settlement opens the receipt viewer straight onto the settlement's own receipt with auto-print armed \— the v2.310.0 direct-print pattern (money moved, paper follows), best-effort so the paper can never fail the committed money.
+- **THE STATUS-REPAIR PATH** (`sale-refund-service.ts` healStrandedOriginal + the tab's muted "Mark fully refunded" affordance): an exhausted sale with NOTHING left on the header (0 \≤ expected \≤ epsilon) is a status LIE \— the chain already covered it, the badge never caught up. The repair flips the badge to REFUNDED and NOTHING ELSE: no Payment row, no receipt, no journal, no drawer row, no loyalty, no movements, no new transactions (mode 'REPAIRED', refund null). An OVER-REFUNDED header (expected < 0) is refused NOT_STRANDED \— the anomaly stays visible for a human; open lines are refused as before; a 1-cent remainder is still MONEY (the HEALED path, not the repair). The heal route's audit row speaks the mode: SALE_STATUS_REPAIR for a repair, REFUND for money.
+
+### Fixed
+- **THE CHAIN-TOTAL ALIGNMENT** (`api/transactions/route.ts`): the list route's per-row chain total read the refund EVENTS' header totals while the service reads \Σ ITEMS' lineTotals \— a divergent legacy event (its header \≠ its item lines) would have made the desk say SETTLED while the heal HEALED money: the repair affordance's confirm would have spoken a different truth than the transaction enacted. Both derivations now read the same law, so the row voice and the money can never disagree.
+
+### Tests
+- `src/tests/refund-status-repair-v2374.test.ts` (5 pins): the repair journey (badge flips, the world moves nothing), the over-refund wall, the double-repair refusal, the stranded path still HEALED, and the epsilon boundary (1 cent = money); the v2.373.0 suite's exhausted-no-remainder pin re-titled to the repair's truth.
+
 ## [2.373.0] The stranded gap settles
 
 The desk's round. v2.372.0 taught the refund to settle a sale's header when its LAST refundable line dies inside a live tranche - but the rows that stranded BEFORE that law shipped have no quantity left to allocate: every line is already consumed by the refund chain, the header remainder is still positive, the live refund answers EMPTY_REFUND and the sale sits at PARTIAL forever (the seeded tx_002 / MBM-RCPT-002 class). This round those rows come home two ways: the desk SPEAKS the settle truth on the row before any dialog opens, and the stranded rows gain the one-confirm heal that settles the unreachable remainder exactly.

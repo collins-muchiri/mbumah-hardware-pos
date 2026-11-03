@@ -255,18 +255,27 @@ async function getTransactionsHandler(
       };
       chainByOriginalId.set(refund.refundedTransactionId, entry);
     }
+    // v2.374.0 THE CHAIN-TOTAL ALIGNMENT: priorTotal reads the SAME law
+    // the service reads (Σ ITEMS' lineTotals across the chain - NOT the
+    // events' header totals). The two derivations (this desk's row voice
+    // and the heal's in-transaction assessment) can then never disagree:
+    // a divergent legacy event (its header total ≠ Σ its item lines)
+    // would otherwise make the desk say SETTLED while the heal HEALS
+    // money - the repair affordance's confirm must speak the same truth
+    // the transaction will enact.
     for (const item of refund.items) {
-      if (!item.refundedSaleItemId) continue;
-      entry.priorQtyBySaleItemId.set(
-        item.refundedSaleItemId,
-        (entry.priorQtyBySaleItemId.get(item.refundedSaleItemId) ?? 0) + Number(item.quantity),
-      );
-      entry.priorGrossBySaleItemId.set(
-        item.refundedSaleItemId,
-        (entry.priorGrossBySaleItemId.get(item.refundedSaleItemId) ?? 0) + Number(item.lineTotal),
-      );
+      if (item.refundedSaleItemId) {
+        entry.priorQtyBySaleItemId.set(
+          item.refundedSaleItemId,
+          (entry.priorQtyBySaleItemId.get(item.refundedSaleItemId) ?? 0) + Number(item.quantity),
+        );
+        entry.priorGrossBySaleItemId.set(
+          item.refundedSaleItemId,
+          (entry.priorGrossBySaleItemId.get(item.refundedSaleItemId) ?? 0) + Number(item.lineTotal),
+        );
+      }
+      entry.priorTotal = round2(entry.priorTotal + Number(item.lineTotal));
     }
-    entry.priorTotal = round2(entry.priorTotal + Number(refund.totalAmount));
   }
 
   return Response.json({

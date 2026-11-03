@@ -24,8 +24,13 @@
 //     surfaces), so it wears the same gate - a new permission would lie
 //     about the risk it carries.
 //   • RefundError codes map to SAFE responses (NOT_STRANDED → 409: the
-//     sale's lines are not fully exhausted or nothing remains on the
-//     header - there is nothing to settle); no internals reach the client.
+//     sale still has OPEN lines the live refund owns, or its header is
+//     OVER-refunded - an anomaly left visible; nothing to settle and
+//     nothing to repair). v2.374.0: an exhausted sale with nothing left
+//     on the header is a status lie - the route answers mode 'REPAIRED'
+//     (the badge catches up, NO money moves); a stranded remainder
+//     answers mode 'HEALED' (the zero-item event settles it). No
+//     internals reach the client.
 
 import { type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
@@ -104,12 +109,14 @@ async function refundHealHandler(...args: unknown[]): Promise<Response> {
       notes: parsed.data.notes ?? null,
     });
 
-    // F9-1 precedent: committed money logs its audit row best-effort - the
-    // audit chain must never block or fail the response.
+    // F9-1 precedent: committed work logs its audit row best-effort - the
+    // audit chain must never block or fail the response. The MODE decides
+    // the action's voice: a HEALED settlement moved money (REFUND); a
+    // REPAIRED row only caught its badge up (SALE_STATUS_REPAIR).
     try {
       const { auditTrail } = await import('@/lib/audit-trail');
       await auditTrail.log({
-        action: 'REFUND',
+        action: result.mode === 'REPAIRED' ? 'SALE_STATUS_REPAIR' : 'REFUND',
         resourceType: 'SalesTransaction',
         resourceId: id,
         actorId: session.userId,
@@ -120,10 +127,15 @@ async function refundHealHandler(...args: unknown[]): Promise<Response> {
         oldValues: { paymentStatus: result.originalPriorPaymentStatus },
         newValues: {
           paymentStatus: result.originalPaymentStatus,
-          refundReceiptNumber: result.refund.receiptNumber,
-          refundTotal: result.refundTotal,
           healed: true,
-          restockLines: 0,
+          mode: result.mode,
+          ...(result.refund
+            ? {
+                refundReceiptNumber: result.refund.receiptNumber,
+                refundTotal: result.refundTotal,
+                restockLines: 0,
+              }
+            : {}),
         },
       });
     } catch {
