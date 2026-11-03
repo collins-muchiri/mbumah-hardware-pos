@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.378.0',
+    title: 'The settlement answers the address bar',
+    bullets: [
+      'Settlements now speak their own kind on the transactions desk — the zero-item events the stranded-gap heal writes wear the emerald settle ink in the type chip, the row and the amount cell, and the census counts them beside sales, refunds and voids instead of hiding them among the refunds.',
+      'The address bar answers too: land the ledger straight on the settlements with ?txn-type=settlement (the same lens word the refunds, sales and voids already speak).',
+      'Marking a sale fully refunded can now share a WhatsApp note that says exactly what happened — no money moved, the badge caught up — with the customer\u2019s number pre-filled and the send entirely optional. And releases themselves got honest: a failed publish step now re-publishes on the next run instead of skipping forever.',
+    ],
+  },
+  {
     version: '2.377.0',
     title: 'The last native prompt retires',
     bullets: [
