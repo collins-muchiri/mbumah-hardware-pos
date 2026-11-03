@@ -1,3 +1,18 @@
+## [2.376.0] The ask-dialog retires the native prompt
+
+The send family's own round. Fifteen send flows across eight desks asked for their recipient through the browser's native `window.prompt()` - a face that embedded webviews (in-app browsers, the QA harness) silently swallow, which made the buttons look dead and left a walk-in with no way to answer. This round every ask speaks in the app's own voice.
+
+### Added
+- **THE ASK-DIALOG PRIMITIVE** (`src/components/send-prompt-dialog.tsx`): `useSendPrompt()` hands every desk `{ ask, dialog }` - `ask()` opens the dialog and resolves with the trimmed recipient on confirm, `null` on cancel/Escape (the exact contract of the old `prompt()` call, so every migration is a one-line swap plus one `{sendPromptDialog}` render). The channel (WHATSAPP / SMS / EMAIL) drives the icon, the input type and the accent - the same green/blue/orange the send buttons already wear.
+- **THE INLINE VALIDATION VOICE**: the dialog validates before it resolves - a phone must carry at least seven digits (the Kenyan shapes +2547... and 07... clear the bar), an email must carry a domain; the error speaks under the field with an alert icon and heals the moment the value changes. No toast dead-ends: the dialog stays open, the message stays attached to the field that caused it.
+- **THE PREFILL IS REAL**: every ask pre-fills from the document's known contact - the customer's phone on receipts, statements and credit notes; the delivery note's phone; the invoice's phone; the gift card's recipient. A walk-in sees an honest empty field with the placeholder teaching the shape.
+
+### Fixed
+- **THE SWALLOWED PROMPT, FIFTEEN SITES / EIGHT DESKS** (`transactions-tab.tsx` row-level receipt WhatsApp, `customers-tab.tsx` statement WhatsApp + SMS, `inventory-tab.tsx` the inventory report, `delivery-notes-tab.tsx` note WhatsApp + SMS, `invoices-tab.tsx` document WhatsApp + SMS, `gift-cards-tab.tsx` card WhatsApp + SMS, `credits-tab.tsx` credit-note WhatsApp + SMS, `vouchers-tab.tsx` campaign WhatsApp + SMS + Email): the native prompt returned null without a face in embedded browsers, and every site answered with either silence (`if (!phone) return;`) or a post-hoc toast. The voucher campaign menu's three inline lambdas became named async handlers (an inline lambda cannot await an ask). The payroll void-reason prompt is the PINNED survivor - a multi-line textarea voice for a later round's own primitive.
+
+### Tests
+- `src/tests/send-prompt-dialog-v2376.test.tsx` (26 pins): the validation voices live (empty/letters/too-short/shape/trims), the rendered harness truth table (confirm resolves trimmed, cancel resolves null, empty keeps the dialog open with the inline error, the error heals on change, prefill honored, Enter submits the form, the three channel voices), the re-ask settles the pending resolver, and THE NATIVE-PROMPT SUNSET CENSUS - all eight desks carry no bare `prompt(`, the hook is imported and its dialog rendered, and exactly ONE `window.prompt(` survives the product tree (the pinned payroll survivor).
+
 ## [2.375.0] The settlement speaks its name
 
 The settle family's third round. v2.373.0 taught the desk to speak the settle truth, v2.374.0 made the paper follow the money; this round the settlement's own kind reaches every voice it has - the row chip, the paper, and the share text a customer actually receives.

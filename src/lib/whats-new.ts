@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.376.0',
+    title: 'The ask-dialog retires the native prompt',
+    bullets: [
+      'Every "send via WhatsApp / SMS / Email" button now asks for the recipient through the app\u2019s own dialog instead of the browser\u2019s bare prompt window \u2014 a face that works in every webview, including in-app browsers where the native prompt was silently swallowed and the button looked dead.',
+      'The ask validates inline before it lets you send: a phone must carry at least seven digits, an email must carry a domain, and the error speaks under the field (no more dead-end toasts). The recipient pre-fills from the customer\u2019s known contact \u2014 a walk-in simply types it.',
+      'Fifteen send flows across eight desks migrated: receipts and statements, inventory reports, delivery notes, invoices and quotations, gift cards, credit notes, and voucher campaigns. Cancel still means cancel \u2014 nothing sends, nothing nags.',
+    ],
+  },
+  {
     version: '2.375.0',
     title: 'The settlement speaks its name',
     bullets: [
