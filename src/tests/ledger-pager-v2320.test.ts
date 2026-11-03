@@ -130,12 +130,15 @@ describe('the desk — the pager wears the wire, the state turns the page', () =
   it('the tab-url import carries the fifth and sixth words (the trail files evolved with them)', () => {
     // v2.321.0 pin evolution (deliberate): parseInitialLimit joins — the
     // gait lands on `?limit=`; the pin follows the import, not the round.
-    expect(tab.includes("import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialPage, parseInitialType, parseInitialView } from '@/lib/tab-url';")).toBe(true);
+    // v2.368.0 pin evolution (deliberate): the loyalty migration — the
+    // desk reads the canonical pair through the alias and stage parsers
+    // now; the pin follows the import, not the round.
+    expect(tab.includes("import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialNamedMemberWithAlias, parseInitialPage, parseInitialStage } from '@/lib/tab-url';")).toBe(true);
     const trail2311 = readFileSync('src/tests/receipt-trail-v2311.test.ts', 'utf8');
     const trail2316 = readFileSync('src/tests/expiry-ledger-link-v2316.test.ts', 'utf8');
     const trail2317 = readFileSync('src/tests/expiry-day-window-v2317.test.ts', 'utf8');
     const trail2318 = readFileSync('src/tests/expiry-window-dismiss-v2318.test.ts', 'utf8');
-    const evolved = "import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialPage, parseInitialType, parseInitialView } from '@/lib/tab-url';";
+    const evolved = "import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialNamedMemberWithAlias, parseInitialPage, parseInitialStage } from '@/lib/tab-url';";
     expect(trail2311.includes(evolved)).toBe(true);
     expect(trail2316.includes(evolved)).toBe(true);
     expect(trail2317.includes(evolved)).toBe(true);

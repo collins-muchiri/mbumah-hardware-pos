@@ -258,6 +258,7 @@ describe('the collision ledger — desk-prefixed words stay rare', () => {
         'src/tests/gc-status-deep-link-v2358.test.ts',
         'src/tests/inv-status-deep-link-v2356.test.ts',
         'src/tests/inv-stock-deep-link-v2329.test.ts',
+        'src/tests/ly-type-deep-link-v2368.test.ts',
         'src/tests/po-status-deep-link-v2328.test.ts',
         'src/tests/pr-status-deep-link-v2362.test.ts',
         'src/tests/proxy-gate-layering-v2328.test.ts',

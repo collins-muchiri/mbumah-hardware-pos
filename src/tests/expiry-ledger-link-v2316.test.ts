@@ -76,11 +76,17 @@ describe('the desk seeds its filter from the address bar (loyalty-tab.tsx)', () 
     // pager lands on `?page=`; the pin follows the import, not the round.
     // v2.321.0 pin evolution (deliberate): parseInitialLimit joins — the
     // gait lands on `?limit=`; the pin follows the import, not the round.
-    expect(tab.includes("import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialPage, parseInitialType, parseInitialView } from '@/lib/tab-url';")).toBe(true);
+    // v2.368.0 pin evolution (deliberate): the loyalty migration — the
+    // desk reads the canonical pair through the alias parser and the
+    // stage parser now; the pin follows the import, not the round.
+    expect(tab.includes("import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialNamedMemberWithAlias, parseInitialPage, parseInitialStage } from '@/lib/tab-url';")).toBe(true);
   });
 
   it('the register is the SAME five types the ledger Select offers', () => {
-    expect(tab.includes("const LOYALTY_TX_TYPES: readonly string[] = ['EARN', 'REDEEM', 'BONUS', 'EXPIRE', 'ADJUST'];")).toBe(true);
+    // v2.368.0 pin evolution (deliberate): the register became the
+    // six-word union (the neutral `all` joined, the keyset's own
+    // `as const`) — the state names it directly, cast-free.
+    expect(tab.includes("export const LY_TX_FILTERS = ['all', 'EARN', 'REDEEM', 'BONUS', 'EXPIRE', 'ADJUST'] as const;")).toBe(true);
     // the Select's own options, for the record
     expect(tab.includes('<SelectItem value="EXPIRE">Expire</SelectItem>')).toBe(true);
     expect(tab.includes('<SelectItem value="EARN">Earn</SelectItem>')).toBe(true);
@@ -94,9 +100,13 @@ describe('the desk seeds its filter from the address bar (loyalty-tab.tsx)', () 
   });
 
   it('the filter state seeds lazily from the parser (one reader, no clobber)', () => {
-    expect(tab.includes('useState<string>(initialTxTypeFilter)')).toBe(true);
-    expect(tab.includes('function initialTxTypeFilter(): string {')).toBe(true);
-    expect(tab.includes('parseInitialType(window.location.search, LOYALTY_TX_TYPES, \'all\')')).toBe(true);
+    // v2.368.0 pin evolution (deliberate): the legacy-word sunset law —
+    // the state is the typed union, the seed reads the canonical pair
+    // through the alias parser (canonical wins, the bare word keeps
+    // answering), the old string-typed seed is gone.
+    expect(tab.includes('useState<LyTypeFilter>(initialLyType)')).toBe(true);
+    expect(tab.includes('function initialLyType(): LyTypeFilter {')).toBe(true);
+    expect(tab.includes("parseInitialNamedMemberWithAlias(window.location.search, 'ly-type', 'type', LY_TX_FILTERS, 'all')")).toBe(true);
   });
 });
 
@@ -104,7 +114,11 @@ describe('the card face — both voices walk (org-console.tsx)', () => {
   const card = readFileSync('src/components/workspace/org-console.tsx', 'utf8');
 
   it('ONE door for both voices — the EXPIRE-filtered ledger deep-link', () => {
-    expect(card.includes("const EXPIRY_LEDGER_HREF = '/?tab=loyalty&view=transactions&type=EXPIRE';")).toBe(true);
+    // v2.368.0 pin evolution (deliberate): the door migrated to the
+    // canonical word — the desk's two-address design lands the
+    // transactions sub-tab from the word itself, so the shorter href
+    // carries the same ask (the legacy alias keeps the old bookmarks).
+    expect(card.includes("const EXPIRY_LEDGER_HREF = '/?tab=loyalty&ly-type=EXPIRE';")).toBe(true);
     // v2.317.0 pin evolution (deliberate): the counts door now rides its
     // sweep's EAT day (a computed href built FROM the constant — const,
     // the counts template, the garbage-stamp fallback, and the zero's
@@ -156,8 +170,8 @@ describe('the housekeeping — the 2.267.0 dead weight is gone', () => {
     };
     expect(typeof pkg.mbumah?.releaseVersion).toBe('string');
     expect(typeof pkg.mbumah?.baseVersion).toBe('string');
-    expect(pkg.mbumah?.releaseVersion).toBe('2.367.0');
-    expect(pkg.mbumah?.baseVersion).toBe('2.367.0');
+    expect(pkg.mbumah?.releaseVersion).toBe('2.368.0');
+    expect(pkg.mbumah?.baseVersion).toBe('2.368.0');
   });
 
   it('the docs register carries the deep-link note', () => {

@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.368.0',
+    title: 'The ledger answers the address bar in its own name',
+    bullets: [
+      'The loyalty ledger\u2019s type lens \u2014 answering the bare ?type= since v2.316.0 \u2014 moved to its desk-prefixed word: ?ly-type=EXPIRE (or EARN, REDEEM, BONUS, ADJUST) lands the ledger pre-filtered, and the old ?type= keeps answering as a legacy alias for the bookmarks already in the wild \u2014 the canonical word wins when both are present.',
+      'One word, two addresses: a landing that carries the word opens the Transactions sub-tab by itself (view\u2019s own word still wins when it speaks), so a bare ?ly-type=EXPIRE lands whole \u2014 and the expiry sweep\u2019s door in the org console got shorter, speaking the canonical word.',
+      'The landing chip wears green \u2014 the last wearable hue in the vocabulary\u2019s palette and the ledger\u2019s own EARN ink \u2014 and retires the moment a human owns the filter: press it, or change the Select by hand.',
+    ],
+  },
+  {
     version: '2.367.0',
     title: 'The watchtower answers the address bar',
     bullets: [

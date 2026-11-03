@@ -326,6 +326,20 @@ export function parseInitialNamedPage(search: string, param: string, fallback = 
  * rides the desk's collapsible filters panel and the landing raises the
  * panel it lands into, the collapsible-face amendment's second
  * application).
+ *
+ * v2.368.0 — THE PROMISE KEPT, THE TWENTY-FIRST WORD: the loyalty
+ * ledger's type lens — the family's OLDEST speaker, answering the bare
+ * pre-constitution `type` since v2.316.0 — moves to its desk-prefixed
+ * `ly-type` through the ALIAS parser below (THE LEGACY-WORD SUNSET
+ * LAW's first written form: canonical wins, the bare word keeps
+ * answering for the bookmarks already in the wild), and the word lands
+ * its STAGE too (THE TWO-ADDRESS DESIGN: the lens lives in a
+ * non-default sub-tab, so a landing that carries the word implies the
+ * transactions ledger — view's own word wins when it speaks). The chip
+ * wears the twenty-first family, green — the last wearable hue in the
+ * palette (red is the danger voice), the EARN badge's own ink, the
+ * palette-exhaustion amendment's second application where the last hue
+ * is a voice.
  */
 export function parseInitialNamedMember<V extends string>(
   search: string,
@@ -338,6 +352,79 @@ export function parseInitialNamedMember<V extends string>(
     if (value && (validValues as readonly string[]).includes(value)) {
       return value as V;
     }
+    return fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+/**
+ * v2.368.0 — THE LEGACY-WORD SUNSET LAW, the alias parser. The family's
+ * naming constitution (Task 44's collision analysis, worn by every word
+ * since `?po-status=`) requires a DESK-PREFIXED param — but one desk
+ * still speaks a pre-constitution bare word: the loyalty ledger's
+ * `?type=`, whose one live speaker is the org console's sweep-line door
+ * (v2.316.0's contract, byte-pinned by its own suite). A sunset that
+ * breaks a live door is a broken door, not a sunset, so the migration
+ * speaks THIS shape: the desk-prefixed `?ly-type=` is the canonical word
+ * (the constitution's twenty-first row), the bare `?type=` remains its
+ * LEGACY ALIAS — same dictionary, same membership law (case-sensitive:
+ * a lowercase `expire` is an unknown word, not a clever match), same
+ * fallback — and the canonical word WINS when both are present (an
+ * explicit desk-prefix outranks the bare survivor; the desk can never
+ * be told two different words by one address bar).
+ *
+ * The precedence is read in ONE place — this parser — so the alias can
+ * never drift from the canonical word's law. In-repo speakers migrate
+ * to the canonical form (the sweep line's door moved this round); the
+ * alias serves the bookmarks and org-console links already in the wild.
+ */
+export function parseInitialNamedMemberWithAlias<V extends string>(
+  search: string,
+  canonical: string,
+  legacyAlias: string,
+  validValues: readonly V[],
+  fallback: V,
+): V {
+  try {
+    const params = toParams(search);
+    const value = params.get(canonical) ?? params.get(legacyAlias);
+    if (value && (validValues as readonly string[]).includes(value)) {
+      return value as V;
+    }
+    return fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+/**
+ * v2.368.0 — THE TWO-ADDRESS DESIGN (the innerTab landing law). One
+ * word, two addresses: the loyalty ledger's type lens lives in a
+ * NON-DEFAULT sub-tab ('transactions' under a 'tiers' default), so a
+ * landing that carries the word must land the STAGE too — a bookmark
+ * of `?ly-type=EXPIRE` alone would pre-filter a ledger the reader
+ * cannot see (the stranded feeling this module exists to kill). The
+ * law's precedence: view's OWN word wins when it speaks a VALID
+ * sub-tab (one writer per param — view addressed the stage, the type
+ * word only fills its silence); a view word that is present but
+ * INVALID does not claim the stage (only valid words speak — the
+ * fallback never steals); otherwise a landed type word implies the
+ * stage it lives on, and the desk's default answers last.
+ */
+export function parseInitialStage<V extends string>(
+  search: string,
+  validViews: readonly V[],
+  stageView: V,
+  landed: boolean,
+  fallback: V,
+): V {
+  try {
+    const raw = toParams(search).get('view');
+    if (raw && (validViews as readonly string[]).includes(raw)) {
+      return raw as V;
+    }
+    if (landed) return stageView;
     return fallback;
   } catch {
     return fallback;

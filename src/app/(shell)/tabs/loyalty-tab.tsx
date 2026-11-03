@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import {
   Sparkles, Plus, Search, Crown, Award, Users, Loader2, Settings2, TrendingUp, Calendar, Gift, Zap, ChevronUp, Clock,
   HandCoins, Target, Megaphone, Edit, History, RotateCcw, Receipt, X, ChevronLeft, ChevronRight,
-  Trophy, Gem, Medal, Shield, Palette, Hourglass, AlertCircle, Trash2,
+  Trophy, Gem, Medal, Shield, Palette, Hourglass, AlertCircle, Trash2, Link2,
 } from 'lucide-react';
 
 import { useAppStore } from '@/lib/stores';
@@ -23,7 +23,7 @@ import {
   DOCK_REASON_HINT,
   EXPIRE_POLICY_NOTE,
 } from '@/lib/loyalty-adjust-policy';
-import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialPage, parseInitialType, parseInitialView } from '@/lib/tab-url';
+import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialNamedMemberWithAlias, parseInitialPage, parseInitialStage } from '@/lib/tab-url';
 import { ReceiptViewDialog } from '@/components/loyalty/receipt-view-dialog';
 import { ExpiryDialog } from '@/components/loyalty/expiry-dialog';
 
@@ -63,24 +63,36 @@ type LoyaltySubTab = 'tiers' | 'members' | 'transactions' | 'campaigns';
 // and bookmarks land DIRECTLY on the ledger the shell's `?tab=loyalty`
 // already opens. The shell owns `tab` in the URL; the desk only ever
 // READS its `view` — one writer per param, no clobber.
+// v2.368.0 THE TWO-ADDRESS DESIGN: the sub-tab seed moved into the
+// component (see the stage seed below) — the type word now fills
+// view's silence, so the seed needs the landed word in hand.
 const LOYALTY_SUB_TABS: readonly LoyaltySubTab[] = ['tiers', 'members', 'transactions', 'campaigns'];
-function initialSubTab(): LoyaltySubTab {
-  if (typeof window === 'undefined') return 'tiers';
-  return parseInitialView(window.location.search, LOYALTY_SUB_TABS, 'tiers');
-}
 
-// v2.316.0: the ledger's TYPE filter answers the address bar too —
-// `?type=EXPIRE` (the org console's sweep line deep-links exactly this,
-// so the pulse's amber counts walk straight to the rows they summarize).
-// The valid set is the SAME five types the ledger's own Select offers —
-// the param can never strand the ledger in a filter it does not offer —
-// and anything unknown, lowercase, or missing answers 'all'. The desk
-// only ever READS `type` on mount (the same one-writer-per-param law as
-// `view`); a filter changed by hand afterwards is the human's truth.
-const LOYALTY_TX_TYPES: readonly string[] = ['EARN', 'REDEEM', 'BONUS', 'EXPIRE', 'ADJUST'];
-function initialTxTypeFilter(): string {
+// THE LOYALTY DESK'S OWN WORD (v2.368.0): the ledger answers the address
+// bar in its own name — the migration round.
+// v2.368.0 THE TWENTY-FIRST WORD — the loyalty migration. The ledger's
+// TYPE lens is the family's OLDEST speaker: it has answered the bare
+// `?type=` since v2.316.0, pre-constitution (the naming law every word
+// since the purchase-orders roster's word wears: a desk-prefixed param
+// can never leak across client-side tab switches).
+// THE LEGACY-WORD SUNSET LAW (its first written form, in tab-url's alias
+// parser): the desk-prefixed `?ly-type=` is the canonical word, the bare `?type=`
+// remains its LEGACY ALIAS — same five-type dictionary (the Select's
+// own keys, UPPERCASE; a lowercase `expire` is an unknown word, not a
+// clever match; the neutral is the lowercase `all`), same membership
+// law, and the canonical word WINS when both are present. The alias's
+// one live speaker (the sweep-line door) moved to the canonical form
+// this round; the alias keeps the bookmarks already in the wild. And
+// the TWO-ADDRESS DESIGN: the lens lives in a NON-DEFAULT sub-tab, so
+// a landing that carries the word lands the STAGE too — the seed below
+// (in the component) reads view first and lets the type word imply
+// 'transactions' only when view is silent.
+export const LY_TX_FILTERS = ['all', 'EARN', 'REDEEM', 'BONUS', 'EXPIRE', 'ADJUST'] as const;
+type LyTypeFilter = (typeof LY_TX_FILTERS)[number];
+
+function initialLyType(): LyTypeFilter {
   if (typeof window === 'undefined') return 'all';
-  return parseInitialType(window.location.search, LOYALTY_TX_TYPES, 'all');
+  return parseInitialNamedMemberWithAlias(window.location.search, 'ly-type', 'type', LY_TX_FILTERS, 'all');
 }
 
 // v2.317.0: the ledger's DATE WINDOW answers the address bar too —
@@ -191,8 +203,25 @@ export default function LoyaltyTab() {
   const currentStoreId = useAppStore((s) => s.currentStoreId);
   const queryClient = useQueryClient();
 
-  // Sub-tab state — v2.311.0: seeded from `?view=` when the URL asks
-  const [activeSubTab, setActiveSubTab] = useState<LoyaltySubTab>(initialSubTab);
+  // v2.368.0 THE LANDING WORD — the word the address bar asked for at
+  // mount (through the canonical `?ly-type=` or the legacy `?type=`, the
+  // alias parser's precedence; 'all' when the landing carried neither).
+  // The chip speaks it ONCE: dismissed or hand-changed, the landing is
+  // over and the chip retires — an honest face never claims a landing
+  // that is done.
+  const [landedLyType] = useState<LyTypeFilter>(initialLyType);
+  const [lyLandingLive, setLyLandingLive] = useState(true);
+  // Sub-tab state — v2.311.0 seeded from `?view=`; v2.368.0 THE
+  // TWO-ADDRESS DESIGN (the innerTab landing law): view's own word wins
+  // the stage when it speaks a VALID sub-tab, an invalid view word does
+  // not claim the stage (only valid words speak), and a landed type
+  // word implies 'transactions' — the stage the lens lives on — so a
+  // bare `?ly-type=EXPIRE` lands whole (the parseInitialStage law,
+  // one home in tab-url). SSR-guarded like every seed in this file.
+  const [activeSubTab, setActiveSubTab] = useState<LoyaltySubTab>(() => {
+    if (typeof window === 'undefined') return 'tiers';
+    return parseInitialStage(window.location.search, LOYALTY_SUB_TABS, 'transactions', landedLyType !== 'all', 'tiers');
+  });
 
   // v2.311.0: the paper-trail viewer — the ledger's clawback reference
   // chip (and the member card's receipt sub-line) open the REFUND receipt
@@ -238,10 +267,20 @@ export default function LoyaltyTab() {
   const [memberHistoryOpen, setMemberHistoryOpen] = useState(false);
   const [memberHistoryCustomerId, setMemberHistoryCustomerId] = useState<string>('');
 
-  // Transaction state — the type filter and date window's seeds come
-  // from the address bar (v2.316/v2.317 deep-link laws above), then
-  // belong to the Select and the date inputs.
-  const [txTypeFilter, setTxTypeFilter] = useState<string>(initialTxTypeFilter);
+  // Transaction state — the type filter's seed is the twenty-first
+  // word (v2.368.0, cast-free: the alias parser IS the six-word union,
+  // so the state names it directly); the date window's seed comes from
+  // the address bar (v2.317), then both belong to the Select and the
+  // date inputs.
+  const [txTypeFilter, setTxTypeFilter] = useState<LyTypeFilter>(initialLyType);
+  // v2.368.0: a hand-driven Select change retires the landing word —
+  // the chip speaks the ADDRESS BAR's landing, never the human's next
+  // choice. The typed chooser is the Select's ONE onValueChange (the
+  // old bare setter is gone — cast-negative).
+  const chooseLyType = (value: LyTypeFilter) => {
+    setTxTypeFilter(value);
+    setLyLandingLive(false);
+  };
   const [txDateFrom, setTxDateFrom] = useState<string>(initialDateFrom);
   const [txDateTo, setTxDateTo] = useState<string>(initialDateTo);
   // v2.318.0 — THE WINDOW CAN LEAVE: the desk's ONE deliberate write to
@@ -1036,7 +1075,42 @@ export default function LoyaltyTab() {
       <div className="space-y-4">
         {/* Filters */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-          <Select value={txTypeFilter} onValueChange={setTxTypeFilter}>
+          {/* v2.368.0 THE TWENTY-FIRST WEARING: the chip wears GREEN —
+              the last wearable hue in the palette. The family has spoken all
+              twenty of its hues (indigo through gray, the constitution's
+              rows); of the two standard hues left, red is the danger
+              voice (the standing rule since the conversations desk's
+              census) and green is the ledger's own affirmative ink —
+              the EARN badge's voice, the colour points arrive in. The
+              palette-exhaustion amendment's second application, where
+              the last hue is a VOICE and not a surface: one byte of the
+              chip's wardrobe is the desk's own (text-green-700 is the
+              EARN badge's ink) — the impersonation is bounded by the
+              position (the toolbar, before the Select it landed into),
+              the word in the chip's own text, and the chain-link icon;
+              the remaining eight shades are byte-free on this desk. The
+              chip always speaks the CANONICAL spelling —
+              even when the landing rode the legacy alias — the alias is old
+              clothes for the same word. Light+dark, the shared title tooltip,
+              the group-hover dismiss detail; the position law: the chip
+              sits immediately BEFORE the Select it landed into. */}
+          {lyLandingLive && landedLyType !== 'all' && txTypeFilter === landedLyType && (
+            <button
+              type="button"
+              onClick={() => {
+                setTxTypeFilter('all');
+                setLyLandingLive(false);
+              }}
+              className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-green-200 bg-green-50 text-green-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-green-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-300 dark:hover:bg-green-500/20"
+              data-testid="ly-type-landing-word"
+              title="The ledger landed with this type from the address bar — press to clear it"
+            >
+              <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+              <span className="tabular-nums">landed ?ly-type={landedLyType}</span>
+              <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+            </button>
+          )}
+          <Select value={txTypeFilter} onValueChange={chooseLyType}>
             <SelectTrigger className="h-9 w-full sm:w-[150px]">
               <SelectValue placeholder="All Types" />
             </SelectTrigger>
