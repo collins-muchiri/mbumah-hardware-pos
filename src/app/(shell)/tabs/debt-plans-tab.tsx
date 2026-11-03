@@ -18,10 +18,13 @@ import {
   CalendarClock,
   CheckCircle2,
   ClipboardList,
+  Link2,
   Loader2,
   Plus,
   RefreshCw,
+  X,
 } from 'lucide-react';
+import { parseInitialNamedMember } from '@/lib/tab-url';
 
 import { useAppStore } from '@/lib/stores';
 import {
@@ -39,6 +42,37 @@ import { CreatePlanDialog } from '@/components/debt-plans/create-plan-dialog';
 import { PlanDetailsDialog } from '@/components/debt-plans/plan-details-dialog';
 
 type FilterKey = 'all' | 'pending' | 'active' | 'overdue' | 'completed';
+
+// v2.365.0 — THE DEBT-PLANS DESK'S OWN WORD: the repayment desk answers
+// the address bar. `?dp-status=pending` lands the desk pre-filtered to the
+// plans waiting for approval — the collections desk's daily question ("what
+// is pending?") is now a bookmark. The lens's words are the FILTER CHIPS'
+// own keys since the desk first shipped (lowercase: pending / active /
+// overdue / completed), so the word's voice is LOWERCASE (the payments
+// word's spelling): an UPPERCASE `PENDING` names nothing, and the neutral
+// is the lowercase `all` — a capitalized `ALL` is an unknown word here,
+// the exact inverse of the capitalized-neutral desks. Anything missing or
+// unknown answers 'all' (never stranded). The word is desk-prefixed per
+// the Task 44 collision law: a desk-prefixed word can never leak across
+// client-side tab switches — Collision-checked at round start (grep-FREE
+// tree-wide).
+// Read-on-mount ONLY (the one-writer law): the landing word is the LANDING
+// lens, never rewritten; the filter chips own the state after.
+// THE FACE-KIND NOTE (the family's first non-Select control face): the
+// lens's control is a BUTTON GROUP, not a Select — the chooser is the
+// group's onClick, not an onValueChange. The law's intent transfers
+// unchanged: a hand press is the human owning the lens, and the landing
+// chip retires the moment that happens. The lens is ALWAYS RENDERED on the
+// desk's top-level pane (no sub-tabs, no collapsible panel), so a landing
+// that carries the word shows the chip immediately — the always-visible
+// face without an amendment.
+export const DP_STATUS_FILTERS = ['all', 'pending', 'active', 'overdue', 'completed'] as const;
+type DpStatusFilter = (typeof DP_STATUS_FILTERS)[number];
+
+function initialDpStatus(): (typeof DP_STATUS_FILTERS)[number] {
+  if (typeof window === 'undefined') return 'all';
+  return parseInitialNamedMember(window.location.search, 'dp-status', DP_STATUS_FILTERS, 'all');
+}
 
 interface FilterChip {
   key: FilterKey;
@@ -72,7 +106,21 @@ const CHIP_IDLE_CLASSES: Record<string, string> = {
 
 export function DebtPlansTab() {
   const { currentStoreId } = useAppStore();
-  const [filter, setFilter] = useState<FilterKey>('all');
+  const [filter, setFilter] = useState<DpStatusFilter>(initialDpStatus);
+  // v2.365.0 THE LANDING WORD — the plans' seed reads `?dp-status=` through
+  // the ONE home, cast-free: the generic parser IS the five-word union, so
+  // the state names it directly.
+  const [landedDpStatus] = useState<DpStatusFilter>(initialDpStatus);
+  const [dpLandingLive, setDpLandingLive] = useState(true);
+
+  // v2.365.0: a hand-driven chip press retires the landing word — the chip
+  // speaks the ADDRESS BAR's landing, never the human's next choice. (The
+  // FACE-KIND NOTE: the chooser is the button group's onClick — the
+  // family's first non-Select control face, the law's intent unchanged.)
+  const chooseDpStatus = (value: DpStatusFilter) => {
+    setFilter(value);
+    setDpLandingLive(false);
+  };
   const [createOpen, setCreateOpen] = useState(false);
   const [detailsPlan, setDetailsPlan] = useState<DebtPaymentPlanItem | null>(null);
 
@@ -211,6 +259,35 @@ export function DebtPlansTab() {
 
       {/* Filter chips */}
       <div className="flex flex-wrap items-center gap-2">
+        {/* v2.365.0 THE LANDING WORD, out loud: while the landing is
+            live AND the lens still wears the word it seeded, the chip
+            names the exact word — an honest face. It wears the
+            EIGHTEENTH family (zinc — the galvanized hue, the coating on
+            this yard's steel; byte-free on this desk — emerald/amber/
+            rose/green are the lens chips' own voices, and a voice must
+            not masquerade as a badge) with dark-mode variants, the Link2
+            icon, a `title` tooltip, and a one-press dismissal that
+            clears the lens the word seeded. The chip retires the moment
+            the human owns the filter. THE TWO VOICES: a hand-driven
+            chip press or the chip's own dismissal.
+            `data-testid="dp-status-landing-word"` — the QA walk's
+            handle. */}
+        {dpLandingLive && landedDpStatus !== 'all' && filter === landedDpStatus && (
+          <button
+            type="button"
+            onClick={() => {
+              setFilter('all');
+              setDpLandingLive(false);
+            }}
+            className="group inline-flex items-center gap-1 h-6 px-2 rounded-full border border-zinc-200 bg-zinc-50 text-zinc-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 dark:border-zinc-500/30 dark:bg-zinc-500/10 dark:text-zinc-300 dark:hover:bg-zinc-500/20"
+            data-testid="dp-status-landing-word"
+            title="The desk landed with this filter from the address bar — press to clear it"
+          >
+            <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+            <span className="tabular-nums">landed ?dp-status={landedDpStatus}</span>
+            <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+          </button>
+        )}
         {FILTER_CHIPS.map((chip) => {
           const isActive = filter === chip.key;
           const count = filterCounts[chip.key] ?? 0;
@@ -218,7 +295,7 @@ export function DebtPlansTab() {
             <button
               key={chip.key}
               type="button"
-              onClick={() => setFilter(chip.key)}
+              onClick={() => chooseDpStatus(chip.key)}
               aria-pressed={isActive}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
                 isActive

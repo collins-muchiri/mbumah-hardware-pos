@@ -296,6 +296,18 @@ export function parseInitialNamedPage(search: string, param: string, fallback = 
  * collapsible filters panel, and THE COLLAPSIBLE-FACE AMENDMENT makes
  * the landing raise the panel it lands into — the chip is visible on
  * landing, the survey law's second amended case).
+ * v2.365.0 — THE PROMISE KEPT, THE EIGHTEENTH WORD: the debt-plans desk's
+ * status lens speaks it as its desk-prefixed `dp-status` (the same
+ * parser, zero new bytes of law, again — the repayment desk's daily
+ * question, from Pending Approval through Overdue to Completed, is now
+ * an address; LOWERCASE words, the filter chips' own keys, and the
+ * landing chip wears the eighteenth family, zinc — the galvanized hue,
+ * the coating on this yard's steel — with the NEUTRAL lowercase here,
+ * the desk's own all-chip spelling; the lens's control is a BUTTON
+ * GROUP, the family's first non-Select control face — the chooser is
+ * the group's onClick, the law's intent unchanged, and the lens is
+ * always rendered on the desk's top-level pane, the always-visible face
+ * without an amendment).
  */
 export function parseInitialNamedMember<V extends string>(
   search: string,
