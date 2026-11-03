@@ -285,6 +285,17 @@ export function parseInitialNamedPage(search: string, param: string, fallback = 
  * desk's own all-lens spelling; the lens lives in the top-level split
  * view's always-visible list pane, no sub-tabs on this desk, and the
  * desk's query already carried the lens in both its key and its params).
+ * v2.364.0 — THE PROMISE KEPT, THE SEVENTEENTH WORD: the catalog desk's
+ * stock lens speaks it as its desk-prefixed `cat-stock` (the same
+ * parser, zero new bytes of law, again — the shop floor's shelves from
+ * In Stock through Low to Out are now an address; LOWERCASE words, the
+ * lens's own spellings since the desk first shipped, and the landing
+ * chip wears the seventeenth family, purple — the catalog's plum, the
+ * paint-deck hue the desk had not spoken — with the NEUTRAL lowercase
+ * here, the desk's own all-lens spelling; the lens rides the desk's
+ * collapsible filters panel, and THE COLLAPSIBLE-FACE AMENDMENT makes
+ * the landing raise the panel it lands into — the chip is visible on
+ * landing, the survey law's second amended case).
  */
 export function parseInitialNamedMember<V extends string>(
   search: string,
