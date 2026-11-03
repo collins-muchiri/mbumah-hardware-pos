@@ -1,3 +1,14 @@
+## [2.371.0] The refund rows come home
+
+The money desk's round. The refund feature (v2.308.0) gave every refund its own transaction row — own receipt number, own reason, own money-out amount — and gave that row paymentStatus COMPLETED, because the refund SUCCEEDED. The desk's derived type read only the paymentStatus, so every refund event masqueraded as a sale in the sales lens, and the refund lens (the seventh word) only ever showed the refunded ORIGINALS — the events themselves were invisible as a class. This round the row's own transactionType outranks the derived status: the refund lens becomes the refund desk (the events AND the refunded originals share it — the two sides of one story), the event rows wear this desk's own amber refund ink with the reason voice, and the sales lens is sales again.
+
+### Added
+- **THE KIND-FIRST LAW** (`transactions-tab.tsx`): `getTransactionType` reads the row's own `transactionType` (REFUND → refund, VOID → void) BEFORE the paymentStatus checks — the status checks stay as the ORIGINALS' voice (a sale whose paymentStatus became REFUNDED or VOIDED still speaks its state). The `?txn-type=refund` lens now answers the manager's actual question: every refund event, loudest first, with the type census telling the truth.
+- **THE REFUND EVENT'S WEARING** (styling detail): a refund row speaks its kind in the status cell — the amber kind chip (this desk's own refund ink: the amount cell has worn the amber minus since the refund lens shipped) with the RotateCcw kind icon and the reason label read from the service's own `Refund reason:` notes prefix (the KNOWN vocabulary only — an honest chip never invents a reason the notes did not speak). The refunded ORIGINAL keeps its blue Refunded status badge: the event and the state are two voices, and the desk now speaks both.
+
+### Changed
+- **THE SALES LENS IS SALES AGAIN**: the money-out rows leave the sale lens; the lens's census (`N in this lens`) counts what the name says.
+
 ## [2.370.0] The constitution walks itself
 
 The registry's round. Every deep-link round since v2.328.0 pinned its own row's bytes from its own suite; the constitution's registry — twenty-one rows naming every word, desk, family and suite — was guarded only by those per-round pins. This round the registry DERIVES: a new stress suite parses the rows from the constitution file itself (the registry is the input, never a copy) and walks each against the tree — the desk exists and speaks its word, the desk wears the chip's wardrobe pair, the desk carries a landing-word handle whose stem is the word or its first segment (the family's naming history, derived), the row's suite exists and pins its own row, and the suite's version is stamped in tab-url and carried in the whats-new feed. Globally it derives the title's own arithmetic — twenty-one words over nineteen desks with twenty-one distinct families — and the promise roll through TWENTY-FIRST from the home's doc notes.
