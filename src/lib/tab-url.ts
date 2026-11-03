@@ -276,6 +276,15 @@ export function parseInitialNamedPage(search: string, param: string, fallback = 
  * desk's voice; the lens rides the desk's DEFAULT sub-tab, the survey
  * law's first amended case — the chip is visible on landing, and a
  * non-default sub-tab lens stays blocked).
+ * v2.363.0 — THE PROMISE KEPT, THE SIXTEENTH WORD: the conversations
+ * desk's thread-list type lens speaks it as its desk-prefixed `cv-type`
+ * (the same parser, zero new bytes of law, again — the threads' kind
+ * from Internal to Customer Support is now an address; UPPERCASE words,
+ * the landing chip wears the sixteenth family, slate — the thread hue
+ * the desk had not spoken — and the NEUTRAL is lowercase here, the
+ * desk's own all-lens spelling; the lens lives in the top-level split
+ * view's always-visible list pane, no sub-tabs on this desk, and the
+ * desk's query already carried the lens in both its key and its params).
  */
 export function parseInitialNamedMember<V extends string>(
   search: string,

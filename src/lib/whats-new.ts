@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.363.0',
+    title: 'The threads\u2019 kind answers the address bar',
+    bullets: [
+      'A conversations link can now name its lens: ?cv-type=INTERNAL or CUSTOMER_SUPPORT lands the thread list pre-filtered, with a dismissible chip naming the word it answered — the sixteenth word of the address-bar vocabulary.',
+      'The landing chip wears the vocabulary\u2019s sixteenth family (slate — the thread hue) beside the desk\u2019s own voices — one bar, honest voices, no masquerade; the list feeds the filter straight into its query, so a landed word filters the threads, not just the Select\u2019s face.',
+      'Unknown, missing, or wrong-case words never strand the thread list: the lens falls back to All types, case-sensitively.',
+    ],
+  },
+  {
     version: '2.362.0',
     title: 'The workforce\u2019s standing answers the address bar',
     bullets: [

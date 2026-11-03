@@ -23,8 +23,8 @@
 // seed bytes and its cast-free typing, the chip's bytes and its two
 // retirement voices, the one-home promise (the law's doc carries the
 // tenth word), the collision ledger — and THE CONSTITUTION: the whole
-// vocabulary's invariants walked from source bytes, fifteen words strong
-// (the fifteenth row joined in v2.362.0).
+// vocabulary's invariants walked from source bytes, sixteen words strong
+// (the sixteenth row joined in v2.363.0).
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
@@ -195,7 +195,7 @@ describe('the landing chip — the face names the word it answered', () => {
 // 4. THE CONSTITUTION — the whole vocabulary's invariants, walked from bytes
 // ---------------------------------------------------------------------------
 
-describe('the address-bar vocabulary — THE CONSTITUTION (fifteen words, thirteen desks)', () => {
+describe('the address-bar vocabulary — THE CONSTITUTION (sixteen words, fourteen desks)', () => {
   const WORDS = [
     { word: 'po-status', desk: 'src/app/(shell)/tabs/purchase-orders-tab.tsx', family: 'border-indigo-200', suite: 'src/tests/proxy-gate-layering-v2328.test.ts' },
     { word: 'inv-stock', desk: 'src/app/(shell)/tabs/inventory-tab.tsx', family: 'border-amber-200', suite: 'src/tests/inv-stock-deep-link-v2329.test.ts' },
@@ -212,6 +212,7 @@ describe('the address-bar vocabulary — THE CONSTITUTION (fifteen words, thirte
     { word: 'vc-status', desk: 'src/app/(shell)/tabs/vouchers-tab.tsx', family: 'border-pink-200', suite: 'src/tests/vc-status-deep-link-v2360.test.ts' },
     { word: 'cr-type', desk: 'src/app/(shell)/tabs/credits-tab.tsx', family: 'border-yellow-200', suite: 'src/tests/cr-type-deep-link-v2361.test.ts' },
     { word: 'pr-status', desk: 'src/app/(shell)/tabs/payroll-tab.tsx', family: 'border-stone-200', suite: 'src/tests/pr-status-deep-link-v2362.test.ts' },
+    { word: 'cv-type', desk: 'src/app/(shell)/tabs/conversations-tab.tsx', family: 'border-slate-200', suite: 'src/tests/cv-type-deep-link-v2363.test.ts' },
   ] as const;
 
   it('every word is desk-prefixed and owns its FILTERS const in exactly its desk', () => {
@@ -221,7 +222,7 @@ describe('the address-bar vocabulary — THE CONSTITUTION (fifteen words, thirte
     }
   });
 
-  it('every word wears a DISTINCT family — fifteen families, no two alike', () => {
+  it('every word wears a DISTINCT family — sixteen families, no two alike', () => {
     const families = WORDS.map((w) => w.family);
     expect(new Set(families).size).toBe(WORDS.length);
     for (const { word, desk: deskPath, family } of WORDS) {
@@ -235,7 +236,7 @@ describe('the address-bar vocabulary — THE CONSTITUTION (fifteen words, thirte
     for (const { suite } of WORDS) {
       expect(readFileSync(suite, 'utf8').length > 0, `${suite} exists`).toBe(true);
     }
-    for (const n of ['SEVENTH', 'EIGHTH', 'NINTH', 'TENTH', 'ELEVENTH', 'TWELFTH', 'THIRTEENTH', 'FOURTEENTH', 'FIFTEENTH']) {
+    for (const n of ['SEVENTH', 'EIGHTH', 'NINTH', 'TENTH', 'ELEVENTH', 'TWELFTH', 'THIRTEENTH', 'FOURTEENTH', 'FIFTEENTH', 'SIXTEENTH']) {
       expect(home.includes(`THE PROMISE KEPT, THE ${n} WORD`)).toBe(true);
     }
   });
@@ -296,6 +297,7 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // RIPPLE: a ledger is an honest speaker of every word it lists)
       'src/tests/cr-type-deep-link-v2361.test.ts',
       'src/tests/cust-debt-deep-link-v2330.test.ts',
+      'src/tests/cv-type-deep-link-v2363.test.ts',
       'src/tests/dn-status-deep-link-v2359.test.ts',
       'src/tests/gc-status-deep-link-v2358.test.ts',
       'src/tests/inv-status-deep-link-v2356.test.ts',

@@ -21,10 +21,13 @@ import { toast } from 'sonner';
 import {
   MessageSquare, Send, Plus, Search, ArrowLeft, Users,
   Loader2, Trash2, Settings2, Hash, CheckCheck,
-  RefreshCw, X,
+  RefreshCw, X, Link2,
 } from 'lucide-react';
 
 import { useAppStore, useAuthStore } from '@/lib/stores';
+// v2.363.0: the landing word rides the ONE home — the same address-bar
+// parser every desk has spoken since v2.328.0 (never a local copy).
+import { parseInitialNamedMember } from '@/lib/tab-url';
 import {
   conversationsApi,
   type ChatParticipantItem,
@@ -103,6 +106,46 @@ function getAvatarColor(name: string): string {
 
 // Conversation List Pane
 
+// ═══════════════ THE CONVERSATIONS DESK'S OWN WORD (v2.363.0) ═══════════════
+// The thread list's type lens answers the address bar: a landing that
+// names `?cv-type=INTERNAL` (or CUSTOMER_SUPPORT) seeds the thread
+// list's type filter through the ONE home — the same promise every desk
+// has kept since v2.328.0. The law is MEMBERSHIP: the value must name a
+// lens the desk actually offers — case-sensitive (the lens's own words
+// are UPPERCASE, so `internal` is an unknown word, not a clever match —
+// the payment word's voice) — and anything missing or unknown answers
+// the neutral (never stranded).
+// Collision-checked at round start: the word is grep-FREE tree-wide; the
+// only type vocabulary the desk spoke was the new-conversation form's
+// own Select (an EDIT-DIALOG value, never a reader of this word — the
+// two are different controls with different states).
+// THE ALWAYS-VISIBLE FACE: the lens lives in the thread list pane — the
+// desk's top-level split view (no sub-tabs on this desk) — and the pane
+// mounts visible (no conversation is selected at landing), so a landing
+// that carries the word shows the chip immediately; selecting a thread
+// hides the pane on mobile only (the human's own navigation, after the
+// landing is done).
+// The desk's own voices keep their families beside the chip — the desk
+// icon's blue, the unread accents' rose, the system hues' amber — a
+// voice must not masquerade as a badge, and the chip wears the family
+// the desk had NOT spoken: slate (byte-free on this desk, and the
+// SIXTEENTH lens family — none of the fifteen families the other bars'
+// chips wear) — the thread hue, the neutral every chat UI paints its
+// bubbles with.
+// THE NEUTRAL VOICE, LOWERCASE: this desk's all-lens is spelled 'all'
+// (the Select's own value since the desk first shipped), so the word's
+// neutral is lowercase — the payment word's spelling; an UPPERCASE
+// spelling of the neutral is an unknown word here, the exact inverse of
+// the desks whose neutral is capitalized.
+// Read-on-mount ONLY (the one-writer law): the landing word is the
+// LANDING lens, never rewritten; the type Select owns the state after.
+export const CV_TYPE_FILTERS = ['all', 'INTERNAL', 'CUSTOMER_SUPPORT'] as const;
+
+function initialCvType(): (typeof CV_TYPE_FILTERS)[number] {
+  if (typeof window === 'undefined') return 'all';
+  return parseInitialNamedMember(window.location.search, 'cv-type', CV_TYPE_FILTERS, 'all');
+}
+
 function ConversationList({
   storeId,
   selectedId,
@@ -117,7 +160,23 @@ function ConversationList({
   const authUser = useAuthStore((s) => s.user);
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
-  const [typeFilter, setTypeFilter] = useState<string>('all');
+  // v2.363.0 THE LANDING WORD — the thread list's seed reads the word
+  // through the ONE home, cast-free: the generic parser IS the union, so
+  // the state names it directly.
+  const [typeFilter, setTypeFilter] = useState<(typeof CV_TYPE_FILTERS)[number]>(initialCvType);
+  // v2.363.0 — the address-bar word the desk answered at mount ('all'
+  // when the landing carried no lens). The chip speaks it ONCE: dismissed
+  // or hand-changed, the landing is over and the chip retires — an
+  // honest face never claims a landing that is done.
+  const [landedCvType] = useState<(typeof CV_TYPE_FILTERS)[number]>(initialCvType);
+  const [cvLandingLive, setCvLandingLive] = useState(true);
+
+  // v2.363.0: a hand-driven change retires the landing word — the chip
+  // speaks the ADDRESS BAR's landing, never the human's next choice.
+  const chooseCvType = (value: (typeof CV_TYPE_FILTERS)[number]) => {
+    setTypeFilter(value);
+    setCvLandingLive(false);
+  };
 
   // OWNER-VISIBILITY TOGGLE (v2.5.6): owners/managers/admins can browse ALL
   // store threads ("store" scope) and join the ones they care about. Staff
@@ -210,7 +269,36 @@ function ConversationList({
             className="pl-8 h-8 text-sm"
           />
         </div>
-        <Select value={typeFilter} onValueChange={setTypeFilter}>
+        {/* v2.363.0 THE LANDING WORD, out loud: while the landing is
+            live AND the lens still wears the word it seeded, the chip
+            names the exact word — an honest face. It wears the
+            SIXTEENTH family (slate — the thread hue, byte-free on this
+            desk; the desk's own voices keep theirs beside it: the desk
+            icon's blue, the unread accents' rose — a voice must not
+            masquerade as a badge) with dark-mode variants, the Link2
+            icon, a `title` tooltip, and a one-press dismissal that
+            clears the lens the word seeded. The chip retires the moment
+            the human owns the filter. THE TWO VOICES:
+            hand-driven Select change or the chip's own dismissal.
+            `data-testid="cv-type-landing-word"` — the QA walk's
+            handle. */}
+        {cvLandingLive && landedCvType !== 'all' && typeFilter === landedCvType && (
+          <button
+            type="button"
+            onClick={() => {
+              setTypeFilter('all');
+              setCvLandingLive(false);
+            }}
+            className="group inline-flex items-center gap-1 h-6 px-2 rounded-full border border-slate-200 bg-slate-50 text-slate-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 dark:border-slate-500/30 dark:bg-slate-500/10 dark:text-slate-300 dark:hover:bg-slate-500/20"
+            data-testid="cv-type-landing-word"
+            title="The desk landed with this filter from the address bar — press to clear it"
+          >
+            <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+            <span className="tabular-nums">landed ?cv-type={landedCvType}</span>
+            <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+          </button>
+        )}
+        <Select value={typeFilter} onValueChange={chooseCvType}>
           <SelectTrigger className="h-8 text-xs">
             <SelectValue />
           </SelectTrigger>
