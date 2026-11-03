@@ -466,10 +466,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.369.0: the island's homecoming entry joins the feed (+1 on every anchor → 258/259/260/291 → 259/260/261/292)
     // v2.370.0: the registry's derived-walk entry joins the feed (+1 on every anchor → 259/260/261/292 → 260/261/262/293)
     // v2.371.0: the refund rows' homecoming entry joins the feed (+1 on every anchor → 260/261/262/293 → 261/262/263/294)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(261);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(262);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(263);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(294);
+    // v2.372.0: the gap comes home — the refund chain settles the header (+1 on every anchor → 261/262/263/294 → 262/263/264/295)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(262);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(263);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(264);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(295);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 

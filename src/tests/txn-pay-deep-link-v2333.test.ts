@@ -87,7 +87,7 @@ describe('the transactions desk — ?txn-pay= lands as visible state', () => {
   const home = readFileSync('src/lib/tab-url.ts', 'utf8');
 
   it('the seed reads the word through the ONE home (never a local parser)', () => {
-    expect(desk.includes("import { parseInitialNamedMember } from '@/lib/tab-url';")).toBe(true);
+    expect(desk.includes("import { buildSearchWithoutParams, parseInitialNamedMember } from '@/lib/tab-url';")).toBe(true);
     expect(
       desk.includes("parseInitialNamedMember(window.location.search, 'txn-pay', TXN_PAY_FILTERS, 'all')")
     ).toBe(true);
@@ -200,6 +200,9 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/ly-type-deep-link-v2368.test.ts',
       'src/tests/pr-status-deep-link-v2362.test.ts',
       'src/tests/proxy-gate-layering-v2328.test.ts',
+      // v2.372.0: the gap-closure suite pins the desk's chip scrub — the
+      // ledger is the honest speaker here (the LEDGER-CITATION RIPPLE)
+      'src/tests/refund-gap-closure-v2372.test.ts',
       // v2.355.0: the rentals desk's status lens joins the vocabulary — its
       // deep-link suite is admitted (an admission line carries the word it
       // admits — the LEDGER-CITATION RIPPLE, second-order form)
