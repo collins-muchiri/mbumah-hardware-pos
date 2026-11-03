@@ -1,3 +1,15 @@
+## [2.377.0] The last native prompt retires
+
+The ask-dialog family's second round. v2.376.0 retired the native prompt from the fifteen SEND flows and pinned the payroll void-reason ask as the ONE survivor; this round the family grows its multiline sibling and the survivor migrates — the product tree now answers to ZERO native prompt calls.
+
+### Added
+- **THE MULTILINE SIBLING** (`send-prompt-dialog.tsx` useAskText): the same resolver contract as the send ask (trimmed string on confirm, null on cancel/Escape, a re-ask settles the pending resolver) behind a TEXTAREA face. `rows` sizes the prose, `description` speaks the action's own facts (whitespace-pre-line), `destructive` dresses the confirm in the Ban icon + the destructive tone, `required` asks for a line with its own inline voice, and `confirmLabel` names the action ("Void pay run").
+- **THE PAYROLL VOID ASK MIGRATED** (`payroll-tab.tsx` handleVoid): the void-reason prompt was the last native window.prompt in the product tree — a multi-line audit reason squeezed through a single-line native modal that embedded webviews swallow. The ask now opens the app's dialog with the run's own facts (runType, periodName, what voiding means), the working reason pre-filled, and the destructive confirm. Cancel still resolves null; an EMPTY confirm rides the same `reason.trim() || 'Voided by admin'` fallback — the mutation's voice is byte-identical.
+
+### Tests
+- `src/tests/ask-text-dialog-v2377.test.tsx` (11 pins): the multiline harness truth table (TEXTAREA tag, trimmed resolve, cancel null, the empty-confirm fallback, the required voice + heal, the custom required message, Enter submit, the destructive tone + caption + description), and THE ZERO-SURVIVOR CENSUS — the payroll desk consumes the hook with the byte-identical fallback, and the whole product tree (src/app + src/components + src/lib) carries ZERO `window.prompt(` calls.
+- `src/tests/send-prompt-dialog-v2376.test.tsx` — the living census hands over: the payroll survivor pin became the ask-text consumer pin, and the tree census moved from ONE to ZERO.
+
 ## [2.376.0] The ask-dialog retires the native prompt
 
 The send family's own round. Fifteen send flows across eight desks asked for their recipient through the browser's native `window.prompt()` - a face that embedded webviews (in-app browsers, the QA harness) silently swallow, which made the buttons look dead and left a walk-in with no way to answer. This round every ask speaks in the app's own voice.
