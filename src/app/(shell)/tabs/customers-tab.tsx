@@ -23,6 +23,7 @@ import {
   type CustomerHistorySummary,
 } from '@/lib/api';
 import { handleError, friendlyLookupError } from '@/lib/error-handler';
+import { useSendPrompt } from '@/components/send-prompt-dialog';
 import { ResponsiveDialog } from '@/components/ui/responsive-dialog';
 import { LoyaltyCard } from '@/components/loyalty/loyalty-card';
 
@@ -232,6 +233,10 @@ function CustomerHistoryDialog({
 }) {
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [sendingStatement, setSendingStatement] = useState(false);
+  // v2.376.0: the statement sends ask through the app's own dialog (the
+  // native prompt was swallowed in embedded webviews — the button looked
+  // dead, the desk had no way to answer it).
+  const { ask: askRecipient, dialog: sendPromptDialog } = useSendPrompt();
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['customer-history', customer?.id, storeId],
@@ -280,7 +285,14 @@ function CustomerHistoryDialog({
 
   async function handleSendStatement() {
     if (!customer) return;
-    const phone = prompt('Enter WhatsApp phone number to send the statement to:', customer.phone || '') || '';
+    // v2.376.0: the ask-dialog replaces the native prompt — inline
+    // validation and a real prefill; cancel still returns null.
+    const phone = await askRecipient({
+      channel: 'WHATSAPP',
+      title: 'Send statement via WhatsApp',
+      description: `The account statement for ${customer.name} rides the WhatsApp message.`,
+      prefill: customer.phone || '',
+    });
     if (!phone) return;
     setSendingStatement(true);
     try {
@@ -313,7 +325,13 @@ function CustomerHistoryDialog({
   // normalizes 07xx → 2547xx.
   async function handleSendStatementSms() {
     if (!customer) return;
-    const phone = prompt('Enter SMS phone number to send the statement to:', customer.phone || '') || '';
+    // v2.376.0: the ask-dialog replaces the native prompt (SMS twin).
+    const phone = await askRecipient({
+      channel: 'SMS',
+      title: 'Send statement via SMS',
+      description: `The compact statement summary for ${customer.name} opens in the SMS app.`,
+      prefill: customer.phone || '',
+    });
     if (!phone) return;
     setSendingStatement(true);
     try {
@@ -502,6 +520,8 @@ function CustomerHistoryDialog({
           </ScrollArea>
         )}
       </div>
+      {/* v2.376.0 THE ASK-DIALOG: the statement sends' recipient face. */}
+      {sendPromptDialog}
     </ResponsiveDialog>
   );
 }

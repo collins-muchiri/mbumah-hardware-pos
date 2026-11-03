@@ -25,6 +25,7 @@ import {
 } from '@/lib/api';
 import { MessagePreviewDialog } from '@/components/documents/message-preview-dialog';
 import { handleError } from '@/lib/error-handler';
+import { useSendPrompt } from '@/components/send-prompt-dialog';
 import { ResponsiveDialog } from '@/components/ui/responsive-dialog';
 
 import { Button } from '@/components/ui/button';
@@ -263,6 +264,10 @@ function initialVcStatus(): (typeof VC_STATUS_FILTERS)[number] {
 export default function VouchersTab() {
   const currentStoreId = useAppStore((s) => s.currentStoreId);
   const queryClient = useQueryClient();
+  // v2.376.0: the campaign sends ask through the app's own dialog (the
+  // native prompt was swallowed in embedded webviews and inline lambdas
+  // cannot await an ask — the three sites below became named handlers).
+  const { ask: askRecipient, dialog: sendPromptDialog } = useSendPrompt();
 
   // Local State
 
@@ -891,6 +896,41 @@ export default function VouchersTab() {
     toast.success('Email opened with campaign details');
   }
 
+  // v2.376.0 THE ASK-DIALOG HANDLERS: the campaign menu's three send sites
+  // asked through the swallowed native prompt inside inline lambdas. Each
+  // now awaits the app's own ask-dialog first — inline validation, a real
+  // face in every webview; cancel still returns null and the menu item
+  // simply does nothing the user chose not to do.
+  async function askCampaignWhatsApp(campaign: VoucherCampaignItem) {
+    const phone = await askRecipient({
+      channel: 'WHATSAPP',
+      title: 'Send campaign via WhatsApp',
+      description: `The campaign message for ${campaign.name} opens in WhatsApp.`,
+    });
+    if (!phone) return;
+    previewCampaignDeepLink(campaign, 'whatsapp', phone);
+  }
+
+  async function askCampaignSms(campaign: VoucherCampaignItem) {
+    const phone = await askRecipient({
+      channel: 'SMS',
+      title: 'Send campaign via SMS',
+      description: `The campaign message for ${campaign.name} opens in the SMS app.`,
+    });
+    if (!phone) return;
+    previewCampaignDeepLink(campaign, 'sms', phone);
+  }
+
+  async function askCampaignEmail(campaign: VoucherCampaignItem) {
+    const email = await askRecipient({
+      channel: 'EMAIL',
+      title: 'Send campaign via Email',
+      description: `The campaign message for ${campaign.name} opens in the email app.`,
+    });
+    if (!email) return;
+    sendCampaignEmail(campaign, email);
+  }
+
   // Loading State
 
   if (vouchersLoading || campaignsLoading) {
@@ -1514,15 +1554,15 @@ export default function VouchersTab() {
                             <DropdownMenuContent align="end" className="w-48">
                               <DropdownMenuLabel className="text-xs">Send campaign via</DropdownMenuLabel>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem onClick={() => { const phone = prompt('Enter WhatsApp phone number:') || ''; if (!phone) return; previewCampaignDeepLink(campaign, 'whatsapp', phone); }}>
+                              <DropdownMenuItem onClick={() => askCampaignWhatsApp(campaign)}>
                                 <Phone className="h-4 w-4 mr-2 text-green-700" />
                                 <span>WhatsApp</span>
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => { const phone = prompt('Enter SMS phone number:') || ''; if (!phone) return; previewCampaignDeepLink(campaign, 'sms', phone); }}>
+                              <DropdownMenuItem onClick={() => askCampaignSms(campaign)}>
                                 <MessageSquare className="h-4 w-4 mr-2 text-blue-600" />
                                 <span>Text (SMS)</span>
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => sendCampaignEmail(campaign, prompt('Enter email address:') || '')}>
+                              <DropdownMenuItem onClick={() => askCampaignEmail(campaign)}>
                                 <Mail className="h-4 w-4 mr-2 text-orange-600" />
                                 <span>Email</span>
                               </DropdownMenuItem>
@@ -2576,6 +2616,8 @@ export default function VouchersTab() {
           </div>
         </ResponsiveDialog>
       </div>
+      {/* v2.376.0 THE ASK-DIALOG: the campaign sends' recipient face. */}
+      {sendPromptDialog}
     </TooltipProvider>
   );
 }

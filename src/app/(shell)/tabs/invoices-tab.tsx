@@ -25,6 +25,7 @@ import {
   type CustomerItem,
 } from '@/lib/api';
 import { handleError } from '@/lib/error-handler';
+import { useSendPrompt } from '@/components/send-prompt-dialog';
 import { formatQtyWithUnit, toDec, max0 } from '@/lib/utils/financialMath';
 import {
   buildBrandedDocumentHtml,
@@ -214,6 +215,10 @@ function initialInvStatus(): (typeof INV_STATUS_FILTERS)[number] {
 export default function InvoicesTab() {
   const currentStoreId = useAppStore((s) => s.currentStoreId);
   const queryClient = useQueryClient();
+  // v2.376.0: the document sends ask through the app's own dialog (the
+  // native prompt was swallowed in embedded webviews — the button looked
+  // dead).
+  const { ask: askRecipient, dialog: sendPromptDialog } = useSendPrompt();
   // v2.8.0: admin-controlled VAT rate - new lines default to it and the
   // server applies the same authoritative rate on create.
   const { vatRate } = useVatRate();
@@ -780,7 +785,14 @@ export default function InvoicesTab() {
 
   const handleSendWhatsApp = async (invoice: InvoiceItem) => {
     try {
-      const phone = prompt('Enter WhatsApp phone number:', invoice.customerPhone || '') || '';
+      // v2.376.0: the ask-dialog replaces the native prompt — inline
+      // validation and a real prefill; cancel still returns null.
+      const phone = await askRecipient({
+        channel: 'WHATSAPP',
+        title: `Send ${invoice.invoiceType === 'QUOTATION' ? 'quotation' : invoice.invoiceType === 'PROFORMA' ? 'proforma' : 'invoice'} via WhatsApp`,
+        description: `${invoice.invoiceType} ${invoice.invoiceNumber} rides the WhatsApp message.`,
+        prefill: invoice.customerPhone || '',
+      });
       if (!phone) return;
       const docType = invoice.invoiceType === 'QUOTATION' ? 'quotation' : invoice.invoiceType === 'PROFORMA' ? 'quotation' : 'invoice';
       const res = await whatsappApi.sendDocument({
@@ -815,7 +827,13 @@ export default function InvoicesTab() {
   // opening the sms: deep link.
   const handleSendSms = async (invoice: InvoiceItem) => {
     try {
-      const phone = prompt('Enter SMS phone number:', invoice.customerPhone || '') || '';
+      // v2.376.0: the ask-dialog replaces the native prompt (SMS twin).
+      const phone = await askRecipient({
+        channel: 'SMS',
+        title: `Send ${invoice.invoiceType === 'QUOTATION' ? 'quotation' : invoice.invoiceType === 'PROFORMA' ? 'proforma' : 'invoice'} via SMS`,
+        description: `The compact ${invoice.invoiceType.toLowerCase()} summary opens in the SMS app.`,
+        prefill: invoice.customerPhone || '',
+      });
       if (!phone) return;
       const text = [
         `MBUMAH HARDWARE ${invoice.invoiceType} ${invoice.invoiceNumber}`,
@@ -1972,6 +1990,8 @@ export default function InvoicesTab() {
         title={msgPreview?.title}
         waLink={msgPreview?.waLink}
       />
+      {/* v2.376.0 THE ASK-DIALOG: the document sends' recipient face. */}
+      {sendPromptDialog}
     </div>
   );
 }

@@ -13,6 +13,7 @@ import {
 
 import { transactionsApi, whatsappApi, formatKES, formatDateTime, type ApiResponse, type TransactionItem, type SaleItemDetail, type ReceiptDistributionResult, type RefundableLine, type RefundableLinesResult, type RefundResult, type RefundRowState } from '@/lib/api';
 import { composeDailyRevenueVoice } from '@/lib/report-voices';
+import { useSendPrompt } from '@/components/send-prompt-dialog';
 import { buildSearchWithoutParams, parseInitialNamedMember } from '@/lib/tab-url';
 import { useAppStore, useAuthStore } from '@/lib/stores';
 import { hasFeaturePermission } from '@/lib/permissions';
@@ -1566,6 +1567,10 @@ export default function TransactionsTab() {
   const [receiptAutoPrint, setReceiptAutoPrint] = useState(false);
   // Receipt distribution state (Phase 4 - Email/WhatsApp)
   const [distributing, setDistributing] = useState<'EMAIL' | 'WHATSAPP' | 'SMS' | null>(null);
+  // v2.376.0: the row-level WhatsApp send asks through the app's own dialog
+  // (the native window.prompt was swallowed in embedded webviews and on the
+  // QA harness — the button looked dead, a walk-in had no way to answer it).
+  const { ask: askRecipient, dialog: sendPromptDialog } = useSendPrompt();
 
   // Refund/Void dialog state
   const [refundTransaction, setRefundTransaction] = useState<TransactionItem | null>(null);
@@ -1770,7 +1775,15 @@ export default function TransactionsTab() {
 
   const handleSendReceiptWhatsApp = useCallback(async (transaction: TransactionItem) => {
     try {
-      const phone = prompt('Enter WhatsApp phone number:', transaction.customer?.phone || '') || '';
+      // v2.376.0: the ask-dialog replaces the native prompt — inline
+      // validation, a real prefill from the customer's known phone, and a
+      // face that survives embedded webviews. Cancel still returns null.
+      const phone = await askRecipient({
+        channel: 'WHATSAPP',
+        title: 'Send receipt via WhatsApp',
+        description: `Receipt ${transaction.receiptNumber} — ${transaction.customer?.name || 'Walk-in'}. The recipient answers in the app when no customer phone is on file.`,
+        prefill: transaction.customer?.phone || '',
+      });
       if (!phone) return;
       const res = await whatsappApi.sendDocument({
         type: 'receipt',
@@ -1788,7 +1801,7 @@ export default function TransactionsTab() {
       const msg = handleError(err, 'Send receipt via WhatsApp');
       toast.error(msg);
     }
-  }, [currentStoreId]);
+  }, [currentStoreId, askRecipient]);
 
   /**
    * Distribute the currently-open receipt via Email (Resend), WhatsApp
@@ -2341,6 +2354,11 @@ export default function TransactionsTab() {
         isPending={false}
         variant="destructive"
       />
+
+      {/* v2.376.0 THE ASK-DIALOG: the row-level WhatsApp affordance's
+          recipient face — the app's own voice, not the swallowed native
+          prompt. Mounted once; opened by handleSendReceiptWhatsApp. */}
+      {sendPromptDialog}
     </div>
   );
 }

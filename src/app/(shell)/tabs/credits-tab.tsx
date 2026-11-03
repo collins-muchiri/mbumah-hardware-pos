@@ -19,6 +19,7 @@ import {
   type CustomerItem,
 } from '@/lib/api';
 import { handleError } from '@/lib/error-handler';
+import { useSendPrompt } from '@/components/send-prompt-dialog';
 import {
   buildBrandedDocumentHtml,
   buildDocumentQrDataUrl,
@@ -189,6 +190,9 @@ function SortIcon({ field, sortField, sortDirection }: { field: SortField; sortF
 export default function CreditsTab() {
   const currentStoreId = useAppStore((s) => s.currentStoreId);
   const queryClient = useQueryClient();
+  // v2.376.0: the credit-note sends ask through the app's own dialog (the
+  // native prompt was swallowed in embedded webviews).
+  const { ask: askRecipient, dialog: sendPromptDialog } = useSendPrompt();
 
   // State
   const [searchQuery, setSearchQuery] = useState('');
@@ -486,7 +490,14 @@ export default function CreditsTab() {
   async function handleSendCreditWhatsApp(entry: CustomerCreditItem) {
     try {
       const customer = customers.find((c: CustomerItem) => c.id === entry.customerId);
-      const phone = prompt('Enter WhatsApp phone number:', customer?.phone || '') || '';
+      // v2.376.0: the ask-dialog replaces the native prompt — inline
+      // validation and a real prefill; cancel still returns null.
+      const phone = await askRecipient({
+        channel: 'WHATSAPP',
+        title: 'Send credit note via WhatsApp',
+        description: `The credit note ${entry.reference || ''} for ${customer?.name || 'the customer'} rides the WhatsApp message.`,
+        prefill: customer?.phone || '',
+      });
       if (!phone) return;
       const res = await whatsappApi.sendDocument({
         type: 'credit_note',
@@ -512,7 +523,13 @@ export default function CreditsTab() {
   async function handleSendCreditSms(entry: CustomerCreditItem) {
     try {
       const customer = customers.find((c: CustomerItem) => c.id === entry.customerId);
-      const phone = prompt('Enter SMS phone number:', customer?.phone || '') || '';
+      // v2.376.0: the ask-dialog replaces the native prompt (SMS twin).
+      const phone = await askRecipient({
+        channel: 'SMS',
+        title: 'Send credit note via SMS',
+        description: `The compact credit summary for ${customer?.name || 'the customer'} opens in the SMS app.`,
+        prefill: customer?.phone || '',
+      });
       if (!phone) return;
       const docNo = entry.reference || entry.id.slice(0, 8).toUpperCase();
       const text = [
@@ -1481,6 +1498,8 @@ export default function CreditsTab() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      {/* v2.376.0 THE ASK-DIALOG: the credit-note sends' recipient face. */}
+      {sendPromptDialog}
     </div>
   );
 }
