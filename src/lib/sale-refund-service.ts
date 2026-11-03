@@ -241,6 +241,76 @@ export function computeRefundPlan(
 }
 
 /**
+ * THE GAP-CLOSURE LAW (v2.372.0): a sale's header total can sit ABOVE the
+ * Σ of its line grosses - legacy and seeded rows carry VAT added ON TOP of
+ * the line sums (totalAmount = Σ lineTotal + tax − discount), while the
+ * modern VAT-INCLUSIVE checkout keeps the tax inside the lines and may
+ * carry a cart-level discount BELOW them. The line world alone therefore
+ * cannot settle the header: a refund that exhausted EVERY refundable line
+ * used to strand the difference as an un-refundable remainder - the
+ * original stuck at PARTIAL forever (no quantity left to refund the gap
+ * with), the customer short-paid by exactly the tax the header promised.
+ *
+ * When (and only when) this tranche exhausts the LAST refundable line of
+ * the sale, the refund settles the header's remaining consideration
+ * EXACTLY: expectedTotal = original.totalAmount − Σ prior refunds. The
+ * residual gap distributes across the tranche's allocations
+ * proportionally to their gross (2dp HALF_UP), with the LAST allocation
+ * absorbing the rounding remainder - so Σ refund items still equals the
+ * refunded header total (the Σ-balance invariant the journal, drawer and
+ * receipt all read), and the original flips to REFUNDED by the status law
+ * it already speaks.
+ *
+ * Every share is gross × (expected / Σ gross), so for a non-negative
+ * expected total no share can push an allocation negative - the
+ * proportionality IS the guard. A tranche that leaves any line open is
+ * untouched (an interior tranche charges line gross - the money for the
+ * goods, honest at every intermediate step); an over-refunded header
+ * (expected < 0) or a zero-gross plan is skipped and the whole-sale guard
+ * speaks AMOUNT_OVER_REFUND as before.
+ */
+export function closeRefundGap(
+  views: readonly RefundableLineView[],
+  planned: readonly RefundAllocation[],
+  expectedTotal: number,
+): { allocations: RefundAllocation[]; refundTotal: number; gapClosed: boolean } {
+  const refundTotalBefore = round2(planned.reduce((s, a) => s + a.refundGross, 0));
+  const allocatedQtyBySaleItemId = new Map<string, number>();
+  for (const a of planned) {
+    allocatedQtyBySaleItemId.set(
+      a.line.saleItemId,
+      (allocatedQtyBySaleItemId.get(a.line.saleItemId) ?? 0) + a.quantity,
+    );
+  }
+  // The tranche closes the sale only when EVERY line's remaining quantity
+  // is consumed by this tranche plus the chain that came before it.
+  const allExhausted =
+    views.length > 0 &&
+    views.every(
+      (l) => l.refundableQuantity - (allocatedQtyBySaleItemId.get(l.saleItemId) ?? 0) <= 1e-9,
+    );
+  const untouched = { allocations: [...planned], refundTotal: refundTotalBefore, gapClosed: false };
+  if (!allExhausted) return untouched;
+  const expected = round2(expectedTotal);
+  const gap = round2(toDec(expected).minus(refundTotalBefore));
+  if (expected < 0 || refundTotalBefore <= 0 || Math.abs(gap) < 0.005) return untouched;
+  // Proportional shares (2dp HALF_UP); the LAST allocation absorbs the
+  // rounding remainder so Σ adjustments equals the gap exactly.
+  const adjustments = planned.map((a) =>
+    round2(toDec(gap).mul(toDec(a.refundGross)).div(refundTotalBefore)),
+  );
+  adjustments[adjustments.length - 1] = round2(
+    toDec(gap).minus(adjustments.slice(0, -1).reduce((s, v) => s + v, 0)),
+  );
+  if (planned.some((a, i) => a.refundGross + adjustments[i] < 0)) return untouched;
+  const allocations = planned.map((a, i) => ({
+    ...a,
+    refundGross: round2(a.refundGross + adjustments[i]),
+  }));
+  return { allocations, refundTotal: expected, gapClosed: true };
+}
+
+/**
  * The loyalty clawback law (v2.309.0): refunding money returns the points
  * that money earned. The claw is the SAME floor rule as earning (1 point
  * per KES 100, via calculateEarnedPoints), then capped by the wallet's
@@ -380,10 +450,18 @@ export async function applySaleRefund(
     }
 
     const views = refundableLinesFrom(original.items, priorQtyBySaleItemId, priorGrossBySaleItemId);
-    const { allocations, refundTotal } = computeRefundPlan(views, params.requestedLines);
+    const planned = computeRefundPlan(views, params.requestedLines);
+
+    // v2.372.0 THE GAP-CLOSURE LAW: when this tranche exhausts the LAST
+    // refundable line, the refund settles the header's remaining
+    // consideration exactly (the gap rides the items, Σ-balance kept) -
+    // the original flips to REFUNDED instead of stranding the tax as an
+    // un-refundable remainder. Interior tranches pass through untouched.
+    const originalTotal = toNum(original.totalAmount);
+    const expectedTotal = round2(toDec(originalTotal).minus(priorTotal));
+    const { allocations, refundTotal } = closeRefundGap(views, planned.allocations, expectedTotal);
 
     // Whole-sale guard: the chain can never exceed the original's total.
-    const originalTotal = toNum(original.totalAmount);
     if (toDec(priorTotal).plus(refundTotal).gt(originalTotal + 1e-9)) {
       throw new RefundError('AMOUNT_OVER_REFUND', {
         originalTotal,

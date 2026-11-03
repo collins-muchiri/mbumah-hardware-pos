@@ -10,9 +10,9 @@ import {
   Mail, Send, Loader2, MessageSquare, PackageOpen, ShieldAlert, CheckCircle2, Sparkles,
 } from 'lucide-react';
 
-import { transactionsApi, whatsappApi, formatKES, formatDateTime, type TransactionItem, type SaleItemDetail, type ReceiptDistributionResult, type RefundableLine, type RefundableLinesResult, type RefundResult } from '@/lib/api';
+import { transactionsApi, whatsappApi, formatKES, formatDateTime, type ApiResponse, type TransactionItem, type SaleItemDetail, type ReceiptDistributionResult, type RefundableLine, type RefundableLinesResult, type RefundResult } from '@/lib/api';
 import { composeDailyRevenueVoice } from '@/lib/report-voices';
-import { parseInitialNamedMember } from '@/lib/tab-url';
+import { buildSearchWithoutParams, parseInitialNamedMember } from '@/lib/tab-url';
 import { useAppStore, useAuthStore } from '@/lib/stores';
 import { hasFeaturePermission } from '@/lib/permissions';
 import { getStoreInfo, getLogoUrl, COMPANY } from '@/lib/store-info';
@@ -569,6 +569,21 @@ export function refundReasonOf(notes: string | null | undefined): string | null 
   return REFUND_REASON_LABELS[m[1]];
 }
 
+// v2.372.0 THE DIALOG'S ENVELOPE FIX: request() speaks the {success,data}
+// envelope (api.ts's ApiResponse), but this dialog's seam reads the bare
+// RESULT — on the live wire the GET left the form empty (a header-only
+// dialog) and the POST's success face unreadable, while the suite's
+// doubles spoke the inner shape and passed. Unwrap what the wire wrapped;
+// pass through what already speaks the result (the doubles keep their
+// seam — an inner shape carries no `success` key).
+function unwrapDialogResult<T>(res: ApiResponse<T> | T): T | null {
+  if (res && typeof res === 'object' && 'success' in res) {
+    const envelope = res as ApiResponse<T>;
+    return envelope.data ?? null;
+  }
+  return (res as T) ?? null;
+}
+
 function RefundDialog({
   open,
   onOpenChange,
@@ -619,7 +634,7 @@ function RefundDialog({
     queryKey: ['refundable-lines', transaction?.id],
     queryFn: async () => {
       if (!transaction) throw new Error('No sale selected for the refund dialog.');
-      return transactionsApi.refundableLines(transaction.id);
+      return unwrapDialogResult(await transactionsApi.refundableLines(transaction.id));
     },
     enabled: open && !!transaction,
     retry: false,
@@ -665,6 +680,29 @@ function RefundDialog({
     return Math.round((total + Number.EPSILON) * 100) / 100;
   }, [requestedLines, lines]);
 
+  // v2.372.0 THE DIALOG MIRRORS THE SERVICE'S GAP CLOSURE: a tranche that
+  // exhausts the LAST refundable line settles the header's remaining
+  // consideration exactly (the original's total minus the chain so far -
+  // the stranded tax/discount gap rides the final tranche), the same law
+  // the POST re-derives inside its transaction, so the estimate and the
+  // committed money can never disagree. An interior tranche keeps the
+  // line world's estimate.
+  const settlesInFull = useMemo(
+    () =>
+      lines.length > 0 &&
+      lines.every(
+        (l) => (selected[l.saleItemId] ?? 0) + l.alreadyRefundedQuantity >= l.soldQuantity - 1e-9,
+      ),
+    [lines, selected],
+  );
+  const headerRemaining = useMemo(() => {
+    const total = data && 'totalAmount' in data ? Number(data.totalAmount) : 0;
+    const priorGross = lines.reduce((s, l) => s + (l.lineTotal - l.refundableValue), 0);
+    return Math.round((total - priorGross + Number.EPSILON) * 100) / 100;
+  }, [data, lines]);
+  const quotedTotal = settlesInFull ? headerRemaining : estimatedTotal;
+  const settleGap = Math.round((headerRemaining - estimatedTotal + Number.EPSILON) * 100) / 100;
+
   const restockCount = useMemo(
     () =>
       requestedLines.reduce((sum, req) => {
@@ -698,12 +736,17 @@ function RefundDialog({
     if (!transaction || requestedLines.length === 0) return;
     setBusy(true);
     try {
-      const committed = await transactionsApi.refund(transaction.id, {
-        lines: requestedLines,
-        restock,
-        ...(reason ? { reason } : {}),
-        ...(notes.trim() ? { notes: notes.trim() } : {}),
-      });
+      const committed = unwrapDialogResult(
+        await transactionsApi.refund(transaction.id, {
+          lines: requestedLines,
+          restock,
+          ...(reason ? { reason } : {}),
+          ...(notes.trim() ? { notes: notes.trim() } : {}),
+        }),
+      );
+      if (!committed) {
+        throw new Error('The refund wire returned no result to record.');
+      }
       const restockedNote = committed.restocked.length
         ? ` · ${committed.restocked.length} line${committed.restocked.length > 1 ? 's' : ''} back on the shelf`
         : '';
@@ -802,7 +845,9 @@ function RefundDialog({
                 </li>
                 <li className="flex items-start gap-1.5">
                   <Receipt className="mt-0.5 h-3 w-3 shrink-0" aria-hidden />
-                  {formatKES(Math.max(0, result.remainingRefundable))} remains refundable on the original sale
+                  {result.remainingRefundable > 0.004
+                    ? `${formatKES(result.remainingRefundable)} remains refundable on the original sale`
+                    : 'The original sale is fully settled — nothing remains refundable'}
                 </li>
               </ul>
             </div>
@@ -1020,7 +1065,7 @@ function RefundDialog({
                 <div>
                   <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Refund total</p>
                   <p className="text-lg font-bold tabular-nums text-amber-700 dark:text-amber-400">
-                    {formatKES(estimatedTotal)}
+                    {formatKES(quotedTotal)}
                   </p>
                 </div>
                 <p className="text-right text-[11px] text-muted-foreground tabular-nums">
@@ -1028,6 +1073,20 @@ function RefundDialog({
                   of {formatKES(data.totalAmount)} sold
                 </p>
               </div>
+              {settlesInFull && (
+                <p
+                  data-testid="refund-settles-hint"
+                  className="mt-1.5 border-t pt-1.5 text-[11px] font-medium text-amber-700 dark:text-amber-400"
+                >
+                  Settles this sale in full — the original flips to REFUNDED
+                  {Math.abs(settleGap) >= 0.005 && (
+                    <>
+                      {' '}· includes {formatKES(Math.abs(settleGap))}{' '}
+                      {settleGap > 0 ? 'above' : 'below'} the line totals
+                    </>
+                  )}
+                </p>
+              )}
             </div>
 
             <DialogFooter className="gap-2">
@@ -1045,7 +1104,7 @@ function RefundDialog({
                 ) : (
                   <RotateCcw className="h-4 w-4 mr-1.5" aria-hidden />
                 )}
-                {busy ? 'Recording refund…' : `Refund ${formatKES(estimatedTotal)}`}
+                {busy ? 'Recording refund…' : `Refund ${formatKES(quotedTotal)}`}
               </Button>
             </DialogFooter>
           </>
@@ -1715,6 +1774,15 @@ export default function TransactionsTab() {
                 onClick={() => {
                   setPaymentFilter('all');
                   setTxnLandingLive(false);
+                  // v2.372.0 THE CHIP SCRUBS ITS WORD (the loyalty desk's
+                  // contract, unified): a stale ?txn-pay= that outlives
+                  // the lens it named is a lie the next refresh would
+                  // resurrect — the dismissal removes it from the address
+                  // bar, SSR-guarded like every window touch.
+                  if (typeof window !== 'undefined') {
+                    const next = buildSearchWithoutParams(window.location.search, ['txn-pay']);
+                    window.history.replaceState(null, '', next ? next : window.location.pathname);
+                  }
                 }}
                 className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-violet-200 bg-violet-50 text-violet-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-violet-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 dark:border-violet-500/30 dark:bg-violet-500/10 dark:text-violet-300 dark:hover:bg-violet-500/20"
                 data-testid="txn-landing-word"
@@ -1787,6 +1855,15 @@ export default function TransactionsTab() {
                 onClick={() => {
                   setTypeFilter('all');
                   setTxnTypeLandingLive(false);
+                  // v2.372.0 THE CHIP SCRUBS ITS WORD (the loyalty desk's
+                  // contract, unified): a stale ?txn-type= that outlives
+                  // the lens it named is a lie the next refresh would
+                  // resurrect — the dismissal removes it from the address
+                  // bar, SSR-guarded like every window touch.
+                  if (typeof window !== 'undefined') {
+                    const next = buildSearchWithoutParams(window.location.search, ['txn-type']);
+                    window.history.replaceState(null, '', next ? next : window.location.pathname);
+                  }
                 }}
                 className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-fuchsia-200 bg-fuchsia-50 text-fuchsia-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-fuchsia-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400 dark:border-fuchsia-500/30 dark:bg-fuchsia-500/10 dark:text-fuchsia-300 dark:hover:bg-fuchsia-500/20"
                 data-testid="txn-type-landing-word"

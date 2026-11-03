@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.372.0',
+    title: 'The gap comes home',
+    bullets: [
+      'Full refunds now settle the sale in full: when every refundable line goes home, the stranded gap between the line totals and the sale\u2019s header (the VAT legacy and seeded rows carry on top, the cart discount that sits below) rides the final tranche \u2014 the original flips to REFUNDED instead of parking at PARTIAL with a remainder no one could ever refund.',
+      'The refund dialog tells you before you commit: a tranche that settles the sale says so (\u201cSettles this sale in full \u2014 the original flips to REFUNDED\u201d), quotes the exact money the sale\u2019s header promises, and names the gap it carries above or below the line totals.',
+      'The transactions desk\u2019s two landing chips (?txn-pay= and ?txn-type=) now scrub their word from the address bar when dismissed \u2014 the loyalty desk\u2019s contract, worn by every desk at last; a stale word can no longer resurrect its lens on refresh.',
+      'Fixed: the refund dialog on the live wire rendered only its header \u2014 the lines, the settle hint and the commit never mounted, because the dialog read the API\u2019s bare result while the wire speaks the {success,data} envelope. The seam is unwrapped at both ends; refunds from the UI work again.',
+    ],
+  },
+  {
     version: '2.371.0',
     title: 'The refund rows come home',
     bullets: [
