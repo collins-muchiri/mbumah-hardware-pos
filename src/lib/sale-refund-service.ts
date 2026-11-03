@@ -66,7 +66,8 @@ export type RefundErrorCode =
   | 'NOT_REFUNDABLE'
   | 'EMPTY_REFUND'
   | 'LINE_OVER_REFUND'
-  | 'AMOUNT_OVER_REFUND';
+  | 'AMOUNT_OVER_REFUND'
+  | 'NOT_STRANDED';
 
 const REFUND_ERROR_MESSAGES: Record<RefundErrorCode, string> = {
   NOT_FOUND: 'Transaction not found.',
@@ -75,6 +76,7 @@ const REFUND_ERROR_MESSAGES: Record<RefundErrorCode, string> = {
   EMPTY_REFUND: 'Select at least one item and quantity to refund.',
   LINE_OVER_REFUND: 'Refund quantity exceeds what remains refundable on this line.',
   AMOUNT_OVER_REFUND: 'Refund total exceeds the amount still refundable on this sale.',
+  NOT_STRANDED: 'This sale has no stranded gap to settle - its lines are not fully refunded, or nothing remains on the header.',
 };
 
 export class RefundError extends Error {
@@ -361,6 +363,107 @@ export function splitRefundAmounts(
   // The tax component can never exceed the refunded consideration.
   if (refundTax > total) refundTax = total;
   return { refundNet: round2(toDec(total).minus(refundTax)), refundTax };
+}
+
+// ── The row-state voice (v2.373.0) ───────────────────────────────────────
+
+/**
+ * The residual consideration a full-remaining refund would still leave
+ * unreachable. v2.372.0's gap closure settles the header when the LAST
+ * refundable line dies inside a LIVE refund tranche - but the rows that
+ * stranded BEFORE that law shipped (legacy PARTIAL originals whose every
+ * line is already refunded by the chain, header remainder still > 0)
+ * predate it and can never self-heal. This epsilon is the same "settled
+ * to the cent" tolerance the status flip speaks (remaining ≤ 0.004).
+ */
+export const STRANDED_EPSILON = 0.004;
+
+export type RefundRowStateKind =
+  | 'SETTLES_FULL'
+  | 'SETTLES_FULL_WITH_GAP'
+  | 'STRANDED'
+  | 'SETTLED';
+
+export interface RefundRowState {
+  kind: RefundRowStateKind;
+  /** What a full-remaining refund would charge: the header's remaining
+   * consideration (totalAmount − Σ chain refunds), 2dp. */
+  fullRefundAmount: number;
+  /** fullRefundAmount − Σ refundableValue across the views (the VAT-on-top
+   * gap a full refund rides above the line totals; ≥ 0, 2dp). */
+  settleGap: number;
+  /** The unreachable remainder on a stranded original (0 elsewhere, 2dp). */
+  strandedAmount: number;
+}
+
+/**
+ * THE ROW-LEVEL SETTLE AFFORDANCE (v2.373.0): the transactions desk's
+ * rows speak the settle truth BEFORE the dialog opens, derived from the
+ * SAME SUMS the dialog and the POST re-derive - never a client guess.
+ * A refundable sale (COMPLETED/PARTIAL, at least one open line) settles
+ * in full when its last open line dies; when the header sits above the
+ * line Σ the chip names the gap (SETTLES_FULL_WITH_GAP - the dialog's
+ * amber hint, promoted to the row). A refundable sale with NO open line
+ * and a positive remainder is STRANDED (the legacy rows that predate
+ * v2.372.0; the heal settles them); with no remainder it is SETTLED.
+ * Non-sale rows and statuses outside the refundable vocabulary wear no
+ * state at all (null).
+ */
+export function deriveRefundRowState(args: {
+  transactionType: string;
+  paymentStatus: string;
+  views: readonly RefundableLineView[];
+  /** totalAmount − Σ chain refunds, the header's remaining consideration. */
+  headerRemaining: number;
+}): RefundRowState | null {
+  if (args.transactionType !== 'SALE' || !REFUNDABLE_ORIGINAL_STATUSES.includes(args.paymentStatus)) {
+    return null;
+  }
+  const fullRefundAmount = round2(Math.max(0, args.headerRemaining));
+  const refundableTotal = toRefundableTotal(args.views);
+  const settleGap = round2(Math.max(0, toDec(fullRefundAmount).minus(refundableTotal).toNumber()));
+  const anyRefundable = args.views.some((l) => l.refundableQuantity > 1e-9);
+  if (!anyRefundable) {
+    const stranded = fullRefundAmount > STRANDED_EPSILON;
+    return {
+      kind: stranded ? 'STRANDED' : 'SETTLED',
+      fullRefundAmount,
+      settleGap,
+      strandedAmount: stranded ? fullRefundAmount : 0,
+    };
+  }
+  return {
+    kind: settleGap > STRANDED_EPSILON ? 'SETTLES_FULL_WITH_GAP' : 'SETTLES_FULL',
+    fullRefundAmount,
+    settleGap,
+    strandedAmount: 0,
+  };
+}
+
+export interface StrandedAssessment {
+  /** Every line is exhausted by the chain AND the header still carries a
+   * remainder - the v2.372.0 gap-closure can never reach this row (its
+   * law rides a LIVE tranche's allocations), so only the heal can. */
+  stranded: boolean;
+  /** The unreachable remainder (2dp; 0 when not stranded). */
+  strandedAmount: number;
+}
+
+/**
+ * The stranded-original assessment (pure): a sale strands when the refund
+ * chain has consumed EVERY line (no quantity left to allocate) while the
+ * header's remaining consideration is still positive - the customer's
+ * money and the store's ledger both stuck. The transactional heal
+ * re-derives this INSIDE its transaction before it moves anything.
+ */
+export function assessStrandedOriginal(
+  views: readonly RefundableLineView[],
+  expectedTotal: number,
+): StrandedAssessment {
+  const allExhausted = views.every((l) => l.refundableQuantity <= 1e-9);
+  const strandedAmount = round2(expectedTotal);
+  const stranded = allExhausted && strandedAmount > STRANDED_EPSILON;
+  return { stranded, strandedAmount: stranded ? strandedAmount : 0 };
 }
 
 // ── Transactional application ────────────────────────────────────────────
@@ -773,6 +876,362 @@ export async function applySaleRefund(
       refundTotal,
       restocked,
       remainingRefundable: Math.max(0, originalRemaining),
+      loyalty,
+    };
+  });
+}
+
+// ── The stranded-gap heal (v2.373.0) ─────────────────────────────────────
+
+export interface HealStrandedOriginalParams {
+  originalId: string;
+  storeId: string;
+  organizationId: string;
+  actorUserId: string;
+  notes?: string | null;
+}
+
+export interface HealStrandedOriginalResult {
+  refund: {
+    id: string;
+    receiptNumber: string;
+    totalAmount: number;
+    taxAmount: number;
+    paymentStatus: string;
+    transactionType: string;
+  };
+  originalReceiptNumber: string;
+  originalPaymentStatus: string;
+  /** The status the original wore BEFORE the heal (the audit row's oldValues). */
+  originalPriorPaymentStatus: string;
+  /** The stranded remainder the heal settled - exactly the header gap. */
+  refundTotal: number;
+  /** The v2.373.0 marker: this REFUND event carries NO items - it settles
+   * the header's unreachable remainder, nothing else. */
+  healed: true;
+  loyalty: { clawedBack: number; balanceAfter: number } | null;
+}
+
+/**
+ * THE STRANDED-GAP HEAL (v2.373.0): settles a legacy stranded original.
+ * v2.372.0's gap closure rides a LIVE refund tranche's allocations - it
+ * can only fire while a line still has quantity to die on. The rows that
+ * stranded BEFORE that law (every line already consumed by the chain, the
+ * header's remainder still positive) have no quantity left to allocate,
+ * so `computeRefundPlan` throws EMPTY_REFUND and the sale sits at PARTIAL
+ * forever - the customer short-paid, the ledger park forever. This heal
+ * is the settlement those rows were owed: ONE atomic transaction that
+ *
+ *   1. re-reads the original + guards (type SALE, refundable status,
+ *      tenant) - the same TOCTOU-free posture as `applySaleRefund`;
+ *   2. re-derives the chain SUMs and the views, then RE-derives the
+ *      stranded assessment INSIDE the transaction (NOT_STRANDED unless
+ *      every line is exhausted AND the remainder is positive);
+ *   3. creates the REFUND SalesTransaction with NO items - the money
+ *      settles the header's remainder exactly (Σ-balance trivially true:
+ *      the event total IS the header remainder), its notes carry the
+ *      chain reference so the receipt's "Refund of" meta still reads;
+ *   4. writes the Payment row, splits the tender across the original's
+ *      COMPLETED payment legs (largest leg absorbs the dust), and speaks
+ *      the same side effects a live refund speaks - the CASH portion hits
+ *      the drawer ledger signed negative, the DEBT portion credits the
+ *      customer's balance with a credit-note DebtLedger row;
+ *   5. posts the mirror journal entry (balanced to the cent or rollback;
+ *      zero items → zero COGS reversal);
+ *   6. flips the original to REFUNDED (the remainder IS the gap - nothing
+ *      can remain) and creates the refund's Receipt row;
+ *   7. claws back the loyalty points the settled money earned (the same
+ *      floor law, capped by the wallet's current balance).
+ *
+ * If ANY step throws, the whole heal rolls back - no partial settlements.
+ */
+export async function healStrandedOriginal(
+  client: {
+    $transaction: (fn: (tx: Prisma.TransactionClient) => Promise<HealStrandedOriginalResult>) => Promise<HealStrandedOriginalResult>;
+  },
+  params: HealStrandedOriginalParams,
+): Promise<HealStrandedOriginalResult> {
+  return client.$transaction(async (tx) => {
+    // 1. Re-read the original INSIDE the tx + the same hard guards.
+    const original = await tx.salesTransaction.findUnique({
+      where: { id: params.originalId },
+      include: { items: true, payments: true, debtLedgers: true },
+    });
+    if (!original) throw new RefundError('NOT_FOUND');
+    if (original.storeId !== params.storeId) throw new RefundError('TENANT_MISMATCH');
+    if (
+      original.transactionType !== 'SALE' ||
+      !REFUNDABLE_ORIGINAL_STATUSES.includes(original.paymentStatus)
+    ) {
+      throw new RefundError('NOT_REFUNDABLE', {
+        transactionType: original.transactionType,
+        paymentStatus: original.paymentStatus,
+      });
+    }
+
+    // 2. The refund chain - exact per-line prior refunds (the same SUMs
+    //    the dialog's GET and the live refund POST re-derive), then the
+    //    stranded assessment INSIDE the transaction.
+    const priorRefunds = await tx.salesTransaction.findMany({
+      where: { refundedTransactionId: original.id },
+      select: { items: { select: { refundedSaleItemId: true, quantity: true, lineTotal: true } } },
+    });
+    const priorQtyBySaleItemId = new Map<string, number>();
+    const priorGrossBySaleItemId = new Map<string, number>();
+    let priorTotal = new Decimal(0);
+    for (const refund of priorRefunds) {
+      for (const item of refund.items) {
+        if (!item.refundedSaleItemId) continue;
+        priorQtyBySaleItemId.set(
+          item.refundedSaleItemId,
+          (priorQtyBySaleItemId.get(item.refundedSaleItemId) ?? 0) + toNum(item.quantity),
+        );
+        priorGrossBySaleItemId.set(
+          item.refundedSaleItemId,
+          (priorGrossBySaleItemId.get(item.refundedSaleItemId) ?? 0) + toNum(item.lineTotal),
+        );
+      }
+      priorTotal = priorTotal.plus(toDec(refund.items.reduce<Decimal>(
+        (s, i) => s.plus(toDec(i.lineTotal)),
+        new Decimal(0),
+      )));
+    }
+    const views = refundableLinesFrom(original.items, priorQtyBySaleItemId, priorGrossBySaleItemId);
+    const expectedTotal = round2(toDec(toNum(original.totalAmount)).minus(priorTotal));
+    const assessment = assessStrandedOriginal(views, expectedTotal);
+    if (!assessment.stranded) {
+      throw new RefundError('NOT_STRANDED', {
+        openLines: views.filter((l) => l.refundableQuantity > 1e-9).length,
+        headerRemaining: expectedTotal,
+      });
+    }
+    const refundTotal = assessment.strandedAmount;
+
+    // 3. The REFUND transaction - ZERO items, the header's remainder as
+    //    its total. The chain reference ALWAYS rides the notes (the
+    //    receipt's "Refund of" meta line reads it).
+    const refundTaxRate = original.items[0]?.taxRate ?? null;
+    const { refundNet, refundTax } = splitRefundAmounts(refundTotal, refundTaxRate, {
+      taxAmount: original.taxAmount,
+      totalAmount: original.totalAmount,
+    });
+    const refundTx = await withSequenceRetry(async () => {
+      const receiptNumber = generateReceiptNumber();
+      return tx.salesTransaction.create({
+        data: {
+          storeId: original.storeId,
+          receiptNumber,
+          customerId: original.customerId,
+          cashierId: params.actorUserId,
+          subtotal: refundNet,
+          taxAmount: refundTax,
+          discountAmount: 0,
+          totalAmount: refundTotal,
+          paymentMethod: original.paymentMethod,
+          paymentStatus: 'COMPLETED',
+          transactionType: 'REFUND',
+          notes: [
+            params.notes?.trim() ||
+              'Stranded-gap settlement - the header remainder the line world could not reach',
+            `Refund of ${original.receiptNumber}`,
+          ]
+            .filter(Boolean)
+            .join(' · '),
+          refundedTransactionId: original.id,
+          items: { create: [] },
+        },
+        include: { items: true },
+      });
+    }, 3).catch((err) => {
+      if (isP2002(err)) {
+        throw new RefundError('NOT_REFUNDABLE', { cause: 'receipt-number-collision' });
+      }
+      throw err;
+    });
+
+    // 4. The refund Payment row + the tender side effects (the same
+    //    SPLIT-aware share law as a live refund; no allocations → no
+    //    restock, no movements, no COGS).
+    await tx.payment.create({
+      data: {
+        storeId: original.storeId,
+        transactionId: refundTx.id,
+        paymentMethod: original.paymentMethod,
+        amount: refundTotal,
+        currency: 'KES',
+        status: 'COMPLETED',
+        reference: `Refund of ${original.receiptNumber}`,
+      },
+    });
+
+    const completedPayments = original.payments.filter((p) => p.status === 'COMPLETED');
+    const tenderTotal = completedPayments.reduce<Decimal>(
+      (s, p) => s.plus(toDec(p.amount)),
+      new Decimal(0),
+    );
+    const shareOf = (amount: number): number => {
+      if (tenderTotal.lessThanOrEqualTo(0)) return refundTotal;
+      return KES(refundTotal).multiply(toDec(amount).div(tenderTotal)).round().toNumber();
+    };
+    const tenderShares: Record<string, number> = {};
+    for (const p of completedPayments) {
+      tenderShares[p.paymentMethod] = (tenderShares[p.paymentMethod] ?? 0) + shareOf(toNum(p.amount));
+    }
+    const shareSum = Object.values(tenderShares).reduce((s, v) => s + v, 0);
+    const dust = round2(toDec(refundTotal).minus(shareSum));
+    if (dust !== 0) {
+      const largest = Object.entries(tenderShares).sort((a, b) => b[1] - a[1])[0];
+      if (largest) tenderShares[largest[0]] = round2(toDec(largest[1]).plus(dust));
+    }
+
+    const cashPortion = tenderShares['CASH'] ?? 0;
+    if (cashPortion > 0) {
+      const agg = await tx.cashDrawerLog.aggregate({
+        where: { storeId: original.storeId },
+        _sum: { amount: true },
+      });
+      const runningBalance = round2(
+        toDec(agg._sum.amount ?? 0).minus(cashPortion),
+      );
+      await tx.cashDrawerLog.create({
+        data: {
+          storeId: original.storeId,
+          userId: params.actorUserId,
+          action: 'REFUND',
+          amount: -cashPortion,
+          balance: runningBalance,
+          notes: `Refund ${refundTx.receiptNumber} of sale ${original.receiptNumber}`,
+        },
+      });
+    }
+
+    const debtPortion = tenderShares['DEBT'] ?? 0;
+    if (debtPortion > 0 && original.customerId) {
+      const customer = await tx.customer.findUnique({ where: { id: original.customerId } });
+      if (customer) {
+        const currentBalance = toDec(customer.currentDebtBalance).toNumber();
+        const decrement = Math.min(Math.max(0, currentBalance), debtPortion);
+        if (decrement > 0) {
+          const claimed = await tx.customer.updateMany({
+            where: { id: customer.id, currentDebtBalance: { gte: decrement } },
+            data: { currentDebtBalance: { decrement } },
+          });
+          if (claimed.count === 0) {
+            const fresh = await tx.customer.findUnique({ where: { id: customer.id } });
+            const floored = fresh ? Math.min(toDec(fresh.currentDebtBalance).toNumber(), decrement) : 0;
+            if (floored > 0) {
+              await tx.customer.update({
+                where: { id: customer.id },
+                data: { currentDebtBalance: { decrement: floored } },
+              });
+            }
+          }
+        }
+        const dueDate = new Date();
+        await tx.debtLedger.create({
+          data: {
+            storeId: original.storeId,
+            customerId: original.customerId,
+            transactionId: refundTx.id,
+            amountOwed: -debtPortion,
+            amountPaid: 0,
+            balance: -debtPortion,
+            dueDate,
+            status: 'SETTLED',
+            agingBucket: 'CURRENT',
+            notes: `Refund credit note for ${original.receiptNumber}`,
+            idempotencyKey: `refund-ledger:${refundTx.id}`,
+          },
+        });
+      }
+    }
+
+    // 5. The mirror journal entry - balanced to the cent or rollback
+    //    (zero items → zero COGS reversal).
+    await recordRefundJournalEntry(tx, {
+      storeId: original.storeId,
+      organizationId: params.organizationId,
+      actorUserId: params.actorUserId,
+      receiptNumber: refundTx.receiptNumber,
+      originalReceiptNumber: original.receiptNumber,
+      transactionId: refundTx.id,
+      grossRevenue: refundNet,
+      taxAmount: refundTax,
+      paymentBreakdown: {
+        cash: tenderShares['CASH'] && tenderShares['CASH'] > 0 ? tenderShares['CASH'] : undefined,
+        mpesa: tenderShares['MPESA'] && tenderShares['MPESA'] > 0 ? tenderShares['MPESA'] : undefined,
+        giftCard: tenderShares['GIFT_CARD'] && tenderShares['GIFT_CARD'] > 0 ? tenderShares['GIFT_CARD'] : undefined,
+        credit: tenderShares['DEBT'] && tenderShares['DEBT'] > 0 ? tenderShares['DEBT'] : undefined,
+      },
+      cogsAmount: 0,
+      postImmediately: true,
+    });
+
+    // 6. Flip the original to REFUNDED (the heal settles the WHOLE
+    //    remainder - nothing can remain) + the refund's receipt row.
+    await tx.salesTransaction.update({
+      where: { id: original.id },
+      data: { paymentStatus: 'REFUNDED' },
+    });
+    await tx.receipt.create({
+      data: {
+        storeId: original.storeId,
+        transactionId: refundTx.id,
+        receiptNumber: refundTx.receiptNumber,
+        receiptType: 'DIGITAL',
+      },
+    });
+
+    // 7. The loyalty clawback - the settled money's points come home
+    //    (the same floor law, capped by the wallet's CURRENT balance).
+    let loyalty: HealStrandedOriginalResult['loyalty'] = null;
+    if (original.customerId) {
+      const wallet = await tx.customer.findUnique({
+        where: { id: original.customerId },
+        select: { loyaltyPoints: true },
+      });
+      if (wallet) {
+        const claw = refundClawbackPoints(refundTotal, Number(wallet.loyaltyPoints ?? 0));
+        if (claw > 0) {
+          const claimed = await tx.customer.updateMany({
+            where: { id: original.customerId, loyaltyPoints: { gte: claw } },
+            data: { loyaltyPoints: { decrement: claw } },
+          });
+          if (claimed.count > 0) {
+            const balanceAfter = Number(wallet.loyaltyPoints ?? 0) - claw;
+            await tx.loyaltyTransaction.create({
+              data: {
+                storeId: original.storeId,
+                customerId: original.customerId,
+                points: -claw,
+                transactionType: 'ADJUST',
+                type: 'ADJUSTED',
+                transactionId: refundTx.id,
+                balanceAfter,
+                reason: `Refund clawback for ${original.receiptNumber}`,
+                reference: refundTx.receiptNumber,
+              },
+            });
+            loyalty = { clawedBack: claw, balanceAfter };
+          }
+        }
+      }
+    }
+
+    return {
+      refund: {
+        id: refundTx.id,
+        receiptNumber: refundTx.receiptNumber,
+        totalAmount: refundTotal,
+        taxAmount: refundTax,
+        paymentStatus: 'COMPLETED',
+        transactionType: 'REFUND',
+      },
+      originalReceiptNumber: original.receiptNumber,
+      originalPaymentStatus: 'REFUNDED',
+      originalPriorPaymentStatus: original.paymentStatus,
+      refundTotal,
+      healed: true,
       loyalty,
     };
   });

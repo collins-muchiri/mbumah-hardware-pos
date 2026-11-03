@@ -181,6 +181,13 @@ export const refundSchema = z.object({
   notes: z.string().max(1000).optional(),
 });
 
+// v2.373.0 THE STRANDED-GAP HEAL: the settlement needs no line allocation
+// (the original's lines are already exhausted - that IS the stranded
+// state), so the body is an optional clerk note and nothing else.
+export const refundHealSchema = z.object({
+  notes: z.string().max(1000).optional(),
+});
+
 // Customer schemas
 export const createCustomerSchema = z.object({
   storeId: z.string().min(1),

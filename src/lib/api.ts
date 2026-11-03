@@ -948,6 +948,37 @@ export interface TransactionItem {
   items?: SaleItemDetail[];
   customer?: CustomerItem;
   cashier?: { id: string; name: string };
+  /**
+   * v2.373.0 THE ROW-LEVEL SETTLE AFFORDANCE: the desk's server-derived
+   * settle truth for SALE rows in refundable statuses (COMPLETED/PARTIAL)
+   * - the SAME pure law (`deriveRefundRowState`) the dialog and the live
+   * refund POST re-derive. Null on non-sale rows, non-refundable statuses
+   * and any endpoint that does not carry it yet.
+   */
+  refundState?: RefundRowState | null;
+}
+
+// v2.373.0 THE ROW-LEVEL SETTLE AFFORDANCE: the transactions desk's row
+// chips speak the settle truth BEFORE the dialog opens.
+//   • SETTLES_FULL .......... a full-remaining refund settles the sale
+//                             exactly (modern VAT-inclusive rows).
+//   • SETTLES_FULL_WITH_GAP . the same, but the header sits above the
+//                             line Σ - the refund includes the gap
+//                             (VAT-on-top legacy rows).
+//   • STRANDED .............. every line is already refunded by the
+//                             chain but the header still carries money -
+//                             the legacy rows v2.372.0 can never reach;
+//                             the heal settles them.
+//   • SETTLED ............... nothing left on the lines, nothing owed on
+//                             the header.
+export interface RefundRowState {
+  kind: 'SETTLES_FULL' | 'SETTLES_FULL_WITH_GAP' | 'STRANDED' | 'SETTLED';
+  /** What a full-remaining refund would charge (2dp). */
+  fullRefundAmount: number;
+  /** The VAT-on-top gap a full refund rides above the line totals (≥ 0, 2dp). */
+  settleGap: number;
+  /** The unreachable remainder on a stranded original (0 elsewhere, 2dp). */
+  strandedAmount: number;
 }
 
 export interface SaleItemDetail {
@@ -983,6 +1014,26 @@ export interface RefundResult {
   restocked: { productId: string; baseUnits: number }[];
   remainingRefundable: number;
   /** v2.309.0 loyalty clawback - null when there was no wallet or nothing to claw. */
+  loyalty: { clawedBack: number; balanceAfter: number } | null;
+}
+
+// v2.373.0 THE STRANDED-GAP HEAL: the POST /transactions/[id]/refund-heal
+// response body - a zero-item REFUND event that settles a legacy stranded
+// original's header remainder exactly (the healed marker rides the wire).
+export interface HealStrandedResult {
+  refund: {
+    id: string;
+    receiptNumber: string;
+    totalAmount: number;
+    taxAmount: number;
+    paymentStatus: string;
+    transactionType: string;
+  };
+  originalReceiptNumber: string;
+  originalPaymentStatus: string;
+  originalPriorPaymentStatus: string;
+  refundTotal: number;
+  healed: true;
   loyalty: { clawedBack: number; balanceAfter: number } | null;
 }
 
@@ -1058,6 +1109,17 @@ export const transactionsApi = {
 
   refundableLines: async (id: string) => {
     return request<RefundableLinesResult>(`/transactions/${id}/refund`);
+  },
+
+  // v2.373.0 THE STRANDED-GAP HEAL: settles a legacy stranded original -
+  // the zero-item REFUND event that pays out the header remainder the
+  // line world could never reach. Same manager-tier gate as the refund;
+  // NOT_STRANDED (409) says the sale has nothing stranded to settle.
+  healStranded: async (id: string, notes?: string) => {
+    return request<HealStrandedResult>(`/transactions/${id}/refund-heal`, {
+      method: 'POST',
+      body: JSON.stringify({ notes }),
+    });
   },
 
   create: async (data: CheckoutPayload) => {

@@ -84,9 +84,11 @@ const GRADUATES: Array<{ file: string; shape: string; field: string }> = [
 
 describe('THE DOOR-SHAPE REGISTRY — the census is derived, not remembered', () => {
   it('the walk covers the whole API surface (the registry scope is honest)', () => {
-    // 380 route files at v2.353.0. A route added or deleted must move this
-    // number HERE — that is the registry working.
-    expect(routeFiles.length).toBe(380);
+    // 380 route files at v2.353.0; 381 at v2.373.0 — the stranded-gap heal
+    // route (src/app/api/transactions/[id]/refund-heal/route.ts) joined.
+    // A route added or deleted must move this number HERE — that is the
+    // registry working.
+    expect(routeFiles.length).toBe(381);
   });
 
   it('every hard-door call carries its explicit generic (the v2.344 tombstone, tree-wide)', () => {
@@ -126,7 +128,11 @@ describe('THE RAW-SWALLOW REGISTRY — every remaining read answers 400 or is th
 
   it('the raw call-site census is pinned (growth must be honest)', () => {
     const total = rawFiles.reduce((sum, f) => sum + count(/request\.json\(\)/g, srcs.get(f) ?? ''), 0);
-    expect(total).toBe(58);
+    // 58 at v2.353.0; 59 at v2.373.0 — the heal route reads raw like the
+    // refund route it mirrors (an empty body is legal: the settle needs no
+    // allocation), and answers 400 on a malformed one (the honest-swallow
+    // law below holds).
+    expect(total).toBe(59);
   });
 
   it('every raw-reading file answers 400 (either spelling) — the honest-swallow law', () => {

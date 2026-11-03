@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.373.0',
+    title: 'The stranded gap settles',
+    bullets: [
+      'Sales rows now speak the settle truth before any dialog opens: every refundable sale wears a chip \u2014 emerald \u201cSettles in full\u201d when a full refund settles the sale exactly, amber with the gap named when the header carries money above the line totals, rose \u201cKsh N stranded\u201d on the legacy rows where every line is already refunded but money stays stuck, and a quiet \u201cNothing left to refund\u201d when both worlds are settled.',
+      'The stranded rows can finally come home: the new \u201cSettle stranded gap\u201d action (manager tier, one confirm) records one refund event for exactly the unreachable remainder \u2014 the drawer, the ledger and the journal all balance \u2014 and closes the sale as REFUNDED instead of parking it at PARTIAL forever.',
+      'The settle chips keep the desk\u2019s compact money voice \u2014 tabular amounts, kind-colored inks in light and dark, and tooltips that teach the when-and-why before a press.',
+    ],
+  },
+  {
     version: '2.372.0',
     title: 'The gap comes home',
     bullets: [
