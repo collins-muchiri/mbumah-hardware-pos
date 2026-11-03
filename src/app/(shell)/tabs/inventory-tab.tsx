@@ -22,6 +22,7 @@ import {
   type CreateProductPayload,
 } from '@/lib/api';
 import { formatQtyWithUnit } from '@/lib/utils/financialMath';
+import { useSendPrompt } from '@/components/send-prompt-dialog';
 import { unitLabel } from '@/lib/units';
 import { parseInitialNamedMember } from '@/lib/tab-url';
 
@@ -200,6 +201,9 @@ function initialStockLens(): string {
 
 export default function InventoryTab() {
   const [searchQuery, setSearchQuery] = useState('');
+  // v2.376.0: the inventory-report WhatsApp send asks through the app's own
+  // dialog (the native prompt was swallowed in embedded webviews).
+  const { ask: askRecipient, dialog: sendPromptDialog } = useSendPrompt();
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -744,7 +748,13 @@ export default function InventoryTab() {
 
   const handleSendInventoryReport = async () => {
     try {
-      const phone = prompt('Enter WhatsApp phone number to send inventory report:') || '';
+      // v2.376.0: the ask-dialog replaces the native prompt — inline
+      // validation, a real face in every webview; cancel still returns null.
+      const phone = await askRecipient({
+        channel: 'WHATSAPP',
+        title: 'Send inventory report via WhatsApp',
+        description: 'The store-wide inventory report rides the WhatsApp message.',
+      });
       if (!phone) return;
       const res = await whatsappApi.sendDocument({
         type: 'inventory',
@@ -2379,6 +2389,8 @@ export default function InventoryTab() {
           </div>
         )}
       </ResponsiveDialog>
+      {/* v2.376.0 THE ASK-DIALOG: the inventory report's recipient face. */}
+      {sendPromptDialog}
     </div>
   );
 }

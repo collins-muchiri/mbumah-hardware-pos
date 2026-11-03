@@ -23,6 +23,7 @@ import {
   openSMS,
 } from '@/lib/api';
 import { handleError } from '@/lib/error-handler';
+import { useSendPrompt } from '@/components/send-prompt-dialog';
 import type { UpdateGiftCardPayload } from '@/lib/types';
 import type {
   GiftCardItem,
@@ -376,6 +377,9 @@ function initialGcStatus(): (typeof GC_STATUS_FILTERS)[number] {
 // Main Component
 export default function GiftCardsTab({ storeId, userRole, userId: _userId }: GiftCardsTabProps) {
   const queryClient = useQueryClient();
+  // v2.376.0: the gift-card sends ask through the app's own dialog (the
+  // native prompt was swallowed in embedded webviews).
+  const { ask: askRecipient, dialog: sendPromptDialog } = useSendPrompt();
 
   // State
   const [searchQuery, setSearchQuery] = useState('');
@@ -715,7 +719,14 @@ export default function GiftCardsTab({ storeId, userRole, userId: _userId }: Gif
   // Helpers
   const handleSendGiftCardWhatsApp = useCallback(async (card: GiftCardItem) => {
     try {
-      const phone = prompt('Enter WhatsApp phone number:', card.recipientPhone || '') || '';
+      // v2.376.0: the ask-dialog replaces the native prompt — inline
+      // validation and a real prefill; cancel still returns null.
+      const phone = await askRecipient({
+        channel: 'WHATSAPP',
+        title: 'Send gift card via WhatsApp',
+        description: `Gift card ${card.code} rides the WhatsApp message.`,
+        prefill: card.recipientPhone || '',
+      });
       if (!phone) return;
       const res = await whatsappApi.sendDocument({
         type: 'gift_card',
@@ -735,13 +746,19 @@ export default function GiftCardsTab({ storeId, userRole, userId: _userId }: Gif
       const msg = handleError(err, 'Send gift card via WhatsApp');
       toast.error(msg);
     }
-  }, [storeId]);
+  }, [storeId, askRecipient]);
 
   // SMS twin of handleSendGiftCardWhatsApp - compact (~<=320 chars) sms: deep
   // link built client-side; openSMS normalizes 07xx → 2547xx.
   const handleSendGiftCardSms = useCallback(async (card: GiftCardItem) => {
     try {
-      const phone = prompt('Enter SMS phone number:', card.recipientPhone || '') || '';
+      // v2.376.0: the ask-dialog replaces the native prompt (SMS twin).
+      const phone = await askRecipient({
+        channel: 'SMS',
+        title: 'Send gift card via SMS',
+        description: `The gift card summary for ${card.code} opens in the SMS app.`,
+        prefill: card.recipientPhone || '',
+      });
       if (!phone) return;
       const text = [
         `MBUMAH HARDWARE Gift Card ${card.code}`,
@@ -756,7 +773,7 @@ export default function GiftCardsTab({ storeId, userRole, userId: _userId }: Gif
       const msg = handleError(err, 'Send gift card via SMS');
       toast.error(msg);
     }
-  }, []);
+  }, [askRecipient]);
 
   const resetCreateForm = useCallback(() => {
     setCreateForm({
@@ -2297,6 +2314,8 @@ export default function GiftCardsTab({ storeId, userRole, userId: _userId }: Gif
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      {/* v2.376.0 THE ASK-DIALOG: the gift-card sends' recipient face. */}
+      {sendPromptDialog}
     </div>
   );
 }

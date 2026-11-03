@@ -22,6 +22,7 @@ import {
   type DeliveryNoteItemDetail,
 } from '@/lib/api';
 import { handleError } from '@/lib/error-handler';
+import { useSendPrompt } from '@/components/send-prompt-dialog';
 import { formatQty, unitLabel } from '@/lib/utils/financialMath';
 import {
   buildBrandedDocumentHtml,
@@ -194,6 +195,9 @@ const EMPTY_ITEM: DeliveryFormItem = {
 export default function DeliveryNotesTab() {
   const currentStoreId = useAppStore((s) => s.currentStoreId);
   const queryClient = useQueryClient();
+  // v2.376.0: the note sends ask through the app's own dialog (the native
+  // prompt was swallowed in embedded webviews — the button looked dead).
+  const { ask: askRecipient, dialog: sendPromptDialog } = useSendPrompt();
 
   // State
   const [searchQuery, setSearchQuery] = useState('');
@@ -447,8 +451,15 @@ export default function DeliveryNotesTab() {
     setViewOpen(true);
   }
 
-  function handleSendWhatsApp(note: DeliveryNoteItem) {
-    const phone = prompt('Enter WhatsApp phone number:', note.customerPhone || '') || '';
+  async function handleSendWhatsApp(note: DeliveryNoteItem) {
+    // v2.376.0: the ask-dialog replaces the native prompt — inline
+    // validation and a real prefill; cancel still returns null.
+    const phone = await askRecipient({
+      channel: 'WHATSAPP',
+      title: 'Send delivery note via WhatsApp',
+      description: `Delivery note ${note.deliveryNumber} for ${note.customerName || 'the customer'} rides the WhatsApp message.`,
+      prefill: note.customerPhone || '',
+    });
     if (!phone) return;
     whatsappApi.sendDocument({
       type: 'delivery_note',
@@ -477,8 +488,14 @@ export default function DeliveryNotesTab() {
 
   // SMS twin of handleSendWhatsApp - v2.8.0: enlarged, scrollable output
   // preview (same visibility fix as WhatsApp) before opening the sms: link.
-  function handleSendSms(note: DeliveryNoteItem) {
-    const phone = prompt('Enter SMS phone number:', note.customerPhone || '') || '';
+  async function handleSendSms(note: DeliveryNoteItem) {
+    // v2.376.0: the ask-dialog replaces the native prompt (SMS twin).
+    const phone = await askRecipient({
+      channel: 'SMS',
+      title: 'Send delivery note via SMS',
+      description: `The compact delivery note summary for ${note.customerName || 'the customer'} opens in the SMS app.`,
+      prefill: note.customerPhone || '',
+    });
     if (!phone) return;
     try {
       const text = [
@@ -1534,6 +1551,8 @@ export default function DeliveryNotesTab() {
         title={msgPreview?.title}
         waLink={msgPreview?.waLink}
       />
+      {/* v2.376.0 THE ASK-DIALOG: the note sends' recipient face. */}
+      {sendPromptDialog}
     </div>
   );
 }
