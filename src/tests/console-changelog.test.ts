@@ -460,10 +460,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.363.0: the conversations entry joins the feed (+1 on every anchor → 252/253/254/285 → 253/254/255/286)
     // v2.364.0: the catalog entry joins the feed (+1 on every anchor → 253/254/255/286 → 254/255/256/287)
     // v2.365.0: the repayment entry joins the feed (+1 on every anchor → 254/255/256/287 → 255/256/257/288)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(255);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(256);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(257);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(288);
+    // v2.366.0: the audit entry joins the feed (+1 on every anchor → 255/256/257/288 → 256/257/258/289)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(256);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(257);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(258);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(289);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 
