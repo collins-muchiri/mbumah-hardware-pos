@@ -1,12 +1,12 @@
 'use client';
 
-// SendPromptDialog — the app's own ask-dialog (v2.376.0): the native
-// window.prompt retires from every send flow.
+// SendPromptDialog — the app's own ask-dialog family (v2.376.0 + v2.377.0):
+// the native window.prompt retires from EVERY flow.
 //
 // THE DISEASE: fifteen send flows across eight desks asked for the
-// recipient phone (or email) through the browser-native window.prompt().
+// recipient phone (or email) through the browser's native prompt modal.
 // A native prompt (a) is swallowed outright in embedded webviews — several
-// merchants run this POS inside an in-app browser where prompt() returns
+// merchants run this POS inside an in-app browser where it returns
 // null without ever showing a face; (b) returns null silently on the QA
 // harness, so the button LOOKS dead; (c) cannot be validated, styled, or
 // dark-mode themed; (d) gives zero inline feedback — the only failure
@@ -21,9 +21,21 @@
 // digits, an email must carry a domain. The channel drives the icon, the
 // input type and the accent, matching the send buttons already on each
 // desk (WhatsApp green, SMS blue, Email orange).
+//
+// THE MULTILINE SIBLING (v2.377.0): useAskText() — the same resolver
+// contract for the asks that are PROSE, not recipients. The payroll desk's
+// void-reason ask was the last native prompt in the product tree: a
+// multi-line reason (the audit voice) squeezed through a single-line
+// native modal. askText() opens a TEXTAREA dialog — title and description
+// speak the action's own facts (the run, the period, what voiding means),
+// the reason pre-fills, `required` asks for a line when the caller needs
+// one, and `destructive` dresses the confirm in the action's true weight.
+// Cancel still resolves null; an empty confirm rides the caller's own
+// fallback (the old `reason.trim() || 'Voided by admin'` contract stands
+// byte-for-byte).
 
 import { useCallback, useRef, useState } from 'react';
-import { AlertCircle, Mail, MessageCircle, MessageSquare, Send } from 'lucide-react';
+import { AlertCircle, Ban, Mail, MessageCircle, MessageSquare, Send } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -35,6 +47,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
 export type SendPromptChannel = 'WHATSAPP' | 'SMS' | 'EMAIL';
 
@@ -199,6 +212,145 @@ export function useSendPrompt() {
             <Button type="submit" size="sm" className="h-8" data-testid="send-prompt-confirm">
               <Send className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
               {confirmCaption}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+
+  return { ask, dialog, open };
+}
+
+// ---------------------------------------------------------------------------
+// THE MULTILINE SIBLING (v2.377.0) — useAskText()
+// ---------------------------------------------------------------------------
+
+export interface AskTextOptions {
+  /** The dialog title; the desk speaks the action's own facts. */
+  title: string;
+  /** Optional helper line under the title (muted, honest). */
+  description?: string;
+  /** The label above the textarea. Defaults to 'Reason'. */
+  label?: string;
+  /** Pre-filled text (the old prompt's default answer). */
+  prefill?: string;
+  /** Confirm-button caption. Defaults to 'Confirm'. */
+  confirmLabel?: string;
+  /** Placeholder when no prefill rides. */
+  placeholder?: string;
+  /** Textarea height in rows (default 4). */
+  rows?: number;
+  /** Dress the confirm in the destructive tone (the void's true weight). */
+  destructive?: boolean;
+  /** Refuse an empty confirm with the inline error (default: allowed). */
+  required?: boolean;
+  /** The voice for an empty confirm when `required` (default below). */
+  requiredMessage?: string;
+}
+
+export function useAskText() {
+  const [open, setOpen] = useState(false);
+  const [opts, setOpts] = useState<AskTextOptions | null>(null);
+  const [value, setValue] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const resolverRef = useRef<((v: string | null) => void) | null>(null);
+
+  const ask = useCallback((next: AskTextOptions): Promise<string | null> => {
+    return new Promise((resolve) => {
+      resolverRef.current?.(null); // a re-ask while one is pending settles the old one
+      resolverRef.current = resolve;
+      setOpts(next);
+      setValue(next.prefill || '');
+      setError(null);
+      setOpen(true);
+    });
+  }, []);
+
+  const settle = useCallback((result: string | null) => {
+    setOpen(false);
+    const resolve = resolverRef.current;
+    resolverRef.current = null;
+    resolve?.(result);
+  }, []);
+
+  const cancel = useCallback(() => settle(null), [settle]);
+
+  const confirm = useCallback(() => {
+    if (!opts) return;
+    const trimmed = value.trim();
+    if (opts.required && !trimmed) {
+      setError(opts.requiredMessage || 'This cannot stay empty — the audit log needs a line.');
+      return;
+    }
+    settle(trimmed);
+  }, [opts, value, settle]);
+
+  const dialog = (
+    <Dialog open={open} onOpenChange={(next) => { if (!next) cancel(); }}>
+      <DialogContent className="sm:max-w-md" data-testid="ask-text-dialog">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-base">
+            {opts?.destructive ? (
+              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-50 text-red-600 dark:bg-red-950/40" aria-hidden="true">
+                <Ban className="h-4 w-4" />
+              </span>
+            ) : null}
+            {opts?.title || ''}
+          </DialogTitle>
+          {opts?.description ? (
+            <DialogDescription className="whitespace-pre-line text-xs leading-relaxed">{opts.description}</DialogDescription>
+          ) : null}
+        </DialogHeader>
+        <form
+          onSubmit={(e) => { e.preventDefault(); confirm(); }}
+          className="space-y-2"
+        >
+          <Label htmlFor="ask-text-input" className="text-xs font-medium">
+            {opts?.label || 'Reason'}
+          </Label>
+          <Textarea
+            id="ask-text-input"
+            data-testid="ask-text-input"
+            placeholder={opts?.placeholder}
+            value={value}
+            onChange={(e) => { setValue(e.target.value); if (error) setError(null); }}
+            rows={opts?.rows || 4}
+            autoFocus
+            aria-invalid={error ? true : undefined}
+            aria-describedby={error ? 'ask-text-error' : undefined}
+            className="text-sm"
+          />
+          {error ? (
+            <p
+              id="ask-text-error"
+              data-testid="ask-text-error"
+              role="alert"
+              className="flex items-start gap-1.5 text-xs text-destructive"
+            >
+              <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              {error}
+            </p>
+          ) : null}
+          <DialogFooter className="gap-2 pt-1">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-8"
+              data-testid="ask-text-cancel"
+              onClick={cancel}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              size="sm"
+              className="h-8"
+              variant={opts?.destructive ? 'destructive' : 'default'}
+              data-testid="ask-text-confirm"
+            >
+              {opts?.confirmLabel || 'Confirm'}
             </Button>
           </DialogFooter>
         </form>

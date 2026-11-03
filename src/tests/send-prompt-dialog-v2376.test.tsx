@@ -15,8 +15,10 @@
 // This suite pins (1) the validation voices, (2) the dialog's real
 // behavior in a rendered harness (confirm / cancel / inline error /
 // prefill / Enter-submit), and (3) THE NATIVE-PROMPT SUNSET CENSUS — the
-// eight migrated desks carry no bare prompt() and the payroll void-reason
-// survivor is PINNED (a different primitive for a later round).
+// eight migrated desks carry no bare prompt(). (The payroll void-reason
+// survivor PIN of the original census retired in v2.377.0: the multiline
+// sibling askText() landed, the survivor migrated, and the tree census
+// now answers ZERO — the living census rides ask-text-dialog-v2377.)
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
@@ -269,24 +271,26 @@ describe('the native-prompt sunset census', () => {
     expect(src).toMatch(/\{\s*sendPromptDialog\s*\}/);
   });
 
-  it('the payroll void-reason prompt is the PINNED survivor (a later round\'s primitive)', () => {
-    // The void-reason ask is a MULTI-LINE reason (textarea voice), not a
-    // send recipient — migrating it belongs to its own round. Pinned so a
-    // new bare prompt() elsewhere cannot hide behind it.
+  it('the payroll desk consumes the ask-text dialog (the survivor retired in v2.377.0)', () => {
+    // The void-reason ask was the LAST native prompt in the product tree;
+    // the multiline sibling (useAskText) migrated it. Pinned here so the
+    // desk never regresses to the swallowed native modal.
     const src = readFileSync('src/app/(shell)/tabs/payroll-tab.tsx', 'utf8');
-    expect(src).toContain('window.prompt(');
+    expect(src).toContain("from '@/components/send-prompt-dialog'");
+    expect(src).toContain('useAskText()');
+    expect(src).toMatch(/\{\s*askTextDialog\s*\}/);
+    expect(src).not.toContain('window.prompt(');
   });
 
-  it('the whole src tree answers to exactly ONE window.prompt call site', () => {
-    // The pinned survivor is payroll's void-reason ask. This census walks
-    // the PRODUCT tree only (src/app + src/components + src/lib) — the
-    // tests' own prose mentions do not count as callers.
+  it('the whole src tree answers to exactly ZERO window.prompt call sites', () => {
+    // The v2.376 census counted ONE survivor (payroll's void-reason ask);
+    // v2.377.0's ask-text migration retired it. The census walks the
+    // PRODUCT tree (src/app + src/components + src/lib) — the tests' own
+    // prose mentions do not count as callers.
     const srcRoot = join(process.cwd(), 'src');
     const callers = ['app', 'components', 'lib']
       .flatMap((sub) => walkSources(join(srcRoot, sub)))
-      .filter((f) => !f.endsWith('send-prompt-dialog.tsx'))
       .filter((f) => /window\.prompt\(/.test(readFileSync(f, 'utf8')));
-    expect(callers).toHaveLength(1);
-    expect(callers[0]).toContain('payroll-tab.tsx');
+    expect(callers).toHaveLength(0);
   });
 });
