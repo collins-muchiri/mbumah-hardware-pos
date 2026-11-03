@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.364.0',
+    title: 'The shelves\u2019 standing answers the address bar',
+    bullets: [
+      'A catalog link can now name its lens: ?cat-stock=in_stock, low_stock or out_of_stock lands the catalog pre-filtered \u2014 with a dismissible chip naming the word it answered \u2014 and raises the filters panel it lands into, so the chip is visible right away: the seventeenth word of the address-bar vocabulary.',
+      'The landing chip wears the vocabulary\u2019s seventeenth family (purple \u2014 the catalog\u2019s plum, the paint-deck hue this yard itself sells) beside the desk\u2019s own voices \u2014 one bar, honest voices, no masquerade; the lens filters the product list itself, not just the Select\u2019s face.',
+      'Unknown, missing, or wrong-case words never strand the shelves: the lens falls back to All, case-sensitively.',
+    ],
+  },
+  {
     version: '2.363.0',
     title: 'The threads\u2019 kind answers the address bar',
     bullets: [

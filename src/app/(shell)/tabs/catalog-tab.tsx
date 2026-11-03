@@ -7,8 +7,9 @@ import {
   Package, Search, LayoutGrid, List, ShoppingCart,
   Plus, Minus, Tag, X, SlidersHorizontal,
   Pencil, Trash2, MessageCircle, AlertTriangle, MoreVertical,
-  Loader2, Copy, Smartphone,
+  Loader2, Copy, Smartphone, Link2,
 } from 'lucide-react';
+import { parseInitialNamedMember } from '@/lib/tab-url';
 import { useCartStore, useAppStore } from '@/lib/stores';
 import {
   productsApi, categoriesApi, whatsappApi, formatKES,
@@ -45,8 +46,42 @@ import {
 // Types & constants
 
 type SortKey = 'name' | 'price_asc' | 'price_desc' | 'stock';
-type StockFilter = 'all' | 'in_stock' | 'low_stock' | 'out_of_stock';
 type ViewMode = 'grid' | 'list';
+
+// v2.364.0 — THE CATALOG DESK'S OWN WORD: the shop floor's shelves answer
+// the address bar. `?cat-stock=low_stock` lands the catalog pre-filtered to
+// the shelves that need restocking — the stock keeper's morning walk is now
+// a bookmark. The lens's words are the Select's OWN spellings since the
+// desk first shipped (lowercase, underscored: in_stock / low_stock /
+// out_of_stock), so the word's voice is LOWERCASE (the payments word's
+// spelling): an UPPERCASE `IN_STOCK` names nothing, and the neutral is the
+// lowercase `all` — a capitalized `ALL` is an unknown word here, the exact
+// inverse of the capitalized-neutral desks. Anything missing or unknown
+// answers 'all' (never stranded). The word is desk-prefixed per the Task 44
+// collision law: a desk-prefixed word can never leak across client-side tab
+// switches — Collision-checked at round start (grep-FREE tree-wide; the
+// inventory desk's own stock word is a DIFFERENT desk's lens, its own
+// prefix, its own family).
+// Read-on-mount ONLY (the one-writer law): the landing word is the LANDING
+// lens, never rewritten; the Select, the clear-filters reset and the chip's
+// own dismissal own the state after.
+// THE COLLAPSIBLE-FACE AMENDMENT (the survey law's next case, after the
+// default-sub-tab amendment): the lens lives inside the desk's collapsible
+// filters panel — a top-level pane, but one the panel can hide. A landing
+// that carries the word RAISES THE PANEL IT LANDS INTO (the panel's seed
+// reads the same landed word), so the chip is visible on landing — the
+// always-visible-face law's intent holds behind a collapsible toolbar.
+// Closing the panel afterwards is the human's own navigation, not a lens
+// change: the chip hides with the panel and returns when it reopens, the
+// same honest remount semantics every desk already speaks across tab
+// switches. A lens that cannot raise its own face would stay blocked.
+export const CAT_STOCK_FILTERS = ['all', 'in_stock', 'low_stock', 'out_of_stock'] as const;
+type StockFilter = (typeof CAT_STOCK_FILTERS)[number];
+
+function initialCatStock(): (typeof CAT_STOCK_FILTERS)[number] {
+  if (typeof window === 'undefined') return 'all';
+  return parseInitialNamedMember(window.location.search, 'cat-stock', CAT_STOCK_FILTERS, 'all');
+}
 
 const CATEGORY_COLORS: Record<string, string> = {
   cat_cement: '#6B7280',
@@ -155,12 +190,33 @@ export default function CatalogTab() {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [stockFilter, setStockFilter] = useState<StockFilter>('all');
+  // v2.364.0 THE LANDING WORD — the shelves' seed reads `?cat-stock=`
+  // through the ONE home, cast-free: the generic parser IS the four-word
+  // union, so the state names it directly.
+  const [stockFilter, setStockFilter] = useState<StockFilter>(initialCatStock);
+  // v2.364.0 — the address-bar word the desk answered at mount ('all' when
+  // the landing carried no lens). The chip speaks it ONCE: dismissed,
+  // hand-changed, or cleared, the landing is over and the chip retires —
+  // an honest face never claims a landing that is done (the inventory
+  // desk's three-voice law, worn in the lens's purple).
+  const [landedCatStock] = useState<StockFilter>(initialCatStock);
+  const [catLandingLive, setCatLandingLive] = useState(true);
+
+  // v2.364.0: a hand-driven change retires the landing word — the chip
+  // speaks the ADDRESS BAR's landing, never the human's next choice.
+  const chooseCatStock = (value: StockFilter) => {
+    setStockFilter(value);
+    setCatLandingLive(false);
+  };
   const [priceMin, setPriceMin] = useState('');
   const [priceMax, setPriceMax] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('name');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
-  const [showFilters, setShowFilters] = useState(false);
+  // v2.364.0 THE COLLAPSIBLE-FACE AMENDMENT: a landing that carries the
+  // word RAISES the filters panel it lands into, so the chip is visible on
+  // landing; the panel's seed reads the same landed word. A panel the
+  // human closes afterwards is navigation, not a lens change.
+  const [showFilters, setShowFilters] = useState<boolean>(() => landedCatStock !== 'all');
 
   // Quantity tracking per product for +/- buttons
   const [quantities, setQuantities] = useState<Record<string, number>>({});
@@ -342,6 +398,9 @@ export default function CatalogTab() {
     setPriceMin('');
     setPriceMax('');
     setSortKey('name');
+    // v2.364.0 the third voice — the inventory desk's law: a clear is the
+    // human owning the lens, the landing is over.
+    setCatLandingLive(false);
   };
 
   const activeFilterCount = [
@@ -928,7 +987,38 @@ export default function CatalogTab() {
             {/* Stock status */}
             <div className="space-y-1.5 min-w-[160px]">
               <label className="text-xs font-medium text-muted-foreground">Stock Status</label>
-              <Select value={stockFilter} onValueChange={(v) => setStockFilter(v as StockFilter)}>
+              {/* v2.364.0 THE LANDING WORD, out loud: while the landing is
+                  live AND the lens still wears the word it seeded, the chip
+                  names the exact word — an honest face. It wears the
+                  SEVENTEENTH family (purple — the catalog's plum, the
+                  paint-deck hue this yard itself sells; byte-free on this
+                  desk — red reads as danger, amber and green are the desk's
+                  own stock voices, and a voice must not masquerade as a
+                  badge) with dark-mode variants, the Link2 icon, a `title`
+                  tooltip, and a one-press dismissal that clears the lens
+                  the word seeded. The chip retires the moment the human
+                  owns the filter. THE THREE VOICES: the chip's own dismissal,
+                  a hand-driven Select change, or the clear-filters reset
+                  (the inventory desk's census).
+                  `data-testid="cat-stock-landing-word"` — the QA walk's
+                  handle. */}
+              {catLandingLive && landedCatStock !== 'all' && stockFilter === landedCatStock && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStockFilter('all');
+                    setCatLandingLive(false);
+                  }}
+                  className="group inline-flex items-center gap-1 h-6 px-2 rounded-full border border-purple-200 bg-purple-50 text-purple-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-purple-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 dark:border-purple-500/30 dark:bg-purple-500/10 dark:text-purple-300 dark:hover:bg-purple-500/20"
+                  data-testid="cat-stock-landing-word"
+                  title="The desk landed with this filter from the address bar — press to clear it"
+                >
+                  <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+                  <span className="tabular-nums">landed ?cat-stock={landedCatStock}</span>
+                  <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+                </button>
+              )}
+              <Select value={stockFilter} onValueChange={chooseCatStock}>
                 <SelectTrigger className="h-9">
                   <SelectValue />
                 </SelectTrigger>

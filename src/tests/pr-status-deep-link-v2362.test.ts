@@ -246,7 +246,7 @@ describe('the address-bar vocabulary — the fifteenth row (cross-suite pins)', 
   const constitution = readFileSync('src/tests/transfer-status-deep-link-v2357.test.ts', 'utf8');
 
   it('the constitution walks FIFTEEN words over THIRTEEN desks', () => {
-    expect(constitution.includes('(sixteen words, fourteen desks)')).toBe(true);
+    expect(constitution.includes('(seventeen words, fifteen desks)')).toBe(true);
     expect(constitution.includes("{ word: 'pr-status', desk: 'src/app/(shell)/tabs/payroll-tab.tsx', family: 'border-stone-200', suite: 'src/tests/pr-status-deep-link-v2362.test.ts' }")).toBe(true);
     expect(constitution.includes("'FIFTEENTH'")).toBe(true);
   });
@@ -281,6 +281,7 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // the fourteen neighbor ledgers admitted this test file — and an
       // admission line carries the word it admits (the LEDGER-CITATION
       // RIPPLE: a ledger is an honest speaker of every word it lists)
+      'src/tests/cat-stock-deep-link-v2364.test.ts',
       'src/tests/cr-type-deep-link-v2361.test.ts',
       'src/tests/cust-debt-deep-link-v2330.test.ts',
       'src/tests/cv-type-deep-link-v2363.test.ts',
