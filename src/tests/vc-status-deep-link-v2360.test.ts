@@ -270,7 +270,7 @@ describe('the address-bar vocabulary — the constitution\u2019s thirteenth row'
   });
 
   it('the constitution\u2019s title counts thirteen words over eleven desk files', () => {
-    expect(registry.includes('(twenty words, eighteen desks)')).toBe(true);
+    expect(registry.includes('(twenty-one words, nineteen desks)')).toBe(true);
   });
 
   it('the home\u2019s promise roll carries the THIRTEENTH alongside its elders', () => {
@@ -326,6 +326,7 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/inv-stock-deep-link-v2329.test.ts',
       // the po-status word's ledger lives beside the proxy-gate suite
       // (one release, two suites — the ledger is the honest speaker here)
+      'src/tests/ly-type-deep-link-v2368.test.ts',
       'src/tests/pr-status-deep-link-v2362.test.ts',
       'src/tests/proxy-gate-layering-v2328.test.ts',
       'src/tests/rent-status-deep-link-v2355.test.ts',
