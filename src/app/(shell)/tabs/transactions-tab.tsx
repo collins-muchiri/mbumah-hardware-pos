@@ -89,7 +89,13 @@ function getDateRange(preset: DatePreset): { from: Date; to: Date } {
   }
 }
 
-type TransactionType = 'sale' | 'refund' | 'void';
+// v2.378.0 THE SETTLEMENT LENS: the kind union grows its fourth word —
+// the zero-item REFUND event (the stranded-gap settlement, v2.375.0's own
+// wearing) stops masquerading in the refund lens and speaks its own kind
+// in the census chips, the row, the amount cell and the address bar
+// (`?txn-type=settlement` — the seventh word's vocabulary grows ONE
+// value, the membership home stays byte-identical).
+type TransactionType = 'sale' | 'refund' | 'settlement' | 'void';
 
 // Framer-motion stagger variants - wrap the transactions tab wrapper.
 const _staggerContainer = {
@@ -145,7 +151,14 @@ function getTransactionType(transaction: TransactionItem): TransactionType {
   // the derived status; the status checks stay as the ORIGINALS' voice
   // (a sale whose paymentStatus became REFUNDED or VOIDED still speaks
   // its state — the two sides of the refund story share the lens).
-  if (transaction.transactionType === 'REFUND') return 'refund';
+  if (transaction.transactionType === 'REFUND') {
+    // v2.378.0 THE KIND'S OWN DERIVATION: the zero-item event IS the
+    // settlement (the isSettlementEvent law, exported in v2.375.0 for
+    // exactly this caller) — it answers 'settlement' and the itemized
+    // REFUND keeps 'refund'. The status-derived checks stay BELOW the
+    // row's own kind (the v2.371 order stands).
+    return isSettlementEvent(transaction) ? 'settlement' : 'refund';
+  }
   if (transaction.transactionType === 'VOID') return 'void';
   if (transaction.paymentStatus === 'REFUNDED') return 'refund';
   if (transaction.paymentStatus === 'VOIDED' || transaction.paymentStatus === 'CANCELLED') return 'void';
@@ -156,6 +169,9 @@ function getTransactionTypeIcon(type: TransactionType) {
   switch (type) {
     case 'sale': return <ShoppingBag className="h-3.5 w-3.5" />;
     case 'refund': return <RotateCcw className="h-3.5 w-3.5" />;
+    // v2.378.0: the settlement's kind icon is the HandCoins — the SAME
+    // icon the v2.375 row badge speaks (the kind never wears two faces).
+    case 'settlement': return <HandCoins className="h-3.5 w-3.5" />;
     case 'void': return <Ban className="h-3.5 w-3.5" />;
   }
 }
@@ -164,6 +180,9 @@ function getTransactionTypeColor(type: TransactionType): string {
   switch (type) {
     case 'sale': return 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300';
     case 'refund': return 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300';
+    // v2.378.0: the settlement wears the emerald settle ink (the SAME law
+    // the row badge and the settle affordance speak — emerald settles).
+    case 'settlement': return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300';
     case 'void': return 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300';
   }
 }
@@ -172,6 +191,7 @@ function getTransactionTypeLabel(type: TransactionType): string {
   switch (type) {
     case 'sale': return 'Sale';
     case 'refund': return 'Refund';
+    case 'settlement': return 'Settlement';
     case 'void': return 'Void';
   }
 }
@@ -185,7 +205,9 @@ function getTransactionTypeLabel(type: TransactionType): string {
 // plain call, and the desk's own derivation helper is the runtime truth
 // (REFUNDED/VOIDED/CANCELLED speak their kinds, everything else is a sale).
 function countTransactionTypes(rows: TransactionItem[]): Record<'all' | TransactionType, number> {
-  const census: Record<'all' | TransactionType, number> = { all: rows.length, sale: 0, refund: 0, void: 0 };
+  // v2.378.0: the census keyset IS the union — the settlement kind counts
+  // beside its siblings (the chip map below speaks the same keyset).
+  const census: Record<'all' | TransactionType, number> = { all: rows.length, sale: 0, refund: 0, settlement: 0, void: 0 };
   for (const row of rows) census[getTransactionType(row)] += 1;
   return census;
 }
@@ -1249,6 +1271,7 @@ function TransactionRow({
         className={`cursor-pointer transition-colors ${
           txType === 'void' ? 'opacity-50 bg-red-50/50 dark:bg-red-950/10' :
           txType === 'refund' ? 'bg-amber-50/50 dark:bg-amber-950/10 hover:bg-amber-50 dark:hover:bg-amber-950/20' :
+          txType === 'settlement' ? 'bg-emerald-50/50 dark:bg-emerald-950/10 hover:bg-emerald-50 dark:hover:bg-emerald-950/20' :
           'hover:bg-muted/50'
         }`}
         onClick={onToggle}
@@ -1284,8 +1307,12 @@ function TransactionRow({
           </Badge>
         </TableCell>
         <TableCell className="text-xs font-bold text-right">
-          <span className={`text-sm ${txType === 'refund' ? 'text-amber-700' : txType === 'void' ? 'text-red-600 line-through' : 'text-foreground'}`}>
-            {txType === 'refund' ? '-' : ''}{formatKES(transaction.totalAmount)}
+          {/* v2.378.0 THE SETTLEMENT'S AMOUNT CELL: the zero-item event is
+              money-out like its refund sibling — it wears the minus and
+              the emerald settle ink (the kind's own family; the amber
+              stays the itemized refund's voice). */}
+          <span className={`text-sm ${txType === 'refund' ? 'text-amber-700' : txType === 'settlement' ? 'text-emerald-700' : txType === 'void' ? 'text-red-600 line-through' : 'text-foreground'}`}>
+            {txType === 'refund' || txType === 'settlement' ? '-' : ''}{formatKES(transaction.totalAmount)}
           </span>
         </TableCell>
         <TableCell>
@@ -1495,7 +1522,12 @@ function initialTxnPay(): string {
 // `txn-type-lens-voice`), never a reader of the word.
 // Read-on-mount ONLY (the one-writer law): the landing word is the
 // LANDING lens, never rewritten; the census chips own the state after.
-export const TXN_TYPE_FILTERS = ['all', 'sale', 'refund', 'void'] as const;
+// v2.378.0 THE SETTLEMENT VALUE: the seventh word's vocabulary grows
+// ONE value — `?txn-type=settlement` lands the ledger on the zero-item
+// settlements' own lens (the kind the v2.375 row badge named, now a
+// lens word). The parser home is untouched: the membership list is the
+// desk's own truth, and the new value rides it like its siblings.
+export const TXN_TYPE_FILTERS = ['all', 'sale', 'refund', 'settlement', 'void'] as const;
 
 function initialTxnType(): (typeof TXN_TYPE_FILTERS)[number] {
   if (typeof window === 'undefined') return 'all';
@@ -1603,6 +1635,42 @@ export default function TransactionsTab() {
         `Status repaired — ${settled.originalReceiptNumber} is fully refunded`,
         { description: 'The refund chain already covered this sale; the badge caught up. No money moved.' },
       );
+      // v2.378.0 THE REPAIR'S OWN NOTE (the paper-substitute): the HEALED
+      // branch opens the settlement's receipt; the REPAIRED branch issued
+      // NO paper (no money moved, no receipt row) — so the settlement's
+      // only traveling voice is a WhatsApp note that says exactly what
+      // happened. The ask rides the app's own dialog (the v2.376 family,
+      // the recipient pre-filled from the original's customer phone) and
+      // the send is BEST-EFFORT: the repair is already committed, so a
+      // refused wire (or a skipped ask — "Skip" is the honest cancel)
+      // must never fail it. THE PAPER LAW, second voice: the settle's
+      // confirmation follows the settle, whatever shape the settle had.
+      try {
+        const phone = await askRecipient({
+          channel: 'WHATSAPP',
+          title: `Share the repair note for ${settled.originalReceiptNumber}?`,
+          description:
+            'The status repair is already recorded — no money moved and no receipt was issued. The note says exactly that; skip and nothing sends.',
+          prefill: tx.customer?.phone || '',
+          confirmLabel: 'Share note',
+        });
+        if (phone) {
+          const res = await whatsappApi.send({
+            phone,
+            message:
+              `Status repaired — receipt ${settled.originalReceiptNumber} is fully refunded. ` +
+              'The refund chain already covered this sale; the badge caught up. No money moved.',
+            storeId: currentStoreId,
+          });
+          const payload = res.data;
+          if (payload?.waLink) {
+            window.open(payload.waLink, '_blank');
+            toast.success('Repair note sent via WhatsApp');
+          }
+        }
+      } catch {
+        /* the note is best-effort; the repair is already home */
+      }
     } else {
       toast.success(
         `Stranded gap settled — ${formatKES(settled.refundTotal)} returned${settled.loyalty ? ` · ${settled.loyalty.clawedBack} loyalty points home` : ''}`,
@@ -1628,7 +1696,9 @@ export default function TransactionsTab() {
       }
     }
     await queryClient.invalidateQueries({ queryKey: ['transactions'] });
-  }, [queryClient]);
+    // v2.378.0: the repair's WhatsApp share rides askRecipient (the stable
+    // hook ask) and currentStoreId — the deps own both.
+  }, [queryClient, askRecipient, currentStoreId]);
 
   const handleHealConfirm = useCallback(async () => {
     if (!healTransaction) return;
@@ -2072,7 +2142,7 @@ export default function TransactionsTab() {
               payment violet — a voice must not masquerade as a badge). */}
           <div className="flex flex-wrap items-center gap-2" data-testid="txn-type-census">
             <ShoppingBag className="h-4 w-4 text-muted-foreground shrink-0" />
-            {(['all', 'sale', 'refund', 'void'] as const).map((type) => (
+            {(['all', 'sale', 'refund', 'settlement', 'void'] as const).map((type) => (
               <button
                 key={type}
                 onClick={() => chooseTxnType(type)}

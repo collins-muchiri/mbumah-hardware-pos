@@ -69,8 +69,30 @@ jobs:
                   -m "Release v${{ steps.ver.outputs.version }} — ${{ github.sha }}"
           git push origin "v${{ steps.ver.outputs.version }}"
 
+      # v2.378.0 — THE RELEASE-SCOPED GATE (the Task 95 incident's permanent
+      # repair). The publish step used to ride the TAG's existence, so when
+      # "Publish GitHub Release" died on GitHub's own transient HTTP 500
+      # AFTER the tag was cut (v2.377.0, 2026-11-03), every rerun answered
+      # "tag exists → skip" and the workflow reported success WITHOUT ever
+      # publishing — the Remediation had to come from a manual REST call.
+      # The publish step now gates on the RELEASE's own existence instead:
+      # a cut tag with a missing release re-publishes on the very next
+      # run (the idempotence is release-scoped, where the failure lives).
+      - name: Check whether release already exists (the release-scoped gate)
+        id: release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view "v${{ steps.ver.outputs.version }}" --repo "$GITHUB_REPOSITORY" --json id >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Release v${{ steps.ver.outputs.version }} already exists — publish skips."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "No release for v${{ steps.ver.outputs.version }} yet — the publish step will create it (even after a failed first publish)."
+          fi
+
       - name: Publish GitHub Release (auto-generated notes)
-        if: steps.tag.outputs.exists == 'false'
+        if: steps.release.outputs.exists == 'false'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

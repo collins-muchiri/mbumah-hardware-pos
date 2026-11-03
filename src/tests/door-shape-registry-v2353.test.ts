@@ -204,7 +204,9 @@ describe("THE LEDGER'S CENSUS — the type chips count, the lens speaks", () => 
   });
 
   it('the chip map IS the census keyset (as const) — and the two parameter annotations are gone', () => {
-    expect(desk.includes("(['all', 'sale', 'refund', 'void'] as const).map((type) => (")).toBe(true);
+    // v2.378.0: the chip map grew the settlement value — the keyset IS
+    // still the census's own Record keyset (the union's truth)
+    expect(desk.includes("(['all', 'sale', 'refund', 'settlement', 'void'] as const).map((type) => (")).toBe(true);
     expect(desk.includes('getTransactionTypeIcon(type as')).toBe(false);
     expect(desk.includes('getTransactionTypeLabel(type as')).toBe(false);
     // the state rides its honest union — the lens voice reads the census without a cast
