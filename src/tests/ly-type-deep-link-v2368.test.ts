@@ -184,7 +184,7 @@ describe('the loyalty desk — ?ly-type= lands as visible state (and its stage)'
   it('THE TWO-ADDRESS DESIGN at the stage seed (the innerTab landing law)', () => {
     expect(home.includes('export function parseInitialStage')).toBe(true);
     expect(
-      desk.includes("parseInitialStage(window.location.search, LOYALTY_SUB_TABS, 'transactions', landedLyType !== 'all', 'tiers')")
+      desk.includes("parseInitialStageWithAlias(window.location.search, 'ly-view', 'view', LOYALTY_SUB_TABS, 'transactions', landedLyType !== 'all', 'tiers')")
     ).toBe(true);
     expect(desk.includes('THE TWO-ADDRESS DESIGN')).toBe(true);
   });
@@ -354,6 +354,7 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/gc-status-deep-link-v2358.test.ts',
       'src/tests/inv-status-deep-link-v2356.test.ts',
       'src/tests/inv-stock-deep-link-v2329.test.ts',
+      'src/tests/ly-island-v2369.test.ts',
       'src/tests/ly-type-deep-link-v2368.test.ts',
       'src/tests/pr-status-deep-link-v2362.test.ts',
       // the po-status word's ledger lives beside the proxy-gate suite

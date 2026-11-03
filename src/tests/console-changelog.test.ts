@@ -463,10 +463,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.366.0: the audit entry joins the feed (+1 on every anchor → 255/256/257/288 → 256/257/258/289)
     // v2.367.0: the watchtower entry joins the feed (+1 on every anchor → 256/257/258/289 → 257/258/259/290)
     // v2.368.0: the ledger's migration entry joins the feed (+1 on every anchor → 257/258/259/290 → 258/259/260/291)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(258);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(259);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(260);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(291);
+    // v2.369.0: the island's homecoming entry joins the feed (+1 on every anchor → 258/259/260/291 → 259/260/261/292)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(259);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(260);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(261);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(292);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 
