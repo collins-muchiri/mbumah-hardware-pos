@@ -308,6 +308,14 @@ export function parseInitialNamedPage(search: string, param: string, fallback = 
  * the group's onClick, the law's intent unchanged, and the lens is
  * always rendered on the desk's top-level pane, the always-visible face
  * without an amendment).
+ * v2.366.0 — THE PROMISE KEPT, THE NINETEENTH WORD: the admin desk's audit
+ * severity lens speaks it as its desk-prefixed `ad-severity` (the same
+ * parser, zero new bytes of law, again — the owner's morning question,
+ * "anything critical overnight?", is now an address; UPPERCASE words, the
+ * severity Select's own spellings, and the landing chip wears the
+ * nineteenth family, neutral — the unbiased record's voice, an audit
+ * speaks no colour; the lens is always rendered on the desk's top-level
+ * pane, the always-visible face without an amendment).
  */
 export function parseInitialNamedMember<V extends string>(
   search: string,

@@ -42,7 +42,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  override componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     this.setState({ errorInfo });
 
     // Save error state to localStorage for recovery
@@ -85,7 +85,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     }
   }
 
-  componentWillUnmount() {
+  override componentWillUnmount() {
     if (this.autoNavigateTimer) {
       clearTimeout(this.autoNavigateTimer);
     }
@@ -307,7 +307,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     );
   }
 
-  render() {
+  override render() {
     if (this.state.hasError) {
       // If the error overlay was dismissed, show a safe minimal fallback
       // instead of re-rendering children (which would crash again and
@@ -421,7 +421,7 @@ export class SectionErrorBoundary extends React.Component<SectionErrorBoundaryPr
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  override componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error(`[SectionErrorBoundary${this.props.sectionName ? `:${this.props.sectionName}` : ''}]`, error, errorInfo);
 
     // Report to Sentry
@@ -440,7 +440,7 @@ export class SectionErrorBoundary extends React.Component<SectionErrorBoundaryPr
     this.setState({ hasError: false, error: null });
   };
 
-  render() {
+  override render() {
     if (this.state.hasError) {
       if (this.props.fallback) return this.props.fallback;
       return (

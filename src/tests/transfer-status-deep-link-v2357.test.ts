@@ -23,9 +23,9 @@
 // seed bytes and its cast-free typing, the chip's bytes and its two
 // retirement voices, the one-home promise (the law's doc carries the
 // tenth word), the collision ledger — and THE CONSTITUTION: the whole
-// vocabulary's invariants walked from source bytes, eighteen words strong
+// vocabulary's invariants walked from source bytes, nineteen words strong
 // (the sixteenth row joined in v2.363.0, the seventeenth in v2.364.0, the
-// eighteenth in v2.365.0).
+// eighteenth in v2.365.0, the nineteenth in v2.366.0).
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
@@ -196,7 +196,7 @@ describe('the landing chip — the face names the word it answered', () => {
 // 4. THE CONSTITUTION — the whole vocabulary's invariants, walked from bytes
 // ---------------------------------------------------------------------------
 
-describe('the address-bar vocabulary — THE CONSTITUTION (eighteen words, sixteen desks)', () => {
+describe('the address-bar vocabulary — THE CONSTITUTION (nineteen words, seventeen desks)', () => {
   const WORDS = [
     { word: 'po-status', desk: 'src/app/(shell)/tabs/purchase-orders-tab.tsx', family: 'border-indigo-200', suite: 'src/tests/proxy-gate-layering-v2328.test.ts' },
     { word: 'inv-stock', desk: 'src/app/(shell)/tabs/inventory-tab.tsx', family: 'border-amber-200', suite: 'src/tests/inv-stock-deep-link-v2329.test.ts' },
@@ -216,6 +216,7 @@ describe('the address-bar vocabulary — THE CONSTITUTION (eighteen words, sixte
     { word: 'cv-type', desk: 'src/app/(shell)/tabs/conversations-tab.tsx', family: 'border-slate-200', suite: 'src/tests/cv-type-deep-link-v2363.test.ts' },
     { word: 'cat-stock', desk: 'src/app/(shell)/tabs/catalog-tab.tsx', family: 'border-purple-200', suite: 'src/tests/cat-stock-deep-link-v2364.test.ts' },
     { word: 'dp-status', desk: 'src/app/(shell)/tabs/debt-plans-tab.tsx', family: 'border-zinc-200', suite: 'src/tests/dp-status-deep-link-v2365.test.ts' },
+    { word: 'ad-severity', desk: 'src/app/(shell)/tabs/admin-tab.tsx', family: 'border-neutral-200', suite: 'src/tests/ad-severity-deep-link-v2366.test.ts' },
   ] as const;
 
   it('every word is desk-prefixed and owns its FILTERS const in exactly its desk', () => {
@@ -225,7 +226,7 @@ describe('the address-bar vocabulary — THE CONSTITUTION (eighteen words, sixte
     }
   });
 
-  it('every word wears a DISTINCT family — eighteen families, no two alike', () => {
+  it('every word wears a DISTINCT family — nineteen families, no two alike', () => {
     const families = WORDS.map((w) => w.family);
     expect(new Set(families).size).toBe(WORDS.length);
     for (const { word, desk: deskPath, family } of WORDS) {
@@ -239,7 +240,7 @@ describe('the address-bar vocabulary — THE CONSTITUTION (eighteen words, sixte
     for (const { suite } of WORDS) {
       expect(readFileSync(suite, 'utf8').length > 0, `${suite} exists`).toBe(true);
     }
-    for (const n of ['SEVENTH', 'EIGHTH', 'NINTH', 'TENTH', 'ELEVENTH', 'TWELFTH', 'THIRTEENTH', 'FOURTEENTH', 'FIFTEENTH', 'SIXTEENTH', 'SEVENTEENTH', 'EIGHTEENTH']) {
+    for (const n of ['SEVENTH', 'EIGHTH', 'NINTH', 'TENTH', 'ELEVENTH', 'TWELFTH', 'THIRTEENTH', 'FOURTEENTH', 'FIFTEENTH', 'SIXTEENTH', 'SEVENTEENTH', 'EIGHTEENTH', 'NINETEENTH']) {
       expect(home.includes(`THE PROMISE KEPT, THE ${n} WORD`)).toBe(true);
     }
   });
@@ -298,6 +299,7 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // the thirteen neighbor ledgers admitted this test file — and an
       // admission line carries the word it admits (the LEDGER-CITATION
       // RIPPLE: a ledger is an honest speaker of every word it lists)
+      'src/tests/ad-severity-deep-link-v2366.test.ts',
       'src/tests/cat-stock-deep-link-v2364.test.ts',
       'src/tests/cr-type-deep-link-v2361.test.ts',
       'src/tests/cust-debt-deep-link-v2330.test.ts',

@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.366.0',
+    title: 'The audit log answers the address bar',
+    bullets: [
+      'An admin link can now name its lens: ?ad-severity=CRITICAL (or ERROR, WARN, INFO, DEBUG) lands the audit log pre-filtered, with a dismissible chip naming the word it answered — the nineteenth word of the address-bar vocabulary. The owner\u2019s morning question — anything critical overnight? — is now a bookmark.',
+      'The landing chip wears the vocabulary\u2019s nineteenth family (neutral — the unbiased record\u2019s voice: an audit speaks no colour, and every chromatic hue was already the desk\u2019s own) and the log feeds the filter straight into its query, so a landed word filters the log itself, not just the Select\u2019s face.',
+      'The same round drove the scoped type instrument\u2019s residual to zero for the first time: error-boundary\u2019s five override modifiers, the CSRF token\u2019s honest string narrowing, the debt-plan util\u2019s number contract, and the toggle mutation\u2019s honest envelope — same behavior, cleaner types.',
+    ],
+  },
+  {
     version: '2.365.0',
     title: 'The repayment desk answers the address bar',
     bullets: [

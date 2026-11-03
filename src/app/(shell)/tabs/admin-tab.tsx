@@ -13,7 +13,7 @@ import {
   Settings, Save, Edit3, UserPlus, X,
   AlertTriangle, Terminal, MapPin, Phone,
   MessageSquare, Mail, Smartphone, Store,
-  KeyRound,
+  KeyRound, Link2,
 } from 'lucide-react';
 import { composeLatencyVoice } from '@/lib/report-voices';
 
@@ -22,8 +22,9 @@ import {
   systemLogsApi, stockMovementsApi, productsApi,
   auditLogsApi, systemConfigApi, usersApi, settingsApi,
   formatDateTime, formatKES,
-  type AuditLogEntry, type SystemConfigItem, type UserItem,
+  type AuditLogEntry, type SystemConfigItem, type UserItem, type ApiResponse,
 } from '@/lib/api';
+import { parseInitialNamedMember } from '@/lib/tab-url';
 import { VAT_RATE_QUERY_KEY } from '@/hooks/use-vat-rate';
 import { unitLabel } from '@/lib/units';
 import { UpdatesSafetySection } from '@/components/admin/updates-safety-section';
@@ -607,16 +608,50 @@ function ActivityFeed({ logs }: { logs: AuditLogEntry[] }) {
 
 // Audit Log Section (Filters + Export + Color Coding)
 
+// THE ADMIN DESK'S OWN WORD (v2.366.0): the audit log answers the address
+// bar.
+// v2.366.0 THE NINETEENTH WORD — the audit log's severity lens answers the
+// address bar. `?ad-severity=CRITICAL` is the owner's morning question
+// ("anything critical overnight?"), now a bookmark. UPPERCASE words — the
+// severity Select's own spellings since the desk first shipped (an
+// UPPERCASE `ALL` or a capitalized `Critical` names nothing here); the
+// neutral is the lowercase `all`, the Select's own All-Levels key. The lens
+// is ALWAYS RENDERED on the desk's top-level pane (the Audit Log card's
+// header toolbar — no sub-tabs, no collapsible panel), so a landing shows
+// the chip immediately, and the card's list feeds the filter straight into
+// its query (`severity: filters.severity !== 'all' ? filters.severity :
+// undefined`), so a landed word filters the LOG, not just the Select's face
+// (the conversations desk's precedent).
+export const AD_SEVERITY_FILTERS = ['all', 'CRITICAL', 'ERROR', 'WARN', 'INFO', 'DEBUG'] as const;
+type AdSeverityFilter = (typeof AD_SEVERITY_FILTERS)[number];
+
+function initialAdSeverity(): AdSeverityFilter {
+  if (typeof window === 'undefined') return 'all';
+  return parseInitialNamedMember(window.location.search, 'ad-severity', AD_SEVERITY_FILTERS, 'all');
+}
+
 function AuditLogSection({ storeId }: { storeId: string }) {
   const [filters, setFilters] = useState({
     type: 'all',
-    severity: 'all',
+    severity: initialAdSeverity(),
     search: '',
   });
   const [page, setPage] = useState(1);
   const [expandedLog, setExpandedLog] = useState<string | null>(null);
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  // v2.366.0 THE LANDING WORD — the audit's seed reads `?ad-severity=`
+  // through the ONE home, cast-free: the generic parser IS the six-word
+  // union, so the state's severity field names it directly.
+  const [landedAdSeverity] = useState<AdSeverityFilter>(initialAdSeverity);
+  const [adLandingLive, setAdLandingLive] = useState(true);
+  // v2.366.0: a hand-driven Select change retires the landing word — the
+  // chip speaks the ADDRESS BAR's landing, never the human's next choice.
+  const chooseAdSeverity = (value: AdSeverityFilter) => {
+    setFilters(f => ({ ...f, severity: value }));
+    setPage(1);
+    setAdLandingLive(false);
+  };
 
   const { data, isLoading } = useQuery({
     queryKey: ['audit-logs', storeId, filters, page, dateFrom, dateTo],
@@ -743,7 +778,33 @@ function AuditLogSection({ storeId }: { storeId: string }) {
               <SelectItem value="SYSTEM">System</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={filters.severity} onValueChange={(v) => { setFilters(f => ({ ...f, severity: v })); setPage(1); }}>
+          {/* v2.366.0 THE NINETEENTH WEARING: the chip wears NEUTRAL — the
+              unbiased record's voice. THE VOICE-INVENTORY ELIMINATION: the
+              desk speaks red (the severity badges' own voice), amber (WARN's
+              badge), blue (INFO's badge) and green (the health cards) — every
+              chromatic hue is either the family's or the desk's own voice;
+              neutral is the byte-free hue AND unused by the family (nineteen
+              families now), and an audit speaks no colour — neutrality IS
+              the audit's voice.
+              `data-testid="ad-severity-landing-word"` — the QA walk's
+              handle. */}
+          {adLandingLive && landedAdSeverity !== 'all' && filters.severity === landedAdSeverity && (
+            <button
+              type="button"
+              onClick={() => {
+                setFilters(f => ({ ...f, severity: 'all' }));
+                setAdLandingLive(false);
+              }}
+              className="group inline-flex items-center gap-1 h-6 px-2 rounded-full border border-neutral-200 bg-neutral-50 text-neutral-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 dark:border-neutral-500/30 dark:bg-neutral-500/10 dark:text-neutral-300 dark:hover:bg-neutral-500/20"
+              data-testid="ad-severity-landing-word"
+              title="The audit log landed with this severity from the address bar — press to clear it"
+            >
+              <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+              <span className="tabular-nums">landed ?ad-severity={landedAdSeverity}</span>
+              <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+            </button>
+          )}
+          <Select value={filters.severity} onValueChange={chooseAdSeverity}>
             <SelectTrigger className="w-32 h-8 text-xs"><SelectValue placeholder="Severity" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Levels</SelectItem>
@@ -1351,7 +1412,7 @@ function UserManagement({ storeId }: { storeId: string }) {
   });
 
   const toggleUserActiveMutation = useMutation({
-    mutationFn: (user: UserItem) =>
+    mutationFn: async (user: UserItem): Promise<ApiResponse<UserItem | { message: string }>> =>
       user.isActive ? usersApi.deactivate(user.id) : usersApi.update(user.id, { isActive: true }),
     onSuccess: (_res, user) => {
       toast.success(`User ${user.name} has been ${user.isActive ? 'deactivated' : 'activated'}`);
