@@ -58,12 +58,14 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
         ...process.env,
         // v2.278.0 THE PIN LAW: the pin must ride the spawn itself (process
         // env beats .env — an inherited shell DATABASE_URL would win), and
-        // the pin must speak the QA database .env speaks (db/ems-dev.db,
-        // where the QA seeds land), NOT the vitest-forced house db — the
-        // old pin here pointed at prisma/prisma/dev.db, so every
-        // launcher-born daemon served a different world than the shell's
-        // own `next start` and the desk E2E saw its seeds vanish.
-        DATABASE_URL: 'file:/home/z/ems/db/ems-dev.db',
+        // the pin must speak the QA database .env speaks. v2.375.0 THE
+        // STALE-PIN REPAIR: .env moved to db/audit-dev.db (the QA seeds'
+        // world — where the settlement fixtures and the house demo seed
+        // land) but this launcher's pin stayed on the old db/ems-dev.db
+        // (a zero-byte file with no schema), so every launcher-born
+        // daemon served an EMPTY world while the shell's own `next
+        // start` served the seeded one. The pin follows .env again.
+        DATABASE_URL: 'file:/home/z/ems/db/audit-dev.db',
         NODE_ENV: 'production',
         PORT: '3200',
       },

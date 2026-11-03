@@ -11,6 +11,22 @@
  * src/components/receipt-print.tsx and src/components/pos/receipt-print.tsx;
  * both now import this module so the surfaces can never drift apart again.
  * Output format is intentionally UNCHANGED (customer-facing contract).
+ *
+ * v2.375.0 THE SHARE TEXT SPEAKS ITS KIND: a REFUND transaction's share
+ * text used to borrow the sale voice wholesale - "Thank you for shopping
+ * at MBUMAH HARDWARE!" above the line "Goods sold are not refundable."
+ * - which a refund receipt must never say. A REFUND now speaks the refund
+ * voice: a REFUND RECEIPT banner, the "Refund of" chain line the paper
+ * trail already carries, and a footer that acknowledges the return. The
+ * SALE contract above the banner is BYTE-IDENTICAL (the v2.14.0 spec
+ * stands; the tests pin the sale lines).
+ *
+ * v2.375.0 THE ZERO-ITEM SETTLEMENT VOICE: a stranded-gap settlement's
+ * refund event carries NO line items (the money is the header remainder
+ * the line world could not reach). Where a sale receipt skips the items
+ * table silently, the settlement's share text SAYS so - "Type:
+ * Header-level settlement (no line items)" - so the recipient never
+ * reads the empty table as a rendering bug.
  */
 
 import { formatKES } from '@/lib/utils/financialMath';
@@ -45,6 +61,20 @@ export function buildReceiptText(
   lines.push(`Date: ${formatDateTime(tx.createdAt)}`);
   lines.push(`Cashier: ${tx.cashier?.name || 'N/A'}`);
   lines.push(`Customer: ${tx.customer?.name || 'Walk-in'}`);
+
+  // v2.375.0: the refund voice - the same chain reference the paper
+  // receipt's "Refund of" meta line reads (the service ALWAYS rides the
+  // notes), plus the kind banner. Everything above this point is the
+  // shared header contract, byte-identical for sales and refunds.
+  const isRefund = tx.transactionType === 'REFUND';
+  const refundOfReceipt = isRefund
+    ? (tx.notes?.match(/Refund of (\S+)/)?.[1] ?? null)
+    : null;
+  if (isRefund) {
+    lines.push('** REFUND RECEIPT **');
+    if (refundOfReceipt) lines.push(`Refund of: ${refundOfReceipt}`);
+  }
+
   lines.push(divider);
 
   if (tx.items?.length) {
@@ -73,6 +103,13 @@ export function buildReceiptText(
   }
   lines.push(`TOTAL:           ${formatKES(tx.totalAmount).padStart(14)}`);
   lines.push(divider);
+
+  // v2.375.0: the zero-item settlement says WHY the table is empty (the
+  // money is the header remainder - it never touched the line world).
+  if (isRefund && !tx.items?.length) {
+    lines.push('Type: Header-level settlement (no line items)');
+  }
+
   lines.push(`Payment: ${tx.paymentMethod}`);
 
   if (tx.paymentMethod === 'CASH') {
@@ -100,10 +137,17 @@ export function buildReceiptText(
   }
 
   lines.push('');
-  lines.push('Thank you for shopping at');
-  lines.push('MBUMAH HARDWARE!');
-  lines.push('Asante sana!');
-  lines.push('Goods sold are not refundable.');
+  if (isRefund) {
+    // v2.375.0: the refund footer - "Goods sold are not refundable."
+    // must never ride a receipt that IS the refund.
+    lines.push('Refund processed - the money is on its way back.');
+    lines.push('Asante sana!');
+  } else {
+    lines.push('Thank you for shopping at');
+    lines.push('MBUMAH HARDWARE!');
+    lines.push('Asante sana!');
+    lines.push('Goods sold are not refundable.');
+  }
 
   return lines.join('\n');
 }

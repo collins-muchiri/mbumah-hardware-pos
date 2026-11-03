@@ -67,6 +67,7 @@ import {
   Percent,
   ScanLine,
   RotateCcw,
+  HandCoins,
 } from 'lucide-react';
 import Image from 'next/image';
 import { QRCodeCanvas } from 'qrcode.react';
@@ -417,6 +418,12 @@ export function ReceiptDocument({
   const refundOfReceipt = isRefund
     ? (transaction.notes?.match(/Refund of (\S+)/)?.[1] ?? null)
     : null;
+  // v2.375.0: the settlement banner variant. A REFUND with NO line items
+  // is the stranded-gap settlement (the heal's zero-item event) — its
+  // paper wears the emerald settle ink (the desk's own "emerald
+  // settles" law) instead of the refund amber, so the settlement's
+  // paper and the settlement's row chip can never disagree.
+  const isSettlement = isRefund && (transaction.items?.length ?? 0) === 0;
 
   // VAT breakdown - mode-agnostic and Decimal-exact. For every stored
   // transaction (legacy VAT-exclusive AND current VAT-inclusive pricing)
@@ -488,15 +495,26 @@ export function ReceiptDocument({
 
       {/* v2.309.0: the refund banner - a REFUND receipt never masquerades
           as a sale. The amber band sits between the status strip and the
-          body, the same weight as the OFFLINE SYNC badge's urgency. */}
+          body, the same weight as the OFFLINE SYNC badge's urgency.
+          v2.375.0: the settlement's paper speaks its own kind — the
+          zero-item event wears the emerald settle band, the same ink the
+          row chip and the settle affordance speak. */}
       {isRefund && (
         <div
-          className="flex items-center gap-2 border-b bg-amber-100 px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-amber-900 dark:bg-amber-900/40 dark:text-amber-200"
+          className={`flex items-center gap-2 border-b px-3 py-2 text-[11px] font-bold uppercase tracking-wide ${
+            isSettlement
+              ? 'bg-emerald-100 text-emerald-900 dark:bg-emerald-900/40 dark:text-emerald-200'
+              : 'bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200'
+          }`}
           role="note"
-          aria-label="This is a refund receipt"
+          aria-label={isSettlement ? 'This is a settlement receipt' : 'This is a refund receipt'}
         >
-          <RotateCcw className="h-3.5 w-3.5 shrink-0" aria-hidden />
-          Refund receipt — money returned to the customer
+          {isSettlement
+            ? <HandCoins className="h-3.5 w-3.5 shrink-0" aria-hidden />
+            : <RotateCcw className="h-3.5 w-3.5 shrink-0" aria-hidden />}
+          {isSettlement
+            ? 'Settlement receipt — the stranded gap is settled'
+            : 'Refund receipt — money returned to the customer'}
         </div>
       )}
 
