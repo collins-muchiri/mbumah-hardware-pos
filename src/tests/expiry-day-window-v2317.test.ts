@@ -83,7 +83,10 @@ describe('the desk seeds its date window from the address bar (loyalty-tab.tsx)'
     // landing word) — the pin follows the import, not the round.
     // v2.321 trail: the import gains parseInitialLimit (the gait's
     // word) — the pin follows the import, not the round.
-    expect(tab.includes("import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialPage, parseInitialType, parseInitialView } from '@/lib/tab-url';")).toBe(true);
+    // v2.368.0 trail: the loyalty migration — the desk reads the
+    // canonical pair through the alias and stage parsers now; the pin
+    // follows the import, not the round.
+    expect(tab.includes("import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialNamedMemberWithAlias, parseInitialPage, parseInitialStage } from '@/lib/tab-url';")).toBe(true);
   });
 
   it('both date inputs seed lazily with SSR guards (empty input, never a stranded filter)', () => {

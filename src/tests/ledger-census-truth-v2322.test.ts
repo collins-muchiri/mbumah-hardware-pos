@@ -105,6 +105,10 @@ describe('the neighbors keep their voice — the v2.320/321 pins still stand', (
   });
 
   it('the vocabulary imports stay whole (no import changed this round)', () => {
-    expect(tab.includes("parseInitialLimit, parseInitialPage")).toBe(true);
+    // v2.368.0 pin evolution (deliberate): the loyalty migration — the
+    // import gained the alias and stage parsers (parseInitialLimit and
+    // parseInitialPage still ride, adjacency preserved in the new
+    // ordering); the pin follows the import, not the round.
+    expect(tab.includes("parseInitialLimit, parseInitialNamedMemberWithAlias, parseInitialPage")).toBe(true);
   });
 });

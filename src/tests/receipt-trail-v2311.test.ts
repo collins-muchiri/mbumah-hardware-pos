@@ -149,14 +149,21 @@ describe('v2.311.0 — the shell answers the address bar', () => {
     // pager lands on `?page=`; the pin follows the import, not the round.
     // v2.321.0 pin evolution (deliberate): parseInitialLimit joins — the
     // gait lands on `?limit=`; the pin follows the import, not the round.
-    expect(loyaltyTab).toContain("import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialPage, parseInitialType, parseInitialView } from '@/lib/tab-url';");
+    // v2.368.0 pin evolution (deliberate): the loyalty migration — the
+    // desk reads the canonical pair through the alias and stage parsers
+    // now; the pin follows the import, not the round.
+    expect(loyaltyTab).toContain("import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialNamedMemberWithAlias, parseInitialPage, parseInitialStage } from '@/lib/tab-url';");
     expect(loyaltyTab).toContain(
       "const LOYALTY_SUB_TABS: readonly LoyaltySubTab[] = ['tiers', 'members', 'transactions', 'campaigns'];",
     );
-    expect(loyaltyTab).toContain('parseInitialView(window.location.search, LOYALTY_SUB_TABS, \'tiers\')');
+    // v2.368.0 pin evolution (deliberate): the stage seed moved into the
+    // component (the two-address design — view wins, the landed word
+    // implies the transactions ledger); the pin follows the seed, not
+    // the round.
+    expect(loyaltyTab).toContain("parseInitialStage(window.location.search, LOYALTY_SUB_TABS, 'transactions', landedLyType !== 'all', 'tiers')");
     // SSR guard: the tab only renders client-side inside the SPA shell
     expect(loyaltyTab).toContain("if (typeof window === 'undefined') return 'tiers';");
-    expect(loyaltyTab).toContain('useState<LoyaltySubTab>(initialSubTab)');
+    expect(loyaltyTab).toContain('useState<LoyaltySubTab>(() => {');
   });
 
   it('a desk ask on the classic root SURVIVES sign-in (the QA catch, fixed at the door)', () => {

@@ -119,9 +119,12 @@ describe('the desk — the window can leave, and the echo is worn (loyalty-tab.t
     // pager lands on `?page=`; the pin follows the import, not the round.
     // v2.321.0 pin evolution (deliberate): parseInitialLimit joins — the
     // gait lands on `?limit=`; the pin follows the import, not the round.
+    // v2.368.0 pin evolution (deliberate): the loyalty migration — the
+    // desk reads the canonical pair through the alias and stage parsers
+    // now; the pin follows the import, not the round.
     expect(
       tab.includes(
-        "import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialPage, parseInitialType, parseInitialView } from '@/lib/tab-url';",
+        "import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialNamedMemberWithAlias, parseInitialPage, parseInitialStage } from '@/lib/tab-url';",
       ),
     ).toBe(true);
   });

@@ -96,7 +96,7 @@ async function sendEmailHandler(
   }
 
   // Dispatch to the appropriate template function
-  // Each branch casts `data` to its strongly-typed payload and calls the
+  // Each branch casts `data` to its strongly typed payload and calls the
   // corresponding `send*` helper from the email service. The helpers handle
   // env validation, NotificationLog persistence, and error swallowing.
   const userId = session.userId;

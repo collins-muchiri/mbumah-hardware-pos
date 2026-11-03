@@ -1092,8 +1092,16 @@ export function OrgConsole() {
      desk wins and the ask dies (the burst watched the click land on
      ?tab=dashboard&view=transactions&type=EXPIRE). A cross-console ask
      loads the shell fresh — the PROVEN landing path (the same law the
-     QA bursts have used since v2.311). */
-  const EXPIRY_LEDGER_HREF = '/?tab=loyalty&view=transactions&type=EXPIRE';
+     QA bursts have used since v2.311).
+
+     v2.368.0 THE DOOR MIGRATED TO THE CANONICAL WORD: the desk-prefixed
+     `ly-type` replaced the bare pre-constitution `type` (the legacy-word
+     sunset law), and the door got SHORTER — the loyalty desk's
+     two-address design lands the transactions sub-tab from the word
+     itself, so `view=transactions` no longer needs naming. The bare
+     `type` keeps answering as the legacy alias (the bookmarks already
+     in the wild), but no NEW in-repo link speaks it. */
+  const EXPIRY_LEDGER_HREF = '/?tab=loyalty&ly-type=EXPIRE';
   const expiryLedgerLinkClass =
     'underline decoration-amber-600/40 underline-offset-2 rounded-sm transition-colors ' +
     'hover:decoration-amber-600 focus-visible:outline-none focus-visible:ring-2 ' +

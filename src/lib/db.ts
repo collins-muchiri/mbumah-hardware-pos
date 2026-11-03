@@ -409,7 +409,7 @@ export function withImmutabilityBypass<T>(
 // 6. Prisma Client Extension
 
 /**
- * Strictly-typed shape of the parameters Prisma passes to every query
+ * Strictly typed shape of the parameters Prisma passes to every query
  * interceptor registered via `$extends({ query: ... })`.
  *
  * AUDIT FIX (Finding 1.1 - `any` removed from the ORM extension): all

@@ -158,7 +158,10 @@ describe('the desk — the gait rides the toolbar, the scope, and the wire', () 
 
 describe('the trail — the pin follows the import, not the round', () => {
   it('the tab-url import carries the sixth word in the desk and all five trail files', () => {
-    const evolved = "import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialPage, parseInitialType, parseInitialView } from '@/lib/tab-url';";
+    // v2.368.0 pin evolution (deliberate): the loyalty migration — the
+    // desk reads the canonical pair through the alias and stage parsers
+    // now; the pin follows the import, not the round.
+    const evolved = "import { buildSearchWithoutParams, parseInitialDateRange, parseInitialLimit, parseInitialNamedMemberWithAlias, parseInitialPage, parseInitialStage } from '@/lib/tab-url';";
     const desk = readFileSync('src/app/(shell)/tabs/loyalty-tab.tsx', 'utf8');
     expect(desk.includes(evolved)).toBe(true);
     for (const trail of [

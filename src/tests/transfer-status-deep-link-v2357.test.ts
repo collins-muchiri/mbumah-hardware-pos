@@ -197,7 +197,7 @@ describe('the landing chip — the face names the word it answered', () => {
 // 4. THE CONSTITUTION — the whole vocabulary's invariants, walked from bytes
 // ---------------------------------------------------------------------------
 
-describe('the address-bar vocabulary — THE CONSTITUTION (twenty words, eighteen desks)', () => {
+describe('the address-bar vocabulary — THE CONSTITUTION (twenty-one words, nineteen desks)', () => {
   const WORDS = [
     { word: 'po-status', desk: 'src/app/(shell)/tabs/purchase-orders-tab.tsx', family: 'border-indigo-200', suite: 'src/tests/proxy-gate-layering-v2328.test.ts' },
     { word: 'inv-stock', desk: 'src/app/(shell)/tabs/inventory-tab.tsx', family: 'border-amber-200', suite: 'src/tests/inv-stock-deep-link-v2329.test.ts' },
@@ -219,6 +219,10 @@ describe('the address-bar vocabulary — THE CONSTITUTION (twenty words, eightee
     { word: 'dp-status', desk: 'src/app/(shell)/tabs/debt-plans-tab.tsx', family: 'border-zinc-200', suite: 'src/tests/dp-status-deep-link-v2365.test.ts' },
     { word: 'ad-severity', desk: 'src/app/(shell)/tabs/admin-tab.tsx', family: 'border-neutral-200', suite: 'src/tests/ad-severity-deep-link-v2366.test.ts' },
     { word: 'sec-type', desk: 'src/app/(shell)/tabs/security-tab.tsx', family: 'border-gray-200', suite: 'src/tests/sec-type-deep-link-v2367.test.ts' },
+    // the migration round: the ledger's pre-constitution bare `type` moved
+    // to its desk-prefixed canonical word (the legacy-word sunset law —
+    // the bare word keeps answering as the alias)
+    { word: 'ly-type', desk: 'src/app/(shell)/tabs/loyalty-tab.tsx', family: 'border-green-200', suite: 'src/tests/ly-type-deep-link-v2368.test.ts' },
   ] as const;
 
   it('every word is desk-prefixed and owns its FILTERS const in exactly its desk', () => {
@@ -228,7 +232,7 @@ describe('the address-bar vocabulary — THE CONSTITUTION (twenty words, eightee
     }
   });
 
-  it('every word wears a DISTINCT family — twenty families, no two alike', () => {
+  it('every word wears a DISTINCT family — twenty-one families, no two alike', () => {
     const families = WORDS.map((w) => w.family);
     expect(new Set(families).size).toBe(WORDS.length);
     for (const { word, desk: deskPath, family } of WORDS) {
@@ -242,7 +246,7 @@ describe('the address-bar vocabulary — THE CONSTITUTION (twenty words, eightee
     for (const { suite } of WORDS) {
       expect(readFileSync(suite, 'utf8').length > 0, `${suite} exists`).toBe(true);
     }
-    for (const n of ['SEVENTH', 'EIGHTH', 'NINTH', 'TENTH', 'ELEVENTH', 'TWELFTH', 'THIRTEENTH', 'FOURTEENTH', 'FIFTEENTH', 'SIXTEENTH', 'SEVENTEENTH', 'EIGHTEENTH', 'NINETEENTH', 'TWENTIETH']) {
+    for (const n of ['SEVENTH', 'EIGHTH', 'NINTH', 'TENTH', 'ELEVENTH', 'TWELFTH', 'THIRTEENTH', 'FOURTEENTH', 'FIFTEENTH', 'SIXTEENTH', 'SEVENTEENTH', 'EIGHTEENTH', 'NINETEENTH', 'TWENTIETH', 'TWENTY-FIRST']) {
       expect(home.includes(`THE PROMISE KEPT, THE ${n} WORD`)).toBe(true);
     }
   });
@@ -313,6 +317,7 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/inv-stock-deep-link-v2329.test.ts',
       // the po-status word's ledger lives beside the proxy-gate suite
       // (one release, two suites — the ledger is the honest speaker here)
+      'src/tests/ly-type-deep-link-v2368.test.ts',
       'src/tests/pr-status-deep-link-v2362.test.ts',
       'src/tests/proxy-gate-layering-v2328.test.ts',
       'src/tests/rent-status-deep-link-v2355.test.ts',
