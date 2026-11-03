@@ -147,7 +147,7 @@ describe('the audit-coverage correction is pinned (the false gap claim cannot re
 
   it('§4 records a correction with zero gaps — not a queued fix', () => {
     const s = doc();
-    expect(s).toContain('Known gaps — NONE');
+    expect(s).toContain('Known gaps: NONE');
     expect(s).toContain('That finding was false');
     expect(s).not.toContain('fix queued as the next round');
   });
@@ -164,7 +164,7 @@ describe('the audit-coverage correction is pinned (the false gap claim cannot re
 
   it('the Employees domain row claims 5/5 with the portal-link mutators included', () => {
     const s = doc();
-    expect(s).toContain('linkPortalAccount, unlinkPortalAccount — **5/5**');
+    expect(s).toContain('linkPortalAccount, unlinkPortalAccount: **5/5**');
   });
 
   it('the raw count matches a fresh scan (98 call sites / 30 files at writing)', () => {

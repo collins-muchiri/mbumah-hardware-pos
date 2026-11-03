@@ -1187,7 +1187,12 @@ export default function LoyaltyTab() {
             >
               <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
               <span className="tabular-nums">
-                landed {landedWindowFrom ? `?ly-from=${landedWindowFrom}` : ''}{landedWindowFrom && landedWindowTo ? '&' : ''}{landedWindowTo ? `?ly-to=${landedWindowTo}` : ''}
+                {/* v2.370.0 THE URL-HONEST TEXT: the second word drops its
+                    own ask-voice when the first spoke — the chip renders
+                    `?ly-from=X&ly-to=Y`, the exact bytes a URL would
+                    carry; a from-less landing keeps the ask-voice on the
+                    first word it names (`?ly-to=Y`). */}
+                landed {landedWindowFrom ? `?ly-from=${landedWindowFrom}` : ''}{landedWindowTo ? `${landedWindowFrom ? '&' : '?'}ly-to=${landedWindowTo}` : ''}
               </span>
               <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
             </button>

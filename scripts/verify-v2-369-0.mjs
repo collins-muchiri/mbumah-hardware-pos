@@ -70,8 +70,8 @@ console.log('— the landed-window chip (the address bar\u2019s echo, the window
 ok('THE CHIP EXISTS with the honest-face condition',
   DESK.includes('data-testid="ly-window-landing-word"')
   && DESK.includes('windowLandingLive && (landedWindowFrom || landedWindowTo) && txDateFrom === landedWindowFrom && txDateTo === landedWindowTo'));
-ok('THE CHIP SPEAKS THE CANONICAL SPELLINGS',
-  DESK.includes('?ly-from=${landedWindowFrom}') && DESK.includes('?ly-to=${landedWindowTo}'));
+ok('THE CHIP SPEAKS THE CANONICAL SPELLINGS (the URL-honest text, v2.370)',
+  DESK.includes('?ly-from=${landedWindowFrom}') && DESK.includes('ly-to=${landedWindowTo}'));
 ok('THE CHIP WEARS THE WINDOW\u2019S OWN AMBER (the stamp\u2019s bytes)',
   DESK.includes('border-amber-600/30 bg-amber-50 text-amber-800')
   && DESK.includes('dark:border-amber-500/30 dark:bg-amber-950/40 dark:text-amber-300'));

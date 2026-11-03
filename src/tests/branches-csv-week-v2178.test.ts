@@ -312,7 +312,7 @@ describe('the caller contract - the summary payload rides, nothing is fetched', 
 describe('the docs speak the fourth section', () => {
   it('multi-store-workspaces.md gains the export bullet and the KPI row', () => {
     expect(doc).toContain('- The export carries the week (v2.178.0):');
-    expect(doc).toContain('| Export · week by branch | v2.178.0 —');
+    expect(doc).toContain('| Export · week by branch | v2.178.0:');
   });
 
   it('the branches CSV contract is now the four-section contract', () => {
@@ -324,9 +324,9 @@ describe('the docs speak the fourth section', () => {
 describe('release surfaces', () => {
   it('package.json leads the current version in all three slots (re-anchored for 2.181.0) and the verify script is wired', () => {
     const pkg = JSON.parse(readRepo('package.json'));
-    expect(pkg.version).toBe('2.369.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.369.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.369.0');
+    expect(pkg.version).toBe('2.370.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.370.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.370.0');
     expect(pkg.scripts['verify:v2-178-0']).toBe('node scripts/verify-v2-178-0.mjs');
   });
 

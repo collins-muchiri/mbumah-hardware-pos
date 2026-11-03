@@ -244,7 +244,7 @@ describe('the component contract - one comparator, two readers', () => {
 describe('docs and release surfaces', () => {
   it('multi-store-workspaces.md carries the matrix-sort bullet and the KPI row', () => {
     expect(doc).toContain('- The matrix learns to sort (v2.180.0):');
-    expect(doc).toContain('| Matrix · sort | v2.180.0 —');
+    expect(doc).toContain('| Matrix · sort | v2.180.0:');
   });
 
   it('the CHANGELOG heads with this release', () => {
@@ -259,9 +259,9 @@ describe('docs and release surfaces', () => {
   });
 
   it('package.json leads 2.180.0 (all three slots) and the verify script is wired', () => {
-    expect(pkg.version).toBe('2.369.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.369.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.369.0');
+    expect(pkg.version).toBe('2.370.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.370.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.370.0');
     expect(pkg.scripts['verify:v2-180-0']).toBe('node scripts/verify-v2-180-0.mjs');
     expect(readRepo('scripts/verify-v2-180-0.mjs')).toContain('v2.180.0 verification');
   });
@@ -275,7 +275,7 @@ describe('docs and release surfaces', () => {
       'src/tests/branches-csv-week-v2178.test.ts',
       'src/tests/store-matrix-week-v2179.test.ts',
     ]) {
-      expect(readRepo(f)).toContain("expect(pkg.version).toBe('2.369.0');");
+      expect(readRepo(f)).toContain("expect(pkg.version).toBe('2.370.0');");
     }
   });
 

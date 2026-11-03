@@ -221,6 +221,7 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // carries this word — the honest speaker joins (the same ripple)
       'src/tests/door-shape-registry-v2353.test.ts',
       'src/tests/dp-status-deep-link-v2365.test.ts',
+      'src/tests/family-registry-stress-v2370.test.ts',
       'src/tests/gc-status-deep-link-v2358.test.ts',
       'src/tests/inv-status-deep-link-v2356.test.ts',
       'src/tests/inv-stock-deep-link-v2329.test.ts',

@@ -295,8 +295,8 @@ describe('the doc contract', () => {
 
   it('the doc teaches the 7d column: same rows, muted slate, honest flat line, tolerant dash', () => {
     expect(doc).toContain('**7d trend** column');
-    expect(doc).toContain('gained `storeId` in its select — no second query');
-    expect(doc).toContain('an older cached response without it degrades to a muted "—" per row');
+    expect(doc).toContain('gained `storeId` in its select: no second query');
+    expect(doc).toContain('an older cached response without it degrades to a muted ": " per row');
   });
 
   it('the KPI table defines both v2.175.0 rows', () => {
@@ -324,9 +324,9 @@ describe('the release surfaces', () => {
 
   it('package.json leads the current version in all three slots (re-anchored for 2.181.0) + this round\u2019s verify script', () => {
     const pkg = JSON.parse(readRepo('package.json'));
-    expect(pkg.version).toBe('2.369.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.369.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.369.0');
+    expect(pkg.version).toBe('2.370.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.370.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.370.0');
     expect(pkg.scripts['verify:v2-175-0']).toBe('node scripts/verify-v2-175-0.mjs');
   });
 });
