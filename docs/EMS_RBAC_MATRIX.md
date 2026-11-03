@@ -51,7 +51,7 @@ hr.employee.read.own_branch, hr.employee.read.all, hr.employee.create, hr.employ
 
 ## Security headers and rate limits (Phase 4.8, acceptance 7)
 
-### Security headers (next.config.ts, `headers()` — all routes)
+### Security headers (next.config.ts, `headers()`: all routes)
 
 | Header | Value | Defence |
 | --- | --- | --- |
@@ -65,11 +65,11 @@ hr.employee.read.own_branch, hr.employee.read.all, hr.employee.create, hr.employ
 | Cross-Origin-Resource-Policy | `same-origin` | Other origins cannot embed this app's responses. |
 | Cross-Origin-Embedder-Policy | `credentialless` | Cross-origin embeds load without credentials (COOP/COEP/CORP triple). |
 
-`X-Powered-By` is stripped (Next.js `poweredByHeader` off) — the framework
+`X-Powered-By` is stripped (Next.js `poweredByHeader` off): the framework
 version is not advertised. PWA installability rides the `Link: manifest`
 header with `crossorigin=use-credentials`.
 
-### Rate limits (`src/lib/rate-limit.ts` — in-memory sliding window, per-instance)
+### Rate limits (`src/lib/rate-limit.ts`: in-memory sliding window, per-instance)
 
 | Tier | Budget | Applied to |
 | --- | --- | --- |
@@ -80,10 +80,10 @@ header with `crossorigin=use-credentials`.
 | WRITE | 30 req / min | General API writes. |
 | SEARCH | 30 req / min | Search endpoints. |
 | MESSAGING | 10 req / min | WhatsApp/messaging sends. |
-| WEBHOOK | 60 req / min per IP | Public-but-credentialed M-Pesa Daraja callbacks — the cap is the last line after credential + IP-allowlist validation. |
+| WEBHOOK | 60 req / min per IP | Public-but-credentialed M-Pesa Daraja callbacks: the cap is the last line after credential + IP-allowlist validation. |
 
 Exceeding a budget returns 429 with `retryAfter`; repeated AUTH failures feed
 `brute-force.ts`, which locks the account and raises a SecurityEvent. The
 limiter is in-memory by design (single-server deployment): a distributed
-deployment must move the map to Redis before horizontal scaling — recorded in
+deployment must move the map to Redis before horizontal scaling: recorded in
 the risk register, not discovered there.

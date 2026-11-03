@@ -74,7 +74,7 @@ Static Next.js assets (`_next/static`, `_next/image`, `favicon.ico`, `manifest.j
 
 The existing security pipeline is unchanged: OPTIONS preflight handling, rate limiting, request size (1 MB), CSRF, content-type, Bearer presence. Workspace additions:
 
-- **OPTIONS preflight** is answered by the proxy itself so cross-subdomain clients never hit the auth or rate-limit layers with a preflight. CORS headers (including `Access-Control-Allow-Credentials: true` and the `X-Store-Id`, `X-Store-Slug`, `X-Store-Subdomain` request headers) are only emitted for origins that pass the host allowlist, and the origin is echoed exactly - never a wildcard with credentials.
+- **OPTIONS preflight** is answered by the proxy itself so cross-subdomain clients never hit the auth or rate-limit layers with a preflight. CORS headers (including `Access-Control-Allow-Credentials: true` and the `X-Store-Id`, `X-Store-Slug`, `X-Store-Subdomain` request headers) are only emitted for origins that pass the host allowlist, and the origin is echoed exactly: never a wildcard with credentials.
 - The Bearer token may arrive as the `mbt_token` cookie fallback on a branch subdomain that has not adopted localStorage yet (see [Session sharing](#session-sharing)).
 
 ## Session sharing
@@ -84,13 +84,13 @@ The SPA authenticates API calls with a Bearer token in localStorage, which is or
 - `Domain` = `NEXTAUTH_COOKIE_DOMAIN` (forced to start with a dot)
 - `Secure` per `NEXTAUTH_COOKIE_SECURE`
 - `SameSite` per `NEXTAUTH_COOKIE_SAME_SITE` (default `Lax`)
-- Not `HttpOnly` - the workspace gateway must read it to bootstrap localStorage (same posture as the existing `csrf_token` cookie; the Bearer token itself already lives in JS-readable localStorage)
+- Not `HttpOnly`: the workspace gateway must read it to bootstrap localStorage (same posture as the existing `csrf_token` cookie; the Bearer token itself already lives in JS-readable localStorage)
 
 The workspace gateway (`src/components/workspace/workspace-gateway.tsx`) adopts the cookie into localStorage when the origin has none and validates it through the API. The Authorization header always wins; the cookie is only a bootstrap fallback (`getSessionFromRequest` in `src/lib/auth.ts`). If the browser rejects cookie sharing, path mode still works everywhere.
 
 ## Authorization rules
 
-Workspace authorization is enforced server-side on every request by `resolveStoreContext` (`src/lib/workspace/server.ts`). The store is resolved from the database by subdomain or slug - never from a client-supplied `storeId`. The proxy headers are advisory hints only.
+Workspace authorization is enforced server-side on every request by `resolveStoreContext` (`src/lib/workspace/server.ts`). The store is resolved from the database by subdomain or slug: never from a client-supplied `storeId`. The proxy headers are advisory hints only.
 
 | Role | Branch workspace access |
 |------|------------------------|
@@ -182,14 +182,14 @@ Workspace pages: `/org/dashboard`, `/branches/select`, `/chat`, and the branch w
 
 ## Related documents
 
-- [Branch workspaces](branch-workspaces.md) - the v2.18.0.0 safe link builder, automatic path fallback on localhost/127.0.0.1/raw IPs, and the hosting setup checklists
-- [Store context resolution](store-context-resolution.md) - the resolver modes, the reasonCode vocabulary and the security properties
-- [Local offline setup](local-offline-setup.md) - hosts file, dnsmasq, local HTTPS, mock M-Pesa
-- [Multi-store workspaces](multi-store-workspaces.md) - organization console, branch selector, workspace UI
-- [Global chat](global-chat.md) - the chat architecture
-- [RBAC](rbac.md) - roles, permission matrix, tenancy layers
-- [Vercel deployment](vercel-deployment.md) - wildcard domains and production env vars
-- [Online hosting](online-hosting.md) - self-hosted public subdomains via Cloudflare Tunnel or Caddy (and the forwarded-host trust flag)
-- [Self-hosting](self-hosting.md) - nginx/Caddy wiring for subdomains
-- [LAN deployment](lan-deployment.md) - one shop server for several devices
-- [Tunnel development](tunnel-development.md) - Daraja sandbox callbacks behind ngrok/Cloudflare/Tailscale
+- [Branch workspaces](branch-workspaces.md): the v2.18.0.0 safe link builder, automatic path fallback on localhost/127.0.0.1/raw IPs, and the hosting setup checklists
+- [Store context resolution](store-context-resolution.md): the resolver modes, the reasonCode vocabulary and the security properties
+- [Local offline setup](local-offline-setup.md): hosts file, dnsmasq, local HTTPS, mock M-Pesa
+- [Multi-store workspaces](multi-store-workspaces.md): organization console, branch selector, workspace UI
+- [Global chat](global-chat.md): the chat architecture
+- [RBAC](rbac.md): roles, permission matrix, tenancy layers
+- [Vercel deployment](vercel-deployment.md): wildcard domains and production env vars
+- [Online hosting](online-hosting.md): self-hosted public subdomains via Cloudflare Tunnel or Caddy (and the forwarded-host trust flag)
+- [Self-hosting](self-hosting.md): nginx/Caddy wiring for subdomains
+- [LAN deployment](lan-deployment.md): one shop server for several devices
+- [Tunnel development](tunnel-development.md): Daraja sandbox callbacks behind ngrok/Cloudflare/Tailscale

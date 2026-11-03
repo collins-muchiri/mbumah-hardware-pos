@@ -261,7 +261,7 @@ BUILD_STANDALONE=1 npm run build   # rebuild (both flags the installer sets; the
 
 | Symptom | Fix |
 |---|---|
-| API errors like "The column ... does not exist" (notifications / debt / stock movements), or `/api/health` reports "Schema drift detected" | The database schema lags the code (usually an update whose schema step was refused). Fix: close the POS, then run `npm run db:push` in the app folder - it now converges the schema automatically (with a file backup first). Every start also self-heals since v2.15.2. |
+| API errors like "The column ... does not exist" (notifications / debt / stock movements), or `/api/health` reports "Schema drift detected" | The database schema lags the code (usually an update whose schema step was refused). Fix: close the POS, then run `npm run db:push` in the app folder; it now converges the schema automatically (with a file backup first). Every start also self-heals since v2.15.2. |
 | `node` not recognized after install | Close and reopen PowerShell (PATH refresh) |
 | Build fails: Prisma provider errors | `.env` must exist with `DATABASE_URL=file:...` BEFORE `npm install` (the installer handles this) |
 | Login loops on phones | `NEXTAUTH_URL` ≠ browser URL → set both URL vars to `http://<laptop-ip>:3000` and rebuild |

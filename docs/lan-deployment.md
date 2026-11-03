@@ -1,6 +1,6 @@
 # LAN deployment
 
-Run the POS on one server inside the shop network and let every device (tills, tablets, the manager's laptop) open any branch workspace over the LAN - with or without internet.
+Run the POS on one server inside the shop network and let every device (tills, tablets, the manager's laptop) open any branch workspace over the LAN, with or without internet.
 
 ## Topology
 
@@ -23,7 +23,7 @@ Give every device a way to resolve `mbumah.test` and all `*.mbumah.test` hostnam
 - **Pi-hole / router DNS**: the same `address=` record in Pi-hole (Local DNS) or a router that supports DNS wildcards / local records.
 - **Per-device hosts fallback**: when you cannot change DNS settings, run `npm run domains:print -- --ip 192.168.1.20` on the server and paste the generated block into each device's hosts file (`/etc/hosts`, or `C:\Windows\System32\drivers\etc\hosts` on Windows as Administrator).
 
-All three approaches keep working with zero internet: the hosts file never changes, and dnsmasq/Pi-hole answer locally. New branches are covered automatically by the wildcard - no client edits.
+All three approaches keep working with zero internet: the hosts file never changes, and dnsmasq/Pi-hole answer locally. New branches are covered automatically by the wildcard: no client edits.
 
 ## Environment for LAN mode
 
@@ -59,7 +59,7 @@ Notes:
 
 ## Path mode fallback via the LAN IP
 
-Any device can also reach a branch through the server's IP with no DNS at all - workspaces are addressed by path:
+Any device can also reach a branch through the server's IP with no DNS at all: workspaces are addressed by path:
 
 ```text
 http://192.168.1.20:3000/stores/juja-main/dashboard
@@ -70,7 +70,7 @@ This is the built-in behaviour for raw-IP hosts (`resolveWorkspaceHostMode` retu
 
 ## Multiple branch tabs
 
-Branch workspaces are plain URLs, so the manager can keep several branches open side by side - the org console on `http://mbumah.test:3000/org/dashboard`, Juja Main and Thika in neighbouring tabs. Each tab pins its own store and cart; per-store cart snapshots in IndexedDB keep trolleys separate (see [Multi-store workspaces](multi-store-workspaces.md)).
+Branch workspaces are plain URLs, so the manager can keep several branches open side by side: the org console on `http://mbumah.test:3000/org/dashboard`, Juja Main and Thika in neighbouring tabs. Each tab pins its own store and cart; per-store cart snapshots in IndexedDB keep trolleys separate (see [Multi-store workspaces](multi-store-workspaces.md)).
 
 ## Shared database, shared ledger
 
@@ -78,7 +78,7 @@ All devices and branches talk to the one database on the server: stock, customer
 
 ## Mock M-Pesa
 
-On a LAN without internet, keep `MPESA_ENVIRONMENT=mock`. STK pushes run against the mock Daraja server (`docker/mpesa-mock`, port 3001 in the dev compose stack) and the callback returns to the root callback URL after a few seconds. Real Daraja sandbox callbacks need a public HTTPS endpoint - use a tunnel for that ([Tunnel development](tunnel-development.md)); the permanent online setup on your own domain is covered in [Online hosting](online-hosting.md).
+On a LAN without internet, keep `MPESA_ENVIRONMENT=mock`. STK pushes run against the mock Daraja server (`docker/mpesa-mock`, port 3001 in the dev compose stack) and the callback returns to the root callback URL after a few seconds. Real Daraja sandbox callbacks need a public HTTPS endpoint: use a tunnel for that ([Tunnel development](tunnel-development.md)); the permanent online setup on your own domain is covered in [Online hosting](online-hosting.md).
 
 ## Verify
 

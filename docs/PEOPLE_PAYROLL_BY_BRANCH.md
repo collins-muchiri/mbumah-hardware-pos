@@ -75,12 +75,12 @@ the panel title, the human explanation, and the code in a mono line.
 
 ## Per-branch filter (v2.110.0)
 
-The panel owns a **branch filter** — inside the shared component, so the
+The panel owns a **branch filter**: inside the shared component, so the
 Finance & Insights tab and the Expert Console both get it from one
 implementation.
 
 - **The one truth**: `filterBranchRows(rows, branchId)` (exported, pure). Both
-  the desktop table and the mobile cards render exactly what it returns —
+  the desktop table and the mobile cards render exactly what it returns; 
   the filter narrows, it never reorders.
 - **'' (empty) = every branch**, in the server's original order. A known
   `storeId` narrows to that branch. An **unknown id is an honest empty**
@@ -99,17 +99,17 @@ implementation.
 
 The tab speaks two URL parameters:
 
-- **`?tab=people-payroll`** — consumed ONCE at app boot (validated against
+- **`?tab=people-payroll`**: consumed ONCE at app boot (validated against
   TAB_CONFIG, applied AFTER the persisted store's async rehydrate, then
   stripped). A refresh returns to the persisted tab. Unknown ids are
   ignored silently.
-- **`?branch=<storeId>`** — owned by the tab: read on mount to seed the
+- **`?branch=<storeId>`**: owned by the tab: read on mount to seed the
   panel's filter, mirrored on every change via `history.replaceState`
   (no navigation, no history entry), stripped on unmount so a stale filter
   cannot haunt the next visit.
 
-While the filter still holds the link's value — and only until the user's
-first manual change — the count reads "showing 1 of 5 (from link)".
+While the filter still holds the link's value, and only until the user's
+first manual change: the count reads "showing 1 of 5 (from link)".
 
 Nothing widens: the deep links only choose what to display; every server
 guard still fail-closes, and `?branch=` filters rows the session could
@@ -117,12 +117,12 @@ already read.
 
 ## Branch Selector hand-over (v2.112.0)
 
-The deep link's natural front doors (v2.112.0) — the affordance wears TWO
+The deep link's natural front doors (v2.112.0): the affordance wears TWO
 homes, because branches are browsed in two places:
 
 1. **The Branch Selector** (`/branches/select`, the multi-store user's
    landing): every branch card grows a **People & payroll** affordance that
-   opens `/?tab=people-payroll&branch=<id>` in a NEW TAB — the same
+   opens `/?tab=people-payroll&branch=<id>` in a NEW TAB: the same
    one-tab-per-view contract as "Open workspace" (spec Phase 8), so the
    selector stays available.
 2. **The Organization Console** (`/org/dashboard`, the org-summary roles'
@@ -132,14 +132,14 @@ homes, because branches are browsed in two places:
    affordance earns its keep.
 
 - **Builder**: `buildPeoplePayrollDeepLink(storeId)` in
-  `src/lib/workspace/links.ts` — pure, `URLSearchParams`-encoded, relative.
+  `src/lib/workspace/links.ts`: pure, `URLSearchParams`-encoded, relative.
 - **Honest gating**: the affordance renders only for `ORG_SUMMARY_ROLES`
   (the exact roles `TAB_CONFIG` honors for the people-payroll tab). E2E
   verified both ways: a multi-store WAREHOUSE_MANAGER sees the selector
   cards with NO payroll door; a STORE_OWNER sees the door and the tab
   honors it. Inactive stores never offer the door.
 - **Inheritance**: because the hand-over lands on the v2.111.0 boot path,
-  it inherits everything for free — tab applied after rehydrate, the
+  it inherits everything for free: tab applied after rehydrate, the
   branch filter seeded and mirrored into the URL, the "(from link)" hint
   retiring on first touch.
 - **Styling**: emerald outline variant (light and dark), quiet 200ms
@@ -154,22 +154,22 @@ The per-branch table's last two read-only columns learned to move:
 
 - **Latest payroll → the run detail**: `hrPerStore.latestPayroll` now carries
   `runId` (an additive server join in `src/lib/hr/reports.ts`). The panel's
-  latest-run cell renders as a link to `/hr/payroll?run=<id>` — the payroll
+  latest-run cell renders as a link to `/hr/payroll?run=<id>`: the payroll
   page consumes the param as a lazy seed, opens the run detail dialog, and
   strips the param once on mount (a refresh never re-opens a stale dialog;
   the dialog's own fetch fail-closes when the run is not the session's to
-  see). Stale summaries without a run id degrade to the same honest text —
+  see). Stale summaries without a run id degrade to the same honest text,
   never a dead link.
 - **Expiry alerts → the pre-filtered roster**: the alert count splits
   honestly. The DOCUMENTS half is a door to
-  `/hr/employees?expiring=90&storeId=<id>` — the HR employees list (which
+  `/hr/employees?expiring=90&storeId=<id>`: the HR employees list (which
   this release also builds; the nav link had pointed at a 404 since v2.18.x)
   pre-filtered to people whose documents expire inside the same window the
   panel counts. The ASSETS half stays text: the assets list is
   session-scoped, and a cross-branch door would promise a view it cannot
   open. Zero halves never render as links.
 - **Builders**: `buildExpiringEmployeesHref(storeId, days)` and
-  `buildRunDeepLinkHref(runId)` in `src/lib/workspace/links.ts` — pure,
+  `buildRunDeepLinkHref(runId)` in `src/lib/workspace/links.ts`: pure,
   encoded, relative.
 - **Scope stays fail-closed**: `/api/hr/employees` honors an explicit
   `storeId` only for ORG-scope roles whose organization owns the store
@@ -184,31 +184,31 @@ The per-branch table's last two read-only columns learned to move:
 v2.113.0 left the expiry cell's ASSETS half as honest text: the assets list
 was session-scoped, so a cross-branch door would have promised a view it
 could not open. This release teaches the assets list the same org-scoped,
-windowed reads the employees list gained — and the second half opens:
+windowed reads the employees list gained, and the second half opens:
 
 - **Overdue assets → the pre-filtered Assets page**: the assets half renders
   as a door to `/hr/assets?overdue=1&storeId=<id>` (built by the pure
   `buildOverdueAssetsHref`). `?overdue=1` mirrors the panel's own
-  `assetsOverdue` definition exactly — status ASSIGNED with `dueReturnOn` in
-  the past, deleted excluded — so the count you clicked is the count you
+  `assetsOverdue` definition exactly: status ASSIGNED with `dueReturnOn` in
+  the past, deleted excluded, so the count you clicked is the count you
   see. It wins over any conflicting status filter (an overdue asset is
   assigned by definition; the page disables the status select while the
   toggle is on).
 - **The landing**: `/hr/assets` grows an "Overdue only" toggle with the same
-  amber manners as the employees list's expiring-documents toggle —
+  amber manners as the employees list's expiring-documents toggle,
   link-seeded `(from link)` until first touch, filters mirrored into the URL
   (shareable, refresh-stable), a live assignment count, and the same
   store-scope honesty notice (only claims a mismatch when a row actually
-  names another store — an assignment with no store never triggers it).
+  names another store: an assignment with no store never triggers it).
 - **Scope stays fail-closed**: `/api/hr/assets` honors an explicit `storeId`
   only for org-scope roles whose organization owns the store
   (`storeInOrganization` verification) or when it matches the session's own
   store; every other request silently keeps the session scope. No role ever
   gains rows by asking.
 - **Gated like every door**: the panel's assets door renders only for
-  `ASSET_LIST_READ_ROLES` (`SUPER_ADMIN`, `STORE_OWNER`, `HR_MANAGER` — the
+  `ASSET_LIST_READ_ROLES` (`SUPER_ADMIN`, `STORE_OWNER`, `HR_MANAGER`: the
   roles `hr.asset.manage` answers; the accountant's grant stops at payroll +
-  reports). For every other role the half stays the same text as before —
+  reports). For every other role the half stays the same text as before,
   never a link that 403s.
 - **Pinned by** `src/tests/assets-door-v2114.test.ts` and
   `scripts/verify-v2-114-0.mjs`.

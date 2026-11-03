@@ -1,6 +1,6 @@
-# TEST_PLAN.md - Post-Deployment Verification Checklist
+# TEST_PLAN.md: Post-Deployment Verification Checklist
 
-**MBUMAH HARDWARE - POS & ERP System**
+**MBUMAH HARDWARE: POS & ERP System**
 
 This document defines the **mandatory verification procedure** to run after
 every deployment to Vercel (production or preview). The goal is to catch
@@ -15,9 +15,9 @@ gaps, and financial-data corruption.
 
 ## How to Use This Plan
 
-1. **Run the sections in order** - they're sequenced so cheaper checks
+1. **Run the sections in order**: they're sequenced so cheaper checks
    (health, env) run before expensive ones (E2E flows).
-2. **Tick every box.** If a step fails, STOP and fix it before continuing -
+2. **Tick every box.** If a step fails, STOP and fix it before continuing; 
    later steps depend on earlier ones passing.
 3. **Record results** in the deployment ticket / release notes:
    `pass` / `degraded` / `fail` with the observed value.
@@ -42,7 +42,7 @@ gaps, and financial-data corruption.
 ## 1. Environment Variable Matrix
 
 Confirm each variable is present in the correct Vercel environment
-(Production / Preview / Development). Values are redacted in Vercel UI - just
+(Production / Preview / Development). Values are redacted in Vercel UI: just
 confirm presence and that the Neon URL is the **pooled** one.
 
 | Variable | Prod | Preview | Dev | Notes |
@@ -122,7 +122,7 @@ Expected JSON (HTTP **200**):
 
 ### 3.3 Dev Bypass (preview / dev only)
 
-> Only run this section on preview deployments or local dev - **never** in
+> Only run this section on preview deployments or local dev: **never** in
 > production. In production the button must NOT appear and the route must
 > return `403`.
 
@@ -171,7 +171,7 @@ Expected JSON (HTTP **200**):
 | 4.3.1 | Add products, open checkout, select "M-Pesa" | Phone-number field appears |
 | 4.3.2 | Enter `2547XXXXXXXX`, confirm | STK Push triggered (or simulated in dev). Transaction recorded as `PENDING` → `COMPLETED`. |
 
-> On preview without M-Pesa Daraja credentials, the STK Push will fail - that's
+> On preview without M-Pesa Daraja credentials, the STK Push will fail: that's
 > expected. Verify the error is surfaced gracefully (toast, no crash).
 
 ### 4.4 Refund / void
@@ -255,8 +255,8 @@ Expected JSON (HTTP **200**):
 
 | # | Step | Expected |
 |---|------|----------|
-| 9.3.1 | Directly attempt `DELETE /api/transactions/:id` on a settled sale | `403` or `405` - settled transactions cannot be hard-deleted (Prisma Client Extension blocks it) |
-| 9.3.2 | Attempt to mutate a settled transaction's `total` field via `PUT` | `403` - financial fields are immutable post-settlement |
+| 9.3.1 | Directly attempt `DELETE /api/transactions/:id` on a settled sale | `403` or `405`: settled transactions cannot be hard-deleted (Prisma Client Extension blocks it) |
+| 9.3.2 | Attempt to mutate a settled transaction's `total` field via `PUT` | `403`: financial fields are immutable post-settlement |
 
 ---
 
@@ -278,7 +278,7 @@ Expected JSON (HTTP **200**):
 | # | Step | Expected |
 |---|------|----------|
 | 11.1 | Open the production deployment, browse a few pages | Vercel Analytics dashboard shows page views within ~5 min |
-| 11.2 | Check browser Network tab for `va.vercel-scripts.com` | Script loads `200` (production). On preview/dev it may 404 - benign. |
+| 11.2 | Check browser Network tab for `va.vercel-scripts.com` | Script loads `200` (production). On preview/dev it may 404: benign. |
 | 11.3 | Trigger an error (e.g., visit a non-existent API path) | Error boundary toast appears; `systemLog` entry created in DB |
 
 ---
@@ -287,7 +287,7 @@ Expected JSON (HTTP **200**):
 
 | # | Metric | Target | Tool |
 |---|--------|--------|------|
-| 12.1 | LCP (Largest Contentful Paint) - login page | < 2.5s | `agent-browser vitals <url>` or Chrome DevTools |
+| 12.1 | LCP (Largest Contentful Paint): login page | < 2.5s | `agent-browser vitals <url>` or Chrome DevTools |
 | 12.2 | TTFB (Time to First Byte) | < 600ms | Same |
 | 12.3 | Dashboard initial load (cold) | < 3s | Manual stopwatch / Network tab |
 | 12.4 | `GET /api/dashboard` response | < 200ms | `curl -w '%{time_total}'` |

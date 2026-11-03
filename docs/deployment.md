@@ -123,7 +123,7 @@ docker-compose exec app npx prisma db seed
 
 `docker-compose.yml` includes an app service (Next.js production server), a PostgreSQL service, and an M-Pesa mock server for local payment simulation.
 
-`docker-compose.prod.yml` additionally runs the realtime notification service (`notification`, socket.io on port 3003, internal-only). Nginx routes the browser's same-origin `/socket.io/` traffic to it with websocket upgrade headers, so live receipt distribution and POS notifications work without exposing any extra port to the host. Never map port 3003 to the host - the service trusts same-origin connections (CORS `*`) and expects to sit behind the reverse proxy. On Vercel the service does not run; the client degrades gracefully (connection status stays `disconnected`, no realtime push - everything else works).
+`docker-compose.prod.yml` additionally runs the realtime notification service (`notification`, socket.io on port 3003, internal-only). Nginx routes the browser's same-origin `/socket.io/` traffic to it with websocket upgrade headers, so live receipt distribution and POS notifications work without exposing any extra port to the host. Never map port 3003 to the host: the service trusts same-origin connections (CORS `*`) and expects to sit behind the reverse proxy. On Vercel the service does not run; the client degrades gracefully (connection status stays `disconnected`, no realtime push: everything else works).
 
 ## Health endpoints
 
@@ -133,9 +133,9 @@ There are two health surfaces and they serve different audiences:
 |----------|------|---------|
 | `GET /api/health` | public | Liveness + readiness for load balancers, Docker healthchecks and uptime monitors. Returns `status`, `version`, `appMode`, `workspaceMode`, `databaseProvider`, database connectivity, ledger balance and security checks. |
 | `GET /api/health/system-status` | authenticated | Aggregated in-app system status (health, circuit breakers, DLQ, compliance, retention) for the System Health tab; requires a signed-in session and returns 401 for anonymous callers. |
-- `/api/health/schema` (authenticated): the full database drift picture for operators - per-column drift probes, provider, row counts, and the matching repair command.
+- `/api/health/schema` (authenticated): the full database drift picture for operators: per-column drift probes, provider, row counts, and the matching repair command.
 
-Use `/api/health` for automation (Docker `healthcheck`, uptime pings, CI smoke tests) - it is the endpoint that returns `200` without cookies. `/api/health/system-status` is meant for the app's own health UI where the caller is already signed in.
+Use `/api/health` for automation (Docker `healthcheck`, uptime pings, CI smoke tests); it is the endpoint that returns `200` without cookies. `/api/health/system-status` is meant for the app's own health UI where the caller is already signed in.
 
 ## Self-hosting guide (Docker, Nginx, PostgreSQL)
 

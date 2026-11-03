@@ -67,12 +67,12 @@ The workspace-relevant step is `scripts/backfill-store-slugs.mjs`: an idempotent
 
 1. `curl https://mbumah.co.ke/api/health` -> 200 with the expected `version`.
 2. Open the org console at `https://mbumah.co.ke/org/dashboard` as an owner or admin.
-3. Open a branch workspace in a new tab from the console - the URL should be `https://juja-main.mbumah.co.ke/dashboard` and the title `{Store Name} | Mbumah Hardware POS`.
-4. Sign in once, then open a second branch in another tab - the shared cookie should carry the session (no second login).
+3. Open a branch workspace in a new tab from the console: the URL should be `https://juja-main.mbumah.co.ke/dashboard` and the title `{Store Name} | Mbumah Hardware POS`.
+4. Sign in once, then open a second branch in another tab: the shared cookie should carry the session (no second login).
 5. Trigger a sandbox STK push and confirm the callback lands on the root URL and settles the transaction.
 
 ## Related documents
 
-- [Deployment](deployment.md) - general Vercel walkthrough, Neon pooling, env scoping
-- [Subdomain workspaces](subdomain-workspaces.md) - routing and security model behind the domains above
-- [Release process](release-process.md) - versioning and release automation
+- [Deployment](deployment.md): general Vercel walkthrough, Neon pooling, env scoping
+- [Subdomain workspaces](subdomain-workspaces.md): routing and security model behind the domains above
+- [Release process](release-process.md): versioning and release automation

@@ -84,7 +84,7 @@ Notes:
 
 ## 4. Caddy reverse proxy (production)
 
-Caddy issues and renews certificates automatically. A wildcard certificate (`*.mbumah.co.ke`) requires the DNS-01 challenge, which needs a DNS provider plugin or API token - the example below uses the Cloudflare DNS provider (`xcaddy build --with github.com/caddy-dns/cloudflare` or a download that includes it):
+Caddy issues and renews certificates automatically. A wildcard certificate (`*.mbumah.co.ke`) requires the DNS-01 challenge, which needs a DNS provider plugin or API token: the example below uses the Cloudflare DNS provider (`xcaddy build --with github.com/caddy-dns/cloudflare` or a download that includes it):
 
 ```text
 {
@@ -101,7 +101,7 @@ app.mbumah.co.ke, *.mbumah.co.ke {
 
 Security and behavior notes:
 
-- Caddy preserves the original `Host` header by default (no `host` rewrite needed), and it sets `X-Forwarded-Host` with the client-visible hostname - so `TRUST_X_FORWARDED_HOST=true` is safe and useful here.
+- Caddy preserves the original `Host` header by default (no `host` rewrite needed), and it sets `X-Forwarded-Host` with the client-visible hostname, so `TRUST_X_FORWARDED_HOST=true` is safe and useful here.
 - `admin off` disables the Caddy admin API on `localhost:2019` (one less surface on a production box).
 - Do not enable `debug` or verbose logging in the global block; the default logging is sufficient.
 - Automatic HTTPS covers both site addresses; the DNS-01 challenge above is what makes the wildcard certificate possible (plain HTTP-01 cannot issue `*.mbumah.co.ke`).
@@ -138,8 +138,8 @@ npm run domains:verify -- --base https://app.mbumah.co.ke --root mbumah.co.ke
 
 ## Related documents
 
-- [Vercel deployment](vercel-deployment.md) - the fully managed production alternative (wildcard domains on Vercel)
-- [Tunnel development](tunnel-development.md) - ngrok/Cloudflare/Tailscale tunnels for Daraja sandbox callbacks (dev and testing)
-- [Subdomain workspaces](subdomain-workspaces.md) - the routing and security model behind the hostnames above
-- [Self-hosting](self-hosting.md) - Docker Compose stack, nginx wiring, LAN Caddy variant, health endpoints
-- [LAN deployment](lan-deployment.md) - offline LAN hosting without public domains
+- [Vercel deployment](vercel-deployment.md): the fully managed production alternative (wildcard domains on Vercel)
+- [Tunnel development](tunnel-development.md): ngrok/Cloudflare/Tailscale tunnels for Daraja sandbox callbacks (dev and testing)
+- [Subdomain workspaces](subdomain-workspaces.md): the routing and security model behind the hostnames above
+- [Self-hosting](self-hosting.md): Docker Compose stack, nginx wiring, LAN Caddy variant, health endpoints
+- [LAN deployment](lan-deployment.md): offline LAN hosting without public domains

@@ -51,7 +51,7 @@ graph TB
 
 ## One page, one API
 
-- **SPA shell**: the entire product UI renders from a single page (`src/app/page.tsx`) plus the workspace routes (`/stores/[slug]/[[...rest]]`, `/org/dashboard`, `/branches/select`, `/chat`). Tabs are lazily loaded client components, not routes - switching tabs never reloads the shell.
+- **SPA shell**: the entire product UI renders from a single page (`src/app/page.tsx`) plus the workspace routes (`/stores/[slug]/[[...rest]]`, `/org/dashboard`, `/branches/select`, `/chat`). Tabs are lazily loaded client components, not routes: switching tabs never reloads the shell.
 - **API routes**: everything under `/api/*` is a REST endpoint with a uniform envelope (`{ success, data }` / `{ success, error }`). They are the only server surface the SPA consumes; page routes exist for routing and metadata only.
 
 ## Tech stack
@@ -130,7 +130,7 @@ The Edge proxy runs in front of every request. Page routes get the workspace pip
 | 4. Content-Type | State-changing requests must be `application/json` | 415 |
 | 5. Authentication | Bearer presence on non-public paths | 401 |
 
-Public paths (Bearer not required): `/api/auth/login`, `/api/auth/logout`, `/api/payments/mpesa/callback`, `/api/security/csrf-token`, `/api/logs/client-error`, `/api/openapi`, plus `/api/health*`. The proxy is a convenience layer - the DB-backed guards in `src/lib/auth.ts` are the real boundary (see [RBAC](rbac.md)).
+Public paths (Bearer not required): `/api/auth/login`, `/api/auth/logout`, `/api/payments/mpesa/callback`, `/api/security/csrf-token`, `/api/logs/client-error`, `/api/openapi`, plus `/api/health*`. The proxy is a convenience layer: the DB-backed guards in `src/lib/auth.ts` are the real boundary (see [RBAC](rbac.md)).
 
 ## Tenant scoping
 
@@ -140,10 +140,10 @@ Every store-scoped Prisma model is filtered automatically by the tenancy extensi
 
 One shared database; each branch is addressable as its own website:
 
-- `src/lib/workspace/config.ts` - pure Edge-safe helpers: host parsing, allowlist matching, reserved subdomains, mode resolution (`auto` / `subdomain` / `path` / `off`).
-- `src/proxy.ts` - rewrites `{sub}.{root}/x` to `/stores/{sub}/x` and attaches `x-store-subdomain` / `x-store-slug` headers.
-- `src/lib/workspace/server.ts` - DB-backed store resolution and authorization (`resolveStoreContext`), with audit logging of denials.
-- `src/lib/workspace/links.ts` + `session-cookie.ts` - link building per host mode and the shared `mbt_token` cookie for cross-subdomain single sign-on.
+- `src/lib/workspace/config.ts`: pure Edge-safe helpers: host parsing, allowlist matching, reserved subdomains, mode resolution (`auto` / `subdomain` / `path` / `off`).
+- `src/proxy.ts`: rewrites `{sub}.{root}/x` to `/stores/{sub}/x` and attaches `x-store-subdomain` / `x-store-slug` headers.
+- `src/lib/workspace/server.ts`: DB-backed store resolution and authorization (`resolveStoreContext`), with audit logging of denials.
+- `src/lib/workspace/links.ts` + `session-cookie.ts`: link building per host mode and the shared `mbt_token` cookie for cross-subdomain single sign-on.
 - Workspace surfaces: branch gateway, organization console, branch selector, global chat (`/chat`).
 
 Full details: [Subdomain workspaces](subdomain-workspaces.md) and [Multi-store workspaces](multi-store-workspaces.md).
@@ -161,7 +161,7 @@ Live receipt distribution and POS notifications ride a small dedicated socket.io
 The same build runs in every topology:
 
 - **Vercel + Neon**: serverless; wildcard domain for subdomains; no realtime service (graceful degradation). See [Vercel deployment](vercel-deployment.md).
-- **Docker Compose production** (`docker-compose.prod.yml`): PostgreSQL 15, the Next.js app (standalone build), the notification service, and nginx - all on an internal bridge network, with nginx as the only host-exposed service (80/443). See [Self-hosting](self-hosting.md).
+- **Docker Compose production** (`docker-compose.prod.yml`): PostgreSQL 15, the Next.js app (standalone build), the notification service, and nginx: all on an internal bridge network, with nginx as the only host-exposed service (80/443). See [Self-hosting](self-hosting.md).
 - **Offline installs**: no Docker (`deploy/nodocker`) or laptop scripts, SQLite file database, optional mock M-Pesa. See [Local offline setup](local-offline-setup.md).
 
 ## Related documents

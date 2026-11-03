@@ -155,7 +155,7 @@ Safety rules, applied in order:
    `Nothing to repair.`
 
 Response `data`: `{ "applied": [ { "storeId": "...", "slug": "juja-main",
-"subdomain": "juja-main" } ], "conflicts": [ ... ], "backedUp": true,
+"subdomain": "juja-main" } ], "conflicts": [... ], "backedUp": true,
 "message": null }`.
 
 ## Reason codes

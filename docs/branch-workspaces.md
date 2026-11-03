@@ -7,7 +7,7 @@ Every branch of Mbumah Hardware can be opened as its own workspace website while
 | Style | Address | Needs |
 |-------|---------|-------|
 | Subdomain mode | `https://juja-main.mbumah.co.ke/dashboard` | A root domain with wildcard DNS (or hosts entries) |
-| Path mode | `/stores/juja-main/dashboard` on the current host | Nothing - works on every host, including localhost and raw IPs |
+| Path mode | `/stores/juja-main/dashboard` on the current host | Nothing: works on every host, including localhost and raw IPs |
 
 Both styles serve the same SPA shell and the same branch data, pinned to the branch by the server.
 
@@ -42,7 +42,7 @@ To open `https://{branch}.{root}` URLs you need all of:
 1. `NEXT_PUBLIC_ROOT_DOMAIN` set to your domain (for example `mbumah.co.ke` or `mbumah.test`).
 2. DNS (or hosts-file entries) that resolves the root domain AND every branch subdomain to your server.
 3. `ALLOWED_HOSTS` (or the built-in defaults) accepting the root domain and its wildcard.
-4. Store rows with a valid, non-reserved `slug`/`subdomain` (RFC 1123 labels; reserved labels such as `admin`, `api`, `www` never become branch subdomains - they fall back to path mode).
+4. Store rows with a valid, non-reserved `slug`/`subdomain` (RFC 1123 labels; reserved labels such as `admin`, `api`, `www` never become branch subdomains; they fall back to path mode).
 
 ## Safe local setup (path mode, no hosts entries)
 
@@ -85,14 +85,14 @@ For a public deployment, copy `.env.online.example`, point `NEXT_PUBLIC_ROOT_DOM
 - A user without an assignment to the branch is denied ("You do not have access to this branch."), and the attempt is written to the SecurityEvent audit feed.
 - Cashiers and branch managers stay pinned to their own store; warehouse managers need an ACTIVE StoreMembership; SUPER_ADMIN and STORE_OWNER see every active store; ACCOUNTANT gets a read-only view.
 
-Demo credentials shipped in the seed are for LOCAL/OFFLINE use only - never reuse them on an internet-facing deployment.
+Demo credentials shipped in the seed are for LOCAL/OFFLINE use only: never reuse them on an internet-facing deployment.
 
 ## Related
 
-- [Store context resolution](store-context-resolution.md) - the resolver, the reasonCode vocabulary and the security properties
-- [Subdomain workspaces](subdomain-workspaces.md) - the master routing reference
-- [Multi-store workspaces](multi-store-workspaces.md) - the org console and branch selector surfaces
-- [Troubleshooting and FAQ](troubleshooting-and-faq.md) - the "branch workspace does not exist" entry
+- [Store context resolution](store-context-resolution.md): the resolver, the reasonCode vocabulary and the security properties
+- [Subdomain workspaces](subdomain-workspaces.md): the master routing reference
+- [Multi-store workspaces](multi-store-workspaces.md): the org console and branch selector surfaces
+- [Troubleshooting and FAQ](troubleshooting-and-faq.md): the "branch workspace does not exist" entry
 
 ## Precise reason badges (v2.18.3.0)
 

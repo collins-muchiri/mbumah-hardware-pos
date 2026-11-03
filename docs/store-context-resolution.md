@@ -20,7 +20,7 @@ Alongside the internal audit-facing `reason`, the resolver returns a stable, cli
 
 | reasonCode | Internal reason | Gateway message |
 |------------|-----------------|-----------------|
-| `store-not-found` | `STORE_NOT_FOUND` | Branch not found - "Branch workspace not found. Check the store slug or open the workspace from the organization console." |
+| `store-not-found` | `STORE_NOT_FOUND` | Branch not found: "Branch workspace not found. Check the store slug or open the workspace from the organization console." |
 | `store-inactive` | `STORE_INACTIVE` | "This branch is currently inactive. Contact the store owner or system administrator." |
 | `user-not-allowed` | `NO_MEMBERSHIP` / `ROLE_NOT_PERMITTED` | "You do not have access to this branch." (the attempt is audit-logged) |
 | `unauthenticated` | `UNAUTHENTICATED` | The same-origin login screen renders; after login the gateway re-resolves into the branch |
@@ -58,9 +58,9 @@ The script uses raw SQL only (never Prisma model queries, which fail on drifted 
 
 ## Related
 
-- [Branch workspaces](branch-workspaces.md) - hosting modes, the safe link builder, local/online setup
-- [Subdomain workspaces](subdomain-workspaces.md) - the master routing reference
-- [Troubleshooting and FAQ](troubleshooting-and-faq.md) - user-facing causes and fixes
+- [Branch workspaces](branch-workspaces.md): hosting modes, the safe link builder, local/online setup
+- [Subdomain workspaces](subdomain-workspaces.md): the master routing reference
+- [Troubleshooting and FAQ](troubleshooting-and-faq.md): user-facing causes and fixes
 
 ## Route-level guard (v2.18.3.0)
 

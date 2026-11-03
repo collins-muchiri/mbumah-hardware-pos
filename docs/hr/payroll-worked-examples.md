@@ -4,7 +4,7 @@ Hand-verifiable arithmetic for the EMS payroll engine (integer cents; rates in b
 
 ## Example 1: 20,000 KES basic plus 10,000 KES house allowance
 
-Gross = 3,000,000 cents. NSSF: Tier I 6 percent of 800,000 = 48,000; Tier II 6 percent of (2,000,000 - 800,000) = 72,000; total 120,000. SHIF 2.5 percent of 3,000,000 = 75,000. Housing 1.5 percent = 45,000. PAYE taxable = 3,000,000 - 120,000 = 2,880,000; band 1 tax 240,000 plus band 2 tax 120,000 = 360,000; minus relief 240,000 = 120,000. Deductions total 360,000. Net = 2,640,000 cents = 26,400.00 KES.
+Gross = 3,000,000 cents. NSSF: Tier I 6 percent of 800,000 = 48,000; Tier II 6 percent of (2,000,000-800,000) = 72,000; total 120,000. SHIF 2.5 percent of 3,000,000 = 75,000. Housing 1.5 percent = 45,000. PAYE taxable = 3,000,000-120,000 = 2,880,000; band 1 tax 240,000 plus band 2 tax 120,000 = 360,000; minus relief 240,000 = 120,000. Deductions total 360,000. Net = 2,640,000 cents = 26,400.00 KES.
 
 ## Example 2: 100,000 KES basic (top-band reach)
 
@@ -20,8 +20,8 @@ Overtime line = floor(25,000 x 1 x 1.5) = 37,500 cents, floored per line. Gross 
 
 ## Example 5: Unpaid leave, four days of twenty-two
 
-Proration factor = 18/22. Basic = floor(2,000,000 x 18 / 22) = 1,636,363 cents. NSSF: 48,000 + floor((1,636,363 - 800,000) x 0.06) = 48,000 + 50,181 = 98,181. SHIF 40,909; Housing 24,545. Taxable 1,538,182 produces 153,818 of tax, erased by relief. Net = 1,472,728 cents = 14,727.28 KES.
+Proration factor = 18/22. Basic = floor(2,000,000 x 18 / 22) = 1,636,363 cents. NSSF: 48,000 + floor((1,636,363-800,000) x 0.06) = 48,000 + 50,181 = 98,181. SHIF 40,909; Housing 24,545. Taxable 1,538,182 produces 153,818 of tax, erased by relief. Net = 1,472,728 cents = 14,727.28 KES.
 
 ## Identity and audit notes
 
-For every example: net = gross - total employee deductions exactly (roundingAdjustmentCents remains 0 because every statutory line floors at its own boundary). The journal debits gross to 5200 Salaries Expense plus employer shares to 5210/5215, and credits 2210/2215/2220/2225/2250/2240 payables; debits always equal credits. Payslips store the resolved rate table ids, so recomputation from archived tables reproduces these figures bit-for-bit.
+For every example: net = gross: total employee deductions exactly (roundingAdjustmentCents remains 0 because every statutory line floors at its own boundary). The journal debits gross to 5200 Salaries Expense plus employer shares to 5210/5215, and credits 2210/2215/2220/2225/2250/2240 payables; debits always equal credits. Payslips store the resolved rate table ids, so recomputation from archived tables reproduces these figures bit-for-bit.

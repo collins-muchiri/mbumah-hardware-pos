@@ -1,6 +1,6 @@
 # MBUMAH HARDWARE POS & ERP
 
-*Multi-tenant hardware-store POS and ERP — inventory, sales and reporting for Kenyan hardware retail; TypeScript.*
+*Multi-tenant hardware-store POS and ERP: inventory, sales and reporting for Kenyan hardware retail; TypeScript.*
 
 ![category](https://img.shields.io/badge/category-erp-pos-F59E0B?style=flat-square) ![language](https://img.shields.io/badge/language-TypeScript-2563EB?style=flat-square) ![license](https://img.shields.io/badge/license-MIT-16A34A?style=flat-square) ![maintenance](https://img.shields.io/badge/maintenance-active-16A34A?style=flat-square) ![repo](https://img.shields.io/badge/repo-mbumah--hardware--pos-111827?style=flat-square)
 
@@ -34,7 +34,7 @@ Built with Next.js 16 (App Router), TypeScript, Prisma ORM, PostgreSQL (Neon in 
 
 ## Multi-branch workspaces
 
-Since v2.16.0 every branch can be reached as its own workspace website - `juja-main.mbumah.co.ke` in production, `/stores/juja-main/dashboard` everywhere else - while the whole organization runs on one shared database. The root domain serves the organization console with org-wide KPIs, the branch selector serves multi-branch warehouse managers, a shared session cookie gives single sign-on across subdomains, and a global chat channel connects all branches. Host-header allowlisting, reserved subdomains and audit-logged authorization checks keep the workspaces isolated.
+Since v2.16.0 every branch can be reached as its own workspace website, `juja-main.mbumah.co.ke` in production, `/stores/juja-main/dashboard` everywhere else, while the whole organization runs on one shared database. The root domain serves the organization console with org-wide KPIs, the branch selector serves multi-branch warehouse managers, a shared session cookie gives single sign-on across subdomains, and a global chat channel connects all branches. Host-header allowlisting, reserved subdomains and audit-logged authorization checks keep the workspaces isolated.
 
 - Feature reference: [docs/subdomain-workspaces.md](docs/subdomain-workspaces.md)
 - Branch workspace guide (safe link builder, path fallback on localhost/raw IPs, hosting setup): [docs/branch-workspaces.md](docs/branch-workspaces.md)
@@ -42,7 +42,7 @@ Since v2.16.0 every branch can be reached as its own workspace website - `juja-m
 
 ## Quick start
 
-Prerequisites: Node.js 20 or newer. Bun 1.1+ is supported but NOT required —
+Prerequisites: Node.js 20 or newer. Bun 1.1+ is supported but NOT required; 
 every setup path works on a plain npm install (the seed runner is
 runner-agnostic since v2.307.0).
 
@@ -51,7 +51,7 @@ runner-agnostic since v2.307.0).
 git clone https://github.com/collins-muchiri/mbumah-hardware-pos.git
 cd mbumah-hardware-pos
 
-# Install dependencies (npm or bun — both fully supported)
+# Install dependencies (npm or bun, both fully supported)
 npm install
 
 # Create the environment file from the template
@@ -84,7 +84,7 @@ Open http://localhost:3000 and sign in with a demo account.
 > **Provider consistency (the #1 historical footgun):** the schema provider is
 > auto-detected from the DATABASE_URL scheme by every repo script. If you ever
 > see `the URL must start with the protocol 'postgresql://'` (or the `file:`
-> equivalent) on login, your generated client and your database disagree —
+> equivalent) on login, your generated client and your database disagree, so 
 > run `npm run env:doctor` (it pinpoints the drift) then `npm run db:generate`.
 > See docs/TROUBLESHOOTING.md.
 

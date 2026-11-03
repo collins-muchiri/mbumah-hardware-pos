@@ -1,6 +1,6 @@
 # Local offline setup
 
-This guide turns a single laptop or desktop into a complete multi-branch Mbumah Hardware install that works without internet: branch subdomains on a private domain, HTTP or local HTTPS, and mock M-Pesa so checkout flows can be exercised end to end. Path mode (plain `http://localhost:3000`) also works with zero setup - the hostname work below only adds subdomain mode.
+This guide turns a single laptop or desktop into a complete multi-branch Mbumah Hardware install that works without internet: branch subdomains on a private domain, HTTP or local HTTPS, and mock M-Pesa so checkout flows can be exercised end to end. Path mode (plain `http://localhost:3000`) also works with zero setup: the hostname work below only adds subdomain mode.
 
 ## Environment variables for offline mode
 
@@ -25,7 +25,7 @@ Notes:
 
 ## Method 1: hosts file (simplest)
 
-Generate the exact block to paste - the script only prints, it never edits your system file:
+Generate the exact block to paste: the script only prints, it never edits your system file:
 
 ```bash
 npm run domains:print
@@ -51,7 +51,7 @@ Output (for the five seeded branches):
 127.0.0.1	nakuru.mbumah.test
 ```
 
-Useful flags: `--ip 192.168.1.20` (LAN mode - point every hostname at the shop server), `--domain mbumah.lan` (custom root domain), `--ipv6` (add `::1` entries).
+Useful flags: `--ip 192.168.1.20` (LAN mode: point every hostname at the shop server), `--domain mbumah.lan` (custom root domain), `--ipv6` (add `::1` entries).
 
 ### Apply the entries per OS
 
@@ -82,7 +82,7 @@ Then verify:
 npm run domains:verify
 ```
 
-Root console: `http://mbumah.test:3000` - Branch workspace: `http://juja-main.mbumah.test:3000` - Path fallback: `http://127.0.0.1:3000/stores/juja-main/dashboard`.
+Root console: `http://mbumah.test:3000`: Branch workspace: `http://juja-main.mbumah.test:3000`: Path fallback: `http://127.0.0.1:3000/stores/juja-main/dashboard`.
 
 ## Method 2: dnsmasq (whole network, no per-device edits)
 
@@ -97,7 +97,7 @@ address=/mbumah.test/192.168.1.20
 sudo systemctl restart dnsmasq
 ```
 
-Every device whose DNS points at that machine resolves `mbumah.test` and all `*.mbumah.test` subdomains to the server - new branches need no client changes. Point device DNS at the dnsmasq host (router DHCP settings, Pi-hole, or manual network settings). A Pi-hole instance accepts the same `address=/mbumah.test/IP` record under Local DNS records.
+Every device whose DNS points at that machine resolves `mbumah.test` and all `*.mbumah.test` subdomains to the server: new branches need no client changes. Point device DNS at the dnsmasq host (router DHCP settings, Pi-hole, or manual network settings). A Pi-hole instance accepts the same `address=/mbumah.test/IP` record under Local DNS records.
 
 ## nip.io / sslip.io: online convenience only
 
@@ -109,7 +109,7 @@ They are **not** an offline method: resolution requires public DNS, so the momen
 
 The local install runs on plain HTTP by default. For HTTPS (needed if you want to exercise the secure-cookie path or test service-worker behaviour on a "real" origin):
 
-**Option A - Caddy (recommended, one file)**
+**Option A: Caddy (recommended, one file)**
 
 ```text
 mbumah.test, *.mbumah.test {
@@ -120,7 +120,7 @@ mbumah.test, *.mbumah.test {
 
 Run `caddy trust` once (or approve the prompt) so the operating system trusts Caddy's local certificate authority, then start Caddy. Caddy terminates TLS on 443 and proxies to the Next.js server on 3000. Keep `NEXTAUTH_COOKIE_SECURE=false` unless the browser actually sees `https://` URLs.
 
-**Option B - mkcert in front of Next.js**
+**Option B: mkcert in front of Next.js**
 
 ```bash
 mkcert -install
@@ -135,16 +135,16 @@ Because the wildcard certificate covers `*.mbumah.test`, every branch subdomain 
 
 Offline installs cannot call Safaricom, so checkout runs against the mock Daraja API:
 
-- `MPESA_ENVIRONMENT=mock` - the payment layer treats M-Pesa as simulated. The STK push falls back to the mock server (`http://localhost:3001/api/mpesa/stkpush`) whenever Daraja credentials are absent, so a cashier is never blocked at the till.
-- `docker/mpesa-mock/server.js` - a small Express service that simulates Daraja OAuth, STK Push (`/mpesa/stkpush/v1/processrequest`), the STK query endpoint and C2B registration. It fires the callback after about 3 seconds. The dev compose file (`docker-compose.yml`) runs it as the `mpesa-mock` service on port 3001 with `CALLBACK_URL` pointing back at the app.
-- Point `MPESA_CALLBACK_URL` at the **root** callback: `http://mbumah.test:3000/api/payments/mpesa/callback`. One callback endpoint serves every branch - the callback resolves the store from the transaction record (by `CheckoutRequestID`), so no per-branch callback URL is needed.
+- `MPESA_ENVIRONMENT=mock`: the payment layer treats M-Pesa as simulated. The STK push falls back to the mock server (`http://localhost:3001/api/mpesa/stkpush`) whenever Daraja credentials are absent, so a cashier is never blocked at the till.
+- `docker/mpesa-mock/server.js`: a small Express service that simulates Daraja OAuth, STK Push (`/mpesa/stkpush/v1/processrequest`), the STK query endpoint and C2B registration. It fires the callback after about 3 seconds. The dev compose file (`docker-compose.yml`) runs it as the `mpesa-mock` service on port 3001 with `CALLBACK_URL` pointing back at the app.
+- Point `MPESA_CALLBACK_URL` at the **root** callback: `http://mbumah.test:3000/api/payments/mpesa/callback`. One callback endpoint serves every branch: the callback resolves the store from the transaction record (by `CheckoutRequestID`), so no per-branch callback URL is needed.
 - The callback route only accepts flat mock-shaped bodies when `MOCK_CALLBACKS_ENABLED=true`; real Daraja payloads use the standard nested shape.
 
-**Why a tunnel is needed for real sandbox tests**: Safaricom's Daraja platform must reach your callback over public HTTPS. An offline `localhost` or `mbumah.test` address is unreachable from Safaricom. To test against the real Daraja sandbox, run the app behind ngrok, Cloudflare Tunnel or Tailscale Funnel - see [Tunnel development](tunnel-development.md). In production on Vercel or a public server, set `MPESA_CALLBACK_URL` to the public root callback and register it in the Daraja portal (see [Vercel deployment](vercel-deployment.md) for the managed setup and [Online hosting](online-hosting.md) for self-hosted public domains).
+**Why a tunnel is needed for real sandbox tests**: Safaricom's Daraja platform must reach your callback over public HTTPS. An offline `localhost` or `mbumah.test` address is unreachable from Safaricom. To test against the real Daraja sandbox, run the app behind ngrok, Cloudflare Tunnel or Tailscale Funnel: see [Tunnel development](tunnel-development.md). In production on Vercel or a public server, set `MPESA_CALLBACK_URL` to the public root callback and register it in the Daraja portal (see [Vercel deployment](vercel-deployment.md) for the managed setup and [Online hosting](online-hosting.md) for self-hosted public domains).
 
 ## The 30-minute idle timeout
 
-The app locks the session after 30 minutes of inactivity (`src/hooks/use-idle-timeout.ts`). When it fires, the user sees the same session-expired flow as a 401 and must sign in again - any in-progress sale survives because carts persist in IndexedDB. This protects the till when a cashier steps away, which matters even more on a shared shop machine in offline mode where no cloud session policy exists.
+The app locks the session after 30 minutes of inactivity (`src/hooks/use-idle-timeout.ts`). When it fires, the user sees the same session-expired flow as a 401 and must sign in again: any in-progress sale survives because carts persist in IndexedDB. This protects the till when a cashier steps away, which matters even more on a shared shop machine in offline mode where no cloud session policy exists.
 
 ## Quick reference
 

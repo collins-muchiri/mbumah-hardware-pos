@@ -27,7 +27,7 @@ Role sets used by route guards: `MANAGER_PLUS_ROLES` = `SUPER_ADMIN`, `STORE_OWN
 - `BRANCH_MANAGER` has create/update on catalog, customers, rentals and POs; read/export financials; no deletes.
 - `CASHIER` is deliberately minimal (sell and read).
 - `ACCOUNTANT` is read/export/approve/adjust on financials plus read everywhere and `update`/`remind` on debt, `approve` on POs.
-- `INVENTORY_MANAGER` and `WAREHOUSE_MANAGER` have empty `transactions` and `financials` - they never sell and never see money. The database seed mirrors the matrix as permission rows (RBAC stage, `createMany` with `skipDuplicates`).
+- `INVENTORY_MANAGER` and `WAREHOUSE_MANAGER` have empty `transactions` and `financials`; they never sell and never see money. The database seed mirrors the matrix as permission rows (RBAC stage, `createMany` with `skipDuplicates`).
 
 The same matrix is enforced in the UI (`use-permissions.ts` / `hasPermission`) so buttons and tabs hide before the server ever rejects.
 
@@ -37,7 +37,7 @@ From `src/lib/auth.ts`:
 
 | Layer | Where | What it does |
 |-------|-------|--------------|
-| 1. Edge check | `src/proxy.ts` | Cheap checks: Bearer presence on protected routes, rate limits, request size, CSRF, content-type. Convenience only - never the security boundary. |
+| 1. Edge check | `src/proxy.ts` | Cheap checks: Bearer presence on protected routes, rate limits, request size, CSRF, content-type. Convenience only: never the security boundary. |
 | 2. Session + roles | `requireAuth(handler, { roles })` / `requireStoreAccess` | DB-backed session validation on every route (401), optional role gate (403 + security log), store-scope resolution. |
 | 3. Permission matrix | `assertPermission()` in handlers | Fine-grained action/resource checks with friendly denial copy. |
 | 4. ORM tenancy | `src/lib/db.ts` | Automatic `storeId` filtering so a valid session can only touch its own store's rows. |
@@ -70,11 +70,11 @@ Rules of thumb:
 
 ## Abuse lockout
 
-Permission denials feed a sliding-window abuse counter (`noteDeniedAndMaybeLock` in `src/lib/auth.ts`): 5 or more denials in 10 minutes lock the account out of the API for 15 minutes - session resolution returns null, so every guarded route answers 401 while the lock is active. The lock also writes a `SecurityEvent` (`ACCOUNT_LOCKED`, severity `ERROR`) and notifies every active `SUPER_ADMIN` (notification type `WARNING`, category `SECURITY`, priority `URGENT`). The counter is per app instance (in-memory) - a documented limitation on multi-instance serverless, where each instance keeps its own window.
+Permission denials feed a sliding-window abuse counter (`noteDeniedAndMaybeLock` in `src/lib/auth.ts`): 5 or more denials in 10 minutes lock the account out of the API for 15 minutes: session resolution returns null, so every guarded route answers 401 while the lock is active. The lock also writes a `SecurityEvent` (`ACCOUNT_LOCKED`, severity `ERROR`) and notifies every active `SUPER_ADMIN` (notification type `WARNING`, category `SECURITY`, priority `URGENT`). The counter is per app instance (in-memory): a documented limitation on multi-instance serverless, where each instance keeps its own window.
 
 ## Related documents
 
-- [Authentication and RBAC](authentication-and-rbac.md) - session mechanics, CSRF, manager step-up authorization
-- [Subdomain workspaces](subdomain-workspaces.md) - workspace-level authorization rules per role
-- [Multi-store workspaces](multi-store-workspaces.md) - membership assignment and the branch selector
-- [Multi-tenant architecture](multi-tenant-architecture.md) - store isolation and seeding
+- [Authentication and RBAC](authentication-and-rbac.md): session mechanics, CSRF, manager step-up authorization
+- [Subdomain workspaces](subdomain-workspaces.md): workspace-level authorization rules per role
+- [Multi-store workspaces](multi-store-workspaces.md): membership assignment and the branch selector
+- [Multi-tenant architecture](multi-tenant-architecture.md): store isolation and seeding

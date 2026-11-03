@@ -1,10 +1,10 @@
 # Global chat
 
-Since v2.16.0 the internal staff chat spans the whole organization: a single GLOBAL channel that every authenticated user can read from any branch, plus the existing store-scoped threads. Chat visibility is deliberately separate from operational data visibility - being able to read the global channel does not grant access to any store's data.
+Since v2.16.0 the internal staff chat spans the whole organization: a single GLOBAL channel that every authenticated user can read from any branch, plus the existing store-scoped threads. Chat visibility is deliberately separate from operational data visibility: being able to read the global channel does not grant access to any store's data.
 
 ## Architecture in one paragraph
 
-Chat reuses the existing `Conversation` / `ConversationMessage` models. One singleton conversation (`conv_global`, type `GLOBAL`, `storeId = null`) is the organization-wide channel; every other conversation keeps its `storeId` and stays isolated to that store's workspace. Messages on the global channel carry a denormalized `ConversationMessage.storeId` marking the **sender's origin branch**, which the UI renders as a badge. All chat traffic goes through polling REST endpoints - there is no WebSocket for chat (see [Why no WebSocket](#why-no-websocket-for-chat)).
+Chat reuses the existing `Conversation` / `ConversationMessage` models. One singleton conversation (`conv_global`, type `GLOBAL`, `storeId = null`) is the organization-wide channel; every other conversation keeps its `storeId` and stays isolated to that store's workspace. Messages on the global channel carry a denormalized `ConversationMessage.storeId` marking the **sender's origin branch**, which the UI renders as a badge. All chat traffic goes through polling REST endpoints; there is no WebSocket for chat (see [Why no WebSocket](#why-no-websocket-for-chat)).
 
 The global channel is created lazily and idempotently (`ensureGlobalChannel` upserts `conv_global`), and the seed also creates it (stage 24, with three demo messages).
 
@@ -18,7 +18,7 @@ The global channel is created lazily and idempotently (`ensureGlobalChannel` ups
 Implementation notes:
 
 - All chat queries run via `runWithoutTenant` **with explicit where clauses** (`src/lib/workspace/chat.ts`). The global conversation has `storeId = null`, and the ORM tenancy extension (which ANDs `session.storeId`) would otherwise hide it.
-- Channel access is computed server-side from the session (`canAccessChannel`, `getChatAccessibleStoreIds`) - never trusted from the client.
+- Channel access is computed server-side from the session (`canAccessChannel`, `getChatAccessibleStoreIds`): never trusted from the client.
 
 ## Origin store badge
 
@@ -55,7 +55,7 @@ Polling was chosen over push for the chat surface specifically because it works 
 - **Zod validation** on every write: `chatMessageSchema` (content trimmed, 1 to `CHAT_MAX_MESSAGE_LENGTH` = 2000 characters; optional nullable `storeId` max 64 chars) and `chatChannelCreateSchema` (title 1-120, storeId required, up to 50 participant ids). Invalid payloads return 400 with the first issue message.
 - **2000 character cap** enforced server-side (`CHAT_MAX_MESSAGE_LENGTH`).
 - **MESSAGING rate tier**: the proxy rate limits non-GET `/api/chat/*` requests at 30 requests per minute per client IP (tier key includes the path prefix), with `429` + `Retry-After` when exceeded.
-- **Text-only rendering**: the client renders message content as plain text - there is no HTML injection surface.
+- **Text-only rendering**: the client renders message content as plain text; there is no HTML injection surface.
 - **No existence leak**: unknown channels answer with the same 403 as forbidden ones.
 
 ### Moderation: documented limitation
@@ -72,7 +72,7 @@ Chat deliberately does not ride that socket:
 - Serverless-friendly: a polling client needs no sticky sessions, no extra process, and no websocket upgrade path through proxies and tunnels.
 - The chat page is a dedicated route (`/chat`), so a slow poll never interacts with the POS tab's realtime needs.
 
-If push delivery for chat is ever needed, the existing notification service is the place to extend - not a new transport in the Next.js app.
+If push delivery for chat is ever needed, the existing notification service is the place to extend, not a new transport in the Next.js app.
 
 ## UI entry points
 

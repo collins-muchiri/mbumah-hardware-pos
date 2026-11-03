@@ -18,7 +18,7 @@ Error: Command failed with ENOENT: bun /path/to/prisma/seed.ts
 **Root cause (fixed in v2.307.0):** the seed command in `prisma.config.ts`
 hardcoded `bun`. Fixed by delegating to `scripts/run-seed.mjs`, which prefers
 bun when present and falls back to `node --import tsx` (tsx is a
-devDependency). If you still see this, you are on a pre-2.307.0 checkout —
+  devDependency). If you still see this, you are on a pre-2.307.0 checkout: 
 update.
 
 **Still failing?** The runner prints its choice (`[run-seed] runner: ...`).
@@ -32,16 +32,16 @@ install bun.
 different database than `.env` says.
 
 **Root cause & precedence law:** every repo script and the Prisma CLI
-(`prisma.config.ts`) load `<repo>/.env` with **.env-WINS precedence** — a
+(`prisma.config.ts`) load `<repo>/.env` with **.env-WINS precedence**: a
 value found in `.env` beats the inherited shell environment, deliberately, so
 a stray `DATABASE_URL` from another project cannot hijack the CLI. Consequences:
 
 - Set the value in `.env`, not in your shell profile.
-- A shell-exported variable will be silently overridden by `.env` — by design.
+- A shell-exported variable will be silently overridden by `.env`: by design.
 - Scripts that must point the CLI somewhere else temporarily (e.g. the
   hermetic test database) use `PRISMA_CONFIG_DATABASE_URL`, which beats `.env`.
 
-**Fix:** run `npm run env:doctor` — it prints exactly which value wins per
+**Fix:** run `npm run env:doctor`; it prints exactly which value wins per
 group. Next.js itself loads `.env` for the app runtime; custom Node scripts
 must use the repo's loaders (or be spawned by an npm script that does).
 
@@ -62,7 +62,7 @@ Before v2.307.0, `scripts/setup-prisma-provider.mjs` did not load `.env`, so
 **Fix:**
 
 ```bash
-npm run env:doctor   # reports: schema=X client=Y DATABASE_URL=Z — DRIFT
+npm run env:doctor   # reports: schema=X client=Y DATABASE_URL=Z → DRIFT
 npm run db:generate  # re-aligns the client with .env's scheme
 ```
 
@@ -70,15 +70,15 @@ npm run db:generate  # re-aligns the client with .env's scheme
 
 **Checklist (in order):**
 
-1. `npm run env:doctor` — fix every ✗ before proceeding.
+1. `npm run env:doctor`: fix every ✗ before proceeding.
 2. Did the seed actually run? Re-run `npm run db:seed` (idempotent, upsert-safe).
 3. **Credential policy (v2.307.0):** outside development the seed no longer
    uses `password123`. If you seeded with `NODE_ENV` unset/production, the
    seed generated a strong one-time password and printed it ONCE in its
    output. Re-seed in development, or set `SEED_ADMIN_PASSWORD` and re-seed.
 4. Account locked? The login route rate-limits (5 attempts / 15 min) and
-   supports DB-level lockout — wait, or clear `lockedUntil` for the account.
-5. Check the server log for `[AUTH_LOGIN_DB_ERROR]` — that is the DB-level
+   supports DB-level lockout: wait, or clear `lockedUntil` for the account.
+5. Check the server log for `[AUTH_LOGIN_DB_ERROR]`: that is the DB-level
    detail (kept server-only by design; set `EXPOSE_ERRORS=true` temporarily
    to see it in the HTTP response while debugging).
 
@@ -106,7 +106,7 @@ remove it with `git rm --cached <file>` and extend `.gitignore`.
 ## 8. Where did the old one-off scripts go?
 
 Release-churn one-offs (check-merge-v*, create-pr-v*, qa-seed-*, scratch
-probes) were archived to `scripts/archive/release-history/` in v2.307.0 —
+  probes) were archived to `scripts/archive/release-history/` in v2.307.0: 
 see that folder's README. Nothing in the supported workflow references them.
 
 ## 9. Tests fail locally with "table does not exist"

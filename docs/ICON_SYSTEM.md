@@ -5,7 +5,7 @@ Status: current as of v2.109.0.
 Rules:
 
 1. Every navigation item renders a Lucide React icon. `TAB_CONFIG` types the
-   icon as a required `React.ElementType` — a nav item without an icon does
+   icon as a required `React.ElementType`: a nav item without an icon does
    not compile.
 2. Workspace links (Branch Selector, Organization Console, Expert Console,
    Global Chat) render icons in both expanded and collapsed (icon-only with

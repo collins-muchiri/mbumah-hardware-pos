@@ -1,10 +1,10 @@
-# MBUMAH HARDWARE POS - Verification Checklist
+# MBUMAH HARDWARE POS: Verification Checklist
 
 > **Purpose**: Comprehensive system validation checklist for pre-release,
 > post-deployment, and regression testing. Every item must be verified
 > before a production release is cut.
 >
-> **Last updated**: 2026-06-30 (Post eL.map crash fix - 5-phase defensive hardening)
+> **Last updated**: 2026-06-30 (Post eL.map crash fix: 5-phase defensive hardening)
 > **Version**: v0.2.0
 
 ---
@@ -505,7 +505,7 @@ curl -s https://mbumah-hardware-pos-one.vercel.app/api/health/db
 
 ---
 
-## 14. Defensive Coding & Crash Prevention (Phase 2 - eL.map Fix)
+## 14. Defensive Coding & Crash Prevention (Phase 2: eL.map Fix)
 
 ### 14.1 `.map()` Safety Guards
 

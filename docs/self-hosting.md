@@ -23,7 +23,7 @@ docker compose -f docker-compose.prod.yml exec app npx prisma db seed   # first 
 
 ## Subdomain wiring with nginx
 
-The shipped config (`nginx/conf.d/mbumah-pos.conf`) uses `server_name _` - a catch-all that forwards **any** Host header to the app. That is exactly what subdomain workspaces need: nginx does not enumerate branches, it passes the original host through (`proxy_set_header Host $host;`), and the Next.js proxy (`src/proxy.ts`) validates the host against the allowlist and resolves the branch workspace.
+The shipped config (`nginx/conf.d/mbumah-pos.conf`) uses `server_name _`: a catch-all that forwards **any** Host header to the app. That is exactly what subdomain workspaces need: nginx does not enumerate branches, it passes the original host through (`proxy_set_header Host $host;`), and the Next.js proxy (`src/proxy.ts`) validates the host against the allowlist and resolves the branch workspace.
 
 To activate subdomains on a self-hosted install:
 
@@ -52,14 +52,14 @@ mbumah.test, *.mbumah.test {
 
 Run `caddy trust` (or accept the first-run prompt) so devices trust the local CA, then point DNS/hosts at the server as above. Caddy passes the original Host header through by default, so the workspace pipeline sees real branch hostnames.
 
-For a PUBLIC deployment with real certificates (`app.yourdomain.com` plus the `*.yourdomain.com` wildcard, automatic HTTPS via the DNS-01 challenge), use the production Caddyfile in [Online hosting](online-hosting.md) - the `tls internal` variant here is for LAN and trusted-network installs only.
+For a PUBLIC deployment with real certificates (`app.yourdomain.com` plus the `*.yourdomain.com` wildcard, automatic HTTPS via the DNS-01 challenge), use the production Caddyfile in [Online hosting](online-hosting.md): the `tls internal` variant here is for LAN and trusted-network installs only.
 
 ## Nodocker and laptop installs (no Docker)
 
 For a single shop machine that must not depend on the internet or on Docker:
 
-- `deploy/nodocker/` - install, start, update, rollback and backup scripts that run Node directly against a local SQLite file database (`install-nodocker.ps1|.sh`, `start-pos.ps1|.sh`, `update-pos.ps1|.sh`, `rollback-*`, `backup-*`). The start script converges the database schema on every boot (self-healing, see the v2.15.2 changelog notes).
-- `deploy/laptop/` - the same shape for Windows/Linux laptops with shortcut creation and an offline-first profile.
+- `deploy/nodocker/`: install, start, update, rollback and backup scripts that run Node directly against a local SQLite file database (`install-nodocker.ps1|.sh`, `start-pos.ps1|.sh`, `update-pos.ps1|.sh`, `rollback-*`, `backup-*`). The start script converges the database schema on every boot (self-healing, see the v2.15.2 changelog notes).
+- `deploy/laptop/`: the same shape for Windows/Linux laptops with shortcut creation and an offline-first profile.
 
 The subdomain variables work identically there: set the `SUBDOMAIN WORKSPACES` block in `.env`, apply the hosts entries from `npm run domains:print`, and run `npm run domains:verify` after starting the server. Offline mode (SQLite, mock M-Pesa, local HTTPS) is covered step by step in [Local offline setup](local-offline-setup.md).
 
@@ -70,14 +70,14 @@ There are two health surfaces with different audiences:
 | Endpoint | Auth | Use |
 |----------|------|-----|
 | `GET /api/health` | public | Liveness + readiness for automation: Docker healthchecks (the `app` service healthchecks it), uptime monitors, CI smoke tests. Returns status, version, appMode, workspaceMode, databaseProvider, database connectivity and security checks without any session. |
-| `GET /api/health/system-status` | auth-gated | The aggregated in-app system status (health, circuit breakers, DLQ, compliance, retention) documented in [Deployment](deployment.md). Like every non-public `/api` route it requires a signed-in session (401 for anonymous callers) - automation must always target `/api/health`. |
+| `GET /api/health/system-status` | auth-gated | The aggregated in-app system status (health, circuit breakers, DLQ, compliance, retention) documented in [Deployment](deployment.md). Like every non-public `/api` route it requires a signed-in session (401 for anonymous callers): automation must always target `/api/health`. |
 
 Public health paths (`/api/health` and `/api/health/*`) are passed through by the proxy before the auth layer; everything else under `/api` needs the Bearer token or the session cookie.
 
 ## Related documents
 
-- [Online hosting](online-hosting.md) - public subdomains on your own domain via Cloudflare Tunnel or Caddy
-- [Deployment](deployment.md) - the full self-hosting procedure: SSL options, backups, troubleshooting, architecture diagram
-- [Subdomain workspaces](subdomain-workspaces.md) - what the host header does once it reaches the app
-- [LAN deployment](lan-deployment.md) - one shop server for many devices on the local network
-- [Local offline setup](local-offline-setup.md) - offline env vars, local DNS methods, mock M-Pesa
+- [Online hosting](online-hosting.md): public subdomains on your own domain via Cloudflare Tunnel or Caddy
+- [Deployment](deployment.md): the full self-hosting procedure: SSL options, backups, troubleshooting, architecture diagram
+- [Subdomain workspaces](subdomain-workspaces.md): what the host header does once it reaches the app
+- [LAN deployment](lan-deployment.md): one shop server for many devices on the local network
+- [Local offline setup](local-offline-setup.md): offline env vars, local DNS methods, mock M-Pesa

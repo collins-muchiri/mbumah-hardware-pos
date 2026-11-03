@@ -1,4 +1,4 @@
-# Mbumah Hardware — Brand System (BRAND.md)
+# Mbumah Hardware: Brand System (BRAND.md)
 
 > Version: v2.18.3 · Owner: Mbumah Hardware · Source artwork: `public/logo.svg`
 
@@ -60,5 +60,5 @@ the dark `#0f172a` header; 48×48 in the top bar.
 2. Minimum logo size: 32px (mark) / 120px (full card).
 3. White rounded tile (`rounded-xl`, `p-1.5`) when logo sits on dark chrome.
 4. No drop shadows on the mark; gradients only from the provided ramps.
-5. Domain expert modules use semantic colors (§2) — never brand navy for
+5. Domain expert modules use semantic colors (§2): never brand navy for
    danger states (debt/overdue = red family).

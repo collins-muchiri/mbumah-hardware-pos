@@ -59,7 +59,7 @@ The sandbox cannot inspect the Windows desktop database (C:\Users\kamam\mbumah-p
 - Users: admin@mbumahhardware.co.ke (SUPER_ADMIN) upsert by email; five branch managers upsert by email with StoreMembership bindings; demo cashier and accountant use create calls guarded by a user-count check.
 - Five employees are seeded with NSSF and NHIF numbers. No PayrollRun or PayrollDetail rows are seeded.
 - Accounts: 18-account chart created with prisma.account.create (non-idempotent on partially initialized databases). Payroll statutory liability accounts are absent.
-- Known chart-of-accounts conflicts: seed places a supplier payable ("Bamburi Cement - Payable") at 2300 while src/lib/account-helper.ts maps GIFT_CARD_LIABILITY to 2300 and the seed also creates "Gift Cards Outstanding" at 2400. Seed marks 1400 Rental Deposits Held as ASSET while the helper treats 1400 as LIABILITY/CREDIT. SubType naming for 3000 differs between seed (OWNERS_EQUITY) and helper (OWNER_EQUITY).
+- Known chart-of-accounts conflicts: seed places a supplier payable ("Bamburi Cement: Payable") at 2300 while src/lib/account-helper.ts maps GIFT_CARD_LIABILITY to 2300 and the seed also creates "Gift Cards Outstanding" at 2400. Seed marks 1400 Rental Deposits Held as ASSET while the helper treats 1400 as LIABILITY/CREDIT. SubType naming for 3000 differs between seed (OWNERS_EQUITY) and helper (OWNER_EQUITY).
 
 ## 8. Auth and RBAC state
 

@@ -52,7 +52,7 @@ After sign-in:
 
 ## Related
 
-- [Branch workspaces](branch-workspaces.md) - hosting modes and the "Open branch workspace" action
-- [Store context resolution](store-context-resolution.md) - request-time authorization and reason codes
-- [Multi-store workspaces](multi-store-workspaces.md) - org console and branch selector
-- [Troubleshooting and FAQ](troubleshooting-and-faq.md) - sign-in and workspace entries
+- [Branch workspaces](branch-workspaces.md): hosting modes and the "Open branch workspace" action
+- [Store context resolution](store-context-resolution.md): request-time authorization and reason codes
+- [Multi-store workspaces](multi-store-workspaces.md): org console and branch selector
+- [Troubleshooting and FAQ](troubleshooting-and-faq.md): sign-in and workspace entries
