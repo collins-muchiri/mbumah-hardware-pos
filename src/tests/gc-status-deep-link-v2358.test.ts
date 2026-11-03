@@ -227,7 +227,7 @@ describe('the address-bar vocabulary — the constitution\u2019s eleventh row', 
   });
 
   it('the constitution\u2019s title counts twelve words over ten desk files', () => {
-    expect(registry.includes('(fifteen words, thirteen desks)')).toBe(true);
+    expect(registry.includes('(sixteen words, fourteen desks)')).toBe(true);
   });
 
   it('the home\u2019s promise roll carries the ELEVENTH alongside its elders', () => {
@@ -275,6 +275,7 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/cust-debt-deep-link-v2330.test.ts',
       // and this file joins its own ledger (an admission line carries the
       // word it admits — the ripple's second-order form, pinned above)
+      'src/tests/cv-type-deep-link-v2363.test.ts',
       'src/tests/dn-status-deep-link-v2359.test.ts',
       'src/tests/gc-status-deep-link-v2358.test.ts',
       'src/tests/inv-status-deep-link-v2356.test.ts',
