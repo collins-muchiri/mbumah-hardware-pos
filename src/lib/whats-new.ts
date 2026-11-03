@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.365.0',
+    title: 'The repayment desk answers the address bar',
+    bullets: [
+      'A debt-plans link can now name its lens: ?dp-status=pending, active, overdue or completed lands the repayment desk pre-filtered, with a dismissible chip naming the word it answered \u2014 the eighteenth word of the address-bar vocabulary, and the family\u2019s first button-group lens.',
+      'The landing chip wears the vocabulary\u2019s eighteenth family (zinc \u2014 the galvanized hue, the coating on this yard\u2019s steel) beside the desk\u2019s own filter-chip voices \u2014 one bar, honest voices, no masquerade; the lens filters the plans list itself, not just the chips\u2019 face.',
+      'Unknown, missing, or wrong-case words never strand the repayment desk: the lens falls back to All, case-sensitively.',
+    ],
+  },
+  {
     version: '2.364.0',
     title: 'The shelves\u2019 standing answers the address bar',
     bullets: [

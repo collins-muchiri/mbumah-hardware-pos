@@ -23,8 +23,9 @@
 // seed bytes and its cast-free typing, the chip's bytes and its two
 // retirement voices, the one-home promise (the law's doc carries the
 // tenth word), the collision ledger — and THE CONSTITUTION: the whole
-// vocabulary's invariants walked from source bytes, seventeen words strong
-// (the sixteenth row joined in v2.363.0, the seventeenth in v2.364.0).
+// vocabulary's invariants walked from source bytes, eighteen words strong
+// (the sixteenth row joined in v2.363.0, the seventeenth in v2.364.0, the
+// eighteenth in v2.365.0).
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
@@ -195,7 +196,7 @@ describe('the landing chip — the face names the word it answered', () => {
 // 4. THE CONSTITUTION — the whole vocabulary's invariants, walked from bytes
 // ---------------------------------------------------------------------------
 
-describe('the address-bar vocabulary — THE CONSTITUTION (seventeen words, fifteen desks)', () => {
+describe('the address-bar vocabulary — THE CONSTITUTION (eighteen words, sixteen desks)', () => {
   const WORDS = [
     { word: 'po-status', desk: 'src/app/(shell)/tabs/purchase-orders-tab.tsx', family: 'border-indigo-200', suite: 'src/tests/proxy-gate-layering-v2328.test.ts' },
     { word: 'inv-stock', desk: 'src/app/(shell)/tabs/inventory-tab.tsx', family: 'border-amber-200', suite: 'src/tests/inv-stock-deep-link-v2329.test.ts' },
@@ -214,6 +215,7 @@ describe('the address-bar vocabulary — THE CONSTITUTION (seventeen words, fift
     { word: 'pr-status', desk: 'src/app/(shell)/tabs/payroll-tab.tsx', family: 'border-stone-200', suite: 'src/tests/pr-status-deep-link-v2362.test.ts' },
     { word: 'cv-type', desk: 'src/app/(shell)/tabs/conversations-tab.tsx', family: 'border-slate-200', suite: 'src/tests/cv-type-deep-link-v2363.test.ts' },
     { word: 'cat-stock', desk: 'src/app/(shell)/tabs/catalog-tab.tsx', family: 'border-purple-200', suite: 'src/tests/cat-stock-deep-link-v2364.test.ts' },
+    { word: 'dp-status', desk: 'src/app/(shell)/tabs/debt-plans-tab.tsx', family: 'border-zinc-200', suite: 'src/tests/dp-status-deep-link-v2365.test.ts' },
   ] as const;
 
   it('every word is desk-prefixed and owns its FILTERS const in exactly its desk', () => {
@@ -223,7 +225,7 @@ describe('the address-bar vocabulary — THE CONSTITUTION (seventeen words, fift
     }
   });
 
-  it('every word wears a DISTINCT family — seventeen families, no two alike', () => {
+  it('every word wears a DISTINCT family — eighteen families, no two alike', () => {
     const families = WORDS.map((w) => w.family);
     expect(new Set(families).size).toBe(WORDS.length);
     for (const { word, desk: deskPath, family } of WORDS) {
@@ -232,12 +234,12 @@ describe('the address-bar vocabulary — THE CONSTITUTION (seventeen words, fift
     }
   });
 
-  it('every word has its ledger suite on disk, and the home carries all eleven promises', () => {
+  it('every word has its ledger suite on disk, and the home carries all twelve promises', () => {
     const home = readFileSync('src/lib/tab-url.ts', 'utf8');
     for (const { suite } of WORDS) {
       expect(readFileSync(suite, 'utf8').length > 0, `${suite} exists`).toBe(true);
     }
-    for (const n of ['SEVENTH', 'EIGHTH', 'NINTH', 'TENTH', 'ELEVENTH', 'TWELFTH', 'THIRTEENTH', 'FOURTEENTH', 'FIFTEENTH', 'SIXTEENTH', 'SEVENTEENTH']) {
+    for (const n of ['SEVENTH', 'EIGHTH', 'NINTH', 'TENTH', 'ELEVENTH', 'TWELFTH', 'THIRTEENTH', 'FOURTEENTH', 'FIFTEENTH', 'SIXTEENTH', 'SEVENTEENTH', 'EIGHTEENTH']) {
       expect(home.includes(`THE PROMISE KEPT, THE ${n} WORD`)).toBe(true);
     }
   });
@@ -301,6 +303,7 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/cust-debt-deep-link-v2330.test.ts',
       'src/tests/cv-type-deep-link-v2363.test.ts',
       'src/tests/dn-status-deep-link-v2359.test.ts',
+      'src/tests/dp-status-deep-link-v2365.test.ts',
       'src/tests/gc-status-deep-link-v2358.test.ts',
       'src/tests/inv-status-deep-link-v2356.test.ts',
       'src/tests/inv-stock-deep-link-v2329.test.ts',
