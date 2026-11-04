@@ -197,6 +197,8 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/cr-type-deep-link-v2361.test.ts',
       'src/tests/cust-debt-deep-link-v2330.test.ts',
       'src/tests/cv-type-deep-link-v2363.test.ts',
+      // the twenty-eighth word's own ledger — admitted (its rides-beside truth speaks this word)
+      'src/tests/debt-status-deep-link-v2389.test.ts',
       'src/tests/dn-status-deep-link-v2359.test.ts',
       'src/tests/dp-status-deep-link-v2365.test.ts',
       'src/tests/et-status-deep-link-v2381.test.ts',

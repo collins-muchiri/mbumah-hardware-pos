@@ -212,6 +212,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // speaks `bank-type` in its rides-beside truth and its two-word
       // chip census) — an admission line carries the word it admits
       'src/tests/bank-type-deep-link-v2387.test.ts',
+      // the twenty-eighth word's own ledger admits this suite (it
+      // speaks `bank-mpesa` in its rides-beside truth) — an admission
+      // line carries the word it admits
+      'src/tests/debt-status-deep-link-v2389.test.ts',
       // the four ledgers that admitted the twenty-sixth word's suite
       // walk the same census for THEIR words, which this suite speaks
       // (po-status, et-status, inv-stock, txn-pay) — their admission
@@ -222,9 +226,6 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/family-registry-stress-v2370.test.ts',
       'src/tests/inv-stock-deep-link-v2329.test.ts',
       'src/tests/proxy-gate-layering-v2328.test.ts',
-      // the reports ledger re-anchored its feed-story pins to the new
-      // lead — the story speaks this word (the hand-over's honest cost)
-      'src/tests/rep-type-deep-link-v2384.test.ts',
       // the constitution's twenty-seventh row + the admission this file
       // earns from the transfer-status ledger (this suite names it)
       'src/tests/transfer-status-deep-link-v2357.test.ts',
@@ -240,8 +241,8 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
 describe('the address-bar vocabulary — the twenty-seventh row (cross-suite pins)', () => {
   const constitution = readFileSync('src/tests/transfer-status-deep-link-v2357.test.ts', 'utf8');
 
-  it('the constitution walks TWENTY-SEVEN words over TWENTY-THREE desks (one desk owns two)', () => {
-    expect(constitution.includes('(twenty-seven words, twenty-three desks)')).toBe(true);
+  it('the constitution walks TWENTY-EIGHT words over TWENTY-FOUR desks (a new desk speaks)', () => {
+    expect(constitution.includes('(twenty-eight words, twenty-four desks)')).toBe(true);
     expect(constitution.includes("{ word: 'bank-mpesa', desk: 'src/app/(shell)/tabs/banking-tab.tsx', family: 'border-purple-300', suite: 'src/tests/bank-mpesa-deep-link-v2388.test.ts' }")).toBe(true);
     expect(constitution.includes("'TWENTY-SEVENTH'")).toBe(true);
   });
@@ -251,13 +252,15 @@ describe('the address-bar vocabulary — the twenty-seventh row (cross-suite pin
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.388.0 leads the feed', () => {
+describe('whats-new — v2.389.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.388.0');
-    expect(head.title).toContain('M-Pesa');
+    expect(head.version).toBe('2.389.0');
+    // the lead's story hand-over: the lead's story is v2.389.0's —
+    // the debt ledger answers the bar (the desk's FIRST word).
+    expect(head.title).toContain('debt');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('bank-mpesa'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('M-Pesa pane'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('debt-status'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('History pane'))).toBe(true);
   });
 });
