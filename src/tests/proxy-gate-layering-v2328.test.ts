@@ -261,6 +261,8 @@ describe('the collision ledger — desk-prefixed words stay rare', () => {
         'src/tests/cv-type-deep-link-v2363.test.ts',
         // the twenty-eighth word's own ledger — admitted (its rides-beside truth speaks this word)
         'src/tests/debt-status-deep-link-v2389.test.ts',
+        // the twenty-ninth word's own ledger — admitted (its rides-beside truth speaks this word)
+        'src/tests/debt-channel-deep-link-v2390.test.ts',
         'src/tests/dn-status-deep-link-v2359.test.ts',
         'src/tests/dp-status-deep-link-v2365.test.ts',
         'src/tests/et-status-deep-link-v2381.test.ts',

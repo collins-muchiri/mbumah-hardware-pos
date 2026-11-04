@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.390.0',
+    title: 'The debt ledger answers by the channel',
+    bullets: [
+      'The Debt Management desk\u2019s reminder history now answers a second bookmark: a link like /?tab=debt-management&debt-channel=WHATSAPP opens the History pane already filtered to the reminders that rode one channel \u2014 SMS, email and in-app each answer their own word, and a misspelled one politely falls back to All channels.',
+      'The desk now speaks two words: the status word and the channel word each raise the History pane they share, and the two chips sit side by side \u2014 each clears itself, each retires on its own hand change, and neither touches the other\u2019s state.',
+      'The channel chip wears its own fuchsia coat \u2014 a hue no badge on this desk speaks and one its cyan sibling never borrowed \u2014 so the two voices never blur on the same stage.',
+      'The word\u2019s spelling is the dropdown\u2019s own: UPPERCASE channels exactly as the Select spells them (SMS, WHATSAPP, EMAIL, IN_APP) with the lowercase all for everything \u2014 the vocabulary never guesses.',
+    ],
+  },
+  {
     version: '2.389.0',
     title: 'The debt ledger answers the address bar',
     bullets: [
