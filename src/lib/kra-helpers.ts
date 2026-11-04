@@ -91,32 +91,11 @@ export interface SubmissionStatusResult {
   responseJson?: string;
 }
 
-/** A line item mapped to KRA's invoice format. */
-export interface KraInvoiceLineItem {
-  hsCode: string; // Harmonised System code (KRA requires this)
-  name: string;
-  quantity: number;
-  unitPrice: number;
-  discount: number;
-  vatRate: number; // 16, 0, or 0 (exempt)
-  vatAmount: number;
-  total: number;
-}
-
-/** The full invoice payload sent to KRA. */
-export interface KraInvoicePayload {
-  kraInvoiceNumber: string;
-  businessPin: string;
-  issueDate: string; // ISO 8601
-  customerPin?: string;
-  customerName: string;
-  items: KraInvoiceLineItem[];
-  subtotal: number;
-  totalDiscount: number;
-  totalVat: number;
-  totalAmount: number;
-  paymentMethod: string;
-}
+// v2.385.0: the payload types live in the client type home now (the one
+// truth) — imported for the mapper's own annotations and re-exported so
+// the server’s existing import paths keep speaking.
+import type { KraInvoiceLineItem, KraInvoicePayload } from './types';
+export type { KraInvoiceLineItem, KraInvoicePayload } from './types';
 
 // Interface (the "port")
 

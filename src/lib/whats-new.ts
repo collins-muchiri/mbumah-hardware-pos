@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.385.0',
+    title: 'The dry run speaks its payload',
+    bullets: [
+      'The e-TIMS submit dialog\u2019s dry run no longer vanishes: the mapped KRA invoice \u2014 invoice number, buyer, payment method, line-item count and the full money ladder with the VAT (16%) row \u2014 now renders inside the dialog the moment the dry run completes, with a one-press Copy that hands you the exact JSON KRA would receive.',
+      'The dry run keeps the dialog open: preview, read, then press Submit when satisfied. The old flow toasted "payload mapped" and slammed the dialog shut before anyone could read it.',
+      'No more blind typing: every PENDING invoice on the e-TIMS ledger carries its own Submit-to-KRA button that opens the dialog with the transaction ID already filled in.',
+      'The money figures ride the boundary coercion and speak tabular-nums in both light and dark, in the desk\u2019s own slate/blue voices \u2014 no new colors borrowed.',
+    ],
+  },
+  {
     version: '2.384.0',
     title: 'The reports desk answers the address bar',
     bullets: [

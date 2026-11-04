@@ -860,3 +860,30 @@ export interface MessageItem {
   customerName?: string;
   customerPhone?: string;
 }
+
+/** A line item mapped to KRA's invoice format. */
+export interface KraInvoiceLineItem {
+  hsCode: string; // Harmonised System code (KRA requires this)
+  name: string;
+  quantity: number;
+  unitPrice: number;
+  discount: number;
+  vatRate: number; // 16, 0, or 0 (exempt)
+  vatAmount: number;
+  total: number;
+}
+
+/** The full invoice payload sent to KRA. */
+export interface KraInvoicePayload {
+  kraInvoiceNumber: string;
+  businessPin: string;
+  issueDate: string; // ISO 8601
+  customerPin?: string;
+  customerName: string;
+  items: KraInvoiceLineItem[];
+  subtotal: number;
+  totalDiscount: number;
+  totalVat: number;
+  totalAmount: number;
+  paymentMethod: string;
+}

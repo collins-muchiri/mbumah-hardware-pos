@@ -204,10 +204,32 @@ async function main() {
     }
   }
 
+  // ── 5. the fixture KRA business profile (v2.385.0: the WRITE side's
+  //    key) — without an active profile the submit route refuses before
+  //    mapping (400 "No active KRA business profile"), so the dry-run
+  //    preview could never be driven. The profile is a SANDBOX fixture:
+  //    the dry-run short-circuit never calls KRA, and the dev-mode
+  //    credential decrypt passes the stored value as-is (no key set).
+  const profile = await prisma.kraBusinessProfile.upsert({
+    where: { businessPin: 'P051234567X' },
+    update: { storeId: store.id, isActive: true, environment: 'sandbox' },
+    create: {
+      id: cid('fixprof'),
+      storeId: store.id,
+      businessPin: 'P051234567X',
+      businessName: 'MBUMAH HARDWARE (FIXTURE SANDBOX)',
+      registrationDate: new Date('2026-01-15T08:00:00Z'),
+      kraUsername: 'fixture-sandbox',
+      kraPasswordEncrypted: 'fixture-sandbox-credential',
+      environment: 'sandbox',
+      isActive: true,
+    },
+  });
+
   const kraCount = await prisma.invoiceForKRA.count({ where: { storeId: store.id } });
   const subCount = await prisma.kraSubmission.count({ where: { storeId: store.id } });
   const filCount = await prisma.taxFiling.count({ where: { storeId: store.id } });
-  console.log(`fixture world lit: ${kraCount} KRA invoices (5 statuses), ${subCount} submissions, ${filCount} tax filings (4 types, 5 statuses)`);
+  console.log(`fixture world lit: ${kraCount} KRA invoices (5 statuses), ${subCount} submissions, ${filCount} tax filings (4 types, 5 statuses), sandbox profile ${profile.id} (P051234567X)`);
 }
 
 main()
