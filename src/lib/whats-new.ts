@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.381.0',
+    title: 'The taxman\u2019s desk answers the address bar',
+    bullets: [
+      'The e-TIMS invoices desk now answers its address: bookmark ?et-status=PENDING, SUBMITTED, ACCEPTED, REJECTED or FAILED and the desk opens straight onto that pile \u2014 no clicking through sub-tabs and filters to reach the taxman\u2019s question.',
+      'The landed word wears its chip until you change it: a red "landed ?et-status=\u2026" chip sits beside the filter, one press clears it, and any hand change retires it \u2014 the chip only ever speaks the address bar\u2019s landing.',
+      'A lensed empty answer is honest now: when a status lens finds nothing, the desk says "No PENDING invoices in this lens yet" with a one-press clear \u2014 instead of the generic empty state\u2019s false "nothing exists".',
+      'The red chip is the family\u2019s twenty-second voice \u2014 reserved until a desk whose daily question IS danger needed it: a rejected KRA submission is the taxman\u2019s red letter.',
+    ],
+  },
+  {
     version: '2.380.0',
     title: 'The lens rides past the cap',
     bullets: [

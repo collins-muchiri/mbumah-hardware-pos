@@ -410,6 +410,27 @@ export function parseInitialPageWithAlias(
  * palette (red is the danger voice), the EARN badge's own ink, the
  * palette-exhaustion amendment's second application where the last hue
  * is a voice.
+ *
+ * v2.381.0 — THE PROMISE KEPT, THE TWENTY-SECOND WORD: the e-TIMS desk's
+ * submission-status lens speaks it as its desk-prefixed `et-status` (the
+ * same parser, zero new bytes of law, again — the taxman's daily
+ * question, "which invoices have we sent to KRA, and which came back?",
+ * is now an address; UPPERCASE words, the wire's own five statuses, and
+ * the landing chip wears the twenty-second family, RED — the danger
+ * voice finally speaks, on the one desk whose daily question is danger
+ * itself: a rejected or failed KRA submission is the taxman's red
+ * letter. The desk's alarm vocabulary speaks rose and amber, so the red
+ * chip borrows nothing from any badge — the palette-exhaustion
+ * amendment's third application: the reserved hue speaks where the
+ * danger IS the lens). THE TWO-ADDRESS DESIGN's second application: the
+ * lens lives in a NON-DEFAULT sub-tab (invoices under a profile
+ * default), so a landing that carries the word implies the invoices
+ * stage — view's own word wins when it speaks a VALID sub-tab, an
+ * invalid word does not claim the stage. THE LANDING IS READ ONCE AND
+ * LENT DOWN: the section under the TabsContent remounts on every
+ * sub-tab toggle, and a seed that re-parsed there would resurrect a
+ * dismissed chip — the landing lives on the desk's shell and flows to
+ * the section as props.
  */
 export function parseInitialNamedMember<V extends string>(
   search: string,

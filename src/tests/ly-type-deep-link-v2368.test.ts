@@ -305,7 +305,7 @@ describe('the address-bar vocabulary — the twenty-first row (cross-suite pins)
   const constitution = readFileSync('src/tests/transfer-status-deep-link-v2357.test.ts', 'utf8');
 
   it('the constitution walks TWENTY-ONE words over NINETEEN desks', () => {
-    expect(constitution.includes('(twenty-one words, nineteen desks)')).toBe(true);
+    expect(constitution.includes('(twenty-two words, twenty desks)')).toBe(true);
     expect(constitution.includes("{ word: 'ly-type', desk: 'src/app/(shell)/tabs/loyalty-tab.tsx', family: 'border-green-200', suite: 'src/tests/ly-type-deep-link-v2368.test.ts' }")).toBe(true);
     expect(constitution.includes("'TWENTY-FIRST'")).toBe(true);
   });
@@ -350,6 +350,7 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/dp-status-deep-link-v2365.test.ts',
       // the v2.316 suite walked its state pins to the alias parser this
       // round — the walk itself carries the word (an honest speaker)
+      'src/tests/et-status-deep-link-v2381.test.ts',
       'src/tests/expiry-ledger-link-v2316.test.ts',
       'src/tests/family-registry-stress-v2370.test.ts',
       'src/tests/gc-status-deep-link-v2358.test.ts',
