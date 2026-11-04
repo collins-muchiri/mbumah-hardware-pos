@@ -197,7 +197,7 @@ describe('the landing chip — the face names the word it answered', () => {
 // 4. THE CONSTITUTION — the whole vocabulary's invariants, walked from bytes
 // ---------------------------------------------------------------------------
 
-describe('the address-bar vocabulary — THE CONSTITUTION (twenty-six words, twenty-three desks)', () => {
+describe('the address-bar vocabulary — THE CONSTITUTION (twenty-seven words, twenty-three desks)', () => {
   const WORDS = [
     { word: 'po-status', desk: 'src/app/(shell)/tabs/purchase-orders-tab.tsx', family: 'border-indigo-200', suite: 'src/tests/proxy-gate-layering-v2328.test.ts' },
     { word: 'inv-stock', desk: 'src/app/(shell)/tabs/inventory-tab.tsx', family: 'border-amber-200', suite: 'src/tests/inv-stock-deep-link-v2329.test.ts' },
@@ -256,6 +256,15 @@ describe('the address-bar vocabulary — THE CONSTITUTION (twenty-six words, twe
     // storey — a family byte the 200-storey can never equal, borrowing
     // nothing from the desk's badges)
     { word: 'bank-type', desk: 'src/app/(shell)/tabs/banking-tab.tsx', family: 'border-sky-300', suite: 'src/tests/bank-type-deep-link-v2387.test.ts' },
+    // the second-word round: the SAME desk's M-Pesa ledger answers its
+    // second daily question — the sub-tab amendment's SECOND application
+    // (the landing raises the mpesa pane it lands into), the two-word
+    // negotiation pinned (the M-PESA word wins the pane seed), and the
+    // chip wears the shade-split's FIFTH application: purple one storey
+    // deeper at 300/100 (the hue the catalog desk spoke at the 200
+    // storey — a family byte the 200-storey can never equal, borrowing
+    // nothing from the desk's badges)
+    { word: 'bank-mpesa', desk: 'src/app/(shell)/tabs/banking-tab.tsx', family: 'border-purple-300', suite: 'src/tests/bank-mpesa-deep-link-v2388.test.ts' },
   ] as const;
 
   it('every word is desk-prefixed and owns its FILTERS const in exactly its desk', () => {
@@ -279,7 +288,7 @@ describe('the address-bar vocabulary — THE CONSTITUTION (twenty-six words, twe
     for (const { suite } of WORDS) {
       expect(readFileSync(suite, 'utf8').length > 0, `${suite} exists`).toBe(true);
     }
-    for (const n of ['SEVENTH', 'EIGHTH', 'NINTH', 'TENTH', 'ELEVENTH', 'TWELFTH', 'THIRTEENTH', 'FOURTEENTH', 'FIFTEENTH', 'SIXTEENTH', 'SEVENTEENTH', 'EIGHTEENTH', 'NINETEENTH', 'TWENTIETH', 'TWENTY-FIRST', 'TWENTY-SECOND', 'TWENTY-THIRD', 'TWENTY-FOURTH', 'TWENTY-FIFTH', 'TWENTY-SIXTH']) {
+    for (const n of ['SEVENTH', 'EIGHTH', 'NINTH', 'TENTH', 'ELEVENTH', 'TWELFTH', 'THIRTEENTH', 'FOURTEENTH', 'FIFTEENTH', 'SIXTEENTH', 'SEVENTEENTH', 'EIGHTEENTH', 'NINETEENTH', 'TWENTIETH', 'TWENTY-FIRST', 'TWENTY-SECOND', 'TWENTY-THIRD', 'TWENTY-FOURTH', 'TWENTY-FIFTH', 'TWENTY-SIXTH', 'TWENTY-SEVENTH']) {
       expect(home.includes(`THE PROMISE KEPT, THE ${n} WORD`)).toBe(true);
     }
   });
@@ -341,6 +350,9 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/ad-severity-deep-link-v2366.test.ts',
       // the twenty-sixth word's own ledger — admitted (its constitution
       // section names this file; an admission line carries the word it admits)
+      // the twenty-seventh word's own ledger — admitted (this file
+      // speaks the words this ledger walks; its NAME carries them too)
+      'src/tests/bank-mpesa-deep-link-v2388.test.ts',
       'src/tests/bank-type-deep-link-v2387.test.ts',
       'src/tests/cat-stock-deep-link-v2364.test.ts',
       'src/tests/cr-type-deep-link-v2361.test.ts',

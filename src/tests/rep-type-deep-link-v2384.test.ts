@@ -215,12 +215,12 @@ describe('the lockfile parity guard — root-version and range legs', () => {
 describe('whats-new — v2.384.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.387.0');
+    expect(head.version).toBe('2.388.0');
     // the lead's story re-anchor (the elder lead's title-pin hand-over):
-    // the lead's story is v2.387.0's — the bank ledger answers the bar.
-    expect(head.title).toContain('bank ledger');
+    // the lead's story is v2.388.0's — the M-Pesa ledger answers the bar.
+    expect(head.title).toContain('M-Pesa');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('bank-type'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('Transactions pane'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('bank-mpesa'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('M-Pesa pane'))).toBe(true);
   });
 });

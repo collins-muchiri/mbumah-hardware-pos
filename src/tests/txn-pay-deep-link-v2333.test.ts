@@ -189,6 +189,9 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/ad-severity-deep-link-v2366.test.ts',
       // the twenty-sixth word's own ledger — admitted (its rides-beside
       // truth speaks this word; an admission line carries the word it admits)
+      // the twenty-seventh word's own ledger — admitted (this file
+      // speaks the words this ledger walks; its NAME carries them too)
+      'src/tests/bank-mpesa-deep-link-v2388.test.ts',
       'src/tests/bank-type-deep-link-v2387.test.ts',
       'src/tests/cat-stock-deep-link-v2364.test.ts',
       'src/tests/cr-type-deep-link-v2361.test.ts',

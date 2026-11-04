@@ -168,9 +168,14 @@ describe('the banking desk — ?bank-type= lands as visible state', () => {
     expect(desk.includes('?bank-type=DEPOSIT')).toBe(true);
   });
 
-  it('the landing RAISES the sub-tab it lands into (the sub-tab amendment)', () => {
+  it('the landing RAISES the sub-tab it lands into (the sub-tab amendment, now the two-word negotiation)', () => {
+    // v2.388.0: the desk owns TWO words — the seed negotiates (the
+    // M-PESA word wins the pane; the type word raises Transactions)
     expect(
-      desk.includes("useState(() => (initialBankType() !== 'all' ? 'transactions' : 'accounts'))")
+      desk.includes("return initialBankType() !== 'all' ? 'transactions' : 'accounts';")
+    ).toBe(true);
+    expect(
+      desk.includes("if (initialMpesaStatus() !== 'all') return 'mpesa';")
     ).toBe(true);
   });
 });
@@ -202,6 +207,9 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/lib/tab-url.ts',
       'src/lib/whats-new.ts',
       // this suite (the word's own ledger — an honest speaker)
+      // the twenty-seventh word's own ledger — admitted (this file
+      // speaks the words this ledger walks; its NAME carries them too)
+      'src/tests/bank-mpesa-deep-link-v2388.test.ts',
       'src/tests/bank-type-deep-link-v2387.test.ts',
       // the e-TIMS ledger ADMITTED this file into its own collision
       // census — an admission line carries the word it admits (the
@@ -215,7 +223,9 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // the census converges: admissions are fixed, so is this list)
       'src/tests/inv-stock-deep-link-v2329.test.ts',
       'src/tests/proxy-gate-layering-v2328.test.ts',
-      'src/tests/rep-type-deep-link-v2384.test.ts',
+      // the reports ledger's story pins moved ON to the twenty-seventh
+      // word (the v2.388.0 hand-over) — the file no longer speaks this
+      // word, and the honest census releases it
       'src/tests/transfer-status-deep-link-v2357.test.ts',
       'src/tests/txn-pay-deep-link-v2333.test.ts',
     ]);
@@ -230,7 +240,7 @@ describe('the address-bar vocabulary — the twenty-sixth row (cross-suite pins)
   const constitution = readFileSync('src/tests/transfer-status-deep-link-v2357.test.ts', 'utf8');
 
   it('the constitution walks TWENTY-SIX words over TWENTY-THREE desks', () => {
-    expect(constitution.includes('(twenty-six words, twenty-three desks)')).toBe(true);
+    expect(constitution.includes('(twenty-seven words, twenty-three desks)')).toBe(true);
     expect(constitution.includes("{ word: 'bank-type', desk: 'src/app/(shell)/tabs/banking-tab.tsx', family: 'border-sky-300', suite: 'src/tests/bank-type-deep-link-v2387.test.ts' }")).toBe(true);
     expect(constitution.includes("'TWENTY-SIXTH'")).toBe(true);
   });
@@ -240,13 +250,15 @@ describe('the address-bar vocabulary — the twenty-sixth row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.387.0 leads the feed', () => {
+describe('whats-new — v2.388.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.387.0');
-    expect(head.title).toContain('bank ledger');
+    expect(head.version).toBe('2.388.0');
+    // the lead's story hand-over: the lead's story is v2.388.0's —
+    // the M-Pesa ledger answers the bar (the desk's SECOND word).
+    expect(head.title).toContain('M-Pesa');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('bank-type'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('Transactions pane'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('bank-mpesa'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('M-Pesa pane'))).toBe(true);
   });
 });

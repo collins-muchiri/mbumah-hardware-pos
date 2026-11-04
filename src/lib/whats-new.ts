@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.388.0',
+    title: 'The M-Pesa ledger answers the address bar',
+    bullets: [
+      'The banking desk\u2019s M-Pesa pane is now a bookmark too: a link like /?tab=banking&bank-mpesa=PENDING opens the M-Pesa pane already filtered to what is still waiting on the float \u2014 matched, unmatched and disputed each answer their own word, and a misspelled one politely falls back to All Statuses.',
+      'The landing wears its own purple chip before the status filter \u2014 one press clears it, any hand change retires it, and it only ever speaks the address bar\u2019s landing. The chip is the deep-link family\u2019s twenty-seventh voice \u2014 the shade-split\u2019s fifth application, one storey deeper than the shallow chips.',
+      'The desk now speaks two words: the M-Pesa word and the type word each raise the pane they land into, and when both arrive together the M-Pesa pane wins the stage \u2014 the other chip waits honestly in its own pane until you navigate there.',
+      'The word\u2019s spelling is the dropdown\u2019s own: UPPERCASE statuses exactly as the Select spells them (PENDING, MATCHED, UNMATCHED, DISPUTED) with the lowercase all for everything \u2014 the vocabulary never guesses.',
+    ],
+  },
+  {
     version: '2.387.0',
     title: 'The bank ledger answers the address bar',
     bullets: [

@@ -1,3 +1,16 @@
+## [2.388.0] The M-Pesa ledger answers the address bar
+
+The deep-link vocabulary's twenty-seventh word lands on the banking desk's M-Pesa pane — the float's daily question becomes a bookmark, the sub-tab amendment speaks its second application, and one desk now owns two words.
+
+### Added
+- **THE M-PESA LEDGER'S OWN WORD** (`banking-tab.tsx`, `src/lib/tab-url.ts`): the M-Pesa pane's status lens answers `?bank-mpesa=all|PENDING|MATCHED|UNMATCHED|DISPUTED` — the Select's OWN spellings (UPPERCASE, the payment word's voice; the neutral is the lowercase `all`, exactly the Select's own; a lowercase or capitalized word is an unknown word, never a clever match; anything missing or unknown answers `all`, never stranded). The vocabulary lives in the ONE home (`BANK_MPESA_FILTERS`), cast-free — the generic parser IS the union.
+- **THE SUB-TAB AMENDMENT'S SECOND APPLICATION** (`banking-tab.tsx`): the lens lives inside the desk's M-Pesa pane. A landing that carries the word RAISES THE PANE IT LANDS INTO (the pane's seed reads the same landed word), so the answer is on screen the moment the desk opens. THE TWO-WORD NEGOTIATION: when both of the desk's words land together, the M-PESA word wins the pane seed (the deeper pane raises), and each chip waits honestly inside its own pane — hidden only until the human navigates to it, returning on the switch.
+- **THE LANDING CHIP**: a purple pill before the status filter — `border-purple-300 bg-purple-100 text-purple-700` with the full dark wardrobe and a `focus-visible:ring-purple-400` ring, `data-testid="bank-mpesa-landing-word"`, Link2 + X faces, a `title` tooltip, and a one-press dismissal that clears the lens the word seeded. THE SHADE-SPLIT'S FIFTH APPLICATION: purple one storey deeper at 300/100 — the hue the catalog desk spoke at the 200/50 storey, a family byte the 200-storey can never equal, borrowing nothing from the desk's badges (blue, emerald, green, amber, red, orange, violet, slate).
+
+### Tests
+- `src/tests/bank-mpesa-deep-link-v2388.test.ts` — the parser's truth table (UPPERCASE, case-sensitive, never stranded, rides beside the other twenty-six), the desk's seed (the ONE home, cast-free, write-once pair), the retirement door (every hand-driven status change retires the chip; the direct-write census), the two position laws (chip before the lens, INSIDE the pane it raised), the two-word negotiation pins, the purple wardrobe + badge census, the collision ledger (walked to its converged fixed point), the constitution's twenty-seventh row, and the feed's lead.
+- The constitution (`transfer-status-deep-link-v2357.test.ts`) grows to twenty-seven words over twenty-three desks (one desk now owns two); the registry stress suite re-derives (23 desks, 27 DISTINCT families, the roll through TWENTY-SEVENTH); six elder ledgers admit the new suite (the LEDGER-CITATION RIPPLE, walked to convergence).
+
 ## [2.387.0] The bank ledger answers the address bar
 
 The deep-link vocabulary's twenty-sixth word lands on the banking desk — the treasurer's daily question becomes a bookmark, and the sub-tab law learns to raise the pane it lands into.
