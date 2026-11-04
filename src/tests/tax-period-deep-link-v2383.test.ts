@@ -347,7 +347,7 @@ describe('the address-bar vocabulary — the twenty-fourth row (cross-suite pins
   const constitution = readFileSync('src/tests/transfer-status-deep-link-v2357.test.ts', 'utf8');
 
   it('the constitution walks TWENTY-FOUR words over TWENTY-ONE desks', () => {
-    expect(constitution.includes('(twenty-four words, twenty-one desks)')).toBe(true);
+    expect(constitution.includes('(twenty-five words, twenty-two desks)')).toBe(true);
     expect(constitution.includes("{ word: 'tax-period', desk: 'src/app/(shell)/tabs/tax-tab.tsx', family: 'border-teal-300', suite: 'src/tests/tax-period-deep-link-v2383.test.ts' }")).toBe(true);
     expect(constitution.includes("'TWENTY-FOURTH'")).toBe(true);
   });
@@ -398,10 +398,14 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/inv-stock-deep-link-v2329.test.ts',
       'src/tests/ly-type-deep-link-v2368.test.ts',
       'src/tests/pr-status-deep-link-v2362.test.ts',
+      'src/tests/proxy-gate-layering-v2328.test.ts',
       // the po-status word's ledger lives beside the proxy-gate suite
       // (one release, two suites — the ledger is the honest speaker here)
-      'src/tests/proxy-gate-layering-v2328.test.ts',
       'src/tests/rent-status-deep-link-v2355.test.ts',
+      // v2.384.0's shape word rides beside the month shape (the census
+      // ripple: the reports desk's suite cites the tax-period word in its
+      // cross-word coexistence proof)
+      'src/tests/rep-type-deep-link-v2384.test.ts',
       'src/tests/sec-type-deep-link-v2367.test.ts',
       'src/tests/sup-po-deep-link-v2332.test.ts',
       'src/tests/sup-status-deep-link-v2331.test.ts',

@@ -268,6 +268,7 @@ describe('the collision ledger — desk-prefixed words stay rare', () => {
         // deep-link suite is admitted (an admission line carries the word it
         // admits — the LEDGER-CITATION RIPPLE, second-order form)
         'src/tests/rent-status-deep-link-v2355.test.ts',
+        'src/tests/rep-type-deep-link-v2384.test.ts',
         'src/tests/sec-type-deep-link-v2367.test.ts',
         'src/tests/sup-po-deep-link-v2332.test.ts',
         'src/tests/sup-status-deep-link-v2331.test.ts',

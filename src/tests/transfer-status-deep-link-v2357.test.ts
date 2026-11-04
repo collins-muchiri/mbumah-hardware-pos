@@ -197,7 +197,7 @@ describe('the landing chip — the face names the word it answered', () => {
 // 4. THE CONSTITUTION — the whole vocabulary's invariants, walked from bytes
 // ---------------------------------------------------------------------------
 
-describe('the address-bar vocabulary — THE CONSTITUTION (twenty-four words, twenty-one desks)', () => {
+describe('the address-bar vocabulary — THE CONSTITUTION (twenty-five words, twenty-two desks)', () => {
   const WORDS = [
     { word: 'po-status', desk: 'src/app/(shell)/tabs/purchase-orders-tab.tsx', family: 'border-indigo-200', suite: 'src/tests/proxy-gate-layering-v2328.test.ts' },
     { word: 'inv-stock', desk: 'src/app/(shell)/tabs/inventory-tab.tsx', family: 'border-amber-200', suite: 'src/tests/inv-stock-deep-link-v2329.test.ts' },
@@ -239,6 +239,14 @@ describe('the address-bar vocabulary — THE CONSTITUTION (twenty-four words, tw
     // wears the shade-split's SECOND application: teal one storey deeper
     // at 300/100, a pair byte the 200-storey can never equal
     { word: 'tax-period', desk: 'src/app/(shell)/tabs/tax-tab.tsx', family: 'border-teal-300', suite: 'src/tests/tax-period-deep-link-v2383.test.ts' },
+    // the always-rendered-lens round: the reports desk answers the address
+    // bar — a SHAPE word on the Report Type grid (the desk's OWN spellings,
+    // the reportType union, lowercase), NO STAGE TO IMPLY (the desk has no
+    // sub-tabs — the report type IS the stage), and the chip wears the
+    // shade-split's THIRD application: lime one storey deeper at 300/100
+    // (the hue the gift-cards desk spoke at the 200 storey — a family byte
+    // the 200-storey can never equal)
+    { word: 'rep-type', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-lime-300', suite: 'src/tests/rep-type-deep-link-v2384.test.ts' },
   ] as const;
 
   it('every word is desk-prefixed and owns its FILTERS const in exactly its desk', () => {
@@ -262,7 +270,7 @@ describe('the address-bar vocabulary — THE CONSTITUTION (twenty-four words, tw
     for (const { suite } of WORDS) {
       expect(readFileSync(suite, 'utf8').length > 0, `${suite} exists`).toBe(true);
     }
-    for (const n of ['SEVENTH', 'EIGHTH', 'NINTH', 'TENTH', 'ELEVENTH', 'TWELFTH', 'THIRTEENTH', 'FOURTEENTH', 'FIFTEENTH', 'SIXTEENTH', 'SEVENTEENTH', 'EIGHTEENTH', 'NINETEENTH', 'TWENTIETH', 'TWENTY-FIRST', 'TWENTY-SECOND', 'TWENTY-THIRD', 'TWENTY-FOURTH']) {
+    for (const n of ['SEVENTH', 'EIGHTH', 'NINTH', 'TENTH', 'ELEVENTH', 'TWELFTH', 'THIRTEENTH', 'FOURTEENTH', 'FIFTEENTH', 'SIXTEENTH', 'SEVENTEENTH', 'EIGHTEENTH', 'NINETEENTH', 'TWENTIETH', 'TWENTY-FIRST', 'TWENTY-SECOND', 'TWENTY-THIRD', 'TWENTY-FOURTH', 'TWENTY-FIFTH']) {
       expect(home.includes(`THE PROMISE KEPT, THE ${n} WORD`)).toBe(true);
     }
   });
