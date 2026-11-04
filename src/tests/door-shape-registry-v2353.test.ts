@@ -222,7 +222,9 @@ describe("THE LEDGER'S CENSUS — the type chips count, the lens speaks", () => 
 
   it('the active lens wears the sky count voice (never the refund amber, never the payment violet)', () => {
     expect(desk.includes('data-testid="txn-type-lens-voice"')).toBe(true);
-    expect(desk.includes('{typeCensus[typeFilter]} in this lens')).toBe(true);
+    // v2.380.0: the voice speaks the rider's honest total past the cap —
+    // the census count remains the in-window fallback (the ?? fallback).
+    expect(desk.includes('{lensTotal ?? typeCensus[typeFilter]} in this lens')).toBe(true);
     expect(desk.includes('border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700')).toBe(true);
     expect(desk.includes('dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-300')).toBe(true);
     // the voice renders ONLY when a lens is chosen — no news, no voice

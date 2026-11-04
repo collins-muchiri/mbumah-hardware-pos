@@ -1068,12 +1068,17 @@ export interface RefundableLinesResult {
 }
 
 export const transactionsApi = {
-  list: async (params?: { storeId?: string; page?: number; limit?: number; paymentMethod?: string; dateFrom?: string; dateTo?: string }) => {
+  // v2.380.0 THE HONEST-FETCH RIDE: `kind` crosses the wire — the desk's
+  // census keyset (sale | refund | settlement | void) scopes the server
+  // query (v2.379.0), so a lensed fetch past the 200-row cap counts LENS
+  // rows, not a client-filtered slice of a capped mixed window.
+  list: async (params?: { storeId?: string; page?: number; limit?: number; paymentMethod?: string; kind?: string; dateFrom?: string; dateTo?: string }) => {
     const query = new URLSearchParams();
     if (params?.storeId) query.set('storeId', params.storeId);
     if (params?.page) query.set('page', String(params.page));
     if (params?.limit) query.set('limit', String(params.limit));
     if (params?.paymentMethod) query.set('paymentMethod', params.paymentMethod);
+    if (params?.kind) query.set('kind', params.kind);
     if (params?.dateFrom) query.set('dateFrom', params.dateFrom);
     if (params?.dateTo) query.set('dateTo', params.dateTo);
     return request<TransactionItem[]>(`/transactions?${query.toString()}`);
