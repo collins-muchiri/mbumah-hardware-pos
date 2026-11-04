@@ -21,8 +21,8 @@
 // ONE src file (the loom), and the desk proves its family by hue.
 
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { execFileSync } from 'node:child_process';
+import { readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
 
 const LOOM_PATH = 'src/components/landing-chip.tsx';
 const CONSTITUTION_PATH = 'src/tests/transfer-status-deep-link-v2357.test.ts';
@@ -193,15 +193,23 @@ describe.each(THE_TEN)('$word — the loomed desk, derived against the tree', (t
 
   it('THE ONCE-ONLY CENSUS — the trio lives in exactly one src file (the loom)', () => {
     const trio = `border-${t.hue}-300 bg-${t.hue}-100 text-${t.hue}-700`;
-    // the tree walk (rg, the desk-lens suites' own tool)
-    let out = '';
-    try {
-      out = execFileSync('rg', ['-l', '--glob', '*.tsx', trio, 'src/'], { encoding: 'utf8' });
-    } catch {
-      out = '';
-    }
-    const files = out.split('\n').filter(Boolean);
-    expect(files, trio).toEqual([LOOM_PATH]);
+    // the tree walk (pure node: a recursive readdir, no external tool —
+    // the census must answer the same in CI as on the desk)
+    const walk = (dir, acc) => {
+      for (const e of readdirSync(dir, { withFileTypes: true })) {
+        const p = join(dir, e.name);
+        if (e.isDirectory()) {
+          if (e.name === 'node_modules' || e.name === '.next' || e.name === '.roundtrip-baseline') continue;
+          walk(p, acc);
+        } else if (/\.tsx$/.test(e.name) && acc.length < 4000) {
+          acc.push(p);
+        }
+      }
+      return acc;
+    };
+    const files = walk('src', []).filter((p) => readFileSync(p, 'utf8').includes(trio));
+    const rel = files.map((p) => p.replace(/\\/g, '/'));
+    expect(rel, trio).toEqual([LOOM_PATH]);
   });
 });
 
