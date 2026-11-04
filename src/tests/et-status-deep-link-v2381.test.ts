@@ -324,7 +324,7 @@ describe('the address-bar vocabulary — the twenty-second row (cross-suite pins
   const constitution = readFileSync('src/tests/transfer-status-deep-link-v2357.test.ts', 'utf8');
 
   it('the constitution walks TWENTY-TWO words over TWENTY desks', () => {
-    expect(constitution.includes('(twenty-five words, twenty-two desks)')).toBe(true);
+    expect(constitution.includes('(twenty-six words, twenty-three desks)')).toBe(true);
     expect(constitution.includes("{ word: 'et-status', desk: 'src/app/(shell)/tabs/etims-tab.tsx', family: 'border-red-200', suite: 'src/tests/et-status-deep-link-v2381.test.ts' }")).toBe(true);
     expect(constitution.includes("'TWENTY-SECOND'")).toBe(true);
   });
@@ -366,6 +366,9 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // admission line carries the word it admits (the LEDGER-CITATION
       // RIPPLE: a ledger is an honest speaker of every word it lists)
       'src/tests/ad-severity-deep-link-v2366.test.ts',
+      // the twenty-sixth word's own ledger — admitted (its rides-beside
+      // truth speaks this word; an admission line carries the word it admits)
+      'src/tests/bank-type-deep-link-v2387.test.ts',
       'src/tests/cat-stock-deep-link-v2364.test.ts',
       'src/tests/cr-type-deep-link-v2361.test.ts',
       'src/tests/cust-debt-deep-link-v2330.test.ts',

@@ -478,13 +478,14 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.381.0: the taxman’s desk answers the address bar — the e-TIMS invoices ledger’s submission-status lens speaks its desk-prefixed word and the danger voice finally wears the family’s red (+1 on every anchor → 270/271/272/303 → 271/272/273/304)
     // v2.382.0: the ghost tax desk comes alive and answers the address bar — the filings ledger’s type lens speaks its desk-prefixed word and the family’s grammar grows its first shade-split (+1 on every anchor → 271/272/273/304 → 272/273/274/305)
     // v2.383.0: the taxman’s ledger answers by the month — the filings ledger’s period lens speaks its desk-prefixed word, a shape word wearing the shade-split’s second storey, and the legend retires its ghost faces (+1 on every anchor → 272/273/274/305 → 273/274/275/306)
+    // v2.387.0: the bank ledger answers the address bar — the deep-link vocabulary's twenty-sixth word lands on the banking desk's transaction-type lens (the sub-tab amendment raises the pane it lands into, the sky chip wears the shade-split's fourth storey), and the entry joins the feed (+1 on every unread anchor — the DERIVED anchors re-set themselves, the cascade's second generation)
     // v2.386.0: the payload files itself — the dry-run card reaches paper (Print beside Copy through the print-root pipeline), the card speaks its per-line list, the mapper's last decimal leak seals, and the unread anchors become DERIVED from the feed (the pin unwind's first real retire)
     // v2.385.0: the dry run speaks its payload — the e-TIMS submit dialog keeps the dry-run's mapped payload on screen (the paper-trail card, the copy voice), the PENDING rows gain their own Submit-to-KRA affordance, and the unread-count anchors grow by one (+1 on every anchor → 274/275/276/307 → 275/276/277/308)
     // v2.384.0: the reports desk answers the address bar — the Report Type grid speaks its desk-prefixed shape word wearing the shade-split’s third storey, and the lockfile guard grows its generation legs (+1 on every anchor → 273/274/275/306 → 274/275/276/307)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(276);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(277);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(278);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(309);
+    expect(whatsNewUnreadCount('2.110.0')).toBe(277);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(278);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(279);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(310);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 
