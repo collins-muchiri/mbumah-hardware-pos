@@ -1,3 +1,16 @@
+## [2.380.0] The lens rides past the cap
+
+The honest fetch. v2.379.0 taught the server the desk's kind vocabulary; this round the desk uses it where it hurt: a capped window. The whole-window fetch rides a 200-row cap, and a window deeper than the cap used to answer a lens with a SLICE — the newest 200 mixed rows client-filtered — so a settlement lens could say "0 rows" while settlements lived beyond the cap. Now the desk knows its window is capped (the wire's own pagination.total, the count under the same where — an exact signal, never a length-guess), says so out loud, and when a lens is active the rider fetches the lens's own scope past the cap.
+
+### Added
+- **THE HONEST-FETCH RIDER** (`transactions-tab.tsx`, `src/lib/api.ts`): `transactionsApi.list` grows `kind`, and when the type lens is active AND the window is capped, a rider query fetches the SAME window with `kind: typeFilter` — the 200-row cap counts LENS rows and the false-empty lens face dies. The census stays whole: it reads the unscoped fetch; the scope rides only the lensed fetch. The client's type filter stands down while the wire speaks (search + amount still ride client-side on either base). The uncapped desk never spends the second wire.
+- **THE HONEST WINDOW TOTAL** (`transactions-tab.tsx`): the queryFn returns the rows AND the wire's pagination.total — the truncation signal is exact.
+- **THE CAPPED-WINDOW VOICE** (the styling detail): a capped window used to answer SILENTLY — the census tallies counted the fetched slice while the wire's total said more. An amber honesty voice now names the slice and the whole ("Capped window — showing the newest N of M rows"), with a rider-note when a lens is active; the lens voice itself speaks the rider's honest total with a spinner while the rider rides. Gone when the window fits the cap — no news, no voice.
+
+### Tests
+- `src/tests/txn-kind-honest-fetch-v2380.test.ts` — the wire's kind serialization, the honest total read, the exact capped signal, the rider's arm/ride/key bytes, the honest base swap + the census's wholeness, and the voices' bytes.
+- `scripts/verify-v2-380-0.mjs` — the round's feature gate (wired as `verify:v2-380-0`).
+
 ## [2.379.0] The server speaks the desk's vocabulary
 
 The kind scope crosses the API boundary. v2.378.0 taught the ledger's lens to speak the settlement's name client-side; this round GET /api/transactions learns the same vocabulary — the desk's census keyset (`sale | refund | settlement | void`) now scopes the server query itself, and the settlement's server face is the zero-item law expressed in the where-clause rather than a client derivation. And the settled gap stops counting nothing: a settlement row's items cell said "0 items" — a dead voice on the one row whose whole truth is that no line world exists.
