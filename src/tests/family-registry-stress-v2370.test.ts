@@ -12,7 +12,11 @@
 //      hue families were exhausted, so the grammar grew a SECOND STOREY:
 //      a 200-family pairs with bg-{hue}-50, a 300-family with
 //      bg-{hue}-100 — the registry's own binding: the family byte alone
-//      is not proof, the PAIR is the chip's);
+//      is not proof, the PAIR is the chip's). THE LOOM FACE (v2.394.0):
+//      the ten full-wardrobe chips render through the shared LandingChip
+//      loom — a desk that speaks NO pair proves its family by hue
+//      (`hue="{hue}"`) while the loom's registry carries the pair
+//      byte-for-byte; the direct face stays the elder chips' path.
 //   3. the desk carries a landing-word testid whose stem is the word
 //      itself or the word's first segment (the early desks spoke
 //      short stems — `po-` for po-status, `inv-` for inv-stock,
@@ -148,7 +152,14 @@ describe.each(rows)('$word — the registry row, derived against the tree', (row
 
   it('the desk wears the chip\u2019s wardrobe pair (border-{hue}-{shade} bg-{hue}-{light})', () => {
     const pair = `border-${hue}-${shade} bg-${hue}-${light}`;
-    expect(deskBytes.includes(pair), pair).toBe(true);
+    // the direct face: the desk itself wears the pair (the elder chips)
+    if (deskBytes.includes(pair)) return;
+    // THE LOOM FACE (v2.394.0): the ten full-wardrobe chips render through
+    // the shared LandingChip loom — the desk proves its family by hue, and
+    // the loom's registry carries the pair byte-for-byte.
+    expect(deskBytes.includes(`hue="${hue}"`), `hue="${hue}" in ${row.desk}`).toBe(true);
+    const loom = readFileSync('src/components/landing-chip.tsx', 'utf8');
+    expect(loom.includes(pair), `${pair} in the loom's registry`).toBe(true);
   });
 
   it('the desk carries a landing-word handle whose stem is the word or its first segment', () => {

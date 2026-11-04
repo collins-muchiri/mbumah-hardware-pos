@@ -84,6 +84,7 @@ describe('parseInitialNamedMember — ?rep-type= speaks the grid\u2019s own voca
 
 describe('the reports desk — ?rep-type= lands as visible state', () => {
   const desk = readFileSync(REPORTS_TAB, 'utf8');
+  const loom = readFileSync('src/components/landing-chip.tsx', 'utf8');
   const home = readFileSync('src/lib/tab-url.ts', 'utf8');
 
   it('the seed reads the word through the ONE home (never a local parser)', () => {
@@ -141,8 +142,11 @@ describe('the reports desk — ?rep-type= lands as visible state', () => {
   });
 
   it('the chip wears LIME at the 300/100 storey (the third shade-split)', () => {
-    expect(desk.includes('border-lime-300 bg-lime-100 text-lime-700')).toBe(true);
-    expect(desk.includes('dark:border-lime-500/30 dark:bg-lime-500/10 dark:text-lime-300')).toBe(true);
+    // v2.394.0 THE LOOM: the wardrobe moved into the loom’s registry —
+    // the desk proves its family by hue, the registry carries the bytes.
+    expect(desk.includes('hue="lime"')).toBe(true);
+    expect(loom.includes('border-lime-300 bg-lime-100 text-lime-700')).toBe(true);
+    expect(loom.includes('dark:border-lime-500/30 dark:bg-lime-500/10 dark:text-lime-300')).toBe(true);
     // a chip hue the desk's badges never speak — the badge census:
     expect(desk.includes('bg-amber-50 dark:bg-amber-950/30')).toBe(true); // Demo Data badge
     expect(desk.includes('bg-green-100 text-green-700')).toBe(true);
@@ -154,7 +158,8 @@ describe('the reports desk — ?rep-type= lands as visible state', () => {
   });
 
   it('the chip is dismissible and annotated (the collision law\u2019s annotation)', () => {
-    expect(desk.includes("onClick={() => setRepLandingLive(false)}")).toBe(true);
+    // v2.394.0 THE LOOM: the single-write dismissal rides onDismiss now
+    expect(desk.includes("onDismiss={() => setRepLandingLive(false)}")).toBe(true);
     expect(desk.includes("THE REPORTS DESK'S OWN WORD")).toBe(true);
     expect(desk.includes('?rep-type=sales|inventory|valuation')).toBe(true);
   });
@@ -215,7 +220,7 @@ describe('the lockfile parity guard — root-version and range legs', () => {
 describe('whats-new — v2.393.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.393.0');
+    expect(head.version).toBe('2.394.0');
     // the lead's story hand-over: the lead's story is v2.393.0's —
     // the message templates answer by name (the THIRTY-SECOND word);
     // the export ledger's bytes ride in bullet 2 (the speaker census

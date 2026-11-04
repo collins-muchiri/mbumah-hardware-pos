@@ -85,6 +85,7 @@ describe('parseInitialNamedMember — ?debt-status= speaks the ledger\u2019s own
 
 describe('the debt management desk — ?debt-status= lands as visible state', () => {
   const desk = readFileSync(DEBT_TAB, 'utf8');
+  const loom = readFileSync('src/components/landing-chip.tsx', 'utf8');
   const home = readFileSync('src/lib/tab-url.ts', 'utf8');
 
   it('the seed reads the word through the ONE home (never a local parser)', () => {
@@ -165,9 +166,12 @@ describe('the debt management desk — ?debt-status= lands as visible state', ()
   });
 
   it('the chip wears CYAN at the 300/100 storey (the sixth shade-split)', () => {
-    expect(desk.includes('border-cyan-300 bg-cyan-100 text-cyan-700')).toBe(true);
-    expect(desk.includes('dark:border-cyan-500/30 dark:bg-cyan-500/10 dark:text-cyan-300')).toBe(true);
-    expect(desk.includes('focus-visible:ring-cyan-400')).toBe(true);
+    // v2.394.0 THE LOOM: the wardrobe moved into the loom’s registry —
+    // the desk proves its family by hue, the registry carries the bytes.
+    expect(desk.includes('hue="cyan"')).toBe(true);
+    expect(loom.includes('border-cyan-300 bg-cyan-100 text-cyan-700')).toBe(true);
+    expect(loom.includes('dark:border-cyan-500/30 dark:bg-cyan-500/10 dark:text-cyan-300')).toBe(true);
+    expect(loom.includes('focus-visible:ring-cyan-400')).toBe(true);
     // a chip hue the desk's badges never speak — the badge census:
     expect(desk.includes('bg-blue-100 text-blue-700')).toBe(true);
     expect(desk.includes('bg-emerald-100 text-emerald-700')).toBe(true);
@@ -245,6 +249,9 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // the thirty-second word's own ledger — admitted (its own ledger
       // LISTS this file's path — the third-order ripple: a ledger line
       // carries every word its paths speak)
+      // the loom’s own suite — admitted (v2.394.0: the LandingChip
+      // loom suite pins this desk’s chip bytes, so the walk lists it)
+      'src/tests/landing-chip-loom-v2394.test.ts',
       'src/tests/msg-template-deep-link-v2393.test.ts',
       'src/tests/proxy-gate-layering-v2328.test.ts',
       'src/tests/tax-type-deep-link-v2382.test.ts',
@@ -277,7 +284,7 @@ describe('the address-bar vocabulary — the twenty-eighth row (cross-suite pins
 describe('whats-new — v2.393.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.393.0');
+    expect(head.version).toBe('2.394.0');
     // the lead's story hand-over: the lead's story is v2.393.0's —
     // the message templates answer by name (the THIRTY-SECOND word);
     // the export ledger's bytes ride in bullet 2 (the speaker census

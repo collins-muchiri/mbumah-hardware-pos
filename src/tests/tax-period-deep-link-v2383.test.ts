@@ -202,6 +202,7 @@ describe('the tax desk — ?tax-period= lands as visible state (and its stage)',
 
 describe('the landing chip — the face names the word it answered', () => {
   const desk = readFileSync('src/app/(shell)/tabs/tax-tab.tsx', 'utf8');
+  const loom = readFileSync('src/components/landing-chip.tsx', 'utf8');
 
   it('the chip renders only while the landing is live AND untouched', () => {
     expect(
@@ -211,7 +212,8 @@ describe('the landing chip — the face names the word it answered', () => {
   });
 
   it('the chip names the exact word it answered — the CANONICAL spelling always', () => {
-    expect(desk.includes('landed ?tax-period={landedTaxPeriod}')).toBe(true);
+    // v2.394.0 THE LOOM: the label rides a template-literal prop now
+    expect(desk.includes('landed ?tax-period=${landedTaxPeriod}')).toBe(true);
   });
 
   it('the chip sits BEFORE the month picker (the position law)', () => {
@@ -235,8 +237,11 @@ describe('the landing chip — the face names the word it answered', () => {
   });
 
   it('the chip wears the SHADE-SPLIT family in BOTH modes (the twenty-fourth wearing)', () => {
-    expect(desk.includes('border-teal-300 bg-teal-100 text-teal-700')).toBe(true);
-    expect(desk.includes('dark:border-teal-500/30 dark:bg-teal-500/10 dark:text-teal-300')).toBe(true);
+    // v2.394.0 THE LOOM: the wardrobe moved into the loom’s registry —
+    // the desk proves its family by hue, the registry carries the bytes.
+    expect(desk.includes('hue="teal"')).toBe(true);
+    expect(loom.includes('border-teal-300 bg-teal-100 text-teal-700')).toBe(true);
+    expect(loom.includes('dark:border-teal-500/30 dark:bg-teal-500/10 dark:text-teal-300')).toBe(true);
     expect(desk.includes('THE TWENTY-FOURTH WEARING')).toBe(true);
     expect(desk.includes("SHADE-SPLIT's second application") || desk.includes("SHADE-SPLIT's SECOND APPLICATION") || desk.includes("shade-split's second application")).toBe(true);
   });
@@ -257,11 +262,15 @@ describe('the landing chip — the face names the word it answered', () => {
     // "bg-teal-50" as the 500's prefix — the honest census bounds the
     // scan with a digit lookahead instead of pretending the byte is absent
     expect(desk.match(/bg-teal-50(?![0-9])/g)?.length ?? 0).toBe(0);
-    expect(desk.match(/bg-teal-100 text-teal-700/g)?.length).toBe(1);
+    // v2.394.0 THE LOOM: the once-only census moved with the wardrobe —
+    // the desk answers ZERO (the masquerade), the loom speaks it ONCE.
+    expect(desk.match(/bg-teal-100 text-teal-700/g)?.length ?? 0).toBe(0);
+    expect(loom.match(/bg-teal-100 text-teal-700/g)?.length).toBe(1);
   });
 
   it('the dismiss hint sharpens on hover (the group-hover detail)', () => {
-    expect(desk.includes('opacity-60 transition-opacity group-hover:opacity-100')).toBe(true);
+    // v2.394.0 THE LOOM: the X face’s bytes live in the one loom now
+    expect(loom.includes('opacity-60 transition-opacity group-hover:opacity-100')).toBe(true);
   });
 
   it('the chip explains itself (the tooltip law)', () => {
@@ -396,6 +405,9 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/gc-status-deep-link-v2358.test.ts',
       'src/tests/inv-status-deep-link-v2356.test.ts',
       'src/tests/inv-stock-deep-link-v2329.test.ts',
+      // the loom’s own suite — admitted (v2.394.0: the LandingChip
+      // loom suite pins this desk’s chip bytes, so the walk lists it)
+      'src/tests/landing-chip-loom-v2394.test.ts',
       'src/tests/ly-type-deep-link-v2368.test.ts',
       'src/tests/pr-status-deep-link-v2362.test.ts',
       'src/tests/proxy-gate-layering-v2328.test.ts',

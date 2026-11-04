@@ -86,6 +86,7 @@ describe('parseInitialNamedMember — ?debt-channel= speaks the ledger\u2019s ow
 
 describe('the debt management desk — ?debt-channel= lands as visible state', () => {
   const desk = readFileSync(DEBT_TAB, 'utf8');
+  const loom = readFileSync('src/components/landing-chip.tsx', 'utf8');
   const home = readFileSync('src/lib/tab-url.ts', 'utf8');
 
   it('the seed reads the word through the ONE home (never a local parser)', () => {
@@ -161,15 +162,18 @@ describe('the debt management desk — ?debt-channel= lands as visible state', (
   });
 
   it('the chip wears FUCHSIA at the 300/100 storey (the seventh shade-split)', () => {
-    expect(desk.includes('border-fuchsia-300 bg-fuchsia-100 text-fuchsia-700')).toBe(true);
-    expect(desk.includes('dark:border-fuchsia-500/30 dark:bg-fuchsia-500/10 dark:text-fuchsia-300')).toBe(true);
-    expect(desk.includes('focus-visible:ring-fuchsia-400')).toBe(true);
+    // v2.394.0 THE LOOM: the wardrobe moved into the loom’s registry —
+    // the desk proves its family by hue, the registry carries the bytes.
+    expect(desk.includes('hue="fuchsia"')).toBe(true);
+    expect(loom.includes('border-fuchsia-300 bg-fuchsia-100 text-fuchsia-700')).toBe(true);
+    expect(loom.includes('dark:border-fuchsia-500/30 dark:bg-fuchsia-500/10 dark:text-fuchsia-300')).toBe(true);
+    expect(loom.includes('focus-visible:ring-fuchsia-400')).toBe(true);
     // a chip hue the desk's badges never speak — the badge census:
     expect(desk.includes('bg-blue-100 text-blue-700')).toBe(true);
     expect(desk.includes('bg-emerald-100 text-emerald-700')).toBe(true);
     expect(desk.includes('bg-rose-100 text-rose-700')).toBe(true);
     // and the sibling chips coexist without colliding:
-    expect(desk.includes('border-cyan-300 bg-cyan-100 text-cyan-700')).toBe(true); // the desk's FIRST word (v2.389.0)
+    expect(desk.includes('hue="cyan"')).toBe(true); // the desk's FIRST word (v2.389.0, through the loom)
     expect(desk.includes('border-purple-300 bg-purple-100')).toBe(false);
     expect(desk.includes('border-sky-300 bg-sky-100')).toBe(false);
     expect(desk.includes('border-orange-300 bg-orange-100')).toBe(false);
@@ -231,6 +235,9 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // the thirty-second word's own ledger — admitted (its own ledger
       // LISTS this file's path — the third-order ripple: a ledger line
       // carries every word its paths speak)
+      // the loom’s own suite — admitted (v2.394.0: the LandingChip
+      // loom suite pins this desk’s chip bytes, so the walk lists it)
+      'src/tests/landing-chip-loom-v2394.test.ts',
       'src/tests/msg-template-deep-link-v2393.test.ts',
       'src/tests/proxy-gate-layering-v2328.test.ts',
       // rep-type's suite EXITS this ledger at v2.391.0: its feed-head
@@ -266,7 +273,7 @@ describe('the address-bar vocabulary — the twenty-ninth row (cross-suite pins)
 describe('whats-new — v2.393.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.393.0');
+    expect(head.version).toBe('2.394.0');
     // the lead's story hand-over: the lead's story is v2.393.0's —
     // the message templates answer by name (the THIRTY-SECOND word);
     // the export ledger's bytes ride in bullet 2 (the speaker census

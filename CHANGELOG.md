@@ -1,3 +1,17 @@
+## [2.394.0] The landing chips share one loom
+
+The ten full-wardrobe landing chips — byte-identical buttons hand-rolled across nine desks since v2.382.0 — now render through ONE shared `LandingChip` component with a ten-hue wardrobe registry. Byte-for-byte on the outside, one place to drift on the inside.
+
+### Added
+- **THE LANDING CHIP LOOM** (`src/components/landing-chip.tsx`): one component, one registry (`LANDING_CHIP_WARDROBES`), ten hues (sky, purple, cyan, fuchsia, indigo, pink, orange, teal, lime, yellow). Each registry entry is the EXACT historic className tail — the shared head composes with it byte-for-byte, dark faces and focus rings included. THE WORD-FREE LAW: the loom speaks no lens word (labels, tooltips, testids and dismissal writes ride props from the desks), so no collision ledger ever has to admit the component file. THE SINGLE-LINE LAW: every registry entry is one greppable line.
+- **THE TEN DESKS LOOMED** (banking ×2, debt-management ×2, data-exports ×2, tax ×2, reports, messaging): each chip site is now a `<LandingChip hue="…" label={…} onDismiss={…} title="…" data-testid="…"/>` — the desk keeps its own dismissal writes (including the reports desk's single-write form), its own tooltip wording, and its exact `data-testid` handle (the rest-spread carries it). The desks shrink by ~130 lines of duplicated button anatomy while every visual byte stays identical.
+- **THE STRESS'S LOOM FACE** (`family-registry-stress-v2370.test.ts`): the wardrobe-pair derivation grows an honest second path — a desk that speaks no pair proves its family by hue (`hue="{hue}"`) while the loom's registry carries the pair byte-for-byte. The constitution's 32 rows, 26 desks and 32 distinct families never moved; the direct face stays the elder chips' path.
+- **THE MASQUERADE LAW, LOOM FORM**: a loomed desk speaks NO wardrobe byte — each of the ten `border-{hue}-300 bg-{hue}-100` trios lives in exactly ONE src file (the loom), enforced by a tree-wide once-only census per hue.
+
+### Tests
+- `src/tests/landing-chip-loom-v2394.test.ts` (NEW, 58 pins): the loom exists and stays word-free (derived against the constitution's own 32-word parse), the registry keys are exactly the ten hues, the head-plus-entry composition reproduces the EXACT historic bytes (the ten historic strings pinned as independent copies), the shared anatomy (Link2, tabular-nums, the group-hover X, the rest-spread handle), each loomed desk (import + hue + handle + label + tooltip + dismissal writes + the masquerade zero + the once-only census), the constitution holds (32/26/32, nothing moved), and the stress's loom face.
+- The ten deep-link suites re-pointed: bytes that moved to the loom are re-pinned to the loom (wardrobes, rings, the X face, the once-only censuses, the split censuses); bytes that stayed (handles, labels, tooltips, dismissal writes, positions) are never touched. NINE ledgers admitted the loom suite (the empirical walk; rep-type stays the documented NO-WALK suite).
+
 ## [2.393.0] Message templates answer by name
 
 The deep-link vocabulary's thirty-second word lands on the messaging desk's Templates pane — "which template do I send the debtors?" becomes a bookmark, the family grows its first card-grid lens, and the chip takes the shade-split's tenth storey.
