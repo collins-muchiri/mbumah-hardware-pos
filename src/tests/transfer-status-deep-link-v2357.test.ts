@@ -197,7 +197,7 @@ describe('the landing chip — the face names the word it answered', () => {
 // 4. THE CONSTITUTION — the whole vocabulary's invariants, walked from bytes
 // ---------------------------------------------------------------------------
 
-describe('the address-bar vocabulary — THE CONSTITUTION (twenty-one words, nineteen desks)', () => {
+describe('the address-bar vocabulary — THE CONSTITUTION (twenty-two words, twenty desks)', () => {
   const WORDS = [
     { word: 'po-status', desk: 'src/app/(shell)/tabs/purchase-orders-tab.tsx', family: 'border-indigo-200', suite: 'src/tests/proxy-gate-layering-v2328.test.ts' },
     { word: 'inv-stock', desk: 'src/app/(shell)/tabs/inventory-tab.tsx', family: 'border-amber-200', suite: 'src/tests/inv-stock-deep-link-v2329.test.ts' },
@@ -223,6 +223,10 @@ describe('the address-bar vocabulary — THE CONSTITUTION (twenty-one words, nin
     // to its desk-prefixed canonical word (the legacy-word sunset law —
     // the bare word keeps answering as the alias)
     { word: 'ly-type', desk: 'src/app/(shell)/tabs/loyalty-tab.tsx', family: 'border-green-200', suite: 'src/tests/ly-type-deep-link-v2368.test.ts' },
+    // the danger-voice round: the e-TIMS invoices ledger's submission-status
+    // lens — the palette's reserved hue finally speaks (the taxman's red
+    // letter; the desk's alarms speak rose and amber, so red borrows nothing)
+    { word: 'et-status', desk: 'src/app/(shell)/tabs/etims-tab.tsx', family: 'border-red-200', suite: 'src/tests/et-status-deep-link-v2381.test.ts' },
   ] as const;
 
   it('every word is desk-prefixed and owns its FILTERS const in exactly its desk', () => {
@@ -246,7 +250,7 @@ describe('the address-bar vocabulary — THE CONSTITUTION (twenty-one words, nin
     for (const { suite } of WORDS) {
       expect(readFileSync(suite, 'utf8').length > 0, `${suite} exists`).toBe(true);
     }
-    for (const n of ['SEVENTH', 'EIGHTH', 'NINTH', 'TENTH', 'ELEVENTH', 'TWELFTH', 'THIRTEENTH', 'FOURTEENTH', 'FIFTEENTH', 'SIXTEENTH', 'SEVENTEENTH', 'EIGHTEENTH', 'NINETEENTH', 'TWENTIETH', 'TWENTY-FIRST']) {
+    for (const n of ['SEVENTH', 'EIGHTH', 'NINTH', 'TENTH', 'ELEVENTH', 'TWELFTH', 'THIRTEENTH', 'FOURTEENTH', 'FIFTEENTH', 'SIXTEENTH', 'SEVENTEENTH', 'EIGHTEENTH', 'NINETEENTH', 'TWENTIETH', 'TWENTY-FIRST', 'TWENTY-SECOND']) {
       expect(home.includes(`THE PROMISE KEPT, THE ${n} WORD`)).toBe(true);
     }
   });
@@ -312,6 +316,7 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/cv-type-deep-link-v2363.test.ts',
       'src/tests/dn-status-deep-link-v2359.test.ts',
       'src/tests/dp-status-deep-link-v2365.test.ts',
+      'src/tests/et-status-deep-link-v2381.test.ts',
       'src/tests/family-registry-stress-v2370.test.ts',
       'src/tests/gc-status-deep-link-v2358.test.ts',
       'src/tests/inv-status-deep-link-v2356.test.ts',

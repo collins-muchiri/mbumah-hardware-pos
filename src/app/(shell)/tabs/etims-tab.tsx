@@ -19,7 +19,7 @@ import {
   Building2, KeyRound, ShieldCheck, Loader2, RefreshCw, Plus,
   CheckCircle, Clock, AlertCircle, XCircle, FileText, Search,
   Send, Eye, Database, Activity, AlertTriangle,
-  Hash, Calendar, Receipt, Settings2,
+  Hash, Calendar, Receipt, Settings2, Link2, X,
 } from 'lucide-react';
 
 import { useAppStore, useAuthStore } from '@/lib/stores';
@@ -31,6 +31,7 @@ import {
 import { handleError } from '@/lib/error-handler';
 import { formatDateTime, formatKES } from '@/lib/api';
 import { useVatRate } from '@/hooks/use-vat-rate';
+import { parseInitialNamedMember, parseInitialStage } from '@/lib/tab-url';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -437,18 +438,75 @@ function ProfileField({
 
 // Invoices Sub-Tab
 
-function InvoicesSection({ storeId }: { storeId: string }) {
+// THE ETIMS DESK'S OWN WORD (v2.381.0): the taxman's desk answers the
+// address bar. The invoices ledger's submission-status lens — the desk's
+// daily question, "which invoices have we sent to KRA, and which came
+// back?" — speaks its desk-prefixed
+// `?et-status=all|PENDING|SUBMITTED|ACCEPTED|REJECTED|FAILED`
+// (UPPERCASE: the wire's own five statuses — a lowercase word is an
+// unknown word here, not a clever match) and wears the landing chip in
+// the lens's own red (THE TWENTY-SECOND WEARING — the danger voice
+// finally speaks, on the one desk whose daily question is danger itself:
+// a rejected or failed KRA submission is the taxman's red letter. The
+// desk's alarm vocabulary speaks rose and amber, so the red chip borrows
+// nothing from any badge). The lens lives in a NON-DEFAULT sub-tab —
+// THE TWO-ADDRESS DESIGN: a landing that carries the word lands the
+// invoices stage too; view's own word wins when it speaks a VALID
+// sub-tab, an invalid word does not claim the stage.
+// THE LANDING IS READ ONCE AND LENT DOWN: the section under the invoices
+// TabsContent REMOUNTS on every sub-tab toggle, and a seed that
+// re-parsed there would resurrect a dismissed chip — the landing state
+// lives on the desk's shell (which never unmounts) and flows to the
+// section as props.
+export const ET_STATUS_FILTERS = ['all', 'PENDING', 'SUBMITTED', 'ACCEPTED', 'REJECTED', 'FAILED'] as const;
+type EtStatusFilter = (typeof ET_STATUS_FILTERS)[number];
+
+function initialEtStatus(): EtStatusFilter {
+  if (typeof window === 'undefined') return 'all';
+  return parseInitialNamedMember(window.location.search, 'et-status', ET_STATUS_FILTERS, 'all');
+}
+
+const ET_SUB_TABS = ['profile', 'invoices', 'audit'] as const;
+type EtSubTab = (typeof ET_SUB_TABS)[number];
+
+function initialEtStage(landed: boolean): EtSubTab {
+  if (typeof window === 'undefined') return 'profile';
+  return parseInitialStage(window.location.search, ET_SUB_TABS, 'invoices', landed, 'profile');
+}
+
+function InvoicesSection({
+  storeId,
+  landedStatus,
+  landingLive,
+  onLandRetire,
+}: {
+  storeId: string;
+  landedStatus: EtStatusFilter;
+  landingLive: boolean;
+  onLandRetire: () => void;
+}) {
   const queryClient = useQueryClient();
   const authUser = useAuthStore((s) => s.user);
   const canSubmit = authUser ? ['SUPER_ADMIN', 'STORE_OWNER', 'BRANCH_MANAGER', 'CASHIER'].includes(authUser.role) : false;
 
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  // v2.381.0: the lens is seeded from the PARENT's landing — the word was
+  // read ONCE through the ONE home on the desk's shell (the section
+  // remounts on every sub-tab toggle; re-parsing here would resurrect a
+  // dismissed chip).
+  const [statusFilter, setStatusFilter] = useState<EtStatusFilter>(landedStatus);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceForKraItem | null>(null);
   const [submitTransactionId, setSubmitTransactionId] = useState('');
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
+  // a hand-driven Select change retires the landing word — the chip
+  // speaks the ADDRESS BAR's landing, never the human's next choice.
+  const chooseEtStatus = (value: EtStatusFilter) => {
+    setStatusFilter(value);
+    setPage(1);
+    onLandRetire();
+  };
 
   const { data, isLoading, refetch, isFetching } = useQuery({
     queryKey: ['kra-invoices', storeId, statusFilter, search, page],
@@ -545,7 +603,32 @@ function InvoicesSection({ storeId }: { storeId: string }) {
                   className="pl-8 w-56"
                 />
               </div>
-              <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
+              {/* THE TWENTY-SECOND WEARING: the chip wears RED — the danger
+                  voice finally speaks, on the one desk whose daily question
+                  is danger itself (a rejected or failed KRA submission is
+                  the taxman's red letter). The desk's alarm vocabulary
+                  speaks rose and amber, so the red chip borrows nothing
+                  from any badge — light+dark, the shared tooltip, the
+                  group-hover dismiss detail. THE POSITION LAW: the chip
+                  sits immediately BEFORE the Select it landed into. */}
+              {landingLive && landedStatus !== 'all' && statusFilter === landedStatus && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStatusFilter('all');
+                    setPage(1);
+                    onLandRetire();
+                  }}
+                  className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-red-200 bg-red-50 text-red-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-red-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300 dark:hover:bg-red-500/20"
+                  data-testid="et-status-landing-word"
+                  title="The invoice desk landed with this status from the address bar — press to clear it"
+                >
+                  <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+                  <span className="tabular-nums">landed ?et-status={landedStatus}</span>
+                  <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+                </button>
+              )}
+              <Select value={statusFilter} onValueChange={chooseEtStatus}>
                 <SelectTrigger className="w-36">
                   <SelectValue />
                 </SelectTrigger>
@@ -578,13 +661,33 @@ function InvoicesSection({ storeId }: { storeId: string }) {
               ))}
             </div>
           ) : invoices.length === 0 ? (
-            <div className="text-center py-12 space-y-2">
-              <FileText className="h-10 w-10 text-muted-foreground/40 mx-auto" />
-              <p className="text-sm text-muted-foreground">No KRA invoices found.</p>
-              <p className="text-xs text-muted-foreground">
-                Submit a sales transaction to KRA to create your first invoice record.
-              </p>
-            </div>
+            statusFilter !== 'all' ? (
+              // THE LENS-AWARE EMPTY VOICE (v2.381.0): a lensed desk used to
+              // answer its empty window with the GENERIC empty state — a
+              // false "nothing exists" reading when the truth is "nothing
+              // wears THIS status". The lensed answer now names the lens's
+              // own word and offers the clearing hand.
+              <div className="text-center py-12 space-y-2" data-testid="et-status-empty-lens">
+                <FileText className="h-10 w-10 text-muted-foreground/40 mx-auto" />
+                <p className="text-sm text-muted-foreground">
+                  No <span className="font-medium text-foreground">{statusFilter}</span> invoices in this lens yet.
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  The status lens is answering — every invoice wears another status, or none has reached KRA in this shape.
+                </p>
+                <Button variant="outline" size="sm" onClick={() => chooseEtStatus('all')}>
+                  Clear the status lens
+                </Button>
+              </div>
+            ) : (
+              <div className="text-center py-12 space-y-2">
+                <FileText className="h-10 w-10 text-muted-foreground/40 mx-auto" />
+                <p className="text-sm text-muted-foreground">No KRA invoices found.</p>
+                <p className="text-xs text-muted-foreground">
+                  Submit a sales transaction to KRA to create your first invoice record.
+                </p>
+              </div>
+            )
           ) : (
             <>
               <div className="rounded-md border overflow-hidden">
@@ -1049,7 +1152,17 @@ function AuditLogSection({ storeId }: { storeId: string }) {
 
 export default function EtimsTab() {
   const currentStoreId = useAppStore((s) => s.currentStoreId);
-  const [activeTab, setActiveTab] = useState('profile');
+  // v2.381.0: the landing state lives HERE (the desk's shell) — the
+  // invoices section REMOUNTS on every sub-tab toggle, and a seed that
+  // re-parsed on each mount would resurrect a dismissed chip. The word is
+  // read ONCE through the ONE home and lent down as props.
+  const [landedEtStatus] = useState<EtStatusFilter>(initialEtStatus);
+  const [etLandingLive, setEtLandingLive] = useState(true);
+  // THE TWO-ADDRESS DESIGN: the stage answers the bare `view` word when it
+  // speaks a VALID sub-tab, and a landed status word implies the invoices
+  // stage when view is silent (only valid words speak; the desk's own
+  // default answers a neutral landing).
+  const [activeTab, setActiveTab] = useState<string>(() => initialEtStage(landedEtStatus !== 'all'));
 
   if (!currentStoreId) {
     return (
@@ -1092,7 +1205,12 @@ export default function EtimsTab() {
           <ProfileSection storeId={currentStoreId} />
         </TabsContent>
         <TabsContent value="invoices" className="mt-4">
-          <InvoicesSection storeId={currentStoreId} />
+          <InvoicesSection
+            storeId={currentStoreId}
+            landedStatus={landedEtStatus}
+            landingLive={etLandingLive}
+            onLandRetire={() => setEtLandingLive(false)}
+          />
         </TabsContent>
         <TabsContent value="audit" className="mt-4">
           <AuditLogSection storeId={currentStoreId} />
