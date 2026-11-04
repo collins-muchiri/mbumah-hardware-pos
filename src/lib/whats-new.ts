@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.394.0',
+    title: 'The ten landing chips share one loom — the export ledger\u2019s two chips and the messaging templates\u2019 chip now wear one wardrobe',
+    bullets: [
+      'The ten full-wardrobe landing chips \u2014 bank-type, bank-mpesa, debt-status, debt-channel, exp-status, exp-type, tax-type, tax-period, rep-type and msg-template \u2014 now render through one shared LandingChip: one registry of ten hue wardrobes, byte-identical to what each desk wore before, dark faces and focus rings included.',
+      'One component means zero drift: fix the chip once and all ten desks inherit it \u2014 the dismissals, tooltips and screen-reader handles stay exactly where they were, on each desk.',
+      'The Export History desk\u2019s indigo status chip and pink type chip, and the Templates pane\u2019s yellow chip, keep their exact wardrobes \u2014 the loom composes each hue byte-for-byte, and the registry test proves it against the historic strings.',
+      'The word-free law: the loom never learns which desk is speaking \u2014 no lens word enters the component, so the collision ledgers stay honest and the family stays one hue, one string, one component.',
+    ],
+  },
+  {
     version: '2.393.0',
     title: 'Message templates answer by name — the export ledger\u2019s bookmarks now span export to messaging',
     bullets: [

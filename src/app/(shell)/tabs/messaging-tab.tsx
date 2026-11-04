@@ -9,8 +9,8 @@ import {
   FileText, Bell, RefreshCw,
   PartyPopper, Sparkles,
   Calendar, Users, ExternalLink,
-  Link2, X,
 } from 'lucide-react';
+import { LandingChip } from '@/components/landing-chip';
 import { useAppStore, useAuthStore } from '@/lib/stores';
 import {
   messagesApi, customersApi, debtApi, messagingApi,
@@ -2034,23 +2034,21 @@ export default function MessagingTab() {
               `data-testid="msg-template-landing-word"` — the QA walk's
               handle. The chip sits BEFORE the grid it lands into,
               wearing the shade-split's TENTH storey at 300/100 (light:
-              border-300 + bg-100; dark: the family's 500/10 surfaces). */}
+              border-300 + bg-100; dark: the family's 500/10 surfaces).
+              v2.394.0: the chip renders through the one LandingChip
+              loom (the wardrobe lives in the loom's registry). */}
           {msgTemplateLandingLive && landedMsgTemplate !== 'all' && msgTemplateFilter === landedMsgTemplate && (
             <div className="flex items-center gap-2 flex-wrap">
-              <button
-                type="button"
-                onClick={() => {
+              <LandingChip
+                hue="yellow"
+                label={`landed ?msg-template=${landedMsgTemplate}`}
+                onDismiss={() => {
                   setMsgTemplateFilter('all');
                   setMsgTemplateLandingLive(false);
                 }}
-                className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-yellow-300 bg-yellow-100 text-yellow-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-yellow-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 dark:border-yellow-500/30 dark:bg-yellow-500/10 dark:text-yellow-300 dark:hover:bg-yellow-500/20"
-                data-testid="msg-template-landing-word"
                 title="The desk landed with this template from the address bar — press to clear it"
-              >
-                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-                <span className="tabular-nums">landed ?msg-template={landedMsgTemplate}</span>
-                <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-              </button>
+                data-testid="msg-template-landing-word"
+              />
               <span className="text-xs text-muted-foreground">
                 Showing {visibleTemplates.length} of {MESSAGE_TEMPLATES.length} templates
               </span>
