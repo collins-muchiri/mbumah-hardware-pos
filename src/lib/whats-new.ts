@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.380.0',
+    title: 'The lens rides past the cap',
+    bullets: [
+      'Busy windows deeper than 200 rows no longer hide the past from the lenses: when a type lens is active and the window is capped, the desk now fetches the lens\u2019s own scope straight from the server \u2014 a settlement lens shows settlements, even when they live beyond the cap.',
+      'The desk tells you when it is showing a slice: a capped window speaks up \u2014 "Capped window \u2014 showing the newest N of M rows" \u2014 instead of letting the census tallies quietly count a partial window.',
+      'The lens counter is honest under the cap too: it speaks the server\u2019s own count for the active lens, with a spinner while the honest fetch rides.',
+    ],
+  },
+  {
     version: '2.379.0',
     title: 'The server speaks the desk\u2019s vocabulary',
     bullets: [

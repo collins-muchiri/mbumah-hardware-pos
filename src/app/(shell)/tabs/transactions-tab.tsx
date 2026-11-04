@@ -1750,6 +1750,10 @@ export default function TransactionsTab() {
   }, [datePreset, customDateFrom, customDateTo]);
 
   // Fetch transactions
+  // v2.380.0 THE HONEST WINDOW TOTAL: the queryFn returns the rows AND the
+  // wire's pagination.total — the count under the SAME where (the v2.379.0
+  // shared-where law) — so the desk's truncation signal is EXACT, never a
+  // length-guess: total > rows.length IS the capped window.
   const { data: transactionsData, isLoading } = useQuery({
     queryKey: ['transactions', currentStoreId, dateRange, paymentFilter],
     queryFn: async () => {
@@ -1763,7 +1767,8 @@ export default function TransactionsTab() {
         params.paymentMethod = paymentFilter;
       }
       const res = await transactionsApi.list(params);
-      return Array.isArray(res.data) ? res.data : [];
+      const rows = Array.isArray(res.data) ? res.data : [];
+      return { rows, total: res.pagination?.total ?? rows.length };
     },
   });
 
@@ -1772,17 +1777,60 @@ export default function TransactionsTab() {
   // (the exhaustive-deps warning class fired for each one; the wrapper ends
   // the class instead of growing it).
   const transactions = useMemo(
-    () => (Array.isArray(transactionsData) ? transactionsData : []),
+    () => (transactionsData?.rows ?? []),
     [transactionsData],
   );
+
+  // v2.380.0 THE CAPPED-WINDOW SIGNAL: the wire's own count outranks the
+  // fetched slice — when the window holds more rows than the cap, the desk
+  // KNOWS it is looking at a slice (and says so — the capped-window voice
+  // below).
+  const windowTotal = transactionsData?.total ?? 0;
+  const windowCapped = windowTotal > transactions.length;
+
+  // v2.380.0 THE HONEST-FETCH RIDER: a lens past the cap fetches its OWN
+  // scope — the census keyset's word crosses the wire as `kind` (the
+  // v2.379.0 server scope), so the 200-row cap counts LENS rows and the
+  // false-empty lens face dies (a capped mixed window whose newest 200
+  // held no settlements used to answer "0 rows" while settlements lived
+  // beyond the cap). The census stays WHOLE — it reads the unscoped fetch;
+  // the scope rides only the lensed fetch. The rider arms ONLY when the
+  // lens is active AND the window is capped — the uncapped desk never
+  // spends the second wire.
+  const lensCapped = typeFilter !== 'all' && windowCapped;
+  const { data: lensedData, isFetching: lensedRiding } = useQuery({
+    queryKey: ['transactions-lens', currentStoreId, dateRange, paymentFilter, typeFilter],
+    enabled: lensCapped,
+    queryFn: async () => {
+      const params: Record<string, string | undefined> = {
+        storeId: currentStoreId,
+        limit: '200',
+        dateFrom: toISOString(dateRange.from),
+        dateTo: toISOString(dateRange.to),
+        kind: typeFilter,
+      };
+      if (paymentFilter !== 'all') {
+        params.paymentMethod = paymentFilter;
+      }
+      const res = await transactionsApi.list(params);
+      const rows = Array.isArray(res.data) ? res.data : [];
+      return { rows, total: res.pagination?.total ?? rows.length };
+    },
+  });
+  const lensedRows = lensCapped && lensedData ? lensedData.rows : null;
+  const lensTotal = lensCapped && lensedData ? lensedData.total : null;
 
   // v2.353.0 the census: a PLAIN call on the same array the desk renders —
   // the chips' tallies and the lens voice both read it (the memo-lint law).
   const typeCensus = countTransactionTypes(transactions);
 
-  // Filter by search query, type, and amount
+  // Filter by search query, type, and amount. v2.380.0 THE HONEST BASE:
+  // when the rider is in play the wire already spoke the kind — the rows
+  // arrive pre-lensed and the client's type filter would only re-filter
+  // its own answer; search + amount still ride client-side on either
+  // base (the rider replaces the BASE, never the other lenses).
   const filteredTransactions = useMemo(() => {
-    let result = transactions;
+    let result = lensedRows ?? transactions;
     if (debouncedSearch.trim()) {
       const q = debouncedSearch.toLowerCase();
       result = result.filter(
@@ -1791,7 +1839,7 @@ export default function TransactionsTab() {
           (t.customer?.name || '').toLowerCase().includes(q)
       );
     }
-    if (typeFilter !== 'all') {
+    if (!lensedRows && typeFilter !== 'all') {
       result = result.filter((t) => getTransactionType(t) === typeFilter);
     }
     if (amountFilterMin) {
@@ -1801,7 +1849,7 @@ export default function TransactionsTab() {
       result = result.filter((t) => t.totalAmount <= Number(amountFilterMax));
     }
     return result;
-  }, [transactions, debouncedSearch, typeFilter, amountFilterMin, amountFilterMax]);
+  }, [lensedRows, transactions, debouncedSearch, typeFilter, amountFilterMin, amountFilterMax]);
 
   // Summary stats
   const summaryStats = useMemo(() => {
@@ -2217,8 +2265,31 @@ export default function TransactionsTab() {
                 className="inline-flex items-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-300"
               >
                 <ShoppingBag className="h-3 w-3" />
-                <span className="tabular-nums">{typeCensus[typeFilter]} in this lens</span>
+                {lensedRiding && (
+                  <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />
+                )}
+                <span className="tabular-nums">{lensTotal ?? typeCensus[typeFilter]} in this lens</span>
               </span>
+            )}
+            {/* v2.380.0 THE CAPPED-WINDOW VOICE (the [Mandatory] styling
+                detail): a capped window used to answer SILENTLY — the
+                census tallies counted the fetched slice while the wire's
+                total said more. The voice names the slice and the whole
+                in the amber honesty family (a voice must not masquerade
+                as a badge), with a rider-note when a lens is active (the
+                rider fetches the lens's own scope past the cap). Gone
+                when the window fits the cap — no news, no voice. */}
+            {windowCapped && (
+              <p
+                data-testid="txn-window-cap-voice"
+                className="flex w-full items-center gap-1.5 pl-6 text-xs font-medium text-amber-700 dark:text-amber-300"
+              >
+                <AlertTriangle className="h-3 w-3 shrink-0" aria-hidden="true" />
+                <span className="tabular-nums">
+                  Capped window — showing the newest {transactions.length} of {windowTotal} rows
+                  {typeFilter !== 'all' ? '; the active lens fetches its own scope past the cap' : ''}
+                </span>
+              </p>
             )}
             <button
               onClick={() => setShowAmountFilter(!showAmountFilter)}
