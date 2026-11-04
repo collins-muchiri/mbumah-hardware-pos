@@ -32,7 +32,7 @@ import {
   type ReminderScheduleResult,
 } from '@/lib/api';
 import { handleError } from '@/lib/error-handler';
-import { DEBT_STATUS_FILTERS, parseInitialNamedMember } from '@/lib/tab-url';
+import { DEBT_CHANNEL_FILTERS, DEBT_STATUS_FILTERS, parseInitialNamedMember } from '@/lib/tab-url';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -712,13 +712,48 @@ function initialDebtStatus(): (typeof DEBT_STATUS_FILTERS)[number] {
 }
 type DebtStatusWordValue = (typeof DEBT_STATUS_FILTERS)[number];
 
+// THE DEBT LEDGER'S SECOND WORD (v2.390.0): the reminder-history
+// channel lens answers the address bar — the desk's SECOND word (the
+// transactions and banking precedent), and the desk joins the family's
+// TWO-WORD NEGOTIATION club. `?debt-channel=WHATSAPP` lands the desk
+// on its History pane, pre-filtered to the reminders that rode one
+// channel — the channel's daily question becomes a bookmark. The
+// lens's words are the Select's OWN spellings (UPPERCASE: SMS |
+// WHATSAPP | EMAIL | IN_APP, the channel word's voice; a lowercase
+// `sms` or a capitalized `Email` is an unknown word — never a clever
+// match; the neutral is the lowercase `all`, exactly the Select's own).
+// Anything missing or unknown answers 'all' (never stranded). The word
+// is desk-prefixed per the Task 44 collision law: `debt-channel` can
+// never leak across client-side tab switches — collision-checked at
+// round start (the byte appeared NOWHERE before this word), and the
+// chip wears the family's SEVENTH shade-split — fuchsia at the 300/100
+// storey (a hue NO badge on this desk speaks AND a hue the desk's
+// first chip never borrowed: the census answers amber, blue, emerald,
+// green, orange, purple, rose and slate — cyan now speaks the status
+// chip). Read-on-mount ONLY (the one-writer law): the landing word is
+// the LANDING lens, never rewritten; the Select and the chip's own
+// dismissal own the state after.
+// THE TWO-WORD NEGOTIATION, SAME-PANE FORM (the transactions desk's
+// precedent — both of the desk's lenses live in ONE pane): when either
+// or both words land, the PANE they share RAISES (the seed reads both
+// words); the two chips sit side by side before their own lenses, each
+// retiring by its own two voices (its dismissal, its Select's hand
+// change) and never touching its sibling's state.
+function initialDebtChannel(): (typeof DEBT_CHANNEL_FILTERS)[number] {
+  if (typeof window === 'undefined') return 'all';
+  return parseInitialNamedMember(window.location.search, 'debt-channel', DEBT_CHANNEL_FILTERS, 'all');
+}
+type DebtChannelWordValue = (typeof DEBT_CHANNEL_FILTERS)[number];
+
 // History Section
 
 function HistorySection({ storeId }: { storeId: string }) {
   const [statusFilter, setStatusFilter] = useState<string>(initialDebtStatus);
   const [landedDebtStatus] = useState<DebtStatusWordValue>(initialDebtStatus);
   const [debtLandingLive, setDebtLandingLive] = useState(() => initialDebtStatus() !== 'all');
-  const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [typeFilter, setTypeFilter] = useState<string>(initialDebtChannel);
+  const [landedDebtChannel] = useState<DebtChannelWordValue>(initialDebtChannel);
+  const [debtChannelLandingLive, setDebtChannelLandingLive] = useState(() => initialDebtChannel() !== 'all');
   const [page, setPage] = useState(1);
   const [pageSize] = useState(15);
 
@@ -746,6 +781,15 @@ function HistorySection({ storeId }: { storeId: string }) {
     setStatusFilter(v);
     setPage(1);
     if (v !== landedDebtStatus) setDebtLandingLive(false);
+  };
+
+  // The channel lens's ONE voice (v2.390.0): the same retirement law,
+  // the sibling word's state untouched (the same-pane two-word
+  // negotiation — each lens owns its own door).
+  const chooseDebtChannel = (v: string) => {
+    setTypeFilter(v);
+    setPage(1);
+    if (v !== landedDebtChannel) setDebtChannelLandingLive(false);
   };
 
   return (
@@ -799,7 +843,33 @@ function HistorySection({ storeId }: { storeId: string }) {
             <p className="text-xs text-muted-foreground tabular-nums">
               {pagination?.total ?? reminders.length} reminder{(pagination?.total ?? reminders.length) !== 1 ? 's' : ''}
             </p>
-            <Select value={typeFilter} onValueChange={(v) => { setTypeFilter(v); setPage(1); }}>
+            {/* v2.390.0 THE CHANNEL LANDING CHIP — the address bar's
+                second word on this desk, spoken while the lens still
+                shows the landing (the two retirement voices: the chip's
+                own dismissal and a hand-driven Select change).
+                `data-testid="debt-channel-landing-word"` — the QA
+                walk's handle. The fuchsia chip sits before the channel
+                lens, beside its cyan sibling (the same-pane two-word
+                negotiation: each chip owns its retirement, never its
+                sibling's state). */}
+            {debtChannelLandingLive && landedDebtChannel !== 'all' && typeFilter === landedDebtChannel && (
+              <button
+                type="button"
+                onClick={() => {
+                  setTypeFilter('all');
+                  setDebtChannelLandingLive(false);
+                  setPage(1);
+                }}
+                className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-fuchsia-300 bg-fuchsia-100 text-fuchsia-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-fuchsia-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400 dark:border-fuchsia-500/30 dark:bg-fuchsia-500/10 dark:text-fuchsia-300 dark:hover:bg-fuchsia-500/20"
+                data-testid="debt-channel-landing-word"
+                title="The desk landed with this channel filter from the address bar — press to clear it"
+              >
+                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+                <span className="tabular-nums">landed ?debt-channel={landedDebtChannel}</span>
+                <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+              </button>
+            )}
+            <Select value={typeFilter} onValueChange={chooseDebtChannel}>
               <SelectTrigger className="w-36">
                 <SelectValue />
               </SelectTrigger>
@@ -916,11 +986,12 @@ function HistorySection({ storeId }: { storeId: string }) {
 
 export default function DebtManagementTab() {
   const currentStoreId = useAppStore((s) => s.currentStoreId);
-  // v2.389.0 THE SUB-TAB AMENDMENT'S THIRD APPLICATION: a landing that
-  // carries the word RAISES the pane it lands into (History), so the
-  // chip is visible on landing; a landing without the word opens the
-  // desk's default face (Overdue Board).
-  const [activeTab, setActiveTab] = useState(() => (initialDebtStatus() !== 'all' ? 'history' : 'board'));
+  // v2.389.0 THE SUB-TAB AMENDMENT'S THIRD APPLICATION / v2.390.0 THE
+  // TWO-WORD NEGOTIATION'S SAME-PANE FORM: a landing that carries
+  // EITHER word RAISES the History pane (both lenses live there); a
+  // landing without either word opens the desk's default face (Overdue
+  // Board).
+  const [activeTab, setActiveTab] = useState(() => (initialDebtStatus() !== 'all' || initialDebtChannel() !== 'all' ? 'history' : 'board'));
 
   if (!currentStoreId) {
     return (

@@ -1,3 +1,17 @@
+## [2.390.0] The debt ledger answers by the channel
+
+The deep-link vocabulary's twenty-ninth word lands on the debt management desk's reminder-history channel lens — "which channel did it ride out on?" becomes a bookmark, the desk joins the two-word negotiation club, and the fuchsia chip takes the shade-split's seventh storey.
+
+### Added
+- **THE DEBT LEDGER'S SECOND WORD** (`debt-management-tab.tsx`, `src/lib/tab-url.ts`): the reminder-history channel lens answers `?debt-channel=all|SMS|WHATSAPP|EMAIL|IN_APP` — the Select's OWN spellings (UPPERCASE, the channel word's voice; the neutral is the lowercase `all`, exactly the Select's own; a lowercase or capitalized word is an unknown word, never a clever match; anything missing or unknown answers `all`, never stranded). The vocabulary lives in the ONE home (`DEBT_CHANNEL_FILTERS`), cast-free.
+- **THE TWO-WORD NEGOTIATION'S SAME-PANE FORM** (`debt-management-tab.tsx`): the desk's second word — the third two-word desk (transactions, banking, debt). Both lenses live in ONE pane, so a landing carrying EITHER word RAISES the History pane; the two chips sit side by side before their own lenses, each retiring by its own two voices (its dismissal, its Select's hand change) and never touching its sibling's state.
+- **THE CHANNEL LANDING CHIP**: a fuchsia pill before the channel filter — `border-fuchsia-300 bg-fuchsia-100 text-fuchsia-700` with the full dark wardrobe and a `focus-visible:ring-fuchsia-400` ring, `data-testid="debt-channel-landing-word"`, Link2 + X faces, a `title` tooltip, and a one-press dismissal that clears the lens the word seeded. THE SHADE-SPLIT'S SEVENTH APPLICATION: fuchsia at the 300/100 storey — a hue NO badge on this desk speaks (the census answers amber, blue, emerald, green, orange, purple, rose and slate) AND one its cyan sibling never borrowed.
+- **THE FIXTURE LEG'S SECOND BATCH** (`scripts/qa-seed-debt-reminders.mjs`, the repo's ignored QA-posture family): a WHATSAPP and an EMAIL reminder (the status rows ride SMS), idempotent by the v2 marker with per-batch guards, so `?debt-channel=WHATSAPP` and `?debt-channel=EMAIL` speak real rows on both QA dbs.
+
+### Tests
+- `src/tests/debt-channel-deep-link-v2390.test.ts` — the parser's truth table (UPPERCASE, case-sensitive, never stranded, rides beside the other twenty-eight), the desk's seed (the ONE home, cast-free, the write-once pair), the retirement door (the chip's dismissal and every hand-driven channel change retire it; the direct-write census), the two position laws (chip before the lens, beside its cyan sibling), the same-pane negotiation pins, the fuchsia wardrobe + badge census, the collision ledger, the constitution's twenty-ninth row, and the feed's lead.
+- The constitution (`transfer-status-deep-link-v2357.test.ts`) grows to twenty-nine words over twenty-four desks (the debt desk joins the two-word club); the registry stress suite re-derives; the elder ledgers admit the new suite (the LEDGER-CITATION RIPPLE, walked to convergence).
+
 ## [2.389.0] The debt ledger answers the address bar
 
 The deep-link vocabulary's twenty-eighth word lands on the debt management desk's reminder history — "what never made it out?" becomes a bookmark, the sub-tab amendment speaks its third application, and the chip wears the shade-split's sixth storey.

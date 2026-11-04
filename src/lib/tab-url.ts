@@ -626,6 +626,33 @@ export const DEBT_STATUS_FILTERS = [
 export type DebtStatusFilter = (typeof DEBT_STATUS_FILTERS)[number];
 
 /**
+ * v2.390.0 — THE PROMISE KEPT, THE TWENTY-NINTH WORD: the debt
+ * management desk's reminder-history channel lens answers the address
+ * bar — the desk's SECOND word (the transactions and banking
+ * precedent), which makes the desk the family's THIRD two-word
+ * negotiation desk. The lens's daily question — "which channel did the
+ * reminder ride out on?" — speaks its desk-prefixed `debt-channel`
+ * (collision-checked at round start: the byte appeared NOWHERE before
+ * this word). The lens's words are the Select's OWN spellings — the
+ * four UPPERCASE members of the typeFilter state (SMS | WHATSAPP |
+ * EMAIL | IN_APP, the channel word's voice) plus the lowercase neutral
+ * `all`; a lowercase `sms` or a capitalized `Email` is an unknown
+ * word, never a clever match. Anything missing or unknown answers
+ * 'all' (never stranded). Lives here (the ONE home) so the desk, its
+ * deep-link word and the test suite speak one array — the same home
+ * DEBT_STATUS_FILTERS keeps for the desk's status word.
+ */
+export const DEBT_CHANNEL_FILTERS = [
+  'all',
+  'SMS',
+  'WHATSAPP',
+  'EMAIL',
+  'IN_APP',
+] as const;
+
+export type DebtChannelFilter = (typeof DEBT_CHANNEL_FILTERS)[number];
+
+/**
  * v2.368.0 — THE LEGACY-WORD SUNSET LAW, the alias parser. The family's
  * naming constitution (Task 44's collision analysis, worn by every word
  * since `?po-status=`) requires a DESK-PREFIXED param — but one desk
