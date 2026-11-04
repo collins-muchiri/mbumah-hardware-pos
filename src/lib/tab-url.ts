@@ -678,6 +678,41 @@ export const EXP_STATUS_FILTERS = [
 export type ExpStatusFilter = (typeof EXP_STATUS_FILTERS)[number];
 
 /**
+ * v2.392.0 — THE PROMISE KEPT, THE THIRTY-FIRST WORD: the data-exports
+ * desk's history lens answers BY THE TYPE. The export center's other
+ * daily question — "where is the file I generated for the accountant?"
+ * — speaks its desk-prefixed `exp-type` (collision-checked at round
+ * start: the byte appeared NOWHERE before this word). The lens's words
+ * are the type chip row's OWN spellings — the lowercase keys of the ten
+ * EXPORT_TYPES cards (products | customers | transactions | debt |
+ * inventory | employees | suppliers | loyalty | tax | sales-summary,
+ * the chip word's voice; the wire's UPPERCASE types — `PRODUCTS`,
+ * `SALES_SUMMARY` — are NOT lens words, the inverse-case voice the
+ * status word speaks; the neutral is the lowercase `all`; missing or
+ * unknown answers 'all', never stranded). Lives here (the ONE home) so
+ * the desk, its deep-link word and the test suite speak one array —
+ * the same home EXP_STATUS_FILTERS keeps for this desk's status word,
+ * and the desk joins the family's TWO-WORD NEGOTIATION club (the debt
+ * desk's same-pane precedent: either word lands, the two chips sit
+ * side by side, each retiring by its own two voices).
+ */
+export const EXP_TYPE_FILTERS = [
+  'all',
+  'products',
+  'customers',
+  'transactions',
+  'debt',
+  'inventory',
+  'employees',
+  'suppliers',
+  'loyalty',
+  'tax',
+  'sales-summary',
+] as const;
+
+export type ExpTypeFilter = (typeof EXP_TYPE_FILTERS)[number];
+
+/**
  * v2.368.0 — THE LEGACY-WORD SUNSET LAW, the alias parser. The family's
  * naming constitution (Task 44's collision analysis, worn by every word
  * since `?po-status=`) requires a DESK-PREFIXED param — but one desk

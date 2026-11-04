@@ -27,8 +27,10 @@ import {
   formatDateTime,
   type DataExportItem,
   type DataExportStatus,
+  type DataExportType,
 } from '@/lib/api';
 import { handleError } from '@/lib/error-handler';
+import { type ExpTypeFilter } from '@/lib/tab-url';
 
 import {
   Table,
@@ -82,6 +84,17 @@ interface ExportsHistoryTableProps {
    * internal state (the uncontrolled form every existing caller speaks).
    */
   onFilterChange?: (filter: FilterKey) => void;
+  /**
+   * v2.392.0 - THE CONTROLLED HAND'S SECOND APPLICATION (the type
+   * lens). The desk's OTHER lifted lens: the type chip row reads this
+   * value (the landed `?exp-type=` word or a later hand choice) and
+   * every type chip press routes through `onTypeChange`, exactly as
+   * the status row routes through `onFilterChange`. Optional with the
+   * same law: absent, the row keeps its own internal state (the
+   * uncontrolled form).
+   */
+  externalTypeFilter?: ExpTypeFilter;
+  onTypeChange?: (type: ExpTypeFilter) => void;
 }
 
 type FilterKey = 'all' | 'completed' | 'failed' | 'processing';
@@ -129,6 +142,42 @@ const TYPE_META: Record<string, { title: string; color: string }> =
     },
     {} as Record<string, { title: string; color: string }>,
   );
+
+/**
+ * v2.392.0 — THE TYPE CHIP ROW (the thirty-first word's lens face).
+ * Each lens word pairs with the wire type it names (the LOWERCASE key
+ * of the card grid's own UPPERCASE type — `sales-summary`'s kebab
+ * carries `SALES_SUMMARY`'s underscore); the label borrows the card
+ * title through TYPE_META so the chip row and the cards never drift
+ * apart. The neutral `all` names no wire type. The row's own voice is
+ * deliberately UNPAINTED — a neutral wardrobe (the shell's foreground/
+ * muted pair) so the type dimension reads apart from the colorful
+ * status dimension, and the pink the desk's landing chip speaks stays
+ * the word's ONLY voice on this desk (the masquerade law).
+ */
+const EXP_TYPE_PAIRS: ReadonlyArray<readonly [ExpTypeFilter, DataExportType | null]> = [
+  ['all', null],
+  ['products', 'PRODUCTS'],
+  ['customers', 'CUSTOMERS'],
+  ['transactions', 'TRANSACTIONS'],
+  ['debt', 'DEBT'],
+  ['inventory', 'INVENTORY'],
+  ['employees', 'EMPLOYEES'],
+  ['suppliers', 'SUPPLIERS'],
+  ['loyalty', 'LOYALTY'],
+  ['tax', 'TAX'],
+  ['sales-summary', 'SALES_SUMMARY'],
+];
+
+const EXP_TYPE_WORDS: Array<{
+  key: ExpTypeFilter;
+  wire: DataExportType | null;
+}> = EXP_TYPE_PAIRS.map(([key, wire]) => ({ key, wire }));
+
+const TYPE_CHIP_ACTIVE =
+  'bg-slate-700 text-white border-slate-700 dark:bg-slate-500 dark:border-slate-500';
+const TYPE_CHIP_IDLE =
+  'bg-background text-muted-foreground border-border hover:text-foreground hover:bg-muted/60 dark:bg-card/40 dark:hover:bg-muted/50';
 
 // Helpers
 
@@ -235,9 +284,12 @@ export function ExportsHistoryTable({
   isLoading,
   externalFilter,
   onFilterChange,
+  externalTypeFilter,
+  onTypeChange,
 }: ExportsHistoryTableProps) {
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState<FilterKey>('all');
+  const [typeFilter, setTypeFilter] = useState<ExpTypeFilter>('all');
   const [deleteTarget, setDeleteTarget] = useState<DataExportItem | null>(null);
 
   // Effective filter - allow parent override (e.g. always show 'all').
@@ -249,22 +301,56 @@ export function ExportsHistoryTable({
     ? (externalFilter as FilterKey | undefined) ?? 'all'
     : (externalFilter as FilterKey | undefined) ?? filter;
 
+  // v2.392.0 THE TYPE LENS — the same controlled-hand law, the desk's
+  // second lifted lens: the type state rides the desk when the hand is
+  // given, keeps its own otherwise.
+  const typeControlled = typeof onTypeChange === 'function';
+  const effectiveType: ExpTypeFilter = typeControlled
+    ? externalTypeFilter ?? 'all'
+    : (externalTypeFilter ?? typeFilter);
+  const effectiveTypeWire =
+    EXP_TYPE_WORDS.find((t) => t.key === effectiveType)?.wire ?? null;
+
   const filtered = useMemo(() => {
     if (!Array.isArray(exports)) return [];
-    switch (effectiveFilter) {
-      case 'completed':
-        return exports.filter((e) => e.status === 'COMPLETED');
-      case 'failed':
-        return exports.filter((e) => e.status === 'FAILED');
-      case 'processing':
-        return exports.filter(
-          (e) => e.status === 'PROCESSING' || e.status === 'PENDING',
-        );
-      case 'all':
-      default:
-        return exports;
+    // v2.392.0: the two lenses CONJOIN (a landed pair narrows on both
+    // dimensions — the type word AND the status word, each its own
+    // chip row, never stealing the other's state).
+    const byStatus = (() => {
+      switch (effectiveFilter) {
+        case 'completed':
+          return exports.filter((e) => e.status === 'COMPLETED');
+        case 'failed':
+          return exports.filter((e) => e.status === 'FAILED');
+        case 'processing':
+          return exports.filter(
+            (e) => e.status === 'PROCESSING' || e.status === 'PENDING',
+          );
+        case 'all':
+        default:
+          return exports;
+      }
+    })();
+    if (!effectiveTypeWire) return byStatus;
+    return byStatus.filter((e) => e.exportType === effectiveTypeWire);
+  }, [exports, effectiveFilter, effectiveTypeWire]);
+
+  const typeCounts = useMemo(() => {
+    const empty: Record<string, number> = {};
+    if (!Array.isArray(exports)) {
+      return empty;
     }
-  }, [exports, effectiveFilter]);
+    return EXP_TYPE_WORDS.reduce<Record<string, number>>(
+      (acc, t) => {
+        acc[t.key] =
+          t.wire === null
+            ? exports.length
+            : exports.filter((e) => e.exportType === t.wire).length;
+        return acc;
+      },
+      {},
+    );
+  }, [exports]);
 
   const filterCounts = useMemo(() => {
     if (!Array.isArray(exports)) {
@@ -355,6 +441,54 @@ export function ExportsHistoryTable({
         </div>
       )}
 
+      {/* v2.392.0 THE TYPE CHIP ROW — the desk's second lens face (the
+          status row's sibling). Visible in the controlled form (the
+          hand-driven voice must exist — a hidden lens has no second
+          retirement voice); the uncontrolled form is unchanged for
+          every other caller. The neutral wardrobe keeps the type
+          dimension apart from the colorful status dimension and leaves
+          the desk's pink to the landing chip alone (the masquerade
+          law). */}
+      {(!externalTypeFilter || typeControlled) && (
+        <div className="flex flex-wrap items-center gap-1.5">
+          {EXP_TYPE_WORDS.map((t) => {
+            const isActive = effectiveType === t.key;
+            const count = typeCounts[t.key] ?? 0;
+            const label =
+              t.wire === null ? 'All types' : (TYPE_META[t.wire]?.title ?? t.key);
+            return (
+              <button
+                key={t.key}
+                type="button"
+                data-testid={`exp-type-chip-${t.key}`}
+                onClick={() => {
+                  // THE CONTROLLED HAND'S SECOND APPLICATION: the desk
+                  // owns the state (the landing chip's second retirement
+                  // voice lives there); uncontrolled callers keep the
+                  // internal state.
+                  if (typeControlled) onTypeChange(t.key);
+                  else setTypeFilter(t.key);
+                }}
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${
+                  isActive ? TYPE_CHIP_ACTIVE : TYPE_CHIP_IDLE
+                }`}
+              >
+                {label}
+                <span
+                  className={`ml-0.5 inline-flex items-center justify-center min-w-4 h-4 px-1 rounded-full text-[10px] font-semibold tabular-nums ${
+                    isActive
+                      ? 'bg-white/20 text-white'
+                      : 'bg-muted text-muted-foreground'
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* Table */}
       <div className="rounded-lg border bg-card">
         {isLoading ? (
@@ -367,9 +501,13 @@ export function ExportsHistoryTable({
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <Inbox className="h-10 w-10 text-muted-foreground/40 mb-2" />
             <p className="text-sm text-muted-foreground">
-              {effectiveFilter === 'all'
-                ? 'No exports generated yet. Pick a type above to get started.'
-                : `No ${effectiveFilter} exports.`}
+              {effectiveTypeWire && effectiveFilter !== 'all'
+                ? `No ${effectiveFilter} exports of this type.`
+                : effectiveTypeWire
+                  ? `No ${TYPE_META[effectiveTypeWire]?.title ?? ''} exports yet. Pick a type above to get started.`
+                  : effectiveFilter === 'all'
+                    ? 'No exports generated yet. Pick a type above to get started.'
+                    : `No ${effectiveFilter} exports.`}
             </p>
           </div>
         ) : (

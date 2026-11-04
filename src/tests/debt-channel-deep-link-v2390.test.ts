@@ -223,6 +223,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // truth speaks this word) — an admission line carries the word
       // it admits
       'src/tests/exp-status-deep-link-v2391.test.ts',
+      // the thirty-first word's own ledger — admitted (its rides-beside
+      // truth speaks this word) — an admission line carries the word
+      // it admits
+      'src/tests/exp-type-deep-link-v2392.test.ts',
       'src/tests/family-registry-stress-v2370.test.ts',
       'src/tests/proxy-gate-layering-v2328.test.ts',
       // rep-type's suite EXITS this ledger at v2.391.0: its feed-head
@@ -245,7 +249,7 @@ describe('the address-bar vocabulary — the twenty-ninth row (cross-suite pins)
   const constitution = readFileSync('src/tests/transfer-status-deep-link-v2357.test.ts', 'utf8');
 
   it('the constitution walks TWENTY-NINE words over TWENTY-FOUR desks (the desk joins the two-word club)', () => {
-    expect(constitution.includes('(thirty words, twenty-five desks)')).toBe(true);
+    expect(constitution.includes('(thirty-one words, twenty-five desks)')).toBe(true);
     expect(constitution.includes("{ word: 'debt-channel', desk: 'src/app/(shell)/tabs/debt-management-tab.tsx', family: 'border-fuchsia-300', suite: 'src/tests/debt-channel-deep-link-v2390.test.ts' }")).toBe(true);
     expect(constitution.includes("'TWENTY-NINTH'")).toBe(true);
   });
@@ -255,15 +259,16 @@ describe('the address-bar vocabulary — the twenty-ninth row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.391.0 leads the feed', () => {
+describe('whats-new — v2.392.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.391.0');
-    // the lead's story hand-over: the lead's story is v2.391.0's —
-    // the export ledger answers the address bar (the THIRTIETH word).
+    expect(head.version).toBe('2.392.0');
+    // the lead's story hand-over: the lead's story is v2.392.0's —
+    // the export ledger answers by type (the THIRTY-FIRST word).
     expect(head.title).toContain('export');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
     expect(head.bullets.some((b) => b.includes('exp-status'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('exp-type'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('Export History'))).toBe(true);
   });
 });

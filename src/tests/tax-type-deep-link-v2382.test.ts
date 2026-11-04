@@ -455,7 +455,7 @@ describe('the address-bar vocabulary — the twenty-third row (cross-suite pins)
   const constitution = readFileSync('src/tests/transfer-status-deep-link-v2357.test.ts', 'utf8');
 
   it('the constitution walks TWENTY-THREE words over TWENTY-ONE desks', () => {
-    expect(constitution.includes('(thirty words, twenty-five desks)')).toBe(true);
+    expect(constitution.includes('(thirty-one words, twenty-five desks)')).toBe(true);
     expect(constitution.includes("{ word: 'tax-type', desk: 'src/app/(shell)/tabs/tax-tab.tsx', family: 'border-orange-300', suite: 'src/tests/tax-type-deep-link-v2382.test.ts' }")).toBe(true);
     expect(constitution.includes("'TWENTY-THIRD'")).toBe(true);
   });
@@ -511,6 +511,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // truth speaks this word) — an admission line carries the word
       // it admits
       'src/tests/exp-status-deep-link-v2391.test.ts',
+      // the thirty-first word's own ledger — admitted (its rides-beside
+      // truth speaks this word) — an admission line carries the word
+      // it admits
+      'src/tests/exp-type-deep-link-v2392.test.ts',
       // the stress walk's expected roll speaks the word too (the registry
       // is an honest speaker of every row it carries)
       'src/tests/family-registry-stress-v2370.test.ts',

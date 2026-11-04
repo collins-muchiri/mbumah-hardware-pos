@@ -24,7 +24,7 @@ import {
   type DataExportItem,
   type DataExportType,
 } from '@/lib/api';
-import { EXP_STATUS_FILTERS, parseInitialNamedMember } from '@/lib/tab-url';
+import { EXP_STATUS_FILTERS, EXP_TYPE_FILTERS, parseInitialNamedMember } from '@/lib/tab-url';
 import { handleError } from '@/lib/error-handler';
 
 import { Button } from '@/components/ui/button';
@@ -68,6 +68,49 @@ function initialExpStatus(): (typeof EXP_STATUS_FILTERS)[number] {
 }
 type ExpStatusWordValue = (typeof EXP_STATUS_FILTERS)[number];
 
+// THE EXPORT LEDGER'S SECOND WORD (v2.392.0): the data-exports desk's
+// history lens answers BY THE TYPE — the desk's SECOND word (the
+// banking and debt precedent), and the desk joins the family's
+// TWO-WORD NEGOTIATION club. `?exp-type=products` lands the Export
+// History section pre-filtered to the rows that answer one card — the
+// export center's other daily question ("where is the file I
+// generated for the accountant?") becomes a bookmark. The lens's words
+// are the type chip row's OWN spellings (lowercase: products |
+// customers | transactions | debt | inventory | employees | suppliers
+// | loyalty | tax | sales-summary, the chip word's voice; the wire's
+// UPPERCASE types — `PRODUCTS`, `SALES_SUMMARY` — are NOT lens words,
+// the inverse-case voice the status word already speaks; the neutral
+// is the lowercase `all`). Anything missing or unknown answers 'all'
+// (never stranded). The word is desk-prefixed per the Task 44
+// collision law: `exp-type` can never leak across client-side tab
+// switches — collision-checked at round start (the byte appeared
+// NOWHERE before this word), and the chip wears the family's NINTH
+// shade-split — pink at the 300/100 storey (a hue NO badge on this
+// desk speaks — the census answers amber, emerald, rose, green, red,
+// teal, violet, purple, orange, cyan, blue and slate — and the hue the
+// vouchers desk spoke at the 200 storey: a family byte the
+// 200-storey can never equal, borrowing nothing from the desk's
+// badges nor from its indigo sibling). Read-on-mount ONLY (the
+// one-writer law): the landing word is the LANDING lens, never
+// rewritten; the type chip row and the chip's own dismissal own the
+// state after — the history table runs in its CONTROLLED form for
+// BOTH lenses (the v2.391.0 hand's second application): the type
+// state is lifted here, the type chip row stays visible, and a
+// hand-driven type press is the lens's second retirement voice.
+// THE TWO-WORD NEGOTIATION, SAME-PANE FORM (the debt desk's
+// precedent — both lenses live in ONE history section): when either
+// or both words land, the section they share shows them (each seed
+// reads its own word); the two chips sit side by side before the
+// table, each retiring by its own two voices (its dismissal, its chip
+// row's hand change) and never touching its sibling's state — the
+// two lenses CONJOIN in the table (a landed pair narrows on both
+// dimensions).
+function initialExpType(): (typeof EXP_TYPE_FILTERS)[number] {
+  if (typeof window === 'undefined') return 'all';
+  return parseInitialNamedMember(window.location.search, 'exp-type', EXP_TYPE_FILTERS, 'all');
+}
+type ExpTypeWordValue = (typeof EXP_TYPE_FILTERS)[number];
+
 export function DataExportsTab() {
   const { currentStoreId } = useAppStore();
   const [createOpen, setCreateOpen] = useState(false);
@@ -80,6 +123,12 @@ export function DataExportsTab() {
   const [landedExpStatus] = useState<ExpStatusWordValue>(initialExpStatus);
   const [expLandingLive, setExpLandingLive] = useState(() => initialExpStatus() !== 'all');
   const [expStatusFilter, setExpStatusFilter] = useState<ExpStatusWordValue>(initialExpStatus);
+  // v2.392.0 THE SECOND LANDING WORD — the same read-once law, the
+  // desk's own sibling: `landedExpType` freezes the type word, the
+  // live flag retires, and `expTypeFilter` owns the type lens after.
+  const [landedExpType] = useState<ExpTypeWordValue>(initialExpType);
+  const [expTypeLandingLive, setExpTypeLandingLive] = useState(() => initialExpType() !== 'all');
+  const [expTypeFilter, setExpTypeFilter] = useState<ExpTypeWordValue>(initialExpType);
 
   // The lens's ONE voice (v2.391.0): a hand-driven change is the lens's
   // second retirement voice — any word other than the landed one
@@ -87,6 +136,14 @@ export function DataExportsTab() {
   const chooseExpStatus = (v: ExpStatusWordValue) => {
     setExpStatusFilter(v);
     if (v !== landedExpStatus) setExpLandingLive(false);
+  };
+
+  // The type lens's ONE voice (v2.392.0): the same retirement law,
+  // the sibling word's state untouched (the same-pane two-word
+  // negotiation — each lens owns its own door).
+  const chooseExpType = (v: ExpTypeWordValue) => {
+    setExpTypeFilter(v);
+    if (v !== landedExpType) setExpTypeLandingLive(false);
   };
 
   // Data: stats
@@ -241,22 +298,53 @@ export function DataExportsTab() {
             handle. The chip sits before the history section, wearing
             the indigo wardrobe at the 300/100 storey (light: border-300
             + bg-100; dark: the family's 500/10 surfaces). */}
-        {expLandingLive && landedExpStatus !== 'all' && expStatusFilter === landedExpStatus && (
-          <button
-            type="button"
-            onClick={() => {
-              setExpStatusFilter('all');
-              setExpLandingLive(false);
-            }}
-            className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-indigo-300 bg-indigo-100 text-indigo-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-indigo-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300 dark:hover:bg-indigo-500/20"
-            data-testid="exp-status-landing-word"
-            title="The desk landed with this filter from the address bar — press to clear it"
-          >
-            <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-            <span className="tabular-nums">landed ?exp-status={landedExpStatus}</span>
-            <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-          </button>
-        )}
+        {/* v2.392.0 THE TWO CHIPS SIT SIDE BY SIDE — the same-pane
+            two-word negotiation (the debt desk's precedent): the pink
+            type chip joins the indigo status chip in one wrapping row,
+            each owning its retirement, never its sibling's state. */}
+        <div className="flex flex-wrap items-center gap-2">
+          {expLandingLive && landedExpStatus !== 'all' && expStatusFilter === landedExpStatus && (
+            <button
+              type="button"
+              onClick={() => {
+                setExpStatusFilter('all');
+                setExpLandingLive(false);
+              }}
+              className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-indigo-300 bg-indigo-100 text-indigo-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-indigo-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300 dark:hover:bg-indigo-500/20"
+              data-testid="exp-status-landing-word"
+              title="The desk landed with this filter from the address bar — press to clear it"
+            >
+              <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+              <span className="tabular-nums">landed ?exp-status={landedExpStatus}</span>
+              <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+            </button>
+          )}
+          {/* v2.392.0 THE TYPE LANDING CHIP — the address bar's second
+              word on this desk, spoken while the lens still shows the
+              landing (the two retirement voices: the chip's own
+              dismissal and a hand-driven type-chip press through the
+              table's controlled hand). `data-testid="exp-type-landing-word"`
+              — the QA walk's handle. The pink chip sits beside its
+              indigo sibling, wearing the shade-split's NINTH storey at
+              300/100 (light: border-300 + bg-100; dark: the family's
+              500/10 surfaces). */}
+          {expTypeLandingLive && landedExpType !== 'all' && expTypeFilter === landedExpType && (
+            <button
+              type="button"
+              onClick={() => {
+                setExpTypeFilter('all');
+                setExpTypeLandingLive(false);
+              }}
+              className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-pink-300 bg-pink-100 text-pink-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-pink-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 dark:border-pink-500/30 dark:bg-pink-500/10 dark:text-pink-300 dark:hover:bg-pink-500/20"
+              data-testid="exp-type-landing-word"
+              title="The desk landed with this type filter from the address bar — press to clear it"
+            >
+              <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+              <span className="tabular-nums">landed ?exp-type={landedExpType}</span>
+              <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+            </button>
+          )}
+        </div>
         {exportsLoading ? (
           <div className="rounded-lg border bg-card p-4 space-y-2">
             {Array.from({ length: 4 }).map((_, i) => (
@@ -268,6 +356,8 @@ export function DataExportsTab() {
             exports={exportsList}
             externalFilter={expStatusFilter}
             onFilterChange={chooseExpStatus}
+            externalTypeFilter={expTypeFilter}
+            onTypeChange={chooseExpType}
           />
         )}
       </section>
