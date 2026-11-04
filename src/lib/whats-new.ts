@@ -80,6 +80,17 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.384.0',
+    title: 'The reports desk answers the address bar',
+    bullets: [
+      'The Report Type grid answers its address: bookmark ?rep-type=trends, valuation, top_products or any of the eight report shapes and the Reports desk opens straight onto that report \u2014 no clicking through the grid to reach the question.',
+      'The landed shape is visible twice: a lime "landed ?rep-type=\u2026" chip sits before the grid (one press clears it, any hand change retires it) and the grid\u2019s own Active badge marks the report you landed on.',
+      'An unknown word never strands the desk: a misspelled or capitalized shape answers the desk\u2019s own default, exactly like every other deep-link word.',
+      'The lime chip is the family\u2019s twenty-fifth voice \u2014 the shade-split\u2019s third application: the hue the gift-cards desk spoke at the shallow storey now speaks one storey deeper, borrowing nothing from any badge on the desk.',
+      'The lockfiles now prove their own sync: the lockfile parity guard also fails on root-version and range drift now — the generation drift that quietly grew for thirty releases is fenced.',
+    ],
+  },
+  {
     version: '2.383.0',
     title: 'The taxman\u2019s ledger answers by the month',
     bullets: [

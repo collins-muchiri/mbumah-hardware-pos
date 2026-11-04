@@ -9,7 +9,7 @@ import { BarChart3, Package, TrendingUp, TrendingDown,
   Calendar, Clock, Eye, Play, Sparkles, PieChart,
   HeartPulse, RotateCcw, CreditCard, Banknote, Smartphone,
   AlertTriangle, Users, Timer, Printer, Wrench, Sparkle, Link2, ArrowRight,
-  Receipt, UserCog,
+  Receipt, UserCog, X,
 } from 'lucide-react';
 import {
   BarChart, Bar, LineChart, Line, AreaChart, Area,
@@ -24,6 +24,7 @@ import {
   type FastMovingReportData,
 } from '@/lib/api';
 import { handleError } from '@/lib/error-handler';
+import { parseInitialNamedMember, REP_TYPE_FILTERS } from '@/lib/tab-url';
 import {
   composeSeriesVoice, composeHourlyVoice,
   composeStockHealthVoice, composeProductsVoice, composeForecastVoice,
@@ -48,6 +49,29 @@ import { ResponsiveDialog } from '@/components/ui/responsive-dialog';
 // Types & helpers for Trends & Predictions
 
 type TrendsRange = '7d' | '30d' | '90d';
+
+// THE REPORTS DESK'S OWN WORD (v2.384.0 — the family's TWENTY-FIFTH): the
+// Report Type grid answers the address bar. The desk's daily question,
+// "which report am I looking at?", speaks its desk-prefixed
+// `?rep-type=sales|inventory|valuation|daily|top_products|customer_analysis|rental_performance|trends`
+// — the grid's OWN spellings (REP_TYPE_FILTERS, the ONE home in
+// tab-url.ts, lowercase, case-sensitive BY LAW: a capitalized word is an
+// unknown word, not a clever match) — and wears the landing chip in the
+// family's THIRD SHADE-SPLIT, LIME at 300/100 (the hue last spoke at the
+// 200/50 storey — the gift-cards desk's word — and a hue may speak twice
+// only through a DIFFERENT storey: a family byte the 200-storey can
+// never equal). The desk's own badges speak primary, amber, green, blue
+// and red, so the deeper lime borrows nothing from any badge. NO
+// STAGE TO IMPLY: the reports desk has no sub-tabs — the report type IS
+// the stage, and the landed shape is already visible in the grid's own
+// Active badge. THE LANDING IS READ ONCE ON THE SHELL: a plain useState
+// initializer — a dismissed chip can never resurrect.
+type ReportType = (typeof REP_TYPE_FILTERS)[number];
+
+function initialReportType(): ReportType {
+  if (typeof window === 'undefined') return 'sales';
+  return parseInitialNamedMember(window.location.search, 'rep-type', REP_TYPE_FILTERS, 'sales');
+}
 
 interface GrowingProduct {
   productId: string;
@@ -1195,9 +1219,25 @@ function TrendsPredictionsSection({ storeId }: { storeId: string }) {
 
 export default function ReportsTab() {
   const currentStoreId = useAppStore((s) => s.currentStoreId);
-  const [reportType, setReportType] = useState<'sales' | 'inventory' | 'valuation' | 'daily' | 'top_products' | 'customer_analysis' | 'rental_performance' | 'trends'>('sales');
+  // THE TWENTY-FIFTH WORD's seed: read ONCE at desk mount through the ONE
+  // home — a dismissed chip can never resurrect (the initializer only
+  // runs when the desk itself mounts). The landed capture rides the same
+  // write-once useState door the tax desk's two words speak.
+  const [landedRepType] = useState<ReportType>(initialReportType);
+  const [reportType, setReportType] = useState<ReportType>(initialReportType);
+  const [repLandingLive, setRepLandingLive] = useState(true);
   const [chartType, setChartType] = useState<'bar' | 'line' | 'area' | 'pie'>('bar');
   const [datePreset, setDatePreset] = useState<DatePreset>('this_month');
+
+  // a hand-driven shape change retires the landing word — the chip
+  // speaks the ADDRESS BAR's landing, never the human's next choice.
+  // EVERY path that changes the shape rides this one door.
+  const chooseReportType = useCallback((value: ReportType) => {
+    setReportType((prev) => {
+      if (prev !== value) setRepLandingLive(false);
+      return value;
+    });
+  }, []);
 
   // Initialize from preset
   const presetRange = useMemo(() => getDatePresetRange(datePreset), [datePreset]);
@@ -1759,10 +1799,10 @@ export default function ReportsTab() {
               key={type.key}
               className={`glass-card ${type.stagger} hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer group`}
               onClick={() => {
-                if (type.key === 'financial') setReportType('sales');
-                else if (type.key === 'tax') setReportType('sales');
-                else if (type.key === 'rental_performance') setReportType('rental_performance');
-                else setReportType(type.key as typeof reportType);
+                if (type.key === 'financial') chooseReportType('sales');
+                else if (type.key === 'tax') chooseReportType('sales');
+                else if (type.key === 'rental_performance') chooseReportType('rental_performance');
+                else chooseReportType(type.key as ReportType);
               }}
             >
               <CardContent className="p-5">
@@ -1780,10 +1820,10 @@ export default function ReportsTab() {
                   className={`w-full bg-gradient-to-r ${type.color} hover:opacity-90 text-white text-xs h-8`}
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (type.key === 'financial') setReportType('sales');
-                    else if (type.key === 'tax') setReportType('sales');
-                    else if (type.key === 'rental_performance') setReportType('rental_performance');
-                    else setReportType(type.key as typeof reportType);
+                    if (type.key === 'financial') chooseReportType('sales');
+                    else if (type.key === 'tax') chooseReportType('sales');
+                    else if (type.key === 'rental_performance') chooseReportType('rental_performance');
+                    else chooseReportType(type.key as ReportType);
                   }}
                 >
                   Generate
@@ -1935,13 +1975,39 @@ export default function ReportsTab() {
           {/* Report Type Selection - Grid */}
           <div className="space-y-2">
             <Label className="text-xs font-medium">Report Type</Label>
+            {/* THE TWENTY-FIFTH WEARING: the chip wears LIME, one storey
+                deeper at 300/100 — the shade-split's third application
+                (the hue last spoke at the 200/50 storey, the gift-cards
+                desk's word; a family byte the 200-storey can never
+                equal). The desk's badges speak primary, amber, green,
+                blue and red, so the deeper lime borrows nothing from any
+                badge — light+dark, the shared tooltip, the group-hover
+                dismiss detail. THE POSITION LAW: the chip sits
+                immediately BEFORE the lens it landed into (the Report
+                Type grid), and the grid's own Active badge shows the
+                landed shape. */}
+            {repLandingLive && landedRepType !== 'sales' && reportType === landedRepType && (
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setRepLandingLive(false)}
+                  className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-lime-300 bg-lime-100 text-lime-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-lime-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime-400 dark:border-lime-500/30 dark:bg-lime-500/10 dark:text-lime-300 dark:hover:bg-lime-500/20"
+                  data-testid="rep-type-landing-word"
+                  title="The reports desk landed with this report type from the address bar — press to clear it"
+                >
+                  <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+                  <span className="tabular-nums">landed ?rep-type={landedRepType}</span>
+                  <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+                </button>
+              </div>
+            )}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <ReportTypeCard
                 icon={<ShoppingCart className="h-5 w-5" />}
                 title="Sales Report"
                 description="Comprehensive sales analysis with payment method breakdown and trends"
                 isActive={reportType === 'sales'}
-                onClick={() => setReportType('sales')}
+                onClick={() => chooseReportType('sales')}
                 colorClass="text-primary"
               />
               <ReportTypeCard
@@ -1949,7 +2015,7 @@ export default function ReportsTab() {
                 title="Inventory Report"
                 description="Stock health, valuation by category, and inventory turnover analysis"
                 isActive={reportType === 'inventory'}
-                onClick={() => setReportType('inventory')}
+                onClick={() => chooseReportType('inventory')}
                 colorClass="text-primary"
               />
               <ReportTypeCard
@@ -1957,7 +2023,7 @@ export default function ReportsTab() {
                 title="Inventory Valuation"
                 description="Current stock valuation (qty × cost price) with category breakdown"
                 isActive={reportType === 'valuation'}
-                onClick={() => setReportType('valuation')}
+                onClick={() => chooseReportType('valuation')}
                 colorClass="text-primary"
               />
               <ReportTypeCard
@@ -1965,7 +2031,7 @@ export default function ReportsTab() {
                 title="Daily Sales Summary"
                 description="Hourly breakdown of today's sales with peak hour analysis"
                 isActive={reportType === 'daily'}
-                onClick={() => setReportType('daily')}
+                onClick={() => chooseReportType('daily')}
                 colorClass="text-primary"
               />
               <ReportTypeCard
@@ -1973,7 +2039,7 @@ export default function ReportsTab() {
                 title="Top Products"
                 description="Best-selling products ranked by revenue and quantity sold"
                 isActive={reportType === 'top_products'}
-                onClick={() => setReportType('top_products')}
+                onClick={() => chooseReportType('top_products')}
                 colorClass="text-primary"
               />
               <ReportTypeCard
@@ -1981,7 +2047,7 @@ export default function ReportsTab() {
                 title="Customer Analysis"
                 description="Top customers by spending, payment methods used, and debt analysis"
                 isActive={reportType === 'customer_analysis'}
-                onClick={() => setReportType('customer_analysis')}
+                onClick={() => chooseReportType('customer_analysis')}
                 colorClass="text-primary"
               />
               <ReportTypeCard
@@ -1989,7 +2055,7 @@ export default function ReportsTab() {
                 title="Rental Performance"
                 description="Equipment utilization, revenue per rental, and status breakdown"
                 isActive={reportType === 'rental_performance'}
-                onClick={() => setReportType('rental_performance')}
+                onClick={() => chooseReportType('rental_performance')}
                 colorClass="text-primary"
               />
               <ReportTypeCard
@@ -1997,7 +2063,7 @@ export default function ReportsTab() {
                 title="Trends & Predictions"
                 description="Growing/declining products, 7-day revenue forecast, category trends, and frequently-bought-together recommendations"
                 isActive={reportType === 'trends'}
-                onClick={() => setReportType('trends')}
+                onClick={() => chooseReportType('trends')}
                 colorClass="text-primary"
               />
             </div>
@@ -2915,7 +2981,7 @@ export default function ReportsTab() {
                     Customer analysis will appear once you have customers and transactions recorded. 
                     Start by adding customers and completing sales.
                   </p>
-                  <Button variant="outline" className="mt-4" onClick={() => setReportType('sales')}>
+                  <Button variant="outline" className="mt-4" onClick={() => chooseReportType('sales')}>
                     <ShoppingCart className="h-4 w-4 mr-2" /> View Sales Report Instead
                   </Button>
                 </CardContent>
@@ -3125,7 +3191,7 @@ export default function ReportsTab() {
                     Rental performance analysis will appear once you have equipment rentals recorded.
                     Start by creating rental orders for your equipment.
                   </p>
-                  <Button variant="outline" className="mt-4" onClick={() => setReportType('sales')}>
+                  <Button variant="outline" className="mt-4" onClick={() => chooseReportType('sales')}>
                     <ShoppingCart className="h-4 w-4 mr-2" /> View Sales Report Instead
                   </Button>
                 </CardContent>

@@ -448,7 +448,45 @@ export function parseInitialPageWithAlias(
  * stage. THE LANDING IS READ ONCE ON THE SHELL: the tax desk's filters
  * live on the shell itself (which never unmounts), so the seed is a
  * plain useState initializer — a dismissed chip can never resurrect.
+ *
+ * v2.384.0 — THE PROMISE KEPT, THE TWENTY-FIFTH WORD: the reports desk
+ * answers the address bar. The Report Type grid — the desk's daily
+ * question, "which report am I looking at?" — speaks its desk-prefixed
+ * `rep-type` (the grid's OWN spellings, the eight members of the
+ * reportType state union, lowercase — a capitalized word is an unknown
+ * word, not a clever match) and wears the landing chip in the family's
+ * THIRD SHADE-SPLIT — lime one storey deeper at 300/100: the hue last
+ * spoke at the 200/50 storey (the gift-cards desk's word), and a hue may
+ * speak twice only through a DIFFERENT storey — a family byte the
+ * 200-storey can never equal. The desk's own badges speak primary,
+ * amber, green, blue and red, so the deeper lime borrows nothing from
+ * any badge. NO STAGE TO IMPLY: the reports desk
+ * has no sub-tabs — the report type IS the stage, and the landed shape
+ * is already visible in the grid's own Active badge. THE LANDING IS
+ * READ ONCE ON THE SHELL: a plain useState initializer — a dismissed
+ * chip can never resurrect, and every hand-driven shape change retires
+ * the chip (the chip speaks the ADDRESS BAR's landing, never the
+ * human's next choice).
  */
+
+/**
+ * The reports desk's shape vocabulary (v2.384.0) — the Report Type
+ * grid's OWN spellings, the eight members of the reportType state union,
+ * lowercase. Lives here (the ONE home) so the desk, its deep-link word
+ * and the test suite speak one array — the same home TAX_PERIOD_SHAPE
+ * keeps for the tax desk's shape word.
+ */
+export const REP_TYPE_FILTERS = [
+  'sales',
+  'inventory',
+  'valuation',
+  'daily',
+  'top_products',
+  'customer_analysis',
+  'rental_performance',
+  'trends',
+] as const;
+
 export function parseInitialNamedMember<V extends string>(
   search: string,
   param: string,
