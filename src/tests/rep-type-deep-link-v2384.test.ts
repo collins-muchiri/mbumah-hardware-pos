@@ -215,7 +215,7 @@ describe('the lockfile parity guard — root-version and range legs', () => {
 describe('whats-new — v2.384.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.385.0');
+    expect(head.version).toBe('2.386.0');
     // the title-pin re-anchor (the non-word round's by-hand walk phase):
     // the lead's story is v2.385.0's — the dry run speaks its payload.
     expect(head.title).toContain('payload');

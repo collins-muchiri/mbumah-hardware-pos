@@ -1,3 +1,20 @@
+## [2.386.0] The payload files itself
+
+The dry-run card reaches paper, the fixture world speaks a real line, and the mapper's last decimal leak seals.
+
+### Added
+- **THE PRINT FACE** (`etims-tab.tsx`): a Print button beside Copy on the dry-run payload card — the paper-trail pattern's third customer. `printReceiptElement('kra-dryrun-payload')` clones the card into `#print-root`; `@media print` shows ONLY that host; colors survive via `print-color-adjust: exact`. What the operator files is what KRA would receive — now on paper too.
+- **THE PER-LINE LIST** (`etims-tab.tsx`): the card renders the payload's own lines — name, × quantity (the boundary-coerced face), unit price, line total — in a scrollable `max-h-40` ledger inside the 475px dialog, mounting only when the payload carries items.
+- **THE FIXTURE WORLD'S LINE** (`scripts/seed-kra-fixtures.mjs`): one real SaleItem per anchor (10 × 1,160 = 11,600; the mapper re-derives the anchor's own 10,000 + 1,600 split), idempotent on (transactionId, productName), refusing an empty catalog. The carried fidelity gap is closed: the card's "Line items" no longer speaks an honest-but-hollow zero.
+
+### Fixed
+- **THE MAPPER'S LAST DECIMAL LEAK** (`/api/kra/submit/route.ts`): lineTotal, taxRate, quantity and unitPrice still crossed the wire as Decimal faces — the type said number, the copied JSON lied. The whole line now reads through `toNum` (the route's own v2.31.0 doctrine, finally applied to every field it names).
+
+### Tests
+- `src/tests/kra-payload-print-v2386.test.ts` — the print face (the id, the button pair's order, the pipeline call), the per-line list (the mount-only gate, the scroll, the coercions), the mapper's toNum census, the seed's SaleItem block, the feed's lead.
+- `scripts/cascade-release.mjs` + `scripts/reanchor-release.mjs` — **the pin unwind's first real retire**: the unread-count anchors are now DERIVED from the feed itself (the anchor's value IS the count of newer entries — idempotent by construction, no version args, no hand-counted +1s), and the release slots re-anchor from the CHANGELOG/VERSION derivation. The per-round hand-written codemods (cascade-v2385, reanchor-v2385) retire into these two.
+- `scripts/verify-v2-386-0.mjs` — the round's feature gate (wired as `verify:v2-386-0`).
+
 ## [2.385.0] The dry run speaks its payload
 
 The e-TIMS submit flow's paper trail lands on screen. The /api/kra/submit route has always returned the mapped KraInvoicePayload on a dry run — and the dialog toasted "payload mapped" and closed out from under it, every time. The same round ends the blind typing: submit now starts from the row.

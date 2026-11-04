@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.386.0',
+    title: 'The payload files itself',
+    bullets: [
+      'The dry-run card reaches paper: a Print button beside Copy rides the app\u2019s print pipeline \u2014 the mapped KRA invoice (invoice number, buyer, money ladder, line items) prints as its own page with colors intact, so what the operator files is what KRA would receive.',
+      'The card now speaks its line items: every line\u2019s name, quantity, unit price and total renders in a scrollable list \u2014 a dry run finally answers with a full document, not an honest-but-hollow count of zero.',
+      'The copied (and printed) JSON tells the truth: the mapper\u2019s last decimal leak is sealed \u2014 line totals, VAT rates, quantities and unit prices read through the numeric boundary, so the type\u2019s promise of numbers is finally the wire\u2019s truth.',
+      'The fixture anchors gained real line items, so the whole dry-run journey \u2014 row button, pre-filled dialog, payload card, per-line list, print \u2014 can be rehearsed with data that looks like a sale.',
+    ],
+  },
+  {
     version: '2.385.0',
     title: 'The dry run speaks its payload',
     bullets: [
