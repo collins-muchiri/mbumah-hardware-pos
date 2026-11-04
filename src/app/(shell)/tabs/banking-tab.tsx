@@ -7,7 +7,7 @@ import {
   Wallet, Landmark, ArrowUpRight, ArrowDownRight, Search,
   Plus, Loader2, Building2, CheckCircle2, Clock,
   AlertCircle, ChevronLeft, ChevronRight, Phone,
-  FileText, Banknote, RefreshCw, Eye, Minus,
+  FileText, Banknote, RefreshCw, Eye, Minus, Link2, X,
 } from 'lucide-react';
 
 import { useAppStore } from '@/lib/stores';
@@ -36,6 +36,43 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
+import { BANK_TYPE_FILTERS, parseInitialNamedMember } from '@/lib/tab-url';
+
+// THE BANKING DESK'S OWN WORD (v2.387.0): the bank ledger's
+// transaction-type lens answers the address bar. `?bank-type=DEPOSIT`
+// lands the desk on its Transactions sub-tab, pre-filtered to the type
+// the treasurer asked for — the ledger's daily question ("what moved
+// through the accounts?") becomes a bookmark. The lens's words are the
+// Select's OWN spellings since the desk first shipped (UPPERCASE: the
+// payment word's voice), so an UPPERCASE word names a member and a
+// lowercase `deposit` or a capitalized `Deposit` is an unknown word —
+// never a clever match; the neutral is the lowercase `all`, exactly the
+// Select's own. Anything missing or unknown answers 'all' (never
+// stranded). The word is desk-prefixed per the Task 44 collision law: a
+// desk-prefixed word can never leak across client-side tab switches —
+// collision-checked at round start (grep-free tree-wide; `bank-type`
+// appeared NOWHERE in the tree before this word, and the chip wears the
+// family's FOURTH shade-split — sky one storey deeper at 300/100, the
+// hue the delivery-notes desk spoke at the 200/50 storey; the desk's
+// own badges speak blue, emerald, green, amber, red, orange, violet and
+// slate, so the deeper sky borrows nothing from any badge).
+// Read-on-mount ONLY (the one-writer law): the landing word is the
+// LANDING lens, never rewritten; the Select and the chip's own
+// dismissal own the state after.
+// THE SUB-TAB AMENDMENT (the always-visible-face law's next case, after
+// the collapsible-face amendment): the lens lives inside the desk's
+// Transactions sub-tab — a top-level pane, but one the desk's inner
+// navigation can hide. A landing that carries the word RAISES THE
+// SUB-TAB IT LANDS INTO (the sub-tab's seed reads the same landed
+// word), so the chip is visible on landing. Switching sub-tabs
+// afterwards is the human's own navigation, not a lens change: the chip
+// hides with the pane and returns when it reopens, the same honest
+// remount semantics every desk already speaks across tab switches.
+function initialBankType(): (typeof BANK_TYPE_FILTERS)[number] {
+  if (typeof window === 'undefined') return 'all';
+  return parseInitialNamedMember(window.location.search, 'bank-type', BANK_TYPE_FILTERS, 'all');
+}
+type BankTypeWordValue = (typeof BANK_TYPE_FILTERS)[number];
 
 // Helpers
 
@@ -73,7 +110,11 @@ const MPESA_STATUS_BADGE: Record<string, { label: string; color: string }> = {
 export default function BankingTab() {
   const storeId = useAppStore((s) => s.currentStoreId);
   const queryClient = useQueryClient();
-  const [activeSubTab, setActiveSubTab] = useState('accounts');
+  // v2.387.0 THE SUB-TAB AMENDMENT: a landing that carries the word
+  // RAISES the Transactions sub-tab it lands into (the sub-tab's seed
+  // reads the same landed word), so the chip is visible on landing; a
+  // landing without the word opens the desk's default face (Accounts).
+  const [activeSubTab, setActiveSubTab] = useState(() => (initialBankType() !== 'all' ? 'transactions' : 'accounts'));
 
   // Queries
 
@@ -193,7 +234,28 @@ export default function BankingTab() {
   // Transaction Filters
 
   const [txFilterAccount, setTxFilterAccount] = useState<string>('all');
-  const [txFilterType, setTxFilterType] = useState<string>('all');
+  // v2.387.0 THE LANDING WORD — the type lens's seed reads `?bank-type=`
+  // through the ONE home, cast-free: the generic parser answers the
+  // vocabulary union, and the lens's state carries the SAME words the
+  // Select speaks (its five SelectItems ARE the union — the state keeps
+  // the Select's string voice, the parser guarantees the member).
+  const [txFilterType, setTxFilterType] = useState<string>(initialBankType);
+  // v2.387.0 — the address-bar word the desk answered at mount ('all'
+  // when the landing carried no lens). The chip speaks it ONCE:
+  // dismissed, hand-changed, or cleared, the landing is over and the
+  // chip retires — an honest face never claims a landing that is done
+  // (the inventory desk's three-voice law, worn in the lens's sky).
+  const [landedBankType] = useState<BankTypeWordValue>(initialBankType);
+  const [bankLandingLive, setBankLandingLive] = useState(true);
+
+  // v2.387.0: a hand-driven change retires the landing word — the chip
+  // speaks the ADDRESS BAR's landing, never the human's next choice
+  // (and the ledger's page resets, the Select's own standing behavior).
+  const chooseBankType = (value: string) => {
+    setTxFilterType(value);
+    setBankLandingLive(false);
+    setTxPage(1);
+  };
   const [txFilterReconciled, setTxFilterReconciled] = useState<string>('all');
   const [txFilterDateFrom, setTxFilterDateFrom] = useState('');
   const [txFilterDateTo, setTxFilterDateTo] = useState('');
@@ -562,7 +624,28 @@ export default function BankingTab() {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={txFilterType} onValueChange={(v) => { setTxFilterType(v); setTxPage(1); }}>
+            {/* v2.387.0 THE LANDING CHIP — the address bar's word, spoken
+                while the lens still shows the landing (the two retirement
+                voices: the chip's own dismissal and a hand-driven Select
+                change). `data-testid="bank-type-landing-word"` — the QA
+                walk's handle. */}
+            {bankLandingLive && landedBankType !== 'all' && txFilterType === landedBankType && (
+              <button
+                type="button"
+                onClick={() => {
+                  setTxFilterType('all');
+                  setBankLandingLive(false);
+                }}
+                className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-sky-300 bg-sky-100 text-sky-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-sky-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-300 dark:hover:bg-sky-500/20"
+                data-testid="bank-type-landing-word"
+                title="The desk landed with this filter from the address bar — press to clear it"
+              >
+                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+                <span className="tabular-nums">landed ?bank-type={landedBankType}</span>
+                <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+              </button>
+            )}
+            <Select value={txFilterType} onValueChange={chooseBankType}>
               <SelectTrigger className="h-9 w-[130px] text-xs">
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>

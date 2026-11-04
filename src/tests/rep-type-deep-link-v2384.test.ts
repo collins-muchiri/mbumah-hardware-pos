@@ -215,12 +215,12 @@ describe('the lockfile parity guard — root-version and range legs', () => {
 describe('whats-new — v2.384.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.386.0');
-    // the title-pin re-anchor (the non-word round's by-hand walk phase):
-    // the lead's story is v2.385.0's — the dry run speaks its payload.
-    expect(head.title).toContain('payload');
+    expect(head.version).toBe('2.387.0');
+    // the lead's story re-anchor (the elder lead's title-pin hand-over):
+    // the lead's story is v2.387.0's — the bank ledger answers the bar.
+    expect(head.title).toContain('bank ledger');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('dry run'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('KRA'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('bank-type'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('Transactions pane'))).toBe(true);
   });
 });

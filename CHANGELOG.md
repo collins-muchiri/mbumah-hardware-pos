@@ -1,3 +1,16 @@
+## [2.387.0] The bank ledger answers the address bar
+
+The deep-link vocabulary's twenty-sixth word lands on the banking desk — the treasurer's daily question becomes a bookmark, and the sub-tab law learns to raise the pane it lands into.
+
+### Added
+- **THE BANK LEDGER'S OWN WORD** (`banking-tab.tsx`, `src/lib/tab-url.ts`): the transaction-type lens answers `?bank-type=all|DEPOSIT|WITHDRAWAL|TRANSFER|FEE|INTEREST` — the Select's OWN spellings (UPPERCASE, the payment word's voice; the neutral is the lowercase `all`, exactly the Select's own; a lowercase or capitalized word is an unknown word, never a clever match; anything missing or unknown answers `all`, never stranded). The vocabulary lives in the ONE home (`BANK_TYPE_FILTERS`), cast-free — the generic parser IS the union.
+- **THE SUB-TAB AMENDMENT** (`banking-tab.tsx`): the lens lives inside the desk's Transactions pane — a lens the sub-tab law had parked. A landing that carries the word RAISES THE SUB-TAB IT LANDS INTO (the pane's seed reads the same landed word), so the answer is on screen the moment the desk opens. Switching panes afterwards is the human's own navigation — the chip hides with the pane and returns when it reopens (the honest remount semantics every desk already speaks).
+- **THE LANDING CHIP**: a sky pill before the type filter — `border-sky-300 bg-sky-100 text-sky-700` with the full dark wardrobe and a `focus-visible:ring-sky-400` ring, `data-testid="bank-type-landing-word"`, Link2 + X faces, a `title` tooltip, and a one-press dismissal that clears the lens the word seeded. THE SHADE-SPLIT'S FOURTH APPLICATION: sky one storey deeper at 300/100 — the hue the delivery-notes desk spoke at the 200/50 storey, a family byte the 200-storey can never equal, borrowing nothing from the desk's badges (blue, emerald, green, amber, red, orange, violet, slate).
+
+### Tests
+- `src/tests/bank-type-deep-link-v2387.test.ts` — the parser's truth table (UPPERCASE, case-sensitive, never stranded, rides beside the other twenty-five), the desk's seed (the ONE home, cast-free, write-once pair), the retirement door (every hand-driven type change retires the chip; the direct-write census), the two position laws (chip before the lens, INSIDE the pane it raised), the sky wardrobe + badge census, the collision ledger (which files may speak the word at all), the constitution's twenty-sixth row, and the feed's lead.
+- The constitution (`transfer-status-deep-link-v2357.test.ts`) grows to twenty-six words over twenty-three desks; the registry stress suite re-derives (23 desks, 26 DISTINCT families, the roll through TWENTY-SIXTH); ten elder ledgers re-anchor their cross-suite title pins.
+
 ## [2.386.0] The payload files itself
 
 The dry-run card reaches paper, the fixture world speaks a real line, and the mapper's last decimal leak seals.
