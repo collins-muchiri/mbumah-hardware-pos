@@ -208,6 +208,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // truth speaks this word) — an admission line carries the word
       // it admits
       'src/tests/exp-status-deep-link-v2391.test.ts',
+      // the thirty-first word's own ledger — admitted (its rides-beside
+      // truth speaks this word) — an admission line carries the word
+      // it admits
+      'src/tests/exp-type-deep-link-v2392.test.ts',
       'src/tests/family-registry-stress-v2370.test.ts',
       'src/tests/gc-status-deep-link-v2358.test.ts',
       'src/tests/inv-status-deep-link-v2356.test.ts',

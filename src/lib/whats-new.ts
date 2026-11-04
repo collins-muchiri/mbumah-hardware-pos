@@ -80,6 +80,17 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.392.0',
+    title: 'The export ledger answers by type',
+    bullets: [
+      'Export History now answers a second deep link: a link like /?tab=data-exports&exp-type=products opens the history already narrowed to that one data source \u2014 all ten export types answer their own word, from products to sales-summary.',
+      'The type lens sits beside the status lens \u2014 land both (?exp-status=completed&exp-type=products) and the table narrows on both dimensions at once; each keeps its own chip, its own dismissal, and never touches its sibling.',
+      'A brand-new type chip row lists every export type with its own live count \u2014 press a chip to narrow the table, press All types to widen back, and the counts always speak the current list.',
+      'The landing wears its own pink chip beside the indigo one \u2014 one press clears it, any hand change retires it. The chip is the deep-link family\u2019s thirty-first voice \u2014 the shade-split\u2019s ninth application, a hue no badge on this desk speaks.',
+      'The word\u2019s spelling is the type row\u2019s own: lowercase, exactly the cards\u2019 spellings (products, customers, debt\u2026) with the lowercase all for everything \u2014 the wire\u2019s uppercase types are not lens words, and the vocabulary never guesses.',
+    ],
+  },
+  {
     version: '2.391.0',
     title: 'The export ledger answers the address bar',
     bullets: [

@@ -223,6 +223,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // ledger LISTS this file's path — the third-order ripple: a
       // ledger line carries every word its paths speak)
       'src/tests/exp-status-deep-link-v2391.test.ts',
+      // the thirty-first word's own ledger — admitted (its own ledger
+      // LISTS this file's path — the third-order ripple: a ledger line
+      // carries every word its paths speak)
+      'src/tests/exp-type-deep-link-v2392.test.ts',
       // the registry stress parses the constitution's rows — the
       // twenty-sixth row rides through its parse (an honest speaker)
       'src/tests/family-registry-stress-v2370.test.ts',
@@ -248,7 +252,7 @@ describe('the address-bar vocabulary — the twenty-sixth row (cross-suite pins)
   const constitution = readFileSync('src/tests/transfer-status-deep-link-v2357.test.ts', 'utf8');
 
   it('the constitution walks TWENTY-SIX words over TWENTY-THREE desks', () => {
-    expect(constitution.includes('(thirty words, twenty-five desks)')).toBe(true);
+    expect(constitution.includes('(thirty-one words, twenty-five desks)')).toBe(true);
     expect(constitution.includes("{ word: 'bank-type', desk: 'src/app/(shell)/tabs/banking-tab.tsx', family: 'border-sky-300', suite: 'src/tests/bank-type-deep-link-v2387.test.ts' }")).toBe(true);
     expect(constitution.includes("'TWENTY-SIXTH'")).toBe(true);
   });
@@ -258,15 +262,16 @@ describe('the address-bar vocabulary — the twenty-sixth row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.391.0 leads the feed', () => {
+describe('whats-new — v2.392.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.391.0');
-    // the lead's story hand-over: the lead's story is v2.391.0's —
-    // the export ledger answers the address bar (the THIRTIETH word).
+    expect(head.version).toBe('2.392.0');
+    // the lead's story hand-over: the lead's story is v2.392.0's —
+    // the export ledger answers by type (the THIRTY-FIRST word).
     expect(head.title).toContain('export');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
     expect(head.bullets.some((b) => b.includes('exp-status'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('exp-type'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('Export History'))).toBe(true);
   });
 });
