@@ -505,6 +505,51 @@ export function parseInitialNamedMember<V extends string>(
 }
 
 /**
+ * v2.387.0 — THE PROMISE KEPT, THE TWENTY-SIXTH WORD: the banking desk
+ * answers the address bar. The bank ledger's transaction-type lens — the
+ * treasurer's daily question, "what moved through the accounts?" — speaks
+ * its desk-prefixed `bank-type` (the Select's OWN spellings, the five
+ * members of the txFilterType vocabulary, UPPERCASE — the payment word's
+ * voice; a lowercase `deposit` or a capitalized `Deposit` is an unknown
+ * word, not a clever match; the neutral is the lowercase `all`, exactly
+ * the Select's own). The chip wears the family's FOURTH SHADE-SPLIT —
+ * blue one storey deeper at 300/100: the hue last spoke at the 200/50
+ * storey (the transfers desk's word), and a hue may speak twice only
+ * through a DIFFERENT storey — a family byte the 200-storey can never
+ * equal. THE SUB-TAB LAW SPEAKS HERE (the default-sub-tab amendment's
+ * next case): the lens lives inside the desk's `transactions` sub-tab, so
+ * a landing that carries the word RAISES THE SUB-TAB IT LANDS INTO — the
+ * sub-tab's seed reads the same landed word, and the chip is visible on
+ * landing (the always-visible-face law's intent holds behind the desk's
+ * own inner navigation). Switching sub-tabs afterwards is the human's own
+ * navigation, not a lens change: the chip hides with the pane and returns
+ * when it reopens — the same honest remount semantics every desk already
+ * speaks across tab switches. THE LANDING IS READ ONCE ON THE SHELL: a
+ * plain useState initializer — a dismissed chip can never resurrect, and
+ * every hand-driven type change retires the chip (the chip speaks the
+ * ADDRESS BAR's landing, never the human's next choice).
+ */
+
+/**
+ * The banking desk's type vocabulary (v2.387.0) — the bank ledger's
+ * transaction-type Select's OWN spellings, the five UPPERCASE members of
+ * the txFilterType state plus the lowercase neutral. Lives here (the ONE
+ * home) so the desk, its deep-link word and the test suite speak one
+ * array — the same home REP_TYPE_FILTERS keeps for the reports desk's
+ * shape word.
+ */
+export const BANK_TYPE_FILTERS = [
+  'all',
+  'DEPOSIT',
+  'WITHDRAWAL',
+  'TRANSFER',
+  'FEE',
+  'INTEREST',
+] as const;
+
+export type BankTypeFilter = (typeof BANK_TYPE_FILTERS)[number];
+
+/**
  * v2.368.0 — THE LEGACY-WORD SUNSET LAW, the alias parser. The family's
  * naming constitution (Task 44's collision analysis, worn by every word
  * since `?po-status=`) requires a DESK-PREFIXED param — but one desk

@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.387.0',
+    title: 'The bank ledger answers the address bar',
+    bullets: [
+      'The bank ledger\u2019s type lens is now a bookmark: a link like /?tab=banking&bank-type=DEPOSIT opens the Banking desk already filtered to deposits \u2014 withdrawals, transfers, fees and interest each answer their own word, and a misspelled one politely falls back to All Types.',
+      'A landing that carries the word raises the Transactions pane it lands into, so the answer is on screen the moment the desk opens \u2014 switching panes afterwards is ordinary navigation, and the sky \u201clanded ?bank-type=\u2026\u201d chip waits on the pane when you come back.',
+      'The chip sits before the type filter and only speaks the address bar\u2019s landing: one press clears it, any hand change retires it. It is the deep-link family\u2019s twenty-sixth voice \u2014 the shade-split\u2019s fourth application, a storey the shallow chips can never speak.',
+      'The word\u2019s spelling is the dropdown\u2019s own: UPPERCASE types exactly as the Select spells them (DEPOSIT, WITHDRAWAL, TRANSFER, FEE, INTEREST) with the lowercase all for everything \u2014 the vocabulary never guesses.',
+    ],
+  },
+  {
     version: '2.386.0',
     title: 'The payload files itself',
     bullets: [
