@@ -152,7 +152,10 @@ describe('the debt management desk — ?debt-status= lands as visible state', ()
 
   it('the landing RAISES the pane it lands into (the sub-tab amendment, third application)', () => {
     expect(
-      desk.includes("const [activeTab, setActiveTab] = useState(() => (initialDebtStatus() !== 'all' ? 'history' : 'board'));")
+      // v2.390.0 hand-over: the desk's SECOND word joined the seed —
+      // the pane raise now reads BOTH words (either lands, the History
+      // pane rises; the same-pane two-word negotiation).
+      desk.includes("const [activeTab, setActiveTab] = useState(() => (initialDebtStatus() !== 'all' || initialDebtChannel() !== 'all' ? 'history' : 'board'));")
     ).toBe(true);
   });
 
@@ -220,6 +223,9 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // the desk's word rides the twenty-sixth ledger's feed-story
       // hand-over (its lead pins speak this round's story)
       'src/tests/bank-type-deep-link-v2387.test.ts',
+      // the desk's SECOND word's ledger — this suite pins its sibling
+      // chip (the same-pane negotiation) — an honest speaker
+      'src/tests/debt-channel-deep-link-v2390.test.ts',
       // this suite (the word's own ledger — an honest speaker)
       'src/tests/debt-status-deep-link-v2389.test.ts',
       'src/tests/et-status-deep-link-v2381.test.ts',
@@ -229,9 +235,6 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // the po-status word's ledger lives beside the proxy-gate suite
       // (one release, two suites — the ledger is the honest speaker here)
       'src/tests/proxy-gate-layering-v2328.test.ts',
-      // the reports ledger re-anchored its feed-story pins to the new
-      // lead — the story speaks this word (the hand-over's honest cost)
-      'src/tests/rep-type-deep-link-v2384.test.ts',
       'src/tests/tax-type-deep-link-v2382.test.ts',
       // the constitution's twenty-eighth row + the admission this file
       // earns from the transfer-status ledger (this suite names it)
@@ -249,7 +252,7 @@ describe('the address-bar vocabulary — the twenty-eighth row (cross-suite pins
   const constitution = readFileSync('src/tests/transfer-status-deep-link-v2357.test.ts', 'utf8');
 
   it('the constitution walks TWENTY-EIGHT words over TWENTY-FOUR desks (a new desk speaks)', () => {
-    expect(constitution.includes('(twenty-eight words, twenty-four desks)')).toBe(true);
+    expect(constitution.includes('(twenty-nine words, twenty-four desks)')).toBe(true);
     expect(constitution.includes("{ word: 'debt-status', desk: 'src/app/(shell)/tabs/debt-management-tab.tsx', family: 'border-cyan-300', suite: 'src/tests/debt-status-deep-link-v2389.test.ts' }")).toBe(true);
     expect(constitution.includes("'TWENTY-EIGHTH'")).toBe(true);
   });
@@ -259,13 +262,15 @@ describe('the address-bar vocabulary — the twenty-eighth row (cross-suite pins
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.389.0 leads the feed', () => {
+describe('whats-new — v2.390.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.389.0');
-    expect(head.title).toContain('debt');
+    expect(head.version).toBe('2.390.0');
+    // the lead's story hand-over: the lead's story is v2.390.0's —
+    // the debt ledger answers by the channel (the desk's SECOND word).
+    expect(head.title).toContain('channel');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('debt-status'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('debt-channel'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('History pane'))).toBe(true);
   });
 });

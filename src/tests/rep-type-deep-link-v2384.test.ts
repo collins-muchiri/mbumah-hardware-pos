@@ -212,15 +212,15 @@ describe('the lockfile parity guard — root-version and range legs', () => {
 // 4. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.389.0 leads the feed', () => {
+describe('whats-new — v2.390.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.389.0');
+    expect(head.version).toBe('2.390.0');
     // the lead's story re-anchor (the elder lead's title-pin hand-over):
-    // the lead's story is v2.389.0's — the debt ledger answers the bar.
-    expect(head.title).toContain('debt');
+    // the lead's story is v2.390.0's — the debt ledger answers by the channel.
+    expect(head.title).toContain('channel');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('debt-status'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('debt-channel'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('History pane'))).toBe(true);
   });
 });

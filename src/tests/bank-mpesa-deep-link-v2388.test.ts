@@ -212,6 +212,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // speaks `bank-type` in its rides-beside truth and its two-word
       // chip census) — an admission line carries the word it admits
       'src/tests/bank-type-deep-link-v2387.test.ts',
+      // the twenty-ninth word's own ledger admits this suite (it
+      // speaks `bank-mpesa` in its rides-beside truth) — an admission
+      // line carries the word it admits
+      'src/tests/debt-channel-deep-link-v2390.test.ts',
       // the twenty-eighth word's own ledger admits this suite (it
       // speaks `bank-mpesa` in its rides-beside truth) — an admission
       // line carries the word it admits
@@ -242,7 +246,7 @@ describe('the address-bar vocabulary — the twenty-seventh row (cross-suite pin
   const constitution = readFileSync('src/tests/transfer-status-deep-link-v2357.test.ts', 'utf8');
 
   it('the constitution walks TWENTY-EIGHT words over TWENTY-FOUR desks (a new desk speaks)', () => {
-    expect(constitution.includes('(twenty-eight words, twenty-four desks)')).toBe(true);
+    expect(constitution.includes('(twenty-nine words, twenty-four desks)')).toBe(true);
     expect(constitution.includes("{ word: 'bank-mpesa', desk: 'src/app/(shell)/tabs/banking-tab.tsx', family: 'border-purple-300', suite: 'src/tests/bank-mpesa-deep-link-v2388.test.ts' }")).toBe(true);
     expect(constitution.includes("'TWENTY-SEVENTH'")).toBe(true);
   });
@@ -252,15 +256,15 @@ describe('the address-bar vocabulary — the twenty-seventh row (cross-suite pin
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.389.0 leads the feed', () => {
+describe('whats-new — v2.390.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.389.0');
-    // the lead's story hand-over: the lead's story is v2.389.0's —
-    // the debt ledger answers the bar (the desk's FIRST word).
-    expect(head.title).toContain('debt');
+    expect(head.version).toBe('2.390.0');
+    // the lead's story hand-over: the lead's story is v2.390.0's —
+    // the debt ledger answers by the channel (the desk's SECOND word).
+    expect(head.title).toContain('channel');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('debt-status'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('debt-channel'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('History pane'))).toBe(true);
   });
 });
