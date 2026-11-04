@@ -550,6 +550,56 @@ export const BANK_TYPE_FILTERS = [
 export type BankTypeFilter = (typeof BANK_TYPE_FILTERS)[number];
 
 /**
+ * v2.388.0 — THE PROMISE KEPT, THE TWENTY-SEVENTH WORD: the banking
+ * desk's M-Pesa ledger answers the address bar. The M-Pesa pane's
+ * status lens — the treasurer's other daily question, "what is still
+ * pending on the float?" — speaks its desk-prefixed `bank-mpesa` (the
+ * Select's OWN spellings, the four members of the mpesaFilterStatus
+ * vocabulary, UPPERCASE — the payment word's voice; a lowercase
+ * `pending` or a capitalized `Pending` is an unknown word, not a
+ * clever match; the neutral is the lowercase `all`, exactly the
+ * Select's own). The chip wears the family's FIFTH SHADE-SPLIT —
+ * purple one storey deeper at 300/100: the hue last spoke at the
+ * 200/50 storey (the catalog desk's word), and a hue may speak twice
+ * only through a DIFFERENT storey — a family byte the 200-storey can
+ * never equal; the desk's own badges speak blue, emerald, green,
+ * amber, red, orange, violet and slate, so the deeper purple borrows
+ * nothing from any badge. THE SUB-TAB LAW SPEAKS HERE TOO (the
+ * amendment's SECOND application, one release after its first): the
+ * lens lives inside the desk's `mpesa` pane, so a landing that carries
+ * the word RAISES THE PANE IT LANDS INTO — the pane's seed reads the
+ * same landed word, and the chip is visible on landing. The desk now
+ * owns TWO words (the suppliers and transactions precedent): when both
+ * land together, the M-PESA word wins the pane seed (the deeper pane
+ * raises), and each chip waits honestly inside its own pane — hidden
+ * only until the human navigates to it, returning on the switch (the
+ * honest remount semantics every desk already speaks). Switching
+ * panes afterwards is the human's own navigation, not a lens change.
+ * THE LANDING IS READ ONCE ON THE SHELL: a plain useState initializer
+ * — a dismissed chip can never resurrect, and every hand-driven status
+ * change retires the chip (the chip speaks the ADDRESS BAR's landing,
+ * never the human's next choice).
+ */
+
+/**
+ * The banking desk's M-Pesa status vocabulary (v2.388.0) — the M-Pesa
+ * ledger's status Select's OWN spellings, the four UPPERCASE members of
+ * the mpesaFilterStatus state plus the lowercase neutral. Lives here
+ * (the ONE home) so the desk, its deep-link word and the test suite
+ * speak one array — the same home BANK_TYPE_FILTERS keeps for the
+ * desk's type word.
+ */
+export const BANK_MPESA_FILTERS = [
+  'all',
+  'PENDING',
+  'MATCHED',
+  'UNMATCHED',
+  'DISPUTED',
+] as const;
+
+export type BankMpesaFilter = (typeof BANK_MPESA_FILTERS)[number];
+
+/**
  * v2.368.0 — THE LEGACY-WORD SUNSET LAW, the alias parser. The family's
  * naming constitution (Task 44's collision analysis, worn by every word
  * since `?po-status=`) requires a DESK-PREFIXED param — but one desk

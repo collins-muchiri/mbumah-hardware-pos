@@ -36,7 +36,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
-import { BANK_TYPE_FILTERS, parseInitialNamedMember } from '@/lib/tab-url';
+import { BANK_MPESA_FILTERS, BANK_TYPE_FILTERS, parseInitialNamedMember } from '@/lib/tab-url';
 
 // THE BANKING DESK'S OWN WORD (v2.387.0): the bank ledger's
 // transaction-type lens answers the address bar. `?bank-type=DEPOSIT`
@@ -74,6 +74,42 @@ function initialBankType(): (typeof BANK_TYPE_FILTERS)[number] {
 }
 type BankTypeWordValue = (typeof BANK_TYPE_FILTERS)[number];
 
+// THE M-PESA LEDGER'S OWN WORD (v2.388.0): the M-Pesa pane's status
+// lens answers the address bar — the desk's SECOND word (the suppliers
+// and transactions precedent). `?bank-mpesa=PENDING` lands the desk on
+// its M-Pesa pane, pre-filtered to the statuses still waiting — the
+// float's daily question becomes a bookmark. The lens's words are the
+// Select's OWN spellings (UPPERCASE: PENDING | MATCHED | UNMATCHED |
+// DISPUTED, the payment word's voice; a lowercase `pending` or a
+// capitalized `Pending` is an unknown word — never a clever match; the
+// neutral is the lowercase `all`, exactly the Select's own). Anything
+// missing or unknown answers 'all' (never stranded). The word is
+// desk-prefixed per the Task 44 collision law: `bank-mpesa` can never
+// leak across client-side tab switches — collision-checked at round
+// start (grep-free tree-wide; the byte appeared NOWHERE before this
+// word, and the chip wears the family's FIFTH shade-split — purple one
+// storey deeper at 300/100, the hue the catalog desk spoke at the
+// 200/50 storey; the desk's badges speak blue, emerald, green, amber,
+// red, orange, violet and slate, so the deeper purple borrows nothing).
+// Read-on-mount ONLY (the one-writer law): the landing word is the
+// LANDING lens, never rewritten; the Select and the chip's own
+// dismissal own the state after.
+// THE SUB-TAB AMENDMENT'S SECOND APPLICATION: the lens lives inside
+// the desk's M-Pesa pane — a landing that carries the word RAISES THE
+// PANE IT LANDS INTO (the pane's seed reads the same landed word), so
+// the chip is visible on landing. THE TWO-WORD NEGOTIATION: when both
+// of the desk's words land together, the M-PESA word wins the pane
+// seed (the deeper pane raises); each chip waits honestly inside its
+// own pane — hidden only until the human navigates to it, returning on
+// the switch (the honest remount semantics every desk already speaks).
+// Switching panes afterwards is the human's own navigation, not a
+// lens change.
+function initialMpesaStatus(): (typeof BANK_MPESA_FILTERS)[number] {
+  if (typeof window === 'undefined') return 'all';
+  return parseInitialNamedMember(window.location.search, 'bank-mpesa', BANK_MPESA_FILTERS, 'all');
+}
+type BankMpesaWordValue = (typeof BANK_MPESA_FILTERS)[number];
+
 // Helpers
 
 const ACCOUNT_TYPE_BADGE: Record<string, { label: string; color: string }> = {
@@ -110,11 +146,15 @@ const MPESA_STATUS_BADGE: Record<string, { label: string; color: string }> = {
 export default function BankingTab() {
   const storeId = useAppStore((s) => s.currentStoreId);
   const queryClient = useQueryClient();
-  // v2.387.0 THE SUB-TAB AMENDMENT: a landing that carries the word
-  // RAISES the Transactions sub-tab it lands into (the sub-tab's seed
-  // reads the same landed word), so the chip is visible on landing; a
-  // landing without the word opens the desk's default face (Accounts).
-  const [activeSubTab, setActiveSubTab] = useState(() => (initialBankType() !== 'all' ? 'transactions' : 'accounts'));
+  // v2.387.0 THE SUB-TAB AMENDMENT / v2.388.0 ITS SECOND APPLICATION: a
+  // landing that carries either word RAISES the pane it lands into (the
+  // pane's seed reads the same landed word); a landing with both words
+  // raises the M-PESA pane (the deeper pane wins the seed); a landing
+  // without either word opens the desk's default face (Accounts).
+  const [activeSubTab, setActiveSubTab] = useState(() => {
+    if (initialMpesaStatus() !== 'all') return 'mpesa';
+    return initialBankType() !== 'all' ? 'transactions' : 'accounts';
+  });
 
   // Queries
 
@@ -262,7 +302,25 @@ export default function BankingTab() {
   const [txSearch, setTxSearch] = useState('');
 
   // M-Pesa filters
-  const [mpesaFilterStatus, setMpesaFilterStatus] = useState<string>('all');
+  // v2.388.0 THE LANDING WORD — the status lens's seed reads
+  // `?bank-mpesa=` through the ONE home, cast-free: the generic parser
+  // answers the vocabulary union, and the lens's state carries the SAME
+  // words the Select speaks (its four SelectItems ARE the union).
+  const [mpesaFilterStatus, setMpesaFilterStatus] = useState<string>(initialMpesaStatus);
+  // v2.388.0 — the address-bar word the desk answered at mount ('all'
+  // when the landing carried no lens). The chip speaks it ONCE:
+  // dismissed, hand-changed, or cleared, the landing is over and the
+  // chip retires — an honest face never claims a landing that is done
+  // (the inventory desk's three-voice law, worn in the lens's purple).
+  const [landedMpesaStatus] = useState<BankMpesaWordValue>(initialMpesaStatus);
+  const [mpesaLandingLive, setMpesaLandingLive] = useState(true);
+
+  // v2.388.0: a hand-driven change retires the landing word — the chip
+  // speaks the ADDRESS BAR's landing, never the human's next choice.
+  const chooseMpesaStatus = (value: string) => {
+    setMpesaFilterStatus(value);
+    setMpesaLandingLive(false);
+  };
 
   // Pagination
   const [txPage, setTxPage] = useState(1);
@@ -915,7 +973,28 @@ export default function BankingTab() {
         {/* ─── M-PESA TAB ─────────────────────────────────── */}
         <TabsContent value="mpesa" className="mt-4 space-y-4">
           <div className="flex items-center gap-2">
-            <Select value={mpesaFilterStatus} onValueChange={setMpesaFilterStatus}>
+            {/* v2.388.0 THE LANDING CHIP — the address bar's word, spoken
+                while the lens still shows the landing (the two retirement
+                voices: the chip's own dismissal and a hand-driven Select
+                change). `data-testid="bank-mpesa-landing-word"` — the QA
+                walk's handle. */}
+            {mpesaLandingLive && landedMpesaStatus !== 'all' && mpesaFilterStatus === landedMpesaStatus && (
+              <button
+                type="button"
+                onClick={() => {
+                  setMpesaFilterStatus('all');
+                  setMpesaLandingLive(false);
+                }}
+                className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-purple-300 bg-purple-100 text-purple-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-purple-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 dark:border-purple-500/30 dark:bg-purple-500/10 dark:text-purple-300 dark:hover:bg-purple-500/20"
+                data-testid="bank-mpesa-landing-word"
+                title="The desk landed with this filter from the address bar — press to clear it"
+              >
+                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+                <span className="tabular-nums">landed ?bank-mpesa={landedMpesaStatus}</span>
+                <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+              </button>
+            )}
+            <Select value={mpesaFilterStatus} onValueChange={chooseMpesaStatus}>
               <SelectTrigger className="h-9 w-[150px] text-xs">
                 <SelectValue placeholder="All Statuses" />
               </SelectTrigger>
