@@ -229,6 +229,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // this suite (the word's own ledger — an honest speaker)
       'src/tests/debt-status-deep-link-v2389.test.ts',
       'src/tests/et-status-deep-link-v2381.test.ts',
+      // the thirtieth word's own ledger — admitted (this suite's own
+      // ledger LISTS this file's path — the third-order ripple: a
+      // ledger line carries every word its paths speak)
+      'src/tests/exp-status-deep-link-v2391.test.ts',
       // the registry stress parses the constitution's rows — the
       // twenty-eighth row rides through its parse (an honest speaker)
       'src/tests/family-registry-stress-v2370.test.ts',
@@ -252,7 +256,7 @@ describe('the address-bar vocabulary — the twenty-eighth row (cross-suite pins
   const constitution = readFileSync('src/tests/transfer-status-deep-link-v2357.test.ts', 'utf8');
 
   it('the constitution walks TWENTY-EIGHT words over TWENTY-FOUR desks (a new desk speaks)', () => {
-    expect(constitution.includes('(twenty-nine words, twenty-four desks)')).toBe(true);
+    expect(constitution.includes('(thirty words, twenty-five desks)')).toBe(true);
     expect(constitution.includes("{ word: 'debt-status', desk: 'src/app/(shell)/tabs/debt-management-tab.tsx', family: 'border-cyan-300', suite: 'src/tests/debt-status-deep-link-v2389.test.ts' }")).toBe(true);
     expect(constitution.includes("'TWENTY-EIGHTH'")).toBe(true);
   });
@@ -262,15 +266,15 @@ describe('the address-bar vocabulary — the twenty-eighth row (cross-suite pins
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.390.0 leads the feed', () => {
+describe('whats-new — v2.391.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.390.0');
-    // the lead's story hand-over: the lead's story is v2.390.0's —
-    // the debt ledger answers by the channel (the desk's SECOND word).
-    expect(head.title).toContain('channel');
+    expect(head.version).toBe('2.391.0');
+    // the lead's story hand-over: the lead's story is v2.391.0's —
+    // the export ledger answers the address bar (the THIRTIETH word).
+    expect(head.title).toContain('export');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('debt-channel'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('History pane'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('exp-status'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('Export History'))).toBe(true);
   });
 });

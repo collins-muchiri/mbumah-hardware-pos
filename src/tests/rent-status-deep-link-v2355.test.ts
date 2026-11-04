@@ -228,6 +228,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/dn-status-deep-link-v2359.test.ts',
       'src/tests/dp-status-deep-link-v2365.test.ts',
       'src/tests/et-status-deep-link-v2381.test.ts',
+      // the thirtieth word's own ledger — admitted (its rides-beside
+      // truth speaks this word) — an admission line carries the word
+      // it admits
+      'src/tests/exp-status-deep-link-v2391.test.ts',
       'src/tests/family-registry-stress-v2370.test.ts',
       'src/tests/gc-status-deep-link-v2358.test.ts',
       'src/tests/inv-status-deep-link-v2356.test.ts',
