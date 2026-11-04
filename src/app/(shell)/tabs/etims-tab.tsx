@@ -20,6 +20,7 @@ import {
   CheckCircle, Clock, AlertCircle, XCircle, FileText, Search,
   Send, Eye, Database, Activity, AlertTriangle,
   Hash, Calendar, Receipt, Settings2, Link2, X,
+  Copy, Check,
 } from 'lucide-react';
 
 import { useAppStore, useAuthStore } from '@/lib/stores';
@@ -28,6 +29,7 @@ import {
   type InvoiceForKraItem,
   type KraSubmissionItem,
 } from '@/lib/api';
+import type { KraInvoicePayload } from '@/lib/types';
 import { handleError } from '@/lib/error-handler';
 import { formatDateTime, formatKES } from '@/lib/api';
 import { useVatRate } from '@/hooks/use-vat-rate';
@@ -500,6 +502,12 @@ function InvoicesSection({
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceForKraItem | null>(null);
   const [submitTransactionId, setSubmitTransactionId] = useState('');
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
+  // v2.385.0: the dry-run's mapped payload — the dialog's own paper trail.
+  // A dry-run keeps the dialog OPEN and speaks the payload; a live submit
+  // (or a fresh opener) clears it. The toast alone was the old surface:
+  // the preview existed on the wire and died unread.
+  const [dryRunPayload, setDryRunPayload] = useState<KraInvoicePayload | null>(null);
+  const [payloadCopied, setPayloadCopied] = useState(false);
   // a hand-driven Select change retires the landing word — the chip
   // speaks the ADDRESS BAR's landing, never the human's next choice.
   const chooseEtStatus = (value: EtStatusFilter) => {
@@ -529,18 +537,45 @@ function InvoicesSection({
     mutationFn: (data: { transactionId: string; dryRun?: boolean }) =>
       kraApi.submitInvoice({ ...data, storeId }),
     onSuccess: (data) => {
-      if (data.dryRun) {
+      // v2.385.0: the ENVELOPE read — the wire answers ApiResponse<T> and
+      // the payload rides inside data.data; narrowing through it also
+      // retires the desk's own two envelope TS2339s (dryRun and message
+      // were read off the envelope face — the pre-existing pair).
+      const res = data.data;
+      if (res?.dryRun) {
         toast.success('Dry-run complete. Payload mapped - no KRA call was made.');
+        // v2.385.0: the dry-run's whole point is the payload — the dialog
+        // STAYS OPEN so the mapped invoice can be read (and copied) before
+        // the real call. The old flow closed the dialog out from under it.
+        if (res.payload) setDryRunPayload(res.payload);
       } else {
         toast.success(data.message || 'Invoice submitted to KRA.');
+        setDryRunPayload(null);
+        setShowSubmitDialog(false);
+        setSubmitTransactionId('');
       }
       queryClient.invalidateQueries({ queryKey: ['kra-invoices', storeId] });
       queryClient.invalidateQueries({ queryKey: ['kra-submissions', storeId] });
-      setShowSubmitDialog(false);
-      setSubmitTransactionId('');
     },
     onError: (err) => handleError(err),
   });
+
+  // v2.385.0: the copy voice — the payload leaves as pretty JSON (the
+  // paper-trail pattern: what the operator files is what KRA would see).
+  const copyPayload = async () => {
+    if (!dryRunPayload) return;
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(dryRunPayload, null, 2));
+      setPayloadCopied(true);
+      setTimeout(() => setPayloadCopied(false), 2000);
+    } catch {
+      toast.error('Could not copy the payload to the clipboard.');
+    }
+  };
+
+  // the money faces ride the boundary coercion (the wire's money-face
+  // law): the mapper's numbers and any stringified decimals both speak.
+  const payloadMoney = (v: number | string) => formatKES(Number(v));
 
   const pollStatusMutation = useMutation({
     mutationFn: (invoiceForKraId: string) => kraApi.queryStatus(invoiceForKraId),
@@ -645,7 +680,14 @@ function InvoicesSection({
                 <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
               </Button>
               {canSubmit && (
-                <Button size="sm" onClick={() => setShowSubmitDialog(true)}>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    setSubmitTransactionId('');
+                    setDryRunPayload(null);
+                    setShowSubmitDialog(true);
+                  }}
+                >
                   <Plus className="h-4 w-4 mr-1.5" />
                   Submit Invoice
                 </Button>
@@ -734,6 +776,27 @@ function InvoicesSection({
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+                              {canSubmit && inv.submissionStatus === 'PENDING' && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-7 px-2"
+                                  aria-label={`Submit ${inv.kraInvoiceNumber} to KRA`}
+                                  title="Submit to KRA"
+                                  onClick={() => {
+                                    // v2.385.0: submit from the row — the
+                                    // transaction id arrives pre-filled, no
+                                    // blind typing from a second screen.
+                                    setSubmitTransactionId(inv.transactionId);
+                                    setDryRunPayload(null);
+                                    setShowSubmitDialog(true);
+                                  }}
+                                  disabled={submitMutation.isPending}
+                                >
+                                  <Send className="h-3 w-3" />
+                                  <span className="sr-only">Submit to KRA</span>
+                                </Button>
+                              )}
                               {(inv.submissionStatus === 'SUBMITTED' || inv.submissionStatus === 'PENDING') && (
                                 <Button
                                   variant="ghost"
@@ -817,6 +880,82 @@ function InvoicesSection({
                 The transaction must belong to this store and not already be ACCEPTED by KRA.
               </p>
             </div>
+            {dryRunPayload && (
+              <div
+                data-testid="kra-dryrun-payload"
+                aria-live="polite"
+                className="rounded-lg border border-slate-200 bg-slate-50/60 dark:border-slate-800 dark:bg-slate-900/40 p-3 text-xs space-y-2"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="inline-flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-300">
+                    <Database className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                    Mapped payload — no KRA call was made
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-6 px-2 text-xs"
+                    aria-label="Copy mapped payload as JSON"
+                    onClick={copyPayload}
+                  >
+                    {payloadCopied ? (
+                      <Check className="h-3 w-3 mr-1 text-emerald-600 dark:text-emerald-400" />
+                    ) : (
+                      <Copy className="h-3 w-3 mr-1" />
+                    )}
+                    {payloadCopied ? 'Copied' : 'Copy'}
+                  </Button>
+                </div>
+                <dl className="divide-y divide-slate-200 dark:divide-slate-800">
+                  <div className="flex items-center justify-between gap-3 py-1.5">
+                    <dt className="text-muted-foreground">KRA invoice no.</dt>
+                    <dd className="font-mono tabular-nums font-medium">{dryRunPayload.kraInvoiceNumber}</dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 py-1.5">
+                    <dt className="text-muted-foreground">Buyer</dt>
+                    <dd className="text-right font-medium">
+                      {dryRunPayload.customerName}
+                      {dryRunPayload.customerPin ? (
+                        <span className="ml-1.5 font-mono text-muted-foreground">{dryRunPayload.customerPin}</span>
+                      ) : null}
+                    </dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 py-1.5">
+                    <dt className="text-muted-foreground">Issued</dt>
+                    <dd className="tabular-nums">{formatDateTime(dryRunPayload.issueDate)}</dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 py-1.5">
+                    <dt className="text-muted-foreground">Payment</dt>
+                    <dd className="font-medium">{dryRunPayload.paymentMethod}</dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 py-1.5">
+                    <dt className="text-muted-foreground">Line items</dt>
+                    <dd className="tabular-nums">{dryRunPayload.items.length}</dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 py-1.5">
+                    <dt className="text-muted-foreground">Subtotal</dt>
+                    <dd className="tabular-nums">{payloadMoney(dryRunPayload.subtotal)}</dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 py-1.5">
+                    <dt className="text-muted-foreground">Discount</dt>
+                    <dd className="tabular-nums">{payloadMoney(dryRunPayload.totalDiscount)}</dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 py-1.5">
+                    <dt className="text-muted-foreground">VAT (16%)</dt>
+                    <dd className="tabular-nums font-medium text-blue-600 dark:text-blue-400">
+                      {payloadMoney(dryRunPayload.totalVat)}
+                    </dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 py-1.5">
+                    <dt className="font-medium">Total</dt>
+                    <dd className="tabular-nums font-semibold">{payloadMoney(dryRunPayload.totalAmount)}</dd>
+                  </div>
+                </dl>
+                <p className="text-[11px] text-muted-foreground">
+                  Press Submit to send this payload to KRA, or Dry Run again after edits.
+                </p>
+              </div>
+            )}
           </div>
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setShowSubmitDialog(false)} disabled={submitMutation.isPending}>

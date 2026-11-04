@@ -18,6 +18,7 @@ import type {
   UpdateGiftCardPayload,
   RedeemGiftCardPayload,
   AdjustGiftCardBalancePayload,
+  KraInvoicePayload,
 } from './types';
 
 // Canonical currency display formatting (delegates KES to financialMath.formatKES).
@@ -4658,7 +4659,15 @@ export const kraApi = {
   },
 
   submitInvoice: async (data: { transactionId: string; storeId: string; dryRun?: boolean }) => {
-    return request<{ invoiceForKra: InvoiceForKraItem; result?: unknown; dryRun?: boolean }>(
+    // v2.385.0: `payload` joins the response type additively — the dry-run
+    // short-circuit (/api/kra/submit) returns the mapped KraInvoicePayload
+    // and the dialog now renders it instead of toasting it away.
+    return request<{
+      invoiceForKra: InvoiceForKraItem;
+      result?: unknown;
+      dryRun?: boolean;
+      payload?: KraInvoicePayload;
+    }>(
       '/kra/submit',
       { method: 'POST', body: JSON.stringify(data) },
     );

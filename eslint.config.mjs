@@ -172,6 +172,12 @@ const eslintConfig = [
       "scripts/**",
       "prisma/migrations/**",
       "coverage/**",
+      // v2.385.0: the roundtrip baseline worktree (the scoped-tsc census's
+      // HEAD mirror) lives INSIDE the repo so node_modules resolves — but
+      // its own eslint.config.mjs poisons a root `eslint .` scan (flat
+      // config picks it up per-directory and the plugin registry tears).
+      // The worktree is a standing local artifact; the scan must skip it.
+      ".roundtrip-baseline/**",
     ],
   },
 ];
