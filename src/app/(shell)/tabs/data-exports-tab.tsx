@@ -16,7 +16,7 @@
 import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Database, Loader2, Plus, RefreshCw } from 'lucide-react';
+import { Database, Link2, Loader2, Plus, RefreshCw, X } from 'lucide-react';
 
 import { useAppStore } from '@/lib/stores';
 import {
@@ -24,6 +24,7 @@ import {
   type DataExportItem,
   type DataExportType,
 } from '@/lib/api';
+import { EXP_STATUS_FILTERS, parseInitialNamedMember } from '@/lib/tab-url';
 import { handleError } from '@/lib/error-handler';
 
 import { Button } from '@/components/ui/button';
@@ -37,12 +38,56 @@ import { CreateExportDialog } from '@/components/data-exports/create-export-dial
 import { ExportsHistoryTable } from '@/components/data-exports/exports-history-table';
 import { ExportsStatsCards } from '@/components/data-exports/exports-stats-cards';
 
+// THE EXPORT LEDGER'S OWN WORD (v2.391.0): the data-exports desk's
+// history lens answers the address bar — the family's THIRTIETH word.
+// `?exp-status=completed` lands the Export History section pre-filtered
+// to the files that are ready — the export center's daily question
+// ("which of my files are ready, and which died?") becomes a bookmark.
+// The lens's words are the chip row's OWN spellings (lowercase:
+// completed | failed | processing, the chip word's voice; the wire's
+// UPPERCASE statuses — `COMPLETED`, `PENDING` — are NOT lens words, a
+// capitalized word names nothing, never a clever match; the neutral is
+// the lowercase `all`). Anything missing or unknown answers 'all'
+// (never stranded). The word is desk-prefixed per the Task 44 collision
+// law: `exp-status` can never leak across client-side tab switches —
+// collision-checked at round start (the byte appeared NOWHERE before
+// this word), and the chip wears the family's EIGHTH shade-split —
+// indigo at the 300/100 storey (a hue NO badge on this desk speaks:
+// the census answers amber, emerald, rose, green, red, teal, violet,
+// purple, orange, cyan, blue and slate — and a hue the family's first
+// indigo, the purchase-orders roster's 200-storey word, never shared a
+// bar with). Read-on-mount ONLY (the one-writer law): the landing word
+// is the LANDING lens, never rewritten; the table's own chips and the
+// chip's own dismissal own the state after — the history table runs in
+// its CONTROLLED form (the v2.391.0 hand): the filter state is lifted
+// here, the chip row stays visible, and a hand-driven chip press is
+// the lens's second retirement voice.
+function initialExpStatus(): (typeof EXP_STATUS_FILTERS)[number] {
+  if (typeof window === 'undefined') return 'all';
+  return parseInitialNamedMember(window.location.search, 'exp-status', EXP_STATUS_FILTERS, 'all');
+}
+type ExpStatusWordValue = (typeof EXP_STATUS_FILTERS)[number];
+
 export function DataExportsTab() {
   const { currentStoreId } = useAppStore();
   const [createOpen, setCreateOpen] = useState(false);
   const [presetType, setPresetType] = useState<DataExportType | undefined>(
     undefined,
   );
+  // v2.391.0 THE LANDING WORD — read once on mount (the one-writer
+  // law): `landedExpStatus` freezes what the address bar said, the
+  // live flag retires, and `expStatusFilter` owns the lens afterwards.
+  const [landedExpStatus] = useState<ExpStatusWordValue>(initialExpStatus);
+  const [expLandingLive, setExpLandingLive] = useState(() => initialExpStatus() !== 'all');
+  const [expStatusFilter, setExpStatusFilter] = useState<ExpStatusWordValue>(initialExpStatus);
+
+  // The lens's ONE voice (v2.391.0): a hand-driven change is the lens's
+  // second retirement voice — any word other than the landed one
+  // retires the chip (the debt desk's chooseDebtChannel precedent).
+  const chooseExpStatus = (v: ExpStatusWordValue) => {
+    setExpStatusFilter(v);
+    if (v !== landedExpStatus) setExpLandingLive(false);
+  };
 
   // Data: stats
   const {
@@ -188,6 +233,30 @@ export function DataExportsTab() {
             showing most recent first
           </span>
         </div>
+        {/* v2.391.0 THE LANDING CHIP — the address bar's word, spoken
+            while the lens still shows the landing (the two retirement
+            voices: the chip's own dismissal and a hand-driven chip
+            press through the table's controlled hand).
+            `data-testid="exp-status-landing-word"` — the QA walk's
+            handle. The chip sits before the history section, wearing
+            the indigo wardrobe at the 300/100 storey (light: border-300
+            + bg-100; dark: the family's 500/10 surfaces). */}
+        {expLandingLive && landedExpStatus !== 'all' && expStatusFilter === landedExpStatus && (
+          <button
+            type="button"
+            onClick={() => {
+              setExpStatusFilter('all');
+              setExpLandingLive(false);
+            }}
+            className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-indigo-300 bg-indigo-100 text-indigo-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-indigo-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300 dark:hover:bg-indigo-500/20"
+            data-testid="exp-status-landing-word"
+            title="The desk landed with this filter from the address bar — press to clear it"
+          >
+            <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+            <span className="tabular-nums">landed ?exp-status={landedExpStatus}</span>
+            <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+          </button>
+        )}
         {exportsLoading ? (
           <div className="rounded-lg border bg-card p-4 space-y-2">
             {Array.from({ length: 4 }).map((_, i) => (
@@ -195,7 +264,11 @@ export function DataExportsTab() {
             ))}
           </div>
         ) : (
-          <ExportsHistoryTable exports={exportsList} />
+          <ExportsHistoryTable
+            exports={exportsList}
+            externalFilter={expStatusFilter}
+            onFilterChange={chooseExpStatus}
+          />
         )}
       </section>
 

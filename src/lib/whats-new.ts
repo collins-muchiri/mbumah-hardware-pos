@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.391.0',
+    title: 'The export ledger answers the address bar',
+    bullets: [
+      'The Data Exports desk\u2019s history is now a bookmark: a link like /?tab=data-exports&exp-status=completed opens Export History already filtered to the files that are ready \u2014 failed and in-flight each answer their own word, and a misspelled one politely falls back to All.',
+      'The landing wears its own indigo chip before the history section \u2014 one press clears it, any hand change retires it, and it only ever speaks the address bar\u2019s landing. The chip is the deep-link family\u2019s thirtieth voice \u2014 the shade-split\u2019s eighth application, a hue no badge on this desk speaks.',
+      'The history table\u2019s filter chips now stay visible when a landing word arrives \u2014 the desk owns the filter while the bookmark is live, so the chips you know still answer every press and the chip retires the moment you take the wheel.',
+      'The word\u2019s spelling is the chip row\u2019s own: lowercase exactly as the chips spell them (completed, failed, processing) with the lowercase all for everything \u2014 the wire\u2019s uppercase statuses are not lens words, and the vocabulary never guesses.',
+    ],
+  },
+  {
     version: '2.390.0',
     title: 'The debt ledger answers by the channel',
     bullets: [
