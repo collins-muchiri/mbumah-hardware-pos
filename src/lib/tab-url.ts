@@ -431,6 +431,23 @@ export function parseInitialPageWithAlias(
  * sub-tab toggle, and a seed that re-parsed there would resurrect a
  * dismissed chip — the landing lives on the desk's shell and flows to
  * the section as props.
+ *
+ * v2.382.0 — THE PROMISE KEPT, THE TWENTY-THIRD WORD: the tax desk's
+ * filings-type lens speaks it as its desk-prefixed `tax-type` (the same
+ * parser, zero new bytes of law, again — the ghost desk's daily question,
+ * "which returns are VAT, which are withholding, which income?", is now
+ * an address; UPPERCASE words, the wire's own four types, and the
+ * landing chip wears the family's FIRST SHADE-SPLIT — orange one storey
+ * deeper at 300/100, the palette-exhaustion amendment's FOURTH form:
+ * every hue spoke at 200/50, so a hue may speak twice only through a
+ * DIFFERENT storey, a family byte the 200-storey can never equal).
+ * THE TWO-ADDRESS DESIGN's third application: the lens lives in a
+ * NON-DEFAULT sub-tab (filings under a categories default), so a landing
+ * that carries the word implies the filings stage — view's own word wins
+ * when it speaks a VALID sub-tab, an invalid word does not claim the
+ * stage. THE LANDING IS READ ONCE ON THE SHELL: the tax desk's filters
+ * live on the shell itself (which never unmounts), so the seed is a
+ * plain useState initializer — a dismissed chip can never resurrect.
  */
 export function parseInitialNamedMember<V extends string>(
   search: string,

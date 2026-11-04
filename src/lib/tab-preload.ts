@@ -46,6 +46,9 @@ export const TAB_LOADERS: Record<AppTab, TabLoader> = {
   payroll: () => import('../app/(shell)/tabs/payroll-tab'),
   'people-payroll': () => import('../app/(shell)/tabs/people-payroll-tab'),
   etims: () => import('../app/(shell)/tabs/etims-tab'),
+  // v2.382.0: the ghost tax desk gets its door — the desk was built and
+  // voiced but no loader pointed at it (the system-health precedent).
+  tax: () => import('../app/(shell)/tabs/tax-tab'),
   'debt-management': () => import('../app/(shell)/tabs/debt-management-tab'),
   'debt-plans': () => import('../app/(shell)/tabs/debt-plans-tab'),
   conversations: () => import('../app/(shell)/tabs/conversations-tab'),

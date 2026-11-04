@@ -7,14 +7,15 @@ import {
   Calculator, Receipt, FileText, ShieldCheck, Plus, Search,
   TrendingUp, AlertCircle, CheckCircle2, Clock, Loader2,
   ChevronDown, ChevronRight, Settings, Wifi, WifiOff,
-  Edit, Eye, Send, Check, X,
+  Edit, Eye, Send, Check, X, Link2,
 } from 'lucide-react';
 
 import { useAppStore } from '@/lib/stores';
 import {
   taxApi, formatKES, formatDate,
-  type TaxCategoryItem, type TaxFilingItem,
+  type TaxCategoryItem, type TaxFilingItem, type TaxRateItem,
 } from '@/lib/api';
+import { parseInitialNamedMember, parseInitialStage } from '@/lib/tab-url';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -37,11 +38,15 @@ import {
 
 function filingStatusBadge(status: TaxFilingItem['status']) {
   const map: Record<string, { label: string; className: string }> = {
+    // v2.382.0: the map speaks the SCHEMA'S OWN vocabulary (the TaxFiling
+    // status comment: DRAFT, FILED, ACCEPTED, REJECTED, AMENDED) — the old
+    // faces (APPROVED / PAID / LATE) named statuses the wire can never
+    // carry, so a real REJECTED row fell through to the raw-word fallback.
     DRAFT: { label: 'Draft', className: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' },
     FILED: { label: 'Filed', className: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' },
-    APPROVED: { label: 'Approved', className: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' },
-    PAID: { label: 'Paid', className: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
-    LATE: { label: 'Late', className: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' },
+    ACCEPTED: { label: 'Accepted', className: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' },
+    REJECTED: { label: 'Rejected', className: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' },
+    AMENDED: { label: 'Amended', className: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' },
   };
   const s = map[status] || { label: status, className: 'bg-muted text-muted-foreground' };
   return <Badge className={`text-[10px] font-semibold px-2 ${s.className}`}>{s.label}</Badge>;
@@ -52,6 +57,45 @@ function taxTypeName(type: string) {
     VAT: 'VAT', WHT: 'WHT', INCOME_TAX: 'Income Tax', TURNOVER_TAX: 'Turnover Tax',
   };
   return map[type] || type;
+}
+
+// THE TAX DESK'S OWN WORD (v2.382.0): the ghost desk comes alive and
+// answers the address bar. The filings ledger's type lens — the desk's
+// daily question, "which returns are VAT, which are withholding, which
+// income?" — speaks its desk-prefixed
+// `?tax-type=all|VAT|WHT|INCOME_TAX|TURNOVER_TAX`
+// (UPPERCASE wire words, case-sensitive — a lowercase word is an unknown
+// word, not a clever match) and wears the landing chip in the lens's own
+// ORANGE, ONE STOREY DEEPER (THE TWENTY-THIRD WEARING — the palette
+// exhaustion amendment's FOURTH form, the SHADE-SPLIT: all twenty-two
+// Tailwind hues already spoke at 200/50, so the family's grammar grows a
+// second storey — a hue may speak twice only through a DIFFERENT storey,
+// and the pair bytes can never collide: rentals' stock-word speaks
+// orange-200/50, and the tax desk's money-word answers at orange-300/100,
+// a family byte the 200-storey can never equal). The desk's own badges
+// speak blue, emerald, red, amber and slate, so the deeper orange
+// borrows nothing from any badge. THE TWO-ADDRESS DESIGN's third
+// application: the lens lives in a NON-DEFAULT sub-tab (filings under a
+// categories default), so a landing that carries the word lands the
+// filings stage too — view's own word wins when it speaks a VALID
+// sub-tab, an invalid word does not claim the stage.
+// THE LANDING IS READ ONCE ON THE SHELL: the tax desk's filters live on
+// the shell itself (which never unmounts), so the seed is a plain
+// useState initializer — a dismissed chip can never resurrect.
+export const TAX_TYPE_FILTERS = ['all', 'VAT', 'WHT', 'INCOME_TAX', 'TURNOVER_TAX'] as const;
+type TaxTypeFilter = (typeof TAX_TYPE_FILTERS)[number];
+
+function initialTaxType(): TaxTypeFilter {
+  if (typeof window === 'undefined') return 'all';
+  return parseInitialNamedMember(window.location.search, 'tax-type', TAX_TYPE_FILTERS, 'all');
+}
+
+const TAX_SUB_TABS = ['categories', 'filings', 'etims'] as const;
+type TaxSubTab = (typeof TAX_SUB_TABS)[number];
+
+function initialTaxStage(landed: boolean): TaxSubTab {
+  if (typeof window === 'undefined') return 'categories';
+  return parseInitialStage(window.location.search, TAX_SUB_TABS, 'filings', landed, 'categories');
 }
 
 // Create / Edit Tax Category Dialog
@@ -347,13 +391,23 @@ function FilingDetailDialog({
 
 export default function TaxTab() {
   const currentStoreId = useAppStore((s) => s.currentStoreId);
-  const [innerTab, setInnerTab] = useState('categories');
+  // v2.382.0: the landing state lives HERE (the desk's shell — which never
+  // unmounts), read ONCE through the ONE home; a dismissed chip can never
+  // resurrect. The type filter seeds from the shell's landing, never a
+  // re-parse (the read-once-and-lent-down law's shell-seed form).
+  const [landedTaxType] = useState<TaxTypeFilter>(initialTaxType);
+  const [taxLandingLive, setTaxLandingLive] = useState(true);
+  // THE TWO-ADDRESS DESIGN: the stage answers the bare `view` word when it
+  // speaks a VALID sub-tab, and a landed type word implies the filings
+  // stage when view is silent (only valid words speak; the desk's own
+  // default answers a neutral landing).
+  const [innerTab, setInnerTab] = useState<string>(() => initialTaxStage(landedTaxType !== 'all'));
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const [editCategory, setEditCategory] = useState<TaxCategoryItem | null>(null);
   const [filingDialogOpen, setFilingDialogOpen] = useState(false);
   const [filingStatusFilter, setFilingStatusFilter] = useState('all');
-  const [filingTypeFilter, setFilingTypeFilter] = useState('all');
+  const [filingTypeFilter, setFilingTypeFilter] = useState<TaxTypeFilter>(landedTaxType);
   const [selectedFiling, setSelectedFiling] = useState<TaxFilingItem | null>(null);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
@@ -390,17 +444,31 @@ export default function TaxTab() {
 
   // Stats
   const totalVAT = useMemo(() =>
-    filings.filter(f => f.filingType === 'VAT').reduce((s, f) => s + f.totalTax, 0),
+    // THE WIRE'S MONEY FACE (v2.382.0, the QA catch): Prisma Decimal fields
+    // serialize as STRINGS on the JSON wire — a bare `s + f.totalTax` would
+    // CONCATENATE the period's figures (the live QA answered "Ksh
+    // 1,155,012,600.00" from two KES 11,550/12,600 rows). The boundary
+    // coerces: the stats are numbers, never string soup.
+    filings.filter(f => f.filingType === 'VAT').reduce((s, f) => s + Number(f.totalTax), 0),
     [filings]
   );
   const totalWHT = useMemo(() =>
-    filings.filter(f => f.filingType === 'WHT').reduce((s, f) => s + f.totalWht, 0),
+    filings.filter(f => f.filingType === 'WHT').reduce((s, f) => s + Number(f.totalWht), 0),
     [filings]
   );
+  // v2.382.0: "due" means a DRAFT awaiting filing — the old LATE face named
+  // a status the schema's vocabulary never carries.
   const filingsDue = useMemo(() =>
-    filings.filter(f => f.status === 'DRAFT' || f.status === 'LATE').length,
+    filings.filter(f => f.status === 'DRAFT').length,
     [filings]
   );
+
+  // a hand-driven Select change retires the landing word — the chip
+  // speaks the ADDRESS BAR's landing, never the human's next choice.
+  const chooseFilingType = (value: TaxTypeFilter) => {
+    setFilingTypeFilter(value);
+    setTaxLandingLive(false);
+  };
   const etimsActiveCategories = categories.filter(c => c.isActive && c.etimsCode).length;
 
   const toggleCategory = (id: string) => {
@@ -574,7 +642,7 @@ export default function TaxTab() {
                                 </TableRow>
                               </TableHeader>
                               <TableBody>
-                                {cat.taxRates.map((rate: { id: string; name: string; rate: number }) => (
+                                {cat.taxRates.map((rate: TaxRateItem) => (
                                   <TableRow key={rate.id}>
                                     <TableCell className="text-xs py-2">{rate.name}</TableCell>
                                     <TableCell className="text-xs py-2 font-mono">{rate.rate}%</TableCell>
@@ -616,12 +684,35 @@ export default function TaxTab() {
                 <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="DRAFT">Draft</SelectItem>
                 <SelectItem value="FILED">Filed</SelectItem>
-                <SelectItem value="APPROVED">Approved</SelectItem>
-                <SelectItem value="PAID">Paid</SelectItem>
-                <SelectItem value="LATE">Late</SelectItem>
+                <SelectItem value="ACCEPTED">Accepted</SelectItem>
+                <SelectItem value="REJECTED">Rejected</SelectItem>
+                <SelectItem value="AMENDED">Amended</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={filingTypeFilter} onValueChange={setFilingTypeFilter}>
+            {/* THE TWENTY-THIRD WEARING: the chip wears ORANGE, ONE STOREY
+                DEEPER — the shade-split amendment's first application (the
+                200/50 storey was full). The desk's badges speak blue,
+                emerald, red, amber and slate, so the deeper orange borrows
+                nothing from any badge — light+dark, the shared tooltip, the
+                group-hover dismiss detail. THE POSITION LAW: the chip sits
+                immediately BEFORE the Select it landed into. */}
+            {taxLandingLive && landedTaxType !== 'all' && filingTypeFilter === landedTaxType && (
+              <button
+                type="button"
+                onClick={() => {
+                  setFilingTypeFilter('all');
+                  setTaxLandingLive(false);
+                }}
+                className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-orange-300 bg-orange-100 text-orange-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-orange-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 dark:border-orange-500/30 dark:bg-orange-500/10 dark:text-orange-300 dark:hover:bg-orange-500/20"
+                data-testid="tax-type-landing-word"
+                title="The tax desk landed with this filing type from the address bar — press to clear it"
+              >
+                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+                <span className="tabular-nums">landed ?tax-type={landedTaxType}</span>
+                <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+              </button>
+            )}
+            <Select value={filingTypeFilter} onValueChange={chooseFilingType}>
               <SelectTrigger className="w-[140px] h-9 text-xs">
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
@@ -643,15 +734,37 @@ export default function TaxTab() {
               {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}
             </div>
           ) : filings.length === 0 ? (
-            <Card>
-              <CardContent className="p-8 text-center">
-                <FileText className="h-10 w-10 mx-auto text-muted-foreground/40" />
-                <p className="mt-2 text-sm text-muted-foreground">No tax filings found</p>
-                <Button size="sm" variant="outline" className="mt-3" onClick={() => setFilingDialogOpen(true)}>
-                  <Plus className="mr-1.5 h-4 w-4" /> Create First Filing
-                </Button>
-              </CardContent>
-            </Card>
+            filingTypeFilter !== 'all' ? (
+              // THE LENS-AWARE EMPTY VOICE (v2.382.0, the styling detail): a
+              // lensed desk used to answer its empty window with the GENERIC
+              // empty state — a false "nothing exists" reading when the
+              // truth is "nothing wears THIS type". The lensed answer names
+              // the lens's own word and offers the one-press clearing hand.
+              <Card>
+                <CardContent className="p-8 text-center" data-testid="tax-type-empty-lens">
+                  <FileText className="h-10 w-10 mx-auto text-muted-foreground/40" />
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    No <span className="font-medium text-foreground">{filingTypeFilter}</span> filings in this lens yet.
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    The type lens is answering — every filing wears another type, or this window has no returns in that shape yet.
+                  </p>
+                  <Button size="sm" variant="outline" className="mt-3" onClick={() => chooseFilingType('all')}>
+                    Clear the type lens
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <FileText className="h-10 w-10 mx-auto text-muted-foreground/40" />
+                  <p className="mt-2 text-sm text-muted-foreground">No tax filings found</p>
+                  <Button size="sm" variant="outline" className="mt-3" onClick={() => setFilingDialogOpen(true)}>
+                    <Plus className="mr-1.5 h-4 w-4" /> Create First Filing
+                  </Button>
+                </CardContent>
+              </Card>
+            )
           ) : (
             <Card>
               <Table>

@@ -80,6 +80,18 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.382.0',
+    title: 'The ghost tax desk comes alive and answers the address bar',
+    bullets: [
+      'The Tax desk finally has its door: the categories, filings and eTIMS settings surface was built long ago but no route pointed at it — it now lives beside eTIMS under Compliance & System, for the same trio the filings wire itself serves (system administrator, store owner, accountant).',
+      'The filings ledger answers its address: bookmark ?tax-type=VAT, WHT, INCOME_TAX or TURNOVER_TAX and the desk opens straight onto that pile — no clicking through sub-tabs and filters to reach the taxman\u2019s question.',
+      'The landed word wears its chip until you change it: an orange "landed ?tax-type=\u2026" chip sits beside the filter, one press clears it, and any hand change retires it \u2014 the chip only ever speaks the address bar\u2019s landing.',
+      'A lensed empty answer is honest now: when a type lens finds nothing, the desk says "No VAT filings in this lens yet" with a one-press clear \u2014 instead of the generic empty state\u2019s false "nothing exists".',
+      'The desk\u2019s badges speak the schema\u2019s own vocabulary again (Draft, Filed, Accepted, Rejected, Amended) \u2014 the old Approved/Paid/Late faces named statuses the wire can never carry.',
+      'The orange chip is the family\u2019s twenty-third voice \u2014 and its first shade-split: every hue was spoken at the 200/50 storey, so the grammar grows a second storey and the taxman\u2019s money-word answers one storey deeper.',
+    ],
+  },
+  {
     version: '2.381.0',
     title: 'The taxman\u2019s desk answers the address bar',
     bullets: [

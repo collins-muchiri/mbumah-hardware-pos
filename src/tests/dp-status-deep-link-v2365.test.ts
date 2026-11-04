@@ -263,7 +263,7 @@ describe('the address-bar vocabulary — the eighteenth row (cross-suite pins)',
   const constitution = readFileSync('src/tests/transfer-status-deep-link-v2357.test.ts', 'utf8');
 
   it('the constitution walks EIGHTEEN words over SIXTEEN desks', () => {
-    expect(constitution.includes('(twenty-two words, twenty desks)')).toBe(true);
+    expect(constitution.includes('(twenty-three words, twenty-one desks)')).toBe(true);
     expect(constitution.includes("{ word: 'dp-status', desk: 'src/app/(shell)/tabs/debt-plans-tab.tsx', family: 'border-zinc-200', suite: 'src/tests/dp-status-deep-link-v2365.test.ts' }")).toBe(true);
     expect(constitution.includes("'EIGHTEENTH'")).toBe(true);
   });
@@ -319,6 +319,7 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/sec-type-deep-link-v2367.test.ts',
       'src/tests/sup-po-deep-link-v2332.test.ts',
       'src/tests/sup-status-deep-link-v2331.test.ts',
+      'src/tests/tax-type-deep-link-v2382.test.ts',
       'src/tests/transfer-status-deep-link-v2357.test.ts',
       'src/tests/txn-pay-deep-link-v2333.test.ts',
       'src/tests/txn-type-deep-link-v2354.test.ts',
