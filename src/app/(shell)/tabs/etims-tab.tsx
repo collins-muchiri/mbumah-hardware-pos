@@ -20,7 +20,7 @@ import {
   CheckCircle, Clock, AlertCircle, XCircle, FileText, Search,
   Send, Eye, Database, Activity, AlertTriangle,
   Hash, Calendar, Receipt, Settings2, Link2, X,
-  Copy, Check,
+  Copy, Check, Printer,
 } from 'lucide-react';
 
 import { useAppStore, useAuthStore } from '@/lib/stores';
@@ -34,6 +34,7 @@ import { handleError } from '@/lib/error-handler';
 import { formatDateTime, formatKES } from '@/lib/api';
 import { useVatRate } from '@/hooks/use-vat-rate';
 import { parseInitialNamedMember, parseInitialStage } from '@/lib/tab-url';
+import { printReceiptElement } from '@/lib/receipt-pdf';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -882,6 +883,7 @@ function InvoicesSection({
             </div>
             {dryRunPayload && (
               <div
+                id="kra-dryrun-payload"
                 data-testid="kra-dryrun-payload"
                 aria-live="polite"
                 className="rounded-lg border border-slate-200 bg-slate-50/60 dark:border-slate-800 dark:bg-slate-900/40 p-3 text-xs space-y-2"
@@ -891,20 +893,37 @@ function InvoicesSection({
                     <Database className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                     Mapped payload — no KRA call was made
                   </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-6 px-2 text-xs"
-                    aria-label="Copy mapped payload as JSON"
-                    onClick={copyPayload}
-                  >
-                    {payloadCopied ? (
-                      <Check className="h-3 w-3 mr-1 text-emerald-600 dark:text-emerald-400" />
-                    ) : (
-                      <Copy className="h-3 w-3 mr-1" />
-                    )}
-                    {payloadCopied ? 'Copied' : 'Copy'}
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    {/* v2.386.0: the PRINT face — the paper-trail pattern's
+                        third customer: what the operator FILES can now reach
+                        paper through the app's print-root pipeline, colors
+                        intact (print-color-adjust: exact). */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-6 px-2 text-xs"
+                      aria-label="Print mapped payload"
+                      title="Print the mapped payload"
+                      onClick={() => printReceiptElement('kra-dryrun-payload')}
+                    >
+                      <Printer className="h-3 w-3 mr-1" />
+                      Print
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-6 px-2 text-xs"
+                      aria-label="Copy mapped payload as JSON"
+                      onClick={copyPayload}
+                    >
+                      {payloadCopied ? (
+                        <Check className="h-3 w-3 mr-1 text-emerald-600 dark:text-emerald-400" />
+                      ) : (
+                        <Copy className="h-3 w-3 mr-1" />
+                      )}
+                      {payloadCopied ? 'Copied' : 'Copy'}
+                    </Button>
+                  </div>
                 </div>
                 <dl className="divide-y divide-slate-200 dark:divide-slate-800">
                   <div className="flex items-center justify-between gap-3 py-1.5">
@@ -951,6 +970,25 @@ function InvoicesSection({
                     <dd className="tabular-nums font-semibold">{payloadMoney(dryRunPayload.totalAmount)}</dd>
                   </div>
                 </dl>
+                {dryRunPayload.items.length > 0 && (
+                  <div
+                    data-testid="kra-dryrun-items"
+                    className="max-h-40 overflow-y-auto rounded-md border border-slate-200 dark:border-slate-800 divide-y divide-slate-200 dark:divide-slate-800"
+                  >
+                    {dryRunPayload.items.map((item, idx) => (
+                      <div key={idx} className="flex items-center justify-between gap-3 px-2 py-1.5">
+                        <span className="min-w-0 truncate font-medium">
+                          {item.name}
+                          <span className="ml-1.5 text-muted-foreground tabular-nums">× {Number(item.quantity)}</span>
+                        </span>
+                        <span className="flex shrink-0 items-center gap-2 tabular-nums">
+                          <span className="text-muted-foreground">{payloadMoney(item.unitPrice)}</span>
+                          <span className="font-semibold">{payloadMoney(item.total)}</span>
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
                 <p className="text-[11px] text-muted-foreground">
                   Press Submit to send this payload to KRA, or Dry Run again after edits.
                 </p>

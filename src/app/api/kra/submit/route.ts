@@ -89,9 +89,12 @@ async function buildKraInvoicePayload(
   );
 
   const items: KraInvoiceLineItem[] = tx.items.map((item) => {
-    const lineTotal = item.lineTotal;
+    // v2.386.0: the WHOLE line reads through toNum — lineTotal, taxRate,
+    // quantity and unitPrice were still leaking Decimal faces (the type
+    // says number, the wire carried strings; the copied JSON lied).
+    const lineTotal = toNum(item.lineTotal);
     // SaleItem.taxRate is the per-line VAT rate (default 16%).
-    const vatRate = item.taxRate || 16;
+    const vatRate = toNum(item.taxRate) || 16;
     const netAmount = lineTotal / (1 + vatRate / 100);
     const vatAmount = lineTotal - netAmount;
     return {
@@ -100,8 +103,8 @@ async function buildKraInvoicePayload(
       // now, all line items use the KRA default "unclassified" code.
       hsCode: '0000.00.00',
       name: item.productName,
-      quantity: item.quantity,
-      unitPrice: item.pricePerUnit,
+      quantity: toNum(item.quantity),
+      unitPrice: toNum(item.pricePerUnit),
       // SaleItem stores discount as a percent; convert to absolute amount.
       // v2.31.0: pricePerUnit/discountPercent are Decimal columns (valueOf is
       // a STRING) - read through toNum so they can never leak into arithmetic.
