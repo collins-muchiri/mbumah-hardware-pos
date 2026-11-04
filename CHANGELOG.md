@@ -1,3 +1,18 @@
+## [2.378.0] The settlement answers the address bar
+
+Two truths, one round. The transactions desk's zero-item settlement (the stranded-gap heal's event, v2.375.0) stopped masquerading in the refund lens — the kind union grew 'settlement' and the lens, the census, the row and the address bar all speak it. And the Release workflow's publish step moved its gate to where the failure actually lives: the release itself, not the tag.
+
+### Added
+- **THE SETTLEMENT KIND** (`transactions-tab.tsx`): `TransactionType` grows `'settlement'` — the derivation refines the REFUND branch through the exported `isSettlementEvent` law (the zero-item event IS the settlement; the itemized REFUND keeps 'refund'). The kind wears the HandCoins icon and the emerald settle ink everywhere the v2.375 badge already spoke it (type chip, row tint, amount cell minus), the census counts it beside its siblings, and `?txn-type=settlement` lands the ledger on the settlements' own lens — the seventh deep-link word's vocabulary grows ONE value while the membership home (`parseInitialNamedMember`) rides untouched.
+- **THE REPAIR'S OWN NOTE** (`commitSettle`, REPAIRED branch): the HEALED mode opens the settlement's receipt; the REPAIRED mode issued NO paper (no money moved, no receipt row). Its only traveling voice is now a WhatsApp note that says exactly what happened — the ask rides the v2.376 dialog family, pre-fills the original's customer phone, and the send is best-effort: skip = nothing sends, and the committed repair can never fail it.
+- **THE RELEASE-SCOPED GATE** (`.github/workflows/release.yml`): the publish step used to ride `steps.tag.outputs.exists`, so when it died on GitHub's transient HTTP 500 AFTER the tag was cut (v2.377.0), every rerun answered "tag exists → skip" and reported success WITHOUT publishing — the remediation had to come from a manual REST call. A new release-scoped check (`gh release view` → `id: release`) gates ONLY the publish step; a cut tag with a missing release re-publishes on the very next run.
+
+### Tests
+- `src/tests/txn-type-settlement-kind-v2378.test.ts` — the kind's bytes (union, refinement, wearing trio, census keyset, row tint, amount cell), the live parser membership (`?txn-type=settlement` seeds, the case law holds), the repair note's ask bytes and best-effort guard, and the workflow's release-scoped gate.
+- `src/tests/txn-type-deep-link-v2354.test.ts` — the vocabulary traveled: the parser truth table gained the settlement value and its case-law negatives, the desk's literal pin grew the word, and the collision ledger admitted the new suite (the LEDGER-CITATION RIPPLE, third-order form).
+- `src/tests/txn-kind-v2371.test.ts` — the kind-first pins grew the refinement (the ORDER law stands byte-for-byte); the amount-cell and walk-proof pins follow the new bytes.
+- `src/tests/door-shape-registry-v2353.test.ts` — the chip-map pin speaks the settlement value.
+
 ## [2.377.0] The last native prompt retires
 
 The ask-dialog family's second round. v2.376.0 retired the native prompt from the fifteen SEND flows and pinned the payroll void-reason ask as the ONE survivor; this round the family grows its multiline sibling and the survivor migrates — the product tree now answers to ZERO native prompt calls.

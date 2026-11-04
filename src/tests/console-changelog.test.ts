@@ -472,10 +472,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.375.0: the settlement speaks its name — the share text, the row chip and the paper all wear the settlement's own kind (+1 on every anchor → 264/265/266/297 → 265/266/267/298)
     // v2.376.0: the ask-dialog retires the native prompt — fifteen send asks across eight desks speak in the app's own voice (+1 on every anchor → 265/266/267/298 → 266/267/268/299)
     // v2.377.0: the last native prompt retires — the multiline ask-text sibling lands and the payroll void reason migrates (+1 on every anchor → 266/267/268/299 → 267/268/269/300)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(267);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(268);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(269);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(300);
+    // v2.378.0: the settlement answers the address bar — the settlement kind joins the lens and the release gate moves home (+1 on every anchor → 267/268/269/300 → 268/269/270/301)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(268);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(269);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(270);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(301);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 

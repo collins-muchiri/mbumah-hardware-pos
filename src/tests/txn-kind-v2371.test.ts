@@ -23,6 +23,13 @@
 // lens composition line, and the walk-proof negative (the codemod must
 // never rewrite this suite's own negative pins).
 //
+// v2.378.0 THE SETTLEMENT KIND JOINS THE UNION: the kind-first REFUND
+// branch now refines through isSettlementEvent — the zero-item event
+// answers 'settlement', the itemized REFUND keeps 'refund'. The ORDER
+// law stands byte-for-byte (the kind branches still outrank the status
+// branches); the truth-table pins grew the refinement, and the amount
+// cell's minus now reaches the settlement too (money-out is money-out).
+//
 // THE STRESS'S BOUNDARY: this suite owns the desk's kind semantics —
 // the `txn-type` WORD's parser and chip live in
 // txn-type-deep-link-v2354.test.ts (the one-writer ledgers stand).
@@ -60,7 +67,12 @@ describe('the row\'s own kind comes first (v2.371.0)', () => {
   });
 
   it('the truth table in bytes: REFUND row is a refund, VOID row is a void', () => {
-    expect(KIND_BODY).toContain("if (transaction.transactionType === 'REFUND') return 'refund';");
+    // v2.378.0: the REFUND branch refines through isSettlementEvent — the
+    // zero-item event answers 'settlement', the itemized REFUND keeps
+    // 'refund'; the ONE-LINE form became the BLOCK form and the order
+    // assertions above still hold (the kind branches still come first)
+    expect(KIND_BODY).toContain("if (transaction.transactionType === 'REFUND') {");
+    expect(KIND_BODY).toContain("return isSettlementEvent(transaction) ? 'settlement' : 'refund';");
     expect(KIND_BODY).toContain("if (transaction.transactionType === 'VOID') return 'void';");
     expect(KIND_BODY).toContain("if (transaction.paymentStatus === 'REFUNDED') return 'refund';");
     expect(KIND_BODY).toContain("if (transaction.paymentStatus === 'VOIDED' || transaction.paymentStatus === 'CANCELLED') return 'void';");
@@ -122,8 +134,10 @@ describe('the refund event\'s wearing (the amber kind chip)', () => {
   });
 
   it('the amount cell\'s amber-minus applies to the kind (the pre-existing voice now reaches the events)', () => {
-    expect(desk).toContain("txType === 'refund' ? 'text-amber-700' : txType === 'void' ? 'text-red-600 line-through' : 'text-foreground'");
-    expect(desk).toContain("{txType === 'refund' ? '-' : ''}");
+    // v2.378.0: the settlement rides the same money-out voice — the minus
+    // and its own emerald ink (the amber stays the itemized refund's)
+    expect(desk).toContain("txType === 'refund' ? 'text-amber-700' : txType === 'settlement' ? 'text-emerald-700' : txType === 'void' ? 'text-red-600 line-through' : 'text-foreground'");
+    expect(desk).toContain("{txType === 'refund' || txType === 'settlement' ? '-' : ''}");
   });
 });
 
@@ -143,7 +157,7 @@ describe('the lens composition (the refund desk, not just the face)', () => {
 describe('the walk-proof negatives (the codemod must never rewrite this suite)', () => {
   it('the kind bytes are split-string concat (a version re-anchor cannot find them)', () => {
     expect('2.' + '371.0').toBe('2.371.0');
-    expect(desk).toContain("'REFUND') return 'refund'");
-    expect(desk.includes("'2.377.0'")).toBe(false);
+    expect(desk).toContain("'REFUND') {");
+    expect(desk.includes("'2.378.0'")).toBe(false);
   });
 });

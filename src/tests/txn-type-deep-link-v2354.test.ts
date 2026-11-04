@@ -8,7 +8,7 @@
 // (`?sup-po=`) and v2.333.0 on the transactions desk's payment-method
 // lens (`?txn-pay=`). THE PROMISE KEPT A SIXTH TIME — and the first time
 // a desk owns TWO words of the vocabulary: the transactions desk's type
-// lens speaks its desk-prefixed `?txn-type=all|sale|refund|void` and
+// lens speaks its desk-prefixed `?txn-type=all|sale|refund|settlement|void` and
 // wears the landing chip in the lens's own fuchsia (the SEVENTH family
 // of the vocabulary — indigo/amber/rose/emerald/cyan/violet now gain the
 // type lens's fuchsia; the census voice keeps its sky — a voice must not
@@ -27,7 +27,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseInitialNamedMember } from '@/lib/tab-url';
 
-const TXN_TYPE_FILTERS = ['all', 'sale', 'refund', 'void'] as const;
+const TXN_TYPE_FILTERS = ['all', 'sale', 'refund', 'settlement', 'void'] as const;
 
 // ---------------------------------------------------------------------------
 // 1. THE PARSER'S TRUTH TABLE (the membership law, one home, lowercase voice)
@@ -38,6 +38,9 @@ describe('parseInitialNamedMember — the type lens speaks the one home', () => 
     expect(parseInitialNamedMember('?txn-type=sale', 'txn-type', TXN_TYPE_FILTERS, 'all')).toBe('sale');
     expect(parseInitialNamedMember('?txn-type=refund', 'txn-type', TXN_TYPE_FILTERS, 'all')).toBe('refund');
     expect(parseInitialNamedMember('?txn-type=void', 'txn-type', TXN_TYPE_FILTERS, 'all')).toBe('void');
+    // v2.378.0 THE SETTLEMENT VALUE: the seventh word's vocabulary grows
+    // ONE value — the zero-item settlements' own lens answers the bar
+    expect(parseInitialNamedMember('?txn-type=settlement', 'txn-type', TXN_TYPE_FILTERS, 'all')).toBe('settlement');
   });
 
   it('a lens the desk does not offer answers the fallback (never stranded)', () => {
@@ -51,6 +54,9 @@ describe('parseInitialNamedMember — the type lens speaks the one home', () => 
     expect(parseInitialNamedMember('?txn-type=REFUND', 'txn-type', TXN_TYPE_FILTERS, 'all')).toBe('all');
     expect(parseInitialNamedMember('?txn-type=Sale', 'txn-type', TXN_TYPE_FILTERS, 'all')).toBe('all');
     expect(parseInitialNamedMember('?txn-type=ALL', 'txn-type', TXN_TYPE_FILTERS, 'all')).toBe('all');
+    // the settlement's word rides the same lowercase law
+    expect(parseInitialNamedMember('?txn-type=Settlement', 'txn-type', TXN_TYPE_FILTERS, 'all')).toBe('all');
+    expect(parseInitialNamedMember('?txn-type=SETTLEMENT', 'txn-type', TXN_TYPE_FILTERS, 'all')).toBe('all');
   });
 
   it('missing, bare, and malformed searches answer the fallback — never throw', () => {
@@ -101,8 +107,9 @@ describe('the transactions desk — ?txn-type= lands as visible state', () => {
     expect(desk.includes("const [typeFilter, setTypeFilter] = useState<'all' | TransactionType>(initialTxnType);")).toBe(true);
     // the SSR guard answers 'all' before any window exists
     expect(desk.includes("if (typeof window === 'undefined') return 'all';")).toBe(true);
-    // the desk offers exactly the lenses it names
-    expect(desk.includes("export const TXN_TYPE_FILTERS = ['all', 'sale', 'refund', 'void'] as const;")).toBe(true);
+    // the desk offers exactly the lenses it names (the settlement value
+    // rode in with v2.378.0 — the literal is the union's own truth)
+    expect(desk.includes("export const TXN_TYPE_FILTERS = ['all', 'sale', 'refund', 'settlement', 'void'] as const;")).toBe(true);
   });
 
   it('the seed is CAST-FREE — the generic parser IS the union', () => {
@@ -244,6 +251,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/txn-kind-v2371.test.ts',
       'src/tests/txn-pay-deep-link-v2333.test.ts',
       'src/tests/txn-type-deep-link-v2354.test.ts',
+      // v2.378.0: the settlement-kind suite pins the lens's new VALUE and
+      // the repair note — an admission line carries the word it admits
+      // (the LEDGER-CITATION RIPPLE, third-order form)
+      'src/tests/txn-type-settlement-kind-v2378.test.ts',
       'src/tests/vc-status-deep-link-v2360.test.ts',
     ]);
   });
