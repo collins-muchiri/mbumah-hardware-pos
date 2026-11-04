@@ -26,7 +26,10 @@
 // vocabulary's invariants walked from source bytes, twenty words strong
 // (the sixteenth row joined in v2.363.0, the seventeenth in v2.364.0, the
 // eighteenth in v2.365.0, the nineteenth in v2.366.0, the twentieth in
-// v2.367.0).
+// v2.367.0, the twenty-ninth in v2.390.0, the THIRTIETH in v2.391.0 —
+// the data-exports desk's history lens, the shade-split's eighth
+// application: indigo at 300/100, and the family's first CONTROLLED
+// table: the chip row stays visible while the desk owns the state).
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
@@ -197,7 +200,7 @@ describe('the landing chip — the face names the word it answered', () => {
 // 4. THE CONSTITUTION — the whole vocabulary's invariants, walked from bytes
 // ---------------------------------------------------------------------------
 
-describe('the address-bar vocabulary — THE CONSTITUTION (twenty-nine words, twenty-four desks)', () => {
+describe('the address-bar vocabulary — THE CONSTITUTION (thirty words, twenty-five desks)', () => {
   const WORDS = [
     { word: 'po-status', desk: 'src/app/(shell)/tabs/purchase-orders-tab.tsx', family: 'border-indigo-200', suite: 'src/tests/proxy-gate-layering-v2328.test.ts' },
     { word: 'inv-stock', desk: 'src/app/(shell)/tabs/inventory-tab.tsx', family: 'border-amber-200', suite: 'src/tests/inv-stock-deep-link-v2329.test.ts' },
@@ -280,6 +283,15 @@ describe('the address-bar vocabulary — THE CONSTITUTION (twenty-nine words, tw
     // at 300/100 (a hue NO badge on this desk speaks AND one its cyan
     // sibling never borrowed)
     { word: 'debt-channel', desk: 'src/app/(shell)/tabs/debt-management-tab.tsx', family: 'border-fuchsia-300', suite: 'src/tests/debt-channel-deep-link-v2390.test.ts' },
+    // the export desk joins: the history lens answers the address bar —
+    // the chip wears the shade-split's EIGHTH application: indigo at
+    // 300/100 (a hue NO badge on this desk speaks — the census answers
+    // amber, emerald, rose, green, red, teal, violet, purple, orange,
+    // cyan, blue and slate — and one the family's first indigo, the
+    // 200-storey word, never shared a bar with); the table runs in its
+    // CONTROLLED form (the v2.391.0 hand: the state lifts to the desk,
+    // the chip row stays visible, the hand-driven press retires)
+    { word: 'exp-status', desk: 'src/app/(shell)/tabs/data-exports-tab.tsx', family: 'border-indigo-300', suite: 'src/tests/exp-status-deep-link-v2391.test.ts' },
   ] as const;
 
   it('every word is desk-prefixed and owns its FILTERS const in exactly its desk', () => {
@@ -289,7 +301,7 @@ describe('the address-bar vocabulary — THE CONSTITUTION (twenty-nine words, tw
     }
   });
 
-  it('every word wears a DISTINCT family — twenty-nine families, no two alike', () => {
+  it('every word wears a DISTINCT family — thirty families, no two alike', () => {
     const families = WORDS.map((w) => w.family);
     expect(new Set(families).size).toBe(WORDS.length);
     for (const { word, desk: deskPath, family } of WORDS) {
@@ -303,7 +315,7 @@ describe('the address-bar vocabulary — THE CONSTITUTION (twenty-nine words, tw
     for (const { suite } of WORDS) {
       expect(readFileSync(suite, 'utf8').length > 0, `${suite} exists`).toBe(true);
     }
-    for (const n of ['SEVENTH', 'EIGHTH', 'NINTH', 'TENTH', 'ELEVENTH', 'TWELFTH', 'THIRTEENTH', 'FOURTEENTH', 'FIFTEENTH', 'SIXTEENTH', 'SEVENTEENTH', 'EIGHTEENTH', 'NINETEENTH', 'TWENTIETH', 'TWENTY-FIRST', 'TWENTY-SECOND', 'TWENTY-THIRD', 'TWENTY-FOURTH', 'TWENTY-FIFTH', 'TWENTY-SIXTH', 'TWENTY-SEVENTH', 'TWENTY-EIGHTH', 'TWENTY-NINTH']) {
+    for (const n of ['SEVENTH', 'EIGHTH', 'NINTH', 'TENTH', 'ELEVENTH', 'TWELFTH', 'THIRTEENTH', 'FOURTEENTH', 'FIFTEENTH', 'SIXTEENTH', 'SEVENTEENTH', 'EIGHTEENTH', 'NINETEENTH', 'TWENTIETH', 'TWENTY-FIRST', 'TWENTY-SECOND', 'TWENTY-THIRD', 'TWENTY-FOURTH', 'TWENTY-FIFTH', 'TWENTY-SIXTH', 'TWENTY-SEVENTH', 'TWENTY-EIGHTH', 'TWENTY-NINTH', 'THIRTIETH']) {
       expect(home.includes(`THE PROMISE KEPT, THE ${n} WORD`)).toBe(true);
     }
   });
@@ -383,6 +395,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/dn-status-deep-link-v2359.test.ts',
       'src/tests/dp-status-deep-link-v2365.test.ts',
       'src/tests/et-status-deep-link-v2381.test.ts',
+      // the thirtieth word's own ledger — admitted (its collision ledger
+      // and its constitution section name this file; an admission line
+      // carries the word it admits)
+      'src/tests/exp-status-deep-link-v2391.test.ts',
       'src/tests/family-registry-stress-v2370.test.ts',
       'src/tests/gc-status-deep-link-v2358.test.ts',
       'src/tests/inv-status-deep-link-v2356.test.ts',

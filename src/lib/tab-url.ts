@@ -653,6 +653,31 @@ export const DEBT_CHANNEL_FILTERS = [
 export type DebtChannelFilter = (typeof DEBT_CHANNEL_FILTERS)[number];
 
 /**
+ * v2.391.0 — THE PROMISE KEPT, THE THIRTIETH WORD: the data-exports
+ * desk's history lens answers the address bar. The export center's
+ * daily question — "which of my files are ready, and which died?" —
+ * speaks its desk-prefixed `exp-status` (collision-checked at round
+ * start: the byte appeared NOWHERE before this word). The lens's words
+ * are the chip row's OWN spellings — the three lowercase members of
+ * the FilterKey union (completed | failed | processing, the chip
+ * word's voice) plus the lowercase neutral `all`; the wire's
+ * UPPERCASE statuses (`COMPLETED`, `PENDING`) are NOT lens words — an
+ * uppercase word names nothing, never a clever match. Anything missing
+ * or unknown answers 'all' (never stranded). Lives here (the ONE home)
+ * so the desk, its deep-link word and the test suite speak one array —
+ * the same home DEBT_CHANNEL_FILTERS keeps for the debt desk's channel
+ * word.
+ */
+export const EXP_STATUS_FILTERS = [
+  'all',
+  'completed',
+  'failed',
+  'processing',
+] as const;
+
+export type ExpStatusFilter = (typeof EXP_STATUS_FILTERS)[number];
+
+/**
  * v2.368.0 — THE LEGACY-WORD SUNSET LAW, the alias parser. The family's
  * naming constitution (Task 44's collision analysis, worn by every word
  * since `?po-status=`) requires a DESK-PREFIXED param — but one desk

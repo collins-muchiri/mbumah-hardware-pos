@@ -63,8 +63,25 @@ import { EXPORT_TYPES } from './export-type-card';
 interface ExportsHistoryTableProps {
   exports: DataExportItem[];
   isLoading?: boolean;
-  /** Optional filter override - if provided, the internal chips are hidden. */
-  externalFilter?: DataExportStatus | 'all' | 'processing';
+  /**
+   * Optional filter override. The legacy mixed union (the wire's
+   * UPPERCASE statuses beside the chip keys) predates the controlled
+   * hand — v2.391.0 widens it to include the FULL FilterKey union (the
+   * chip row's own spellings) so the desk's lifted state passes
+   * cast-free. The switch below answers the four chip keys; an
+   * uppercase wire status lands in the default (all) branch exactly as
+   * it always did.
+   */
+  externalFilter?: DataExportStatus | FilterKey;
+  /**
+   * v2.391.0 - THE CONTROLLED HAND. When provided, the filter is lifted
+   * to the desk (the deep-link landing's one-writer law): the chip row
+   * STAYS VISIBLE and every chip press routes through this callback so
+   * the desk can retire its landing chip (the hand-driven voice) and
+   * own the state afterwards. Without it the table keeps its own
+   * internal state (the uncontrolled form every existing caller speaks).
+   */
+  onFilterChange?: (filter: FilterKey) => void;
 }
 
 type FilterKey = 'all' | 'completed' | 'failed' | 'processing';
@@ -217,13 +234,20 @@ export function ExportsHistoryTable({
   exports,
   isLoading,
   externalFilter,
+  onFilterChange,
 }: ExportsHistoryTableProps) {
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState<FilterKey>('all');
   const [deleteTarget, setDeleteTarget] = useState<DataExportItem | null>(null);
 
   // Effective filter - allow parent override (e.g. always show 'all').
-  const effectiveFilter: FilterKey = externalFilter ?? filter;
+  // v2.391.0: in the CONTROLLED form (onFilterChange provided) the desk
+  // owns the state and the chips stay visible; the uncontrolled form is
+  // unchanged for every existing caller.
+  const controlled = typeof onFilterChange === 'function';
+  const effectiveFilter: FilterKey = controlled
+    ? (externalFilter as FilterKey | undefined) ?? 'all'
+    : (externalFilter as FilterKey | undefined) ?? filter;
 
   const filtered = useMemo(() => {
     if (!Array.isArray(exports)) return [];
@@ -290,8 +314,11 @@ export function ExportsHistoryTable({
 
   return (
     <div className="space-y-3">
-      {/* Filter chips (hidden if parent forces a filter) */}
-      {!externalFilter && (
+      {/* Filter chips (hidden if parent forces a filter WITHOUT the
+          controlled hand — v2.391.0: in the controlled form the chips
+          STAY VISIBLE and route through onFilterChange, the hand-driven
+          retirement voice) */}
+      {(!externalFilter || controlled) && (
         <div className="flex flex-wrap items-center gap-2">
           {FILTER_CHIPS.map((chip) => {
             const isActive = effectiveFilter === chip.key;
@@ -300,7 +327,14 @@ export function ExportsHistoryTable({
               <button
                 key={chip.key}
                 type="button"
-                onClick={() => setFilter(chip.key)}
+                onClick={() => {
+                  // v2.391.0 THE CONTROLLED HAND: the desk owns the
+                  // state (the landing chip's second retirement voice
+                  // lives there); uncontrolled callers keep the
+                  // internal state.
+                  if (controlled) onFilterChange(chip.key);
+                  else setFilter(chip.key);
+                }}
                 className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
                   isActive ? CHIP_ACTIVE[chip.color] : CHIP_IDLE[chip.color]
                 }`}
