@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.379.0',
+    title: 'The server speaks the desk\u2019s vocabulary',
+    bullets: [
+      'The transactions API now answers the desk\u2019s own words: ask GET /api/transactions for kind=sale, refund, settlement or void and the server scopes the query itself \u2014 the settlement rides the same zero-item law the desk derives, so API consumers see exactly the rows the ledger\u2019s chips count.',
+      'A settlement row\u2019s items cell no longer says "0 items" \u2014 a dead voice counting nothing on the one row whose whole truth is that no line world exists. It now wears the emerald "settled gap" voice; every other kind keeps its item count.',
+      'An unrecognized kind is simply ignored (the API never refuses vocabulary it does not know), a recognized kind outranks a coincident flat type filter, and the row total and pagination stay honest under the scope because the count rides the same query.',
+    ],
+  },
+  {
     version: '2.378.0',
     title: 'The settlement answers the address bar',
     bullets: [
