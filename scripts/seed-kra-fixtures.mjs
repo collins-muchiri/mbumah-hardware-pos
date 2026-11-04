@@ -99,6 +99,38 @@ async function main() {
     day += 1;
   }
 
+  // ── 1b. the line items (v2.386.0: the payload's per-line face) — the
+  //    anchors carried money faces but NO SaleItem rows, so the dry-run
+  //    card spoke "Line items 0" and the mapper mapped an empty list.
+  //    One real line per anchor: 10 × 1,160 = 11,600 lineTotal (the
+  //    mapper re-derives the net/VAT split: 10,000 + 1,600 — the anchor's
+  //    own faces). Idempotent on (transactionId, productName).
+  const product = await prisma.product.findFirst({ where: { storeId: store.id }, orderBy: { createdAt: 'asc' } });
+  if (!product) throw new Error('fixture seed needs at least one product in the seeded world');
+  for (const face of faces) {
+    const tx = transactions[face];
+    const existing = await prisma.saleItem.findFirst({
+      where: { transactionId: tx.id, productName: product.name },
+    });
+    if (!existing) {
+      await prisma.saleItem.create({
+        data: {
+          id: cid('fixitem'),
+          transactionId: tx.id,
+          productId: product.id,
+          productName: product.name,
+          quantity: 10,
+          unitType: 'PIECE',
+          pricePerUnit: 1160,
+          costPrice: 600,
+          discountPercent: 0,
+          taxRate: 16,
+          lineTotal: 11600,
+        },
+      });
+    }
+  }
+
   // ── 2. the six KRA invoices (the et-status word's whole vocabulary) ────
   const breakdown = (label) =>
     JSON.stringify({
