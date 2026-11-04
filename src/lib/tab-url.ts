@@ -600,6 +600,32 @@ export const BANK_MPESA_FILTERS = [
 export type BankMpesaFilter = (typeof BANK_MPESA_FILTERS)[number];
 
 /**
+ * v2.389.0 — THE PROMISE KEPT, THE TWENTY-EIGHTH WORD: the debt
+ * management desk's reminder-history lens answers the address bar. The
+ * desk's daily question — "which reminders are still waiting, and which
+ * never made it out?" — speaks its desk-prefixed `debt-status`
+ * (collision-checked at round start: the byte appeared NOWHERE before
+ * this word). The lens's words are the Select's OWN spellings — the
+ * four UPPERCASE members of the statusFilter state (PENDING | SENT |
+ * DELIVERED | FAILED, the reminder word's voice) plus the lowercase
+ * neutral `all`; a lowercase `pending` or a capitalized `Sent` is an
+ * unknown word, never a clever match. Anything missing or unknown
+ * answers 'all' (never stranded). Lives here (the ONE home) so the
+ * desk, its deep-link word and the test suite speak one array — the
+ * same home BANK_MPESA_FILTERS keeps for the banking desk's M-Pesa
+ * word.
+ */
+export const DEBT_STATUS_FILTERS = [
+  'all',
+  'PENDING',
+  'SENT',
+  'DELIVERED',
+  'FAILED',
+] as const;
+
+export type DebtStatusFilter = (typeof DEBT_STATUS_FILTERS)[number];
+
+/**
  * v2.368.0 — THE LEGACY-WORD SUNSET LAW, the alias parser. The family's
  * naming constitution (Task 44's collision analysis, worn by every word
  * since `?po-status=`) requires a DESK-PREFIXED param — but one desk

@@ -21,6 +21,7 @@ import {
   AlertTriangle, AlertOctagon, Clock, CheckCircle, XCircle,
   Loader2, RefreshCw, Send, Zap, Users, DollarSign,
   Mail, MessageSquare, Smartphone, Bell, ChevronDown, ChevronRight, Phone, TrendingDown, Activity, History, Play,
+  Link2, X,
 } from 'lucide-react';
 
 import { useAppStore, useAuthStore } from '@/lib/stores';
@@ -31,6 +32,7 @@ import {
   type ReminderScheduleResult,
 } from '@/lib/api';
 import { handleError } from '@/lib/error-handler';
+import { DEBT_STATUS_FILTERS, parseInitialNamedMember } from '@/lib/tab-url';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -679,10 +681,43 @@ function StatusTile({
   );
 }
 
+// THE DEBT LEDGER'S OWN WORD (v2.389.0): the reminder-history lens
+// answers the address bar — the desk's FIRST word (the banking, tax and
+// suppliers precedent). `?debt-status=PENDING` lands the desk on its
+// History pane, pre-filtered to the reminders still waiting — the
+// float's daily question ("what never made it out?") becomes a
+// bookmark. The lens's words are the Select's OWN spellings (UPPERCASE:
+// PENDING | SENT | DELIVERED | FAILED, the reminder word's voice; a
+// lowercase `pending` or a capitalized `Sent` is an unknown word —
+// never a clever match; the neutral is the lowercase `all`, exactly the
+// Select's own). Anything missing or unknown answers 'all' (never
+// stranded). The word is desk-prefixed per the Task 44 collision law:
+// `debt-status` can never leak across client-side tab switches —
+// collision-checked at round start (the byte appeared NOWHERE before
+// this word), and the chip wears the family's SIXTH shade-split — cyan
+// at the 300/100 storey (the hue NO badge on this desk speaks: the
+// census answers amber, blue, emerald, green, orange, purple, rose and
+// slate). Read-on-mount ONLY (the one-writer law): the landing word is
+// the LANDING lens, never rewritten; the Select and the chip's own
+// dismissal own the state after.
+// THE SUB-TAB AMENDMENT'S THIRD APPLICATION: the lens lives inside the
+// desk's History pane — a landing that carries the word RAISES THE PANE
+// IT LANDS INTO (the pane's seed reads the same landed word), so the
+// chip is visible on landing. The desk speaks ONE word today, so the
+// seed is the family's simple form; a second word on this desk would
+// negotiate exactly as the banking desk's two words do.
+function initialDebtStatus(): (typeof DEBT_STATUS_FILTERS)[number] {
+  if (typeof window === 'undefined') return 'all';
+  return parseInitialNamedMember(window.location.search, 'debt-status', DEBT_STATUS_FILTERS, 'all');
+}
+type DebtStatusWordValue = (typeof DEBT_STATUS_FILTERS)[number];
+
 // History Section
 
 function HistorySection({ storeId }: { storeId: string }) {
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>(initialDebtStatus);
+  const [landedDebtStatus] = useState<DebtStatusWordValue>(initialDebtStatus);
+  const [debtLandingLive, setDebtLandingLive] = useState(() => initialDebtStatus() !== 'all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [page, setPage] = useState(1);
   const [pageSize] = useState(15);
@@ -704,6 +739,15 @@ function HistorySection({ storeId }: { storeId: string }) {
   const pagination = data?.pagination;
   const _summary = data?.summary;
 
+  // The status lens's ONE voice (v2.389.0): a hand-driven change is the
+  // lens's second retirement voice — any word other than the landed one
+  // retires the chip (the banking desk's chooseMpesaStatus precedent).
+  const chooseDebtStatus = (v: string) => {
+    setStatusFilter(v);
+    setPage(1);
+    if (v !== landedDebtStatus) setDebtLandingLive(false);
+  };
+
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -718,7 +762,29 @@ function HistorySection({ storeId }: { storeId: string }) {
             </CardDescription>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
+            {/* v2.389.0 THE LANDING CHIP — the address bar's word, spoken
+                while the lens still shows the landing (the two retirement
+                voices: the chip's own dismissal and a hand-driven Select
+                change). `data-testid="debt-status-landing-word"` — the QA
+                walk's handle. */}
+            {debtLandingLive && landedDebtStatus !== 'all' && statusFilter === landedDebtStatus && (
+              <button
+                type="button"
+                onClick={() => {
+                  setStatusFilter('all');
+                  setDebtLandingLive(false);
+                  setPage(1);
+                }}
+                className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-cyan-300 bg-cyan-100 text-cyan-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 dark:border-cyan-500/30 dark:bg-cyan-500/10 dark:text-cyan-300 dark:hover:bg-cyan-500/20"
+                data-testid="debt-status-landing-word"
+                title="The desk landed with this filter from the address bar — press to clear it"
+              >
+                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+                <span className="tabular-nums">landed ?debt-status={landedDebtStatus}</span>
+                <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+              </button>
+            )}
+            <Select value={statusFilter} onValueChange={chooseDebtStatus}>
               <SelectTrigger className="w-32">
                 <SelectValue />
               </SelectTrigger>
@@ -730,6 +796,9 @@ function HistorySection({ storeId }: { storeId: string }) {
                 <SelectItem value="FAILED">Failed</SelectItem>
               </SelectContent>
             </Select>
+            <p className="text-xs text-muted-foreground tabular-nums">
+              {pagination?.total ?? reminders.length} reminder{(pagination?.total ?? reminders.length) !== 1 ? 's' : ''}
+            </p>
             <Select value={typeFilter} onValueChange={(v) => { setTypeFilter(v); setPage(1); }}>
               <SelectTrigger className="w-36">
                 <SelectValue />
@@ -847,7 +916,11 @@ function HistorySection({ storeId }: { storeId: string }) {
 
 export default function DebtManagementTab() {
   const currentStoreId = useAppStore((s) => s.currentStoreId);
-  const [activeTab, setActiveTab] = useState('board');
+  // v2.389.0 THE SUB-TAB AMENDMENT'S THIRD APPLICATION: a landing that
+  // carries the word RAISES the pane it lands into (History), so the
+  // chip is visible on landing; a landing without the word opens the
+  // desk's default face (Overdue Board).
+  const [activeTab, setActiveTab] = useState(() => (initialDebtStatus() !== 'all' ? 'history' : 'board'));
 
   if (!currentStoreId) {
     return (

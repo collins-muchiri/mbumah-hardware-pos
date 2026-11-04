@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.389.0',
+    title: 'The debt ledger answers the address bar',
+    bullets: [
+      'The Debt Management desk\u2019s reminder history is now a bookmark: a link like /?tab=debt-management&debt-status=PENDING opens the History pane already filtered to what is still waiting to go out \u2014 sent, delivered and failed each answer their own word, and a misspelled one politely falls back to All statuses.',
+      'The landing wears its own cyan chip before the status filter \u2014 one press clears it, any hand change retires it, and it only ever speaks the address bar\u2019s landing. The chip is the deep-link family\u2019s twenty-eighth voice \u2014 the shade-split\u2019s sixth application, a hue no badge on this desk speaks.',
+      'The History pane\u2019s header now answers with a count: the lens\u2019s own total rides beside the filters in tabular figures, so a bookmarked word always tells you how many reminders it found.',
+      'The word\u2019s spelling is the dropdown\u2019s own: UPPERCASE statuses exactly as the Select spells them (PENDING, SENT, DELIVERED, FAILED) with the lowercase all for everything \u2014 the vocabulary never guesses.',
+    ],
+  },
+  {
     version: '2.388.0',
     title: 'The M-Pesa ledger answers the address bar',
     bullets: [
