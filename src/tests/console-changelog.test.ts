@@ -477,10 +477,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.380.0: the lens rides past the cap — the honest-fetch rider scopes the lensed fetch with the server’s own kind word and the capped window speaks its slice (+1 on every anchor → 269/270/271/302 → 270/271/272/303)
     // v2.381.0: the taxman’s desk answers the address bar — the e-TIMS invoices ledger’s submission-status lens speaks its desk-prefixed word and the danger voice finally wears the family’s red (+1 on every anchor → 270/271/272/303 → 271/272/273/304)
     // v2.382.0: the ghost tax desk comes alive and answers the address bar — the filings ledger’s type lens speaks its desk-prefixed word and the family’s grammar grows its first shade-split (+1 on every anchor → 271/272/273/304 → 272/273/274/305)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(272);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(273);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(274);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(305);
+    // v2.383.0: the taxman’s ledger answers by the month — the filings ledger’s period lens speaks its desk-prefixed word, a shape word wearing the shade-split’s second storey, and the legend retires its ghost faces (+1 on every anchor → 272/273/274/305 → 273/274/275/306)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(273);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(274);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(275);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(306);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 

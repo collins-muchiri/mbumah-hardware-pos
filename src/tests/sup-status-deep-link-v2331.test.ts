@@ -198,6 +198,7 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/sec-type-deep-link-v2367.test.ts',
       'src/tests/sup-po-deep-link-v2332.test.ts',
       'src/tests/sup-status-deep-link-v2331.test.ts',
+      'src/tests/tax-period-deep-link-v2383.test.ts',
       'src/tests/tax-type-deep-link-v2382.test.ts',
       'src/tests/transfer-status-deep-link-v2357.test.ts',
       'src/tests/txn-pay-deep-link-v2333.test.ts',

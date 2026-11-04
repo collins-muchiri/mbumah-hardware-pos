@@ -1,3 +1,23 @@
+## [2.383.0] The taxman's ledger answers by the month
+
+The twenty-fourth word — and the shade-split's second application. The tax desk's filings ledger answers its second daily question: the desk-prefixed `?tax-period=YYYY-MM` lens (a SHAPE word — the wire's own YYYY-MM class, month 01-12 real; the neutral is ABSENCE, not a word), and the landing chip wears TEAL one storey deeper at 300/100. The round also retires the workflow legend's ghost faces — the live QA burst caught the legend still speaking Approved/Paid/Late after the v2.382 repair re-voiced the badge map and the Select.
+
+### Added
+- **THE TWENTY-FOURTH WORD** (`tax-tab.tsx`, `src/lib/tab-url.ts`): the filings ledger's period lens answers `?tax-period=2026-10` through the ONE home parser — `parseInitialNamedPeriod` + `TAX_PERIOD_SHAPE` (the filings route's own create-time class, exported as the ONE shape home). A lowercase `all`, a `2026-13`, a bare `2026` are unknown words; the neutral is ABSENCE (the empty string), never a stranded filter. THE LENS IS SHAPE-HONEST, LIVE FOR THE HAND TOO: the month picker's half-typed bytes never reach the wire — the lens activates only when the word is whole.
+- **THE TWENTY-FOURTH WEARING — the SHADE-SPLIT's SECOND APPLICATION**: the chip wears `border-teal-300 bg-teal-100 text-teal-700` (light) and `dark:border-teal-500/30 dark:bg-teal-500/10 dark:text-teal-300` (dark) — a hue may speak twice only through a DIFFERENT storey (the invoices desk's word wears teal at 200/50 on its own desk), and the pair bytes can never collide. The desk's badges speak blue, emerald, red, amber, slate and green, so the deeper teal borrows nothing from any badge.
+- **THE SECOND SHELL-SEED SPEAKER** (the read-once law's second form on this desk): the period word lands through the same never-unmounting shell — its own landing flag, its own chip, independent retirement (clearing one lens never touches the other). THE TWO-ADDRESS DESIGN extends: a landed type OR period word implies the filings stage; view's own word wins when it speaks a VALID sub-tab.
+- **THE PERIOD LENS'S OWN EMPTY VOICE** (the styling detail's second speaker): a month with no returns answers "No 2026-10 filings in this lens yet" with the one-press clearing hand — the generic empty state's false "nothing exists" never speaks under a lens.
+
+### Fixed
+- **THE LEGEND'S GHOST FACES** (`tax-tab.tsx`, the live QA catch): the filings sub-tab's "Filing Status Workflow" legend still walked Approved → Paid → Late AFTER the v2.382 repair re-voiced the badge map and the status Select — the exact faces named statuses the TaxFiling wire can never carry, caught live by this round's QA burst on the seeded world. The legend now walks the schema's own five: Draft → Filed → Accepted → Amended, with Rejected as the red branch the wire really answers.
+
+### Tests
+- `src/tests/tax-period-deep-link-v2383.test.ts` — the parser truth table (the YYYY-MM shape law, the ABSENCE neutral, ride-alongs over all 23 prior words), the stage truth table (the extended implication), the seed pins (cast-free, the second shell-seed speaker, the shape-honest wire feed), the chip pins + honesty bounds (the 500-prefix substring collision bounded with a digit lookahead — the v2.382 class, self-inflicted again), the period empty voice, the legend-repair pins, the constitution's twenty-fourth row, and the collision ledger.
+- `src/tests/family-registry-stress-v2370.test.ts` — the registry derives 24 rows / 21 desks / 24 distinct families; the promise roll through TWENTY-FOURTH.
+- `scripts/admit-tax-period-v2383.mjs` — all 23 neighbor ledgers admitted the round's suite (the sorted-slot law, derivation-guarded, idempotent).
+- `scripts/walk-v2383.mjs` — the release slots re-anchored; the counters 272/273/274/305 → 273/274/275/306; the history line; the title-pin re-anchor. Re-run answers ZERO.
+- `scripts/verify-v2-383-0.mjs` — the round's feature gate (wired as `verify:v2-383-0`).
+
 ## [2.382.0] The ghost tax desk comes alive and answers the address bar
 
 The twenty-third word — and a revival. The tax surface (tax categories, filings, eTIMS settings) was built years ago but no route pointed at it: it rode unrouted with eight tsc errors, its imports naming a `taxApi` the api-client consolidation never carried (the system-health precedent's exact class). This round the ghost desk gets its door, its wire, and its word: the filings ledger's type lens speaks its desk-prefixed `?tax-type=all|VAT|WHT|INCOME_TAX|TURNOVER_TAX`, and the landing chip wears the family's FIRST SHADE-SPLIT — the palette-exhaustion amendment's fourth form.
