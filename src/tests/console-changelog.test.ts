@@ -475,10 +475,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.378.0: the settlement answers the address bar — the settlement kind joins the lens and the release gate moves home (+1 on every anchor → 267/268/269/300 → 268/269/270/301)
     // v2.379.0: the server speaks the desk’s vocabulary — the kind scope crosses the API boundary and the settled gap stops counting nothing (+1 on every anchor → 268/269/270/301 → 269/270/271/302)
     // v2.380.0: the lens rides past the cap — the honest-fetch rider scopes the lensed fetch with the server’s own kind word and the capped window speaks its slice (+1 on every anchor → 269/270/271/302 → 270/271/272/303)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(270);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(271);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(272);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(303);
+    // v2.381.0: the taxman’s desk answers the address bar — the e-TIMS invoices ledger’s submission-status lens speaks its desk-prefixed word and the danger voice finally wears the family’s red (+1 on every anchor → 270/271/272/303 → 271/272/273/304)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(271);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(272);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(273);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(304);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 
