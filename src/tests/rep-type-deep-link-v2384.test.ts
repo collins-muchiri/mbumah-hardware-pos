@@ -28,7 +28,7 @@
 // census let survive for thirty releases.
 
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 
 import {
@@ -179,12 +179,20 @@ describe('the lockfile parity guard — root-version and range legs', () => {
     expect(guard.includes('npm install --package-lock-only')).toBe(true);
   });
 
-  it('the local lock speaks the manifest\u2019s generation (root version parity)', () => {
+  // THE LOCAL-ARTIFACT SCOPE: package-lock.json is deliberately untracked
+  // (repo policy — committing it would flip Vercel's package-manager
+  // auto-detection away from bun), so these two legs speak ONLY where the
+  // file exists (the local tree). CI answers through the guard's own run
+  // below, whose parity leg skips itself on exactly the same policy —
+  // the test mirrors the guard, never overrides it.
+  const lockExists = existsSync('package-lock.json');
+
+  it.skipIf(!lockExists)('the local lock speaks the manifest\u2019s generation (root version parity)', () => {
     const lock = JSON.parse(readFileSync('package-lock.json', 'utf8'));
     expect(lock.packages?.['']?.version).toBe(pkg.version);
   });
 
-  it('every manifest range rides the lock root unchanged (range parity)', () => {
+  it.skipIf(!lockExists)('every manifest range rides the lock root unchanged (range parity)', () => {
     const lock = JSON.parse(readFileSync('package-lock.json', 'utf8'));
     const root = lock.packages?.[''] ?? {};
     const lockDeps = { ...root.dependencies, ...root.devDependencies };
