@@ -327,8 +327,8 @@ describe('the desk report - the rows wear the share', () => {
 
 describe('the version contract', () => {
   it('package.json rides at 2.198.0', () => {
-    expect(pkg.version).toBe('2.378.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.378.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.378.0');
+    expect(pkg.version).toBe('2.379.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.379.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.379.0');
   });
 });

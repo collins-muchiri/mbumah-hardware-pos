@@ -1,3 +1,15 @@
+## [2.379.0] The server speaks the desk's vocabulary
+
+The kind scope crosses the API boundary. v2.378.0 taught the ledger's lens to speak the settlement's name client-side; this round GET /api/transactions learns the same vocabulary — the desk's census keyset (`sale | refund | settlement | void`) now scopes the server query itself, and the settlement's server face is the zero-item law expressed in the where-clause rather than a client derivation. And the settled gap stops counting nothing: a settlement row's items cell said "0 items" — a dead voice on the one row whose whole truth is that no line world exists.
+
+### Added
+- **THE SERVER-SIDE KIND SCOPE** (`src/app/api/transactions/route.ts`): the list endpoint grows `kind` — the transactions desk's own TransactionType vocabulary. `kind=sale` scopes the flat SALE, `kind=void` the flat VOID, `kind=settlement` refines REFUND through `items: { none: {} }` (the zero-item event IS the settlement — the SAME isSettlementEvent law the desk derives client-side since v2.375.0), and `kind=refund` keeps the itemized world through `items: { some: {} }`. A RECOGNIZED kind outranks a coincident `transactionType`; an UNRECOGNIZED kind is ignored — the API never 400s on vocabulary it does not know. The count query rides the SAME where, so the page total and the pagination stay honest under the scope.
+- **THE SETTLEMENT'S ITEMS CELL** (`transactions-tab.tsx`): the zero-item row's items cell wears the emerald settle voice — "settled gap" — naming what the row actually is, in the kind's own family (light + dark inks). Every OTHER kind keeps the mono count badge: the sale's "3 items" is still the receipt's truth, and the itemized refund's count rides too. The v2.378 amount-cell inks ride untouched beside the new voice.
+
+### Tests
+- `src/tests/txn-kind-server-scope-v2379.test.ts` — the route's bytes (the param read, the contract comment, the four refinements, the outranks ORDER law, the unknown-never-scopes chain shape, the count's shared where) and the desk's items-cell bytes (the settled-gap badge, the emerald inks, the mono badge's survival, the v2.378 amount ink riding).
+- `scripts/verify-v2-379-0.mjs` — the round's feature gate (wired as `verify:v2-379-0`).
+
 ## [2.378.0] The settlement answers the address bar
 
 Two truths, one round. The transactions desk's zero-item settlement (the stranded-gap heal's event, v2.375.0) stopped masquerading in the refund lens — the kind union grew 'settlement' and the lens, the census, the row and the address bar all speak it. And the Release workflow's publish step moved its gate to where the failure actually lives: the release itself, not the tag.
