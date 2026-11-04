@@ -1302,9 +1302,21 @@ function TransactionRow({
           </div>
         </TableCell>
         <TableCell className="text-xs text-center">
-          <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-mono">
-            {items.length} {items.length === 1 ? 'item' : 'items'}
-          </Badge>
+          {/* v2.379.0 THE SETTLEMENT'S ITEMS CELL: a settlement has no
+              line world — the zero-item event IS the settled gap — so
+              the dead "0 items" count becomes the emerald settle voice
+              naming what the row actually is. Every OTHER kind keeps
+              the mono count badge (the sale's "3 items" is still the
+              receipt's truth; the itemized refund's count rides too). */}
+          {txType === 'settlement' ? (
+            <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
+              settled gap
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-mono">
+              {items.length} {items.length === 1 ? 'item' : 'items'}
+            </Badge>
+          )}
         </TableCell>
         <TableCell className="text-xs font-bold text-right">
           {/* v2.378.0 THE SETTLEMENT'S AMOUNT CELL: the zero-item event is

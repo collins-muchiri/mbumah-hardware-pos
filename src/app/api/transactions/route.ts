@@ -139,6 +139,14 @@ async function getTransactionsHandler(
   const paymentMethod = searchParams.get('paymentMethod') || '';
   const paymentStatus = searchParams.get('paymentStatus') || '';
   const transactionType = searchParams.get('transactionType') || '';
+  // v2.379.0 THE SERVER-SIDE KIND SCOPE: the API speaks the desk's own
+  // vocabulary — `kind` takes the census keyset's words (sale | refund |
+  // settlement | void, the transactions desk's TransactionType union).
+  // A RECOGNIZED kind OUTRANKS a coincident `transactionType` (the
+  // refinement below overwrites the flat filter — the desk's lens is the
+  // sharper instrument); an UNRECOGNIZED kind is IGNORED — the API never
+  // 400s on vocabulary it does not know, it simply does not scope.
+  const kind = searchParams.get('kind') || '';
   const cashierId = searchParams.get('cashierId') || '';
   const customerId = searchParams.get('customerId') || '';
   const dateFrom = searchParams.get('dateFrom') || '';
@@ -173,6 +181,25 @@ async function getTransactionsHandler(
 
   if (transactionType) {
     where.transactionType = transactionType;
+  }
+
+  // v2.379.0 THE KIND'S SERVER FACE: the settlement is the zero-item
+  // REFUND — the SAME isSettlementEvent law the desk derives client-side
+  // since v2.375.0 (a REFUND with NO line items IS the settlement; the
+  // itemized REFUND keeps its own word) — now expressed in the query
+  // itself: `items: { none: {} }` IS the zero-item world, `some: {}` the
+  // itemized one. The count query rides the SAME `where`, so the page
+  // total and the pagination stay honest under the scope.
+  if (kind === 'sale') {
+    where.transactionType = 'SALE';
+  } else if (kind === 'void') {
+    where.transactionType = 'VOID';
+  } else if (kind === 'settlement') {
+    where.transactionType = 'REFUND';
+    where.items = { none: {} };
+  } else if (kind === 'refund') {
+    where.transactionType = 'REFUND';
+    where.items = { some: {} };
   }
 
   if (cashierId) {
