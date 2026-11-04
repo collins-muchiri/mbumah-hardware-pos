@@ -238,6 +238,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // the FIRST word's own ledger (the po-status voice lives in the
       // proxy-gate suite) — admitted (this suite speaks `po-status` in
       // its rides-beside truth)
+      // the thirty-second word's own ledger — admitted (its own ledger
+      // LISTS this file's path — the third-order ripple: a ledger line
+      // carries every word its paths speak)
+      'src/tests/msg-template-deep-link-v2393.test.ts',
       'src/tests/proxy-gate-layering-v2328.test.ts',
       // the eighth word's own ledger — admitted (this suite speaks
       // `rent-status` in its rides-beside truth)
@@ -265,7 +269,7 @@ describe('the address-bar vocabulary — the thirtieth row (cross-suite pins)', 
   const constitution = readFileSync(CONSTITUTION, 'utf8');
 
   it('the constitution walks THIRTY words over TWENTY-FIVE desks (the export desk joins)', () => {
-    expect(constitution.includes('(thirty-one words, twenty-five desks)')).toBe(true);
+    expect(constitution.includes('(thirty-two words, twenty-six desks)')).toBe(true);
     expect(constitution.includes("{ word: 'exp-status', desk: 'src/app/(shell)/tabs/data-exports-tab.tsx', family: 'border-indigo-300', suite: 'src/tests/exp-status-deep-link-v2391.test.ts' }")).toBe(true);
     expect(constitution.includes("'THIRTIETH'")).toBe(true);
   });
@@ -275,10 +279,10 @@ describe('the address-bar vocabulary — the thirtieth row (cross-suite pins)', 
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.392.0 leads the feed', () => {
+describe('whats-new — v2.393.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.392.0');
+    expect(head.version).toBe('2.393.0');
     expect(head.title).toContain('export');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
     expect(head.bullets.some((b) => b.includes('exp-status'))).toBe(true);

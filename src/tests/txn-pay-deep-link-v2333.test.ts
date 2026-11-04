@@ -217,6 +217,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/inv-status-deep-link-v2356.test.ts',
       'src/tests/inv-stock-deep-link-v2329.test.ts',
       'src/tests/ly-type-deep-link-v2368.test.ts',
+      // the thirty-second word's own ledger — admitted (its own ledger
+      // LISTS this file's path — the third-order ripple: a ledger line
+      // carries every word its paths speak)
+      'src/tests/msg-template-deep-link-v2393.test.ts',
       'src/tests/pr-status-deep-link-v2362.test.ts',
       'src/tests/proxy-gate-layering-v2328.test.ts',
       // v2.372.0: the gap-closure suite pins the desk's chip scrub — the

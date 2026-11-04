@@ -212,12 +212,14 @@ describe('the lockfile parity guard — root-version and range legs', () => {
 // 4. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.392.0 leads the feed', () => {
+describe('whats-new — v2.393.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.392.0');
-    // the lead's story hand-over: the lead's story is v2.392.0's —
-    // the export ledger answers by type (the THIRTY-FIRST word).
+    expect(head.version).toBe('2.393.0');
+    // the lead's story hand-over: the lead's story is v2.393.0's —
+    // the message templates answer by name (the THIRTY-SECOND word);
+    // the export ledger's bytes ride in bullet 2 (the speaker census
+    // stable — no exits).
     expect(head.title).toContain('export');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
     expect(head.bullets.some((b) => b.includes('exp-status'))).toBe(true);
