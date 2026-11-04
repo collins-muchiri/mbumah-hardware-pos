@@ -206,7 +206,10 @@ describe('the tax desk — ?tax-type= lands as visible state (and its stage)', (
     expect(
       desk.includes("parseInitialStage(window.location.search, TAX_SUB_TABS, 'filings', landed, 'categories')")
     ).toBe(true);
-    expect(desk.includes('initialTaxStage(landedTaxType !== \u0027all\u0027)')).toBe(true);
+    // v2.383.0: the seed grew the SECOND word's implication — a landed
+    // type OR period word implies the filings stage (the elder pin
+    // re-anchored to the evolved one-line form, the v2.378 class)
+    expect(desk.includes("initialTaxStage(landedTaxType !== 'all' || landedTaxPeriod !== '')")).toBe(true);
     expect(desk.includes('THE TWO-ADDRESS DESIGN')).toBe(true);
   });
 
@@ -452,7 +455,7 @@ describe('the address-bar vocabulary — the twenty-third row (cross-suite pins)
   const constitution = readFileSync('src/tests/transfer-status-deep-link-v2357.test.ts', 'utf8');
 
   it('the constitution walks TWENTY-THREE words over TWENTY-ONE desks', () => {
-    expect(constitution.includes('(twenty-three words, twenty-one desks)')).toBe(true);
+    expect(constitution.includes('(twenty-four words, twenty-one desks)')).toBe(true);
     expect(constitution.includes("{ word: 'tax-type', desk: 'src/app/(shell)/tabs/tax-tab.tsx', family: 'border-orange-300', suite: 'src/tests/tax-type-deep-link-v2382.test.ts' }")).toBe(true);
     expect(constitution.includes("'TWENTY-THIRD'")).toBe(true);
   });
@@ -515,6 +518,7 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/sec-type-deep-link-v2367.test.ts',
       'src/tests/sup-po-deep-link-v2332.test.ts',
       'src/tests/sup-status-deep-link-v2331.test.ts',
+      'src/tests/tax-period-deep-link-v2383.test.ts',
       'src/tests/tax-type-deep-link-v2382.test.ts',
       'src/tests/transfer-status-deep-link-v2357.test.ts',
       'src/tests/txn-pay-deep-link-v2333.test.ts',

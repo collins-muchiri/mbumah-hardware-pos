@@ -80,6 +80,17 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.383.0',
+    title: 'The taxman\u2019s ledger answers by the month',
+    bullets: [
+      'The filings ledger answers its second question: bookmark ?tax-period=2026-10 and the Tax desk opens straight onto that month\u2019s returns \u2014 the type lens\u2019s neighbour on the same address bar, no clicking through sub-tabs and month pickers.',
+      'The landed month wears its own chip: a teal "landed ?tax-period=\u2026" chip sits before the month picker, one press clears it, and any hand change retires it \u2014 the chip only ever speaks the address bar\u2019s landing.',
+      'A month with no returns answers honestly: the desk says "No 2026-10 filings in this lens yet" with a one-press clear \u2014 instead of the generic empty state\u2019s false "nothing exists".',
+      'The filings workflow legend speaks the schema\u2019s own vocabulary now \u2014 Draft, Filed, Accepted, Amended, Rejected \u2014 retiring the Approved/Paid/Late faces the wire can never carry.',
+      'The teal chip is the family\u2019s twenty-fourth voice \u2014 and the shade-split\u2019s second application: every hue was spoken at the 200/50 storey, so the deeper storey speaks where the shallow one is full.',
+    ],
+  },
+  {
     version: '2.382.0',
     title: 'The ghost tax desk comes alive and answers the address bar',
     bullets: [

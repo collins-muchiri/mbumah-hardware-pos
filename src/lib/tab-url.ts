@@ -507,6 +507,39 @@ export function parseInitialNamedMemberWithAlias<V extends string>(
 }
 
 /**
+ * v2.383.0 — THE PROMISE KEPT, THE TWENTY-FOURTH WORD: the tax desk's
+ * filings ledger answers BY THE MONTH. Its desk-prefixed `tax-period`
+ * lens — the desk's other daily question, "which month's returns am I
+ * looking at?" — is a SHAPE word where the type word was a vocabulary
+ * word: the wire's own `YYYY-MM` class (the filings route itself execs
+ * this exact shape on create) is the law, month 01-12 REAL. A lowercase
+ * `all`, a `2026-13`, a bare `2026` are unknown words, not clever
+ * matches — and the neutral here is ABSENCE (the empty string), not a
+ * word: no landed month, no lens, never a stranded filter. THE LANDING
+ * IS READ ONCE ON THE SHELL (the shell-seed law's second speaker on
+ * this desk): the seed is a plain useState initializer — a dismissed
+ * chip can never resurrect. THE CHIP WEARS THE SHADE-SPLIT's SECOND
+ * APPLICATION — teal one storey deeper at 300/100: a hue may speak
+ * twice only through a DIFFERENT storey (rentals' word wears teal at
+ * the 200/50 storey on its own desk), and the pair bytes can never
+ * collide. The desk's badges speak blue, emerald, red, amber, slate
+ * and green, so the deeper teal borrows nothing from any badge.
+ */
+export const TAX_PERIOD_SHAPE = /^\d{4}-(0[1-9]|1[0-2])$/;
+
+export function parseInitialNamedPeriod(search: string, param: string, fallback: string): string {
+  try {
+    const value = toParams(search).get(param);
+    if (value && TAX_PERIOD_SHAPE.test(value)) {
+      return value;
+    }
+    return fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+/**
  * v2.368.0 — THE TWO-ADDRESS DESIGN (the innerTab landing law). One
  * word, two addresses: the loyalty ledger's type lens lives in a
  * NON-DEFAULT sub-tab ('transactions' under a 'tiers' default), so a
