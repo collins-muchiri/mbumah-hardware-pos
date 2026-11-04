@@ -119,6 +119,7 @@ describe('parseInitialNamedMember — ?exp-type= speaks the type chip row\u2019s
 
 describe('the data-exports desk — ?exp-type= lands as visible state', () => {
   const desk = readFileSync(DESK, 'utf8');
+  const loom = readFileSync('src/components/landing-chip.tsx', 'utf8');
   const home = readFileSync('src/lib/tab-url.ts', 'utf8');
 
   it('the seed reads the word through the ONE home (never a local parser)', () => {
@@ -208,20 +209,28 @@ describe('the data-exports desk — ?exp-type= lands as visible state', () => {
   });
 
   it('the chip wears PINK at the 300/100 storey (the ninth shade-split)', () => {
-    expect(desk.includes('border-pink-300 bg-pink-100 text-pink-700')).toBe(true);
-    expect(desk.includes('dark:border-pink-500/30 dark:bg-pink-500/10 dark:text-pink-300')).toBe(true);
-    expect(desk.includes('focus-visible:ring-pink-400')).toBe(true);
+    // v2.394.0 THE LOOM: the wardrobe moved into the loom’s registry —
+    // the desk proves its family by hue, the registry carries the bytes.
+    expect(desk.includes('hue="pink"')).toBe(true);
+    expect(loom.includes('border-pink-300 bg-pink-100 text-pink-700')).toBe(true);
+    expect(loom.includes('dark:border-pink-500/30 dark:bg-pink-500/10 dark:text-pink-300')).toBe(true);
+    expect(loom.includes('focus-visible:ring-pink-400')).toBe(true);
     // the hue speaks NOWHERE else on the desk — the chip is its only
     // voice (the masquerade law: exactly ONE pink wardrobe — the
     // light and dark border faces of that one wardrobe):
-    expect(desk.split('border-pink-').length - 1).toBe(2);
-    expect(desk.split('bg-pink-100').length - 1).toBe(1);
+    // v2.394.0 THE LOOM: the census follows the wardrobe — the desk
+    // answers ZERO (the masquerade), the loom speaks the ONE wardrobe
+    // (its two border faces, its one bg-100 face):
+    expect(desk.split('border-pink-').length - 1).toBe(0);
+    expect(desk.split('bg-pink-100').length - 1).toBe(0);
+    expect(loom.split('border-pink-').length - 1).toBe(2);
+    expect(loom.split('bg-pink-100').length - 1).toBe(1);
     // the desk's badge census — the hues the badges DO speak (the chip
     // never borrows one of theirs), and the indigo sibling's wardrobe
     // stays the status word's alone:
     expect(desk.includes('from-emerald-500 to-emerald-600')).toBe(true); // the header's brand face
     expect(desk.includes('text-emerald-500')).toBe(true);
-    expect(desk.includes('border-indigo-300 bg-indigo-100 text-indigo-700')).toBe(true);
+    expect(desk.includes('hue="indigo"')).toBe(true); // the status sibling, through the loom
   });
 
   it('the chip is dismissible and annotated (the collision law\u2019s annotation)', () => {
@@ -230,7 +239,8 @@ describe('the data-exports desk — ?exp-type= lands as visible state', () => {
     expect(desk.includes('?exp-type=products')).toBe(true);
     expect(desk.includes('data-testid="exp-type-landing-word"')).toBe(true);
     // the family's shared anatomy — the group-hover dismiss detail:
-    expect(desk.includes('opacity-60 transition-opacity group-hover:opacity-100')).toBe(true);
+    // v2.394.0 THE LOOM: the X face’s bytes live in the one loom now
+    expect(loom.includes('opacity-60 transition-opacity group-hover:opacity-100')).toBe(true);
   });
 
   it('the two lenses CONJOIN in the table (a landed pair narrows on both dimensions)', () => {
@@ -303,6 +313,9 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // the thirty-second word's own ledger — admitted (its own ledger
       // LISTS this file's path — the third-order ripple: a ledger line
       // carries every word its paths speak)
+      // the loom’s own suite — admitted (v2.394.0: the LandingChip
+      // loom suite pins this desk’s chip bytes, so the walk lists it)
+      'src/tests/landing-chip-loom-v2394.test.ts',
       'src/tests/msg-template-deep-link-v2393.test.ts',
       'src/tests/proxy-gate-layering-v2328.test.ts',
       // the eighth word's own ledger — admitted (its own ledger now
@@ -345,7 +358,7 @@ describe('the address-bar vocabulary — the thirty-first row (cross-suite pins)
 describe('whats-new — v2.393.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.393.0');
+    expect(head.version).toBe('2.394.0');
     expect(head.title).toContain('export');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
     expect(head.bullets.some((b) => b.includes('exp-type'))).toBe(true);

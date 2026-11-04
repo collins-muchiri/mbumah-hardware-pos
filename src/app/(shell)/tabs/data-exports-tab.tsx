@@ -16,7 +16,8 @@
 import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Database, Link2, Loader2, Plus, RefreshCw, X } from 'lucide-react';
+import { Database, Loader2, Plus, RefreshCw } from 'lucide-react';
+import { LandingChip } from '@/components/landing-chip';
 
 import { useAppStore } from '@/lib/stores';
 import {
@@ -297,27 +298,25 @@ export function DataExportsTab() {
             `data-testid="exp-status-landing-word"` — the QA walk's
             handle. The chip sits before the history section, wearing
             the indigo wardrobe at the 300/100 storey (light: border-300
-            + bg-100; dark: the family's 500/10 surfaces). */}
+            + bg-100; dark: the family's 500/10 surfaces). v2.394.0: the
+            chip renders through the one LandingChip loom (the wardrobe
+            lives in the loom's registry). */}
         {/* v2.392.0 THE TWO CHIPS SIT SIDE BY SIDE — the same-pane
             two-word negotiation (the debt desk's precedent): the pink
             type chip joins the indigo status chip in one wrapping row,
             each owning its retirement, never its sibling's state. */}
         <div className="flex flex-wrap items-center gap-2">
           {expLandingLive && landedExpStatus !== 'all' && expStatusFilter === landedExpStatus && (
-            <button
-              type="button"
-              onClick={() => {
+            <LandingChip
+              hue="indigo"
+              label={`landed ?exp-status=${landedExpStatus}`}
+              onDismiss={() => {
                 setExpStatusFilter('all');
                 setExpLandingLive(false);
               }}
-              className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-indigo-300 bg-indigo-100 text-indigo-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-indigo-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300 dark:hover:bg-indigo-500/20"
-              data-testid="exp-status-landing-word"
               title="The desk landed with this filter from the address bar — press to clear it"
-            >
-              <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-              <span className="tabular-nums">landed ?exp-status={landedExpStatus}</span>
-              <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-            </button>
+              data-testid="exp-status-landing-word"
+            />
           )}
           {/* v2.392.0 THE TYPE LANDING CHIP — the address bar's second
               word on this desk, spoken while the lens still shows the
@@ -327,22 +326,19 @@ export function DataExportsTab() {
               — the QA walk's handle. The pink chip sits beside its
               indigo sibling, wearing the shade-split's NINTH storey at
               300/100 (light: border-300 + bg-100; dark: the family's
-              500/10 surfaces). */}
+              500/10 surfaces). v2.394.0: both chips ride the one loom
+              — one registry, ten hues, zero drift. */}
           {expTypeLandingLive && landedExpType !== 'all' && expTypeFilter === landedExpType && (
-            <button
-              type="button"
-              onClick={() => {
+            <LandingChip
+              hue="pink"
+              label={`landed ?exp-type=${landedExpType}`}
+              onDismiss={() => {
                 setExpTypeFilter('all');
                 setExpTypeLandingLive(false);
               }}
-              className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-pink-300 bg-pink-100 text-pink-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-pink-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 dark:border-pink-500/30 dark:bg-pink-500/10 dark:text-pink-300 dark:hover:bg-pink-500/20"
-              data-testid="exp-type-landing-word"
               title="The desk landed with this type filter from the address bar — press to clear it"
-            >
-              <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-              <span className="tabular-nums">landed ?exp-type={landedExpType}</span>
-              <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-            </button>
+              data-testid="exp-type-landing-word"
+            />
           )}
         </div>
         {exportsLoading ? (

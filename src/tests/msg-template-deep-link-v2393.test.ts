@@ -109,6 +109,7 @@ describe('parseInitialNamedMember — ?msg-template= speaks the templates grid\u
 
 describe('the messaging desk — ?msg-template= lands as visible state', () => {
   const desk = readFileSync(DESK, 'utf8');
+  const loom = readFileSync('src/components/landing-chip.tsx', 'utf8');
   const home = readFileSync('src/lib/tab-url.ts', 'utf8');
 
   it('the seed reads the word through the ONE home (never a local parser)', () => {
@@ -172,14 +173,22 @@ describe('the messaging desk — ?msg-template= lands as visible state', () => {
   });
 
   it('the chip wears YELLOW at the 300/100 storey (the tenth shade-split)', () => {
-    expect(desk.includes('border-yellow-300 bg-yellow-100 text-yellow-700')).toBe(true);
-    expect(desk.includes('dark:border-yellow-500/30 dark:bg-yellow-500/10 dark:text-yellow-300')).toBe(true);
-    expect(desk.includes('focus-visible:ring-yellow-400')).toBe(true);
+    // v2.394.0 THE LOOM: the wardrobe moved into the loom’s registry —
+    // the desk proves its family by hue, the registry carries the bytes.
+    expect(desk.includes('hue="yellow"')).toBe(true);
+    expect(loom.includes('border-yellow-300 bg-yellow-100 text-yellow-700')).toBe(true);
+    expect(loom.includes('dark:border-yellow-500/30 dark:bg-yellow-500/10 dark:text-yellow-300')).toBe(true);
+    expect(loom.includes('focus-visible:ring-yellow-400')).toBe(true);
     // the hue speaks NOWHERE else on the desk — the chip is its only
     // voice (the masquerade law: exactly ONE yellow wardrobe — the
     // light and dark border faces of that one wardrobe):
-    expect(desk.split('border-yellow-').length - 1).toBe(2);
-    expect(desk.split('bg-yellow-100').length - 1).toBe(1);
+    // v2.394.0 THE LOOM: the census follows the wardrobe — the desk
+    // answers ZERO (the masquerade), the loom speaks the ONE wardrobe
+    // (its two border faces, its one bg-100 face):
+    expect(desk.split('border-yellow-').length - 1).toBe(0);
+    expect(desk.split('bg-yellow-100').length - 1).toBe(0);
+    expect(loom.split('border-yellow-').length - 1).toBe(2);
+    expect(loom.split('bg-yellow-100').length - 1).toBe(1);
   });
 
   it('the chip sits BEFORE the grid it lands into (the position law)', () => {
@@ -199,7 +208,8 @@ describe('the messaging desk — ?msg-template= lands as visible state', () => {
     expect(desk.includes('?msg-template=debt-reminder')).toBe(true);
     expect(desk.includes('data-testid="msg-template-landing-word"')).toBe(true);
     // the family's shared anatomy — the group-hover dismiss detail:
-    expect(desk.includes('opacity-60 transition-opacity group-hover:opacity-100')).toBe(true);
+    // v2.394.0 THE LOOM: the X face’s bytes live in the one loom now
+    expect(loom.includes('opacity-60 transition-opacity group-hover:opacity-100')).toBe(true);
   });
 
   it('THE CARD-GRID LENS\u2019S SECOND VOICE — a Use-Template press rides the retirement door', () => {
@@ -259,6 +269,9 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // thirty-second row rides through its parse (an honest speaker)
       'src/tests/family-registry-stress-v2370.test.ts',
       // this suite (the word's own ledger — an honest speaker)
+      // the loom’s own suite — admitted (v2.394.0: the LandingChip
+      // loom suite pins this desk’s chip bytes, so the walk lists it)
+      'src/tests/landing-chip-loom-v2394.test.ts',
       'src/tests/msg-template-deep-link-v2393.test.ts',
       // the first word's ledger (the proxy-gate layering suite) —
       // admitted (its ledger LISTS this suite's path — the same ripple)
@@ -296,7 +309,7 @@ describe('the address-bar vocabulary — the thirty-second row (cross-suite pins
 describe('whats-new — v2.393.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.393.0');
+    expect(head.version).toBe('2.394.0');
     expect(head.title).toContain('template');
     expect(head.title).toContain('messaging');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);

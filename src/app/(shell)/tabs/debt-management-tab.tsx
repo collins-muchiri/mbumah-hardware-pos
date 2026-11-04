@@ -21,8 +21,8 @@ import {
   AlertTriangle, AlertOctagon, Clock, CheckCircle, XCircle,
   Loader2, RefreshCw, Send, Zap, Users, DollarSign,
   Mail, MessageSquare, Smartphone, Bell, ChevronDown, ChevronRight, Phone, TrendingDown, Activity, History, Play,
-  Link2, X,
 } from 'lucide-react';
+import { LandingChip } from '@/components/landing-chip';
 
 import { useAppStore, useAuthStore } from '@/lib/stores';
 import {
@@ -810,23 +810,20 @@ function HistorySection({ storeId }: { storeId: string }) {
                 while the lens still shows the landing (the two retirement
                 voices: the chip's own dismissal and a hand-driven Select
                 change). `data-testid="debt-status-landing-word"` — the QA
-                walk's handle. */}
+                walk's handle. v2.394.0: the chip renders through the one
+                LandingChip loom (the wardrobe lives in the loom's registry). */}
             {debtLandingLive && landedDebtStatus !== 'all' && statusFilter === landedDebtStatus && (
-              <button
-                type="button"
-                onClick={() => {
+              <LandingChip
+                hue="cyan"
+                label={`landed ?debt-status=${landedDebtStatus}`}
+                onDismiss={() => {
                   setStatusFilter('all');
                   setDebtLandingLive(false);
                   setPage(1);
                 }}
-                className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-cyan-300 bg-cyan-100 text-cyan-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 dark:border-cyan-500/30 dark:bg-cyan-500/10 dark:text-cyan-300 dark:hover:bg-cyan-500/20"
-                data-testid="debt-status-landing-word"
                 title="The desk landed with this filter from the address bar — press to clear it"
-              >
-                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-                <span className="tabular-nums">landed ?debt-status={landedDebtStatus}</span>
-                <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-              </button>
+                data-testid="debt-status-landing-word"
+              />
             )}
             <Select value={statusFilter} onValueChange={chooseDebtStatus}>
               <SelectTrigger className="w-32">
@@ -851,23 +848,20 @@ function HistorySection({ storeId }: { storeId: string }) {
                 walk's handle. The fuchsia chip sits before the channel
                 lens, beside its cyan sibling (the same-pane two-word
                 negotiation: each chip owns its retirement, never its
-                sibling's state). */}
+                sibling's state). v2.394.0: the fuchsia chip rides the same
+                loom beside its cyan sibling — one registry, ten hues, zero drift. */}
             {debtChannelLandingLive && landedDebtChannel !== 'all' && typeFilter === landedDebtChannel && (
-              <button
-                type="button"
-                onClick={() => {
+              <LandingChip
+                hue="fuchsia"
+                label={`landed ?debt-channel=${landedDebtChannel}`}
+                onDismiss={() => {
                   setTypeFilter('all');
                   setDebtChannelLandingLive(false);
                   setPage(1);
                 }}
-                className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-fuchsia-300 bg-fuchsia-100 text-fuchsia-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-fuchsia-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400 dark:border-fuchsia-500/30 dark:bg-fuchsia-500/10 dark:text-fuchsia-300 dark:hover:bg-fuchsia-500/20"
-                data-testid="debt-channel-landing-word"
                 title="The desk landed with this channel filter from the address bar — press to clear it"
-              >
-                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-                <span className="tabular-nums">landed ?debt-channel={landedDebtChannel}</span>
-                <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-              </button>
+                data-testid="debt-channel-landing-word"
+              />
             )}
             <Select value={typeFilter} onValueChange={chooseDebtChannel}>
               <SelectTrigger className="w-36">

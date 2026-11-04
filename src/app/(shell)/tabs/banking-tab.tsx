@@ -7,8 +7,9 @@ import {
   Wallet, Landmark, ArrowUpRight, ArrowDownRight, Search,
   Plus, Loader2, Building2, CheckCircle2, Clock,
   AlertCircle, ChevronLeft, ChevronRight, Phone,
-  FileText, Banknote, RefreshCw, Eye, Minus, Link2, X,
+  FileText, Banknote, RefreshCw, Eye, Minus,
 } from 'lucide-react';
+import { LandingChip } from '@/components/landing-chip';
 
 import { useAppStore } from '@/lib/stores';
 import {
@@ -686,22 +687,19 @@ export default function BankingTab() {
                 while the lens still shows the landing (the two retirement
                 voices: the chip's own dismissal and a hand-driven Select
                 change). `data-testid="bank-type-landing-word"` — the QA
-                walk's handle. */}
+                walk's handle. v2.394.0: the chip renders through the one
+                LandingChip loom (the wardrobe lives in the loom's registry). */}
             {bankLandingLive && landedBankType !== 'all' && txFilterType === landedBankType && (
-              <button
-                type="button"
-                onClick={() => {
+              <LandingChip
+                hue="sky"
+                label={`landed ?bank-type=${landedBankType}`}
+                onDismiss={() => {
                   setTxFilterType('all');
                   setBankLandingLive(false);
                 }}
-                className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-sky-300 bg-sky-100 text-sky-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-sky-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-300 dark:hover:bg-sky-500/20"
-                data-testid="bank-type-landing-word"
                 title="The desk landed with this filter from the address bar — press to clear it"
-              >
-                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-                <span className="tabular-nums">landed ?bank-type={landedBankType}</span>
-                <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-              </button>
+                data-testid="bank-type-landing-word"
+              />
             )}
             <Select value={txFilterType} onValueChange={chooseBankType}>
               <SelectTrigger className="h-9 w-[130px] text-xs">
@@ -977,22 +975,19 @@ export default function BankingTab() {
                 while the lens still shows the landing (the two retirement
                 voices: the chip's own dismissal and a hand-driven Select
                 change). `data-testid="bank-mpesa-landing-word"` — the QA
-                walk's handle. */}
+                walk's handle. v2.394.0: the purple chip rides the same loom
+                beside its sky sibling — one registry, ten hues, zero drift. */}
             {mpesaLandingLive && landedMpesaStatus !== 'all' && mpesaFilterStatus === landedMpesaStatus && (
-              <button
-                type="button"
-                onClick={() => {
+              <LandingChip
+                hue="purple"
+                label={`landed ?bank-mpesa=${landedMpesaStatus}`}
+                onDismiss={() => {
                   setMpesaFilterStatus('all');
                   setMpesaLandingLive(false);
                 }}
-                className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-purple-300 bg-purple-100 text-purple-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-purple-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 dark:border-purple-500/30 dark:bg-purple-500/10 dark:text-purple-300 dark:hover:bg-purple-500/20"
-                data-testid="bank-mpesa-landing-word"
                 title="The desk landed with this filter from the address bar — press to clear it"
-              >
-                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-                <span className="tabular-nums">landed ?bank-mpesa={landedMpesaStatus}</span>
-                <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-              </button>
+                data-testid="bank-mpesa-landing-word"
+              />
             )}
             <Select value={mpesaFilterStatus} onValueChange={chooseMpesaStatus}>
               <SelectTrigger className="h-9 w-[150px] text-xs">

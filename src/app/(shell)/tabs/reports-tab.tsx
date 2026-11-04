@@ -9,8 +9,9 @@ import { BarChart3, Package, TrendingUp, TrendingDown,
   Calendar, Clock, Eye, Play, Sparkles, PieChart,
   HeartPulse, RotateCcw, CreditCard, Banknote, Smartphone,
   AlertTriangle, Users, Timer, Printer, Wrench, Sparkle, Link2, ArrowRight,
-  Receipt, UserCog, X,
+  Receipt, UserCog,
 } from 'lucide-react';
+import { LandingChip } from '@/components/landing-chip';
 import {
   BarChart, Bar, LineChart, Line, AreaChart, Area,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -1985,20 +1986,18 @@ export default function ReportsTab() {
                 dismiss detail. THE POSITION LAW: the chip sits
                 immediately BEFORE the lens it landed into (the Report
                 Type grid), and the grid's own Active badge shows the
-                landed shape. */}
+                landed shape. v2.394.0: the chip renders through the one
+                LandingChip loom (the wardrobe lives in the loom's
+                registry). */}
             {repLandingLive && landedRepType !== 'sales' && reportType === landedRepType && (
               <div>
-                <button
-                  type="button"
-                  onClick={() => setRepLandingLive(false)}
-                  className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-lime-300 bg-lime-100 text-lime-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-lime-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime-400 dark:border-lime-500/30 dark:bg-lime-500/10 dark:text-lime-300 dark:hover:bg-lime-500/20"
-                  data-testid="rep-type-landing-word"
+                <LandingChip
+                  hue="lime"
+                  label={`landed ?rep-type=${landedRepType}`}
+                  onDismiss={() => setRepLandingLive(false)}
                   title="The reports desk landed with this report type from the address bar — press to clear it"
-                >
-                  <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-                  <span className="tabular-nums">landed ?rep-type={landedRepType}</span>
-                  <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-                </button>
+                  data-testid="rep-type-landing-word"
+                />
               </div>
             )}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">

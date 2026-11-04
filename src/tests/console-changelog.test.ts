@@ -488,10 +488,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.386.0: the payload files itself — the dry-run card reaches paper (Print beside Copy through the print-root pipeline), the card speaks its per-line list, the mapper's last decimal leak seals, and the unread anchors become DERIVED from the feed (the pin unwind's first real retire)
     // v2.385.0: the dry run speaks its payload — the e-TIMS submit dialog keeps the dry-run's mapped payload on screen (the paper-trail card, the copy voice), the PENDING rows gain their own Submit-to-KRA affordance, and the unread-count anchors grow by one (+1 on every anchor → 274/275/276/307 → 275/276/277/308)
     // v2.384.0: the reports desk answers the address bar — the Report Type grid speaks its desk-prefixed shape word wearing the shade-split’s third storey, and the lockfile guard grows its generation legs (+1 on every anchor → 273/274/275/306 → 274/275/276/307)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(283);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(284);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(285);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(316);
+    // v2.394.0: the landing chips share one loom — ten full-wardrobe chips render through one component with a ten-hue wardrobe registry, the census and the stress grow their loom faces, and the lockfile guard grows its generation legs (+1 on every anchor → 283/284/285/316 → 284/285/286/317)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(284);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(285);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(286);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(317);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 

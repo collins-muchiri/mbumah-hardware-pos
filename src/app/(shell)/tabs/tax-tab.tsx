@@ -7,8 +7,9 @@ import {
   Calculator, Receipt, FileText, ShieldCheck, Plus, Search,
   TrendingUp, AlertCircle, CheckCircle2, Clock, Loader2,
   ChevronDown, ChevronRight, Settings, Wifi, WifiOff,
-  Edit, Eye, Send, Check, X, Link2,
+  Edit, Eye, Send, Check, X,
 } from 'lucide-react';
+import { LandingChip } from '@/components/landing-chip';
 
 import { useAppStore } from '@/lib/stores';
 import {
@@ -736,22 +737,20 @@ export default function TaxTab() {
                 emerald, red, amber and slate, so the deeper orange borrows
                 nothing from any badge — light+dark, the shared tooltip, the
                 group-hover dismiss detail. THE POSITION LAW: the chip sits
-                immediately BEFORE the Select it landed into. */}
+                immediately BEFORE the Select it landed into. v2.394.0:
+                the chip renders through the one LandingChip loom (the
+                wardrobe lives in the loom's registry). */}
             {taxLandingLive && landedTaxType !== 'all' && filingTypeFilter === landedTaxType && (
-              <button
-                type="button"
-                onClick={() => {
+              <LandingChip
+                hue="orange"
+                label={`landed ?tax-type=${landedTaxType}`}
+                onDismiss={() => {
                   setFilingTypeFilter('all');
                   setTaxLandingLive(false);
                 }}
-                className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-orange-300 bg-orange-100 text-orange-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-orange-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 dark:border-orange-500/30 dark:bg-orange-500/10 dark:text-orange-300 dark:hover:bg-orange-500/20"
-                data-testid="tax-type-landing-word"
                 title="The tax desk landed with this filing type from the address bar — press to clear it"
-              >
-                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-                <span className="tabular-nums">landed ?tax-type={landedTaxType}</span>
-                <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-              </button>
+                data-testid="tax-type-landing-word"
+              />
             )}
             <Select value={filingTypeFilter} onValueChange={chooseFilingType}>
               <SelectTrigger className="w-[140px] h-9 text-xs">
@@ -772,22 +771,20 @@ export default function TaxTab() {
                 so the deeper teal borrows nothing from any badge —
                 light+dark, the shared tooltip, the group-hover dismiss
                 detail. THE POSITION LAW: the chip sits immediately
-                BEFORE the control it landed into. */}
+                BEFORE the control it landed into. v2.394.0: the teal
+                chip rides the one loom beside its orange sibling — one
+                registry, ten hues, zero drift. */}
             {taxPeriodLandingLive && landedTaxPeriod !== '' && filingPeriodFilter === landedTaxPeriod && (
-              <button
-                type="button"
-                onClick={() => {
+              <LandingChip
+                hue="teal"
+                label={`landed ?tax-period=${landedTaxPeriod}`}
+                onDismiss={() => {
                   setFilingPeriodFilter('');
                   setTaxPeriodLandingLive(false);
                 }}
-                className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-teal-300 bg-teal-100 text-teal-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-teal-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 dark:border-teal-500/30 dark:bg-teal-500/10 dark:text-teal-300 dark:hover:bg-teal-500/20"
-                data-testid="tax-period-landing-word"
                 title="The tax desk landed with this filing period from the address bar — press to clear it"
-              >
-                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-                <span className="tabular-nums">landed ?tax-period={landedTaxPeriod}</span>
-                <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-              </button>
+                data-testid="tax-period-landing-word"
+              />
             )}
             <Input
               type="month"

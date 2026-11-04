@@ -327,9 +327,17 @@ describe('the address-bar vocabulary — THE CONSTITUTION (thirty-two words, twe
   it('every word wears a DISTINCT family — thirty-one families, no two alike', () => {
     const families = WORDS.map((w) => w.family);
     expect(new Set(families).size).toBe(WORDS.length);
+    const loom = readFileSync('src/components/landing-chip.tsx', 'utf8');
     for (const { word, desk: deskPath, family } of WORDS) {
       const desk = readFileSync(deskPath, 'utf8');
-      expect(desk.includes(family), `${word} wears ${family}`).toBe(true);
+      // the direct face: the desk itself wears the family (the elder chips)
+      if (desk.includes(family)) continue;
+      // THE LOOM FACE (v2.394.0): the ten full-wardrobe chips render through
+      // the shared LandingChip loom — the desk proves its family by hue, and
+      // the loom's registry carries the family byte-for-byte.
+      const hue = family.replace(/^border-/, '').replace(/-(?:200|300)$/, '');
+      expect(desk.includes(`hue="${hue}"`), `${word} proves ${family} by hue`).toBe(true);
+      expect(loom.includes(family), `${family} in the loom's registry`).toBe(true);
     }
   });
 
@@ -432,6 +440,9 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/inv-stock-deep-link-v2329.test.ts',
       // the po-status word's ledger lives beside the proxy-gate suite
       // (one release, two suites — the ledger is the honest speaker here)
+      // the loom’s own suite — admitted (v2.394.0: the LandingChip
+      // loom suite pins this desk’s chip bytes, so the walk lists it)
+      'src/tests/landing-chip-loom-v2394.test.ts',
       'src/tests/ly-island-v2369.test.ts',
       'src/tests/ly-type-deep-link-v2368.test.ts',
       // the thirty-second word's own ledger — admitted (its own ledger
