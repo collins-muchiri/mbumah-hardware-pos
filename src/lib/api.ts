@@ -116,6 +116,15 @@ export interface ApiResponse<T = unknown> {
     totalPointsRedeemed: number;
     totalRedeemCount: number;
     buckets?: Record<string, { points: number; count: number }>;
+    // v2.382.0 THE TAXMAN'S LEDGER SUMMARY — the tax filings wire answers
+    // its own aggregates over EVERY matching row (the declared-vs-stored
+    // class is the server's to own, Task 3-f): the period's sales, tax and
+    // withholding totals plus the row count. Additive optional keys —
+    // every other wire answers undefined, same law as window/costGated.
+    totalSales?: number;
+    totalTax?: number;
+    totalWht?: number;
+    count?: number;
   };
 }
 
@@ -4437,6 +4446,129 @@ export const messagingApi = {
   },
 };
 
+
+// v2.382.0 — THE GHOST DESK'S WIRE: the tax desk's own API client. The
+// desk (tax-tab.tsx) predates the api-client consolidation and drifted
+// dead — its imports named a taxApi the consolidation never carried, and
+// the desk rode unrouted with eight tsc errors. The revival round re-ups
+// the wire to the LIVE routes (/api/tax/categories, /api/tax/filings —
+// both audited: Task 3-d GET-any-store-role / POST-manager-plus; Task 3-f
+// server-recomputed filing totals), so the desk compiles, routes and
+// answers. Types speak the wire's own shapes; money rides `number` like
+// every other Decimal-backed surface in this client (the house
+// convention — the formatters tolerate the wire's face).
+
+export interface TaxRateItem {
+  id: string;
+  taxCategoryId?: string;
+  name: string;
+  rate: number;
+  effectiveFrom: string;
+  effectiveTo: string | null;
+  isActive: boolean;
+}
+
+export interface TaxCategoryItem {
+  id: string;
+  storeId: string;
+  name: string;
+  rate: number;
+  description: string | null;
+  etimsCode: string | null;
+  isActive: boolean;
+  effectiveFrom: string;
+  effectiveTo: string | null;
+  createdAt: string;
+  updatedAt: string;
+  // the GET include: the category's active rate bands (newest three) and
+  // the band count — absent on the POST create response (a bare row)
+  taxRates?: TaxRateItem[];
+  _count?: { taxRates: number };
+}
+
+// The schema's own vocabulary (prisma TaxFiling.status comment): DRAFT,
+// FILED, ACCEPTED, REJECTED, AMENDED. The column is a String — the desk's
+// badge map keys the known faces and falls back to the raw word.
+export type TaxFilingStatus = 'DRAFT' | 'FILED' | 'ACCEPTED' | 'REJECTED' | 'AMENDED';
+
+export interface TaxFilingItem {
+  id: string;
+  storeId: string;
+  filingPeriod: string; // YYYY-MM
+  filingType: string; // VAT | WHT | INCOME_TAX | TURNOVER_TAX (route-validated)
+  totalSales: number;
+  totalTax: number;
+  totalWht: number;
+  status: string;
+  filingDate: string | null;
+  dueDate: string | null;
+  etimsReference: string | null;
+  notes: string | null;
+  filedBy: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const taxApi = {
+  categories: {
+    list: async (params: { storeId: string; search?: string; limit?: number; isActive?: string }) => {
+      const query = new URLSearchParams();
+      query.set('storeId', params.storeId);
+      if (params.search) query.set('search', params.search);
+      if (params.limit) query.set('limit', String(params.limit));
+      if (params.isActive) query.set('isActive', params.isActive);
+      return request<TaxCategoryItem[]>(`/tax/categories?${query.toString()}`);
+    },
+    create: async (data: {
+      storeId: string;
+      name: string;
+      rate: number;
+      description?: string;
+      etimsCode?: string;
+    }) => {
+      return request<TaxCategoryItem>('/tax/categories', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    },
+  },
+  filings: {
+    list: async (params: {
+      storeId: string;
+      status?: string;
+      filingType?: string;
+      filingPeriod?: string;
+      page?: number;
+      limit?: number;
+    }) => {
+      const query = new URLSearchParams();
+      query.set('storeId', params.storeId);
+      if (params.status) query.set('status', params.status);
+      if (params.filingType) query.set('filingType', params.filingType);
+      if (params.filingPeriod) query.set('filingPeriod', params.filingPeriod);
+      if (params.page) query.set('page', String(params.page));
+      if (params.limit) query.set('limit', String(params.limit));
+      return request<TaxFilingItem[]>(`/tax/filings?${query.toString()}`);
+    },
+    create: async (data: {
+      storeId: string;
+      filingPeriod: string;
+      filingType: string;
+      totalSales?: string | number;
+      totalTax?: string | number;
+      totalWht?: string | number;
+      filingDate?: string;
+      dueDate?: string;
+      etimsReference?: string;
+      notes?: string;
+    }) => {
+      return request<TaxFilingItem>('/tax/filings', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    },
+  },
+};
 
 // v2.0.0 - KRA eTIMS API client
 

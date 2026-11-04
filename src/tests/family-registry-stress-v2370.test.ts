@@ -1,16 +1,18 @@
 // THE FAMILY REGISTRY STRESS TEST (v2.370.0): the constitution walks itself.
 // Every deep-link round since v2.328.0 pinned its own row's
-// bytes from its own suite; the constitution's registry (twenty-two
+// bytes from its own suite; the constitution's registry (twenty-three
 // rows in transfer-status-deep-link-v2357.test.ts) has been guarded
 // only by those per-round pins — nothing DERIVED the whole registry
 // against the tree. This suite is that walk: it PARSES the rows from
 // the constitution file (the registry is the input, never a copy) and
 // derives, per row:
 //   1. the desk file exists and speaks the word;
-//   2. the desk carries the chip's wardrobe pair (border-{hue}-200
-//      bg-{hue}-50 — the light-mode surface pair, the registry's own
-//      binding: the family byte alone is not proof, the PAIR is the
-//      chip's);
+//   2. the desk carries the chip's wardrobe pair (the light-mode surface
+//      pair — THE SHADE-SPLIT AMENDMENT (v2.382.0): the 200/50 storey's
+//      hue families were exhausted, so the grammar grew a SECOND STOREY:
+//      a 200-family pairs with bg-{hue}-50, a 300-family with
+//      bg-{hue}-100 — the registry's own binding: the family byte alone
+//      is not proof, the PAIR is the chip's);
 //   3. the desk carries a landing-word testid whose stem is the word
 //      itself or the word's first segment (the early desks spoke
 //      short stems — `po-` for po-status, `inv-` for inv-stock,
@@ -23,9 +25,9 @@
 //   5. the suite's version (from its filename's v23NN stamp) is
 //      version-stamped in tab-url (the home's per-word doc notes)
 //      and carried in the whats-new feed.
-// Globally it derives the title's own claim: twenty-two words over
-// twenty desks with twenty-two DISTINCT families, and the promise
-// roll through TWENTY-SECOND.
+// Globally it derives the title's own claim: twenty-three words over
+// twenty-one desks with twenty-three DISTINCT families, and the promise
+// roll through TWENTY-THIRD.
 // THE STRESS'S BOUNDARY: this is the REGISTRY's walk, not a census —
 // the per-word one-writer ledgers already live in each row's suite;
 // this suite never re-walks their ground.
@@ -47,8 +49,12 @@ interface RegistryRow {
   suite: string;
 }
 
+// THE SHADE-SPLIT AMENDMENT (v2.382.0): the row's family byte now admits
+// TWO storeys — the 200 storey (paired with bg-{hue}-50) and the 300
+// storey (paired with bg-{hue}-100). Any other hundred-storey has no
+// defined light pair, so the grammar does not admit it.
 const ROW_RE =
-  /\{ word: '([a-z-]+)', desk: '([^']+)', family: '(border-[a-z]+-200)', suite: '([^']+)' \}/g;
+  /\{ word: '([a-z-]+)', desk: '([^']+)', family: '(border-[a-z]+-(?:200|300))', suite: '([^']+)' \}/g;
 
 function parseRegistry(): RegistryRow[] {
   const rows: RegistryRow[] = [];
@@ -61,8 +67,8 @@ function parseRegistry(): RegistryRow[] {
 const rows = parseRegistry();
 
 describe('the registry, parsed from the constitution file itself', () => {
-  it('parses TWENTY-TWO rows (the constitution\u2019s own count, derived)', () => {
-    expect(rows.length).toBe(22);
+  it('parses TWENTY-THREE rows (the constitution\u2019s own count, derived)', () => {
+    expect(rows.length).toBe(23);
   });
 
   it('the rows walk in the promise\u2019s order (the roll, derived from the parse)', () => {
@@ -71,31 +77,32 @@ describe('the registry, parsed from the constitution file itself', () => {
       'txn-pay', 'txn-type', 'rent-status', 'inv-status', 'transfer-status',
       'gc-status', 'dn-status', 'vc-status', 'cr-type', 'pr-status',
       'cv-type', 'cat-stock', 'dp-status', 'ad-severity', 'sec-type',
-      'ly-type', 'et-status',
+      'ly-type', 'et-status', 'tax-type',
     ];
     expect(rows.map((r) => r.word)).toEqual(expected);
   });
 
-  it('the parsed desks and suites are the title\u2019s own arithmetic (20 desks, 22 families — derived)', () => {
-    expect(new Set(rows.map((r) => r.desk)).size).toBe(20);
-    expect(new Set(rows.map((r) => r.family)).size).toBe(22);
-    expect(constitution.includes('(twenty-two words, twenty desks)')).toBe(true);
+  it('the parsed desks and suites are the title\u2019s own arithmetic (21 desks, 23 families — derived)', () => {
+    expect(new Set(rows.map((r) => r.desk)).size).toBe(21);
+    expect(new Set(rows.map((r) => r.family)).size).toBe(23);
+    expect(constitution.includes('(twenty-three words, twenty-one desks)')).toBe(true);
   });
 
-  it('the promise roll through TWENTY-SECOND is present (the ordinals, derived from the home’s notes)', () => {
+  it('the promise roll through TWENTY-THIRD is present (the ordinals, derived from the home’s notes)', () => {
     const home = readFileSync('src/lib/tab-url.ts', 'utf8');
     const ordinals = [
       'FIRST', 'SECOND', 'THIRD', 'FOURTH', 'FIFTH', 'SIXTH', 'SEVENTH',
       'EIGHTH', 'NINTH', 'TENTH', 'ELEVENTH', 'TWELFTH', 'THIRTEENTH',
       'FOURTEENTH', 'FIFTEENTH', 'SIXTEENTH', 'SEVENTEENTH', 'EIGHTEENTH',
       'NINETEENTH', 'TWENTIETH', 'TWENTY-FIRST', 'TWENTY-SECOND',
+      'TWENTY-THIRD',
     ];
     for (const ordinal of ordinals) {
       // the home's doc notes carry the whole roll; the constitution's
       // own title carries the newest (the roll's tail is quoted there)
       expect(home.includes(ordinal), ordinal).toBe(true);
     }
-    expect(constitution.includes("'TWENTY-SECOND'")).toBe(true);
+    expect(constitution.includes("'TWENTY-THIRD'")).toBe(true);
   });
 });
 
@@ -103,11 +110,15 @@ describe('the registry, parsed from the constitution file itself', () => {
 // 2. THE PER-ROW DERIVATIONS (desk bytes, chip wardrobe, testid stem, self-pin)
 // ---------------------------------------------------------------------------
 
-function hueOf(family: string): string {
-  const m = family.match(/^border-([a-z]+)-200$/);
+function storeyOf(family: string): { hue: string; shade: string; light: string } {
+  const m = family.match(/^border-([a-z]+)-(200|300)$/);
   const hue = m?.[1] ?? '';
   expect(hue, family).not.toBe('');
-  return hue;
+  // the shade-split's light-face map: the 200 storey's surface is the
+  // 50 face, the 300 storey's surface is the 100 face — the registry's
+  // own two defined storeys, no others.
+  const light = m?.[2] === '300' ? '100' : '50';
+  return { hue, shade: m?.[2] ?? '', light };
 }
 
 function chipStemOf(word: string): string[] {
@@ -118,15 +129,15 @@ function chipStemOf(word: string): string[] {
 
 describe.each(rows)('$word — the registry row, derived against the tree', (row) => {
   const deskBytes = readFileSync(row.desk, 'utf8');
-  const hue = hueOf(row.family);
+  const { hue, shade, light } = storeyOf(row.family);
 
   it('the desk file exists and speaks the word', () => {
     expect(existsSync(row.desk), row.desk).toBe(true);
     expect(deskBytes.includes(row.word), row.word).toBe(true);
   });
 
-  it('the desk wears the chip\u2019s wardrobe pair (border-{hue}-200 bg-{hue}-50)', () => {
-    const pair = `border-${hue}-200 bg-${hue}-50`;
+  it('the desk wears the chip\u2019s wardrobe pair (border-{hue}-{shade} bg-{hue}-{light})', () => {
+    const pair = `border-${hue}-${shade} bg-${hue}-${light}`;
     expect(deskBytes.includes(pair), pair).toBe(true);
   });
 

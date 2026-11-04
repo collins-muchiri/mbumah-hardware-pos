@@ -57,6 +57,7 @@ const LazySecurityTab = lazy(TAB_LOADERS.security);
 const LazyPayrollTab = lazy(TAB_LOADERS.payroll);
 const LazyPeoplePayrollTab = lazy(TAB_LOADERS['people-payroll']);
 const LazyEtimsTab = lazy(TAB_LOADERS.etims);
+const LazyTaxTab = lazy(TAB_LOADERS.tax);
 const LazyDebtManagementTab = lazy(TAB_LOADERS['debt-management']);
 const LazyDebtPlansTab = lazy(TAB_LOADERS['debt-plans']);
 const LazyDataExportsTab = lazy(TAB_LOADERS['data-exports']);
@@ -225,6 +226,7 @@ export function MainApp() {
       case 'payroll': return <SectionErrorBoundary sectionName="Payroll"><Suspense fallback={<TabLoadingFallback />}><LazyPayrollTab /></Suspense></SectionErrorBoundary>;
       case 'people-payroll': return <SectionErrorBoundary sectionName="People & Payroll"><Suspense fallback={<TabLoadingFallback />}><LazyPeoplePayrollTab /></Suspense></SectionErrorBoundary>;
       case 'etims': return <SectionErrorBoundary sectionName="eTIMS"><Suspense fallback={<TabLoadingFallback />}><LazyEtimsTab /></Suspense></SectionErrorBoundary>;
+      case 'tax': return <SectionErrorBoundary sectionName="Tax"><Suspense fallback={<TabLoadingFallback />}><LazyTaxTab /></Suspense></SectionErrorBoundary>;
       case 'debt-management': return <SectionErrorBoundary sectionName="Debt Management"><Suspense fallback={<TabLoadingFallback />}><LazyDebtManagementTab /></Suspense></SectionErrorBoundary>;
       case 'debt-plans': return <SectionErrorBoundary sectionName="Debt Plans"><Suspense fallback={<TabLoadingFallback />}><LazyDebtPlansTab /></Suspense></SectionErrorBoundary>;
       case 'data-exports': return <SectionErrorBoundary sectionName="Data Exports"><Suspense fallback={<TabLoadingFallback />}><LazyDataExportsTab /></Suspense></SectionErrorBoundary>;

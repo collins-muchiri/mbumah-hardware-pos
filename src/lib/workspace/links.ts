@@ -342,7 +342,7 @@ export function tabFromWorkspacePath(rest: readonly string[] | null | undefined)
     'financial', 'reports', 'transactions', 'suppliers', 'gift-cards',
     'admin', 'vouchers', 'invoices', 'delivery', 'credits', 'messaging',
     'transfers', 'banking', 'loyalty', 'security', 'payroll',
-    'people-payroll', 'etims', 'debt-management', 'debt-plans',
+    'people-payroll', 'etims', 'tax', 'debt-management', 'debt-plans',
     'conversations', 'purchase-orders', 'analytics', 'data-exports',
     'shift-scheduling', 'system-health',
   ]);

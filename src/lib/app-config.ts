@@ -63,7 +63,7 @@ export function requiredRoleLabelFor(roles: string[]): string {
 import {
   Home, ShoppingCart, Tag, Package, Users, ShoppingBag,
   KeyRound, Truck, ClipboardList, BarChart3, FileText,
-  CreditCard, Ticket, Receipt, Building2,
+  CreditCard, Ticket, Receipt, Building2, Calculator,
   CircleDollarSign, BadgeDollarSign, MessageSquare, MessagesSquare,
   ArrowUpDown, Landmark, Award, Wallet, Shield, ShieldCheck,
   LineChart, Database, CalendarDays, UserCog, HeartPulse,
@@ -86,6 +86,13 @@ export const TAB_CONFIG: { id: AppTab; label: string; icon: React.ElementType; r
   { id: 'vouchers', label: 'Vouchers', icon: Ticket, roles: SENIOR_ROLES },
   { id: 'invoices', label: 'Invoices', icon: Receipt, roles: MGMT_ROLES },
   { id: 'etims', label: 'eTIMS', icon: Building2, roles: MGMT_ROLES },
+  // v2.382.0: the ghost tax desk gets its door (the system-health
+  // precedent — built, voiced, but no route pointed at it). The exact
+  // banking trio mirrors the filings wire's own gate: FINANCIAL_ROLES.WRITE
+  // (auth.ts) — a manager-facing door would 403, and a door that 403s is
+  // a lie. Tax categories stay readable to every store role at the POS
+  // through the route's own any-store-role GET.
+  { id: 'tax', label: 'Tax', icon: Calculator, roles: ['SUPER_ADMIN', 'STORE_OWNER', 'ACCOUNTANT'] },
   { id: 'delivery', label: 'Delivery', icon: Truck, roles: SENIOR_ROLES },
   { id: 'credits', label: 'Credits', icon: CircleDollarSign, roles: MGMT_ROLES },
   { id: 'debt-management', label: 'Debt Mgmt', icon: BadgeDollarSign, roles: MGMT_ROLES },
@@ -122,7 +129,7 @@ export const NAV_GROUPS: { label: string; ids: AppTab[] }[] = [
   { label: 'Sales & Credit', ids: ['invoices', 'delivery', 'credits', 'debt-management', 'debt-plans', 'vouchers', 'gift-cards', 'loyalty'] },
   { label: 'Finance & Insights', ids: ['financial', 'analytics', 'banking', 'payroll', 'people-payroll', 'transfers'] },
   { label: 'Operations', ids: ['rentals', 'suppliers', 'messaging', 'conversations', 'shift-scheduling'] },
-  { label: 'Compliance & System', ids: ['etims', 'reports', 'data-exports', 'security', 'admin', 'system-health'] },
+  { label: 'Compliance & System', ids: ['etims', 'tax', 'reports', 'data-exports', 'security', 'admin', 'system-health'] },
 ];
 
 // Category Images
