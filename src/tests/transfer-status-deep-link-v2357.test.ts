@@ -197,7 +197,7 @@ describe('the landing chip — the face names the word it answered', () => {
 // 4. THE CONSTITUTION — the whole vocabulary's invariants, walked from bytes
 // ---------------------------------------------------------------------------
 
-describe('the address-bar vocabulary — THE CONSTITUTION (twenty-seven words, twenty-three desks)', () => {
+describe('the address-bar vocabulary — THE CONSTITUTION (twenty-eight words, twenty-four desks)', () => {
   const WORDS = [
     { word: 'po-status', desk: 'src/app/(shell)/tabs/purchase-orders-tab.tsx', family: 'border-indigo-200', suite: 'src/tests/proxy-gate-layering-v2328.test.ts' },
     { word: 'inv-stock', desk: 'src/app/(shell)/tabs/inventory-tab.tsx', family: 'border-amber-200', suite: 'src/tests/inv-stock-deep-link-v2329.test.ts' },
@@ -265,6 +265,13 @@ describe('the address-bar vocabulary — THE CONSTITUTION (twenty-seven words, t
     // storey — a family byte the 200-storey can never equal, borrowing
     // nothing from the desk's badges)
     { word: 'bank-mpesa', desk: 'src/app/(shell)/tabs/banking-tab.tsx', family: 'border-purple-300', suite: 'src/tests/bank-mpesa-deep-link-v2388.test.ts' },
+    // the third-application round: the debt management desk's reminder
+    // history answers its daily question — the sub-tab amendment's THIRD
+    // application (the landing raises the History pane it lands into),
+    // and the chip wears the shade-split's SIXTH application: cyan at
+    // 300/100 (a hue NO badge on this desk speaks — the census answers
+    // amber, blue, emerald, green, orange, purple, rose and slate)
+    { word: 'debt-status', desk: 'src/app/(shell)/tabs/debt-management-tab.tsx', family: 'border-cyan-300', suite: 'src/tests/debt-status-deep-link-v2389.test.ts' },
   ] as const;
 
   it('every word is desk-prefixed and owns its FILTERS const in exactly its desk', () => {
@@ -274,7 +281,7 @@ describe('the address-bar vocabulary — THE CONSTITUTION (twenty-seven words, t
     }
   });
 
-  it('every word wears a DISTINCT family — twenty-four families, no two alike', () => {
+  it('every word wears a DISTINCT family — twenty-eight families, no two alike', () => {
     const families = WORDS.map((w) => w.family);
     expect(new Set(families).size).toBe(WORDS.length);
     for (const { word, desk: deskPath, family } of WORDS) {
@@ -288,7 +295,7 @@ describe('the address-bar vocabulary — THE CONSTITUTION (twenty-seven words, t
     for (const { suite } of WORDS) {
       expect(readFileSync(suite, 'utf8').length > 0, `${suite} exists`).toBe(true);
     }
-    for (const n of ['SEVENTH', 'EIGHTH', 'NINTH', 'TENTH', 'ELEVENTH', 'TWELFTH', 'THIRTEENTH', 'FOURTEENTH', 'FIFTEENTH', 'SIXTEENTH', 'SEVENTEENTH', 'EIGHTEENTH', 'NINETEENTH', 'TWENTIETH', 'TWENTY-FIRST', 'TWENTY-SECOND', 'TWENTY-THIRD', 'TWENTY-FOURTH', 'TWENTY-FIFTH', 'TWENTY-SIXTH', 'TWENTY-SEVENTH']) {
+    for (const n of ['SEVENTH', 'EIGHTH', 'NINTH', 'TENTH', 'ELEVENTH', 'TWELFTH', 'THIRTEENTH', 'FOURTEENTH', 'FIFTEENTH', 'SIXTEENTH', 'SEVENTEENTH', 'EIGHTEENTH', 'NINETEENTH', 'TWENTIETH', 'TWENTY-FIRST', 'TWENTY-SECOND', 'TWENTY-THIRD', 'TWENTY-FOURTH', 'TWENTY-FIFTH', 'TWENTY-SIXTH', 'TWENTY-SEVENTH', 'TWENTY-EIGHTH']) {
       expect(home.includes(`THE PROMISE KEPT, THE ${n} WORD`)).toBe(true);
     }
   });
@@ -353,11 +360,16 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // the twenty-seventh word's own ledger — admitted (this file
       // speaks the words this ledger walks; its NAME carries them too)
       'src/tests/bank-mpesa-deep-link-v2388.test.ts',
+      // the twenty-eighth word's own ledger — admitted (its collision
+      // ledger and its constitution section name this file)
       'src/tests/bank-type-deep-link-v2387.test.ts',
       'src/tests/cat-stock-deep-link-v2364.test.ts',
       'src/tests/cr-type-deep-link-v2361.test.ts',
       'src/tests/cust-debt-deep-link-v2330.test.ts',
       'src/tests/cv-type-deep-link-v2363.test.ts',
+      // the twenty-eighth word's own ledger — admitted (its collision
+      // ledger and its constitution section name this file)
+      'src/tests/debt-status-deep-link-v2389.test.ts',
       'src/tests/dn-status-deep-link-v2359.test.ts',
       'src/tests/dp-status-deep-link-v2365.test.ts',
       'src/tests/et-status-deep-link-v2381.test.ts',
