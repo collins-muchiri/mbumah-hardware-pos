@@ -1,6 +1,6 @@
 // THE FAMILY REGISTRY STRESS TEST (v2.370.0): the constitution walks itself.
 // Every deep-link round since v2.328.0 pinned its own row's
-// bytes from its own suite; the constitution's registry (twenty-three
+// bytes from its own suite; the constitution's registry (twenty-four
 // rows in transfer-status-deep-link-v2357.test.ts) has been guarded
 // only by those per-round pins — nothing DERIVED the whole registry
 // against the tree. This suite is that walk: it PARSES the rows from
@@ -25,9 +25,9 @@
 //   5. the suite's version (from its filename's v23NN stamp) is
 //      version-stamped in tab-url (the home's per-word doc notes)
 //      and carried in the whats-new feed.
-// Globally it derives the title's own claim: twenty-three words over
-// twenty-one desks with twenty-three DISTINCT families, and the promise
-// roll through TWENTY-THIRD.
+// Globally it derives the title's own claim: twenty-four words over
+// twenty-one desks with twenty-four DISTINCT families, and the promise
+// roll through TWENTY-FOURTH.
 // THE STRESS'S BOUNDARY: this is the REGISTRY's walk, not a census —
 // the per-word one-writer ledgers already live in each row's suite;
 // this suite never re-walks their ground.
@@ -67,8 +67,8 @@ function parseRegistry(): RegistryRow[] {
 const rows = parseRegistry();
 
 describe('the registry, parsed from the constitution file itself', () => {
-  it('parses TWENTY-THREE rows (the constitution\u2019s own count, derived)', () => {
-    expect(rows.length).toBe(23);
+  it('parses TWENTY-FOUR rows (the constitution\u2019s own count, derived)', () => {
+    expect(rows.length).toBe(24);
   });
 
   it('the rows walk in the promise\u2019s order (the roll, derived from the parse)', () => {
@@ -77,25 +77,25 @@ describe('the registry, parsed from the constitution file itself', () => {
       'txn-pay', 'txn-type', 'rent-status', 'inv-status', 'transfer-status',
       'gc-status', 'dn-status', 'vc-status', 'cr-type', 'pr-status',
       'cv-type', 'cat-stock', 'dp-status', 'ad-severity', 'sec-type',
-      'ly-type', 'et-status', 'tax-type',
+      'ly-type', 'et-status', 'tax-type', 'tax-period',
     ];
     expect(rows.map((r) => r.word)).toEqual(expected);
   });
 
-  it('the parsed desks and suites are the title\u2019s own arithmetic (21 desks, 23 families — derived)', () => {
+  it('the parsed desks and suites are the title\u2019s own arithmetic (21 desks, 24 families — derived)', () => {
     expect(new Set(rows.map((r) => r.desk)).size).toBe(21);
-    expect(new Set(rows.map((r) => r.family)).size).toBe(23);
-    expect(constitution.includes('(twenty-three words, twenty-one desks)')).toBe(true);
+    expect(new Set(rows.map((r) => r.family)).size).toBe(24);
+    expect(constitution.includes('(twenty-four words, twenty-one desks)')).toBe(true);
   });
 
-  it('the promise roll through TWENTY-THIRD is present (the ordinals, derived from the home’s notes)', () => {
+  it('the promise roll through TWENTY-FOURTH is present (the ordinals, derived from the home’s notes)', () => {
     const home = readFileSync('src/lib/tab-url.ts', 'utf8');
     const ordinals = [
       'FIRST', 'SECOND', 'THIRD', 'FOURTH', 'FIFTH', 'SIXTH', 'SEVENTH',
       'EIGHTH', 'NINTH', 'TENTH', 'ELEVENTH', 'TWELFTH', 'THIRTEENTH',
       'FOURTEENTH', 'FIFTEENTH', 'SIXTEENTH', 'SEVENTEENTH', 'EIGHTEENTH',
       'NINETEENTH', 'TWENTIETH', 'TWENTY-FIRST', 'TWENTY-SECOND',
-      'TWENTY-THIRD',
+      'TWENTY-THIRD', 'TWENTY-FOURTH',
     ];
     for (const ordinal of ordinals) {
       // the home's doc notes carry the whole roll; the constitution's
@@ -103,6 +103,7 @@ describe('the registry, parsed from the constitution file itself', () => {
       expect(home.includes(ordinal), ordinal).toBe(true);
     }
     expect(constitution.includes("'TWENTY-THIRD'")).toBe(true);
+    expect(constitution.includes("'TWENTY-FOURTH'")).toBe(true);
   });
 });
 

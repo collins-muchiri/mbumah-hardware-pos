@@ -15,7 +15,9 @@ import {
   taxApi, formatKES, formatDate,
   type TaxCategoryItem, type TaxFilingItem, type TaxRateItem,
 } from '@/lib/api';
-import { parseInitialNamedMember, parseInitialStage } from '@/lib/tab-url';
+import {
+  parseInitialNamedMember, parseInitialNamedPeriod, parseInitialStage, TAX_PERIOD_SHAPE,
+} from '@/lib/tab-url';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -92,6 +94,25 @@ function initialTaxType(): TaxTypeFilter {
 
 const TAX_SUB_TABS = ['categories', 'filings', 'etims'] as const;
 type TaxSubTab = (typeof TAX_SUB_TABS)[number];
+
+// THE TAX DESK'S SECOND WORD (v2.383.0): the filings ledger answers BY
+// THE MONTH. The period lens — the desk's other daily question, "which
+// month's returns am I looking at?" — speaks its desk-prefixed
+// `?tax-period=YYYY-MM` (a SHAPE word: the wire's own YYYY-MM class, a
+// real month 01-12 — a lowercase `all`, a `2026-13`, a bare `2026` are
+// unknown words, and the neutral here is ABSENCE, not a word). The chip
+// wears TEAL one storey deeper (THE TWENTY-FOURTH WEARING — the
+// shade-split's second application: the pair bytes can never collide
+// with the 200-storey), and the desk's badges speak blue, emerald, red,
+// amber, slate and green, so the deeper teal borrows nothing. THE
+// TWO-ADDRESS DESIGN rides again: a landed period word implies the
+// filings stage when view is silent; view's own word wins. THE LANDING
+// IS READ ONCE ON THE SHELL (the shell-seed law's second speaker): a
+// dismissed chip can never resurrect.
+function initialTaxPeriod(): string {
+  if (typeof window === 'undefined') return '';
+  return parseInitialNamedPeriod(window.location.search, 'tax-period', '');
+}
 
 function initialTaxStage(landed: boolean): TaxSubTab {
   if (typeof window === 'undefined') return 'categories';
@@ -396,18 +417,24 @@ export default function TaxTab() {
   // resurrect. The type filter seeds from the shell's landing, never a
   // re-parse (the read-once-and-lent-down law's shell-seed form).
   const [landedTaxType] = useState<TaxTypeFilter>(initialTaxType);
+  // v2.383.0: THE SECOND SHELL-SEED SPEAKER — the period word lands
+  // through the SAME door (its own landing flag, its own chip: two
+  // words, two addresses, one shell).
+  const [landedTaxPeriod] = useState<string>(initialTaxPeriod);
   const [taxLandingLive, setTaxLandingLive] = useState(true);
+  const [taxPeriodLandingLive, setTaxPeriodLandingLive] = useState(true);
   // THE TWO-ADDRESS DESIGN: the stage answers the bare `view` word when it
-  // speaks a VALID sub-tab, and a landed type word implies the filings
-  // stage when view is silent (only valid words speak; the desk's own
-  // default answers a neutral landing).
-  const [innerTab, setInnerTab] = useState<string>(() => initialTaxStage(landedTaxType !== 'all'));
+  // speaks a VALID sub-tab, and a landed type OR period word implies the
+  // filings stage when view is silent (only valid words speak; the desk's
+  // own default answers a neutral landing).
+  const [innerTab, setInnerTab] = useState<string>(() => initialTaxStage(landedTaxType !== 'all' || landedTaxPeriod !== ''));
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const [editCategory, setEditCategory] = useState<TaxCategoryItem | null>(null);
   const [filingDialogOpen, setFilingDialogOpen] = useState(false);
   const [filingStatusFilter, setFilingStatusFilter] = useState('all');
   const [filingTypeFilter, setFilingTypeFilter] = useState<TaxTypeFilter>(landedTaxType);
+  const [filingPeriodFilter, setFilingPeriodFilter] = useState(landedTaxPeriod);
   const [selectedFiling, setSelectedFiling] = useState<TaxFilingItem | null>(null);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
@@ -427,13 +454,21 @@ export default function TaxTab() {
     enabled: !!currentStoreId,
   });
 
+  // THE PERIOD LENS IS SHAPE-HONEST, LIVE FOR THE HAND TOO (v2.383.0):
+  // the lens is active only when the word is a REAL period — the wire's
+  // own YYYY-MM class. An incomplete month the hand is still typing is
+  // not yet a word: the desk keeps the unscoped window until the bytes
+  // are whole, and the wire never sees a half-word.
+  const periodLensActive = TAX_PERIOD_SHAPE.test(filingPeriodFilter);
+
   // Fetch tax filings
   const { data: filingsData, isLoading: filingsLoading } = useQuery({
-    queryKey: ['tax-filings', currentStoreId, filingStatusFilter, filingTypeFilter],
+    queryKey: ['tax-filings', currentStoreId, filingStatusFilter, filingTypeFilter, filingPeriodFilter],
     queryFn: () => taxApi.filings.list({
       storeId: currentStoreId,
       status: filingStatusFilter !== 'all' ? filingStatusFilter : undefined,
       filingType: filingTypeFilter !== 'all' ? filingTypeFilter : undefined,
+      filingPeriod: periodLensActive ? filingPeriodFilter : undefined,
       limit: 100,
     }),
     enabled: !!currentStoreId,
@@ -468,6 +503,12 @@ export default function TaxTab() {
   const chooseFilingType = (value: TaxTypeFilter) => {
     setFilingTypeFilter(value);
     setTaxLandingLive(false);
+  };
+  // the period lens's own voice: the same retirement law, one word over
+  // (the chips are independent — clearing one never touches the other).
+  const chooseFilingPeriod = (value: string) => {
+    setFilingPeriodFilter(value);
+    setTaxPeriodLandingLive(false);
   };
   const etimsActiveCategories = categories.filter(c => c.isActive && c.etimsCode).length;
 
@@ -724,6 +765,38 @@ export default function TaxTab() {
                 <SelectItem value="TURNOVER_TAX">Turnover Tax</SelectItem>
               </SelectContent>
             </Select>
+            {/* THE TWENTY-FOURTH WEARING: the chip wears TEAL, one storey
+                deeper — the shade-split's second application (the pair
+                bytes can never collide with the 200-storey). The desk's
+                badges speak blue, emerald, red, amber, slate and green,
+                so the deeper teal borrows nothing from any badge —
+                light+dark, the shared tooltip, the group-hover dismiss
+                detail. THE POSITION LAW: the chip sits immediately
+                BEFORE the control it landed into. */}
+            {taxPeriodLandingLive && landedTaxPeriod !== '' && filingPeriodFilter === landedTaxPeriod && (
+              <button
+                type="button"
+                onClick={() => {
+                  setFilingPeriodFilter('');
+                  setTaxPeriodLandingLive(false);
+                }}
+                className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-teal-300 bg-teal-100 text-teal-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-teal-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 dark:border-teal-500/30 dark:bg-teal-500/10 dark:text-teal-300 dark:hover:bg-teal-500/20"
+                data-testid="tax-period-landing-word"
+                title="The tax desk landed with this filing period from the address bar — press to clear it"
+              >
+                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+                <span className="tabular-nums">landed ?tax-period={landedTaxPeriod}</span>
+                <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+              </button>
+            )}
+            <Input
+              type="month"
+              value={filingPeriodFilter}
+              onChange={(e) => chooseFilingPeriod(e.target.value)}
+              className="w-[150px] h-9 text-xs"
+              aria-label="Filter filings by period"
+              data-testid="tax-period-filter"
+            />
             <Button size="sm" className="h-9 ml-auto bg-emerald-700 hover:bg-emerald-800" onClick={() => setFilingDialogOpen(true)}>
               <Plus className="mr-1.5 h-4 w-4" /> New Filing
             </Button>
@@ -735,6 +808,8 @@ export default function TaxTab() {
             </div>
           ) : filings.length === 0 ? (
             filingTypeFilter !== 'all' ? (
+              // (the type lens's voice — v2.382.0 — keeps its seat; the
+              // period lens's own voice answers BELOW it, the branch law)
               // THE LENS-AWARE EMPTY VOICE (v2.382.0, the styling detail): a
               // lensed desk used to answer its empty window with the GENERIC
               // empty state — a false "nothing exists" reading when the
@@ -751,6 +826,27 @@ export default function TaxTab() {
                   </p>
                   <Button size="sm" variant="outline" className="mt-3" onClick={() => chooseFilingType('all')}>
                     Clear the type lens
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : periodLensActive ? (
+              // THE PERIOD LENS'S OWN VOICE (v2.383.0, the styling
+              // detail's second speaker on this desk): a month with no
+              // returns used to answer with the GENERIC empty state — a
+              // false "nothing exists" reading when the truth is "nothing
+              // wears THIS month". The lensed answer names the month and
+              // offers the one-press clearing hand.
+              <Card>
+                <CardContent className="p-8 text-center" data-testid="tax-period-empty-lens">
+                  <FileText className="h-10 w-10 mx-auto text-muted-foreground/40" />
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    No <span className="font-medium text-foreground">{filingPeriodFilter}</span> filings in this lens yet.
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    The period lens is answering — every filing wears another month, or this window has no returns in that month yet.
+                  </p>
+                  <Button size="sm" variant="outline" className="mt-3" onClick={() => chooseFilingPeriod('')}>
+                    Clear the period lens
                   </Button>
                 </CardContent>
               </Card>
@@ -804,7 +900,13 @@ export default function TaxTab() {
             </Card>
           )}
 
-          {/* Status Workflow Legend */}
+          {/* Status Workflow Legend — THE GHOST FACES RETIRED (v2.383.0):
+              the legend still spoke Approved → Paid → Late AFTER the v2.382
+              repair re-voiced the badge map and the Select — the exact
+              faces the wire can never carry, live-caught by this round's
+              QA burst. The legend now walks the schema's own five: Draft
+              → Filed → Accepted → Amended, with Rejected as the red
+              branch the wire really answers. */}
           <Card>
             <CardContent className="p-4">
               <p className="text-xs font-medium text-muted-foreground mb-2">Filing Status Workflow</p>
@@ -821,17 +923,17 @@ export default function TaxTab() {
                 <span className="text-muted-foreground">→</span>
                 <div className="flex items-center gap-1">
                   <Check className="h-3.5 w-3.5 text-emerald-500" />
-                  <span className="text-xs">Approved</span>
+                  <span className="text-xs">Accepted</span>
                 </div>
                 <span className="text-muted-foreground">→</span>
                 <div className="flex items-center gap-1">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
-                  <span className="text-xs">Paid</span>
+                  <Edit className="h-3.5 w-3.5 text-amber-500" />
+                  <span className="text-xs">Amended</span>
                 </div>
                 <Separator orientation="vertical" className="h-4 mx-1" />
                 <div className="flex items-center gap-1">
                   <AlertCircle className="h-3.5 w-3.5 text-red-500" />
-                  <span className="text-xs text-red-600">Late</span>
+                  <span className="text-xs text-red-600">Rejected</span>
                 </div>
               </div>
             </CardContent>
