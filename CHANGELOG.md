@@ -1,3 +1,21 @@
+## [2.385.0] The dry run speaks its payload
+
+The e-TIMS submit flow's paper trail lands on screen. The /api/kra/submit route has always returned the mapped KraInvoicePayload on a dry run — and the dialog toasted "payload mapped" and closed out from under it, every time. The same round ends the blind typing: submit now starts from the row.
+
+### Added
+- **THE PAYLOAD PREVIEW** (`etims-tab.tsx`, `src/lib/api.ts`): a completed dry run keeps the dialog OPEN and renders the mapped payload — KRA invoice number, buyer (name + PIN when present), issue date, payment method, line-item count, and the full money ladder (subtotal, discount, VAT (16%) in the desk's blue voice, total) — with a one-press Copy that hands the operator the exact pretty-printed JSON KRA would receive (the paper-trail pattern: what is filed is what is sent). The wire's type widens additively (`payload?: KraInvoicePayload`); the old keys stay.
+- **THE ROW AFFORDANCE**: every PENDING invoice on the e-TIMS ledger carries its own Submit-to-KRA button (`canSubmit`-gated, `Send` at the row's own h-3 w-3 scale, sr-only + aria-label named) that opens the submit dialog with the transaction ID pre-filled — no more typing an ID from a second screen. The toolbar's Submit Invoice keeps its clean-start door.
+
+### Fixed
+- **THE DIALOG'S TWO DOORS**: a dry-run STAYS open and speaks the payload; a live submit closes it and clears the payload + the input; both openers (toolbar and row) start from a clean dialog — empty input, no stale preview. The old flow closed the dialog in the dry-run's own success handler: the preview could never be seen.
+
+### Styling
+- The preview card speaks the desk's own slate/blue voices (light `border-slate-200 bg-slate-50/60`, dark `dark:border-slate-800 dark:bg-slate-900/40`), `tabular-nums` on every figure row, `divide-y` ledger rows, and an `aria-live="polite"` region — no new deep-link family byte on a desk that hosts the twenty-second word's red chip. The copied state's check wears emerald for two seconds, then hands the face back to Copy.
+
+### Tests
+- `src/tests/kra-submit-preview-v2385.test.ts` — the wire's additive widening (the import type, the route's own short-circuit shape), the dialog's two doors (the dry-run arm's stay-open bytes, the live arm's clear-and-close trio), both openers' clean-start trio, the row affordance's gate + prefill + accessible name, the preview's bytes + position law + money-face coercion + copy voice, the palette honesty bounds, and the feed's lead.
+- `scripts/verify-v2-385-0.mjs` — the round's feature gate (wired as `verify:v2-385-0`).
+
 ## [2.384.0] The reports desk answers the address bar
 
 The twenty-fifth word — and the shade-split's third application. The Reports desk's Report Type grid answers its daily question: the desk-prefixed `?rep-type=` lens speaks the grid's own eight spellings (the reportType union, lowercase, case-sensitive), no stage to imply (the desk has no sub-tabs — the report type IS the stage), and the landing chip wears LIME one storey deeper at 300/100 — the hue the gift-cards desk spoke at the 200/50 storey, a family byte the 200-storey can never equal. The same round fences the lockfile generation drift with two new parity legs.
