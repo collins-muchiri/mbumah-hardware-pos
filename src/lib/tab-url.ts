@@ -713,6 +713,45 @@ export const EXP_TYPE_FILTERS = [
 export type ExpTypeFilter = (typeof EXP_TYPE_FILTERS)[number];
 
 /**
+ * v2.393.0 — THE PROMISE KEPT, THE THIRTY-SECOND WORD: the messaging
+ * desk's Templates pane answers BY THE TEMPLATE. The shop's other daily
+ * question — "which template do I send the debtors?" — speaks its
+ * desk-prefixed `msg-template` (collision-checked at round start: the
+ * byte appeared NOWHERE before this word). The lens's words are the
+ * templates grid's OWN spellings — the nine kebab-case template ids
+ * (christmas | new-year | easter | valentine | general-promotion |
+ * debt-reminder | thank-you | payment-confirmation | balance-update,
+ * the card word's voice; the neutral is the lowercase `all`; missing or
+ * unknown answers 'all', never stranded). THE FAMILY'S FIRST CARD-GRID
+ * LENS: the pane's nine template cards narrow to the landed card while
+ * the lens lives — no table, no chip row, the grid itself is the lens
+ * face — and the SUB-TAB AMENDMENT'S FOURTH APPLICATION raises the
+ * Templates pane the word lands into (a bookmark of the pane alone
+ * would pre-narrow a grid the reader cannot see — the stranded feeling
+ * this module exists to kill). The word's home is the Templates pane's
+ * nine MESSAGE_TEMPLATES cards — the broadcast tab's holiday quick-fills
+ * share three ids (christmas, new-year, easter) but speak a DIFFERENT
+ * list (HOLIDAY_TEMPLATES); the lens never guesses across the two.
+ * Lives here (the ONE home) so the desk, its deep-link word and the
+ * test suite speak one array — the same home EXP_TYPE_FILTERS keeps
+ * for the export desk's type word.
+ */
+export const MSG_TEMPLATE_FILTERS = [
+  'all',
+  'christmas',
+  'new-year',
+  'easter',
+  'valentine',
+  'general-promotion',
+  'debt-reminder',
+  'thank-you',
+  'payment-confirmation',
+  'balance-update',
+] as const;
+
+export type MsgTemplateFilter = (typeof MSG_TEMPLATE_FILTERS)[number];
+
+/**
  * v2.368.0 — THE LEGACY-WORD SUNSET LAW, the alias parser. The family's
  * naming constitution (Task 44's collision analysis, worn by every word
  * since `?po-status=`) requires a DESK-PREFIXED param — but one desk

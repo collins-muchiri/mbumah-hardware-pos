@@ -305,7 +305,7 @@ describe('the address-bar vocabulary — the twenty-first row (cross-suite pins)
   const constitution = readFileSync('src/tests/transfer-status-deep-link-v2357.test.ts', 'utf8');
 
   it('the constitution walks TWENTY-ONE words over NINETEEN desks', () => {
-    expect(constitution.includes('(thirty-one words, twenty-five desks)')).toBe(true);
+    expect(constitution.includes('(thirty-two words, twenty-six desks)')).toBe(true);
     expect(constitution.includes("{ word: 'ly-type', desk: 'src/app/(shell)/tabs/loyalty-tab.tsx', family: 'border-green-200', suite: 'src/tests/ly-type-deep-link-v2368.test.ts' }")).toBe(true);
     expect(constitution.includes("'TWENTY-FIRST'")).toBe(true);
   });
@@ -335,6 +335,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
     collected.sort();
     expect(collected).toEqual([
       'src/app/(shell)/tabs/loyalty-tab.tsx',
+      // the messaging desk speaks this word in its stage-amendment
+      // prose (the ly-type law's second-address design) — an honest
+      // speaker (an admission line carries the word it admits)
+      'src/app/(shell)/tabs/messaging-tab.tsx',
       'src/components/workspace/org-console.tsx',
       'src/lib/tab-url.ts',
       'src/lib/whats-new.ts',

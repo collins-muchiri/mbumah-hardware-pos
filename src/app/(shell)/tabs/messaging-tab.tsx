@@ -9,6 +9,7 @@ import {
   FileText, Bell, RefreshCw,
   PartyPopper, Sparkles,
   Calendar, Users, ExternalLink,
+  Link2, X,
 } from 'lucide-react';
 import { useAppStore, useAuthStore } from '@/lib/stores';
 import {
@@ -39,6 +40,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { MSG_TEMPLATE_FILTERS, parseInitialNamedMember } from '@/lib/tab-url';
 
 // Badge Configs
 
@@ -265,13 +267,57 @@ const AUDIENCE_LABELS: Record<BulkAudience, string> = {
   LOYALTY_MEMBERS: 'Loyalty members',
 };
 
+// THE MESSAGING DESK'S FIRST WORD (v2.393.0): the Templates pane
+// answers BY THE TEMPLATE — the family's THIRTY-SECOND wearing and its
+// FIRST CARD-GRID lens. `?msg-template=debt-reminder` lands the desk
+// with the Templates pane RAISED (the sub-tab amendment's fourth
+// application) and the nine-card grid narrowed to the one card the
+// word names — "which template do I send the debtors?" becomes a
+// bookmark. The lens's words are the grid's OWN spellings (the nine
+// kebab-case template ids: christmas | new-year | easter | valentine |
+// general-promotion | debt-reminder | thank-you | payment-confirmation
+// | balance-update, the card word's voice; the neutral is the lowercase
+// `all`). Anything missing or unknown answers 'all' (never stranded).
+// The word is desk-prefixed per the Task 44 collision law:
+// `msg-template` can never leak across client-side tab switches —
+// collision-checked at round start (the byte appeared NOWHERE before
+// this word), and the chip wears the family's TENTH shade-split —
+// yellow at the 300/100 storey (a hue NO badge on this desk speaks —
+// the census answers green, amber, red, emerald and blue — and the hue
+// the credits desk spoke at the 200 storey: a family byte the
+// 200-storey can never equal). Read-once on mount (the one-writer
+// law): the landing word is the LANDING lens, never rewritten; the
+// chip's own dismissal and the pane's Use-Template hand own the state
+// after — the family's first card-grid voice: the reader acting on a
+// template IS the lens's second retirement voice (the lens's job is
+// done the moment the reader moves).
+function initialMsgTemplate(): (typeof MSG_TEMPLATE_FILTERS)[number] {
+  if (typeof window === 'undefined') return 'all';
+  return parseInitialNamedMember(window.location.search, 'msg-template', MSG_TEMPLATE_FILTERS, 'all');
+}
+type MsgTemplateWordValue = (typeof MSG_TEMPLATE_FILTERS)[number];
+
 // Main Component
 
 export default function MessagingTab() {
   const currentStoreId = useAppStore((s) => s.currentStoreId);
   const _authUser = useAuthStore((s) => s.user);
   const queryClient = useQueryClient();
-  const [activeSubTab, setActiveSubTab] = useState('dashboard');
+  // THE SUB-TAB AMENDMENT'S FOURTH APPLICATION (v2.393.0): the stage
+  // seed reads the word ONCE — a landed template word raises the
+  // Templates pane it lands into (the ly-type law's second-address
+  // design: a bookmark that pre-narrows a grid the reader cannot see
+  // is a stranded bookmark). No view word speaks on this desk, so the
+  // template word owns the stage's silence.
+  const [activeSubTab, setActiveSubTab] = useState<string>(() =>
+    initialMsgTemplate() !== 'all' ? 'templates' : 'dashboard'
+  );
+  // v2.393.0 THE LANDING WORD — read once on mount (the one-writer
+  // law): `landedMsgTemplate` freezes what the address bar said, the
+  // live flag retires, and `msgTemplateFilter` owns the lens afterwards.
+  const [landedMsgTemplate] = useState<MsgTemplateWordValue>(initialMsgTemplate);
+  const [msgTemplateLandingLive, setMsgTemplateLandingLive] = useState(() => initialMsgTemplate() !== 'all');
+  const [msgTemplateFilter, setMsgTemplateFilter] = useState<MsgTemplateWordValue>(initialMsgTemplate);
 
   // Pagination State
   const [historyPage, setHistoryPage] = useState(1);
@@ -282,6 +328,29 @@ export default function MessagingTab() {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterType, setFilterType] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // The card-grid lens's ONE voice (v2.393.0): the pane's Use-Template
+  // hand is the lens's second retirement voice — acting on a template
+  // retires the landing (the reader moved on; the chip's dismissal is
+  // the first voice). The direct writes stay THREE: the declaration,
+  // the door's own write, and the chip's one-press dismissal.
+  const chooseMsgTemplateFromLens = () => {
+    if (msgTemplateLandingLive) {
+      setMsgTemplateFilter('all');
+      setMsgTemplateLandingLive(false);
+    }
+  };
+
+  // The lens's narrowing (v2.393.0, the family's FIRST CARD-GRID
+  // lens): while the landing lives, the nine-card grid narrows to the
+  // one card the word names; dismissal widens back to all nine. The
+  // grid itself is the lens face — no table, no chip row.
+  const visibleTemplates = useMemo(() => {
+    if (msgTemplateLandingLive && msgTemplateFilter !== 'all') {
+      return MESSAGE_TEMPLATES.filter((t) => t.id === msgTemplateFilter);
+    }
+    return MESSAGE_TEMPLATES;
+  }, [msgTemplateLandingLive, msgTemplateFilter]);
 
   // Send Message Dialog State
   const [showSendDialog, setShowSendDialog] = useState(false);
@@ -1957,8 +2026,38 @@ export default function MessagingTab() {
             TEMPLATES TAB
         ══════════════════════════════════════════════════════ */}
         <TabsContent value="templates" className="space-y-4 mt-4">
+          {/* v2.393.0 THE TEMPLATE LANDING CHIP — the address bar's word
+              on this desk, spoken while the lens still shows the landing
+              (the two retirement voices: the chip's own dismissal and a
+              Use-Template press through the pane's hand — the family's
+              first card-grid voice).
+              `data-testid="msg-template-landing-word"` — the QA walk's
+              handle. The chip sits BEFORE the grid it lands into,
+              wearing the shade-split's TENTH storey at 300/100 (light:
+              border-300 + bg-100; dark: the family's 500/10 surfaces). */}
+          {msgTemplateLandingLive && landedMsgTemplate !== 'all' && msgTemplateFilter === landedMsgTemplate && (
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                type="button"
+                onClick={() => {
+                  setMsgTemplateFilter('all');
+                  setMsgTemplateLandingLive(false);
+                }}
+                className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-yellow-300 bg-yellow-100 text-yellow-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-yellow-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 dark:border-yellow-500/30 dark:bg-yellow-500/10 dark:text-yellow-300 dark:hover:bg-yellow-500/20"
+                data-testid="msg-template-landing-word"
+                title="The desk landed with this template from the address bar — press to clear it"
+              >
+                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+                <span className="tabular-nums">landed ?msg-template={landedMsgTemplate}</span>
+                <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+              </button>
+              <span className="text-xs text-muted-foreground">
+                Showing {visibleTemplates.length} of {MESSAGE_TEMPLATES.length} templates
+              </span>
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {MESSAGE_TEMPLATES.map((template) => {
+            {visibleTemplates.map((template) => {
               const typeConfig = MESSAGE_TYPE_BADGE[template.type] ?? MESSAGE_TYPE_BADGE.CUSTOM;
               return (
                 <Card key={template.id} className="hover:shadow-md transition-shadow">
@@ -1991,6 +2090,10 @@ export default function MessagingTab() {
                       size="sm"
                       className="w-full"
                       onClick={() => {
+                        // THE CARD-GRID LENS'S SECOND VOICE (v2.393.0):
+                        // acting on a template retires the landing — the
+                        // reader moved on, the lens's job is done.
+                        chooseMsgTemplateFromLens();
                         setActiveSubTab('quick-send');
                         handleTemplateSelect(template.id);
                       }}

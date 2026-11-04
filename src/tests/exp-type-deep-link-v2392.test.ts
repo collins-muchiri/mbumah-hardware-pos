@@ -300,6 +300,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // the po-status word's ledger — admitted (its OWN ledger now
       // LISTS this suite's path — the admission line carries the word
       // it admits; the third-order ripple)
+      // the thirty-second word's own ledger — admitted (its own ledger
+      // LISTS this file's path — the third-order ripple: a ledger line
+      // carries every word its paths speak)
+      'src/tests/msg-template-deep-link-v2393.test.ts',
       'src/tests/proxy-gate-layering-v2328.test.ts',
       // the eighth word's own ledger — admitted (its own ledger now
       // LISTS this suite's path — the third-order ripple)
@@ -328,7 +332,7 @@ describe('the address-bar vocabulary — the thirty-first row (cross-suite pins)
   const constitution = readFileSync(CONSTITUTION, 'utf8');
 
   it('the constitution walks THIRTY-ONE words over TWENTY-FIVE desks (the export desk speaks twice)', () => {
-    expect(constitution.includes('(thirty-one words, twenty-five desks)')).toBe(true);
+    expect(constitution.includes('(thirty-two words, twenty-six desks)')).toBe(true);
     expect(constitution.includes("{ word: 'exp-type', desk: 'src/app/(shell)/tabs/data-exports-tab.tsx', family: 'border-pink-300', suite: 'src/tests/exp-type-deep-link-v2392.test.ts' }")).toBe(true);
     expect(constitution.includes("'THIRTY-FIRST'")).toBe(true);
   });
@@ -338,10 +342,10 @@ describe('the address-bar vocabulary — the thirty-first row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.392.0 leads the feed', () => {
+describe('whats-new — v2.393.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.392.0');
+    expect(head.version).toBe('2.393.0');
     expect(head.title).toContain('export');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
     expect(head.bullets.some((b) => b.includes('exp-type'))).toBe(true);

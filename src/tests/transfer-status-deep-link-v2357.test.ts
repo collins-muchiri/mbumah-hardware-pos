@@ -200,7 +200,7 @@ describe('the landing chip — the face names the word it answered', () => {
 // 4. THE CONSTITUTION — the whole vocabulary's invariants, walked from bytes
 // ---------------------------------------------------------------------------
 
-describe('the address-bar vocabulary — THE CONSTITUTION (thirty-one words, twenty-five desks)', () => {
+describe('the address-bar vocabulary — THE CONSTITUTION (thirty-two words, twenty-six desks)', () => {
   const WORDS = [
     { word: 'po-status', desk: 'src/app/(shell)/tabs/purchase-orders-tab.tsx', family: 'border-indigo-200', suite: 'src/tests/proxy-gate-layering-v2328.test.ts' },
     { word: 'inv-stock', desk: 'src/app/(shell)/tabs/inventory-tab.tsx', family: 'border-amber-200', suite: 'src/tests/inv-stock-deep-link-v2329.test.ts' },
@@ -302,6 +302,19 @@ describe('the address-bar vocabulary — THE CONSTITUTION (thirty-one words, twe
     // 200-storey can never equal, borrowing nothing from the desk's
     // badges nor from its indigo sibling)
     { word: 'exp-type', desk: 'src/app/(shell)/tabs/data-exports-tab.tsx', family: 'border-pink-300', suite: 'src/tests/exp-type-deep-link-v2392.test.ts' },
+    // the card-grid round: the messaging desk's Templates pane answers
+    // the address bar — the family's FIRST CARD-GRID lens (the pane's
+    // nine template cards narrow to the landed card; no table, no chip
+    // row — the grid itself is the lens face), the sub-tab amendment's
+    // FOURTH application (the landing raises the Templates pane it
+    // lands into), and the chip wears the shade-split's TENTH
+    // application: yellow at 300/100 (the LAST free 300-storey family —
+    // the hue the credits desk spoke at the 200 storey, a family byte
+    // the 200-storey can never equal; a hue NO badge on this desk
+    // speaks — the census answers green, amber, red, emerald and blue),
+    // and the pane's Use-Template hand is the lens's second retirement
+    // voice (the family's first card-grid voice)
+    { word: 'msg-template', desk: 'src/app/(shell)/tabs/messaging-tab.tsx', family: 'border-yellow-300', suite: 'src/tests/msg-template-deep-link-v2393.test.ts' },
   ] as const;
 
   it('every word is desk-prefixed and owns its FILTERS const in exactly its desk', () => {
@@ -325,7 +338,7 @@ describe('the address-bar vocabulary — THE CONSTITUTION (thirty-one words, twe
     for (const { suite } of WORDS) {
       expect(readFileSync(suite, 'utf8').length > 0, `${suite} exists`).toBe(true);
     }
-    for (const n of ['SEVENTH', 'EIGHTH', 'NINTH', 'TENTH', 'ELEVENTH', 'TWELFTH', 'THIRTEENTH', 'FOURTEENTH', 'FIFTEENTH', 'SIXTEENTH', 'SEVENTEENTH', 'EIGHTEENTH', 'NINETEENTH', 'TWENTIETH', 'TWENTY-FIRST', 'TWENTY-SECOND', 'TWENTY-THIRD', 'TWENTY-FOURTH', 'TWENTY-FIFTH', 'TWENTY-SIXTH', 'TWENTY-SEVENTH', 'TWENTY-EIGHTH', 'TWENTY-NINTH', 'THIRTIETH', 'THIRTY-FIRST']) {
+    for (const n of ['SEVENTH', 'EIGHTH', 'NINTH', 'TENTH', 'ELEVENTH', 'TWELFTH', 'THIRTEENTH', 'FOURTEENTH', 'FIFTEENTH', 'SIXTEENTH', 'SEVENTEENTH', 'EIGHTEENTH', 'NINETEENTH', 'TWENTIETH', 'TWENTY-FIRST', 'TWENTY-SECOND', 'TWENTY-THIRD', 'TWENTY-FOURTH', 'TWENTY-FIFTH', 'TWENTY-SIXTH', 'TWENTY-SEVENTH', 'TWENTY-EIGHTH', 'TWENTY-NINTH', 'THIRTIETH', 'THIRTY-FIRST', 'THIRTY-SECOND']) {
       expect(home.includes(`THE PROMISE KEPT, THE ${n} WORD`)).toBe(true);
     }
   });
@@ -421,6 +434,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // (one release, two suites — the ledger is the honest speaker here)
       'src/tests/ly-island-v2369.test.ts',
       'src/tests/ly-type-deep-link-v2368.test.ts',
+      // the thirty-second word's own ledger — admitted (its own ledger
+      // LISTS this file's path — the third-order ripple: a ledger line
+      // carries every word its paths speak)
+      'src/tests/msg-template-deep-link-v2393.test.ts',
       'src/tests/pr-status-deep-link-v2362.test.ts',
       'src/tests/proxy-gate-layering-v2328.test.ts',
       'src/tests/rent-status-deep-link-v2355.test.ts',

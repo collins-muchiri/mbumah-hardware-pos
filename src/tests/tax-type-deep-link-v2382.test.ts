@@ -455,7 +455,7 @@ describe('the address-bar vocabulary — the twenty-third row (cross-suite pins)
   const constitution = readFileSync('src/tests/transfer-status-deep-link-v2357.test.ts', 'utf8');
 
   it('the constitution walks TWENTY-THREE words over TWENTY-ONE desks', () => {
-    expect(constitution.includes('(thirty-one words, twenty-five desks)')).toBe(true);
+    expect(constitution.includes('(thirty-two words, twenty-six desks)')).toBe(true);
     expect(constitution.includes("{ word: 'tax-type', desk: 'src/app/(shell)/tabs/tax-tab.tsx', family: 'border-orange-300', suite: 'src/tests/tax-type-deep-link-v2382.test.ts' }")).toBe(true);
     expect(constitution.includes("'TWENTY-THIRD'")).toBe(true);
   });
@@ -522,6 +522,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/inv-status-deep-link-v2356.test.ts',
       'src/tests/inv-stock-deep-link-v2329.test.ts',
       'src/tests/ly-type-deep-link-v2368.test.ts',
+      // the thirty-second word's own ledger — admitted (its own ledger
+      // LISTS this file's path — the third-order ripple: a ledger line
+      // carries every word its paths speak)
+      'src/tests/msg-template-deep-link-v2393.test.ts',
       'src/tests/pr-status-deep-link-v2362.test.ts',
       // the po-status word's ledger lives beside the proxy-gate suite
       // (one release, two suites — the ledger is the honest speaker here)

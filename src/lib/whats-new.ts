@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.393.0',
+    title: 'Message templates answer by name — the export ledger\u2019s bookmarks now span export to messaging',
+    bullets: [
+      'The Messaging desk\u2019s Templates pane is now a bookmark: a link like /?tab=messaging&msg-template=debt-reminder opens the desk with the Templates pane raised and the nine-card grid narrowed to that one template \u2014 from christmas to balance-update, every template answers its own word.',
+      'The family\u2019s first card-grid lens: no table, no chip row \u2014 the grid itself narrows to the landed card with a live \u201cShowing 1 of 9 templates\u201d count, and a misspelled word politely falls back to all nine (the export ledger\u2019s Export History bookmarks \u2014 ?exp-status= and ?exp-type= \u2014 keep answering exactly as before).',
+      'The landing wears its own yellow chip before the grid \u2014 one press clears it, and pressing Use Template retires it too: acting on the template IS the reader\u2019s hand. The chip is the deep-link family\u2019s thirty-second voice \u2014 the shade-split\u2019s tenth application, a hue no badge on this desk speaks.',
+      'The word\u2019s spelling is the grid\u2019s own: lowercase, exactly the templates\u2019 ids (debt-reminder, payment-confirmation, balance-update\u2026) with the lowercase all for everything \u2014 the vocabulary never guesses.',
+    ],
+  },
+  {
     version: '2.392.0',
     title: 'The export ledger answers by type',
     bullets: [
