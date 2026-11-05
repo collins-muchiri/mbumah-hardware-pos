@@ -493,10 +493,11 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.396.0: the M-Pesa statuses find their feet — the ledger stores its own reconciliation status, the rows speak their effective status, the dispute and match and reopen actions write it, and the lockfile guard grows its generation legs (+1 on every anchor → 285/286/287/318 → 286/287/288/319)
     // v2.397.0: the landing chips share one loom — the census’s 22 loomable elder faces joined the shared component at the 200/50 storey, three heads and one second registry, the byte-fidelity law held per chip, and the lockfile guard grows its generation legs (+1 on every anchor → 286/287/288/319 → 287/288/289/320)
     // v2.398.0: the login desk speaks the failure’s name — the DB doctor renders the exposed Prisma code, its plain-language title and the documented remediation inline under the banner (the quiet face held when no detail is exposed), the repo-env guard teaches the dev runtime the launchers’ env-wins law (a stray inherited DATABASE_URL can no longer silently redirect `next dev` to a foreign database; the guard speaks only for the two connection vars and no-ops when no .env exists), and the entry joins the feed (+1 on every unread anchor — the DERIVED anchors re-set themselves, the cascade’s ninth generation)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(288);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(289);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(290);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(321);
+    // v2.399.0: the health desk speaks the failure’s name — the System Health tab’s Environment & Connection panel reads the raw /api/health payload the uptime monitors read (one status-dotted mono-chip row per environment variable, one per connection check, an overall badge, a 30s refresh, skeleton loading and an honest unreachable voice), a Prisma code carried inside a check’s detail text renders the SAME remediation card the login desk renders (extractPrismaCode + diagnosePrismaCode, the remedy table’s second desk), the v2.398.0 inline login card retires into the shared DbDoctorCard loom (one card, two desks — the byte-exact login face held), and the entry joins the feed (+1 on every unread anchor — the DERIVED anchors re-set themselves, the cascade’s tenth generation)
+    expect(whatsNewUnreadCount('2.110.0')).toBe(289);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(290);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(291);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(322);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 
