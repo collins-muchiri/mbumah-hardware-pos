@@ -1,3 +1,17 @@
+## [2.396.0] The M-Pesa statuses find their feet
+
+The M-Pesa lens's UNMATCHED and DISPUTED words were honest labels over an empty reality: every row derived PENDING or MATCHED from `isReconciled`, so half the vocabulary could never be worn. The ledger now STORES its reconciliation status, the rows speak their effective status, and the words became reachable actions.
+
+### Added
+- **THE STORED STATUS** (`prisma/schema.prisma` + migration `20261105100000_add_mpesa_reconciliation_status`): `bank_transactions.reconciliationStatus` (nullable) carries the lens's own vocabulary (PENDING | MATCHED | UNMATCHED | DISPUTED). Legacy rows keep NULL and answer through the isReconciled derivation — no backfill, no row lies.
+- **THE WRITE PATH** (`PATCH /api/banking/transactions`): the status write keeps `isReconciled` coherent — MATCHED sets it true with `reconciledAt`; every other status clears both. Role-gated (FINANCIAL_ROLES.WRITE), body-door parsed, systemLogged.
+- **THE ROW ACTIONS** (the banking desk's M-Pesa pane): Dispute (PENDING rows), Match (PENDING/UNMATCHED/DISPUTED rows), Reopen (back to the derived face) — quiet row-scoped buttons (`mpesa-row-dispute` / `mpesa-row-match` / `mpesa-row-reopen`, the settled face a quiet `mpesa-row-settled` span), each with its own honest tooltip.
+- **THE EFFECTIVE STATUS**: the row badge and the status filter both read the effective status — stored first, the derivation second. No word the Select offers answers an empty pile by construction.
+- **THE FIXTURE WORLD** (`scripts/seed-mpesa-fixtures.mjs`, dev-only): one MPESA account, nine transactions lighting all four statuses plus one honest legacy row.
+
+### Changed
+- The stale "we simulate / not easily derived" comment block retired; the M-Pesa lens comment now tells the truth about the write path.
+
 ## [2.395.0] The submission receipt hop
 
 Every KRA submission now reaches the operator's hands as a paper trail: the audit log's rows and the invoice detail's submission-history rows each grow a Receipt button that opens the call's full record — and the response body prints and copies as pretty JSON through the app's print-root pipeline.

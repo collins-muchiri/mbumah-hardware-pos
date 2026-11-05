@@ -2685,6 +2685,12 @@ model BankTransaction {
   transactionDate DateTime  @default(now())
   isReconciled    Boolean   @default(false)
   reconciledAt    DateTime?
+  // v2.396.0 THE MPESA STATUSES FIND THEIR FEET: the ledger's STORED
+  // reconciliation status (PENDING | MATCHED | UNMATCHED | DISPUTED —
+  // the M-Pesa lens's own vocabulary). Nullable: legacy rows keep NULL
+  // and answer through the isReconciled derivation (the desk's honest
+  // fallback face), so no backfill is required and no row lies.
+  reconciliationStatus String?
   createdAt       DateTime  @default(now())
 
   bankAccount BankAccount @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)

@@ -93,7 +93,9 @@ describe('THE DOOR-SHAPE REGISTRY — the census is derived, not remembered', ()
 
   it('every hard-door call carries its explicit generic (the v2.344 tombstone, tree-wide)', () => {
     const src = allSrc();
-    expect(count(/\breadJsonBody\s*</g, src)).toBe(116);
+    // v2.396.0: +1 — the banking transactions route's PATCH status write
+    // (the M-Pesa statuses' own body door).
+    expect(count(/\breadJsonBody\s*</g, src)).toBe(117);
     // THE TOMBSTONE, LIVE: a bare call — the generic-less form — matches ZERO files.
     expect(count(/\breadJsonBody\s*\(/g, src)).toBe(0);
   });

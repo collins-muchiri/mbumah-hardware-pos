@@ -4101,6 +4101,10 @@ export interface BankTransactionItem {
   description: string | null;
   reference: string | null;
   isReconciled: boolean;
+  // v2.396.0: the ledger's STORED reconciliation status (PENDING | MATCHED
+  // | UNMATCHED | DISPUTED). Null = legacy rows answer through the
+  // isReconciled derivation — the desk's honest fallback face.
+  reconciliationStatus: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -4163,6 +4167,16 @@ export const bankingApi = {
     create: async (data: { bankAccountId: string; transactionDate: string; transactionType: string; amount: number; description?: string; reference?: string }) => {
       return request<BankTransactionItem>('/banking/transactions', {
         method: 'POST',
+        body: JSON.stringify(data),
+      });
+    },
+    // v2.396.0: the reconciliation status write — the M-Pesa lens's own
+    // vocabulary (PENDING | MATCHED | UNMATCHED | DISPUTED, or null to
+    // return the row to the isReconciled derivation). The route keeps
+    // isReconciled coherent (MATCHED true + reconciledAt, others cleared).
+    setStatus: async (data: { transactionId: string; reconciliationStatus: string | null }) => {
+      return request<BankTransactionItem>('/banking/transactions', {
+        method: 'PATCH',
         body: JSON.stringify(data),
       });
     },
