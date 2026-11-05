@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.402.0',
+    title: 'The payload card hands you the file — the KRA filing trio completes',
+    bullets: [
+      'The mapped KRA payload\u2019s card gained a Download button beside Print and Copy: one click saves the same pretty JSON the clipboard carries as a named .json file (kra-payload-<invoice>-<date>.json), ready to attach to the KRA filing.',
+      'Download flips to a green Saved for two seconds — the same honest face the Copy button speaks; a refused save says so honestly.',
+      'The card\u2019s eight-row ledger now alternates on a quiet zebra ground, so the eye rides row-by-row across invoice number, buyer, VAT and total.',
+      'Under the hood: twenty-nine long-standing strict-mode type faces (the refund heal suite\u2019s test helper) were widened honestly — same behavior, fewer casts.',
+    ],
+  },
+  {
     version: '2.401.0',
     title: 'The health desk hands you the file — download the diagnostics, attach the answer',
     bullets: [

@@ -1,3 +1,14 @@
+## [2.402.0] The payload card hands you the file — the KRA filing trio completes
+
+The paper-trail pattern's quiet arc closes its third side: the mapped KRA payload could already reach paper (Print, v2.386.0) and the clipboard (Copy, v2.385.0) — now it reaches the FILE SYSTEM as a named `.json`, the attachment a KRA filing actually wants. The advisory pool pays its rent again: 431 → 402.
+
+### Added
+- **THE PAYLOAD FILE** (`src/lib/etims-utils.ts` + `src/app/(shell)/tabs/etims-tab.tsx`): `payloadFileName(invoiceNumber, at)` — the pure twin of the copy voice — names the download `kra-payload-<slugged-invoice>-<YYYYMMDD>-<HHmm>.json` (everything outside letters, digits and friendly dashes collapses; a hostile reference answers `payload`, never a dot-file). The **Download button** (`testid kra-payload-download`) sits between Print and Copy, rendered only when a payload is on screen: one click saves the SAME pretty JSON the clipboard carries (`JSON.stringify(dryRunPayload, null, 2)` — one home, the two cannot drift) through a Blob object-URL anchor that revokes itself; the saved face is the receipt hop's law — Download → a two-second Saved hand-back → Download again, the icon swaps with the label, a refused save answers with an honest toast.
+
+### Changed
+- **THE REFUND HEAL SUITE'S LABEL WIDEN** (431 → 402 strict-mode errors, behavior-identical): `src/tests/refund-stranded-heal-v2373.test.ts` — the `must` helper's `label` parameter rides on its own (`label = 'value'`): 29 one-arg call sites compiled against a two-arg signature since the suite was born; the throw's words stay truthful either way, and the two-arg call sites (the labeled ones) keep their words.
+- **THE CARD'S ZEBRA LEDGER** (`etims-tab.tsx`): the payload card's eight-row dl alternates on a quiet odd-row ground (`[&>div:nth-child(odd)]:bg-slate-100/70` + the dark twin), rounded and inset — the divide-y hairlines held; the eye rides row-by-row across invoice number, buyer, VAT and total.
+
 ## [2.401.0] The health desk hands you the file — the eTIMS routes speak their true contracts
 
 This release keeps the health desk's arc going one step further — the report that v2.400.0 taught to leave as clipboard text now also leaves as a FILE — and it pays down the advisory pool's biggest single cluster: the three eTIMS routes whose handlers were written against a contract the sandbox client never spoke. The pool answers 431 (was 479; the 48 faces of customer-search, invoice-status and stock-report stood down).
