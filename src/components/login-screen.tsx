@@ -27,6 +27,12 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '@/lib/stores';
 import { APP_BUILD_LABEL } from '@/lib/version';
+// v2.398.0 THE LOGIN DB DOCTOR: the desk speaks the failure's name. The API
+// response already carries the machine-readable DB diagnosis (detail.code +
+// the documented remediation) whenever the server chose to expose it — the
+// doctor turns that payload into the inline card below. Without an exposed
+// detail the login face is byte-identical to the pre-v2.398.0 behavior.
+import { diagnoseLoginDbFailure, type DbDiagnostic } from '@/lib/db-doctor';
 // v2.16.0 (subdomain workspaces): role-based post-login destination.
 import { postLoginRedirect } from '@/lib/workspace/links';
 import { safeReturnPath } from '@/lib/session-idle';
@@ -82,6 +88,8 @@ export function LoginScreen() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  // v2.398.0: the DB diagnostic card's payload (null = the quiet face).
+  const [dbDiagnostic, setDbDiagnostic] = useState<DbDiagnostic | null>(null);
   const [showForgotHelp, setShowForgotHelp] = useState(false);
   const login = useAuthStore((s) => s.login);
   const isLoading = useAuthStore((s) => s.isLoading);
@@ -90,6 +98,7 @@ export function LoginScreen() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
+    setDbDiagnostic(null);
     try {
       // No success toast - the dashboard rendering is the confirmation.
       await login(email, password);
@@ -135,6 +144,20 @@ export function LoginScreen() {
       // the card, announced to screen readers, and clears on the next try.
       const message = err instanceof Error ? err.message : 'Login failed';
       setErrorMessage(message);
+      // v2.398.0 the doctor: an ApiRequestError carries the parsed JSON body
+      // (v2.12.5). When the server exposed the DB failure's detail (dev or
+      // EXPOSE_ERRORS), the desk renders the code + remediation card; any
+      // other failure (wrong password, CSRF, withheld detail) keeps the
+      // quiet face. Never throws — the banner stays the source of truth.
+      try {
+        const body =
+          err && typeof err === 'object' && 'body' in err
+            ? (err as { body?: unknown }).body
+            : null;
+        setDbDiagnostic(diagnoseLoginDbFailure(body));
+      } catch {
+        setDbDiagnostic(null);
+      }
     }
   };
 
@@ -272,7 +295,10 @@ export function LoginScreen() {
                           5.84:1 and stays. */}
                       <button
                         type="button"
-                        onClick={() => setErrorMessage(null)}
+                        onClick={() => {
+                          setErrorMessage(null);
+                          setDbDiagnostic(null);
+                        }}
                         aria-label="Dismiss error"
                         className="absolute right-2 top-2 rounded-md p-1 text-red-800 dark:text-destructive transition-colors hover:bg-destructive/10 hover:text-red-800 dark:hover:text-destructive"
                       >
@@ -282,6 +308,42 @@ export function LoginScreen() {
                   </motion.div>
                 ) : null}
               </AnimatePresence>
+              {/* v2.398.0 THE DB DOCTOR CARD: the failure's name and its
+                  documented remediation, inline under the banner (never an
+                  overlay — the LOGIN_POPUP_FIX law holds). Renders ONLY when
+                  the server exposed a Prisma code; amber family tokens are
+                  the same AA-audited pair the forgot-password help wears.
+                  role=note + the testid keep it greppable and reachable. */}
+              {dbDiagnostic ? (
+                <div
+                  role="note"
+                  aria-label="Database diagnostics"
+                  data-testid="login-db-doctor"
+                  className="mt-3 rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30 px-3 py-2.5"
+                >
+                  <div className="flex flex-wrap items-center gap-2">
+                    <code className="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-amber-900 dark:bg-amber-900/40 dark:text-amber-200">
+                      {dbDiagnostic.code}
+                    </code>
+                    <span className="text-xs font-semibold text-amber-900 dark:text-amber-200">
+                      {dbDiagnostic.title}
+                    </span>
+                  </div>
+                  <p className="mt-1.5 text-[11px] leading-relaxed text-amber-800 dark:text-amber-300">
+                    {dbDiagnostic.summary}
+                  </p>
+                  <ol className="ml-4 mt-1.5 list-decimal space-y-1">
+                    {dbDiagnostic.steps.map((step, index) => (
+                      <li
+                        key={index}
+                        className="pl-1 text-[11px] leading-relaxed text-amber-800 dark:text-amber-300"
+                      >
+                        {step}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              ) : null}
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">

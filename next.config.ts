@@ -1,5 +1,51 @@
 import type { NextConfig } from "next";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { resolveStandaloneOutput } from "./src/lib/build-mode";
+import { decideRepoDbEnv, parseDotenv } from "./src/lib/repo-env";
+
+// ---------------------------------------------------------------------------
+// v2.398.0 THE REPO-ENV GUARD: the dev runtime joins the env-wins law.
+//
+// The repo's launchers (deploy/nodocker/start-server.mjs,
+// scripts/ensure-schema.mjs) and the Prisma CLI (prisma.config.ts) all load
+// <repo>/.env with the SAME precedence: a value found in .env WINS over an
+// inherited environment variable, so "a stray DATABASE_URL from another
+// project can never silently redirect" the process. The raw `next` runtime
+// was the one path without the guard - Next.js's own precedence is the
+// OPPOSITE (inherited environment beats .env files), so a stray shell
+// DATABASE_URL silently pointed the dev server at a foreign database while
+// .env sat ignored. Reproduced live in the v2.398.0 QA round: login answered
+// P2021 (tables missing) against an empty foreign SQLite file while the
+// seeded dev DB sat healthy next to it.
+//
+// This block runs at config-evaluation time - BEFORE any route compiles -
+// and speaks ONLY for the two DB connection vars. With no .env file
+// (Vercel, CI, bare Docker images) the inherited environment applies
+// untouched, exactly like the launchers. Overridden keys log one loud line:
+// a silent redirect is precisely what this guard exists to prevent.
+// ---------------------------------------------------------------------------
+const repoEnvDir = (() => {
+  try {
+    return dirname(fileURLToPath(import.meta.url));
+  } catch {
+    return process.cwd();
+  }
+})();
+const repoEnvPath = join(repoEnvDir, ".env");
+if (existsSync(repoEnvPath)) {
+  const parsed = parseDotenv(readFileSync(repoEnvPath, "utf8"));
+  const decision = decideRepoDbEnv(parsed, process.env as Record<string, string>);
+  for (const [key, value] of Object.entries(decision.adopt)) {
+    process.env[key] = value;
+  }
+  if (decision.overrode.length > 0) {
+    console.info(
+      `[repo-env] .env won over inherited env for: ${decision.overrode.join(", ")} (stray-env redirect prevented)`,
+    );
+  }
+}
 
 // ---------------------------------------------------------------------------
 // v2.18.0.1 (correction): Windows laptop builds could not ship working

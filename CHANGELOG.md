@@ -1,3 +1,14 @@
+## [2.398.0] The login desk speaks the failure's name
+
+Born in the live QA round: the sandbox shell handed the dev runtime a stray inherited `DATABASE_URL`, and the raw `next dev` path — the ONE launch path without the repo's env-wins guard — silently redirected to a foreign empty SQLite file. The login card answered a single bare sentence while the API response carried the machine-readable diagnosis nobody could see. This release fixes the redirect and lets the desk speak: the failure's Prisma code, what it means, and the documented remediation steps render inline on the login card.
+
+### Added
+- **THE REPO-ENV GUARD** (`next.config.ts` + `src/lib/repo-env.ts`, pure + unit-tested): at config-evaluation time — before any route compiles — a `.env`-defined `DATABASE_URL` / `DIRECT_URL` wins over a differing inherited value, the same precedence law `deploy/nodocker/start-server.mjs`, `scripts/ensure-schema.mjs` and `prisma.config.ts` already follow. The guard speaks ONLY for those two connection vars, logs one loud `[repo-env]` line when it prevents a redirect, and no-ops entirely when no `.env` file exists (Vercel, CI, bare Docker images — inherited environment untouched, byte-identical behavior).
+- **THE LOGIN DB DOCTOR** (`src/lib/db-doctor.ts` + `src/components/login-screen.tsx`): when a failed sign-in's body carries an exposed Prisma code (the login route's `detail`, gated server-side to dev / `EXPOSE_ERRORS` — the security posture is unchanged), the login card renders an inline diagnostic under the banner: the code as a mono chip (`P2021`…), a plain-language title, a one-line summary and the ordered remediation steps — the SAME advice `db.ts`'s FATAL banner and the route's hint string already carry. Unknown-but-real Prisma codes fall back to an honest generic card; no exposed detail keeps the pre-2.398.0 quiet face, byte-identical. `role=note`, `aria-label="Database diagnostics"`, testid `login-db-doctor`, dismissal rides the banner's X.
+
+### Fixed
+- The dev-runtime stray-env redirect: a shell-inherited `DATABASE_URL` can no longer silently point `next dev` / `next build` / `next start` at a foreign database while `.env` sits ignored — the reproduction from the QA round (login P2021 against an empty foreign file while the seeded dev DB sat healthy) is pinned as the guard suite's round-trip regression test.
+
 ## [2.397.0] The landing chips share one loom
 
 The census counted 42 elder landing chips hand-rolling the same button across 18 more desks — the same anatomy the ten full-wardrobe chips have worn through the shared LandingChip since v2.394.0, byte-identical but for the hue. The elder storey joins the loom: 22 loomable faces (the loyalty window's off-union amber face stays hand-rolled by design), three heads, one 200-storey wardrobe registry.

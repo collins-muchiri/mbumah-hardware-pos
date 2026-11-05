@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.398.0',
+    title: 'The login desk speaks the failure\u2019s name — and the dev server can no longer be silently redirected',
+    bullets: [
+      'When sign-in hits a database problem, the login card now shows the failure\u2019s code (e.g. P2021), what it means and the exact remediation steps — inline, dismissible, and only when the server chose to expose the detail.',
+      'The dev runtime now follows the same env-wins law as every launcher: when a .env file defines DATABASE_URL, it wins over a stray inherited variable, so a foreign shell value can no longer silently point the app at an empty database.',
+      'The guard speaks only for the two DB connection vars (DATABASE_URL, DIRECT_URL) and logs one loud line when it prevents a redirect.',
+      'On Vercel, CI and bare Docker images (no .env file) behavior is untouched — the inherited environment applies exactly as before.',
+    ],
+  },
+  {
     version: '2.397.0',
     title: 'The landing chips share one loom — all 32 address-bar words wear one component',
     bullets: [
