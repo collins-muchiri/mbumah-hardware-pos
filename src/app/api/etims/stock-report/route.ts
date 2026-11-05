@@ -14,11 +14,10 @@
 // Returns: EtimsStockMasterResponse (rows + summary totals).
 
 import { type NextRequest } from 'next/server';
-import { db } from '@/lib/db';
 import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { LogSeverity, LogComponent } from '@/lib/types';
 import { requireStoreAccess } from '@/lib/auth';
-import { initializeEtimsClientFromStore } from '@/lib/etims-service';
+import { initializeEtimsClientFromStore, buildLocalStockMaster } from '@/lib/etims-service';
 
 export const dynamic = 'force-dynamic';
 
@@ -72,57 +71,17 @@ async function stockReportHandler(
   const client = await initializeEtimsClientFromStore(storeId);
 
   // 2. Build the report
-  // The EtimsClient.stockMasterReport helper does the DB aggregation. If no
-  // client is configured, we fall back to a local-only computation.
+  // v2.401.0: ONE home for the aggregation — the sandbox client and the
+  // no-profile fallback both read `buildLocalStockMaster` (the same math
+  // that used to live inline in this route's else-branch); the client branch
+  // may POST to KRA in production, the sandbox answers with the same local
+  // computation, so `result` speaks one shape on every path.
   let result;
   if (client) {
     result = await client.stockMasterReport(storeId, startDate, endDate);
   } else {
     // Local-only fallback (no KRA profile).
-    const products = await db.product.findMany({
-      where: { storeId, isActive: true },
-      include: {
-        stockMovements: {
-          where: { createdAt: { gte: startDate, lte: endDate } },
-          select: { quantity: true, movementType: true },
-        },
-      },
-    });
-
-    const rows = products.map((p) => {
-      const sold = p.stockMovements.filter((m) => m.movementType === 'SALE').reduce((acc, m) => acc + Math.abs(Number(m.quantity)), 0);
-      const purchased = p.stockMovements.filter((m) => m.movementType === 'PURCHASE').reduce((acc, m) => acc + Number(m.quantity), 0);
-      const adjusted = p.stockMovements.filter((m) => m.movementType === 'ADJUSTMENT').reduce((acc, m) => acc + Number(m.quantity), 0);
-      const closing = Number(p.quantityInStock);
-      const opening = closing - purchased + sold - adjusted;
-      return {
-        itemCode: p.etimsItemCode || p.sku,
-        itemName: p.name,
-        hsCode: '0000.00.00',
-        unitType: p.unitType,
-        openingStock: opening,
-        closingStock: closing,
-        quantitySold: sold,
-        quantityPurchased: purchased,
-        quantityAdjusted: adjusted,
-        closingStockValue: closing * Number(p.costPrice),
-      };
-    });
-
-    result = {
-      success: true,
-      storeId,
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
-      rows,
-      summary: {
-        totalItems: rows.length,
-        totalClosingValue: Math.round(rows.reduce((acc, r) => acc + r.closingStockValue, 0) * 100) / 100,
-        totalSold: rows.reduce((acc, r) => acc + r.quantitySold, 0),
-        totalPurchased: rows.reduce((acc, r) => acc + r.quantityPurchased, 0),
-      },
-      latencyMs: 0,
-    };
+    result = await buildLocalStockMaster(storeId, startDate, endDate);
   }
 
   // 3. Audit log

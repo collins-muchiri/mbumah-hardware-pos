@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.401.0',
+    title: 'The health desk hands you the file — download the diagnostics, attach the answer',
+    bullets: [
+      'The Environment & Connection panel gained a Download button beside Copy: one click saves the panel\u2019s report — every check, the verdict and the diagnosis — as a text file named mbumah-health-<version>-<date>.txt, ready to attach to a support ticket when the clipboard is not.',
+      'The file\u2019s name is built by the same pure law as the report\u2019s text: the version, the date and the minute ride in the name, so two downloads never argue about which is which.',
+      'Download flips to a green Saved for two seconds — the same honest face the Copy button speaks; a refused save says so honestly.',
+      'Under the hood: the eTIMS routes\u2019 forty-eight long-standing strict-mode type faces were repaired — the sandbox client now speaks the full contract its routes always promised (customer search, invoice status, the stock master report), same behavior, honestly typed.',
+    ],
+  },
+  {
     version: '2.400.0',
     title: 'The health desk hands you the words — copy the diagnostics, paste the answer',
     bullets: [

@@ -356,20 +356,21 @@ describe('the address-bar vocabulary — the thirty-first row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.400.0 leads the feed', () => {
+describe('whats-new — v2.401.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.400.0');
-    // the lead's story hand-over (v2.400.0, the Task 111 law's sixth
-    // application): the head story is the support copy's — the health
-    // desk's report leaves the screen as plain text (the clipboard law),
-    // and the advisory pool's first nine faces stand down honestly. The
-    // env-doctor story exits the head this round; the census re-types
-    // honestly, again.
+    expect(head.version).toBe('2.401.0');
+    // the lead's story hand-over (v2.401.0, the Task 111 law's seventh
+    // application): the head story is the support file's — the health
+    // desk's report leaves the screen as a NAMED text file (the download
+    // law), and the eTIMS routes' forty-eight faces stand down honestly
+    // (the sandbox client now speaks the full contract). The support
+    // copy's story exits the head this round; the census's file-level
+    // count holds.
     expect(head.title).toContain('health');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('Copy button'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('support chat'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('Download button'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('support ticket'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('strict-mode type faces'))).toBe(true);
   });
 });

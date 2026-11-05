@@ -31,7 +31,7 @@ import {
   FileText, Lock, Unlock, Award,
   CircleDollarSign,
   Loader2,
-  Check, ClipboardCopy,
+  Check, ClipboardCopy, Download,
 } from 'lucide-react';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -57,10 +57,11 @@ import { composeScoreVoice, composeDlqCompositionVoice } from '@/lib/report-voic
 // environment/connection rows plus, when a check's detail carries a Prisma
 // code, the SAME remediation card the login desk renders.
 import {
-  diagnoseHealthChecks, envRowLabel, formatEnvDiagnostics,
+  diagnoseHealthChecks, envRowLabel, formatEnvDiagnostics, diagnosticsFileName,
   type EnvCheckRow, type EnvDoctorReport,
 } from '@/lib/env-doctor';
 import { DbDoctorCard } from '@/components/db-doctor-card';
+import { APP_VERSION } from '@/lib/version';
 
 
 // Types
@@ -282,6 +283,69 @@ function PulseIndicator({ status }: { status: string }) {
 // honest toast — never a silent no-op. Rendered ONLY when the panel has a
 // report (an absent control never lies): loading and unreachable faces
 // have nothing to copy.
+// v2.401.0 — THE SUPPORT FILE. The clipboard is not everywhere: a mobile
+// browser can refuse the write path, and a support ticket wants an
+// ATTACHMENT, not a paste. The Download button hands the SAME report
+// (formatEnvDiagnostics, one home — the clipboard and the file cannot
+// drift) to the browser's save flow as a text file whose NAME carries the
+// version, the date and the minute (diagnosticsFileName, the same pure law
+// the copy's text speaks). THE SAVED FACE: the copy face's sibling —
+// Download → a two-second Saved hand-back → Download again; the icon swaps
+// with the label, the emerald family marks the success state beside the
+// Copy button's own (same file, so the elder census's file-level count is
+// unchanged), and a refused save answers with an honest toast — never a
+// silent no-op. Rendered ONLY when the panel has a report (an absent
+// control never lies).
+function DownloadDiagnosticsButton({ report }: { report: EnvDoctorReport }) {
+  const [saved, setSaved] = useState(false);
+  React.useEffect(() => {
+    if (!saved) return;
+    const t = window.setTimeout(() => setSaved(false), 2000);
+    return () => window.clearTimeout(t);
+  }, [saved]);
+  const onDownload = () => {
+    try {
+      const text = formatEnvDiagnostics(report);
+      const name = diagnosticsFileName(APP_VERSION, new Date());
+      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setSaved(true);
+    } catch {
+      toast.error('Could not save the diagnostics file — the browser refused.');
+    }
+  };
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="sm"
+      data-testid="health-env-download"
+      onClick={onDownload}
+      title="Save the panel's report as a text file — ready to attach to a support ticket"
+      aria-label={saved
+        ? 'Diagnostics file saved.'
+        : 'Download the environment and connection diagnostics as a text file'}
+      className={`h-7 gap-1.5 rounded-md px-2 text-xs transition-colors ${
+        saved
+          ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300 dark:hover:bg-emerald-900/40'
+          : 'text-muted-foreground hover:text-foreground'
+      }`}
+    >
+      {saved
+        ? <Check className="h-3 w-3" aria-hidden="true" />
+        : <Download className="h-3 w-3" aria-hidden="true" />}
+      {saved ? 'Saved' : 'Download'}
+    </Button>
+  );
+}
+
 function CopyDiagnosticsButton({ report }: { report: EnvDoctorReport }) {
   const [copied, setCopied] = useState(false);
   React.useEffect(() => {
@@ -342,7 +406,7 @@ function EnvRow({ row }: { row: EnvCheckRow }) {
     envRowLabel(row);
   return (
     <div
-      className="flex items-center justify-between gap-3 rounded-md px-2 py-1.5 transition-colors hover:bg-muted/50"
+      className="flex items-center justify-between gap-3 rounded-md px-2 py-1.5 transition-colors odd:bg-muted/30 hover:bg-muted/50"
       title={row.detail ?? label}
     >
       <div className="flex min-w-0 items-center gap-2">
@@ -354,7 +418,7 @@ function EnvRow({ row }: { row: EnvCheckRow }) {
           {label}
         </code>
       </div>
-      <span className="min-w-0 truncate text-[11px] text-muted-foreground">
+      <span className="min-w-0 truncate font-mono text-[11px] text-muted-foreground">
         {row.detail ?? '—'}
       </span>
     </div>
@@ -774,6 +838,7 @@ export default function SystemHealthTab() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
+                      {envReport ? <DownloadDiagnosticsButton report={envReport} /> : null}
                       {envReport ? <CopyDiagnosticsButton report={envReport} /> : null}
                       {envReport ? <StatusBadge status={envReport.overall} /> : null}
                     </div>
