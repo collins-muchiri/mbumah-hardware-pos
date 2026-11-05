@@ -266,7 +266,9 @@ describe('ChangelogModal - the jump lands somewhere real (v2.73.0)', () => {
   });
 
   it('the jumped entry wears the orange ring + the "via cmd+K" pill (dark complete)', () => {
-    expect(CHROME).toMatch(/focused \? ' ring-2 ring-orange-400 ring-offset-2 ring-offset-white dark:ring-offset-slate-900' : ''/);
+    // v2.404.0: the ring's quoted bytes gain the one-pulse landing glow
+    // (changelog-landing) — the pill and the dark-complete ring stand
+    expect(CHROME).toMatch(/focused \? ' ring-2 ring-orange-400 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 changelog-landing' : ''/);
     expect(CHROME).toContain('data-testid="changelog-jump-pill"');
     expect(CHROME).toContain('via cmd+K');
     expect(CHROME).toMatch(/border-orange-300 bg-orange-50 px-1\.5 py-px text-\[9px\] font-semibold uppercase tracking-wide text-orange-700 dark:border-orange-500\/40 dark:bg-orange-500\/15 dark:text-orange-300/);
@@ -497,11 +499,12 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.400.0: the health desk hands you the words — the Environment & Connection panel’s report leaves the desk as plain text (formatEnvDiagnostics: the header, the overall verdict, one LABEL: STATUS line per row in the panel’s own order, and the doctor card’s diagnosis block — code, summary, the remedy table’s ordered steps verbatim), the Copy button rides the panel’s header with the receipt hop’s two-second Copied hand-back (the icon swaps with the label, the emerald family marks the success state — the elder census registered the new honest wearer, sharedWith 11), envRowLabel retires the tab’s inline label map (one home — chip and clipboard cannot drift), and the advisory pool’s first nine faces stand down behavior-identically (the tab mapper’s honest predicate, the shared recount guard, the DashboardStats re-type, the portal defaults, the vocabulary probe — 488 → 479), and the entry joins the feed (+1 on every unread anchor — the DERIVED anchors re-set themselves, the cascade’s eleventh generation)
     // v2.401.0: the health desk hands you the file — the Environment & Connection panel's report leaves the desk as a NAMED text file too (diagnosticsFileName, the pure twin of the support copy — the version, the date and the minute ride in the name), the Download button rides the header beside the Copy button with the saved face's two-second hand-back (the same emerald family — the elder census's file-level count holds), the sandbox eTIMS client now speaks the three response contracts its routes always promised (customer search, invoice status, the stock master report — the 48 faces stand down, 479 → 431), and the entry joins the feed (+1 on every unread anchor — the DERIVED anchors re-set themselves, the cascade's twelfth generation)
     // v2.402.0: the payload card hands you the file — the KRA filing trio completes (Print = the paper, Copy = the clipboard, Download = the FILE: the mapped payload's card saves the same pretty JSON the clipboard carries as a named kra-payload-<invoice>-<date>.json, the saved face riding the receipt hop's two-second law), the card's eight-row ledger alternates on a quiet zebra ground, the refund heal suite's must label widens (29 faces stand down, 431 → 402), and the entry joins the feed (+1 on every unread anchor — the DERIVED anchors re-set themselves, the cascade's thirteenth generation)
+    // v2.404.0: the archive door reaches the main desk — the main shell mounts the SAME ChangelogModal (one shared archive, exactly one mount), the whats-new announcement gains its onOpenChangelog handle (jumpTo = APP_VERSION, the orange ring lands), the footer's Release notes door opens the archive from the top, the jumped entry answers with one soft landing glow, and the honest burst fixes the QA login's false positive (the entry joins the feed — +1 on every unread anchor, the cascade's fifteenth generation)
     // v2.403.0: the refund desk speaks the failure's name — the wire's typed refusal (code + the server's own line) reaches the toast and the dialog's own amber card (the code under its mono badge), four silent catches speak at last, the route's error ladder gains the stranded rung (NOT_STRANDED: 409), the two must widens land and the heal wiring's three mended names stand their guard (20 faces down, 402 → 382, the entry joins the feed — +1 on every unread anchor, the cascade's fourteenth generation)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(293);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(294);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(295);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(326);
+    expect(whatsNewUnreadCount('2.110.0')).toBe(294);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(295);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(296);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(327);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 

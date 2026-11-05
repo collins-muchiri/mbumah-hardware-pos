@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.404.0',
+    title: 'The archive door reaches the main desk — release notes open where you land',
+    bullets: [
+      'The main desk\u2019s "What\u2019s New" card gains the "Open the release archive" button the console already had: one click dismisses the card and lands the SAME changelog modal, scrolled to and ring-marked on this release\u2019s entry \u2014 no more hunting the archive through the console.',
+      'The footer\u2019s version label finally has a door of its own: a "Release notes" button beside Shortcuts opens the same archive from the top \u2014 one shared modal, one seen-flag law, two doors, zero copies.',
+      'A jumped entry now answers with one soft landing glow: the orange ring pulses once so the eye finds the landing even mid-scroll, and it stays still for readers who prefer reduced motion.',
+      'Under the hood: the QA burst\u2019s login check had been reading the toast region on the LOGIN card \u2014 the burst now proves the session honestly (dashboard markers or the Karibu card), and the last mile (Transactions desk, refund dialog, health desk, copy button) finally verifies in one pass.',
+    ],
+  },
+  {
     version: '2.403.0',
     title: 'The refund desk speaks the failure\u2019s name — the refused refund finally reaches your eyes',
     bullets: [

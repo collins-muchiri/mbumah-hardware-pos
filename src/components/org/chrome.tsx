@@ -488,7 +488,7 @@ function ChangelogEntry({ entry, latest, focused }: { entry: WhatsNewEntry; late
         latest
           ? 'rounded-xl border border-emerald-200 bg-emerald-50/60 p-3 dark:border-emerald-500/30 dark:bg-emerald-500/10'
           : 'rounded-xl border border-slate-200 bg-slate-50/50 p-3 dark:border-slate-800 dark:bg-slate-800/30'
-      }${focused ? ' ring-2 ring-orange-400 ring-offset-2 ring-offset-white dark:ring-offset-slate-900' : ''}`}
+      }${focused ? ' ring-2 ring-orange-400 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 changelog-landing' : ''}`}
     >
       <div className="flex flex-wrap items-center gap-2">
         <Badge variant={latest ? 'default' : 'secondary'} className="font-mono text-[11px]">

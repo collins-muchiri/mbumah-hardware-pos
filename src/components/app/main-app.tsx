@@ -12,12 +12,12 @@
 
 import React, { useState, useEffect, useRef, lazy, Suspense, useSyncExternalStore, useCallback } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Keyboard } from 'lucide-react';
+import { Keyboard, ScrollText } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { useAuthStore, useAppStore } from '@/lib/stores';
 import { useIdleTimeout } from '@/hooks/use-idle-timeout';
-import { APP_BUILD_LABEL } from '@/lib/version';
+import { APP_BUILD_LABEL, APP_VERSION } from '@/lib/version';
 import { TAB_LOADERS } from '@/lib/tab-preload';
 import { buildTabSearch } from '@/lib/tab-url';
 import { ErrorBoundary, SectionErrorBoundary } from '@/components/error-boundary';
@@ -26,6 +26,7 @@ import { AppSidebar } from '@/components/layout/app-sidebar';
 import { TopBar } from '@/components/layout/top-bar';
 import { KeyboardShortcutsHelp } from '@/components/keyboard-shortcuts-help';
 import { WhatsNewDialog } from '@/components/whats-new-dialog';
+import { ChangelogModal } from '@/components/org/chrome';
 
 // LAZY-LOADED TAB COMPONENTS
 //
@@ -107,6 +108,13 @@ export function MainApp() {
   const { activeTab, setActiveTab, currentStoreId } = useAppStore();
   const user = useAuthStore((s) => s.user);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  // v2.404.0: the main desk joins the archive law — the SAME ChangelogModal
+  // org-console mounts, opened by BOTH doors: the whats-new announcement's
+  // "Open the release archive" (jumping to this release's entry) and the
+  // footer's own "Release notes" door (the archive from the top). One
+  // shared modal, one jump contract — never a copy of the archive.
+  const [changelogOpen, setChangelogOpen] = useState(false);
+  const [releaseJump, setReleaseJump] = useState<string | null>(null);
   const online = useOnlineStatus();
   const searchBtnRef = useRef<HTMLButtonElement | null>(null);
 
@@ -317,12 +325,32 @@ export function MainApp() {
                   <Keyboard className="h-3 w-3" />
                   <span className="hidden sm:inline">Shortcuts</span>
                 </button>
+                {/* v2.404.0: the footer's Release notes door — the main desk
+                    opens the SAME archive the console opens (ChangelogModal
+                    from the top, no jump). Sits beside Shortcuts so the
+                    version label to the left finally has a door of its own. */}
+                <button
+                  type="button"
+                  data-testid="footer-release-notes"
+                  aria-label="Release notes"
+                  title="Release notes — the archive from the top"
+                  onClick={() => { setReleaseJump(null); setChangelogOpen(true); }}
+                  className="text-xs text-muted-foreground hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors flex items-center gap-1"
+                >
+                  <ScrollText className="h-3 w-3" aria-hidden="true" />
+                  <span className="hidden sm:inline">Release notes</span>
+                </button>
               </div>
             </div>
           </footer>
         </div>
         <KeyboardShortcutsHelp open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
-        <WhatsNewDialog />
+        <ChangelogModal
+          open={changelogOpen}
+          onOpenChange={(o) => { setChangelogOpen(o); if (!o) setReleaseJump(null); }}
+          jumpTo={releaseJump}
+        />
+        <WhatsNewDialog onOpenChangelog={() => { setReleaseJump(APP_VERSION); setChangelogOpen(true); }} />
         <FloatingHomeButton />
       </div>
     </ErrorBoundary>

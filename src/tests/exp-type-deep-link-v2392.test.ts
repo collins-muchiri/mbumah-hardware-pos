@@ -356,21 +356,21 @@ describe('the address-bar vocabulary — the thirty-first row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.403.0 leads the feed', () => {
+describe('whats-new — v2.404.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.403.0');
-    // the lead's story hand-over (v2.403.0, the Task 111 law's ninth
-    // application): the head story is the failure's name — the refund
-    // desk's typed refusal reaches the toast and the dialog's own amber
-    // card (the code under its mono badge), four silent catches speak at
-    // last, and the route's error ladder gains the stranded rung. The
-    // payload file's story exits the head this round; the voice's one
-    // shared home carries the eye.
-    expect(head.title).toContain('refund');
+    expect(head.version).toBe('2.404.0');
+    // the lead's story hand-over (v2.404.0, the Task 111 law's tenth
+    // application): the head story is the archive door — the main shell
+    // mounts the SAME ChangelogModal (one shared archive, exactly one
+    // mount), the whats-new announcement gains its handle (jumpTo =
+    // APP_VERSION, the orange ring lands), and the footer's Release
+    // notes door opens the archive from the top. The failure's name
+    // story exits the head this round; the landing glow carries the eye.
+    expect(head.title).toContain('archive door');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('typed code'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('one shared home'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('strict-mode type faces'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('Open the release archive'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('Release notes'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('proves the session honestly'))).toBe(true);
   });
 });
