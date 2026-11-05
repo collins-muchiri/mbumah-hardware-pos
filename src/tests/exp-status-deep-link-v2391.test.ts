@@ -294,19 +294,19 @@ describe('the address-bar vocabulary — the thirtieth row (cross-suite pins)', 
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.397.0 leads the feed', () => {
+describe('whats-new — v2.398.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.397.0');
-    // the lead's story hand-over (v2.397.0, the Task 111 law's third
-    // application): the head story is the elder loom's — the census's 22
-    // loomable faces joined the shared component, the byte-fidelity law
-    // held per chip. The M-Pesa story exits the head this round; the
-    // census re-types honestly, again.
-    expect(head.title).toContain('loom');
+    expect(head.version).toBe('2.398.0');
+    // the lead's story hand-over (v2.398.0, the Task 111 law's fourth
+    // application): the head story is the login desk's — the DB doctor
+    // speaks the failure's name inline and the repo-env guard ends the
+    // silent dev-runtime redirect. The elder-loom story exits the head
+    // this round; the census re-types honestly, again.
+    expect(head.title).toContain('failure');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('22 more desks'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('one-press dismissal'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('zero drift'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('P2021'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('env-wins'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('untouched'))).toBe(true);
   });
 });
