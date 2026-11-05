@@ -47,6 +47,8 @@
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
+
+const LOOM = readFileSync('src/components/landing-chip.tsx', 'utf8');
 import { join } from 'node:path';
 import { parseInitialNamedMemberWithAlias, parseInitialStage } from '@/lib/tab-url';
 
@@ -223,7 +225,7 @@ describe('the landing chip — the face names the word it answered', () => {
   });
 
   it('the chip names the exact word it answered — the CANONICAL spelling always', () => {
-    expect(desk.includes('landed ?ly-type={landedLyType}')).toBe(true);
+    expect(desk.includes('landed ?ly-type=${landedLyType}')).toBe(true);
     expect(desk.includes('even when the landing rode the legacy alias')).toBe(true);
   });
 
@@ -246,8 +248,12 @@ describe('the landing chip — the face names the word it answered', () => {
   });
 
   it('the chip wears the ledger\u2019s green family in BOTH modes (the twenty-first wearing)', () => {
-    expect(desk.includes('border-green-200 bg-green-50 text-green-700')).toBe(true);
-    expect(desk.includes('dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-300')).toBe(true);
+    // v2.397.0 THE LOOM: the elder wardrobe moved into the loom's 200
+    // registry — the desk proves its family by hue, the registry carries
+    // the bytes.
+    expect(desk.includes('hue="green"')).toBe(true);
+    expect(LOOM.includes('border-green-200 bg-green-50 text-green-700')).toBe(true);
+    expect(LOOM.includes('dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-300')).toBe(true);
     expect(desk.includes('THE TWENTY-FIRST WEARING')).toBe(true);
     expect(desk.includes('the last wearable hue')).toBe(true);
   });
@@ -259,27 +265,31 @@ describe('the landing chip — the face names the word it answered', () => {
     // own dark badge bytes — while the badge keeps its own config voice
     const at = desk.indexOf('data-testid="ly-type-landing-word"');
     const chip = desk.slice(Math.max(0, at - 700), at);
-    expect(chip.includes('hover:bg-green-100')).toBe(true);
-    expect(chip.includes('focus-visible:ring-green-400')).toBe(true);
+    // v2.397.0 THE LOOM: the chip's wardrobe forms live in the loom's 200
+    // registry — the desk proves its family by hue; the badge-form
+    // negatives keep their chip-slice face (the loomed element speaks no
+    // wardrobe at all, so they hold a fortiori)
+    expect(LOOM.includes('hover:bg-green-100')).toBe(true);
+    expect(LOOM.includes('focus-visible:ring-green-400')).toBe(true);
     expect(chip.includes('dark:bg-green-900/30')).toBe(false);
     expect(chip.includes('dark:text-green-400')).toBe(false);
     expect(desk.includes('dark:bg-green-900/30')).toBe(true);
   });
 
   it('the dismiss hint sharpens on hover (the group-hover detail)', () => {
-    expect(desk.includes('opacity-60 transition-opacity group-hover:opacity-100')).toBe(true);
+    expect(LOOM.includes('opacity-60 transition-opacity group-hover:opacity-100')).toBe(true);
   });
 
   it('the chip explains itself (the tooltip law)', () => {
     expect(desk.includes('title="The ledger landed with this type from the address bar — press to clear it"')).toBe(true);
-    expect(desk.includes('aria-hidden="true"')).toBe(true);
+    expect(LOOM.includes('aria-hidden="true"')).toBe(true); // v2.397.0 THE LOOM: the icons live in the one hand
   });
 
   it('the desk\u2019s own voices keep their families beside the chip (no masquerade)', () => {
     // amber is the sweep-line wardrobe's voice — the chip's green borrows
     // nothing from it
     expect(desk.includes('border-amber-600/40')).toBe(true);
-    expect(desk.includes('border-green-200 bg-green-50')).toBe(true);
+    expect(LOOM.includes('border-green-200 bg-green-50')).toBe(true);
   });
 });
 
@@ -360,6 +370,9 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/gc-status-deep-link-v2358.test.ts',
       'src/tests/inv-status-deep-link-v2356.test.ts',
       'src/tests/inv-stock-deep-link-v2329.test.ts',
+      // the loom's own suite — admitted (v2.397.0: the elder loom pins
+      // this desk's chip bytes, so the walk lists it)
+      'src/tests/landing-chip-loom-v2394.test.ts',
       'src/tests/ly-island-v2369.test.ts',
       'src/tests/ly-type-deep-link-v2368.test.ts',
       'src/tests/pr-status-deep-link-v2362.test.ts',

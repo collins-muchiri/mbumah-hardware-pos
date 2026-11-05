@@ -3,13 +3,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import {
-  Users, Search, Plus, CircleDollarSign, AlertTriangle,
-  Eye, Loader2, HandCoins, Banknote, Smartphone, ShoppingBag, Phone, Mail, MapPin, CreditCard, Clock,
-  ArrowUpDown, Filter, UserPlus, TrendingUp, FileText, Bell,
-  History, Send, Tag, Gift, Truck, FileCheck, Receipt, Minus, Printer, MessageSquare,
-  Link2, X,
-} from 'lucide-react';
+import { Users, Search, Plus, CircleDollarSign, AlertTriangle, Eye, Loader2, HandCoins, Banknote, Smartphone, ShoppingBag, Phone, Mail, MapPin, CreditCard, Clock, ArrowUpDown, Filter, UserPlus, TrendingUp, FileText, Bell, History, Send, Tag, Gift, Truck, FileCheck, Receipt, Minus, Printer, MessageSquare } from 'lucide-react';
 import { parseInitialNamedMember } from '@/lib/tab-url';
 
 import { useAppStore, useAuthStore } from '@/lib/stores';
@@ -43,6 +37,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { LandingChip } from '@/components/landing-chip';
 
 const AVATAR_GRADIENTS = [
   'from-rose-500 to-pink-600',
@@ -1020,20 +1015,18 @@ export default function CustomersTab() {
             dismissal, or the honest reset. `data-testid="cust-landing-word"`
             — the QA walk's handle. */}
         {landingLive && landedCustDebtLens !== 'all' && debtFilter === landedCustDebtLens && (
-          <button
-            type="button"
-            onClick={() => {
+          <LandingChip
+            variant="quiet"
+            storey={200}
+            hue="rose"
+            data-testid="cust-landing-word"
+            title="The desk landed with this filter from the address bar — press to clear it"
+            label={`landed ?cust-debt=${landedCustDebtLens}`}
+            onDismiss={() => {
               setDebtFilter('all');
               setLandingLive(false);
             }}
-            className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-rose-200 bg-rose-50 text-rose-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-rose-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300 dark:hover:bg-rose-500/20"
-            data-testid="cust-landing-word"
-            title="The desk landed with this filter from the address bar — press to clear it"
-          >
-            <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-            <span className="tabular-nums">landed ?cust-debt={landedCustDebtLens}</span>
-            <X className="h-3 w-3 shrink-0 opacity-60" aria-hidden="true" />
-          </button>
+          />
         )}
 
         <TooltipProvider>

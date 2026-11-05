@@ -43,6 +43,8 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 
+const LOOM = readFileSync('src/components/landing-chip.tsx', 'utf8');
+
 const API = readFileSync('src/lib/api.ts', 'utf8');
 const DESK = readFileSync('src/app/(shell)/tabs/etims-tab.tsx', 'utf8');
 const FEED = readFileSync('src/lib/whats-new.ts', 'utf8');
@@ -195,8 +197,12 @@ describe('the palette honesty — no new family byte', () => {
     expect(DESK).not.toContain('border-teal-300 bg-teal-100');
   });
 
-  it('the desk still hosts its own twenty-second word\u2019s red chip (untouched)', () => {
-    expect(DESK).toContain('border-red-200 bg-red-50');
+  it('the desk still hosts its own twenty-second word\u2019s red chip (now through the loom)', () => {
+    // v2.397.0 THE ELDER LOOM: the red chip renders through the shared
+    // LandingChip — the desk proves its family by hue, the registry
+    // carries the wardrobe
+    expect(DESK).toContain('hue="red"');
+    expect(LOOM).toContain('border-red-200 bg-red-50');
   });
 });
 

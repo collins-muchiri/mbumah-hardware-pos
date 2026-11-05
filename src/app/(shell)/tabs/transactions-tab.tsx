@@ -3,13 +3,7 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import {
-  ShoppingBag, Search, Download, ChevronDown, ChevronUp,
-  CalendarDays, TrendingUp, Hash, CreditCard, Smartphone, Banknote, Wallet, Link2,
-  Filter, FileText, RotateCcw, Ban, Eye, Printer, AlertTriangle, Receipt, X, MessageCircle,
-  Mail, Send, Loader2, MessageSquare, PackageOpen, ShieldAlert, CheckCircle2, Sparkles,
-  HandCoins,
-} from 'lucide-react';
+import { ShoppingBag, Search, Download, ChevronDown, ChevronUp, CalendarDays, TrendingUp, Hash, CreditCard, Smartphone, Banknote, Wallet, Filter, FileText, RotateCcw, Ban, Eye, Printer, AlertTriangle, Receipt, X, MessageCircle, Mail, Send, Loader2, MessageSquare, PackageOpen, ShieldAlert, CheckCircle2, Sparkles, HandCoins } from 'lucide-react';
 
 import { transactionsApi, whatsappApi, formatKES, formatDateTime, type ApiResponse, type TransactionItem, type SaleItemDetail, type ReceiptDistributionResult, type RefundableLine, type RefundableLinesResult, type RefundResult, type RefundRowState } from '@/lib/api';
 import { composeDailyRevenueVoice } from '@/lib/report-voices';
@@ -34,6 +28,7 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from '@/components/ui/dialog';
+import { LandingChip } from '@/components/landing-chip';
 
 function startOfDay(date: Date): Date {
   const d = new Date(date);
@@ -2151,9 +2146,14 @@ export default function TransactionsTab() {
                 `data-testid="txn-landing-word"` — the QA walk's
                 handle. */}
             {txnLandingLive && landedTxnPay !== 'all' && paymentFilter === landedTxnPay && (
-              <button
-                type="button"
-                onClick={() => {
+              <LandingChip
+                variant="quiet"
+                storey={200}
+                hue="violet"
+                data-testid="txn-landing-word"
+                title="The desk landed with this filter from the address bar — press to clear it"
+                label={`landed ?txn-pay=${landedTxnPay}`}
+                onDismiss={() => {
                   setPaymentFilter('all');
                   setTxnLandingLive(false);
                   // v2.372.0 THE CHIP SCRUBS ITS WORD (the loyalty desk's
@@ -2162,18 +2162,11 @@ export default function TransactionsTab() {
                   // resurrect — the dismissal removes it from the address
                   // bar, SSR-guarded like every window touch.
                   if (typeof window !== 'undefined') {
-                    const next = buildSearchWithoutParams(window.location.search, ['txn-pay']);
-                    window.history.replaceState(null, '', next ? next : window.location.pathname);
+                  const next = buildSearchWithoutParams(window.location.search, ['txn-pay']);
+                  window.history.replaceState(null, '', next ? next : window.location.pathname);
                   }
                 }}
-                className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-violet-200 bg-violet-50 text-violet-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-violet-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 dark:border-violet-500/30 dark:bg-violet-500/10 dark:text-violet-300 dark:hover:bg-violet-500/20"
-                data-testid="txn-landing-word"
-                title="The desk landed with this filter from the address bar — press to clear it"
-              >
-                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-                <span className="tabular-nums">landed ?txn-pay={landedTxnPay}</span>
-                <X className="h-3 w-3 shrink-0 opacity-60" aria-hidden="true" />
-              </button>
+              />
             )}
             {/* v2.333.0: the hand-driven quick chips are voice 2 — a
                 hand-driven change retires the landing word. */}
@@ -2232,9 +2225,13 @@ export default function TransactionsTab() {
                 `data-testid="txn-type-landing-word"` — the QA walk's
                 handle. */}
             {txnTypeLandingLive && landedTxnType !== 'all' && typeFilter === landedTxnType && (
-              <button
-                type="button"
-                onClick={() => {
+              <LandingChip
+                storey={200}
+                hue="fuchsia"
+                data-testid="txn-type-landing-word"
+                title="The desk landed with this filter from the address bar — press to clear it"
+                label={`landed ?txn-type=${landedTxnType}`}
+                onDismiss={() => {
                   setTypeFilter('all');
                   setTxnTypeLandingLive(false);
                   // v2.372.0 THE CHIP SCRUBS ITS WORD (the loyalty desk's
@@ -2243,18 +2240,11 @@ export default function TransactionsTab() {
                   // resurrect — the dismissal removes it from the address
                   // bar, SSR-guarded like every window touch.
                   if (typeof window !== 'undefined') {
-                    const next = buildSearchWithoutParams(window.location.search, ['txn-type']);
-                    window.history.replaceState(null, '', next ? next : window.location.pathname);
+                  const next = buildSearchWithoutParams(window.location.search, ['txn-type']);
+                  window.history.replaceState(null, '', next ? next : window.location.pathname);
                   }
                 }}
-                className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-fuchsia-200 bg-fuchsia-50 text-fuchsia-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-fuchsia-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400 dark:border-fuchsia-500/30 dark:bg-fuchsia-500/10 dark:text-fuchsia-300 dark:hover:bg-fuchsia-500/20"
-                data-testid="txn-type-landing-word"
-                title="The desk landed with this filter from the address bar — press to clear it"
-              >
-                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-                <span className="tabular-nums">landed ?txn-type={landedTxnType}</span>
-                <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-              </button>
+              />
             )}
             {typeFilter !== 'all' && (
               // the lens voice: the active type filter names how many

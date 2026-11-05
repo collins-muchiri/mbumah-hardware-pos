@@ -18,11 +18,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import {
-  MessageSquare, Send, Plus, Search, ArrowLeft, Users,
-  Loader2, Trash2, Settings2, Hash, CheckCheck,
-  RefreshCw, X, Link2,
-} from 'lucide-react';
+import { MessageSquare, Send, Plus, Search, ArrowLeft, Users, Loader2, Trash2, Settings2, Hash, CheckCheck, RefreshCw, X } from 'lucide-react';
 
 import { useAppStore, useAuthStore } from '@/lib/stores';
 // v2.363.0: the landing word rides the ONE home — the same address-bar
@@ -56,6 +52,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
+import { LandingChip } from '@/components/landing-chip';
 
 // Helpers
 
@@ -283,20 +280,18 @@ function ConversationList({
             `data-testid="cv-type-landing-word"` — the QA walk's
             handle. */}
         {cvLandingLive && landedCvType !== 'all' && typeFilter === landedCvType && (
-          <button
-            type="button"
-            onClick={() => {
+          <LandingChip
+            variant="compact"
+            storey={200}
+            hue="slate"
+            data-testid="cv-type-landing-word"
+            title="The desk landed with this filter from the address bar — press to clear it"
+            label={`landed ?cv-type=${landedCvType}`}
+            onDismiss={() => {
               setTypeFilter('all');
               setCvLandingLive(false);
             }}
-            className="group inline-flex items-center gap-1 h-6 px-2 rounded-full border border-slate-200 bg-slate-50 text-slate-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 dark:border-slate-500/30 dark:bg-slate-500/10 dark:text-slate-300 dark:hover:bg-slate-500/20"
-            data-testid="cv-type-landing-word"
-            title="The desk landed with this filter from the address bar — press to clear it"
-          >
-            <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-            <span className="tabular-nums">landed ?cv-type={landedCvType}</span>
-            <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-          </button>
+          />
         )}
         <Select value={typeFilter} onValueChange={chooseCvType}>
           <SelectTrigger className="h-8 text-xs">

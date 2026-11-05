@@ -33,6 +33,8 @@
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
+
+const LOOM = readFileSync('src/components/landing-chip.tsx', 'utf8');
 import { join } from 'node:path';
 import { parseInitialNamedMember } from '@/lib/tab-url';
 
@@ -182,12 +184,12 @@ describe('the landing chip — the face names the word it answered', () => {
   });
 
   it('the chip names the exact word it answered', () => {
-    expect(desk.includes('landed ?dn-status={landedDnStatus}')).toBe(true);
+    expect(desk.includes('landed ?dn-status=${landedDnStatus}')).toBe(true);
   });
 
   it('voice 1 — the dismissal clears the lens the word seeded and retires', () => {
     const at = desk.indexOf('data-testid="dn-status-landing-word"');
-    const block = desk.slice(at, at + 400);
+    const block = desk.slice(at, at + 1200);
     expect(block).toContain("setStatusFilter('all')");
     expect(block).toContain('setDnLandingLive(false)');
   });
@@ -203,17 +205,21 @@ describe('the landing chip — the face names the word it answered', () => {
   });
 
   it('the chip wears the lens\u2019s sky family in BOTH modes', () => {
-    expect(desk.includes('border-sky-200 bg-sky-50 text-sky-700')).toBe(true);
-    expect(desk.includes('dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-300')).toBe(true);
+    // v2.397.0 THE LOOM: the elder wardrobe moved into the loom's 200
+    // registry — the desk proves its family by hue, the registry carries
+    // the bytes.
+    expect(desk.includes('hue="sky"')).toBe(true);
+    expect(LOOM.includes('border-sky-200 bg-sky-50 text-sky-700')).toBe(true);
+    expect(LOOM.includes('dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-300')).toBe(true);
   });
 
   it('the dismiss hint sharpens on hover (the group-hover detail)', () => {
-    expect(desk.includes('opacity-60 transition-opacity group-hover:opacity-100')).toBe(true);
+    expect(LOOM.includes('opacity-60 transition-opacity group-hover:opacity-100')).toBe(true);
   });
 
   it('the chip explains itself (the tooltip law)', () => {
     expect(desk.includes('title="The desk landed with this filter from the address bar — press to clear it"')).toBe(true);
-    expect(desk.includes('aria-hidden="true"')).toBe(true);
+    expect(LOOM.includes('aria-hidden="true"')).toBe(true); // v2.397.0 THE LOOM: the icons live in the one hand
   });
 
   it('the desk\u2019s own voices keep their families beside the chip (no masquerade)', () => {
@@ -225,7 +231,7 @@ describe('the landing chip — the face names the word it answered', () => {
     expect(desk.includes('bg-green-100 text-green-700')).toBe(true);
     expect(desk.includes('bg-red-100 text-red-700')).toBe(true);
     // and the chip's sky stays its own
-    expect(desk.includes('border-sky-200 bg-sky-50 text-sky-700 text-xs font-medium')).toBe(true);
+    expect(LOOM.includes('border-sky-200 bg-sky-50 text-sky-700 text-xs font-medium')).toBe(true);
   });
 });
 
@@ -301,6 +307,9 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/gc-status-deep-link-v2358.test.ts',
       'src/tests/inv-status-deep-link-v2356.test.ts',
       'src/tests/inv-stock-deep-link-v2329.test.ts',
+      // the loom's own suite — admitted (v2.397.0: the elder loom pins
+      // this desk's chip bytes, so the walk lists it)
+      'src/tests/landing-chip-loom-v2394.test.ts',
       // the po-status word's ledger lives beside the proxy-gate suite
       // (one release, two suites — the ledger is the honest speaker here)
       'src/tests/ly-type-deep-link-v2368.test.ts',

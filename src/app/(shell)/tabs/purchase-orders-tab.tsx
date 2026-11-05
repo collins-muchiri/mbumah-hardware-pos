@@ -3,16 +3,7 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import {
-  ClipboardList, Search, Plus, Eye, Loader2, X,
-  Package, CalendarDays, Filter, ArrowUpDown,
-  FileText, Clock, CheckCircle2, Circle, AlertTriangle,
-  Truck, ChevronLeft, ChevronRight, Trash2, Send, Ban,
-  MoreHorizontal,
-  PackageCheck, PackageX, ShieldCheck, Stamp,
-  Receipt, ShoppingBag, DollarSign,
-  ArrowUpRight, History, Link2,
-} from 'lucide-react';
+import { ClipboardList, Search, Plus, Eye, Loader2, X, Package, CalendarDays, Filter, ArrowUpDown, FileText, Clock, CheckCircle2, Circle, AlertTriangle, Truck, ChevronLeft, ChevronRight, Trash2, Send, Ban, MoreHorizontal, PackageCheck, PackageX, ShieldCheck, Stamp, Receipt, ShoppingBag, DollarSign, ArrowUpRight, History } from 'lucide-react';
 
 import { useAppStore } from '@/lib/stores';
 import { useAuthStore } from '@/lib/stores';
@@ -91,6 +82,7 @@ import { Progress } from '@/components/ui/progress';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { LandingChip } from '@/components/landing-chip';
 
 // Constants
 
@@ -2100,21 +2092,19 @@ export default function PurchaseOrdersTab() {
               clear-all) — an honest face never claims a landing that is
               over. `data-testid="po-landing-word"` — the QA walk's handle. */}
           {landingLive && landedStatus !== 'ALL' && statusFilter === landedStatus && (
-            <button
-              type="button"
-              onClick={() => {
+            <LandingChip
+              variant="quiet"
+              storey={200}
+              hue="indigo"
+              data-testid="po-landing-word"
+              title="The desk landed with this filter from the address bar — press to clear it"
+              label={`landed ?po-status=${landedStatus}`}
+              onDismiss={() => {
                 setStatusFilter('ALL');
                 setPage(1);
                 setLandingLive(false);
               }}
-              className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-indigo-200 bg-indigo-50 text-indigo-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-indigo-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300 dark:hover:bg-indigo-500/20"
-              data-testid="po-landing-word"
-              title="The desk landed with this filter from the address bar — press to clear it"
-            >
-              <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-              <span className="tabular-nums">landed ?po-status={landedStatus}</span>
-              <X className="h-3 w-3 shrink-0 opacity-60" aria-hidden="true" />
-            </button>
+            />
           )}
 
           <Button onClick={() => setCreateOpen(true)} size="sm">

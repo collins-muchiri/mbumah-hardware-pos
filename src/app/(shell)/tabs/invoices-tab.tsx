@@ -3,15 +3,7 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import {
-  FileText, Search, Plus, Eye, Loader2, Printer,
-  ArrowRightLeft, XCircle, DollarSign, Clock,
-  TrendingUp, AlertCircle, Receipt,
-  FileCheck, FileMinus, FilePlus, ChevronDown,
-  Trash2, ArrowUpDown, Send, CheckCircle2, Phone, MessageSquare,
-  Download, FileDown, QrCode, ExternalLink,
-  Link2, X,
-} from 'lucide-react';
+import { FileText, Search, Plus, Eye, Loader2, Printer, ArrowRightLeft, XCircle, DollarSign, Clock, TrendingUp, AlertCircle, Receipt, FileCheck, FileMinus, FilePlus, ChevronDown, Trash2, ArrowUpDown, Send, CheckCircle2, Phone, MessageSquare, Download, FileDown, QrCode, ExternalLink } from 'lucide-react';
 
 import { useAppStore } from '@/lib/stores';
 import { parseInitialNamedMember } from '@/lib/tab-url';
@@ -66,6 +58,7 @@ import { MessagePreviewDialog } from '@/components/documents/message-preview-dia
 import { generateDocumentPdf, buildDocumentFileName } from '@/lib/document-pdf';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { LandingChip } from '@/components/landing-chip';
 
 // Types
 
@@ -975,20 +968,17 @@ export default function InvoicesTab() {
                 `data-testid="inv-status-landing-word"` — the QA walk's
                 handle. */}
             {invLandingLive && landedInvStatus !== 'all' && statusFilter === landedInvStatus && (
-              <button
-                type="button"
-                onClick={() => {
+              <LandingChip
+                storey={200}
+                hue="teal"
+                data-testid="inv-status-landing-word"
+                title="The desk landed with this filter from the address bar — press to clear it"
+                label={`landed ?inv-status=${landedInvStatus}`}
+                onDismiss={() => {
                   setStatusFilter('all');
                   setInvLandingLive(false);
                 }}
-                className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-teal-200 bg-teal-50 text-teal-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-teal-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 dark:border-teal-500/30 dark:bg-teal-500/10 dark:text-teal-300 dark:hover:bg-teal-500/20"
-                data-testid="inv-status-landing-word"
-                title="The desk landed with this filter from the address bar — press to clear it"
-              >
-                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-                <span className="tabular-nums">landed ?inv-status={landedInvStatus}</span>
-                <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-              </button>
+              />
             )}
             {/* v2.356.0: the hand-driven Select is voice 2 — a hand-driven
                 change retires the landing word. */}

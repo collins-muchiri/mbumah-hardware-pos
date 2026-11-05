@@ -24,6 +24,8 @@
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
+
+const LOOM = readFileSync('src/components/landing-chip.tsx', 'utf8');
 import { join } from 'node:path';
 import { parseInitialNamedMember } from '@/lib/tab-url';
 
@@ -127,12 +129,12 @@ describe('the landing chip — the face names the word it answered', () => {
   });
 
   it('the chip names the exact word it answered', () => {
-    expect(desk.includes('landed ?txn-pay={landedTxnPay}')).toBe(true);
+    expect(desk.includes('landed ?txn-pay=${landedTxnPay}')).toBe(true);
   });
 
   it('voice 1 — the dismissal clears the lens the word seeded and retires', () => {
     const at = desk.indexOf('data-testid="txn-landing-word"');
-    const block = desk.slice(at, at + 400);
+    const block = desk.slice(at, at + 1200);
     expect(block).toContain("setPaymentFilter('all')");
     expect(block).toContain('setTxnLandingLive(false)');
   });
@@ -150,8 +152,12 @@ describe('the landing chip — the face names the word it answered', () => {
   });
 
   it('the chip wears the lens\u2019s violet family in BOTH modes', () => {
-    expect(desk.includes('border-violet-200 bg-violet-50 text-violet-700')).toBe(true);
-    expect(desk.includes('dark:border-violet-500/30 dark:bg-violet-500/10 dark:text-violet-300')).toBe(true);
+    // v2.397.0 THE LOOM: the elder wardrobe moved into the loom's 200
+    // registry — the desk proves its family by hue, the registry carries
+    // the bytes.
+    expect(desk.includes('hue="violet"')).toBe(true);
+    expect(LOOM.includes('border-violet-200 bg-violet-50 text-violet-700')).toBe(true);
+    expect(LOOM.includes('dark:border-violet-500/30 dark:bg-violet-500/10 dark:text-violet-300')).toBe(true);
   });
 
   it('the chip explains itself (the tooltip law)', () => {
@@ -216,6 +222,9 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/gc-status-deep-link-v2358.test.ts',
       'src/tests/inv-status-deep-link-v2356.test.ts',
       'src/tests/inv-stock-deep-link-v2329.test.ts',
+      // the loom's own suite — admitted (v2.397.0: the elder loom pins
+      // this desk's chip bytes, so the walk lists it)
+      'src/tests/landing-chip-loom-v2394.test.ts',
       'src/tests/ly-type-deep-link-v2368.test.ts',
       // the thirty-second word's own ledger — admitted (its own ledger
       // LISTS this file's path — the third-order ripple: a ledger line

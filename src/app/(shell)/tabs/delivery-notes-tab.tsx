@@ -3,15 +3,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import {
-  Truck, Search, Plus, Eye, Loader2,
-  Phone, MapPin, User, FileText, Clock,
-  Package, CheckCircle2, AlertTriangle,
-  Printer, CalendarDays, Hash, Navigation,
-  ChevronRight, CircleDot, MessageSquare, Smartphone,
-  Trash2, Download, FileDown, QrCode, ExternalLink,
-  Link2, X,
-} from 'lucide-react';
+import { Truck, Search, Plus, Eye, Loader2, Phone, MapPin, User, FileText, Clock, Package, CheckCircle2, AlertTriangle, Printer, CalendarDays, Hash, Navigation, ChevronRight, CircleDot, MessageSquare, Smartphone, Trash2, Download, FileDown, QrCode, ExternalLink } from 'lucide-react';
 
 import { useAppStore } from '@/lib/stores';
 import { parseInitialNamedMember } from '@/lib/tab-url';
@@ -55,6 +47,7 @@ import {
 } from '@/components/documents/digital-document-view';
 import { MessagePreviewDialog } from '@/components/documents/message-preview-dialog';
 import { generateDocumentPdf, buildDocumentFileName } from '@/lib/document-pdf';
+import { LandingChip } from '@/components/landing-chip';
 
 
 // Helpers
@@ -746,20 +739,17 @@ export default function DeliveryNotesTab() {
                 `data-testid="dn-status-landing-word"` — the QA walk's
                 handle. */}
             {dnLandingLive && landedDnStatus !== 'all' && statusFilter === landedDnStatus && (
-              <button
-                type="button"
-                onClick={() => {
+              <LandingChip
+                storey={200}
+                hue="sky"
+                data-testid="dn-status-landing-word"
+                title="The desk landed with this filter from the address bar — press to clear it"
+                label={`landed ?dn-status=${landedDnStatus}`}
+                onDismiss={() => {
                   setStatusFilter('all');
                   setDnLandingLive(false);
                 }}
-                className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-sky-200 bg-sky-50 text-sky-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-sky-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-300 dark:hover:bg-sky-500/20"
-                data-testid="dn-status-landing-word"
-                title="The desk landed with this filter from the address bar — press to clear it"
-              >
-                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-                <span className="tabular-nums">landed ?dn-status={landedDnStatus}</span>
-                <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-              </button>
+              />
             )}
             {/* v2.359.0: the hand-driven Select is voice 2 — a hand-driven
                 change retires the landing word. */}

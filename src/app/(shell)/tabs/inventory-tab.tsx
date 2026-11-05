@@ -3,14 +3,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import {
-  Package, Search, Plus, AlertTriangle, AlertCircle, DollarSign,
-  MoreVertical, Edit, Trash2, Loader2, CheckCircle, Copy, ArrowUpDown,
-  Minus, BarChart3, ChevronUp, ChevronDown, ChevronsUpDown,
-  Download, History, RotateCcw, X,
-  Filter, ChevronRight, Tag, Palette, Zap, ShoppingCart, Info,
-  MessageCircle, RefreshCw, Pencil, Settings2, Check, PackagePlus, Link2
-} from 'lucide-react';
+import { Package, Search, Plus, AlertTriangle, AlertCircle, DollarSign, MoreVertical, Edit, Trash2, Loader2, CheckCircle, Copy, ArrowUpDown, Minus, BarChart3, ChevronUp, ChevronDown, ChevronsUpDown, Download, History, RotateCcw, X, Filter, ChevronRight, Tag, Palette, Zap, ShoppingCart, Info, MessageCircle, RefreshCw, Pencil, Settings2, Check, PackagePlus } from 'lucide-react';
 
 import { useAppStore, useAuthStore } from '@/lib/stores';
 import { canFeature } from '@/hooks/use-permissions';
@@ -48,6 +41,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { StockTakePanel } from '@/components/inventory/stock-take-panel';
+import { LandingChip } from '@/components/landing-chip';
 
 const CATEGORY_COLORS: Record<string, string> = {
   'Cement & Building': '#6B7280',
@@ -1012,20 +1006,18 @@ export default function InventoryTab() {
             clear-all. `data-testid="inv-landing-word"` — the QA walk's
             handle. */}
         {landingLive && landedStockLens !== 'all' && stockFilter === landedStockLens && (
-          <button
-            type="button"
-            onClick={() => {
+          <LandingChip
+            variant="quiet"
+            storey={200}
+            hue="amber"
+            data-testid="inv-landing-word"
+            title="The desk landed with this filter from the address bar — press to clear it"
+            label={`landed ?inv-stock=${landedStockLens}`}
+            onDismiss={() => {
               setStockFilter('all');
               setLandingLive(false);
             }}
-            className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-amber-200 bg-amber-50 text-amber-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300 dark:hover:bg-amber-500/20"
-            data-testid="inv-landing-word"
-            title="The desk landed with this filter from the address bar — press to clear it"
-          >
-            <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-            <span className="tabular-nums">landed ?inv-stock={landedStockLens}</span>
-            <X className="h-3 w-3 shrink-0 opacity-60" aria-hidden="true" />
-          </button>
+          />
         )}
         <Button
           className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-sm"

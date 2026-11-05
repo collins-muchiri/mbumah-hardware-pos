@@ -3,11 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import {
-  ArrowUpDown, Package, CheckCircle, ArrowRight, Plus, Search,
-  Truck, Clock, X, Eye, Send, Check, AlertCircle, Loader2, MapPin, Store,
-  Link2,
-} from 'lucide-react';
+import { ArrowUpDown, Package, CheckCircle, ArrowRight, Plus, Search, Truck, Clock, X, Eye, Send, Check, AlertCircle, Loader2, MapPin, Store } from 'lucide-react';
 
 import { useAppStore } from '@/lib/stores';
 import { parseInitialNamedMember } from '@/lib/tab-url';
@@ -29,6 +25,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { formatQty, unitLabel } from '@/lib/utils/financialMath';
+import { LandingChip } from '@/components/landing-chip';
 
 // Store type
 
@@ -482,20 +479,17 @@ export default function TransfersTab() {
                 `data-testid="transfer-status-landing-word"` — the QA
                 walk's handle. */}
             {transferLandingLive && landedTransferStatus !== 'all' && statusFilter === landedTransferStatus && (
-              <button
-                type="button"
-                onClick={() => {
+              <LandingChip
+                storey={200}
+                hue="blue"
+                data-testid="transfer-status-landing-word"
+                title="The desk landed with this filter from the address bar — press to clear it"
+                label={`landed ?transfer-status=${landedTransferStatus}`}
+                onDismiss={() => {
                   setStatusFilter('all');
                   setTransferLandingLive(false);
                 }}
-                className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-blue-200 bg-blue-50 text-blue-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-300 dark:hover:bg-blue-500/20"
-                data-testid="transfer-status-landing-word"
-                title="The desk landed with this filter from the address bar — press to clear it"
-              >
-                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-                <span className="tabular-nums">landed ?transfer-status={landedTransferStatus}</span>
-                <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-              </button>
+              />
             )}
             {/* v2.357.0: the hand-driven Select is voice 2 — a hand-driven
                 change retires the landing word. */}

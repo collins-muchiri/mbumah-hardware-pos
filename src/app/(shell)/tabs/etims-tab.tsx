@@ -15,13 +15,7 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import {
-  Building2, KeyRound, ShieldCheck, Loader2, RefreshCw, Plus,
-  CheckCircle, Clock, AlertCircle, XCircle, FileText, Search,
-  Send, Eye, Database, Activity, AlertTriangle,
-  Hash, Calendar, Receipt, Settings2, Link2, X,
-  Copy, Check, Printer,
-} from 'lucide-react';
+import { Building2, KeyRound, ShieldCheck, Loader2, RefreshCw, Plus, CheckCircle, Clock, AlertCircle, XCircle, FileText, Search, Send, Eye, Database, Activity, AlertTriangle, Hash, Calendar, Receipt, Settings2, Copy, Check, Printer } from 'lucide-react';
 
 import { useAppStore, useAuthStore } from '@/lib/stores';
 import {
@@ -54,6 +48,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import { LandingChip } from '@/components/landing-chip';
 
 // Status badge config
 
@@ -660,21 +655,18 @@ function InvoicesSection({
                   group-hover dismiss detail. THE POSITION LAW: the chip
                   sits immediately BEFORE the Select it landed into. */}
               {landingLive && landedStatus !== 'all' && statusFilter === landedStatus && (
-                <button
-                  type="button"
-                  onClick={() => {
+                <LandingChip
+                  storey={200}
+                  hue="red"
+                  data-testid="et-status-landing-word"
+                  title="The invoice desk landed with this status from the address bar — press to clear it"
+                  label={`landed ?et-status=${landedStatus}`}
+                  onDismiss={() => {
                     setStatusFilter('all');
                     setPage(1);
                     onLandRetire();
                   }}
-                  className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-red-200 bg-red-50 text-red-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-red-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300 dark:hover:bg-red-500/20"
-                  data-testid="et-status-landing-word"
-                  title="The invoice desk landed with this status from the address bar — press to clear it"
-                >
-                  <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-                  <span className="tabular-nums">landed ?et-status={landedStatus}</span>
-                  <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-                </button>
+                />
               )}
               <Select value={statusFilter} onValueChange={chooseEtStatus}>
                 <SelectTrigger className="w-36">

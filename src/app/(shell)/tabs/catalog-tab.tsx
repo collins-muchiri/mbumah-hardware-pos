@@ -3,12 +3,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import {
-  Package, Search, LayoutGrid, List, ShoppingCart,
-  Plus, Minus, Tag, X, SlidersHorizontal,
-  Pencil, Trash2, MessageCircle, AlertTriangle, MoreVertical,
-  Loader2, Copy, Smartphone, Link2,
-} from 'lucide-react';
+import { Package, Search, LayoutGrid, List, ShoppingCart, Plus, Minus, Tag, X, SlidersHorizontal, Pencil, Trash2, MessageCircle, AlertTriangle, MoreVertical, Loader2, Copy, Smartphone } from 'lucide-react';
 import { parseInitialNamedMember } from '@/lib/tab-url';
 import { useCartStore, useAppStore } from '@/lib/stores';
 import {
@@ -42,6 +37,7 @@ import {
 import {
   ResponsiveDialog,
 } from '@/components/ui/responsive-dialog';
+import { LandingChip } from '@/components/landing-chip';
 
 // Types & constants
 
@@ -1003,20 +999,18 @@ export default function CatalogTab() {
                   `data-testid="cat-stock-landing-word"` — the QA walk's
                   handle. */}
               {catLandingLive && landedCatStock !== 'all' && stockFilter === landedCatStock && (
-                <button
-                  type="button"
-                  onClick={() => {
+                <LandingChip
+                  variant="compact"
+                  storey={200}
+                  hue="purple"
+                  data-testid="cat-stock-landing-word"
+                  title="The desk landed with this filter from the address bar — press to clear it"
+                  label={`landed ?cat-stock=${landedCatStock}`}
+                  onDismiss={() => {
                     setStockFilter('all');
                     setCatLandingLive(false);
                   }}
-                  className="group inline-flex items-center gap-1 h-6 px-2 rounded-full border border-purple-200 bg-purple-50 text-purple-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-purple-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 dark:border-purple-500/30 dark:bg-purple-500/10 dark:text-purple-300 dark:hover:bg-purple-500/20"
-                  data-testid="cat-stock-landing-word"
-                  title="The desk landed with this filter from the address bar — press to clear it"
-                >
-                  <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-                  <span className="tabular-nums">landed ?cat-stock={landedCatStock}</span>
-                  <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-                </button>
+                />
               )}
               <Select value={stockFilter} onValueChange={chooseCatStock}>
                 <SelectTrigger className="h-9">
