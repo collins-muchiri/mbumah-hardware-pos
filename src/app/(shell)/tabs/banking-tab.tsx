@@ -7,7 +7,7 @@ import {
   Wallet, Landmark, ArrowUpRight, ArrowDownRight, Search,
   Plus, Loader2, Building2, CheckCircle2, Clock,
   AlertCircle, ChevronLeft, ChevronRight, Phone,
-  FileText, Banknote, RefreshCw, Eye, Minus,
+  FileText, Banknote, RefreshCw, Eye, Minus, Flag, RotateCcw,
 } from 'lucide-react';
 import { LandingChip } from '@/components/landing-chip';
 
@@ -16,6 +16,7 @@ import {
   bankingApi,
   formatKES, formatDate, formatDateTime,
   type BankReconciliationItem,
+  type BankTransactionItem,
 } from '@/lib/api';
 
 import { Button } from '@/components/ui/button';
@@ -142,6 +143,14 @@ const MPESA_STATUS_BADGE: Record<string, { label: string; color: string }> = {
   DISPUTED: { label: 'Disputed', color: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' },
 };
 
+// v2.396.0 THE STATUSES FIND THEIR FEET: the row's EFFECTIVE status —
+// the ledger's STORED vocabulary when it speaks one, the isReconciled
+// derivation when it doesn't (legacy rows keep NULL; no row lies, and
+// every word the lens offers, some row can now wear).
+const effectiveMpesaStatus = (
+  tx: Pick<BankTransactionItem, 'reconciliationStatus' | 'isReconciled'>,
+): string => tx.reconciliationStatus ?? (tx.isReconciled ? 'MATCHED' : 'PENDING');
+
 // Main Component
 
 export default function BankingTab() {
@@ -185,8 +194,10 @@ export default function BankingTab() {
     enabled: !!storeId,
   });
 
-  // M-Pesa reconciliations - we use transactions filtered by MPESA accounts
-  // since there is no dedicated mpesa reconciliation API endpoint
+  // M-Pesa reconciliations - we use transactions filtered by MPESA accounts;
+  // v2.396.0 the lens's statuses gained a real write path (PATCH
+  // /api/banking/transactions), so every word the Select offers is a
+  // status a row can actually wear.
   const mpesaAccounts = useMemo(() => {
     const accounts = Array.isArray(accountsQuery.data?.data) ? accountsQuery.data.data : [];
     return accounts.filter((a) => a.accountType === 'MPESA');
@@ -364,12 +375,11 @@ export default function BankingTab() {
 
   const filteredMpesa = useMemo(() => {
     let list = [...mpesaTransactions];
-    // We simulate M-Pesa reconciliation status from isReconciled
-    // PENDING = not reconciled, MATCHED = reconciled, UNMATCHED/DISPUTED are not easily derived
-    // but we provide the filter UI
+    // v2.396.0: the lens filters on the EFFECTIVE status — the ledger's
+    // stored vocabulary when it speaks one, the isReconciled derivation
+    // when it doesn't. No word answers an empty pile by construction.
     if (mpesaFilterStatus !== 'all') {
-      if (mpesaFilterStatus === 'PENDING') list = list.filter((t) => !t.isReconciled);
-      else if (mpesaFilterStatus === 'MATCHED') list = list.filter((t) => t.isReconciled);
+      list = list.filter((t) => effectiveMpesaStatus(t) === mpesaFilterStatus);
     }
     list.sort((a, b) => new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime());
     return list;
@@ -456,6 +466,27 @@ export default function BankingTab() {
       setReconToApprove(null);
     },
     onError: (err: Error) => toast.error(err.message || 'Failed to approve reconciliation'),
+  });
+
+  // v2.396.0: the reconciliation status write — the M-Pesa rows' own
+  // actions (Dispute / Mark matched / Reopen). The route keeps
+  // isReconciled coherent; the desk only invalidates and toasts.
+  const mpesaStatusMut = useMutation({
+    mutationFn: (vars: { transactionId: string; reconciliationStatus: string | null }) =>
+      bankingApi.transactions.setStatus(vars),
+    onSuccess: (_data, vars) => {
+      queryClient.invalidateQueries({ queryKey: ['banking-transactions', storeId] });
+      toast.success(
+        vars.reconciliationStatus === 'DISPUTED'
+          ? 'Transaction flagged for dispute.'
+          : vars.reconciliationStatus === 'MATCHED'
+            ? 'Transaction matched.'
+            : vars.reconciliationStatus === 'UNMATCHED'
+              ? 'Transaction set to unmatched.'
+              : 'Transaction reopened — status re-derived.',
+      );
+    },
+    onError: (err: Error) => toast.error(err.message || 'Could not set the reconciliation status'),
   });
 
   // Helper: get account name
@@ -1037,12 +1068,15 @@ export default function BankingTab() {
                     <TableHead className="text-right">Amount</TableHead>
                     <TableHead className="text-right">Balance After</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredMpesa.map((tx) => {
-                    // Map transaction reconciled status to mpesa-like status
-                    const status = tx.isReconciled ? 'MATCHED' : 'PENDING';
+                    // v2.396.0: the row speaks its EFFECTIVE status — the
+                    // stored vocabulary when the ledger has one, the
+                    // isReconciled derivation when it doesn't.
+                    const status = effectiveMpesaStatus(tx);
                     const badge = MPESA_STATUS_BADGE[status] ?? {
                       label: status, color: 'bg-slate-100 text-slate-700',
                     };
@@ -1062,6 +1096,72 @@ export default function BankingTab() {
                           <Badge variant="secondary" className={`text-[10px] px-1.5 py-0 ${badge.color}`}>
                             {badge.label}
                           </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {/* the statuses' own actions — quiet, row-scoped */}
+                          {status === 'PENDING' && (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 px-1.5 text-[10px] text-muted-foreground hover:text-orange-700 dark:hover:text-orange-400"
+                                data-testid="mpesa-row-dispute"
+                                aria-label={`Dispute transaction ${tx.reference || tx.id}`}
+                                title="Raise a dispute — the statement never matched this row"
+                                disabled={mpesaStatusMut.isPending}
+                                onClick={() => mpesaStatusMut.mutate({ transactionId: tx.id, reconciliationStatus: 'DISPUTED' })}
+                              >
+                                <Flag className="mr-1 h-3 w-3" />
+                                Dispute
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 px-1.5 text-[10px] text-muted-foreground hover:text-emerald-700 dark:hover:text-emerald-400"
+                                data-testid="mpesa-row-match"
+                                aria-label={`Match transaction ${tx.reference || tx.id}`}
+                                title="Mark matched — the statement line found its row"
+                                disabled={mpesaStatusMut.isPending}
+                                onClick={() => mpesaStatusMut.mutate({ transactionId: tx.id, reconciliationStatus: 'MATCHED' })}
+                              >
+                                <CheckCircle2 className="mr-1 h-3 w-3" />
+                                Match
+                              </Button>
+                            </>
+                          )}
+                          {(status === 'UNMATCHED' || status === 'DISPUTED') && (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 px-1.5 text-[10px] text-muted-foreground hover:text-amber-700 dark:hover:text-amber-400"
+                                data-testid="mpesa-row-reopen"
+                                aria-label={`Reopen transaction ${tx.reference || tx.id}`}
+                                title="Reopen — return the row to the pending pile"
+                                disabled={mpesaStatusMut.isPending}
+                                onClick={() => mpesaStatusMut.mutate({ transactionId: tx.id, reconciliationStatus: null })}
+                              >
+                                <RotateCcw className="mr-1 h-3 w-3" />
+                                Reopen
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 px-1.5 text-[10px] text-muted-foreground hover:text-emerald-700 dark:hover:text-emerald-400"
+                                data-testid="mpesa-row-match"
+                                aria-label={`Match transaction ${tx.reference || tx.id}`}
+                                title="Mark matched — the statement line found its row"
+                                disabled={mpesaStatusMut.isPending}
+                                onClick={() => mpesaStatusMut.mutate({ transactionId: tx.id, reconciliationStatus: 'MATCHED' })}
+                              >
+                                <CheckCircle2 className="mr-1 h-3 w-3" />
+                                Match
+                              </Button>
+                            </>
+                          )}
+                          {status === 'MATCHED' && (
+                            <span className="text-[10px] text-muted-foreground" data-testid="mpesa-row-settled">settled</span>
+                          )}
                         </TableCell>
                       </TableRow>
                     );

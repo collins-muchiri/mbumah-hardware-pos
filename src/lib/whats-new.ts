@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.396.0',
+    title: 'The M-Pesa statuses find their feet — unmatched and disputed become real, reachable and honest',
+    bullets: [
+      'Every row in the M-Pesa pane now speaks its true reconciliation status: the ledger stores it, and older rows answer through the reconciled-flag derivation — no row lies.',
+      'Unmatched and Disputed are no longer empty words: raise a Dispute or mark a row Matched right from its row, and Reopen sends it back to the pending pile.',
+      'The status filter now answers with real rows for every word it offers — no more silent empty piles.',
+      'A nine-row M-Pesa fixture world lights every status for local QA, including one honest legacy row that still answers by derivation.',
+    ],
+  },
+  {
     version: '2.395.0',
     title: 'The submission receipt hop — every KRA call files its paper trail one tap away',
     bullets: [

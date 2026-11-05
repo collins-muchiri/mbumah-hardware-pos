@@ -290,3 +290,74 @@ async function createBankTransactionHandler(...args: unknown[]): Promise<Respons
 
 export const GET = withErrorBoundary(withSessionAuth(getBankTransactionsHandler, FINANCIAL_ROLES.WRITE), 'BANK_TRANSACTIONS_LIST');
 export const POST = withErrorBoundary(withSessionAuth(createBankTransactionHandler, FINANCIAL_ROLES.WRITE), 'BANK_TRANSACTIONS_CREATE');
+
+// v2.396.0 THE MPESA STATUSES FIND THEIR FEET: PATCH /api/banking/transactions
+// sets the ledger's STORED reconciliation status (the M-Pesa lens's own
+// vocabulary: PENDING | MATCHED | UNMATCHED | DISPUTED, or null to return
+// the row to the isReconciled derivation). The write keeps isReconciled
+// coherent — MATCHED sets it true with reconciledAt; every other status
+// clears both — so the legacy flag and the stored status never disagree.
+async function setReconciliationStatusHandler(...args: unknown[]): Promise<Response> {
+  const request = args[0] as NextRequest;
+  const door = await readJsonBody<{
+    transactionId?: string;
+    reconciliationStatus?: string | null;
+  }>(request);
+  if (!door.ok) {
+    return bodyDoorRejected();
+  }
+  const { transactionId, reconciliationStatus } = door.body;
+
+  if (!transactionId) {
+    return Response.json(
+      { success: false, error: 'transactionId is required.' },
+      { status: 400 }
+    );
+  }
+
+  const VALID_STATUSES = ['PENDING', 'MATCHED', 'UNMATCHED', 'DISPUTED'];
+  if (reconciliationStatus !== null && !VALID_STATUSES.includes(reconciliationStatus ?? '')) {
+    return Response.json(
+      { success: false, error: `reconciliationStatus must be one of: ${VALID_STATUSES.join(', ')}, or null.` },
+      { status: 400 }
+    );
+  }
+
+  const existing = await db.bankTransaction.findUnique({
+    where: { id: transactionId },
+    include: { bankAccount: { select: { accountName: true, storeId: true } } },
+  });
+  if (!existing) {
+    return Response.json(
+      { success: false, error: 'Bank transaction not found.' },
+      { status: 404 }
+    );
+  }
+
+  const isMatched = reconciliationStatus === 'MATCHED';
+  const updated = await db.bankTransaction.update({
+    where: { id: transactionId },
+    data: {
+      reconciliationStatus: reconciliationStatus ?? null,
+      isReconciled: isMatched,
+      reconciledAt: isMatched ? new Date() : null,
+    },
+  });
+
+  await systemLog({
+    action: 'BANK_TRANSACTION_STATUS_SET',
+    component: LogComponent.FINANCIAL,
+    severity: LogSeverity.INFO,
+    message: `Reconciliation status set to ${reconciliationStatus ?? 'null (derived)'} on ${existing.bankAccount.accountName}`,
+    storeId: existing.bankAccount.storeId,
+    metadata: {
+      bankTransactionId: transactionId,
+      reconciliationStatus: reconciliationStatus ?? null,
+      isReconciled: isMatched,
+    },
+  });
+
+  return Response.json({ success: true, data: updated });
+}
+
+export const PATCH = withErrorBoundary(withSessionAuth(setReconciliationStatusHandler, FINANCIAL_ROLES.WRITE), 'BANK_TRANSACTIONS_STATUS_SET');

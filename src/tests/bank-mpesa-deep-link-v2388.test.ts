@@ -275,20 +275,78 @@ describe('the address-bar vocabulary — the twenty-seventh row (cross-suite pin
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.395.0 leads the feed', () => {
+describe('whats-new — v2.396.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.395.0');
-    // the lead's story hand-over (v2.395.0): the head story is the
-    // receipt hop's — the KRA Audit Log answers by name and the
-    // response leaves as pretty JSON. The export-ledger and
-    // message-template bytes exit the head story this round: the
-    // first round whose copy cannot honestly carry them, so the
-    // census re-types instead of silently carrying.
-    expect(head.title).toContain('receipt');
+    expect(head.version).toBe('2.396.0');
+    // the lead's story hand-over (v2.396.0, the Task 111 law's second
+    // application): the head story is the M-Pesa statuses' — the lens's
+    // words became real, reachable and honest. The receipt story exits
+    // the head this round; the census re-types honestly, again.
+    expect(head.title).toContain('M-Pesa');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('KRA Audit Log'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('pretty-printed'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('print pipeline'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('no row lies'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('Dispute'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('every word it offers'))).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 5. THE STATUSES FIND THEIR FEET (v2.396.0): the lens's words became
+// real — the ledger stores its own status, the rows speak their
+// EFFECTIVE status, the actions write it, the fixtures light every word.
+// ---------------------------------------------------------------------------
+
+const MPESA_DESK = readFileSync(BANKING_TAB, 'utf8');
+const MPESA_ROUTE = readFileSync('src/app/api/banking/transactions/route.ts', 'utf8');
+const MPESA_API = readFileSync('src/lib/api.ts', 'utf8');
+const MPESA_SCHEMA = readFileSync('prisma/schema.prisma', 'utf8');
+const MPESA_MIGRATION = readFileSync('prisma/migrations/20261105100000_add_mpesa_reconciliation_status/migration.sql', 'utf8');
+const MPESA_FIXTURES = readFileSync('scripts/seed-mpesa-fixtures.mjs', 'utf8');
+
+describe('the statuses find their feet (v2.396.0)', () => {
+  it('the ledger stores its own status (nullable — legacy rows keep NULL)', () => {
+    expect(MPESA_SCHEMA).toContain('reconciliationStatus String?');
+    expect(MPESA_MIGRATION).toContain('ALTER TABLE "bank_transactions" ADD COLUMN "reconciliationStatus" TEXT;');
+  });
+
+  it('the desk speaks the EFFECTIVE status (stored first, the honest derivation second)', () => {
+    expect(MPESA_DESK).toContain('const effectiveMpesaStatus = (');
+    expect(MPESA_DESK).toContain("tx.reconciliationStatus ?? (tx.isReconciled ? 'MATCHED' : 'PENDING')");
+    expect(MPESA_DESK).toContain('const status = effectiveMpesaStatus(tx);');
+  });
+
+  it('the lens filters on the effective status (no word answers an empty pile by construction)', () => {
+    expect(MPESA_DESK).toContain('list = list.filter((t) => effectiveMpesaStatus(t) === mpesaFilterStatus);');
+    expect(MPESA_DESK).not.toContain('UNMATCHED/DISPUTED are not easily derived');
+  });
+
+  it('the rows carry their own actions (Dispute, Match, Reopen — quiet, row-scoped)', () => {
+    expect(MPESA_DESK).toContain('data-testid="mpesa-row-dispute"');
+    expect(MPESA_DESK).toContain('data-testid="mpesa-row-match"');
+    expect(MPESA_DESK).toContain('data-testid="mpesa-row-reopen"');
+    expect(MPESA_DESK).toContain('data-testid="mpesa-row-settled"');
+    expect(MPESA_DESK).toContain("mpesaStatusMut.mutate({ transactionId: tx.id, reconciliationStatus: 'DISPUTED' })");
+    expect(MPESA_DESK).toContain("mpesaStatusMut.mutate({ transactionId: tx.id, reconciliationStatus: null })");
+  });
+
+  it('the write route speaks the vocabulary and keeps isReconciled coherent', () => {
+    expect(MPESA_ROUTE).toContain("const VALID_STATUSES = ['PENDING', 'MATCHED', 'UNMATCHED', 'DISPUTED'];");
+    expect(MPESA_ROUTE).toContain('isReconciled: isMatched,');
+    expect(MPESA_ROUTE).toContain('reconciledAt: isMatched ? new Date() : null,');
+    expect(MPESA_ROUTE).toContain('withSessionAuth(setReconciliationStatusHandler, FINANCIAL_ROLES.WRITE)');
+    expect(MPESA_ROUTE).toContain("action: 'BANK_TRANSACTION_STATUS_SET',");
+  });
+
+  it('the api client carries the type and the setStatus voice', () => {
+    expect(MPESA_API).toContain('reconciliationStatus: string | null;');
+    expect(MPESA_API).toContain('setStatus: async (data: { transactionId: string; reconciliationStatus: string | null })');
+  });
+
+  it('the fixture world lights every word the lens offers', () => {
+    expect(MPESA_FIXTURES).toContain("'MATCHED'");
+    expect(MPESA_FIXTURES).toContain("'UNMATCHED'");
+    expect(MPESA_FIXTURES).toContain("'DISPUTED'");
+    expect(MPESA_FIXTURES).toContain('null], // the legacy face: derived, never stored');
   });
 });
