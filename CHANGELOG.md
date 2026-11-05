@@ -1,3 +1,16 @@
+## [2.406.0] The jump names its door
+
+The changelog's orange pill said "via cmd+K" no matter which door had jumped — and since v2.404.0 the announcement's own handle jumps too, on all three mounts, so the pill lied every time the archive opened from the announcement. The ring is the target's memory; the route deserved its own honest voice.
+
+### Added
+- **THE JUMP DOORS MAP** (`src/components/org/chrome.tsx`): `JUMP_DOORS: Record<ChangelogJumpVia, { label, Icon }>` — one pure map (the env-doctor / branch-shares precedent). A palette jump wears "via cmd+K" with the Terminal icon; an announcement jump wears "via the announcement" with the Megaphone icon. The pill renders ONLY when the door is known (`focused && via`) — a jumpTo without a door births no pill, never a guess (the absent-control law, the shares-copy precedent).
+- **THE DOOR WIRING** (all three mounts): the console page's CommandPalette sets `'palette'`; every WhatsNewDialog hand sets `'announcement'`; closing the modal resets BOTH state slots (the jump target AND the door that jumped); the footer doors from the top reset both too — a stale pill can never survive a plain open.
+
+### Changed
+- **THE ARCHIVE READS LIKE A LEDGER**: the jump pill enters with one soft rise (the animate-in family, reduced-motion safe by Tailwind's motion defaults), the muted archive entries answer the hover with a darker border (light + dark twins), and the "Show N older releases" button speaks its count in the mono family.
+- **THE POOL'S NEXT EIGHTEEN** (373 → 355 strict-mode errors, behavior-identical): the B2C recovery suite's NODE_ENV discipline rides `vi.stubEnv` (vitest's own law — no read-only assignment) and the mock factory spreads a typed `importOriginal`; the landing-chip census walks the tree with honest types (`ElderRow` carries the elder 22, the walkers name their strings) — zero implicit anys, zero non-null assertions.
+- **THE BURST'S CONSOLE LEG** (QA infrastructure): the keeper gains the Organization Console's Copy button as a live browser leg — login → console → open a branch slice modal → the `branch-shares-copy` control renders and flips to Copied (Task 121's carry #3 retires).
+
 ## [2.405.0] The shares speak — the org desk hands you the branch ledger
 
 The BranchSliceModal rendered the branch ledger as pixels only — a manager prepping a standup note re-typed the shares by hand. And the wire's honest nulls (the summary array may carry null gaps) had leaked into every metric's slice signature: nine strict-mode faces the desk carried since v2.202.0.

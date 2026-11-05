@@ -34,7 +34,7 @@ const chrome = read('src/components/org/chrome.tsx');
 
 describe('the desk wears the voice (v2.266.0)', () => {
   it('the desk\u2019s bytes \u2014 the imports, the archive state, the mounts, the hand', () => {
-    expect(orgConsole).toContain("import { ChangelogModal } from '@/components/org/chrome';");
+    expect(orgConsole).toContain("import { ChangelogModal, type ChangelogJumpVia } from '@/components/org/chrome';");
     expect(orgConsole).toContain("import { WhatsNewDialog } from '@/components/whats-new-dialog';");
     expect(orgConsole).toContain("import { APP_VERSION } from '@/lib/version';");
     // the desk's own archive state (the modal's flag + the jump memory)
@@ -42,7 +42,7 @@ describe('the desk wears the voice (v2.266.0)', () => {
     expect(orgConsole).toContain('const [releaseJump, setReleaseJump] = useState<string | null>(null);');
     // the same hand the console wears \u2014 the flag writes first, then the
     // archive lands scrolled to the announced release
-    expect(orgConsole).toContain('<WhatsNewDialog onOpenChangelog={() => { setReleaseJump(APP_VERSION); setChangelogOpen(true); }} />');
+    expect(orgConsole).toContain("<WhatsNewDialog onOpenChangelog={() => { setReleaseJump(APP_VERSION); setJumpVia('announcement'); setChangelogOpen(true); }} />");
     expect(orgConsole).toContain('THE DESK HEARS THE RELEASE');
   });
 
@@ -50,13 +50,13 @@ describe('the desk wears the voice (v2.266.0)', () => {
     expect(orgConsole).toContain('<ChangelogModal');
     expect(orgConsole).toContain('jumpTo={releaseJump}');
     // closing the archive forgets the jump \u2014 the same reset the console speaks
-    expect(orgConsole).toContain('onOpenChange={(o) => { setChangelogOpen(o); if (!o) setReleaseJump(null); }}');
+    expect(orgConsole).toContain('onOpenChange={(o) => { setChangelogOpen(o); if (!o) { setReleaseJump(null); setJumpVia(null); } }}');
   });
 
   it('the header\u2019s door \u2014 the testid, the honest title, the no-jump open', () => {
     expect(orgConsole).toContain('data-testid="org-desk-changelog-button"');
     expect(orgConsole).toContain("title=\"the release archive \u2014 every version's notes\"");
-    expect(orgConsole).toContain('onClick={() => { setReleaseJump(null); setChangelogOpen(true); }}');
+    expect(orgConsole).toContain('onClick={() => { setReleaseJump(null); setJumpVia(null); setChangelogOpen(true); }}');
     expect(orgConsole).toContain('Release notes');
     // the door stands beside the desk's controls, before the chat edge
     const doorIdx = orgConsole.indexOf('data-testid="org-desk-changelog-button"');
@@ -90,11 +90,11 @@ describe('the desk wears the voice (v2.266.0)', () => {
 
   it('RUNTIME \u2014 the shared modal is org/chrome\u2019s export, and the feed agrees', () => {
     expect(typeof ChangelogModal).toBe('function');
-    expect(chrome).toContain('export function ChangelogModal({ open, onOpenChange, jumpTo }: { open: boolean; onOpenChange: (o: boolean) => void; jumpTo?: string | null }) {');
+    expect(chrome).toContain('export function ChangelogModal({ open, onOpenChange, jumpTo, jumpVia }: { open: boolean; onOpenChange: (o: boolean) => void; jumpTo?: string | null; jumpVia?: ChangelogJumpVia | null }) {');
     // the announcement names a release the feed knows, newest first
     expect(WHATS_NEW.length).toBeGreaterThan(1);
     expect(WHATS_NEW[0].version).toBe(APP_VERSION);
-    expect(APP_VERSION).toBe('2.405.0');
+    expect(APP_VERSION).toBe('2.406.0');
     expect(compareWhatsNewVersions(WHATS_NEW[0].version, WHATS_NEW[1].version)).toBeGreaterThan(0);
   });
 });
@@ -110,7 +110,7 @@ describe('the ancestors untouched (v2.266.0)', () => {
   });
 
   it('the console\u2019s own voice \u2014 the v2.265.0 mount and hand unchanged', () => {
-    expect(consolePage).toContain('<WhatsNewDialog onOpenChangelog={() => { setReleaseJump(APP_VERSION); setChangelogOpen(true); }} />');
+    expect(consolePage).toContain("<WhatsNewDialog onOpenChangelog={() => { setReleaseJump(APP_VERSION); setJumpVia('announcement'); setChangelogOpen(true); }} />");
     expect(consolePage).toContain('THE CONSOLE HEARS THE RELEASE');
     expect(consolePage).toContain('<ChangelogModal open={changelogOpen}');
   });
@@ -118,7 +118,7 @@ describe('the ancestors untouched (v2.266.0)', () => {
   it('the shell\u2019s mount joins the door law \u2014 one home, one wiring there (v2.404.0)', () => {
     // v2.404.0: the bare-mount era ends — the shell's announcement carries
     // the archive handle (jumpTo = APP_VERSION); exactly one mount remains
-    expect(mainApp).toContain('<WhatsNewDialog onOpenChangelog={() => { setReleaseJump(APP_VERSION); setChangelogOpen(true); }} />');
+    expect(mainApp).toContain("<WhatsNewDialog onOpenChangelog={() => { setReleaseJump(APP_VERSION); setJumpVia('announcement'); setChangelogOpen(true); }} />");
     expect((mainApp.match(/<WhatsNewDialog/g) || []).length).toBe(1);
   });
 });

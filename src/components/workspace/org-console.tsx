@@ -61,7 +61,7 @@ import { UnifiedConsoleShell } from '@/components/console/unified-console';
 // shared announcement (one home, the same seen-flag law) and the SAME
 // archive modal the console wears (org/chrome exports it; the console page
 // is its only other consumer — a shared home, never a copy).
-import { ChangelogModal } from '@/components/org/chrome';
+import { ChangelogModal, type ChangelogJumpVia } from '@/components/org/chrome';
 import { WhatsNewDialog } from '@/components/whats-new-dialog';
 import { APP_VERSION } from '@/lib/version';
 // v2.216.0: the SECOND SHELF — the display-currency switcher reaches the
@@ -744,6 +744,8 @@ export function OrgConsole() {
   // any early return (the hook-order law).
   const [changelogOpen, setChangelogOpen] = useState(false);
   const [releaseJump, setReleaseJump] = useState<string | null>(null);
+  // v2.406.0: the pill names the door that jumped — null keeps it absent.
+  const [jumpVia, setJumpVia] = useState<ChangelogJumpVia | null>(null);
   const [expertError, setExpertError] = useState('');
   const [expertList, setExpertList] = useState<BranchDiagnostic[] | null>(null);
   const [copyConfirmation, setCopyConfirmation] = useState('');
@@ -1690,7 +1692,7 @@ export function OrgConsole() {
               variant="outline"
               data-testid="org-desk-changelog-button"
               title="the release archive — every version's notes"
-              onClick={() => { setReleaseJump(null); setChangelogOpen(true); }}
+              onClick={() => { setReleaseJump(null); setJumpVia(null); setChangelogOpen(true); }}
             >
               <ScrollText className="h-4 w-4 mr-1.5" aria-hidden="true" />
               Release notes
@@ -3025,10 +3027,11 @@ export function OrgConsole() {
           same archive at the top. One shared flag, one archive, one truth. */}
       <ChangelogModal
         open={changelogOpen}
-        onOpenChange={(o) => { setChangelogOpen(o); if (!o) setReleaseJump(null); }}
+        onOpenChange={(o) => { setChangelogOpen(o); if (!o) { setReleaseJump(null); setJumpVia(null); } }}
         jumpTo={releaseJump}
+        jumpVia={jumpVia}
       />
-      <WhatsNewDialog onOpenChangelog={() => { setReleaseJump(APP_VERSION); setChangelogOpen(true); }} />
+      <WhatsNewDialog onOpenChangelog={() => { setReleaseJump(APP_VERSION); setJumpVia('announcement'); setChangelogOpen(true); }} />
     </UnifiedConsoleShell>
   );
 }

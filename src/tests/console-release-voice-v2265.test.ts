@@ -72,7 +72,7 @@ describe('the console wears the voice (v2.265.0)', () => {
   it('the console\u2019s bytes \u2014 the import, the mount, the hand', () => {
     expect(consolePage).toContain("import { WhatsNewDialog } from '@/components/whats-new-dialog';");
     expect(consolePage).toContain("import { APP_VERSION } from '@/lib/version';");
-    expect(consolePage).toContain('<WhatsNewDialog onOpenChangelog={() => { setReleaseJump(APP_VERSION); setChangelogOpen(true); }} />');
+    expect(consolePage).toContain("<WhatsNewDialog onOpenChangelog={() => { setReleaseJump(APP_VERSION); setJumpVia('announcement'); setChangelogOpen(true); }} />");
     expect(consolePage).toContain('THE CONSOLE HEARS THE RELEASE');
   });
 
@@ -90,13 +90,13 @@ describe('the console wears the voice (v2.265.0)', () => {
     // v2.404.0: the zero-props era ends — the shell's announcement carries
     // the SAME handle the console's does (the archive door reaches the
     // main desk); exactly one mount stays the law
-    expect(mainApp).toContain('<WhatsNewDialog onOpenChangelog={() => { setReleaseJump(APP_VERSION); setChangelogOpen(true); }} />');
+    expect(mainApp).toContain("<WhatsNewDialog onOpenChangelog={() => { setReleaseJump(APP_VERSION); setJumpVia('announcement'); setChangelogOpen(true); }} />");
     expect((mainApp.match(/<WhatsNewDialog/g) || []).length).toBe(1);
   });
 
   it('the ancestors untouched \u2014 the archive\u2019s own voices on the console', () => {
     // the footer pill + the palette inbox + the modal pre-date the voice
     expect(consolePage).toContain('<ChangelogModal open={changelogOpen}');
-    expect(consolePage).toContain("onJumpToRelease={(v) => { setReleaseJump(v); setChangelogOpen(true); }}");
+    expect(consolePage).toContain("onJumpToRelease={(v) => { setReleaseJump(v); setJumpVia('palette'); setChangelogOpen(true); }}");
   });
 });

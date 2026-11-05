@@ -24,7 +24,7 @@ import { ExpertModules } from '@/components/org/experts';
 import { KpiRow } from '@/components/org/kpi-row';
 import { VarianceMap } from '@/components/org/variance-map';
 import { ProcurementLedger } from '@/components/org/po-ledger';
-import { ChangelogModal, CommandPalette, ConsoleFooter, ConsoleHeader, LoginDialog, ShortcutsModal, type SessionUser } from '@/components/org/chrome';
+import { ChangelogModal, CommandPalette, ConsoleFooter, ConsoleHeader, LoginDialog, ShortcutsModal, type ChangelogJumpVia, type SessionUser } from '@/components/org/chrome';
 // v2.265.0 THE CONSOLE HEARS THE RELEASE — the shared announcement dialog
 // (the shell and the workspaces already wear it; the console alone was
 // silent) + the version the hand lands the archive on.
@@ -93,6 +93,9 @@ export default function OrgConsolePage() {
   // modal should open scrolled to (null = a plain open). Cleared on close so
   // the next plain open doesn't re-scroll or re-ring.
   const [releaseJump, setReleaseJump] = useState<string | null>(null);
+  // v2.406.0: the pill names the door that jumped (the palette's cmd+K or
+  // the announcement's handle) — null keeps the pill absent, never a lie.
+  const [jumpVia, setJumpVia] = useState<ChangelogJumpVia | null>(null);
   const [chatOpen, setChatOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [changelogOpen, setChangelogOpen] = useState(false);
@@ -501,7 +504,7 @@ export default function OrgConsolePage() {
 
       {/* Overlays */}
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} stores={stores}
-        onJumpToRelease={(v) => { setReleaseJump(v); setChangelogOpen(true); }}
+        onJumpToRelease={(v) => { setReleaseJump(v); setJumpVia('palette'); setChangelogOpen(true); }}
         actions={[
           { id: 'overview', label: 'Go to overview', run: () => document.getElementById('kpi-row')?.scrollIntoView({ behavior: 'smooth' }) },
           { id: 'experts', label: 'Go to expert modules', run: () => document.getElementById('experts')?.scrollIntoView({ behavior: 'smooth' }) },
@@ -514,7 +517,7 @@ export default function OrgConsolePage() {
         ]} />
       <ChatDrawer open={chatOpen} onOpenChange={setChatOpen} unread={kpi?.system.notificationsUnread ?? 0} signedIn={signedIn} onRequireSignIn={() => setLoginOpen(true)} />
       <ShortcutsModal open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
-      <ChangelogModal open={changelogOpen} onOpenChange={(o) => { setChangelogOpen(o); if (!o) setReleaseJump(null); }} jumpTo={releaseJump} />
+      <ChangelogModal open={changelogOpen} onOpenChange={(o) => { setChangelogOpen(o); if (!o) { setReleaseJump(null); setJumpVia(null); } }} jumpTo={releaseJump} jumpVia={jumpVia} />
       <LoginDialog open={loginOpen} onOpenChange={setLoginOpen} onToast={onToast} onSignedIn={handleSignedIn} />
       {/* v2.265.0 THE CONSOLE HEARS THE RELEASE — the shared dialog (one
           home, the same seen-flag law; never a copy) mounts here, so a
@@ -525,7 +528,7 @@ export default function OrgConsolePage() {
           console's own changelog modal, scrolled to the announced release
           (the palette's v2.73.0 jump target, reused — the archive opens
           where the announcement began). */}
-      <WhatsNewDialog onOpenChangelog={() => { setReleaseJump(APP_VERSION); setChangelogOpen(true); }} />
+      <WhatsNewDialog onOpenChangelog={() => { setReleaseJump(APP_VERSION); setJumpVia('announcement'); setChangelogOpen(true); }} />
 
       {/* Screen-reader summary */}
       <span className="sr-only" aria-live="polite">

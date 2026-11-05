@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.406.0',
+    title: 'The jump names its door — the changelog pill speaks the route you came by',
+    bullets: [
+      'The changelog\u2019s orange pill no longer guesses: a jump from the command palette says "via cmd+K", a jump from the announcement\u2019s "Open the release archive" handle says "via the announcement" \u2014 each door wears its own icon, and the pill enters with one soft rise.',
+      'A plain open from the footer\u2019s Release notes door stays clean \u2014 no pill at all, because no jump happened; the ring still marks the landing either way, so the route and the target finally have separate voices.',
+      'The archive reads a little more like a ledger: muted entries answer the hover with a darker border, and the "Show N older releases" button speaks its count in the mono family.',
+      'Under the hood: eighteen strict-mode faces stood down (373 \u2192 355 \u2014 the B2C recovery\u2019s environment discipline rides vitest\u2019s stubEnv, the landing-chip census walks with honest types), and the QA burst gained the Organization Console\u2019s Copy button as a live leg.',
+    ],
+  },
+  {
     version: '2.405.0',
     title: 'The shares speak — the org desk hands you the branch ledger',
     bullets: [

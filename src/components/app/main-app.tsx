@@ -26,7 +26,7 @@ import { AppSidebar } from '@/components/layout/app-sidebar';
 import { TopBar } from '@/components/layout/top-bar';
 import { KeyboardShortcutsHelp } from '@/components/keyboard-shortcuts-help';
 import { WhatsNewDialog } from '@/components/whats-new-dialog';
-import { ChangelogModal } from '@/components/org/chrome';
+import { ChangelogModal, type ChangelogJumpVia } from '@/components/org/chrome';
 
 // LAZY-LOADED TAB COMPONENTS
 //
@@ -115,6 +115,9 @@ export function MainApp() {
   // shared modal, one jump contract — never a copy of the archive.
   const [changelogOpen, setChangelogOpen] = useState(false);
   const [releaseJump, setReleaseJump] = useState<string | null>(null);
+  // v2.406.0: the pill names the door that jumped — null keeps it absent
+  // (an absent control never lies), the footer door from the top never sets it.
+  const [jumpVia, setJumpVia] = useState<ChangelogJumpVia | null>(null);
   const online = useOnlineStatus();
   const searchBtnRef = useRef<HTMLButtonElement | null>(null);
 
@@ -334,7 +337,7 @@ export function MainApp() {
                   data-testid="footer-release-notes"
                   aria-label="Release notes"
                   title="Release notes — the archive from the top"
-                  onClick={() => { setReleaseJump(null); setChangelogOpen(true); }}
+                  onClick={() => { setReleaseJump(null); setJumpVia(null); setChangelogOpen(true); }}
                   className="text-xs text-muted-foreground hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors flex items-center gap-1"
                 >
                   <ScrollText className="h-3 w-3" aria-hidden="true" />
@@ -347,10 +350,11 @@ export function MainApp() {
         <KeyboardShortcutsHelp open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
         <ChangelogModal
           open={changelogOpen}
-          onOpenChange={(o) => { setChangelogOpen(o); if (!o) setReleaseJump(null); }}
+          onOpenChange={(o) => { setChangelogOpen(o); if (!o) { setReleaseJump(null); setJumpVia(null); } }}
           jumpTo={releaseJump}
+          jumpVia={jumpVia}
         />
-        <WhatsNewDialog onOpenChangelog={() => { setReleaseJump(APP_VERSION); setChangelogOpen(true); }} />
+        <WhatsNewDialog onOpenChangelog={() => { setReleaseJump(APP_VERSION); setJumpVia('announcement'); setChangelogOpen(true); }} />
         <FloatingHomeButton />
       </div>
     </ErrorBoundary>

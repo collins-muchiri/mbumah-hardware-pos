@@ -85,7 +85,9 @@ describe('ChangelogModal - the console tells the whole release story', () => {
   });
 
   it('is dark-mode complete (entries, both chip states, footer blocks)', () => {
-    expect(CHROME).toMatch(/'rounded-xl border border-slate-200 bg-slate-50\/50 p-3 dark:border-slate-800 dark:bg-slate-800\/30'/);
+    // v2.406.0: the muted card grew the hover affordance (transition-colors
+    // + the darker hover border) — the dark twins ride along
+    expect(CHROME).toMatch(/'rounded-xl border border-slate-200 bg-slate-50\/50 p-3 transition-colors hover:border-slate-300 dark:border-slate-800 dark:bg-slate-800\/30 dark:hover:border-slate-700'/);
     expect(CHROME).toMatch(/text-emerald-900 dark:text-emerald-200/);
     expect(CHROME).toMatch(/text-slate-600 dark:text-slate-400/);
     expect(CHROME).toMatch(/dark:bg-slate-800\/50 dark:text-slate-500/);
@@ -108,7 +110,7 @@ describe('ChangelogModal - the backlog waits behind one button', () => {
   it('the expand button names its honest hidden count', () => {
     expect(CHROME).toMatch(/const hiddenCount = older\.length - visibleOlder\.length;/);
     expect(CHROME).toContain('data-testid="changelog-show-older"');
-    expect(CHROME).toMatch(/Show \{hiddenCount\} older release\{hiddenCount === 1 \? '' : 's'\}/);
+    expect(CHROME).toMatch(/Show <span className="font-mono">\{hiddenCount\}<\/span> older release\{hiddenCount === 1 \? '' : 's'\}/);
   });
 
   it('expanding reveals everything; a Show-fewer button collapses back', () => {
@@ -266,24 +268,29 @@ describe('ChangelogModal - the jump lands somewhere real (v2.73.0)', () => {
   });
 
   it('the jumped entry wears the orange ring + the "via cmd+K" pill (dark complete)', () => {
+    // v2.406.0: the jump names its door — the changelog pill speaks the route you came by (the JUMP_DOORS pure map: the palette rides "via cmd+K" with the Terminal, the announcement rides "via the announcement" with the Megaphone, a plain open births no pill — the absent-control law), all three mounts wire the door and reset both jump slots on close, the archive reads like a ledger (the hover affordance, the mono count, the soft rise), the pool's next eighteen stand down (373 → 355), and the burst gains the console's Copy button as a live leg (the entry joins the feed — +1 on every unread anchor, the cascade's seventeenth generation)
     // v2.405.0: the shares speak — the org desk's slice modal hands you the branch ledger (Copy beside the total, one pure formatter, the quiet zeroes never dropped, the health desk's two-second law), the named-branch rows ride the payload ledger's zebra and the share chips wear the mono badge, the wire's honest nulls stop at the door (the slice signatures speak the row — nine faces stand down, 382 → 373), and the burst mints a fresh refundable sale so the refund dialog's face finally opens live (the entry joins the feed — +1 on every unread anchor, the cascade's sixteenth generation)
     // v2.404.0: the ring's quoted bytes gain the one-pulse landing glow
     // (changelog-landing) — the pill and the dark-complete ring stand
     expect(CHROME).toMatch(/focused \? ' ring-2 ring-orange-400 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 changelog-landing' : ''/);
     expect(CHROME).toContain('data-testid="changelog-jump-pill"');
     expect(CHROME).toContain('via cmd+K');
-    expect(CHROME).toMatch(/border-orange-300 bg-orange-50 px-1\.5 py-px text-\[9px\] font-semibold uppercase tracking-wide text-orange-700 dark:border-orange-500\/40 dark:bg-orange-500\/15 dark:text-orange-300/);
+    // v2.406.0: the pill names its door — the animate-in family joins the
+    // orange bytes (the entrance), the label/icon ride the JUMP_DOORS map
+    expect(CHROME).toMatch(/border-orange-300 bg-orange-50 px-1\.5 py-px text-\[9px\] font-semibold uppercase tracking-wide text-orange-700 duration-300 fade-in slide-in-from-bottom-1 dark:border-orange-500\/40 dark:bg-orange-500\/15 dark:text-orange-300/);
   });
 
   it('the page owns the jump state: palette sets it, close clears it', () => {
     expect(PAGE).toContain('const [releaseJump, setReleaseJump] = useState<string | null>(null);');
-    expect(PAGE).toContain('onJumpToRelease={(v) => { setReleaseJump(v); setChangelogOpen(true); }}');
-    expect(PAGE).toContain('onOpenChange={(o) => { setChangelogOpen(o); if (!o) setReleaseJump(null); }} jumpTo={releaseJump}');
+    // v2.406.0: the palette door names itself ('palette') and the close
+    // resets BOTH slots (the jump target AND the door that jumped)
+    expect(PAGE).toContain("onJumpToRelease={(v) => { setReleaseJump(v); setJumpVia('palette'); setChangelogOpen(true); }}");
+    expect(PAGE).toContain('onOpenChange={(o) => { setChangelogOpen(o); if (!o) { setReleaseJump(null); setJumpVia(null); } }} jumpTo={releaseJump} jumpVia={jumpVia}');
   });
 
   it('the modal entry list passes focused by version for latest and older', () => {
-    expect(CHROME).toMatch(/<ChangelogEntry entry=\{latest\} latest focused=\{jumpTo === latest\.version\} \/>/);
-    expect(CHROME).toMatch(/<ChangelogEntry key=\{entry\.version\} entry=\{entry\} latest=\{false\} focused=\{jumpTo === entry\.version\} \/>/);
+    expect(CHROME).toMatch(/<ChangelogEntry entry=\{latest\} latest focused=\{jumpTo === latest\.version\} via=\{jumpVia\} \/>/);
+    expect(CHROME).toMatch(/<ChangelogEntry key=\{entry\.version\} entry=\{entry\} latest=\{false\} focused=\{jumpTo === entry\.version\} via=\{jumpVia\} \/>/);
   });
 });
 
@@ -502,10 +509,10 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.402.0: the payload card hands you the file — the KRA filing trio completes (Print = the paper, Copy = the clipboard, Download = the FILE: the mapped payload's card saves the same pretty JSON the clipboard carries as a named kra-payload-<invoice>-<date>.json, the saved face riding the receipt hop's two-second law), the card's eight-row ledger alternates on a quiet zebra ground, the refund heal suite's must label widens (29 faces stand down, 431 → 402), and the entry joins the feed (+1 on every unread anchor — the DERIVED anchors re-set themselves, the cascade's thirteenth generation)
     // v2.404.0: the archive door reaches the main desk — the main shell mounts the SAME ChangelogModal (one shared archive, exactly one mount), the whats-new announcement gains its onOpenChangelog handle (jumpTo = APP_VERSION, the orange ring lands), the footer's Release notes door opens the archive from the top, the jumped entry answers with one soft landing glow, and the honest burst fixes the QA login's false positive (the entry joins the feed — +1 on every unread anchor, the cascade's fifteenth generation)
     // v2.403.0: the refund desk speaks the failure's name — the wire's typed refusal (code + the server's own line) reaches the toast and the dialog's own amber card (the code under its mono badge), four silent catches speak at last, the route's error ladder gains the stranded rung (NOT_STRANDED: 409), the two must widens land and the heal wiring's three mended names stand their guard (20 faces down, 402 → 382, the entry joins the feed — +1 on every unread anchor, the cascade's fourteenth generation)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(295);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(296);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(297);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(328);
+    expect(whatsNewUnreadCount('2.110.0')).toBe(296);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(297);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(298);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(329);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 
@@ -785,7 +792,9 @@ describe('release metadata - v2.77.0', () => {
     // Home action) — the pin follows the source, not the memory.
     // v2.326.0: it grew again — AlertCircle + Loader2 (THE HONEST ERROR
     // FACE on the login dialog: the announced mistake + the busy spinner).
-    expect(CHROME).toContain("import { AlertCircle, CheckCheck, ChevronDown, ChevronUp, CloudOff, ExternalLink, FileText, History, Home, Keyboard, Loader2, LogIn, Package, ScrollText, Sparkles, Terminal, Store } from 'lucide-react';");
+    // v2.406.0: it grew again — Megaphone (the announcement door's own
+    // icon in the JUMP_DOORS map).
+    expect(CHROME).toContain("import { AlertCircle, CheckCheck, ChevronDown, ChevronUp, CloudOff, ExternalLink, FileText, History, Home, Keyboard, Loader2, LogIn, Megaphone, Package, ScrollText, Sparkles, Terminal, Store } from 'lucide-react';");
     const VIEW = readRepo('src/components/org/desk-report-view.tsx');
     expect(VIEW).toContain('data-testid="desk-report-walk-announcer"');
     expect(VIEW).toContain('data-testid="desk-report-kbd-hint"');

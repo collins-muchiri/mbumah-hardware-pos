@@ -197,7 +197,7 @@ describe.each(THE_TEN)('$word — the loomed desk, derived against the tree', (t
     const trio = `border-${t.hue}-300 bg-${t.hue}-100 text-${t.hue}-700`;
     // the tree walk (pure node: a recursive readdir, no external tool —
     // the census must answer the same in CI as on the desk)
-    const walk = (dir, acc) => {
+    const walk = (dir: string, acc: string[]): string[] => {
       for (const e of readdirSync(dir, { withFileTypes: true })) {
         const p = join(dir, e.name);
         if (e.isDirectory()) {
@@ -228,7 +228,13 @@ describe.each(THE_TEN)('$word — the loomed desk, derived against the tree', (t
 // loom and are spoken by honest badge/card wearers beside it — their
 // census answers the loom PLUS the pinned external count (the drift
 // alarm), never a false once-only.
-const THE_ELDER = [
+type ElderVariant = 'standard' | 'compact' | 'quiet';
+type ElderRow = {
+  word: string; desk: string; hue: string; variant: ElderVariant;
+  testid: string; labelVar: string; sharedWith: number;
+  historic: string; dismissBytes: string[];
+};
+const THE_ELDER: ElderRow[] = [
   {
     word: 'ad-severity', desk: 'src/app/(shell)/tabs/admin-tab.tsx', hue: 'neutral', variant: 'compact',
     testid: 'ad-severity-landing-word', labelVar: 'landedAdSeverity', sharedWith: 0,
@@ -447,7 +453,7 @@ describe.each(THE_ELDER)('$word — the elder loomed desk, derived against the t
 
   it('THE ELDER CENSUS — the trio’s honest face across the tree', () => {
     const trio = `border-${t.hue}-200 bg-${t.hue}-50 text-${t.hue}-700`;
-    const walk = (dir, acc) => {
+    const walk = (dir: string, acc: string[]): string[] => {
       for (const e of readdirSync(dir, { withFileTypes: true })) {
         const p = join(dir, e.name);
         if (e.isDirectory()) {

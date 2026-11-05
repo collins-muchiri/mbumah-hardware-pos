@@ -131,9 +131,9 @@ describe('the layout retires the stateless navs (v2.269.0)', () => {
   it('the other release-voice surfaces stand byte-identical', () => {
     // v2.404.0: the shell JOINS the door law — its mount speaks the same
     // bytes as the console's (one wiring, two desks, zero drift)
-    expect(shell).toContain('<WhatsNewDialog onOpenChangelog={() => { setReleaseJump(APP_VERSION); setChangelogOpen(true); }} />');
+    expect(shell).toContain("<WhatsNewDialog onOpenChangelog={() => { setReleaseJump(APP_VERSION); setJumpVia('announcement'); setChangelogOpen(true); }} />");
     expect((shell.match(/<WhatsNewDialog/g) || []).length).toBe(1);
     // the console keeps its hand (v2.265.0)
-    expect(consolePage).toContain('<WhatsNewDialog onOpenChangelog={() => { setReleaseJump(APP_VERSION); setChangelogOpen(true); }} />');
+    expect(consolePage).toContain("<WhatsNewDialog onOpenChangelog={() => { setReleaseJump(APP_VERSION); setJumpVia('announcement'); setChangelogOpen(true); }} />");
   });
 });
