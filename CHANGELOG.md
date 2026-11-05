@@ -1,3 +1,18 @@
+## [2.407.0] The ghost routes wake
+
+Two API routes shipped against schema columns that never existed: `/api/notifications/settings` selected four `User` columns (`emailNotifications`, `receiptEmails`, `stockAlertEmails`, `reportEmails`) and `/api/settings/currency` selected `Store.defaultCurrency` — the Prisma schema never carried any of them, so every call since birth died in `PrismaClientValidationError` (the 12 strict-mode faces the pool had flagged all along; the QA burst's proof mode documented the live 500s before anything moved). Both contracts were real product intent; both now live on models that exist.
+
+### Added
+- **THE EMAIL CARD** (`src/components/profile-settings-dialog.tsx`): the Profile dialog's Preferences tab grows the email preferences desk — four Switch rows (master, receipt copies, stock alerts, daily sales report) reading/writing the revived route. The master dims AND disables the three category rows while off (the helper's matcher ANDs the ALL row into every category check — off means no email at all, and the card never offers a switch that would lie); the header chip reads On/Off at a glance; Save PATCHes only the fields that moved (the route refuses an empty update).
+- **THE PREFERENCES LIB** (`src/lib/notification-preferences.ts`): the toggle → row map (`EMAIL_TOGGLE_META`: ALL / RECEIPT / LOW_STOCK / DAILY_REPORT on channel EMAIL), the row fold (`rowsToEmailSettings` — missing rows read enabled, the helper's own default; contradicting duplicates fold to the loudest row, matching `every`), and the write (deleteMany + create per field inside ONE array-form transaction — the model has no unique to upsert on, so the one-row law is enforced by construction).
+- **THE CURRENCY SETTINGS LIB** (`src/lib/store-currency-settings.ts`): the branch default lives in `SystemConfig` under `store:{storeId}:default_currency` — the SAME home the admin-controlled VAT rate has used since v2.8.0. A never-set key answers KES with `isDefault: true` (the honest "never chosen" state); the write is a real upsert (`SystemConfig.key` IS unique).
+
+### Changed
+- **THE NOTIFICATIONS ROUTE REWIRED** (7 faces stand down): GET folds the user's EMAIL rows into the four-toggle shape; PATCH still accepts only the four boolean fields (mass-assignment door shut), still refuses an empty update, still logs the audit row — but the persistence is real rows, not phantom columns.
+- **THE CURRENCY ROUTE REWIRED** (5 faces stand down): GET answers the KES default + `isDefault` + the supported list; PATCH keeps the zod enum gate, the owner-role door and the store-scope check — persistence rides SystemConfig (the vat precedent), `runWithoutTenant` intact.
+- **THE FOOTER'S PLAIN OPEN RESETS ITS DOOR** (Task 122 carry #6): the console page's footer Release notes action now clears `jumpVia` itself before opening — the invariant is local, no longer borrowed from close's reset.
+- **THE BURST'S PROOF LEG** (QA infrastructure): `scripts/qa-burst-v2407.sh` carries a MODE=proof posture — both ghost probes EXPECT the 500 (the bug, documented) — and MODE=live asserts the revived routes answer honest payloads.
+
 ## [2.406.0] The jump names its door
 
 The changelog's orange pill said "via cmd+K" no matter which door had jumped — and since v2.404.0 the announcement's own handle jumps too, on all three mounts, so the pill lied every time the archive opened from the announcement. The ring is the target's memory; the route deserved its own honest voice.

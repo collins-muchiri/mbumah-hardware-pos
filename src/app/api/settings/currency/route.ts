@@ -1,22 +1,29 @@
-// MBUMAH HARDWARE POS - Store Default Currency Settings API
+// MBUMAH HARDWARE POS - Store Default Currency Settings API (v2.407.0)
 //
 // GET   /api/settings/currency?storeId=... - return the store's default currency
 // PATCH /api/settings/currency - update the store's default currency
 //
-// The store's default currency is persisted on the `Store` model
-// (`defaultCurrency` column, defaults to "KES"). It is the currency a
-// cashier sees when they first log in - they can still override it via the
-// CurrencySwitcher for the current session.
+// The store's default currency is persisted in the global SystemConfig
+// key-value store under `store:{storeId}:default_currency` (see
+// src/lib/store-currency-settings.ts - the SAME home the admin-controlled
+// VAT rate has used since v2.8.0). It is the currency a cashier sees when
+// they first log in - they can still override it via the CurrencySwitcher
+// for the current session. A never-set key answers KES with isDefault:
+// true (the honest "never chosen" state).
 //
 // Auth:
 //   • GET - any authenticated user with store access.
 //   • PATCH - SUPER_ADMIN or STORE_OWNER only.
 
 import { type NextRequest, NextResponse } from 'next/server';
-import { db, runWithoutTenant } from '@/lib/db';
+import { runWithoutTenant } from '@/lib/db';
 import { requireAuth, type AuthSession } from '@/lib/auth';
 import { withErrorBoundary } from '@/lib/logger';
 import { SUPPORTED_CURRENCIES, type CurrencyCode } from '@/lib/currency-utils';
+import {
+  getStoreDefaultCurrency,
+  setStoreDefaultCurrency,
+} from '@/lib/store-currency-settings';
 import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
@@ -42,27 +49,15 @@ async function getHandler(
   }
 
   return runWithoutTenant(async () => {
-    const store = await db.store.findUnique({
-      where: { id: storeId },
-      select: {
-        id: true,
-        name: true,
-        defaultCurrency: true,
-      },
-    });
-
-    if (!store) {
-      return NextResponse.json(
-        { success: false, error: 'Store not found.' },
-        { status: 404 },
-      );
-    }
+    const setting = await getStoreDefaultCurrency(storeId);
 
     return NextResponse.json({
+      success: true,
       data: {
-        storeId: store.id,
-        storeName: store.name,
-        defaultCurrency: store.defaultCurrency as CurrencyCode,
+        storeId,
+        defaultCurrency: setting.currency,
+        isDefault: setting.isDefault,
+        updatedAt: setting.updatedAt,
         supportedCurrencies: SUPPORTED_CURRENCIES,
       },
     });
@@ -112,24 +107,15 @@ async function patchHandler(
   }
 
   return runWithoutTenant(async () => {
-    const updated = await db.store.update({
-      where: { id: storeId },
-      data: { defaultCurrency },
-      select: {
-        id: true,
-        name: true,
-        defaultCurrency: true,
-        updatedAt: true,
-      },
-    });
+    const setting = await setStoreDefaultCurrency(storeId, defaultCurrency);
 
     return NextResponse.json({
       success: true,
       data: {
-        storeId: updated.id,
-        storeName: updated.name,
-        defaultCurrency: updated.defaultCurrency as CurrencyCode,
-        updatedAt: updated.updatedAt.toISOString(),
+        storeId,
+        defaultCurrency: setting.currency,
+        isDefault: setting.isDefault,
+        updatedAt: setting.updatedAt,
       },
     });
   });

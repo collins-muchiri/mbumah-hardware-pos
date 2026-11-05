@@ -1,48 +1,38 @@
 // GET, PATCH /api/notifications/settings
 //
-// Per-user email notification preferences. Each authenticated user has
-// their own row of toggles on the User model:
+// Per-user email notification preferences (v2.407.0 - THE GHOST WAKES).
+// The four toggles live on the REAL NotificationPreference model (channel
+// EMAIL, one row per alert type) via src/lib/notification-preferences.ts -
+// NOT on the four User columns this route originally selected (columns the
+// schema never carried; every call died in PrismaClientValidationError).
 //   • emailNotifications - master switch (false = no email at all)
 //   • receiptEmails - receive customer receipt copies
 //   • stockAlertEmails - receive low-stock alerts
 //   • reportEmails - receive daily sales reports
 //
-// GET returns the current user's settings.
+// GET returns the current user's settings (missing rows read enabled -
+// the helper's "no preference = default enabled" contract).
 // PATCH updates them - only the four boolean fields above are accepted; any
 // other field in the body is silently ignored to prevent mass-assignment
-// vulnerabilities.
+// vulnerabilities. Each write is deleteMany + create inside one
+// transaction (the one-row law - the model has no unique to upsert on).
 //
 // Auth: any authenticated user (requireAuth with no role restriction).
 
 import { type NextRequest } from 'next/server';
-import { db } from '@/lib/db';
-import { withErrorBoundary } from '@/lib/logger';
+import { withErrorBoundary, systemLog } from '@/lib/logger';
 import { requireAuth, type AuthSession } from '@/lib/auth';
-import { systemLog } from '@/lib/logger';
 import { LogSeverity, LogComponent } from '@/lib/types';
+import {
+  EMAIL_TOGGLE_FIELDS,
+  getEmailNotificationSettings,
+  toBool,
+  updateEmailNotificationSettings,
+  type EmailSettings,
+  type EmailToggleField,
+} from '@/lib/notification-preferences';
 
 export const dynamic = 'force-dynamic';
-
-// The four updatable fields, with strict typing.
-interface NotificationSettings {
-  emailNotifications: boolean;
-  receiptEmails: boolean;
-  stockAlertEmails: boolean;
-  reportEmails: boolean;
-}
-
-// Helper to safely coerce any value to a boolean.
-function toBool(value: unknown): boolean | null {
-  if (typeof value === 'boolean') return value;
-  if (typeof value === 'string') {
-    if (value === 'true') return true;
-    if (value === 'false') return false;
-  }
-  if (typeof value === 'number') {
-    return value !== 0;
-  }
-  return null;
-}
 
 // GET
 
@@ -50,37 +40,11 @@ async function getSettingsHandler(
   _request: NextRequest,
   session: AuthSession,
 ): Promise<Response> {
-  const user = await db.user.findUnique({
-    where: { id: session.userId },
-    select: {
-      emailNotifications: true,
-      receiptEmails: true,
-      stockAlertEmails: true,
-      reportEmails: true,
-      email: true,
-      name: true,
-      role: true,
-    },
-  });
-
-  if (!user) {
-    return Response.json(
-      { success: false, error: 'User not found.' },
-      { status: 404 },
-    );
-  }
+  const settings = await getEmailNotificationSettings(session.userId);
 
   return Response.json({
     success: true,
-    data: {
-      emailNotifications: user.emailNotifications,
-      receiptEmails: user.receiptEmails,
-      stockAlertEmails: user.stockAlertEmails,
-      reportEmails: user.reportEmails,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-    },
+    data: settings,
   });
 }
 
@@ -101,16 +65,10 @@ async function patchSettingsHandler(
   }
 
   // Build the update payload from ONLY the allowed boolean fields.
-  const updates: Partial<NotificationSettings> = {};
-  const fields: Array<keyof NotificationSettings> = [
-    'emailNotifications',
-    'receiptEmails',
-    'stockAlertEmails',
-    'reportEmails',
-  ];
+  const updates: Partial<Record<EmailToggleField, boolean>> = {};
 
   let changedCount = 0;
-  for (const field of fields) {
+  for (const field of EMAIL_TOGGLE_FIELDS) {
     if (field in body) {
       const value = toBool(body[field]);
       if (value === null) {
@@ -138,16 +96,10 @@ async function patchSettingsHandler(
     );
   }
 
-  const updated = await db.user.update({
-    where: { id: session.userId },
-    data: updates,
-    select: {
-      emailNotifications: true,
-      receiptEmails: true,
-      stockAlertEmails: true,
-      reportEmails: true,
-    },
-  });
+  const updated: EmailSettings = await updateEmailNotificationSettings(
+    session.userId,
+    updates,
+  );
 
   // Best-effort audit log - never block the response on logging.
   void systemLog({
