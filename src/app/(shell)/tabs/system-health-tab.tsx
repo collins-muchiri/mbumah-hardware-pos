@@ -31,6 +31,7 @@ import {
   FileText, Lock, Unlock, Award,
   CircleDollarSign,
   Loader2,
+  Check, ClipboardCopy,
 } from 'lucide-react';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -55,7 +56,10 @@ import { composeScoreVoice, composeDlqCompositionVoice } from '@/lib/report-voic
 // raw /api/health payload (the same JSON the uptime monitors read) becomes
 // environment/connection rows plus, when a check's detail carries a Prisma
 // code, the SAME remediation card the login desk renders.
-import { diagnoseHealthChecks, type EnvCheckRow } from '@/lib/env-doctor';
+import {
+  diagnoseHealthChecks, envRowLabel, formatEnvDiagnostics,
+  type EnvCheckRow, type EnvDoctorReport,
+} from '@/lib/env-doctor';
 import { DbDoctorCard } from '@/components/db-doctor-card';
 
 
@@ -266,6 +270,58 @@ function PulseIndicator({ status }: { status: string }) {
 // visible without being noisy on warnings. Chips echo the doctor card's
 // mono anatomy — emerald/amber/red families per status, all AA-audited
 // tokens the desk already wears.
+// ── v2.400.0 THE SUPPORT COPY — the panel's report, one clipboard away ─────
+// An owner staring at a broken connection still has to DESCRIBE what they
+// see when they ask for help. This button takes the panel's own report —
+// the same rows, the same labels, the same overall verdict, and the doctor
+// card's diagnosis when one is spoken — as PLAIN TEXT to the clipboard,
+// ready to paste into a support chat. THE COPY FACE (the receipt hop's
+// law): Copy → a two-second Copied hand-back → Copy again; the icon swaps
+// with the label (the eye gets the same news the ear gets), the emerald
+// family marks the success state, and a refused clipboard answers with an
+// honest toast — never a silent no-op. Rendered ONLY when the panel has a
+// report (an absent control never lies): loading and unreachable faces
+// have nothing to copy.
+function CopyDiagnosticsButton({ report }: { report: EnvDoctorReport }) {
+  const [copied, setCopied] = useState(false);
+  React.useEffect(() => {
+    if (!copied) return;
+    const t = window.setTimeout(() => setCopied(false), 2000);
+    return () => window.clearTimeout(t);
+  }, [copied]);
+  const onCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(formatEnvDiagnostics(report));
+      setCopied(true);
+    } catch {
+      toast.error('Could not copy the diagnostics — the clipboard refused.');
+    }
+  };
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="sm"
+      data-testid="health-env-copy"
+      onClick={onCopy}
+      title="Copy the panel's rows as plain text — ready to paste into a support chat"
+      aria-label={copied
+        ? 'Diagnostics copied to the clipboard.'
+        : 'Copy the environment and connection diagnostics as text'}
+      className={`h-7 gap-1.5 rounded-md px-2 text-xs transition-colors ${
+        copied
+          ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300 dark:hover:bg-emerald-900/40'
+          : 'text-muted-foreground hover:text-foreground'
+      }`}
+    >
+      {copied
+        ? <Check className="h-3 w-3" aria-hidden="true" />
+        : <ClipboardCopy className="h-3 w-3" aria-hidden="true" />}
+      {copied ? 'Copied' : 'Copy'}
+    </Button>
+  );
+}
+
 function EnvRow({ row }: { row: EnvCheckRow }) {
   const dot =
     row.status === 'error'
@@ -280,13 +336,10 @@ function EnvRow({ row }: { row: EnvCheckRow }) {
         ? 'bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200'
         : 'bg-muted text-foreground/80';
   const label =
-    row.kind === 'env'
-      ? row.name
-      : row.kind === 'database'
-        ? 'Connection'
-        : row.kind === 'database_stats'
-          ? 'Stats'
-          : 'Seed';
+    // v2.400.0: the label reads from the ONE home — env-doctor's
+    // envRowLabel — the same map the support copy speaks (zero drift
+    // between the chip on screen and the text in the clipboard).
+    envRowLabel(row);
   return (
     <div
       className="flex items-center justify-between gap-3 rounded-md px-2 py-1.5 transition-colors hover:bg-muted/50"
@@ -720,7 +773,10 @@ export default function SystemHealthTab() {
                         </CardDescription>
                       </div>
                     </div>
-                    {envReport ? <StatusBadge status={envReport.overall} /> : null}
+                    <div className="flex items-center gap-2">
+                      {envReport ? <CopyDiagnosticsButton report={envReport} /> : null}
+                      {envReport ? <StatusBadge status={envReport.overall} /> : null}
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-1.5">

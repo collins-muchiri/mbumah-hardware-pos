@@ -339,6 +339,23 @@ export function parseSheetLineage(notes: string | null | undefined): SheetLineag
   return { kind: 'note', sourceSheetId: null, text: trimmed, remainder: '' };
 }
 
+// v2.400.0 THE RECOUNT GUARD — the advisory pool's variance-map faces
+// stand down. `SheetLineage` is ONE interface (kind: 'recount' | 'note',
+// sourceSheetId: string | null), so a caller's `lineage?.kind === 'recount'
+// && lineage.sourceSheetId` narrows the EXPRESSIONS but not the VALUE the
+// chip's prop demands (`SheetLineage & { kind: 'recount';
+// sourceSheetId: string }`) — TypeScript cannot see a discriminated union
+// that was never declared. This predicate is the honest bridge: one home
+// for the double check (the kind AND a non-empty id), typed as a guard so
+// the callers' JSX narrows for free. Runtime-identical to the inline
+// guards it replaces (same two conditions, same order); the chip renders
+// exactly where it always did.
+export function isRecountLineage(
+  lineage: SheetLineage | null | undefined,
+): lineage is SheetLineage & { kind: 'recount'; sourceSheetId: string } {
+  return lineage?.kind === 'recount' && typeof lineage.sourceSheetId === 'string' && lineage.sourceSheetId.length > 0;
+}
+
 // The chip's voice: a cuid runs long, so the roster chip abbreviates to the
 // last six characters with a leading ellipsis; the FULL id always rides the
 // chip's title (and the drill's lineage face speaks it whole — the chip is a

@@ -58,7 +58,12 @@ describe('the doors\u2019 landing \u2014 the bug fix (v2.248.0)', () => {
   it('the mapper is the AppTab guard list \u2014 unknown or absent segments stand down', () => {
     expect(links).toContain('export function tabFromWorkspacePath(rest: readonly string[] | null | undefined): AppTab | null {');
     expect(links).toContain("'purchase-orders', 'analytics', 'data-exports',");
-    expect(links).toContain('return TAB_SEGMENTS.has(segment) ? segment : null;');
+    // v2.400.0: the return line re-anchored to the honest narrowing — the
+    // AppTab-typed construction stayed, the read goes through the
+    // string-keyed predicate (membership IS the proof), so the pinned
+    // line speaks the predicate call now.
+    expect(links).toContain('return isTabSegment(segment) ? segment : null;');
+    expect(links).toContain('const isTabSegment = (s: string): s is AppTab => TAB_SEGMENTS.has(s);');
   });
 
   it('every workspace door\u2019s address opens its tab (the segments exist in the mapper\u2019s list)', () => {
@@ -190,7 +195,7 @@ describe('the laws named \u2014 the ride-along (v2.248.0)', () => {
 
 describe('the release face (v2.248.0)', () => {
   it('package.json speaks 2.248.0', () => {
-    expect(version).toBe('2.399.0');
+    expect(version).toBe('2.400.0');
   });
 
   it('the door\u2019s answer rides the changelog', () => {

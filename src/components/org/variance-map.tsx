@@ -39,7 +39,7 @@ import { SheetDrill, csvCell, type SheetDrillTarget } from './sheet-drill';
 import { bandHouse, chipLabel, daysVoice, findingsVoice } from '@/lib/cadence-band';
 import {
   num, timeAgo,
-  parseSheetLineage, LineageChip,
+  parseSheetLineage, isRecountLineage, LineageChip,
   type KpiSummaryData, type StoreRow,
 } from './primitives';
 
@@ -212,7 +212,11 @@ export function VarianceMap({ data, stores, canGovern = false, onLawSaved, onToa
     if (typeof windowCost !== 'number') return null; // the cost gate stayed shut — nothing to convert
     if (windowCost === 0) return null; // a zero ledger impact converts to a zero — the strip stays silent
     if (activeCurrency === 'KES') return null;
-    const entry = indicativeQuery.data?.data?.currencies.find((c) => c.code === activeCurrency);
+    // v2.400.0: the honest optional chain — the wire's `currencies` is an
+    // OPTIONAL array (RatesWireBody), so the read guards it like every
+    // other hop (the strict-mode face stands down; the runtime never
+    // changed — the entry-miss fallback below already spoke the silence).
+    const entry = indicativeQuery.data?.data?.currencies?.find((c) => c.code === activeCurrency);
     if (!entry || typeof entry.kesToRate !== 'number' || !Number.isFinite(entry.kesToRate)) return null;
     const meta = CURRENCY_BY_CODE[activeCurrency];
     if (!meta) return null;
@@ -457,7 +461,11 @@ export function VarianceMap({ data, stores, canGovern = false, onLawSaved, onToa
                           the verbatim murmur it always had. */}
                       {(() => {
                         const lineage = parseSheetLineage(s.notes);
-                        if (lineage?.kind === 'recount' && lineage.sourceSheetId) {
+                        // v2.400.0: the shared recount guard — the same two
+                        // conditions the call sites inlined, now ONE predicate
+                        // that narrows for the chip's prop (the advisory
+                        // pool's variance-map faces stand down).
+                        if (isRecountLineage(lineage)) {
                           return (
                             <p className="mt-1 flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400">
                               opened {timeAgo(s.startedAt)}{s.startedByName ? ` by ${s.startedByName}` : ''}
@@ -509,7 +517,10 @@ export function VarianceMap({ data, stores, canGovern = false, onLawSaved, onToa
                         <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide ring-1 ${statusChip(s.status)}`}>
                           {s.status}
                         </span>
-                        {lineage?.kind === 'recount' && lineage.sourceSheetId && (
+                        {/* v2.400.0: the shared recount guard (the same
+                            predicate the live row speaks) narrows the chip's
+                            prop inline — the advisory faces stand down. */}
+                        {isRecountLineage(lineage) && (
                           <LineageChip lineage={lineage} testId={`variance-map-lineage-${s.id}`} />
                         )}
                         {/* v2.240.0: the roster row wears the birth — the
