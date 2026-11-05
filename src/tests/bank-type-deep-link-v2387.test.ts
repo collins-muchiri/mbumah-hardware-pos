@@ -273,21 +273,21 @@ describe('the address-bar vocabulary — the twenty-sixth row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.404.0 leads the feed', () => {
+describe('whats-new — v2.405.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.404.0');
-    // the lead's story hand-over (v2.404.0, the Task 111 law's tenth
-    // application): the head story is the archive door — the main shell
-    // mounts the SAME ChangelogModal (one shared archive, exactly one
-    // mount), the whats-new announcement gains its handle (jumpTo =
-    // APP_VERSION, the orange ring lands), and the footer's Release
-    // notes door opens the archive from the top. The failure's name
-    // story exits the head this round; the landing glow carries the eye.
-    expect(head.title).toContain('archive door');
+    expect(head.version).toBe('2.405.0');
+    // the lead's story hand-over (v2.405.0, the Task 111 law's eleventh
+    // application): the head story is the shares' voice — the org desk's
+    // slice modal hands you the branch ledger (Copy beside the total, one
+    // pure formatter, the quiet zeroes never dropped), the rows ride the
+    // zebra and the share chips wear the mono badge, and the wire's
+    // honest nulls stop at the door. The archive door's story exits the
+    // head this round; the clipboard carries the eye.
+    expect(head.title).toContain('shares speak');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('Open the release archive'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('Release notes'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('proves the session honestly'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('Copy button'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('one pure formatter'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('strict-mode faces'))).toBe(true);
   });
 });

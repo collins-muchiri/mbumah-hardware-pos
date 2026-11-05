@@ -1,3 +1,15 @@
+## [2.405.0] The shares speak — the org desk hands you the branch ledger
+
+The BranchSliceModal rendered the branch ledger as pixels only — a manager prepping a standup note re-typed the shares by hand. And the wire's honest nulls (the summary array may carry null gaps) had leaked into every metric's slice signature: nine strict-mode faces the desk carried since v2.202.0.
+
+### Added
+- **THE BRANCH LEDGER'S COPY** (`src/components/org/desk-doors.tsx`): `formatBranchShares(metric, rows, total)` — one pure formatter (the env-doctor precedent) speaking the modal's own voice: the headline with the org total, the named branches loudest-first with their shares and count lines, the quiet zeroes never dropped, the honesty window note as the tail. The **Copy button** (`testid branch-shares-copy`) sits beside the total, rendered only when a ledger exists (an absent control never lies): Copy → a two-second Copied hand-back → Copy, the icon swaps with the label, the emerald family marks the success state, and a refused clipboard answers with an honest toast.
+
+### Changed
+- **THE ROW TYPE AT THE DOOR** (382 → 373 strict-mode errors, behavior-identical): `OrgDeskStoreRow = NonNullable<NonNullable<OrgDeskWire['stores']>[number]>` — the element type with the wire's null peeled off now backs `slice` AND `countLine` (eight faces stand down); the indicative chain rides `currencies?.find` (the ninth). The wire's null filter stays byte-exact — `deskRows` still drops the gaps before any slice runs.
+- **THE ZEBRA AND THE MONO BADGE** (`desk-doors.tsx`): the named-branch rows alternate on the payload ledger's quiet odd-row ground (light + dark twins), and the share percentages wear the mono badge family — the eye holds the branch from figure to share.
+- **THE FRESH SALE IN THE BURST** (QA infrastructure, carry #3): the keeper mints one refundable COMPLETED sale (`scripts/burst-seed-sale.mjs`, newest-dated so it lands the ledger's first page) before booting — the refund dialog's face finally opens live in the burst instead of skipping honestly.
+
 ## [2.404.0] The archive door reaches the main desk
 
 The console has owned the release archive since v2.265.0 — the SAME ChangelogModal, opened by the cmd+K palette, the footer pill and the whats-new announcement — but the main desk's whats-new card mounted WITHOUT its `onOpenChangelog`, so the "Open the release archive" button simply never rendered where most people land after login. The door existed; the main desk's copy of the frame had no handle.

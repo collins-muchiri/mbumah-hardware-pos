@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.405.0',
+    title: 'The shares speak — the org desk hands you the branch ledger',
+    bullets: [
+      'The org desk\u2019s slice modal gains a Copy button beside the total: one click puts the whole branch ledger — every named branch, its figure, its share of the org and its count line — on the clipboard as plain text, ready to paste into a standup note; a refused clipboard answers with an honest toast.',
+      'The copy face rides the health desk\u2019s law — Copy flips to a green Copied for two seconds, the icon swaps with the label — and the ledger lives in one pure formatter, so the modal\u2019s rows and the pasted text can never drift.',
+      'The named-branch rows now alternate on a quiet zebra ground and the share percentages wear the mono badge — the eye holds the branch from figure to share across all six metric doors.',
+      'Under the hood: the wire\u2019s honest nulls stopped at the door — the slice signatures speak the row (nine strict-mode faces stand down, 382 \u2192 373), and the QA burst mints a fresh refundable sale so the refund dialog\u2019s face finally opens live.',
+    ],
+  },
+  {
     version: '2.404.0',
     title: 'The archive door reaches the main desk — release notes open where you land',
     bullets: [
