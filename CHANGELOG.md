@@ -1,3 +1,17 @@
+## [2.395.0] The submission receipt hop
+
+Every KRA submission now reaches the operator's hands as a paper trail: the audit log's rows and the invoice detail's submission-history rows each grow a Receipt button that opens the call's full record — and the response body prints and copies as pretty JSON through the app's print-root pipeline.
+
+### Added
+- **THE TWO HOP DOORS** (`src/app/(shell)/tabs/etims-tab.tsx`): the KRA API Audit Log's rows and the Invoice Detail dialog's submission-history rows each grow a quiet Receipt button (`kra-audit-receipt-open` / `kra-history-receipt-open`, both `aria-label="Open submission receipt"`). Each section holds its own dialog state and renders the same shared `SubmissionReceiptDialog`.
+- **THE PAPER-TRAIL DIALOG**: the host (`#kra-submission-receipt`) speaks the dry-run payload card's wardrobe (slate border + wash, dark twins, tabular-nums timings) and carries the record as a dl — KRA reference, invoice number, receipt number, submitted/processed timestamps, the honest error row — plus a status banner derived from the same SUBMISSION_STATUS_CONFIG the rows speak.
+- **THE PRINT + COPY FACES**: Print rides the print-root pipeline (`printReceiptElement('kra-submission-receipt')` — the pipeline's fourth customer; colors survive print-color-adjust), and Print sits BEFORE Copy; Copy leaves the response as pretty JSON with the two-second Copied hand-back and an honest toast on failure.
+- **THE PRETTY-PRINT LAW**: the response body mounts pretty-printed in its own scroll (`max-h-56`, mono, break-all); an unparseable body prints RAW — the hop never lies about the payload; an absent body answers "No response body was recorded for this call."
+- No API change: the submissions route already returns every scalar (`include`), so the response JSON reached the client all along — the hop just makes it visible.
+
+### Changed
+- Audit rows carry `transition-colors` and a tabular-nums latency face; the history rows speak the full `KraSubmissionItem` (the records they already were).
+
 ## [2.394.0] The landing chips share one loom
 
 The ten full-wardrobe landing chips — byte-identical buttons hand-rolled across nine desks since v2.382.0 — now render through ONE shared `LandingChip` component with a ten-hue wardrobe registry. Byte-for-byte on the outside, one place to drift on the inside.
