@@ -67,6 +67,28 @@ export function validateKraPin(pin: string): boolean {
 }
 
 /**
+ * The payload file's name (v2.402.0) — the Download button's twin of the
+ * copy voice, one pure home for the bytes the file is called by. The name
+ * carries the KRA invoice number, the date and the minute so two downloads
+ * of two payloads never argue about which is which:
+ *   kra-payload-MBU-2026-000123-20261105-1842.json
+ * The invoice number is slugged (everything outside letters, digits and the
+ * friendly dashes collapses to a dash) so a weird reference can never write
+ * a filename the OS refuses. Pure law holds: the clock enters as the
+ * `at: Date` argument, never read at module scope.
+ */
+export function payloadFileName(invoiceNumber: string, at: Date): string {
+  const pad = (n: number): string => String(n).padStart(2, '0');
+  const slug = invoiceNumber.replace(/[^A-Za-z0-9-]+/g, '-').replace(/^-+|-+$/g, '') || 'payload';
+  const y = at.getFullYear();
+  const m = pad(at.getMonth() + 1);
+  const d = pad(at.getDate());
+  const hh = pad(at.getHours());
+  const mm = pad(at.getMinutes());
+  return `kra-payload-${slug}-${y}${m}${d}-${hh}${mm}.json`;
+}
+
+/**
  * eTIMS payment method codes
  */
 export const ETIMS_PAYMENT_CODES: Record<string, string> = {

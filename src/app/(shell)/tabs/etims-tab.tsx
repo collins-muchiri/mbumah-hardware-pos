@@ -15,7 +15,8 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Building2, KeyRound, ShieldCheck, Loader2, RefreshCw, Plus, CheckCircle, Clock, AlertCircle, XCircle, FileText, Search, Send, Eye, Database, Activity, AlertTriangle, Hash, Calendar, Receipt, Settings2, Copy, Check, Printer } from 'lucide-react';
+import { Building2, KeyRound, ShieldCheck, Loader2, RefreshCw, Plus, CheckCircle, Clock, AlertCircle, XCircle, FileText, Search, Send, Eye, Database, Activity, AlertTriangle, Hash, Calendar, Receipt, Settings2, Copy, Check, Printer, Download } from 'lucide-react';
+import { payloadFileName } from '@/lib/etims-utils';
 
 import { useAppStore, useAuthStore } from '@/lib/stores';
 import {
@@ -581,6 +582,41 @@ function InvoicesSection({
     }
   };
 
+  // v2.402.0: THE PAYLOAD FILE — the filing trio's third sibling (Print =
+  // the paper, Copy = the clipboard, Download = the FILE). One click saves
+  // the SAME pretty JSON the clipboard carries (one home — the two cannot
+  // drift) as a named .json file through the browser's save flow; the name
+  // is built by the pure payloadFileName (the KRA invoice number, the date
+  // and the minute ride in it, so two downloads of two payloads never argue
+  // about which is which). THE SAVED FACE: the receipt hop's law — Download
+  // → a two-second Saved hand-back → Download again, the icon swaps with
+  // the label, and a refused save answers with an honest toast.
+  const [payloadSaved, setPayloadSaved] = useState(false);
+  React.useEffect(() => {
+    if (!payloadSaved) return;
+    const t = window.setTimeout(() => setPayloadSaved(false), 2000);
+    return () => window.clearTimeout(t);
+  }, [payloadSaved]);
+  const downloadPayload = () => {
+    if (!dryRunPayload) return;
+    try {
+      const text = JSON.stringify(dryRunPayload, null, 2);
+      const name = payloadFileName(dryRunPayload.kraInvoiceNumber || 'payload', new Date());
+      const blob = new Blob([text], { type: 'application/json;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setPayloadSaved(true);
+    } catch {
+      toast.error('Could not save the payload file — the browser refused.');
+    }
+  };
+
   // the money faces ride the boundary coercion (the wire's money-face
   // law): the mapper's numbers and any stringified decimals both speak.
   const payloadMoney = (v: number | string) => formatKES(Number(v));
@@ -917,6 +953,24 @@ function InvoicesSection({
                       variant="outline"
                       size="sm"
                       className="h-6 px-2 text-xs"
+                      data-testid="kra-payload-download"
+                      aria-label={payloadSaved
+                        ? 'Payload file saved.'
+                        : 'Download mapped payload as JSON'}
+                      title="Save the mapped payload as a JSON file — ready to attach to the KRA filing"
+                      onClick={downloadPayload}
+                    >
+                      {payloadSaved ? (
+                        <Check className="h-3 w-3 mr-1 text-emerald-600 dark:text-emerald-400" />
+                      ) : (
+                        <Download className="h-3 w-3 mr-1" />
+                      )}
+                      {payloadSaved ? 'Saved' : 'Download'}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-6 px-2 text-xs"
                       aria-label="Copy mapped payload as JSON"
                       onClick={copyPayload}
                     >
@@ -929,7 +983,10 @@ function InvoicesSection({
                     </Button>
                   </div>
                 </div>
-                <dl className="divide-y divide-slate-200 dark:divide-slate-800">
+                {/* v2.402.0: the rows alternate on a quiet zebra ground —
+                    the eighth-row ledger reads row-by-row, the odd ground
+                    carries the eye across (the divide-y hairlines held). */}
+                <dl className="divide-y divide-slate-200 dark:divide-slate-800 [&>div:nth-child(odd)]:bg-slate-100/70 dark:[&>div:nth-child(odd)]:bg-slate-800/40 [&>div]:rounded-md [&>div]:px-1.5">
                   <div className="flex items-center justify-between gap-3 py-1.5">
                     <dt className="text-muted-foreground">KRA invoice no.</dt>
                     <dd className="font-mono tabular-nums font-medium">{dryRunPayload.kraInvoiceNumber}</dd>

@@ -205,7 +205,10 @@ async function makeLegacyChainRefund(
   return tx.id;
 }
 
-function must<T>(value: T | null | undefined, label: string): T {
+// v2.402.0: the label rides on its own — most call sites read the value
+// without naming it, so the label is optional with an honest default (the
+// throw's words stay truthful either way). 29 strict faces stand down.
+function must<T>(value: T | null | undefined, label = 'value'): T {
   if (value == null) throw new Error(`test fixture missing: ${label}`);
   return value;
 }
