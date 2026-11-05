@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.403.0',
+    title: 'The refund desk speaks the failure\u2019s name — the refused refund finally reaches your eyes',
+    bullets: [
+      'A refused refund no longer looks like a frozen button: the toast carries the failure\u2019s typed code (NOT_REFUNDABLE, EMPTY_REFUND, NOT_STRANDED\u2026) over the server\u2019s own plain-language line, and the dialog holds an amber card with the same words — the code under a small mono badge — so the face stays after the toast fades.',
+      'The failure\u2019s name lives in one shared home (a pure helper beside the wire\u2019s own vocabulary), so the dialog, the stranded-gap settlement and the status repair all speak it the same way — no desk invents a name the wire did not send.',
+      'Four quiet failures now speak at all: the two refund-receipt loaders, the stranded-gap settle and the status repair used to log the error and move on — each raises an honest toast.',
+      'Under the hood: the refund route\u2019s error ladder gained its stranded rung (NOT_STRANDED answers 409), two test helpers\u2019 labels widened, three long-broken names in the heal wiring were mended, and twenty strict-mode type faces stood down (402 \u2192 382).',
+    ],
+  },
+  {
     version: '2.402.0',
     title: 'The payload card hands you the file — the KRA filing trio completes',
     bullets: [

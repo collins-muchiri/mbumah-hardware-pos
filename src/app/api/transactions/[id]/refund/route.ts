@@ -55,6 +55,10 @@ const REFUND_ERROR_STATUS: Record<RefundErrorCode, number> = {
   EMPTY_REFUND: 400,
   LINE_OVER_REFUND: 400,
   AMOUNT_OVER_REFUND: 400,
+  // v2.403.0: the stranded-heal's refusal rides the same honest ladder —
+  // a sale with no stranded gap answers 409, the code the api.ts doc row
+  // already promised (NOT_STRANDED (409)).
+  NOT_STRANDED: 409,
 };
 
 async function refundTransactionHandler(...args: unknown[]): Promise<Response> {

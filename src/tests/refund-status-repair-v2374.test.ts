@@ -179,7 +179,7 @@ async function makeChainRefund(
   return tx.id;
 }
 
-function must<T>(value: T | null | undefined, label: string): T {
+function must<T>(value: T | null | undefined, label = 'value'): T {
   if (value == null) throw new Error(`test fixture missing: ${label}`);
   return value;
 }

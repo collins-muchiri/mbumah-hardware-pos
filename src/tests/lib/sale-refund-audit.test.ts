@@ -137,7 +137,7 @@ async function makeTestSale(
   return { id: tx.id, items: tx.items.map((i) => ({ id: i.id, productId: i.productId })) };
 }
 
-function must<T>(value: T | null | undefined, label: string): T {
+function must<T>(value: T | null | undefined, label = 'value'): T {
   if (value == null) throw new Error(`test fixture missing: ${label}`);
   return value;
 }
