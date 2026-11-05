@@ -273,22 +273,22 @@ describe('the address-bar vocabulary — the twenty-sixth row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.407.0 leads the feed', () => {
+describe('whats-new — v2.408.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.407.0');
-    // the lead's story hand-over (v2.407.0, the Task 111 law's thirteenth
-    // application): the head story is the ghost routes' voice — the two
-    // routes born against columns the schema never carried answer real
-    // rows at last (the four email toggles fold onto
-    // NotificationPreference, the branch default rides the SystemConfig
-    // shelf beside the VAT rate), and the Preferences tab grows the
-    // email card. The door's story exits the head this round; the wake
+    expect(head.version).toBe('2.408.0');
+    // the lead's story hand-over (v2.408.0, the Task 111 law's fourteenth
+    // application): the head story is the branch's voice — the currency
+    // choice the branch made greets a session whose user never explicitly
+    // chose (the seed's three honest refusals, the re-seed honesty, the
+    // one explicit switch that outranks forever), the switcher names the
+    // branch's row with a mono chip, and the wire's types stop lying.
+    // The ghost routes' story exits the head this round; the branch
     // carries the eye.
-    expect(head.title).toContain('ghost routes wake');
+    expect(head.title).toContain('branch speaks first');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('answered 500'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('master switch'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('never explicitly chose'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('branch default'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('strict-mode faces'))).toBe(true);
   });
 });

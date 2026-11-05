@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.408.0',
+    title: 'The branch speaks first — your branch\u2019s currency choice greets a fresh session',
+    bullets: [
+      'A user who never explicitly chose a display currency now greets the branch\u2019s own default instead of silently staying on KES \u2014 the setting the currency desk made real last release is finally heard, it re-asks on every fresh visit, and one explicit switch of your own outranks it forever.',
+      'The currency switcher names the row your branch picked with a quiet mono "branch default" chip when the dropdown opens \u2014 a branch that never set one renders exactly as before, because a factory default is nobody\u2019s choice.',
+      'The wire\u2019s types stopped lying: the payroll-by-branch table carries the portal fields the API always computed, and the employee export\u2019s unmask flag finally reaches the generator \u2014 the audit row that claimed unmasked identifiers while the file stayed masked can\u2019t lie anymore.',
+      'Under the hood: twelve strict-mode faces stood down (343 \u2192 331 \u2014 the wire\u2019s portal pair, the exports\u2019 dropped argument, and the org desk\u2019s optional wire reads), behavior identical everywhere.',
+    ],
+  },
+  {
     version: '2.407.0',
     title: 'The ghost routes wake — your email preferences become a desk you can actually use',
     bullets: [

@@ -375,8 +375,17 @@ interface AppState {
    * carried them — every selection click threw `TypeError: ... is not a
    * function` (swallowed by the global handler) and the POS stayed silently
    * KES-locked. Display-only: the canonical accounting currency remains KES.
+   *
+   * v2.408.0: `currencyChosen` rides beside the code — the seed law needs
+   * the two states the bare code can't tell apart ("the user picked USD"
+   * vs "never picked, KES is just the factory default"). Only an explicit
+   * `setActiveCurrency` (the switcher's ONE write path) plants the flag;
+   * the branch-default seed writes the code WITHOUT it, so a fresh session
+   * re-seeds honestly until a human hand actually chooses.
    */
   activeCurrency: CurrencyCode;
+  /** True only after an explicit in-app switch (never after a branch seed). */
+  currencyChosen: boolean;
   setActiveCurrency: (currency: CurrencyCode) => void;
   /**
    * Derive the visual sidebar state from the store + viewport.
@@ -401,8 +410,13 @@ export const useAppStore = create<AppState>()(
       // v2.212.0: the display-currency slice — 'KES' is the honest default
       // (the canonical accounting currency) and the setter is the ONE write
       // path the switcher's onSelect has always called.
+      // v2.408.0: the setter is ALSO the only thing that plants
+      // `currencyChosen` — the branch-default seed (currency-seed.ts) writes
+      // the code through useAppStore.setState directly, so a re-seed stays
+      // possible until a human hand actually chooses.
       activeCurrency: 'KES',
-      setActiveCurrency: (currency) => set({ activeCurrency: currency }),
+      currencyChosen: false,
+      setActiveCurrency: (currency) => set({ activeCurrency: currency, currencyChosen: true }),
       getSidebarState: (isDesktop: boolean): SidebarState => {
         const state = get();
         if (!isDesktop) {
@@ -427,7 +441,11 @@ export const useAppStore = create<AppState>()(
         // the app preferences (mbt_app_store). Browsers whose persisted
         // state predates the slice keep the 'KES' default via the shallow
         // persist merge — no migration needed.
+        // v2.408.0: `currencyChosen` rides too — browsers whose persisted
+        // state predates the flag answer false (honest: they may be seeded
+        // once, and their first explicit switch plants the flag).
         activeCurrency: state.activeCurrency,
+        currencyChosen: state.currencyChosen,
       }),
     },
   ),

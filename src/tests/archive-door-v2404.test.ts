@@ -135,13 +135,15 @@ describe('main-app - the archive door on the main desk', () => {
   // ── 7. The release cascade ─────────────────────────────────────────────────
 
   it('WHATS_NEW leads with the current release — the door story rides the archive below', () => {
-    // v2.407.0 hand-over: the lead tells the ghost-routes story now; the
-    // jump-door story lives one entry down, the shares' story two, the
-    // archive-door story three — all still in the feed
+    // v2.408.0 hand-over: the lead tells the branch-voice story now; the
+    // ghost-routes story lives one entry down, the jump-door story two, the
+    // shares' story three, the archive-door story four — all still in the feed
     const lead = WHATS_NEW[0];
-    expect(lead.version).toBe('2.407.0');
-    expect(lead.title).toContain('ghost routes wake');
+    expect(lead.version).toBe('2.408.0');
+    expect(lead.title).toContain('branch speaks first');
     expect(lead.bullets.length).toBeGreaterThanOrEqual(4);
+    const ghost = WHATS_NEW.find((e) => e.version === '2.407.0');
+    expect(ghost?.title).toContain('ghost routes wake');
     const doorJump = WHATS_NEW.find((e) => e.version === '2.406.0');
     expect(doorJump?.title).toContain('jump names its door');
     const shares = WHATS_NEW.find((e) => e.version === '2.405.0');

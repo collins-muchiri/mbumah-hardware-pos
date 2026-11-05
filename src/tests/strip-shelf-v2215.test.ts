@@ -102,7 +102,9 @@ describe('the strip can actually SPEAK — the destructure names the hook\'s fie
 
   it('the strips still read the active currency through the renamed binding', () => {
     expect(row).toMatch(/if \(activeCurrency === 'KES'\) return null;/);
-    expect(row).toMatch(/currencies\.find\(\(c\) => c\.code === activeCurrency\)/);
+    // v2.408.0 re-anchor: the wire's optional answer rides `?.` (the
+    // honest-optional law kpi-row's three strips share).
+    expect(row).toMatch(/currencies\?\.find\(\(c\) => c\.code === activeCurrency\)/);
   });
 });
 

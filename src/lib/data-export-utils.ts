@@ -884,6 +884,12 @@ export async function runExportGenerator(
   filters: ExportFilters,
   dateFrom?: Date | null,
   dateTo?: Date | null,
+  // v2.408.0: the options bag finally reaches the generator — the route has
+  // always passed { includeSensitivePii } (the PII-unmask permission the
+  // route gates and audit-logs), but this switch dropped it, so EVERY
+  // employee export rendered masked while the audit row claimed
+  // "piiIncluded: true, unmasked identifiers" — the log lied about the file.
+  options?: { includeSensitivePii?: boolean },
 ): Promise<GenerateResult> {
   switch (exportType) {
     case 'PRODUCTS':
@@ -897,7 +903,7 @@ export async function runExportGenerator(
     case 'INVENTORY':
       return generateInventoryCsv(storeId, filters);
     case 'EMPLOYEES':
-      return generateEmployeesCsv(storeId);
+      return generateEmployeesCsv(storeId, options);
     case 'SUPPLIERS':
       return generateSuppliersCsv(storeId);
     case 'LOYALTY':

@@ -1,3 +1,16 @@
+## [2.408.0] The branch speaks first
+
+v2.407.0 made the branch's default currency a real, persisted, API-served setting — and then left it unheard: the CurrencySwitcher stayed session-local, so a cashier whose branch picked USD still greeted KES every morning. This release closes the loop, and the wire's own types stop lying while it does.
+
+### Added
+- **THE BRANCH-DEFAULT SEED** (`src/lib/currency-seed.ts`): a session whose user never explicitly chose a display currency greets the branch's choice (`resolveSeed` — one pure decision, the seed law's three honest refusals: the branch never chose → nothing to seed; the user already chose (`currencyChosen`) → the human hand wins; the wire fails → best-effort silence). The seed writes via `useAppStore.setState` WITHOUT planting `currencyChosen`, so every fresh page load re-asks the wire — a branch default that changed overnight is honored, an explicit choice is never overridden. Once-per-page: N switcher mounts share one module-level promise.
+- **THE `currencyChosen` FLAG** (`src/lib/stores.ts`): the display-currency slice can finally tell "the user picked USD" from "never picked, KES is the factory default" — only the switcher's ONE write path (`setActiveCurrency`) plants the flag; it persists with `mbt_app_store` (browsers predating the flag answer false — honest, seedable once, flagged on first choice).
+- **THE BRANCH-DEFAULT CHIP** (`src/components/currency-switcher.tsx`): the row the branch picked wears a quiet mono chip when the dropdown opens (emerald family, lazy wire `enabled: opened`, `isDefault` renders none — a factory default is never presented as a branch choice).
+
+### Changed
+- **THE WIRE'S TYPES STOP LYING** (343 → 331 strict-mode errors, behavior-identical): `OrgSummaryData['hrPerStore']` grows `portalLinked`/`portalTotal` — the fields `hr/reports.ts` always computed and the panel always rendered (six faces); `runExportGenerator` grows the `options` bag the route always passed and threads it to `generateEmployeesCsv` — **the audit-log-lies fix**: every employee export rendered masked while the audit row claimed "piiIncluded: true, unmasked identifiers"; kpi-row's three indicative strips read the wire's optional answer with `?.` and the supplier-hints guard the null watchlist (five faces).
+- **THE HONEST RE-ANCHORS (2 elder pins)**: currency-switcher-wire-v2212 (the ONE write path's new shape) and strip-shelf-v2215 (the `?.` binding).
+
 ## [2.407.0] The ghost routes wake
 
 Two API routes shipped against schema columns that never existed: `/api/notifications/settings` selected four `User` columns (`emailNotifications`, `receiptEmails`, `stockAlertEmails`, `reportEmails`) and `/api/settings/currency` selected `Store.defaultCurrency` — the Prisma schema never carried any of them, so every call since birth died in `PrismaClientValidationError` (the 12 strict-mode faces the pool had flagged all along; the QA burst's proof mode documented the live 500s before anything moved). Both contracts were real product intent; both now live on models that exist.
