@@ -1,3 +1,15 @@
+## [2.399.0] The health desk speaks the failure's name
+
+The v2.399.0 QA round caught the login doctor's story coming back as its second face: a STALE dev server still holding a staged-repro connection answered every login with P2021 while the System Health desk's own dashboard said "Connection successful" — the desk had no window into WHICH database the server was actually talking to. This release gives the health desk the same voice the login desk earned in v2.398.0, and the two desks now wear ONE card.
+
+### Added
+- **THE ENV DOCTOR** (`src/lib/env-doctor.ts`, pure + unit-tested): reads the raw `/api/health` payload — the same JSON the uptime monitors and the CI health gate read — and answers the Environment & Connection panel's report: one row per environment-variable check (`env_` prefix stripped), one per connection check (`database` / `database_stats` / `seed`, fixed order), an overall status (the worst row wins, error over warning), and — when a connection row's detail TEXT carries a Prisma code (the route surfaces error messages verbatim, truncated) — the SAME remediation card the login desk renders. The checks the desk's other sections already speak (security, sentry, …) stay out of the panel's voice.
+- **THE SHARED REMEDY TABLE** (`src/lib/db-doctor.ts`): `diagnosePrismaCode` + `extractPrismaCode` go public — the remedy table's second desk. The login doctor delegates to the same table (one card, two desks, zero drift); the code extraction is word-bounded (`P2021` answers, `P20211` never).
+- **THE ENVIRONMENT & CONNECTION PANEL** (`src/app/(shell)/tabs/system-health-tab.tsx`): a full-width card on the System Health desk's Overview — every env var as a status-dotted mono chip row with the endpoint's own detail line, the connection rows beside it, an overall badge, a 30s refresh riding the tab's cadence, skeleton loading, an honest unreachable voice, and the doctor card (`testid health-db-doctor`) when a code is spoken. Status dots pulse ONLY on error; warnings stay calm.
+
+### Changed
+- **THE DB DOCTOR CARD LOOM** (`src/components/db-doctor-card.tsx`): the v2.398.0 inline login card retires into a shared component — the login desk's defaults are the byte-exact v2.398.0 face (same `role=note`, same amber family, same testid `login-db-doctor`), the health desk passes its own handle and spacing. The card never fetches, never reads env, never decides exposure; the desks gate it (a null diagnostic renders nothing, byte-identical quiet face).
+
 ## [2.398.0] The login desk speaks the failure's name
 
 Born in the live QA round: the sandbox shell handed the dev runtime a stray inherited `DATABASE_URL`, and the raw `next dev` path — the ONE launch path without the repo's env-wins guard — silently redirected to a foreign empty SQLite file. The login card answered a single bare sentence while the API response carried the machine-readable diagnosis nobody could see. This release fixes the redirect and lets the desk speak: the failure's Prisma code, what it means, and the documented remediation steps render inline on the login card.

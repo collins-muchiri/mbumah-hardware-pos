@@ -140,6 +140,35 @@ export function diagnoseLoginDbFailure(body: unknown): DbDiagnostic | null {
   const code = detail.code;
   if (typeof code !== 'string' || !PRISMA_CODE.test(code)) return null;
 
+  return diagnosePrismaCode(code);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// THE SECOND SURFACE (v2.399.0) — the health desk speaks the failure's name.
+// /api/health carries its failures as TEXT (the route surfaces the error
+// message verbatim, truncated), so the code rides inside the detail string
+// rather than a structured field. The env doctor (src/lib/env-doctor.ts)
+// extracts the code from that text and asks THIS table for the card — the
+// same remediation voice, one table, two desks.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * The first Prisma code embedded in a health check's detail text — or null
+ * when the text carries none. Word-bounded, so "P2021" answers and
+ * "P20211" or "P202" never do.
+ */
+export function extractPrismaCode(text: string): string | null {
+  const match = /\bP\d{4}\b/.exec(text);
+  return match ? match[0] : null;
+}
+
+/**
+ * The remedy table's public face: a real Prisma code in, the card out —
+ * null when the shape is not a Prisma code. Unknown-but-real codes answer
+ * the FALLBACK card, exactly as the login desk's doctor does.
+ */
+export function diagnosePrismaCode(code: string): DbDiagnostic | null {
+  if (typeof code !== 'string' || !PRISMA_CODE.test(code)) return null;
   const remedy = REMEDIES[code] ?? FALLBACK;
   return {
     code,

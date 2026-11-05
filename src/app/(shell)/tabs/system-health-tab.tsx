@@ -16,7 +16,7 @@
  *   • Access control metrics
  */
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
@@ -51,6 +51,12 @@ import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { composeScoreVoice, composeDlqCompositionVoice } from '@/lib/report-voices';
+// v2.399.0 THE ENV DOCTOR: the health desk speaks the failure's name — the
+// raw /api/health payload (the same JSON the uptime monitors read) becomes
+// environment/connection rows plus, when a check's detail carries a Prisma
+// code, the SAME remediation card the login desk renders.
+import { diagnoseHealthChecks, type EnvCheckRow } from '@/lib/env-doctor';
+import { DbDoctorCard } from '@/components/db-doctor-card';
 
 
 // Types
@@ -254,6 +260,54 @@ function PulseIndicator({ status }: { status: string }) {
   );
 }
 
+// v2.399.0: one row of the Environment & Connection panel — a status dot
+// (the alarm voice), a mono chip for the name, and the endpoint's own
+// detail line. The dot pulses ONLY on error: the desk's alarm must be
+// visible without being noisy on warnings. Chips echo the doctor card's
+// mono anatomy — emerald/amber/red families per status, all AA-audited
+// tokens the desk already wears.
+function EnvRow({ row }: { row: EnvCheckRow }) {
+  const dot =
+    row.status === 'error'
+      ? 'bg-red-500 animate-pulse'
+      : row.status === 'warning'
+        ? 'bg-amber-500'
+        : 'bg-emerald-500';
+  const chip =
+    row.status === 'error'
+      ? 'bg-red-100 text-red-900 dark:bg-red-900/40 dark:text-red-200'
+      : row.status === 'warning'
+        ? 'bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200'
+        : 'bg-muted text-foreground/80';
+  const label =
+    row.kind === 'env'
+      ? row.name
+      : row.kind === 'database'
+        ? 'Connection'
+        : row.kind === 'database_stats'
+          ? 'Stats'
+          : 'Seed';
+  return (
+    <div
+      className="flex items-center justify-between gap-3 rounded-md px-2 py-1.5 transition-colors hover:bg-muted/50"
+      title={row.detail ?? label}
+    >
+      <div className="flex min-w-0 items-center gap-2">
+        <span
+          aria-label={`${label}: ${row.status}`}
+          className={`h-2 w-2 shrink-0 rounded-full ${dot}`}
+        />
+        <code className={`rounded px-1.5 py-0.5 font-mono text-[11px] font-semibold ${chip}`}>
+          {label}
+        </code>
+      </div>
+      <span className="min-w-0 truncate text-[11px] text-muted-foreground">
+        {row.detail ?? '—'}
+      </span>
+    </div>
+  );
+}
+
 // Main Component
 
 export default function SystemHealthTab() {
@@ -284,6 +338,26 @@ export default function SystemHealthTab() {
     refetchInterval: 30000, // Auto-refresh every 30s
     staleTime: 10000,
   });
+
+  // v2.399.0: the raw /api/health payload — the same JSON the uptime
+  // monitors and the CI health gate read. The system-status query speaks
+  // the desk's dashboard; THIS query is the environment-and-connection
+  // voice, and the env doctor turns it into rows + the remediation card.
+  const {
+    data: healthData,
+    isLoading: healthLoading,
+    isError: healthError,
+  } = useQuery({
+    queryKey: ['health-endpoint'],
+    queryFn: async () => {
+      const res = await fetch('/api/health');
+      if (!res.ok) throw new Error('Failed to fetch health endpoint');
+      return res.json() as Promise<unknown>;
+    },
+    refetchInterval: 30000,
+    staleTime: 10000,
+  });
+  const envReport = useMemo(() => diagnoseHealthChecks(healthData), [healthData]);
 
   // Fetch DLQ items
   const {
@@ -621,6 +695,62 @@ export default function SystemHealthTab() {
                   </CardContent>
                 </Card>
               </div>
+
+              {/* ── Environment & Connection (v2.399.0) ───────────────────
+                  THE HEALTH DESK SPEAKS THE FAILURE'S NAME. The v2.399.0 QA
+                  round caught a stale dev server answering every login with
+                  P2021 while the desk's own dashboard said "Connection
+                  successful" — the desk had no window into WHICH database
+                  the server was talking to. This panel reads the raw
+                  /api/health payload (the same JSON the uptime monitors
+                  read): one row per environment variable, one per
+                  connection check, and — when a check's detail carries a
+                  Prisma code — the SAME remediation card the login desk
+                  renders. role=note on the card keeps it reachable; the
+                  testids keep it greppable. */}
+              <Card data-testid="health-env-panel">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <Server className="h-4 w-4 text-slate-500" />
+                      <div>
+                        <CardTitle className="text-base">Environment &amp; Connection</CardTitle>
+                        <CardDescription className="text-xs">
+                          The same payload the uptime monitors read — /api/health, refreshed every 30s
+                        </CardDescription>
+                      </div>
+                    </div>
+                    {envReport ? <StatusBadge status={envReport.overall} /> : null}
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-1.5">
+                  {healthLoading ? (
+                    <div className="space-y-1.5" aria-label="Loading environment checks">
+                      {[0, 1, 2, 3].map((n) => (
+                        <div key={n} className="h-7 w-full animate-pulse rounded-md bg-muted/60" />
+                      ))}
+                    </div>
+                  ) : healthError || !envReport ? (
+                    <p className="px-2 py-1.5 text-[11px] text-muted-foreground">
+                      The health endpoint is unreachable from this desk — the desk speaks the
+                      rest of the dashboard from the authenticated system-status endpoint above.
+                    </p>
+                  ) : (
+                    <>
+                      {envReport.rows.map((row) => (
+                        <EnvRow key={`${row.kind}:${row.name}`} row={row} />
+                      ))}
+                      {envReport.diagnostic ? (
+                        <DbDoctorCard
+                          diagnostic={envReport.diagnostic}
+                          testId="health-db-doctor"
+                          className="mt-2 rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30 px-3 py-2.5"
+                        />
+                      ) : null}
+                    </>
+                  )}
+                </CardContent>
+              </Card>
             </TabsContent>
 
             {/* ── Circuit Breakers Tab ────────────────────────────────── */}
