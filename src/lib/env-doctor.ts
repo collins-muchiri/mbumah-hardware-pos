@@ -217,3 +217,22 @@ export function formatEnvDiagnostics(report: EnvDoctorReport): string {
   }
   return lines.join('\n');
 }
+
+/**
+ * The support file's name (v2.401.0): the Download button's twin of
+ * `formatEnvDiagnostics` — one pure home for the bytes the file is called
+ * by. The name carries the version, the date and the minute so two
+ * downloads never argue about which is which:
+ *   mbumah-health-2.401.0-20261105-1742.txt
+ * Pure law holds: the clock enters as the `at: Date` argument, never read
+ * at module scope.
+ */
+export function diagnosticsFileName(version: string, at: Date): string {
+  const pad = (n: number): string => String(n).padStart(2, '0');
+  const y = at.getFullYear();
+  const m = pad(at.getMonth() + 1);
+  const d = pad(at.getDate());
+  const hh = pad(at.getHours());
+  const mm = pad(at.getMinutes());
+  return `mbumah-health-${version}-${y}${m}${d}-${hh}${mm}.txt`;
+}

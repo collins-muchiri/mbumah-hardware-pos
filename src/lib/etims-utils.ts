@@ -33,13 +33,37 @@ export function generateInvoiceNumber(
 }
 
 /**
+ * The detailed KRA PIN check (v2.401.0): the boolean `validateKraPin` keeps
+ * its contract for callers that only want the gate, while the routes that
+ * speak the failure's name (the customer-search desk answers "Invalid KRA
+ * PIN format", not a bare false) read this shape — the verdict, the
+ * normalized PIN (trimmed, uppercased) and the failure's own words.
+ */
+export interface KraPinCheck {
+  valid: boolean;
+  /** The trimmed, uppercased PIN — null when the check failed. */
+  normalized: string | null;
+  /** The human-readable failure reason — null when the PIN is valid. */
+  error: string | null;
+}
+
+export function validateKraPinDetailed(pin: string): KraPinCheck {
+  if (!pin || typeof pin !== 'string') {
+    return { valid: false, normalized: null, error: 'A KRA PIN is required.' };
+  }
+  const cleaned = pin.trim().toUpperCase();
+  if (!/^[A-Z]\d{9}[A-Z]$/.test(cleaned)) {
+    return { valid: false, normalized: null, error: 'Invalid KRA PIN format (expected A001234567B).' };
+  }
+  return { valid: true, normalized: cleaned, error: null };
+}
+
+/**
  * Validate a KRA PIN.
  * Format: 1 letter + 9 digits + 1 letter (e.g. A001234567B)
  */
 export function validateKraPin(pin: string): boolean {
-  if (!pin || typeof pin !== 'string') return false;
-  const cleaned = pin.trim().toUpperCase();
-  return /^[A-Z]\d{9}[A-Z]$/.test(cleaned);
+  return validateKraPinDetailed(pin).valid;
 }
 
 /**

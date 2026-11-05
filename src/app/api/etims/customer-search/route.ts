@@ -21,7 +21,7 @@ import { systemLog, withErrorBoundary } from '@/lib/logger';
 import { LogSeverity, LogComponent } from '@/lib/types';
 import { requireStoreAccess } from '@/lib/auth';
 import { initializeEtimsClientFromStore } from '@/lib/etims-service';
-import { validateKraPin } from '@/lib/etims-utils';
+import { validateKraPinDetailed } from '@/lib/etims-utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,7 +38,10 @@ async function customerSearchHandler(
   }
 
   // 1. Validate PIN
-  const pinCheck = validateKraPin(tinRaw);
+  // v2.401.0: the detailed check — the route speaks the failure's name
+  // ("Invalid KRA PIN format"), not a bare false; the narrowed `normalized`
+  // is the tin the rest of the handler reads.
+  const pinCheck = validateKraPinDetailed(tinRaw);
   if (!pinCheck.valid || !pinCheck.normalized) {
     return Response.json(
       { success: false, error: pinCheck.error || 'Invalid KRA PIN.' },
