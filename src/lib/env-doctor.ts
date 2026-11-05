@@ -160,3 +160,60 @@ export function diagnoseHealthChecks(body: unknown): EnvDoctorReport | null {
 
   return { rows, diagnostic, overall };
 }
+
+// ── v2.400.0 THE SUPPORT COPY — the desk's voice, taken away ────────────────
+// The panel speaks its rows to the EYES; an owner staring at a broken
+// connection still has to DESCRIBE what they see when they ask for help.
+// This is the panel's report as PLAIN TEXT — the same rows, the same
+// labels, the same overall verdict, and (when a Prisma code was spoken)
+// the doctor card's diagnosis with its ordered remediation steps — one
+// clipboard away from a support chat. PURE and deterministic: no clock,
+// no env reads, no I/O — the suite pins the exact bytes, and the button
+// that copies it cannot embellish.
+
+/** The desk's label for a row — the ONE home (the panel's chip and the
+ *  support copy speak it alike; the tab's inline map retired this round). */
+export function envRowLabel(row: Pick<EnvCheckRow, 'kind' | 'name'>): string {
+  return row.kind === 'env'
+    ? row.name
+    : row.kind === 'database'
+      ? 'Connection'
+      : row.kind === 'database_stats'
+        ? 'Stats'
+        : 'Seed';
+}
+
+/** The copy's status voice — the wire's lowercase words, uppercase for the
+ *  plain-text reading (the aria-labels keep the wire's own voice). */
+const DIAG_STATUS_VOICE: Record<HealthCheckStatus, string> = {
+  ok: 'OK',
+  warning: 'WARNING',
+  error: 'ERROR',
+};
+
+/**
+ * Format the panel's report as the support copy: a header, the overall
+ * verdict, one line per row (`LABEL: STATUS` — the detail after an em
+ * dash when the endpoint reported one), and — when the doctor card is on
+ * screen — the diagnosis block (code, title, summary, the ordered steps).
+ * The rows speak in the report's own order (endpoint order for env vars,
+ * the fixed connection order after them) — the paste reads exactly like
+ * the panel does.
+ */
+export function formatEnvDiagnostics(report: EnvDoctorReport): string {
+  const lines: string[] = ['Environment & Connection — diagnostics'];
+  lines.push(`Overall: ${DIAG_STATUS_VOICE[report.overall]}`);
+  for (const row of report.rows) {
+    const detail = row.detail ? ` — ${row.detail}` : '';
+    lines.push(`${envRowLabel(row)}: ${DIAG_STATUS_VOICE[row.status]}${detail}`);
+  }
+  if (report.diagnostic) {
+    lines.push('');
+    lines.push(`Diagnosis: ${report.diagnostic.code} — ${report.diagnostic.title}`);
+    lines.push(`- ${report.diagnostic.summary}`);
+    report.diagnostic.steps.forEach((step, i) => {
+      lines.push(`${i + 1}. ${step}`);
+    });
+  }
+  return lines.join('\n');
+}

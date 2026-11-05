@@ -49,13 +49,13 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.233.0)', () => {
   it('package.json leads 2.233.0 (all three slots)', () => {
-    expect(version).toBe('2.399.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.399.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.399.0');
+    expect(version).toBe('2.400.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.400.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.400.0');
   });
 
   it('VERSION speaks 2.233.0 and the verify gate is wired', () => {
-    expect(read('VERSION').trim()).toBe('2.399.0');
+    expect(read('VERSION').trim()).toBe('2.400.0');
     expect(pkg.scripts['verify:v2-233-0']).toBe('node scripts/verify-v2-233-0.mjs');
   });
 
@@ -161,11 +161,18 @@ describe('the LineageChip (one house style for every roster)', () => {
 
 describe('the variance map reads its rosters (zero new fetch)', () => {
   it('imports the reader and the chip from the primitives', () => {
-    expect(map).toContain('parseSheetLineage, LineageChip,');
+    // v2.400.0: the import grew the shared recount guard (the advisory
+    // pool's variance-map faces stand down) — the reader and the chip
+    // still come from the primitives, one home.
+    expect(map).toContain('parseSheetLineage, isRecountLineage, LineageChip,');
   });
 
   it('the recent roster wears the chip beside the status, keyed per sheet', () => {
-    expect(map).toContain('{lineage?.kind === \'recount\' && lineage.sourceSheetId && (');
+    // v2.400.0: the inline double-check retired into the shared
+    // isRecountLineage predicate — same two conditions, same order, the
+    // chip renders exactly where it always did.
+    expect(map).toContain('{isRecountLineage(lineage) && (');
+    expect(map).toContain('if (isRecountLineage(lineage)) {');
     expect(map).toContain('testId={`variance-map-lineage-${s.id}`}');
   });
 

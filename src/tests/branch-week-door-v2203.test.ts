@@ -62,10 +62,15 @@ const a11yDoc = readRepo('docs/a11y/contrast-math.md');
 // THE COMPILE-TIME GUARD — the v2.202.1 lesson as a type-level pin: the
 // dashboard's own trend slice must satisfy the door's structural subset,
 // so a field-name drift between wire and door cannot even compile.
-import type { DashboardData } from '@/lib/types';
+// v2.400.0: the import re-types to the interface that EXISTS — the wire
+// type was renamed DashboardData → DashboardStats long ago and this
+// guard's import kept the tombstone name (the advisory pool's
+// branch-week-door face stands down; the guard's shape is unchanged and
+// still holds: RevenueTrend7d satisfies BranchWeekWire).
+import type { DashboardStats } from '@/lib/types';
 import type { BranchWeekWire } from '@/components/dashboard/branch-doors';
 
-type WeekWireCheck = NonNullable<DashboardData['revenueTrend7d']> extends NonNullable<BranchWeekWire['revenueTrend7d']>
+type WeekWireCheck = NonNullable<DashboardStats['revenueTrend7d']> extends NonNullable<BranchWeekWire['revenueTrend7d']>
   ? true
   : never;
 const weekWireCheck: WeekWireCheck = true;
@@ -235,9 +240,9 @@ describe('v2.203.0 — the round\u2019s style: the forecast line clears the grap
 
 describe('v2.203.0 — the release surfaces', () => {
   it('the version rides at 2.203.0 in all three slots and the verify script is wired', () => {
-    expect(pkg.version).toBe('2.399.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.399.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.399.0');
+    expect(pkg.version).toBe('2.400.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.400.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.400.0');
     expect(pkg.scripts['verify:v2-203-0']).toBe('node scripts/verify-v2-203-0.mjs');
   });
 

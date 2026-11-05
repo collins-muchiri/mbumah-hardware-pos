@@ -47,6 +47,14 @@ const row = (over: Partial<HrDrillSortRow>): HrDrillSortRow => ({
   headcountActive: 0,
   monthEmploymentCost: 0,
   monthAbsenceRatePct: 0,
+  // v2.400.0: the base speaks the v2.273.0 portal fields — the interface
+  // grew REQUIRED portalLinked/portalTotal after this builder was written,
+  // and a Partial spread alone leaves them optional (the advisory pool's
+  // hr-drilldown faces stand down). Zeroes are the honest absence: 0/0 is
+  // the same no-comparison the comparator's portalTotal===0 guard speaks,
+  // and these tests never assert the portal column.
+  portalLinked: 0,
+  portalTotal: 0,
   latestPayroll: null,
   expiryAlerts: { documentsExpiring90Days: 0, assetsOverdue: 0 },
   ...over,
@@ -254,9 +262,9 @@ describe('the styling math - the avatar-hue family carries its numbers', () => {
 
 describe('docs and release surfaces', () => {
   it('package.json rides at 2.190.0 (all three slots) and the verify script is wired', () => {
-    expect(pkg.version).toBe('2.399.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.399.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.399.0');
+    expect(pkg.version).toBe('2.400.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.400.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.400.0');
     expect(pkg.scripts['verify:v2-190-0']).toBe('node scripts/verify-v2-190-0.mjs');
     expect(pkg.scripts['verify:v2-189-0']).toBe('node scripts/verify-v2-189-0.mjs');
     expect(readRepo('scripts/verify-v2-190-0.mjs')).toContain('v2.190.0 verification');

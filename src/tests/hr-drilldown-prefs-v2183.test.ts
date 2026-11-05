@@ -69,6 +69,14 @@ const row = (over: Partial<HrDrillSortRow>): HrDrillSortRow => ({
   headcountActive: 0,
   monthEmploymentCost: 0,
   monthAbsenceRatePct: 0,
+  // v2.400.0: the base speaks the v2.273.0 portal fields — the interface
+  // grew REQUIRED portalLinked/portalTotal after this builder was written,
+  // and a Partial spread alone leaves them optional (the advisory pool's
+  // hr-drilldown faces stand down). Zeroes are the honest absence (the
+  // comparator's portalTotal===0 no-comparison), and these tests never
+  // assert the portal column.
+  portalLinked: 0,
+  portalTotal: 0,
   latestPayroll: null,
   expiryAlerts: { documentsExpiring90Days: 0, assetsOverdue: 0 },
   ...over,
@@ -425,9 +433,9 @@ describe('docs and release surfaces', () => {
   });
 
   it('package.json leads 2.190.0 (all three slots) and the verify script is wired', () => {
-    expect(pkg.version).toBe('2.399.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.399.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.399.0');
+    expect(pkg.version).toBe('2.400.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.400.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.400.0');
     expect(pkg.scripts['verify:v2-183-0']).toBe('node scripts/verify-v2-183-0.mjs');
     expect(readRepo('scripts/verify-v2-183-0.mjs')).toContain('v2.183.0 verification');
   });
@@ -444,7 +452,7 @@ describe('docs and release surfaces', () => {
       'src/tests/store-matrix-prefs-v2181.test.ts',
       'src/tests/branches-table-prefs-v2182.test.ts',
     ]) {
-      expect(readRepo(f)).toContain("expect(pkg.version).toBe('2.399.0');");
+      expect(readRepo(f)).toContain("expect(pkg.version).toBe('2.400.0');");
     }
   });
 });

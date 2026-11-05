@@ -119,6 +119,12 @@ describe('decideRepoDbEnv (v2.398.0)', () => {
     expect(decision.adopt.DATABASE_URL).toBe('file:/home/z/ems/db/audit-dev.db');
     expect(decision.overrode).toEqual(['DATABASE_URL']);
     // NEXTAUTH_SECRET is outside the guard's vocabulary — untouched.
-    expect(decision.adopt.NEXTAUTH_SECRET).toBeUndefined();
+    // v2.400.0: the `in` probe — the strict-mode face stands down (the
+    // old property read typed adopt as Partial<Record<'DATABASE_URL' |
+    // 'DIRECT_URL', string>>, so a NEXTAUTH_SECRET key could not even
+    // name itself); the membership probe asserts the SAME absence in the
+    // type's own vocabulary, and the keys pin doubles the proof.
+    expect('NEXTAUTH_SECRET' in decision.adopt).toBe(false);
+    expect(Object.keys(decision.adopt)).toEqual(['DATABASE_URL']);
   });
 });

@@ -337,7 +337,14 @@ export function tabFromWorkspacePath(rest: readonly string[] | null | undefined)
   // The guard list IS the AppTab union's members (src/lib/stores.ts) —
   // kebab-case segments match tab ids one for one ('purchase-orders',
   // 'people-payroll', ...). Type-only import: no runtime stores.ts bytes.
-  const TAB_SEGMENTS: ReadonlySet<AppTab> = new Set([
+  // v2.400.0 THE HONEST NARROWING — the advisory pool's links.ts faces
+  // stand down: the set keeps its AppTab-typed construction (a typo'd
+  // member still fails to compile) but is READ through a string-keyed
+  // predicate, because membership IS the proof a segment names a tab.
+  // The predicate — not a cast — hands the caller the narrowed AppTab,
+  // and the strict-mode pair (`has(segment)` on a string key + the
+  // string-typed return) both compile honestly.
+  const TAB_SEGMENTS: ReadonlySet<string> = new Set<AppTab>([
     'dashboard', 'pos', 'catalog', 'inventory', 'customers', 'rentals',
     'financial', 'reports', 'transactions', 'suppliers', 'gift-cards',
     'admin', 'vouchers', 'invoices', 'delivery', 'credits', 'messaging',
@@ -346,5 +353,6 @@ export function tabFromWorkspacePath(rest: readonly string[] | null | undefined)
     'conversations', 'purchase-orders', 'analytics', 'data-exports',
     'shift-scheduling', 'system-health',
   ]);
-  return TAB_SEGMENTS.has(segment) ? segment : null;
+  const isTabSegment = (s: string): s is AppTab => TAB_SEGMENTS.has(s);
+  return isTabSegment(segment) ? segment : null;
 }

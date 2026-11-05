@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.400.0',
+    title: 'The health desk hands you the words — copy the diagnostics, paste the answer',
+    bullets: [
+      'The System Health tab\u2019s Environment & Connection panel gained a Copy button: one click puts the panel\u2019s report — every environment check, the connection verdict and the live row counts — on your clipboard as plain text, ready to paste into a support chat.',
+      'When the desk shows a database error card, the copied report carries the diagnosis too: the error code, what it means, and the ordered fix steps.',
+      'Copy flips to a green Copied for two seconds so you know the paste is ready; a refused clipboard says so honestly.',
+      'Under the hood: nine long-standing strict-mode type faces (the variance map, the workspace link mapper, the branch-week guard, the HR drill-down suites) were repaired — same behavior, honestly typed.',
+    ],
+  },
+  {
     version: '2.399.0',
     title: 'The health desk speaks the failure\u2019s name — one card, two desks',
     bullets: [

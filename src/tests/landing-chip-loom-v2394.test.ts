@@ -344,8 +344,13 @@ const THE_ELDER = [
     historic: 'border-indigo-200 bg-indigo-50 text-indigo-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-indigo-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300 dark:hover:bg-indigo-500/20',
   },
   {
+    // v2.400.0: sharedWith 10 → 11 — the drift alarm registered a new
+    // honest wearer: the System Health desk's support-copy button (the
+    // Environment & Connection panel's Copied hand-back wears the
+    // emerald family in its success state, system-health-tab.tsx). The
+    // chip's own wardrobe never moved.
     word: 'sup-status', desk: 'src/app/(shell)/tabs/suppliers-tab.tsx', hue: 'emerald', variant: 'quiet',
-    testid: 'sup-landing-word', labelVar: 'landedSupStatus', sharedWith: 10,
+    testid: 'sup-landing-word', labelVar: 'landedSupStatus', sharedWith: 11,
     dismissBytes: ["setFilterStatus('all');", "setLandingLive(false);"],
     historic: 'border-emerald-200 bg-emerald-50 text-emerald-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300 dark:hover:bg-emerald-500/20',
   },
