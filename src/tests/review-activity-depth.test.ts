@@ -247,7 +247,13 @@ describe('Console page - the poll fetches the view the reviewer chose', () => {
   const PAGE = readRepo('src/app/(shell)/console/page.tsx');
 
   it('the desk filter state lives at page level (survives the 30s poll)', () => {
-    expect(PAGE).toMatch(/const \[deskFilter, setDeskFilter\] = useState<DeskActivityFilter>\(\{ reviewer: null, branch: null \}\);/);
+    // v2.409.0 re-anchor — THE DESK REMEMBERS: the lens moved UP a floor —
+    // the state IS the persisted store slice now (one source of truth),
+    // restored by the page's hydration boot and written through on every
+    // change, so it survives more than the poll: it survives the visit.
+    expect(PAGE).toContain('const deskFilter = useAppStore((s) => s.consoleDeskFilter);');
+    expect(PAGE).toContain('const setDeskFilter = useAppStore((s) => s.setConsoleDeskFilter);');
+    expect(PAGE).toContain('useAppStoreHydration();');
   });
 
   it('the filter serializes into the poll URL (reviewer first, branch second)', () => {
@@ -269,7 +275,14 @@ describe('Console page - the poll fetches the view the reviewer chose', () => {
   });
 
   it('the DeskActivityFilter type is imported from primitives', () => {
-    expect(PAGE).toContain('type DeskActivityFilter');
+    // v2.409.0 re-anchor: the page no longer names the type (the store's
+    // structural twin `ConsoleDeskFilter` answers the contract — structural
+    // typing keeps the two shapes honestly assignment-compatible); the
+    // panel wiring itself is unchanged (filter + onFilterChange thread
+    // through unchanged, the store setter satisfies the panel's prop).
+    expect(PAGE).not.toContain('type DeskActivityFilter');
+    expect(PAGE).toContain('<DeskActivity data={deskActivity} filter={deskFilter} onFilterChange={setDeskFilter} />');
+    expect(readRepo('src/lib/stores.ts')).toContain('export interface ConsoleDeskFilter');
   });
 });
 

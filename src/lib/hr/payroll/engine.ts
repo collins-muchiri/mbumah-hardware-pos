@@ -16,6 +16,16 @@ import {
   type PayrollJournalLine,
 } from './types';
 
+// v2.409.0: the engine's public contract re-exports the four types its own
+// callers (the test suite first) already address THROUGH the engine — the
+// declarations live in ./types (one truth), the engine is the door.
+export { PayrollGuardrailError } from './types';
+export type {
+  PayslipInputEmployee,
+  PayslipInputPeriod,
+  ResolvedRateTable,
+} from './types';
+
 // ── Rate resolution ─────────────────────────────────────────────────────────
 
 /**

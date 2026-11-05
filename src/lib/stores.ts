@@ -356,6 +356,20 @@ export type AppTab = 'dashboard' | 'pos' | 'catalog' | 'inventory' | 'customers'
 
 export type SidebarState = 'expanded' | 'collapsed' | 'mobile-overlay';
 
+/**
+ * The org desk's Desk-Activity drill-down lens (v2.409.0 — the desk
+ * remembers). Structural twin of the panel's `DeskActivityFilter`
+ * (components/org/primitives): the store layer never imports from the
+ * component layer, and TypeScript's structural typing keeps the two shapes
+ * honestly assignment-compatible (one contract, two addresses).
+ */
+export interface ConsoleDeskFilter {
+  /** The reviewer's display name as the ledger rows render it, or null. */
+  reviewer: string | null;
+  /** The store id the ledger is narrowed to, or null. */
+  branch: string | null;
+}
+
 interface AppState {
   activeTab: AppTab;
   setActiveTab: (tab: AppTab) => void;
@@ -388,6 +402,29 @@ interface AppState {
   currencyChosen: boolean;
   setActiveCurrency: (currency: CurrencyCode) => void;
   /**
+   * THE GREETING'S PROVENANCE (v2.409.0, transient): true only while the
+   * CURRENT display currency arrived through the branch-default seed and
+   * the visitor has not yet chosen. Never persisted (absent from
+   * partialize — a fresh load re-seeds and re-stamps, so the dot can never
+   * outlive the greeting it speaks for), never set by the switcher's write
+   * path (a human hand ends the greeting by planting `currencyChosen`).
+   * The trigger's greeting dot reads this — exact provenance, not a guess
+   * from the bare flag.
+   */
+  seededFromBranch: boolean;
+  /**
+   * THE AUDIT DESK'S LENS (v2.409.0 — the desk remembers): the org desk's
+   * Desk-Activity drill-down (reviewer/branch pair) persists across visits —
+   * an auditor who narrows the ledger to their reviewer and returns next
+   * week re-lands on the same narrowed view instead of the unfiltered org
+   * wall. `null` pair = the unfiltered org view (the factory default).
+   * Serialized as-is into mbt_app_store (plain strings/nulls — no
+   * migration needed; older persisted blobs answer undefined → the panel
+   * treats absence exactly like the factory lens).
+   */
+  consoleDeskFilter: ConsoleDeskFilter;
+  setConsoleDeskFilter: (filter: ConsoleDeskFilter) => void;
+  /**
    * Derive the visual sidebar state from the store + viewport.
    * Returns 'expanded' | 'collapsed' | 'mobile-overlay'.
    */
@@ -417,6 +454,17 @@ export const useAppStore = create<AppState>()(
       activeCurrency: 'KES',
       currencyChosen: false,
       setActiveCurrency: (currency) => set({ activeCurrency: currency, currencyChosen: true }),
+      // v2.409.0: the greeting's provenance — transient, never persisted.
+      seededFromBranch: false,
+      // v2.409.0: the audit desk's lens — null pair is the honest org view.
+      consoleDeskFilter: { reviewer: null, branch: null },
+      setConsoleDeskFilter: (filter) =>
+        set({
+          consoleDeskFilter: {
+            reviewer: filter.reviewer ?? null,
+            branch: filter.branch ?? null,
+          },
+        }),
       getSidebarState: (isDesktop: boolean): SidebarState => {
         const state = get();
         if (!isDesktop) {
@@ -446,6 +494,10 @@ export const useAppStore = create<AppState>()(
         // once, and their first explicit switch plants the flag).
         activeCurrency: state.activeCurrency,
         currencyChosen: state.currencyChosen,
+        // v2.409.0: the audit desk's lens rides with the rest of the app
+        // preferences — an older blob answers undefined and the desk boots
+        // on the factory lens (honest absence, no migration).
+        consoleDeskFilter: state.consoleDeskFilter,
       }),
     },
   ),

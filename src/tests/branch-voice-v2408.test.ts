@@ -90,7 +90,12 @@ describe('the display-currency slice grows currencyChosen', () => {
 
 describe('the seed lib writes as a courtesy, never an override', () => {
   it('the seed writes via setState — planting currencyChosen would turn the courtesy into a choice', () => {
-    expect(seedLib).toContain('useAppStore.setState({ activeCurrency: seed })');
+    // v2.409.0 re-anchor: the write also stamps the greeting's provenance
+    // (`seededFromBranch`, transient) — the courtesy's shape grew a truth,
+    // the law held (still no flag planted, still not setActiveCurrency).
+    expect(seedLib).toContain(
+      'useAppStore.setState({ activeCurrency: seed, seededFromBranch: true })',
+    );
     expect(seedLib).not.toContain('seedPromise = (async () => {\n      const wire = await fetchBranchCurrency();\n      const seed = resolveSeed(useAppStore.getState(), wire);\n      if (seed) {\n        setActiveCurrency');
     expect(seedLib).toContain('// NOT setActiveCurrency');
   });

@@ -31,8 +31,10 @@ import { ChangelogModal, CommandPalette, ConsoleFooter, ConsoleHeader, LoginDial
 import { WhatsNewDialog } from '@/components/whats-new-dialog';
 import { APP_VERSION } from '@/lib/version';
 import { SectionErrorBoundary } from '@/components/error-boundary';
-import { KenyaMap, Sparkline, WeekDeltaChip, weekDeltaWords, kes, num, timeAgo, type DeskActivityData, type DeskActivityFilter, type KpiSummaryData, type OrgSummaryData, type StoreRow } from '@/components/org/primitives';
+import { KenyaMap, Sparkline, WeekDeltaChip, weekDeltaWords, kes, num, timeAgo, type DeskActivityData, type KpiSummaryData, type OrgSummaryData, type StoreRow } from '@/components/org/primitives';
 import { authorizedFetchJson } from '@/lib/api';
+import { useAppStoreHydration } from '@/lib/app-store-hydration';
+import { useAppStore } from '@/lib/stores';
 import { buildStoreWorkspaceUrl } from '@/lib/workspace/links';
 import { PeoplePayrollByBranch, PeoplePayrollUnavailable } from '@/components/finance/people-payroll-by-branch';
 import { UnifiedConsoleShell } from '@/components/console/unified-console';
@@ -62,6 +64,13 @@ const HrPerStorePanel = PeoplePayrollByBranch;
 const HrPerStoreUnavailable = PeoplePayrollUnavailable;
 
 export default function OrgConsolePage() {
+  // THE DESK REMEMBERS (v2.409.0): the org desk reads the persisted app
+  // store (the banner switcher's currency slice above all) — ask for the
+  // visitor's TRUE state back before anything decides on factory defaults.
+  // The branch-default seed awaits this boot (currency-seed.ts) — without
+  // it the seed read `currencyChosen:false` here and a branch default
+  // steamrolled an explicit choice (LIVE-PROVEN: KES/true → USD/false).
+  useAppStoreHydration();
   const [summary, setSummary] = useState<OrgSummaryData | null>(null);
   const [kpi, setKpi] = useState<KpiSummaryData | null>(null);
   // v2.64.0: the desk-activity audit panel (GET /api/org/review-activity).
@@ -71,7 +80,13 @@ export default function OrgConsolePage() {
   // the next tick).
   const [deskActivity, setDeskActivity] = useState<DeskActivityData | null>(null);
   const [deskActivityError, setDeskActivityError] = useState<string | null>(null);
-  const [deskFilter, setDeskFilter] = useState<DeskActivityFilter>({ reviewer: null, branch: null });
+  // THE DESK REMEMBERS ITS LENS (v2.409.0): the drill-down state IS the
+  // persisted store slice — one source of truth. The hydration boot above
+  // restores the visitor's last lens a beat after first paint (older blobs
+  // answer the factory lens), and every filter change writes through to
+  // mbt_app_store, so next week's visit re-lands narrowed the same way.
+  const deskFilter = useAppStore((s) => s.consoleDeskFilter);
+  const setDeskFilter = useAppStore((s) => s.setConsoleDeskFilter);
   const deskQuery = useMemo(() => {
     const params = new URLSearchParams();
     if (deskFilter.reviewer) params.set('reviewer', deskFilter.reviewer);

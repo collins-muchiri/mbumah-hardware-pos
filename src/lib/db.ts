@@ -453,9 +453,59 @@ interface QueryInterceptorArgs<
  */
 interface TenantFilterableArgs {
   /** Filter clause; tenancy injection ANDs `storeId` into it. */
-  where?: { storeId?: string } | null;
+  where?: {
+    storeId?: string;
+    /** Prisma's filter combinator. injectTenant PRESERVES any existing AND
+     *  when AND-narrowing (the guard never inspects its contents — the
+     *  honest type here is `unknown`, the wearer's own where-input type is
+     *  the precise one). */
+    AND?: unknown;
+  } | null;
   /** Remaining Prisma argument keys (select, orderBy, take, data, …). */
   [key: string]: unknown;
+}
+
+/**
+ * The four mutation interceptors of ONE immutable model, typed by that
+ * model's REAL Prisma mutation-argument bags (v2.409.0).
+ *
+ * The handlers do exactly what they always did — `assertMutable` then
+ * forward the argument bag untouched — but their parameter shape is now
+ * declared per model instead of the loose index-signature stand-in, so
+ * TypeScript verifies the handler against the slot Prisma actually hands
+ * it (the twenty-four strict-mode faces stood down without a single
+ * `as` cast and without losing a single compile tooth: `model`,
+ * `operation` and the forwarded `args` all keep their static checks).
+ *
+ * @typeParam TUpdate - the model's `XUpdateArgs` (Prisma namespace).
+ * @typeParam TUpdateMany - the model's `XUpdateManyArgs`.
+ * @typeParam TDelete - the model's `XDeleteArgs`.
+ * @typeParam TDeleteMany - the model's `XDeleteManyArgs`.
+ */
+function immutabilityGuard<
+  TUpdate extends object,
+  TUpdateMany extends object,
+  TDelete extends object,
+  TDeleteMany extends object,
+>() {
+  return {
+    async update({ model, operation, args, query }: QueryInterceptorArgs<TUpdate>) {
+      assertMutable(model, operation);
+      return query(args);
+    },
+    async updateMany({ model, operation, args, query }: QueryInterceptorArgs<TUpdateMany>) {
+      assertMutable(model, operation);
+      return query(args);
+    },
+    async delete({ model, operation, args, query }: QueryInterceptorArgs<TDelete>) {
+      assertMutable(model, operation);
+      return query(args);
+    },
+    async deleteMany({ model, operation, args, query }: QueryInterceptorArgs<TDeleteMany>) {
+      assertMutable(model, operation);
+      return query(args);
+    },
+  };
 }
 
 const hardenedClient = baseClient.$extends({
@@ -507,117 +557,51 @@ const hardenedClient = baseClient.$extends({
       }),
     ) as Record<string, object>),
 
-    // Immutability: block mutations on financial/audit models
-    journalEntry: {
-      async update({ model, operation, args, query }: QueryInterceptorArgs) {
-        assertMutable(model, operation);
-        return query(args);
-      },
-      async updateMany({ model, operation, args, query }: QueryInterceptorArgs) {
-        assertMutable(model, operation);
-        return query(args);
-      },
-      async delete({ model, operation, args, query }: QueryInterceptorArgs) {
-        assertMutable(model, operation);
-        return query(args);
-      },
-      async deleteMany({ model, operation, args, query }: QueryInterceptorArgs) {
-        assertMutable(model, operation);
-        return query(args);
-      },
-    },
-    journalEntryLine: {
-      async update({ model, operation, args, query }: QueryInterceptorArgs) {
-        assertMutable(model, operation);
-        return query(args);
-      },
-      async updateMany({ model, operation, args, query }: QueryInterceptorArgs) {
-        assertMutable(model, operation);
-        return query(args);
-      },
-      async delete({ model, operation, args, query }: QueryInterceptorArgs) {
-        assertMutable(model, operation);
-        return query(args);
-      },
-      async deleteMany({ model, operation, args, query }: QueryInterceptorArgs) {
-        assertMutable(model, operation);
-        return query(args);
-      },
-    },
-    systemLog: {
-      async update({ model, operation, args, query }: QueryInterceptorArgs) {
-        assertMutable(model, operation);
-        return query(args);
-      },
-      async updateMany({ model, operation, args, query }: QueryInterceptorArgs) {
-        assertMutable(model, operation);
-        return query(args);
-      },
-      async delete({ model, operation, args, query }: QueryInterceptorArgs) {
-        assertMutable(model, operation);
-        return query(args);
-      },
-      async deleteMany({ model, operation, args, query }: QueryInterceptorArgs) {
-        assertMutable(model, operation);
-        return query(args);
-      },
-    },
-    payrollDetail: {
-      async update({ model, operation, args, query }: QueryInterceptorArgs) {
-        assertMutable(model, operation);
-        return query(args);
-      },
-      async updateMany({ model, operation, args, query }: QueryInterceptorArgs) {
-        assertMutable(model, operation);
-        return query(args);
-      },
-      async delete({ model, operation, args, query }: QueryInterceptorArgs) {
-        assertMutable(model, operation);
-        return query(args);
-      },
-      async deleteMany({ model, operation, args, query }: QueryInterceptorArgs) {
-        assertMutable(model, operation);
-        return query(args);
-      },
-    },
+    // Immutability: block mutations on financial/audit models. Each block
+    // is the shared guard factory instantiated with THAT model's REAL
+    // Prisma mutation-arg types (v2.409.0 — the twenty-four strict-mode
+    // faces stood down): the handlers' bodies keep their compile teeth
+    // (assertMutable's model/operation, query forwarded with the very bag
+    // it received) while the argument shape is Prisma's own, not a
+    // loose index-signature stand-in.
+    journalEntry: immutabilityGuard<
+      Prisma.JournalEntryUpdateArgs,
+      Prisma.JournalEntryUpdateManyArgs,
+      Prisma.JournalEntryDeleteArgs,
+      Prisma.JournalEntryDeleteManyArgs
+    >(),
+    journalEntryLine: immutabilityGuard<
+      Prisma.JournalEntryLineUpdateArgs,
+      Prisma.JournalEntryLineUpdateManyArgs,
+      Prisma.JournalEntryLineDeleteArgs,
+      Prisma.JournalEntryLineDeleteManyArgs
+    >(),
+    systemLog: immutabilityGuard<
+      Prisma.SystemLogUpdateArgs,
+      Prisma.SystemLogUpdateManyArgs,
+      Prisma.SystemLogDeleteArgs,
+      Prisma.SystemLogDeleteManyArgs
+    >(),
+    payrollDetail: immutabilityGuard<
+      Prisma.PayrollDetailUpdateArgs,
+      Prisma.PayrollDetailUpdateManyArgs,
+      Prisma.PayrollDetailDeleteArgs,
+      Prisma.PayrollDetailDeleteManyArgs
+    >(),
     // v2.1.0: AuditLog is tamper-proof (ISO 27001 A.12.4.2)
-    auditLog: {
-      async update({ model, operation, args, query }: QueryInterceptorArgs) {
-        assertMutable(model, operation);
-        return query(args);
-      },
-      async updateMany({ model, operation, args, query }: QueryInterceptorArgs) {
-        assertMutable(model, operation);
-        return query(args);
-      },
-      async delete({ model, operation, args, query }: QueryInterceptorArgs) {
-        assertMutable(model, operation);
-        return query(args);
-      },
-      async deleteMany({ model, operation, args, query }: QueryInterceptorArgs) {
-        assertMutable(model, operation);
-        return query(args);
-      },
-    },
+    auditLog: immutabilityGuard<
+      Prisma.AuditLogUpdateArgs,
+      Prisma.AuditLogUpdateManyArgs,
+      Prisma.AuditLogDeleteArgs,
+      Prisma.AuditLogDeleteManyArgs
+    >(),
     // v2.1.0: TrialBalanceSnapshot is immutable once captured
-    trialBalanceSnapshot: {
-      async update({ model, operation, args, query }: QueryInterceptorArgs) {
-        assertMutable(model, operation);
-        return query(args);
-      },
-      async updateMany({ model, operation, args, query }: QueryInterceptorArgs) {
-        assertMutable(model, operation);
-        return query(args);
-      },
-      async delete({ model, operation, args, query }: QueryInterceptorArgs) {
-        assertMutable(model, operation);
-        return query(args);
-      },
-      async deleteMany({ model, operation, args, query }: QueryInterceptorArgs) {
-        assertMutable(model, operation);
-        return query(args);
-      },
-    },
+    trialBalanceSnapshot: immutabilityGuard<
+      Prisma.TrialBalanceSnapshotUpdateArgs,
+      Prisma.TrialBalanceSnapshotUpdateManyArgs,
+      Prisma.TrialBalanceSnapshotDeleteArgs,
+      Prisma.TrialBalanceSnapshotDeleteManyArgs
+    >(),
   },
 });
 
