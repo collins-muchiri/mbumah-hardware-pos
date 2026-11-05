@@ -118,6 +118,18 @@ function parseTaxBreakdown(json: string | null): {
   }
 }
 
+// v2.395.0: the receipt's JSON face — the KRA answer leaves in pretty JSON
+// (the paper-trail pattern: what the operator files is what KRA sent back).
+// An unparseable body prints raw — the hop never lies about the payload.
+function prettySubmissionResponse(json: string | null): string | null {
+  if (!json) return null;
+  try {
+    return JSON.stringify(JSON.parse(json), null, 2);
+  } catch {
+    return json;
+  }
+}
+
 // Profile Sub-Tab
 
 function ProfileSection({ storeId }: { storeId: string }) {
@@ -1037,6 +1049,9 @@ function InvoiceDetailDialog({
   });
   // v2.8.0: admin-controlled VAT rate for the label (amount is stored data).
   const { vatRate } = useVatRate();
+  // v2.395.0: the receipt-hop's state — the invoice detail's history rows
+  // each open the SAME paper-trail dialog the audit log speaks.
+  const [receiptFor, setReceiptFor] = useState<KraSubmissionItem | null>(null);
 
   if (!invoice) return null;
   const statusCfg = SUBMISSION_STATUS_CONFIG[invoice.submissionStatus] || SUBMISSION_STATUS_CONFIG.PENDING;
@@ -1153,8 +1168,8 @@ function InvoiceDetailDialog({
               </div>
               <ScrollArea className="max-h-48">
                 <div className="divide-y">
-                  {submissions.map((sub: { id: string; kraReferenceNumber: string | null; status: string; createdAt: string }) => (
-                    <SubmissionHistoryRow key={sub.id} submission={sub} />
+                  {submissions.map((sub: KraSubmissionItem) => (
+                    <SubmissionHistoryRow key={sub.id} submission={sub} onOpenReceipt={setReceiptFor} />
                   ))}
                 </div>
               </ScrollArea>
@@ -1181,12 +1196,21 @@ function InvoiceDetailDialog({
             </div>
           </div>
         </div>
+
+        {/* v2.395.0: the receipt-hop — the history row's paper trail. */}
+        <SubmissionReceiptDialog submission={receiptFor} onClose={() => setReceiptFor(null)} />
       </DialogContent>
     </Dialog>
   );
 }
 
-function SubmissionHistoryRow({ submission }: { submission: KraSubmissionItem }) {
+function SubmissionHistoryRow({
+  submission,
+  onOpenReceipt,
+}: {
+  submission: KraSubmissionItem;
+  onOpenReceipt?: (submission: KraSubmissionItem) => void;
+}) {
   const statusCfg = SUBMISSION_STATUS_CONFIG[submission.status] || SUBMISSION_STATUS_CONFIG.PENDING;
   const StatusIcon = statusCfg.icon;
   return (
@@ -1206,8 +1230,166 @@ function SubmissionHistoryRow({ submission }: { submission: KraSubmissionItem })
           <p className="text-rose-600 dark:text-rose-400 truncate">{submission.errorMessage}</p>
         )}
       </div>
+      {onOpenReceipt && (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-6 px-2 text-xs shrink-0 text-muted-foreground hover:text-foreground"
+          data-testid="kra-history-receipt-open"
+          aria-label="Open submission receipt"
+          title="View the KRA response for this call"
+          onClick={() => onOpenReceipt(submission)}
+        >
+          <Receipt className="h-3 w-3 mr-1" />
+          Receipt
+        </Button>
+      )}
       <span className="text-muted-foreground shrink-0">{formatDateTime(submission.submittedAt)}</span>
     </div>
+  );
+}
+
+// v2.395.0: THE RECEIPT-HOP — the submission's paper trail reaches the
+// operator's hands from BOTH faces that list submissions (the audit log's
+// rows and the invoice detail's history rows). The dialog speaks the same
+// paper-trail wardrobe of the dry-run payload card and rides the app's
+// print-root pipeline (printReceiptElement clones the host into #print-root;
+// @media print shows ONLY that host; colors survive print-color-adjust).
+// The response body leaves in pretty JSON; an unparseable body prints raw.
+
+function SubmissionReceiptDialog({
+  submission,
+  onClose,
+}: {
+  submission: KraSubmissionItem | null;
+  onClose: () => void;
+}) {
+  const [responseCopied, setResponseCopied] = useState(false);
+
+  if (!submission) return null;
+  const statusCfg = SUBMISSION_STATUS_CONFIG[submission.status] || SUBMISSION_STATUS_CONFIG.PENDING;
+  const StatusIcon = statusCfg.icon;
+  const responseText = prettySubmissionResponse(submission.responseJson);
+
+  const copyResponse = async () => {
+    try {
+      await navigator.clipboard.writeText(responseText ?? '');
+      setResponseCopied(true);
+      setTimeout(() => setResponseCopied(false), 2000);
+      toast.success('Response JSON copied to the clipboard.');
+    } catch {
+      toast.error('Could not copy the response to the clipboard.');
+    }
+  };
+
+  return (
+    <Dialog open={!!submission} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-[640px] max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Receipt className="h-5 w-5" />
+            KRA submission receipt
+          </DialogTitle>
+          <DialogDescription className="font-mono text-xs">
+            {submission.kraReferenceNumber || 'No reference yet'}
+          </DialogDescription>
+        </DialogHeader>
+        <div
+          id="kra-submission-receipt"
+          data-testid="kra-submission-receipt"
+          className="rounded-lg border border-slate-200 bg-slate-50/60 dark:border-slate-800 dark:bg-slate-900/40 p-3 text-xs space-y-3"
+        >
+          {/* the status banner — the same config the rows speak */}
+          <div className={`flex items-center gap-3 p-2.5 rounded-md border ${statusCfg.color}`}>
+            <StatusIcon className="h-4 w-4" />
+            <span className="font-medium">{statusCfg.label}</span>
+            {submission.httpStatus != null && (
+              <span className="text-muted-foreground">HTTP {submission.httpStatus}</span>
+            )}
+            {submission.latencyMs != null && (
+              <span className="text-muted-foreground tabular-nums">{submission.latencyMs}ms</span>
+            )}
+          </div>
+
+          <dl className="divide-y divide-slate-200 dark:divide-slate-800">
+            <div className="flex items-center justify-between gap-3 py-1.5">
+              <dt className="text-muted-foreground">KRA reference</dt>
+              <dd className="font-mono">{submission.kraReferenceNumber || '-'}</dd>
+            </div>
+            <div className="flex items-center justify-between gap-3 py-1.5">
+              <dt className="text-muted-foreground">Invoice no.</dt>
+              <dd className="font-mono">{submission.invoiceForKra?.kraInvoiceNumber || '-'}</dd>
+            </div>
+            <div className="flex items-center justify-between gap-3 py-1.5">
+              <dt className="text-muted-foreground">Receipt #</dt>
+              <dd className="font-mono">{submission.invoiceForKra?.transaction?.receiptNumber || '-'}</dd>
+            </div>
+            <div className="flex items-center justify-between gap-3 py-1.5">
+              <dt className="text-muted-foreground">Submitted</dt>
+              <dd className="tabular-nums">{formatDateTime(submission.submittedAt)}</dd>
+            </div>
+            <div className="flex items-center justify-between gap-3 py-1.5">
+              <dt className="text-muted-foreground">Processed</dt>
+              <dd className="tabular-nums">{submission.processedAt ? formatDateTime(submission.processedAt) : '-'}</dd>
+            </div>
+            {submission.errorMessage && (
+              <div className="py-1.5">
+                <dt className="text-muted-foreground">Error</dt>
+                <dd className="text-rose-600 dark:text-rose-400 mt-0.5">{submission.errorMessage}</dd>
+              </div>
+            )}
+          </dl>
+
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <span className="inline-flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-300">
+                <Database className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                KRA response — the paper trail
+              </span>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-6 px-2 text-xs"
+                  data-testid="kra-submission-receipt-print"
+                  aria-label="Print submission receipt"
+                  title="Print the submission receipt"
+                  onClick={() => printReceiptElement('kra-submission-receipt')}
+                >
+                  <Printer className="h-3 w-3 mr-1" />
+                  Print
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-6 px-2 text-xs"
+                  data-testid="kra-submission-receipt-copy"
+                  aria-label="Copy response JSON"
+                  onClick={copyResponse}
+                >
+                  {responseCopied ? (
+                    <Check className="h-3 w-3 mr-1 text-emerald-600 dark:text-emerald-400" />
+                  ) : (
+                    <Copy className="h-3 w-3 mr-1" />
+                  )}
+                  {responseCopied ? 'Copied' : 'Copy'}
+                </Button>
+              </div>
+            </div>
+            {responseText ? (
+              <pre
+                data-testid="kra-submission-receipt-response"
+                className="max-h-56 overflow-y-auto whitespace-pre-wrap break-all rounded-md border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950/60 p-2 font-mono text-[11px] leading-relaxed text-slate-700 dark:text-slate-300"
+              >
+                {responseText}
+              </pre>
+            ) : (
+              <p className="text-muted-foreground italic">No response body was recorded for this call.</p>
+            )}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -1216,6 +1398,8 @@ function SubmissionHistoryRow({ submission }: { submission: KraSubmissionItem })
 function AuditLogSection({ storeId }: { storeId: string }) {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [limit] = useState(50);
+  // v2.395.0: the receipt-hop — every audit row opens the paper-trail dialog.
+  const [receiptFor, setReceiptFor] = useState<KraSubmissionItem | null>(null);
 
   const { data, isLoading, refetch, isFetching } = useQuery({
     queryKey: ['kra-submissions', storeId, statusFilter, limit],
@@ -1276,11 +1460,11 @@ function AuditLogSection({ storeId }: { storeId: string }) {
         ) : (
           <ScrollArea className="max-h-[600px]">
             <div className="space-y-2">
-              {submissions.map((sub: { id: string; kraReferenceNumber: string | null; status: string; createdAt: string }) => {
+              {submissions.map((sub: KraSubmissionItem) => {
                 const statusCfg = SUBMISSION_STATUS_CONFIG[sub.status] || SUBMISSION_STATUS_CONFIG.PENDING;
                 const StatusIcon = statusCfg.icon;
                 return (
-                  <div key={sub.id} className="flex items-start gap-3 p-3 rounded-lg border hover:bg-muted/30">
+                  <div key={sub.id} className="flex items-start gap-3 p-3 rounded-lg border hover:bg-muted/30 transition-colors">
                     <StatusIcon className={`h-4 w-4 shrink-0 mt-0.5 ${statusCfg.color.split(' ')[1]}`} />
                     <div className="flex-1 min-w-0 space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -1299,7 +1483,7 @@ function AuditLogSection({ storeId }: { storeId: string }) {
                           <span className="text-xs text-muted-foreground">HTTP {sub.httpStatus}</span>
                         )}
                         {sub.latencyMs != null && (
-                          <span className="text-xs text-muted-foreground">{sub.latencyMs}ms</span>
+                          <span className="text-xs text-muted-foreground tabular-nums">{sub.latencyMs}ms</span>
                         )}
                       </div>
                       {sub.errorMessage && (
@@ -1311,6 +1495,18 @@ function AuditLogSection({ storeId }: { storeId: string }) {
                         </p>
                       )}
                     </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 px-2 text-xs shrink-0 text-muted-foreground hover:text-foreground"
+                      data-testid="kra-audit-receipt-open"
+                      aria-label="Open submission receipt"
+                      title="View the KRA response for this call"
+                      onClick={() => setReceiptFor(sub)}
+                    >
+                      <Receipt className="h-3 w-3 mr-1" />
+                      Receipt
+                    </Button>
                     <span className="text-xs text-muted-foreground shrink-0">
                       {formatDateTime(sub.submittedAt)}
                     </span>
@@ -1321,6 +1517,9 @@ function AuditLogSection({ storeId }: { storeId: string }) {
           </ScrollArea>
         )}
       </CardContent>
+
+      {/* v2.395.0: the receipt-hop — the audit row's paper trail. */}
+      <SubmissionReceiptDialog submission={receiptFor} onClose={() => setReceiptFor(null)} />
     </Card>
   );
 }

@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.395.0',
+    title: 'The submission receipt hop — every KRA call files its paper trail one tap away',
+    bullets: [
+      'Every row in the KRA Audit Log now carries a Receipt button — tap it and the call opens into its paper-trail receipt: the reference, the invoice number, the timings and the full KRA response.',
+      'The KRA response arrives pretty-printed, copy-ready JSON — what the operator files is exactly what KRA sent back, no digging through the database.',
+      'Print straight from the receipt: it rides the same print pipeline behind your POS receipts, colors intact on paper.',
+      'The invoice detail\u2019s submission history rows gained the same Receipt face — the paper trail is one tap from both lists.',
+    ],
+  },
+  {
     version: '2.394.0',
     title: 'The ten landing chips share one loom — the export ledger\u2019s two chips and the messaging templates\u2019 chip now wear one wardrobe',
     bullets: [
