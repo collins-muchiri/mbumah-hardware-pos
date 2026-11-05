@@ -67,6 +67,43 @@ async function fetchBranchCurrency(): Promise<BranchCurrencyWire | null> {
 
 let seedPromise: Promise<void> | null = null;
 
+// THE DESK REMEMBERS (v2.409.0): the store persists with `skipHydration:
+// true` — a surface must ASK for its persisted state back. The org desk
+// never asked, so this seed read the FACTORY state there (`currencyChosen:
+// false`) and a branch default STEAMROLLED an explicit choice that sat
+// unread in localStorage — then the write-back destroyed that choice in
+// storage (LIVE-PROVEN: KES/true → reload → USD/false). The fix is to wait
+// for the surface's hydration boot (app-store-hydration.ts) before deciding.
+//
+// THE ORDERING LAW: the seed never INITIATES a rehydrate — on the tabs SPA
+// the boot chains consumeDeepLink after ITS rehydrate settles, and a second
+// rehydrate resolving later could clobber the consumed deep link. The seed
+// only WAITS: hydration already done → proceed now; a boot in flight → its
+// onFinishHydration releases us; no boot at all → the 150 ms safety net
+// decides on what the store actually holds (the v2.408.0 best-effort
+// courtesy — a slow decide beats a hung switcher, and every surface that
+// mounts the switcher now boots).
+const SEED_HYDRATION_PATIENCE_MS = 150;
+
+async function awaitHydratedState(): Promise<void> {
+  const persistApi = useAppStore.persist;
+  if (!persistApi) return;
+  if (persistApi.hasHydrated()) return;
+  await new Promise<void>((resolve) => {
+    let settled = false;
+    const release = () => {
+      if (settled) return;
+      settled = true;
+      resolve();
+    };
+    const unsubscribe = persistApi.onFinishHydration(() => {
+      unsubscribe();
+      release();
+    });
+    setTimeout(release, SEED_HYDRATION_PATIENCE_MS);
+  });
+}
+
 /**
  * Seed the session's display currency from the branch default (once per
  * page load — N mounts share the promise). Fire-and-forget safe: every
@@ -76,12 +113,18 @@ let seedPromise: Promise<void> | null = null;
 export function seedCurrencyFromBranch(): Promise<void> {
   if (!seedPromise) {
     seedPromise = (async () => {
+      // Decide on the visitor's TRUE state, never the factory one.
+      await awaitHydratedState();
       const wire = await fetchBranchCurrency();
       const seed = resolveSeed(useAppStore.getState(), wire);
       if (seed) {
         // NOT setActiveCurrency — planting `currencyChosen` would turn this
         // courtesy into an override of a choice nobody made.
-        useAppStore.setState({ activeCurrency: seed });
+        // v2.409.0: the write ALSO stamps the greeting's provenance
+        // (`seededFromBranch`, transient — never persisted), so the
+        // switcher's greeting dot speaks from EXACT provenance instead of
+        // guessing from the bare flag.
+        useAppStore.setState({ activeCurrency: seed, seededFromBranch: true });
       }
     })();
   }

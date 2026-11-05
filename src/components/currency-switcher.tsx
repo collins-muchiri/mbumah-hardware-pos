@@ -54,6 +54,7 @@ import {
 } from '@/lib/currency-utils';
 import type { CurrencyCode } from '@/lib/money';
 import { seedCurrencyFromBranch, type BranchCurrencyWire } from '@/lib/currency-seed';
+import { useAppStore } from '@/lib/stores';
 import { cn } from '@/lib/utils';
 
 export interface CurrencySwitcherProps {
@@ -319,6 +320,18 @@ export function CurrencySwitcher({
     : null;
   const freshnessTitle = readAt ? readAt.toLocaleString() : undefined;
 
+  // THE GREETING WEARS ITS SOURCE (v2.409.0): while the CURRENT display
+  // currency arrived through the branch's greeting (the seed's transient
+  // provenance stamp) and no human hand has chosen yet, the trigger wears a
+  // quiet emerald dot — the same family the dropdown's "branch default"
+  // chip speaks. Pure store truth (the seed's own stamp), no wire, no
+  // guess: an explicit pick ends the greeting (the flag plants, the dot
+  // goes), a factory KES never had one, and a pre-flag choice wears none
+  // (the stamp only exists where the seed actually wrote).
+  const greetedFromBranch = useAppStore(
+    (s) => s.seededFromBranch && !s.currencyChosen,
+  );
+
   return (
     <DropdownMenu onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild>
@@ -341,6 +354,13 @@ export function CurrencySwitcher({
             {meta.flag}
           </span>
           <span className="text-xs">{currency}</span>
+          {greetedFromBranch && (
+            <span
+              aria-hidden
+              title="Greeted by your branch's default display currency — switch once to make it yours"
+              className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500 dark:bg-emerald-400"
+            />
+          )}
           {!compact && (
             <ChevronDown className="h-3 w-3 text-muted-foreground" aria-hidden />
           )}

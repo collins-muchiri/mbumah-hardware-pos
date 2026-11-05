@@ -1,3 +1,18 @@
+## [2.409.0] The desk remembers
+
+The opening QA burst walked the branch-default seed onto the org desk for the first time and caught an honesty-law violation with teeth: the app store persists with `skipHydration: true` and only the tabs SPA's boot ever asked for the persisted state back — on the org desk the seed read FACTORY state (`currencyChosen: false`), so a branch default STEAMROLLED an explicit choice that sat unread in localStorage (browser-verified live: KES/true → reload → USD/false), and the seed's write-back then destroyed that choice in storage. This release makes every surface ask, the seed wait, and the desk remember.
+
+### Added
+- **THE HYDRATION BOOT** (`src/lib/app-store-hydration.ts`): `ensureAppStoreHydration()` rehydrates the persisted app store exactly once per page, best-effort; `useAppStoreHydration()` mounts it on the org desk's console page and the org console — every surface that mounts the switcher now boots on the visitor's TRUE state. The seed NEVER initiates a rehydrate (the tabs SPA's deep-link ordering law owns that: a late rehydrate could clobber a consumed deep link) — it WAITS (`hasHydrated()` → proceed; `onFinishHydration` → release; a 150 ms safety net decides on what the store actually holds, so a slow decide beats a hung switcher).
+- **THE AUDIT DESK'S LENS** (`src/lib/stores.ts` + the console page): the Desk-Activity drill-down (reviewer/branch pair) persists as `consoleDeskFilter` in `mbt_app_store` — an auditor who narrows the ledger to their reviewer re-lands narrowed next visit. The panel is driven FROM the store (one source of truth); older persisted blobs answer the factory lens (honest absence, no migration). The store layer speaks its own structural twin (`ConsoleDeskFilter`) — no lib-to-component import.
+- **THE GREETING'S PROVENANCE DOT** (`src/components/currency-switcher.tsx`): while the display currency arrived through the branch's greeting and no human hand has chosen, the trigger wears a quiet emerald dot — fed by the seed's own transient stamp (`seededFromBranch`, never persisted, re-stamped per seed), so the dot speaks from EXACT provenance: a pre-flag choice wears none, an explicit pick ends the greeting, a factory KES never had one.
+
+### Fixed
+- **THE SEED STEAMROLL (compliance-grade, live-proven)**: on the org desk the branch-default seed overwrote an explicit display-currency choice (KES/true → USD/false in one reload) and the write-back destroyed the choice in storage. Root cause: `skipHydration: true` + the org desk never rehydrating. The fix is the boot + the seed's awaited read above; the regression is pinned runtime-green ("a persisted explicit choice survives a concurrent boot + seed").
+
+### Changed
+- **THIRTY-TWO STRICT-MODE FACES STOOD DOWN** (331 → 299, behavior-identical): db.ts's twenty-four immutability-handler faces retired through ONE guard factory typed by each model's REAL Prisma mutation bags (`immutabilityGuard<TUpdate, TUpdateMany, TDelete, TDeleteMany>()` — no `as` cast, every tooth kept), the tenant `where` finally types the `AND` it preserves (`AND?: unknown` — the guard preserves, never inspects), and the payroll engine re-exports the four names its callers always addressed through it (`PayrollGuardrailError`, `ResolvedRateTable`, `PayslipInputEmployee`, `PayslipInputPeriod` — one truth in ./types, the engine is the door).
+
 ## [2.408.0] The branch speaks first
 
 v2.407.0 made the branch's default currency a real, persisted, API-served setting — and then left it unheard: the CurrencySwitcher stayed session-local, so a cashier whose branch picked USD still greeted KES every morning. This release closes the loop, and the wire's own types stop lying while it does.

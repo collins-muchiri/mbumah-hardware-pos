@@ -70,6 +70,7 @@ import { APP_VERSION } from '@/lib/version';
 // supply lives where the consumers live).
 import { CurrencySwitcher } from '@/components/currency-switcher';
 import { useAuthStore } from '@/lib/stores';
+import { useAppStoreHydration } from '@/lib/app-store-hydration';
 import { authorizedFetchJson } from '@/lib/api';
 // v2.165.0: the Automation pulse's "Last tick" line gains the exact EAT
 // stamp as its tooltip - the same stamp format the payroll surfaces speak
@@ -699,6 +700,11 @@ function StatCard({
 }
 
 export function OrgConsole() {
+  // THE DESK REMEMBERS (v2.409.0): this console mounts the shared seeded
+  // CurrencySwitcher — ask for the visitor's persisted app-store state back
+  // (the currency slice above all) so the seed's refusals decide on truth,
+  // never on factory defaults. The seed awaits this boot.
+  useAppStoreHydration();
   const hasMounted = useWorkspaceAuthBoot();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const user = useAuthStore((s) => s.user);

@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.409.0',
+    title: 'The desk remembers — the org desk stops forgetting who you were',
+    bullets: [
+      'The opening QA burst caught the branch greeting STEAMROLLING an explicit choice on the org desk: the persisted store was only ever asked back by the tabs SPA, so the seed read factory state there (currencyChosen: false) and a branch default overwrote a choice it never saw — KES/true became USD/false in one reload, live-proven. Every surface that mounts the switcher now asks for the persisted state back (one shared boot), and the seed waits for the answer before deciding — the human hand always wins, everywhere.',
+      'The audit desk remembers its lens: the Desk-Activity drill-down (reviewer, branch) persists across visits — narrow the ledger to your reviewer, come back next week, and the desk re-lands narrowed the same way instead of on the unfiltered org wall.',
+      'The greeting wears its source: while the branch’s greeting is yours to keep or replace, the currency trigger wears a quiet emerald dot (the seed’s own provenance stamp — never persisted, gone the moment you switch once).',
+      'Under the hood: thirty-two strict-mode faces stood down (331 \u2192 299 \u2014 the ORM\u2019s immutability guard speaks each model\u2019s real Prisma mutation bags via one shared factory, the tenant where finally types the AND it preserves, and the payroll engine re-exports the four names its callers always addressed through it), behavior identical everywhere.',
+    ],
+  },
+  {
     version: '2.408.0',
     title: 'The branch speaks first — your branch\u2019s currency choice greets a fresh session',
     bullets: [
