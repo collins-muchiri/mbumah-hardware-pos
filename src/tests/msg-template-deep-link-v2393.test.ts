@@ -306,20 +306,20 @@ describe('the address-bar vocabulary — the thirty-second row (cross-suite pins
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.393.0 leads the feed', () => {
+describe('whats-new — v2.395.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.394.0');
-    expect(head.title).toContain('template');
-    expect(head.title).toContain('messaging');
+    expect(head.version).toBe('2.395.0');
+    // the lead's story hand-over (v2.395.0): the head story is the
+    // receipt hop's — the KRA Audit Log answers by name and the
+    // response leaves as pretty JSON. The export-ledger and
+    // message-template bytes exit the head story this round: the
+    // first round whose copy cannot honestly carry them, so the
+    // census re-types instead of silently carrying.
+    expect(head.title).toContain('receipt');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('msg-template'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('Templates pane'))).toBe(true);
-    // the stable-speaker hand-over: the lead's story deliberately
-    // carries the export ledger's bytes (the re-pointed elders keep
-    // speaking their own words — the speaker census stable, no exits)
-    expect(head.bullets.some((b) => b.includes('exp-status'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('exp-type'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('Export History'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('KRA Audit Log'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('pretty-printed'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('print pipeline'))).toBe(true);
   });
 });
