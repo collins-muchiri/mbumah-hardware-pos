@@ -44,7 +44,7 @@ const CONSOLE = readRepo('src/components/workspace/org-console.tsx');
 
 describe('main-app - the archive door on the main desk', () => {
   it('imports ChangelogModal from the one shared home (org/chrome)', () => {
-    expect(MAIN_APP).toContain("import { ChangelogModal } from '@/components/org/chrome';");
+    expect(MAIN_APP).toContain("import { ChangelogModal, type ChangelogJumpVia } from '@/components/org/chrome';");
   });
 
   it('mounts ChangelogModal exactly once (a copy would fork the archive)', () => {
@@ -52,7 +52,9 @@ describe('main-app - the archive door on the main desk', () => {
     expect(MAIN_APP).toContain('jumpTo={releaseJump}');
     // the reset contract: closing the modal clears the jump so a plain
     // open afterwards lands at the top, never on a stale version
-    expect(MAIN_APP).toContain('if (!o) setReleaseJump(null)');
+    // v2.406.0: the close resets BOTH slots — the jump target AND the door
+    // that jumped (a stale pill can never survive a plain open)
+    expect(MAIN_APP).toContain('if (!o) { setReleaseJump(null); setJumpVia(null); }');
     const mounts = MAIN_APP.split('<ChangelogModal').length - 1;
     expect(mounts).toBe(1);
   });
@@ -65,11 +67,11 @@ describe('main-app - the archive door on the main desk', () => {
 
   it('wires WhatsNewDialog onOpenChangelog to jump to APP_VERSION (the console contract)', () => {
     expect(MAIN_APP).toContain(
-      '<WhatsNewDialog onOpenChangelog={() => { setReleaseJump(APP_VERSION); setChangelogOpen(true); }} />',
+      '<WhatsNewDialog onOpenChangelog={() => { setReleaseJump(APP_VERSION); setJumpVia(\'announcement\'); setChangelogOpen(true); }} />',
     );
     // the exact wording org-console uses — one wiring, two desks, zero drift
     expect(CONSOLE).toContain(
-      '<WhatsNewDialog onOpenChangelog={() => { setReleaseJump(APP_VERSION); setChangelogOpen(true); }} />',
+      '<WhatsNewDialog onOpenChangelog={() => { setReleaseJump(APP_VERSION); setJumpVia(\'announcement\'); setChangelogOpen(true); }} />',
     );
   });
 
@@ -83,9 +85,10 @@ describe('main-app - the archive door on the main desk', () => {
   it('the footer door NEVER jumps — setReleaseJump(null) lands the archive at the top', () => {
     // a door that lies about its landing is a copy of the announcement,
     // not a sibling; the door's whole point is the archive from the top
-    expect(MAIN_APP).toContain('onClick={() => { setReleaseJump(null); setChangelogOpen(true); }}');
+    // v2.406.0: the door also resets the door slot — the pill stays absent
+    expect(MAIN_APP).toContain('onClick={() => { setReleaseJump(null); setJumpVia(null); setChangelogOpen(true); }}');
     // org-console's own header door speaks the same contract
-    expect(CONSOLE).toContain('onClick={() => { setReleaseJump(null); setChangelogOpen(true); }}');
+    expect(CONSOLE).toContain('onClick={() => { setReleaseJump(null); setJumpVia(null); setChangelogOpen(true); }}');
   });
 
   // ── 4. The landing glow ────────────────────────────────────────────────────
@@ -119,7 +122,8 @@ describe('main-app - the archive door on the main desk', () => {
   it("org-console's precedent stays intact (same modal, same jump wiring)", () => {
     expect(CONSOLE).toContain('<ChangelogModal');
     expect(CONSOLE).toContain('jumpTo={releaseJump}');
-    expect(CONSOLE).toContain('if (!o) setReleaseJump(null)');
+    // v2.406.0: the same double reset rides the console mount
+    expect(CONSOLE).toContain('if (!o) { setReleaseJump(null); setJumpVia(null); }');
   });
 
   it('the main shell does not grow a second footer pill of its own (one archive, two doors)', () => {
@@ -131,12 +135,15 @@ describe('main-app - the archive door on the main desk', () => {
   // ── 7. The release cascade ─────────────────────────────────────────────────
 
   it('WHATS_NEW leads with the current release — the door story rides the archive below', () => {
-    // v2.405.0 hand-over: the lead tells the shares' voice now; the
-    // archive-door story lives one entry down, still in the feed
+    // v2.406.0 hand-over: the lead tells the jump-door story now; the
+    // shares' story lives one entry down, the archive-door story two —
+    // all still in the feed
     const lead = WHATS_NEW[0];
-    expect(lead.version).toBe('2.405.0');
-    expect(lead.title).toContain('shares speak');
+    expect(lead.version).toBe('2.406.0');
+    expect(lead.title).toContain('jump names its door');
     expect(lead.bullets.length).toBeGreaterThanOrEqual(4);
+    const shares = WHATS_NEW.find((e) => e.version === '2.405.0');
+    expect(shares?.title).toContain('shares speak');
     const door = WHATS_NEW.find((e) => e.version === '2.404.0');
     expect(door?.title).toContain('archive door reaches the main desk');
     expect(door?.bullets.some((b) => b.includes('Open the release archive'))).toBe(true);

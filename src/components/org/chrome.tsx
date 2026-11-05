@@ -12,7 +12,7 @@ import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, C
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import { AlertCircle, CheckCheck, ChevronDown, ChevronUp, CloudOff, ExternalLink, FileText, History, Home, Keyboard, Loader2, LogIn, Package, ScrollText, Sparkles, Terminal, Store } from 'lucide-react';
+import { AlertCircle, CheckCheck, ChevronDown, ChevronUp, CloudOff, ExternalLink, FileText, History, Home, Keyboard, Loader2, LogIn, Megaphone, Package, ScrollText, Sparkles, Terminal, Store } from 'lucide-react';
 import { CurrencySwitcher } from '@/components/currency-switcher';
 import { goHomeToPos } from '@/components/console/unified-console';
 import { APP_BUILD_LABEL, APP_VERSION } from '@/lib/version';
@@ -480,14 +480,38 @@ const CHANGELOG_URL = 'https://github.com/collins-muchiri/mbumah-hardware-pos/bl
 // older ones render open; the rest wait behind one expand button.
 const INITIAL_VISIBLE = 5;
 
-function ChangelogEntry({ entry, latest, focused }: { entry: WhatsNewEntry; latest: boolean; focused?: boolean }) {
+// v2.406.0: the jump names its door. The orange pill used to say "via cmd+K"
+// no matter which door jumped — the announcement's handle jumped too, and the
+// pill lied about it. One pure map speaks each door's honest voice (the
+// env-doctor / branch-shares precedent), the pill renders ONLY when the door
+// is known (an absent control never lies — the shares-copy law), and the
+// ring + landing glow stay door-agnostic: they mark the TARGET, not the route.
+export type ChangelogJumpVia = 'palette' | 'announcement';
+export const JUMP_DOORS: Record<ChangelogJumpVia, { label: string; Icon: typeof Terminal }> = {
+  palette: { label: 'via cmd+K', Icon: Terminal },
+  announcement: { label: 'via the announcement', Icon: Megaphone },
+};
+
+// v2.406.0: the pill — the door's own chip. JSX has no computed member
+// expressions, so the map lookup lives in this one small component; the
+// testid and the orange family stay exactly as the elders pinned them.
+function JumpDoorPill({ via }: { via: ChangelogJumpVia }) {
+  const door = JUMP_DOORS[via];
+  return (
+    <span data-testid="changelog-jump-pill" className="inline-flex animate-in items-center gap-1 rounded-full border border-orange-300 bg-orange-50 px-1.5 py-px text-[9px] font-semibold uppercase tracking-wide text-orange-700 duration-300 fade-in slide-in-from-bottom-1 dark:border-orange-500/40 dark:bg-orange-500/15 dark:text-orange-300">
+      <door.Icon className="h-2.5 w-2.5" aria-hidden /> {door.label}
+    </span>
+  );
+}
+
+function ChangelogEntry({ entry, latest, focused, via }: { entry: WhatsNewEntry; latest: boolean; focused?: boolean; via?: ChangelogJumpVia | null }) {
   return (
     <div
       data-testid={`changelog-entry-${entry.version}`}
       className={`${
         latest
           ? 'rounded-xl border border-emerald-200 bg-emerald-50/60 p-3 dark:border-emerald-500/30 dark:bg-emerald-500/10'
-          : 'rounded-xl border border-slate-200 bg-slate-50/50 p-3 dark:border-slate-800 dark:bg-slate-800/30'
+          : 'rounded-xl border border-slate-200 bg-slate-50/50 p-3 transition-colors hover:border-slate-300 dark:border-slate-800 dark:bg-slate-800/30 dark:hover:border-slate-700'
       }${focused ? ' ring-2 ring-orange-400 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 changelog-landing' : ''}`}
     >
       <div className="flex flex-wrap items-center gap-2">
@@ -500,11 +524,7 @@ function ChangelogEntry({ entry, latest, focused }: { entry: WhatsNewEntry; late
             <Sparkles className="h-2.5 w-2.5" aria-hidden /> latest
           </span>
         )}
-        {focused && (
-          <span data-testid="changelog-jump-pill" className="inline-flex items-center gap-1 rounded-full border border-orange-300 bg-orange-50 px-1.5 py-px text-[9px] font-semibold uppercase tracking-wide text-orange-700 dark:border-orange-500/40 dark:bg-orange-500/15 dark:text-orange-300">
-            <Terminal className="h-2.5 w-2.5" aria-hidden /> via cmd+K
-          </span>
-        )}
+        {focused && via && <JumpDoorPill via={via} />}
       </div>
       <ul className="mt-2 space-y-1.5">
         {entry.bullets.map((bullet) => (
@@ -518,7 +538,7 @@ function ChangelogEntry({ entry, latest, focused }: { entry: WhatsNewEntry; late
   );
 }
 
-export function ChangelogModal({ open, onOpenChange, jumpTo }: { open: boolean; onOpenChange: (o: boolean) => void; jumpTo?: string | null }) {
+export function ChangelogModal({ open, onOpenChange, jumpTo, jumpVia }: { open: boolean; onOpenChange: (o: boolean) => void; jumpTo?: string | null; jumpVia?: ChangelogJumpVia | null }) {
   const [showAll, setShowAll] = useState(false);
   const [latest, ...older] = WHATS_NEW;
   // v2.73.0: the palette's jump — a deep target (older than the five the
@@ -573,9 +593,9 @@ export function ChangelogModal({ open, onOpenChange, jumpTo }: { open: boolean; 
         </DialogHeader>
 
         <div className="space-y-3" data-testid="changelog-entries">
-          {latest ? <ChangelogEntry entry={latest} latest focused={jumpTo === latest.version} /> : null}
+          {latest ? <ChangelogEntry entry={latest} latest focused={jumpTo === latest.version} via={jumpVia} /> : null}
           {visibleOlder.map((entry) => (
-            <ChangelogEntry key={entry.version} entry={entry} latest={false} focused={jumpTo === entry.version} />
+            <ChangelogEntry key={entry.version} entry={entry} latest={false} focused={jumpTo === entry.version} via={jumpVia} />
           ))}
           {hiddenCount > 0 ? (
             <button
@@ -585,7 +605,7 @@ export function ChangelogModal({ open, onOpenChange, jumpTo }: { open: boolean; 
               className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-500 transition-colors hover:border-slate-400 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
             >
               <ChevronDown className="h-3.5 w-3.5" aria-hidden />
-              Show {hiddenCount} older release{hiddenCount === 1 ? '' : 's'}
+              Show <span className="font-mono">{hiddenCount}</span> older release{hiddenCount === 1 ? '' : 's'}
             </button>
           ) : null}
           {showAll && older.length > INITIAL_VISIBLE ? (

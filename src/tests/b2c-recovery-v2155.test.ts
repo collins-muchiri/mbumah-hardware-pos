@@ -52,7 +52,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('@/lib/hr/payroll/disbursement-service', async (importOriginal) => {
-  const actual = await importOriginal();
+  const actual = await importOriginal<typeof DisbursementService>();
   return {
     ...actual,
     summariseRunB2CState: mocks.summarise,
@@ -61,6 +61,7 @@ vi.mock('@/lib/hr/payroll/disbursement-service', async (importOriginal) => {
   };
 });
 
+import type * as DisbursementService from '@/lib/hr/payroll/disbursement-service';
 import {
   pickB2CRecoveryActions,
   sweepStalledPayrollB2C,
@@ -138,33 +139,33 @@ describe('pickB2CRecoveryActions', () => {
 // ── b2cRecoveryConfigured (mock discipline) ─────────────────────────────────
 
 describe('b2cRecoveryConfigured', () => {
-  const ORIGINAL = { NODE_ENV: process.env.NODE_ENV, MOCK: process.env.MPESA_B2C_ALLOW_MOCK };
+  const ORIGINAL_MOCK = process.env.MPESA_B2C_ALLOW_MOCK;
   afterEach(() => {
-    process.env.NODE_ENV = ORIGINAL.NODE_ENV;
-    if (ORIGINAL.MOCK === undefined) delete process.env.MPESA_B2C_ALLOW_MOCK;
-    else process.env.MPESA_B2C_ALLOW_MOCK = ORIGINAL.MOCK;
+    vi.unstubAllEnvs();
+    if (ORIGINAL_MOCK === undefined) delete process.env.MPESA_B2C_ALLOW_MOCK;
+    else process.env.MPESA_B2C_ALLOW_MOCK = ORIGINAL_MOCK;
     vi.mocked(isB2CConfigured).mockReset();
   });
 
   it('allows when Daraja is configured regardless of environment', () => {
     vi.mocked(isB2CConfigured).mockReturnValue(true);
-    process.env.NODE_ENV = 'production';
+    vi.stubEnv('NODE_ENV', 'production');
     expect(b2cRecoveryConfigured()).toBe(true);
   });
 
   it('early-outs in production without credentials and without the mock opt-in', () => {
     vi.mocked(isB2CConfigured).mockReturnValue(false);
-    process.env.NODE_ENV = 'production';
+    vi.stubEnv('NODE_ENV', 'production');
     delete process.env.MPESA_B2C_ALLOW_MOCK;
     expect(b2cRecoveryConfigured()).toBe(false);
   });
 
   it('allows the explicit mock opt-in in production and any unconfigured dev run', () => {
     vi.mocked(isB2CConfigured).mockReturnValue(false);
-    process.env.NODE_ENV = 'production';
+    vi.stubEnv('NODE_ENV', 'production');
     process.env.MPESA_B2C_ALLOW_MOCK = 'true';
     expect(b2cRecoveryConfigured()).toBe(true);
-    process.env.NODE_ENV = 'development';
+    vi.stubEnv('NODE_ENV', 'development');
     delete process.env.MPESA_B2C_ALLOW_MOCK;
     expect(b2cRecoveryConfigured()).toBe(true);
   });
@@ -187,8 +188,7 @@ describe('sweepStalledPayrollB2C', () => {
 
   it('early-outs honestly in unconfigured production without touching the database', async () => {
     vi.mocked(isB2CConfigured).mockReturnValue(false);
-    const env = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'production';
+    vi.stubEnv('NODE_ENV', 'production');
     delete process.env.MPESA_B2C_ALLOW_MOCK;
     try {
       const summary = await sweepStalledPayrollB2C({ summarise: mocks.summarise, retry: mocks.retry, refresh: mocks.refresh });
@@ -198,7 +198,7 @@ describe('sweepStalledPayrollB2C', () => {
       expect(db.payrollRun.findMany).not.toHaveBeenCalled();
       expect(mocks.summarise).not.toHaveBeenCalled();
     } finally {
-      process.env.NODE_ENV = env;
+      vi.unstubAllEnvs();
     }
   });
 

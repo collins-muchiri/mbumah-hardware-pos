@@ -217,21 +217,21 @@ describe('the lockfile parity guard — root-version and range legs', () => {
 // 4. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.405.0 leads the feed', () => {
+describe('whats-new — v2.406.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.405.0');
-    // the lead's story hand-over (v2.405.0, the Task 111 law's eleventh
-    // application): the head story is the shares' voice — the org desk's
-    // slice modal hands you the branch ledger (Copy beside the total, one
-    // pure formatter, the quiet zeroes never dropped), the rows ride the
-    // zebra and the share chips wear the mono badge, and the wire's
-    // honest nulls stop at the door. The archive door's story exits the
-    // head this round; the clipboard carries the eye.
-    expect(head.title).toContain('shares speak');
+    expect(head.version).toBe('2.406.0');
+    // the lead's story hand-over (v2.406.0, the Task 111 law's twelfth
+    // application): the head story is the door's voice — the changelog
+    // pill speaks the route you came by (the JUMP_DOORS pure map: the
+    // palette rides "via cmd+K" with the Terminal, the announcement
+    // rides "via the announcement" with the Megaphone, a plain open
+    // births no pill — the absent-control law). The shares' story exits
+    // the head this round; the door carries the eye.
+    expect(head.title).toContain('jump names its door');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('Copy button'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('one pure formatter'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('via cmd+K'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('no pill'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('strict-mode faces'))).toBe(true);
   });
 });
