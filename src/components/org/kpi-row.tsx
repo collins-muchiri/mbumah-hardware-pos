@@ -155,7 +155,7 @@ export function KpiRow({ data, perStoreTrend, stores = [] }: {
   // currency is NOT the KES pivot AND the wire answered with that pair.
   const indicative = (() => {
     if (activeCurrency === 'KES') return null;
-    const entry = indicativeQuery.data?.data?.currencies.find((c) => c.code === activeCurrency);
+    const entry = indicativeQuery.data?.data?.currencies?.find((c) => c.code === activeCurrency);
     if (!entry || typeof entry.kesToRate !== 'number' || !Number.isFinite(entry.kesToRate)) return null;
     const meta = CURRENCY_BY_CODE[activeCurrency];
     if (!meta) return null;
@@ -177,7 +177,7 @@ export function KpiRow({ data, perStoreTrend, stores = [] }: {
   // the sibling choice was made on the wire's own units, not adjacency.
   const revenueIndicative = (() => {
     if (activeCurrency === 'KES') return null;
-    const entry = indicativeQuery.data?.data?.currencies.find((c) => c.code === activeCurrency);
+    const entry = indicativeQuery.data?.data?.currencies?.find((c) => c.code === activeCurrency);
     if (!entry || typeof entry.kesToRate !== 'number' || !Number.isFinite(entry.kesToRate)) return null;
     const meta = CURRENCY_BY_CODE[activeCurrency];
     if (!meta) return null;
@@ -487,7 +487,7 @@ export function KpiRow({ data, perStoreTrend, stores = [] }: {
   // resolve to null and the strip stays honestly absent.
   const restockLens = (() => {
     if (activeCurrency === 'KES') return null;
-    const entry = indicativeQuery.data?.data?.currencies.find((c) => c.code === activeCurrency);
+    const entry = indicativeQuery.data?.data?.currencies?.find((c) => c.code === activeCurrency);
     if (!entry || typeof entry.kesToRate !== 'number' || !Number.isFinite(entry.kesToRate)) return null;
     const meta = CURRENCY_BY_CODE[activeCurrency];
     if (!meta) return null;
@@ -1581,8 +1581,8 @@ export function KpiRow({ data, perStoreTrend, stores = [] }: {
                       <span className="block truncate text-xs text-slate-600 dark:text-slate-400">{b.name}</span>
                       {b.storeId && (
                         <span className="block truncate text-[9px] text-slate-500 dark:text-slate-400">
-                          {stockRows.filter((p) => p.store === b.name && (p.lastSupplierName != null)).length > 0
-                            ? `hints: ${[...new Set(stockRows.filter((p) => p.store === b.name && p.lastSupplierName).map((p) => p.lastSupplierName))].slice(0, 2).join(', ')}`
+                          {(stockRows?.filter((p) => p.store === b.name && (p.lastSupplierName != null)) ?? []).length > 0
+                            ? `hints: ${[...new Set(stockRows?.filter((p) => p.store === b.name && p.lastSupplierName).map((p) => p.lastSupplierName) ?? [])].slice(0, 2).join(', ')}`
                             : 'no supplier hints on this answer'}
                         </span>
                       )}

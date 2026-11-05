@@ -25,11 +25,16 @@
 // • Selecting an item calls `switchCurrency()` from `useCurrency()`, which
 //   updates the persisted `activeCurrency` in `useAppStore` - every
 //   component that calls `useCurrency().format()` re-renders automatically.
+// • Since v2.408.0 the branch speaks first: a user who never explicitly
+//   chose greets the branch's own default (the v2.407.0 SystemConfig
+//   setting, seeded once per page load — currency-seed.ts), and a row the
+//   branch actually picked wears the mono "branch default" chip when the
+//   dropdown opens (never the factory default — isDefault renders none).
 //
 // This is a DISPLAY-ONLY conversion. The canonical accounting currency
 // remains KES; only the rendered strings change.
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Check, ChevronDown, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -48,6 +53,7 @@ import {
   type CurrencyMeta,
 } from '@/lib/currency-utils';
 import type { CurrencyCode } from '@/lib/money';
+import { seedCurrencyFromBranch, type BranchCurrencyWire } from '@/lib/currency-seed';
 import { cn } from '@/lib/utils';
 
 export interface CurrencySwitcherProps {
@@ -127,12 +133,16 @@ function CurrencyRow({
   active,
   onSelect,
   dbRate,
+  isBranchDefault,
 }: {
   meta: CurrencyMeta;
   active: boolean;
   onSelect: (code: CurrencyCode) => void;
   /** Present only when the rates wire answered for this row. */
   dbRate?: RowRate;
+  /** True when the branch's own default currency setting names this row
+   *  (v2.408.0 — the wire's answer, never the factory default). */
+  isBranchDefault?: boolean;
 }) {
   // Show "1 KES = N {symbol}" for non-KES currencies; for KES show "Base".
   // A DB-backed row (admin-set or API) speaks its own figure; the static
@@ -170,6 +180,14 @@ function CurrencyRow({
           <span className="text-xs text-muted-foreground truncate">
             · {meta.name}
           </span>
+          {isBranchDefault && (
+            <span
+              title="Your branch picked this as its default display currency"
+              className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-1.5 py-px font-mono text-[9px] font-medium leading-tight text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300"
+            >
+              branch default
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-1.5 min-w-0">
           <p className="text-[10px] text-muted-foreground tabular-nums truncate">
@@ -216,6 +234,36 @@ export function CurrencySwitcher({
   // leaves `rates` empty and the rows render exactly as before (honest
   // absence — the footer's "indicative" sentence covers it).
   const [opened, setOpened] = useState(false);
+
+  // v2.408.0 — THE BRANCH SPEAKS FIRST: a user who never explicitly chose a
+  // display currency greets the branch's own default (the v2.407.0 setting
+  // — SystemConfig shelf, /api/settings/currency). The seed is once-per-page
+  // (the lib's module guard), best-effort, and never overrides an explicit
+  // choice (`currencyChosen`). N mounts (top bar, org console, the org desk)
+  // share the one promise — this effect is safe everywhere.
+  useEffect(() => {
+    void seedCurrencyFromBranch();
+  }, []);
+
+  // The branch-default chip's wire: asked when the dropdown opens, the SAME
+  // laziness law the rates query keeps. isDefault:true (never set) renders
+  // no chip — the factory default is never presented as a branch choice.
+  const branchDefaultQuery = useQuery({
+    queryKey: ['branch-default-currency'],
+    queryFn: async (): Promise<BranchCurrencyWire | null> => {
+      const res = await authedFetch('/api/settings/currency');
+      if (!res.ok) return null;
+      const body = (await res.json()) as { data?: BranchCurrencyWire };
+      return body?.data ?? null;
+    },
+    enabled: opened,
+    staleTime: 30_000,
+    refetchInterval: false,
+  });
+  const branchDefault =
+    branchDefaultQuery.data && !branchDefaultQuery.data.isDefault
+      ? branchDefaultQuery.data.defaultCurrency
+      : null;
 
   const ratesQuery = useQuery({
     queryKey: ADMIN_CURRENCY_RATES_QUERY_KEY,
@@ -321,6 +369,7 @@ export function CurrencySwitcher({
               active={c.code === currency}
               onSelect={handleSelect}
               dbRate={rates?.get(c.code)}
+              isBranchDefault={branchDefault === c.code}
             />
           ))}
         </div>

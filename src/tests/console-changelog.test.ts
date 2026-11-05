@@ -85,6 +85,7 @@ describe('ChangelogModal - the console tells the whole release story', () => {
   });
 
   it('is dark-mode complete (entries, both chip states, footer blocks)', () => {
+    // v2.408.0: the branch speaks first — the branch's currency choice greets a fresh session at last (the v2.407.0 SystemConfig setting is finally heard: the seed's three honest refusals — never chosen, already chosen, wire silent — and the seed writes WITHOUT planting currencyChosen so an explicit choice always wins and a changed default re-seeds on the next visit), the switcher names the branch's row with a mono chip when the dropdown opens, the wire's types stop lying (hrPerStore carries the portal pair the reports wire always computed, the exports generator receives the includeSensitivePii bag the route passed and audit-logged — the log can't claim unmasked identifiers over a masked file anymore — and kpi-row's three strips ride the optional wire), twelve faces stand down (343 → 331) (the entry joins the feed — +1 on every unread anchor, the cascade's nineteenth generation)
     // v2.407.0: the ghost routes wake — the two routes born against columns the schema never carried answer real rows at last (notifications/settings folds the user's EMAIL preference rows into the four toggles — ALL the master, RECEIPT, LOW_STOCK, DAILY_REPORT; settings/currency keeps the branch default on the SystemConfig shelf beside the VAT rate, KES with isDefault when never chosen), the phantom User/Store columns and their twelve strict-mode faces stand down (355 → 343), the Profile dialog's Preferences tab grows the email card (the master dims and disables the three categories while off, Save PATCHes only the fields that moved), and the console footer's plain open clears the jump door itself (the entry joins the feed — +1 on every unread anchor, the cascade's eighteenth generation)
     // v2.406.0: the muted card grew the hover affordance (transition-colors
     // + the darker hover border) — the dark twins ride along
@@ -510,10 +511,10 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.402.0: the payload card hands you the file — the KRA filing trio completes (Print = the paper, Copy = the clipboard, Download = the FILE: the mapped payload's card saves the same pretty JSON the clipboard carries as a named kra-payload-<invoice>-<date>.json, the saved face riding the receipt hop's two-second law), the card's eight-row ledger alternates on a quiet zebra ground, the refund heal suite's must label widens (29 faces stand down, 431 → 402), and the entry joins the feed (+1 on every unread anchor — the DERIVED anchors re-set themselves, the cascade's thirteenth generation)
     // v2.404.0: the archive door reaches the main desk — the main shell mounts the SAME ChangelogModal (one shared archive, exactly one mount), the whats-new announcement gains its onOpenChangelog handle (jumpTo = APP_VERSION, the orange ring lands), the footer's Release notes door opens the archive from the top, the jumped entry answers with one soft landing glow, and the honest burst fixes the QA login's false positive (the entry joins the feed — +1 on every unread anchor, the cascade's fifteenth generation)
     // v2.403.0: the refund desk speaks the failure's name — the wire's typed refusal (code + the server's own line) reaches the toast and the dialog's own amber card (the code under its mono badge), four silent catches speak at last, the route's error ladder gains the stranded rung (NOT_STRANDED: 409), the two must widens land and the heal wiring's three mended names stand their guard (20 faces down, 402 → 382, the entry joins the feed — +1 on every unread anchor, the cascade's fourteenth generation)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(297);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(298);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(299);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(330);
+    expect(whatsNewUnreadCount('2.110.0')).toBe(298);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(299);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(300);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(331);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 

@@ -60,6 +60,12 @@ export interface OrgSummaryData {
     monthAbsenceRatePct: number;
     latestPayroll: { runId: string; periodName: string; status: string; createdAt: string } | null;
     expiryAlerts: { documentsExpiring90Days: number; assetsOverdue: number };
+    // v2.408.0: the wire's own truth — hr/reports.ts computes
+    // portalTotal/portalLinked per store (the portal-adoption census the
+    // panel renders at row.portalLinked/row.portalTotal); the type lagged
+    // the wire and six strict-mode faces grew where the truth already was.
+    portalLinked: number;
+    portalTotal: number;
   }>;
   recentAudit: Array<{
     id: string;

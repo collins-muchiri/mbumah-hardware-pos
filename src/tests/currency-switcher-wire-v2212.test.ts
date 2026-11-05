@@ -255,7 +255,10 @@ describe('the display-currency slice exists in the store (v2.212.0)', () => {
 
   it('the store carries the KES default and the ONE write path onSelect calls', () => {
     expect(stores).toMatch(/activeCurrency: 'KES',/);
-    expect(stores).toMatch(/setActiveCurrency: \(currency\) => set\(\{ activeCurrency: currency \}\),/);
+    // v2.408.0 re-anchor: the ONE write path also plants `currencyChosen` —
+    // the seed law's flag (only an explicit choice may suppress the
+    // branch-default seed; the seed itself writes via setState directly).
+    expect(stores).toMatch(/setActiveCurrency: \(currency\) => set\(\{ activeCurrency: currency, currencyChosen: true \}\),/);
   });
 
   it('the choice persists with the app preferences (mbt_app_store partialize)', () => {
