@@ -629,6 +629,29 @@ export const profileApi = {
   },
 };
 
+/** The four per-user email toggles (see src/lib/notification-preferences.ts). */
+export interface EmailSettingsData {
+  emailNotifications: boolean;
+  receiptEmails: boolean;
+  stockAlertEmails: boolean;
+  reportEmails: boolean;
+}
+
+export const emailPreferencesApi = {
+  /** GET /api/notifications/settings - your email toggles. */
+  get: async () => {
+    return request<EmailSettingsData>('/notifications/settings');
+  },
+
+  /** PATCH /api/notifications/settings - update any subset of the four. */
+  update: async (data: Partial<EmailSettingsData>) => {
+    return request<EmailSettingsData>('/notifications/settings', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  },
+};
+
 
 export interface ProductListItem {
   id: string;

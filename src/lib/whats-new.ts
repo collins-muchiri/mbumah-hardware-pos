@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.407.0',
+    title: 'The ghost routes wake — your email preferences become a desk you can actually use',
+    bullets: [
+      'Profile & Settings → Preferences grows the email card: four switches (the master, receipt copies, stock alerts, the daily sales report) that finally persist — the route behind them had selected table columns that never existed and answered 500 to everyone since the day it shipped.',
+      'The master switch is honest about its power: turning it off dims and disables the three rows below (no email at all is what off means), the header chip reads On/Off at a glance, and Save sends only the fields that actually moved.',
+      'The branch\u2019s default currency has the same ghost lifted off it: the currency route now keeps its word on the same settings shelf the VAT rate has always used, answering the honest "never set" state instead of an error.',
+      'Under the hood: twelve strict-mode faces stood down (355 \u2192 343 \u2014 the two routes\u2019 whole debt was the phantom columns), and the console footer\u2019s plain open now clears the jump door itself.',
+    ],
+  },
+  {
     version: '2.406.0',
     title: 'The jump names its door — the changelog pill speaks the route you came by',
     bullets: [

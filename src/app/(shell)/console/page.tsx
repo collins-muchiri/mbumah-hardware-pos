@@ -500,7 +500,10 @@ export default function OrgConsolePage() {
         </div>
       </div>
 
-      <ConsoleFooter kpi={kpi} stores={stores} online={online} lastSync={lastSync} onOpenShortcuts={() => setShortcutsOpen(true)} onOpenChangelog={() => setChangelogOpen(true)} />
+      {/* v2.407.0 carry (Task 122 #6): the footer's plain open now clears the
+          jump slots itself, so a stale pill can never ride an open it did not
+          name - the invariant is local, not borrowed from close's reset. */}
+      <ConsoleFooter kpi={kpi} stores={stores} online={online} lastSync={lastSync} onOpenShortcuts={() => setShortcutsOpen(true)} onOpenChangelog={() => { setJumpVia(null); setChangelogOpen(true); }} />
 
       {/* Overlays */}
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} stores={stores}

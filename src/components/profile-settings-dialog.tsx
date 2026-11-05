@@ -39,7 +39,8 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { profileApi, type ProfileData } from '@/lib/api';
+import { Switch } from '@/components/ui/switch';
+import { profileApi, emailPreferencesApi, type ProfileData, type EmailSettingsData } from '@/lib/api';
 import { useAuthStore, useAppStore } from '@/lib/stores';
 import {
   Loader2,
@@ -59,6 +60,7 @@ import {
   Phone,
   KeyRound,
   AlertCircle,
+  BellRing,
 } from 'lucide-react';
 
 function initials(name: string): string {
@@ -389,6 +391,11 @@ function ProfileTabs({
           </Button>
         </div>
 
+        {/* v2.407.0 - the email toggles wake on the REAL NotificationPreference
+            model (the route used to select four User columns the schema never
+            carried and answered 500 to everyone). */}
+        <EmailPreferencesCard />
+
         <p className="text-xs text-muted-foreground">
           Preferences apply instantly on this device. Keyboard shortcuts: press{' '}
           <kbd className="rounded border bg-muted px-1 font-mono text-[10px]">?</kbd> anywhere.
@@ -566,6 +573,180 @@ function PasswordInput({
       >
         {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
       </button>
+    </div>
+  );
+}
+
+// Email notification preferences (v2.407.0 - the ghost route wakes)
+//
+// The four toggles live on the REAL NotificationPreference model (channel
+// EMAIL, one row per alert type). The master switch is the ALL row - the
+// helper's matcher ANDs it into every category check, so a disabled master
+// suppresses every email at once; the three category rows dim while it is
+// off (honest visual, disabled controls - never a switch that lies).
+
+const EMAIL_TOGGLE_UI: Array<{
+  field: keyof EmailSettingsData;
+  label: string;
+  description: string;
+}> = [
+  {
+    field: 'emailNotifications',
+    label: 'Email notifications',
+    description: 'The master switch - off means no email at all.',
+  },
+  {
+    field: 'receiptEmails',
+    label: 'Receipt copies',
+    description: 'A copy of customer receipts as they are issued.',
+  },
+  {
+    field: 'stockAlertEmails',
+    label: 'Stock alerts',
+    description: 'Low-stock alerts when items run below their reorder level.',
+  },
+  {
+    field: 'reportEmails',
+    label: 'Sales reports',
+    description: 'The daily sales report for your branch.',
+  },
+];
+
+function EmailPreferencesCard() {
+  const settingsQuery = useQuery({
+    queryKey: ['email-preferences'],
+    queryFn: async () => {
+      const res = await emailPreferencesApi.get();
+      if (!res.data) throw new Error(res.error || 'Could not load email settings');
+      return res.data;
+    },
+    staleTime: 30_000,
+  });
+
+  const [settings, setSettings] = useState<EmailSettingsData | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  // Server data lands once; local edits ride the draft (the same pattern
+  // the Profile tab keeps for name/phone).
+  useEffect(() => {
+    if (settingsQuery.data) setSettings(settingsQuery.data);
+  }, [settingsQuery.data]);
+
+  const dirty =
+    settings !== null &&
+    settingsQuery.data !== undefined &&
+    EMAIL_TOGGLE_UI.some(({ field }) => settings[field] !== settingsQuery.data[field]);
+
+  const toggle = (field: keyof EmailSettingsData, value: boolean) => {
+    setSettings((s) => (s ? { ...s, [field]: value } : s));
+  };
+
+  const handleSave = async () => {
+    if (!settings || !dirty || !settingsQuery.data) return;
+    // PATCH only the fields that actually moved (the route refuses an
+    // empty update and the audit log reads better for it).
+    const updates: Partial<EmailSettingsData> = {};
+    for (const { field } of EMAIL_TOGGLE_UI) {
+      if (settings[field] !== settingsQuery.data[field]) updates[field] = settings[field];
+    }
+    setSaving(true);
+    try {
+      const res = await emailPreferencesApi.update(updates);
+      if (res.data) {
+        toast.success('Email preferences saved');
+        await settingsQuery.refetch();
+        setSettings(res.data);
+      } else {
+        toast.error(res.error || 'Could not save email preferences.');
+      }
+    } catch (err) {
+      toast.error(
+        err instanceof Error && err.message
+          ? err.message
+          : 'Could not save email preferences. Please try again.'
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (settingsQuery.isLoading || (!settings && !settingsQuery.isError)) {
+    return (
+      <div className="flex items-center justify-center rounded-lg border p-6" role="status" aria-label="Loading email preferences">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (settingsQuery.isError || !settings) {
+    return (
+      <div className="flex items-center justify-between rounded-lg border border-red-500/30 bg-red-500/5 p-3">
+        <p className="text-xs text-muted-foreground">Could not load your email preferences.</p>
+        <Button variant="outline" size="sm" onClick={() => settingsQuery.refetch()}>
+          Retry
+        </Button>
+      </div>
+    );
+  }
+
+  const masterOn = settings.emailNotifications;
+
+  return (
+    <div className="rounded-lg border" data-testid="email-prefs-card">
+      <div className="flex items-center gap-2 border-b p-3">
+        <BellRing className="h-4 w-4 shrink-0 text-emerald-700" />
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium leading-tight">Email notifications</p>
+          <p className="text-xs text-muted-foreground">What lands in your inbox from Mbumah</p>
+        </div>
+        <span
+          className={`rounded-full px-2 py-0.5 text-[10px] font-medium transition-colors ${
+            masterOn
+              ? 'bg-emerald-600/10 text-emerald-700 dark:text-emerald-400'
+              : 'bg-muted text-muted-foreground'
+          }`}
+        >
+          {masterOn ? 'On' : 'Off'}
+        </span>
+      </div>
+
+      <div className="divide-y">
+        {EMAIL_TOGGLE_UI.map(({ field, label, description }, index) => {
+          const isMaster = index === 0;
+          const dimmed = !isMaster && !masterOn;
+          return (
+            <div
+              key={field}
+              className={`flex items-center gap-3 p-3 transition-opacity ${dimmed ? 'opacity-50' : 'opacity-100'}`}
+              data-testid={`email-pref-${field}`}
+            >
+              <div className="min-w-0 flex-1">
+                <p className="text-sm leading-tight">{label}</p>
+                <p className="text-xs text-muted-foreground">{description}</p>
+              </div>
+              <Switch
+                checked={settings[field]}
+                disabled={saving || (!isMaster && !masterOn)}
+                onCheckedChange={(v) => toggle(field, v)}
+                aria-label={`${label} - ${settings[field] ? 'on' : 'off'}`}
+                data-testid={`email-pref-switch-${field}`}
+              />
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="flex items-center justify-between border-t p-3">
+        <p className="text-[11px] text-muted-foreground">
+          {masterOn
+            ? 'Applies to every email Mbumah sends you.'
+            : 'The master switch is off - no email is sent, whatever the rows say.'}
+        </p>
+        <Button onClick={handleSave} disabled={!dirty || saving} size="sm" data-testid="email-prefs-save">
+          {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+          {saving ? 'Saving…' : 'Save email preferences'}
+        </Button>
+      </div>
     </div>
   );
 }
