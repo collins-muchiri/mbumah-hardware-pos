@@ -15,6 +15,7 @@ import { getStoreInfo, getLogoUrl, COMPANY } from '@/lib/store-info';
 import { printReceiptElement, generateReceiptPdf, buildReceiptFileName, RECEIPT_CONTENT_ID } from '@/lib/receipt-pdf';
 import { ReceiptDocument } from '@/components/receipt-print';
 import { handleError } from '@/lib/error-handler';
+import { refundFailureVoice } from '@/lib/refund-voice';
 import { formatQty, formatQtyWithUnit, unitLabel } from '@/lib/utils/financialMath';
 
 import { Button } from '@/components/ui/button';
@@ -574,6 +575,7 @@ const REFUND_REASON_LABELS: Record<string, string> = {
   OTHER: 'Other',
 };
 
+
 /**
  * v2.371.0 — the refund row's reason voice. The refund service writes
  * `Refund reason: {KEY}` as the notes' FIRST segment when the clerk
@@ -647,6 +649,9 @@ function RefundDialog({
   const [reason, setReason] = useState('');
   const [notes, setNotes] = useState('');
   const [busy, setBusy] = useState(false);
+  // v2.403.0: the submit failure's name — the dialog's own amber card
+  // speaks the typed code + the server's line when the wire refuses.
+  const [submitVoice, setSubmitVoice] = useState<{ code: string; line: string } | null>(null);
   // v2.309.0: the committed refund - when set, the dialog speaks the
   // receipt face instead of the form (the money has already moved).
   const [result, setResult] = useState<RefundResult | null>(null);
@@ -774,6 +779,7 @@ function RefundDialog({
   const handleConfirm = async () => {
     if (!transaction || requestedLines.length === 0) return;
     setBusy(true);
+    setSubmitVoice(null);
     try {
       const committed = unwrapDialogResult(
         await transactionsApi.refund(transaction.id, {
@@ -798,7 +804,15 @@ function RefundDialog({
       // own receipt (print/PDF) instead of snapping shut on the money.
       setResult(committed);
     } catch (err) {
-      handleError(err, 'Failed to record the refund. Please try again.');
+      // v2.403.0: the failure's name — the toast speaks the typed code
+      // over the server's own line; the dialog keeps a card with the
+      // same words so the face stays after the toast fades. (The wire's
+      // message used to vanish into the console log alone — the desk
+      // never spoke at all.)
+      const voice = refundFailureVoice(err);
+      setSubmitVoice(voice);
+      const msg = handleError(err, 'Failed to record the refund. Please try again.');
+      toast.error(voice ? `${voice.code} — ${voice.line}` : msg);
     } finally {
       setBusy(false);
     }
@@ -822,7 +836,7 @@ function RefundDialog({
         onOpenChange(false);
         onRefunded(receiptTx);
       } catch (err) {
-        handleError(err, 'Failed to load the refund receipt. Please try again.');
+        toast.error(handleError(err, 'Failed to load the refund receipt. Please try again.'));
       } finally {
         setReceiptBusy(false);
       }
@@ -837,7 +851,7 @@ function RefundDialog({
         onOpenChange(false);
         onPrintReceipt(receiptTx);
       } catch (err) {
-        handleError(err, 'Failed to load the refund receipt. Please try again.');
+        toast.error(handleError(err, 'Failed to load the refund receipt. Please try again.'));
       } finally {
         setReceiptBusy(false);
       }
@@ -935,11 +949,10 @@ function RefundDialog({
     );
   }
 
-  const notRefundable =
-    error &&
-    typeof error === 'object' &&
-    'body' in error &&
-    (error as { body?: { code?: string } }).body?.code === 'NOT_REFUNDABLE';
+  // v2.403.0: the load failure speaks its name too — the typed code rides
+  // the same voice (NOT_REFUNDABLE keeps its honest sentence; every other
+  // code speaks the server's own line under its mono badge).
+  const loadVoice = error ? refundFailureVoice(error) : null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -960,10 +973,22 @@ function RefundDialog({
           </div>
         )}
 
-        {notRefundable && (
+        {loadVoice && (
           <div className="flex items-start gap-2 rounded-lg border border-amber-300/60 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300" role="alert">
             <ShieldAlert className="h-4 w-4 mt-0.5 shrink-0" aria-hidden />
-            <span>This sale can no longer be refunded — it may already be fully refunded or voided.</span>
+            <div className="min-w-0">
+              <p className="font-medium">
+                {loadVoice.code === 'NOT_REFUNDABLE'
+                  ? 'This sale can no longer be refunded — it may already be fully refunded or voided.'
+                  : loadVoice.line}
+              </p>
+              <p
+                className="mt-1 font-mono text-[10px] uppercase tracking-wide text-amber-700/80 dark:text-amber-400/80"
+                data-testid="refund-load-code"
+              >
+                {loadVoice.code}
+              </p>
+            </div>
           </div>
         )}
 
@@ -1049,6 +1074,24 @@ function RefundDialog({
                 );
               })}
             </div>
+
+            {/* v2.403.0: the submit failure's card — the same words the
+                toast spoke, held on the desk until the hand retries. */}
+            {submitVoice && (
+              <div
+                className="flex items-start gap-2 rounded-lg border border-amber-300/60 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300"
+                role="alert"
+                data-testid="refund-submit-failure"
+              >
+                <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+                <div className="min-w-0">
+                  <p className="font-medium">{submitVoice.line}</p>
+                  <p className="mt-1 font-mono text-[10px] uppercase tracking-wide text-amber-700/80 dark:text-amber-400/80">
+                    {submitVoice.code}
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Reason + notes */}
             <div className="grid gap-2 sm:grid-cols-2">
@@ -1714,7 +1757,11 @@ export default function TransactionsTab() {
       await commitSettle(healTransaction);
       setHealTransaction(null);
     } catch (err) {
-      handleError(err, 'Failed to settle the stranded gap. Please try again.');
+      // v2.403.0: the voice rides the same law — NOT_STRANDED answers 409
+      // and the toast names it instead of dying in the console.
+      const voice = refundFailureVoice(err);
+      const msg = handleError(err, 'Failed to settle the stranded gap. Please try again.');
+      toast.error(voice ? `${voice.code} — ${voice.line}` : msg);
     } finally {
       setHealBusy(false);
     }
@@ -1727,7 +1774,7 @@ export default function TransactionsTab() {
       await commitSettle(repairTransaction);
       setRepairTransaction(null);
     } catch (err) {
-      handleError(err, 'Failed to repair the status. Please try again.');
+      toast.error(handleError(err, 'Failed to repair the status. Please try again.'));
     } finally {
       setRepairBusy(false);
     }

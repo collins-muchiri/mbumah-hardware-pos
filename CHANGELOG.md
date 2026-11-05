@@ -1,3 +1,16 @@
+## [2.403.0] The refund desk speaks the failure's name
+
+The wire has always spoken typed refusals — the route maps every refund error code to an honest HTTP status and the body carries `{ success: false, code, error }` (the code + a human line) — but the desk threw that voice away: the dialog's catch logged the error and froze, and the operator saw nothing. The advisory pool pays its rent again: 402 → 382.
+
+### Added
+- **THE FAILURE'S NAME** (`src/lib/refund-voice.ts` + `src/app/(shell)/tabs/transactions-tab.tsx`): `refundFailureVoice(err)` — the pure helper (the env-doctor precedent) reads the wire's parsed body and answers `{ code, line }`: the typed RefundErrorCode plus the server's own plain-language line; anything else answers `null` and the caller keeps its generic fallback — an honest voice never invents a name the wire did not speak. The refund dialog's submit catch toasts `CODE — line` and holds the same words on the dialog's own amber card (`testid refund-submit-failure`, the code under a small mono badge), so the face stays after the toast fades; the load failure rides the same card (`testid refund-load-code`); the stranded-gap settlement names its NOT_STRANDED refusal the same way.
+
+### Changed
+- **THE FOUR SILENT CATCHES** (`transactions-tab.tsx`): the two refund-receipt loaders, the stranded-gap settle and the status repair called `handleError` and dropped the returned message on the floor — the operator saw a frozen button and nothing else; each now raises its honest toast.
+- **THE ERROR LADDER'S STRANDED RUNG** (`src/app/api/transactions/[id]/refund/route.ts`): `REFUND_ERROR_STATUS` gains `NOT_STRANDED: 409` — the stranded-heal's refusal climbs the ladder the api.ts doc row already promised.
+- **THE MUST WIDENS** (402 → 382 strict-mode errors, behavior-identical): `sale-refund-audit.test.ts` + `refund-status-repair-v2374.test.ts` — the local `must` helpers' `label` rides on its own (`label = 'value'`), the v2.402.0 stranded-heal precedent's missed siblings; the throw's words stay truthful either way.
+- **THE HEAL WIRING'S THREE MENDED NAMES** (`transactions-tab.tsx`): `healTransaction`, `healBusy` and the heal `useCallback`'s deps array had lost their opening `[h` — the desk's own strict-mode faces stand down, and the negative guard pins them whole for good.
+
 ## [2.402.0] The payload card hands you the file — the KRA filing trio completes
 
 The paper-trail pattern's quiet arc closes its third side: the mapped KRA payload could already reach paper (Print, v2.386.0) and the clipboard (Copy, v2.385.0) — now it reaches the FILE SYSTEM as a named `.json`, the attachment a KRA filing actually wants. The advisory pool pays its rent again: 431 → 402.
