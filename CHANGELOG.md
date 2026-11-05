@@ -1,3 +1,14 @@
+## [2.404.0] The archive door reaches the main desk
+
+The console has owned the release archive since v2.265.0 — the SAME ChangelogModal, opened by the cmd+K palette, the footer pill and the whats-new announcement — but the main desk's whats-new card mounted WITHOUT its `onOpenChangelog`, so the "Open the release archive" button simply never rendered where most people land after login. The door existed; the main desk's copy of the frame had no handle.
+
+### Added
+- **THE ARCHIVE DOOR ON THE MAIN DESK** (`src/components/app/main-app.tsx`): the shell mounts the SAME `ChangelogModal` org-console mounts (one shared modal, never a copy) and wires the whats-new announcement's `onOpenChangelog` the same way — dismiss the card, open the archive, `jumpTo = APP_VERSION`, the scroll effect lands and the orange ring marks this release's entry. The footer gains the second door (`testid footer-release-notes`): a "Release notes" button beside Shortcuts that opens the SAME archive from the top (`setReleaseJump(null)`), so the version label on the left finally has a handle of its own.
+
+### Changed
+- **THE LANDING GLOW** (`src/app/globals.css` + `src/components/org/chrome.tsx`): a jumped entry's orange ring answers with ONE soft pulse (`changelog-landing`, `changelog-landing-glow 1.1s ease-out 1 both`) — the eye finds the landing even mid-scroll; the `prefers-reduced-motion` reader gets the still ring, never the pulse.
+- **THE HONEST BURST** (QA infrastructure): the release QA burst's login check had been matching the global toast region (`region "Notifications alt+T"`) that ALSO mounts on the login card — "login reached dashboard" was reading a false positive and every downstream nav search ran blind. The burst now proves the session honestly (dashboard markers or the Karibu card's own heading), waits the sync beat, clears the whats-new card through the Got it / Escape window, and only then searches the nav — the last mile (Transactions desk, refund dialog, health desk, copy button) verifies in one pass.
+
 ## [2.403.0] The refund desk speaks the failure's name
 
 The wire has always spoken typed refusals — the route maps every refund error code to an honest HTTP status and the body carries `{ success: false, code, error }` (the code + a human line) — but the desk threw that voice away: the dialog's catch logged the error and froze, and the operator saw nothing. The advisory pool pays its rent again: 402 → 382.

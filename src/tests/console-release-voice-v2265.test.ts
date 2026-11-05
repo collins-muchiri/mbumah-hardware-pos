@@ -86,8 +86,11 @@ describe('the console wears the voice (v2.265.0)', () => {
     expect(modalIdx).toBeLessThan(dialogIdx);
   });
 
-  it('the shell\u2019s own mount stays bare \u2014 one home, two surfaces, zero props there', () => {
-    expect(mainApp).toContain('<WhatsNewDialog />');
+  it('the shell\u2019s own mount joins the door law \u2014 one home, two surfaces, one wiring (v2.404.0)', () => {
+    // v2.404.0: the zero-props era ends — the shell's announcement carries
+    // the SAME handle the console's does (the archive door reaches the
+    // main desk); exactly one mount stays the law
+    expect(mainApp).toContain('<WhatsNewDialog onOpenChangelog={() => { setReleaseJump(APP_VERSION); setChangelogOpen(true); }} />');
     expect((mainApp.match(/<WhatsNewDialog/g) || []).length).toBe(1);
   });
 
