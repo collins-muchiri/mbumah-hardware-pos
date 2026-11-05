@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.399.0',
+    title: 'The health desk speaks the failure\u2019s name — one card, two desks',
+    bullets: [
+      'The System Health tab now carries an Environment & Connection panel: which environment variables are present, how the database connection answered, and the live row counts — the same payload the uptime monitors read, refreshed every 30 seconds.',
+      'When a health check carries a database error (e.g. P2021 "Schema not pushed"), the panel shows the same remediation card the login desk does — the failure\u2019s code, what it means and the exact steps, inline.',
+      'The doctor card now wears one shared component: the login desk and the health desk render the identical card, so the look can never drift apart.',
+      'Status dots pulse only on error and stay calm on warnings; every row keeps its endpoint detail line on hover.',
+    ],
+  },
+  {
     version: '2.398.0',
     title: 'The login desk speaks the failure\u2019s name — and the dev server can no longer be silently redirected',
     bullets: [
