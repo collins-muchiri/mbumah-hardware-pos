@@ -38,13 +38,15 @@
  * speaks "Ksh"; never prefix it again).
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { formatKES } from '@/lib/api';
-import { Building2 } from 'lucide-react';
+import { Building2, Check, ClipboardCopy } from 'lucide-react';
+import { toast } from 'sonner';
 // v2.216.0: the indicative strip's supply — the SAME shared exports the
 // kpi-row consumers speak (one voice map, one wire body shape), observed
 // through the SAME cache key the switcher fills. The desk never fetches.
@@ -100,6 +102,12 @@ export type OrgDeskMetricId =
   | 'debt'
   | 'pendingMpesa';
 
+/** The store row as the desks actually read it — the element type with the
+ * wire's honest null peeled off (the summary array may carry null gaps;
+ * deskRows filters them out before any slice ever runs, so every metric's
+ * slice/countLine signature speaks the ROW, never the gap). */
+export type OrgDeskStoreRow = NonNullable<NonNullable<OrgDeskWire['stores']>[number]>;
+
 export interface OrgDeskMetric {
   id: OrgDeskMetricId;
   /** The modal's title voice, e.g. "The org's revenue by branch". */
@@ -109,9 +117,9 @@ export interface OrgDeskMetric {
   /** Money reads formatKES; counts read as plain numbers. */
   unit: 'money' | 'count';
   /** The branch's slice of this metric. */
-  slice: (s: NonNullable<OrgDeskWire['stores']>[number]) => number;
+  slice: (s: OrgDeskStoreRow) => number;
   /** An optional second figure the wire carries for each branch. */
-  countLine?: (s: NonNullable<OrgDeskWire['stores']>[number]) => string | null;
+  countLine?: (s: OrgDeskStoreRow) => string | null;
   /** The org total the shares read against. */
   total: (w: OrgDeskWire) => number;
   /** The wire's name for the metric (used in the window note). */
@@ -195,9 +203,11 @@ export const ORG_DESK_METRICS: Record<OrgDeskMetricId, OrgDeskMetric> = {
 
 /** The named branch rows, loudest-first — re-derived client-side from the
  * same rows the totals sum (the house one-writer sort). */
-function deskRows(metric: OrgDeskMetric, stores: NonNullable<OrgDeskWire['stores']>): Array<{
+export interface OrgDeskLedgerRow {
   storeId: string; name: string; value: number; countText: string | null;
-}> {
+}
+
+function deskRows(metric: OrgDeskMetric, stores: NonNullable<OrgDeskWire['stores']>): OrgDeskLedgerRow[] {
   return stores
     .filter((s): s is NonNullable<typeof s> => !!s && s.id != null)
     .map((s) => ({
@@ -207,6 +217,27 @@ function deskRows(metric: OrgDeskMetric, stores: NonNullable<OrgDeskWire['stores
       countText: metric.countLine ? metric.countLine(s) : null,
     }))
     .sort((a, b) => b.value - a.value);
+}
+
+/** The branch ledger as clipboard text (the env-doctor precedent: one pure
+ * home, so the modal's rows and the clipboard text can never drift). The
+ * voice is the modal's own: the headline with the org total, the named
+ * branches loudest-first with their shares and count lines, the quiet
+ * zeroes never dropped, and the honesty window note as the tail. */
+export function formatBranchShares(metric: OrgDeskMetric, rows: OrgDeskLedgerRow[], total: number): string {
+  const loud = rows.filter((r) => r.value > 0);
+  const quiet = rows.filter((r) => r.value === 0);
+  const lines: string[] = [];
+  lines.push(`${metric.title} — ${formatValue(metric, total)} across ${rows.length} branch${rows.length === 1 ? '' : 'es'}`);
+  loud.forEach((r, i) => {
+    const share = shareOf(r.value, total);
+    const shareText = share != null ? ` · ${share}% of the org` : '';
+    const countText = r.countText ? ` · ${r.countText}` : '';
+    lines.push(`${i + 1}. ${r.name} — ${formatValue(metric, r.value)}${shareText}${countText}`);
+  });
+  if (quiet.length > 0) lines.push(`At zero: ${quiet.map((r) => r.name).join(', ')}.`);
+  lines.push(`The slice reads the ${rows.length} branch${rows.length === 1 ? '' : 'es'} named on this summary; the shares read against the org total, the tile's figure stays the truth.`);
+  return lines.join('\n');
 }
 
 function formatValue(metric: OrgDeskMetric, v: number): string {
@@ -224,6 +255,51 @@ export function deskDoorVoice(metricId: OrgDeskMetricId): { edge: string; dot: s
 
 const PANEL_CLS =
   'max-h-[85vh] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-5 shadow-xl custom-scrollbar dark:border-slate-700 dark:bg-slate-900';
+
+/** The copy face's sibling on the org desk (the health desk's law): Copy →
+ * a two-second Copied hand-back → Copy, the icon swaps with the label, the
+ * emerald family marks the success state, and a refused clipboard answers
+ * with an honest toast. Rendered only when a ledger exists — an absent
+ * control never lies. */
+function CopySharesButton({ metric, rows, total }: { metric: OrgDeskMetric; rows: OrgDeskLedgerRow[]; total: number }) {
+  const [copied, setCopied] = useState(false);
+  React.useEffect(() => {
+    if (!copied) return;
+    const t = window.setTimeout(() => setCopied(false), 2000);
+    return () => window.clearTimeout(t);
+  }, [copied]);
+  const onCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(formatBranchShares(metric, rows, total));
+      setCopied(true);
+    } catch {
+      toast.error('Could not copy the branch ledger — the clipboard refused.');
+    }
+  };
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="sm"
+      data-testid="branch-shares-copy"
+      onClick={onCopy}
+      title="Copy the branch ledger as plain text — ready to paste into a standup note"
+      aria-label={copied
+        ? 'Branch ledger copied to the clipboard.'
+        : `Copy the ${metric.noun} branch ledger as text`}
+      className={`h-7 shrink-0 gap-1.5 rounded-md px-2 text-xs transition-colors ${
+        copied
+          ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300 dark:hover:bg-emerald-900/40'
+          : 'text-muted-foreground hover:text-foreground'
+      }`}
+    >
+      {copied
+        ? <Check className="h-3 w-3" aria-hidden="true" />
+        : <ClipboardCopy className="h-3 w-3" aria-hidden="true" />}
+      {copied ? 'Copied' : 'Copy'}
+    </Button>
+  );
+}
 
 export function BranchSliceModal({
   metric,
@@ -265,7 +341,7 @@ export function BranchSliceModal({
   const deskIndicative = (() => {
     if (metric.unit !== 'money') return null;
     if (activeCurrency === 'KES') return null;
-    const entry = indicativeQuery.data?.data?.currencies.find((c) => c.code === activeCurrency);
+    const entry = indicativeQuery.data?.data?.currencies?.find((c) => c.code === activeCurrency);
     if (!entry || typeof entry.kesToRate !== 'number' || !Number.isFinite(entry.kesToRate)) return null;
     const meta = CURRENCY_BY_CODE[activeCurrency];
     if (!meta) return null;
@@ -303,14 +379,16 @@ export function BranchSliceModal({
           </p>
         ) : (
           <div className="space-y-4">
-            {/* The headline — the tile's own figure stays the truth */}
-            <div>
-              <p className={`text-2xl font-bold tabular-nums ${voice.accentLight} ${voice.accentDark}`} data-testid={`org-desk-total-${metric.id}`}>
-                {formatValue(metric, total)}
-              </p>
-              <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400" data-testid={`org-desk-meta-${metric.id}`}>
-                across {rows.length} branch{rows.length === 1 ? '' : 'es'} · {loud.length} with a {metric.noun} slice
-              </p>
+            {/* The headline — the tile's own figure stays the truth, and
+                v2.405.0 hands the ledger to the clipboard beside it. */}
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <p className={`text-2xl font-bold tabular-nums ${voice.accentLight} ${voice.accentDark}`} data-testid={`org-desk-total-${metric.id}`}>
+                  {formatValue(metric, total)}
+                </p>
+                <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400" data-testid={`org-desk-meta-${metric.id}`}>
+                  across {rows.length} branch{rows.length === 1 ? '' : 'es'} · {loud.length} with a {metric.noun} slice
+                </p>
               {/* v2.216.0: the indicative strip — the desk slice's annotation
                   of the tile's own figure, the kpi-row family's third face.
                   Same visual family (slate strip, dark half from birth),
@@ -335,6 +413,8 @@ export function BranchSliceModal({
                   <span data-testid="org-desk-indicative-voice">— indicative; the ledger stays in KES.</span>
                 </p>
               )}
+              </div>
+              {rows.length > 0 ? <CopySharesButton metric={metric} rows={rows} total={total} /> : null}
             </div>
 
             {clear ? (
@@ -344,7 +424,10 @@ export function BranchSliceModal({
             ) : (
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">The named branches</p>
-                <ul className="mt-2 space-y-2">
+                {/* v2.405.0: the rows ride the payload ledger's zebra — a quiet
+                    odd-row ground so the eye holds the branch from figure to
+                    share; the rings stay the row's own edge. */}
+                <ul className="mt-2 space-y-2 [&>li:nth-child(odd)]:bg-slate-100/70 dark:[&>li:nth-child(odd)]:bg-slate-800/40">
                   {loud.map((r) => {
                     const share = shareOf(r.value, total);
                     return (
@@ -355,7 +438,7 @@ export function BranchSliceModal({
                         </div>
                         <div className="mt-0.5 flex flex-wrap items-center gap-x-2 text-[10px] text-slate-500 dark:text-slate-400">
                           {share != null ? (
-                            <span className="tabular-nums" data-testid={`org-desk-share-${metric.id}`}>{share}% of the org</span>
+                            <span className="tabular-nums font-mono text-[10px] font-semibold text-slate-600 dark:text-slate-300" data-testid={`org-desk-share-${metric.id}`}>{share}% of the org</span>
                           ) : null}
                           {r.countText ? <span>{r.countText}</span> : null}
                         </div>

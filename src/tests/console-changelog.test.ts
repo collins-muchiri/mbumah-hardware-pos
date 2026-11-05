@@ -266,6 +266,7 @@ describe('ChangelogModal - the jump lands somewhere real (v2.73.0)', () => {
   });
 
   it('the jumped entry wears the orange ring + the "via cmd+K" pill (dark complete)', () => {
+    // v2.405.0: the shares speak — the org desk's slice modal hands you the branch ledger (Copy beside the total, one pure formatter, the quiet zeroes never dropped, the health desk's two-second law), the named-branch rows ride the payload ledger's zebra and the share chips wear the mono badge, the wire's honest nulls stop at the door (the slice signatures speak the row — nine faces stand down, 382 → 373), and the burst mints a fresh refundable sale so the refund dialog's face finally opens live (the entry joins the feed — +1 on every unread anchor, the cascade's sixteenth generation)
     // v2.404.0: the ring's quoted bytes gain the one-pulse landing glow
     // (changelog-landing) — the pill and the dark-complete ring stand
     expect(CHROME).toMatch(/focused \? ' ring-2 ring-orange-400 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 changelog-landing' : ''/);
@@ -501,10 +502,10 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.402.0: the payload card hands you the file — the KRA filing trio completes (Print = the paper, Copy = the clipboard, Download = the FILE: the mapped payload's card saves the same pretty JSON the clipboard carries as a named kra-payload-<invoice>-<date>.json, the saved face riding the receipt hop's two-second law), the card's eight-row ledger alternates on a quiet zebra ground, the refund heal suite's must label widens (29 faces stand down, 431 → 402), and the entry joins the feed (+1 on every unread anchor — the DERIVED anchors re-set themselves, the cascade's thirteenth generation)
     // v2.404.0: the archive door reaches the main desk — the main shell mounts the SAME ChangelogModal (one shared archive, exactly one mount), the whats-new announcement gains its onOpenChangelog handle (jumpTo = APP_VERSION, the orange ring lands), the footer's Release notes door opens the archive from the top, the jumped entry answers with one soft landing glow, and the honest burst fixes the QA login's false positive (the entry joins the feed — +1 on every unread anchor, the cascade's fifteenth generation)
     // v2.403.0: the refund desk speaks the failure's name — the wire's typed refusal (code + the server's own line) reaches the toast and the dialog's own amber card (the code under its mono badge), four silent catches speak at last, the route's error ladder gains the stranded rung (NOT_STRANDED: 409), the two must widens land and the heal wiring's three mended names stand their guard (20 faces down, 402 → 382, the entry joins the feed — +1 on every unread anchor, the cascade's fourteenth generation)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(294);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(295);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(296);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(327);
+    expect(whatsNewUnreadCount('2.110.0')).toBe(295);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(296);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(297);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(328);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 

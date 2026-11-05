@@ -130,13 +130,16 @@ describe('main-app - the archive door on the main desk', () => {
 
   // ── 7. The release cascade ─────────────────────────────────────────────────
 
-  it('WHATS_NEW leads with the 2.404.0 archive-door story', () => {
+  it('WHATS_NEW leads with the current release — the door story rides the archive below', () => {
+    // v2.405.0 hand-over: the lead tells the shares' voice now; the
+    // archive-door story lives one entry down, still in the feed
     const lead = WHATS_NEW[0];
-    expect(lead.version).toBe('2.404.0');
-    expect(lead.title).toContain('archive door reaches the main desk');
+    expect(lead.version).toBe('2.405.0');
+    expect(lead.title).toContain('shares speak');
     expect(lead.bullets.length).toBeGreaterThanOrEqual(4);
-    expect(lead.bullets.some((b) => b.includes('Open the release archive'))).toBe(true);
-    expect(lead.bullets.some((b) => b.includes('footer'))).toBe(true);
+    const door = WHATS_NEW.find((e) => e.version === '2.404.0');
+    expect(door?.title).toContain('archive door reaches the main desk');
+    expect(door?.bullets.some((b) => b.includes('Open the release archive'))).toBe(true);
   });
 
   it('the cascade never forks the versions (lead entry matches the package)', () => {
