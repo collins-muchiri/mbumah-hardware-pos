@@ -227,7 +227,9 @@ describe('the transactions desk\u2019s landing chips scrub their words (the loya
     // setters and the attr, so the slice reaches back past it.
     const at = desk.lastIndexOf(`data-testid="${testid}"`);
     expect(at).toBeGreaterThan(-1);
-    return desk.slice(Math.max(0, at - 1300), at);
+    // v2.397.0 THE ELDER LOOM: onDismiss is the loomed chip's LAST prop —
+    // the window re-anchors forward (the pre-loom form looked BACK)
+    return desk.slice(at, at + 1400);
   };
 
   it('the pay chip\u2019s dismissal scrubs ?txn-pay= from the address bar', () => {

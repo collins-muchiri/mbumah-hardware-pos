@@ -3,14 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import {
-  KeyRound, AlertTriangle, DollarSign, Layers, Plus,
-  CheckCircle, Loader2, Clock, ArrowRight, Wrench,
-  ShieldAlert, ShieldCheck, ShieldOff, CalendarDays, Activity, Package, Search, LayoutGrid,
-  List, Camera,
-  Phone, Printer, Pencil, Trash2, Smartphone,
-  Link2, X,
-} from 'lucide-react';
+import { KeyRound, AlertTriangle, DollarSign, Layers, Plus, CheckCircle, Loader2, Clock, ArrowRight, Wrench, ShieldAlert, ShieldCheck, ShieldOff, CalendarDays, Activity, Package, Search, LayoutGrid, List, Camera, Phone, Printer, Pencil, Trash2, Smartphone } from 'lucide-react';
 
 import { useAppStore } from '@/lib/stores';
 import { parseInitialNamedMember } from '@/lib/tab-url';
@@ -47,6 +40,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { LandingChip } from '@/components/landing-chip';
 
 function RentalTimeline({ rental }: { rental: RentalItem }) {
   const start = new Date(rental.rentalStartDate).getTime();
@@ -1370,20 +1364,17 @@ export default function RentalsTab() {
                 `data-testid="rent-status-landing-word"` — the QA walk's
                 handle. */}
             {rentLandingLive && landedRentStatus !== 'all' && statusFilter === landedRentStatus && (
-              <button
-                type="button"
-                onClick={() => {
+              <LandingChip
+                storey={200}
+                hue="orange"
+                data-testid="rent-status-landing-word"
+                title="The desk landed with this filter from the address bar — press to clear it"
+                label={`landed ?rent-status=${landedRentStatus}`}
+                onDismiss={() => {
                   setStatusFilter('all');
                   setRentLandingLive(false);
                 }}
-                className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-orange-200 bg-orange-50 text-orange-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-orange-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 dark:border-orange-500/30 dark:bg-orange-500/10 dark:text-orange-300 dark:hover:bg-orange-500/20"
-                data-testid="rent-status-landing-word"
-                title="The desk landed with this filter from the address bar — press to clear it"
-              >
-                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-                <span className="tabular-nums">landed ?rent-status={landedRentStatus}</span>
-                <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-              </button>
+              />
             )}
             {/* v2.355.0: the hand-driven Select is voice 2 — a hand-driven
                 change retires the landing word. */}

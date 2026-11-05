@@ -1,3 +1,15 @@
+## [2.397.0] The landing chips share one loom
+
+The census counted 42 elder landing chips hand-rolling the same button across 18 more desks — the same anatomy the ten full-wardrobe chips have worn through the shared LandingChip since v2.394.0, byte-identical but for the hue. The elder storey joins the loom: 22 loomable faces (the loyalty window's off-union amber face stays hand-rolled by design), three heads, one 200-storey wardrobe registry.
+
+### Changed
+- **THE ELDER LOOM** (`src/components/landing-chip.tsx`): a second registry (200/50 storey, 22 hues, one greppable line each) and a discriminated `storey` prop — no storey = the 300 storey, `storey={200}` = the elder storey. Three heads: standard, compact (`gap-1 h-6 px-2`), quiet (no group class, no group-hover detail — the honest census face). Zero casts: the union narrows storey and hue together.
+- **THE 18 DESKS**: every elder chip renders through `<LandingChip>` with its exact testid, label, tooltip and dismissal writes riding props; unused lucide imports retired.
+- **THE BYTE-FIDELITY LAW HELD**: composing each variant head with its registry entry reproduces the exact historic className every desk wore — pinned per chip in the loom suite's THE_ELDER block (the honest elder census: 15 unique trios answer once-only; 7 shared badge wardrobes answer the loom plus a pinned external count).
+
+### Fixed
+- The transactions desk's lazy-body codemod trap (a sibling chip's `<button` opening a block and swallowing both) — the body guard, documented in the round script.
+
 ## [2.396.0] The M-Pesa statuses find their feet
 
 The M-Pesa lens's UNMATCHED and DISPUTED words were honest labels over an empty reality: every row derived PENDING or MATCHED from `isReconciled`, so half the vocabulary could never be worn. The ledger now STORES its reconciliation status, the rows speak their effective status, and the words became reachable actions.

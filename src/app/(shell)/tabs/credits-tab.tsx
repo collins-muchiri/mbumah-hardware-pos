@@ -3,12 +3,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import {
-  CreditCard, Search, Plus, ArrowUpRight, ArrowDownRight,
-  Minus, RotateCcw, Loader2, Filter, Users, Wallet, Scale, ChevronUp, ChevronDown,
-  FileText, User, CircleDollarSign, AlertCircle, MoreHorizontal,
-  Pencil, Trash2, MessageCircle, MessageSquare, Printer, Link2, X,
-} from 'lucide-react';
+import { CreditCard, Search, Plus, ArrowUpRight, ArrowDownRight, Minus, RotateCcw, Loader2, Filter, Users, Wallet, Scale, ChevronUp, ChevronDown, FileText, User, CircleDollarSign, AlertCircle, MoreHorizontal, Pencil, Trash2, MessageCircle, MessageSquare, Printer } from 'lucide-react';
 import { parseInitialNamedMember } from '@/lib/tab-url';
 
 import { useAppStore } from '@/lib/stores';
@@ -51,6 +46,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
+import { LandingChip } from '@/components/landing-chip';
 
 // Avatar gradient helper
 const AVATAR_GRADIENTS = [
@@ -790,20 +786,17 @@ export default function CreditsTab() {
                 `data-testid="cr-type-landing-word"` — the QA walk's
                 handle. */}
             {crLandingLive && landedCrType !== 'all' && creditTypeFilter === landedCrType && (
-              <button
-                type="button"
-                onClick={() => {
+              <LandingChip
+                storey={200}
+                hue="yellow"
+                data-testid="cr-type-landing-word"
+                title="The desk landed with this filter from the address bar — press to clear it"
+                label={`landed ?cr-type=${landedCrType}`}
+                onDismiss={() => {
                   setCreditTypeFilter('all');
                   setCrLandingLive(false);
                 }}
-                className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-yellow-200 bg-yellow-50 text-yellow-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-yellow-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 dark:border-yellow-500/30 dark:bg-yellow-500/10 dark:text-yellow-300 dark:hover:bg-yellow-500/20"
-                data-testid="cr-type-landing-word"
-                title="The desk landed with this filter from the address bar — press to clear it"
-              >
-                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-                <span className="tabular-nums">landed ?cr-type={landedCrType}</span>
-                <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-              </button>
+              />
             )}
             <div className="flex gap-2">
               <Select value={selectedCustomerId} onValueChange={setSelectedCustomerId}>

@@ -278,6 +278,10 @@ describe('the collision ledger — desk-prefixed words stay rare', () => {
         'src/tests/gc-status-deep-link-v2358.test.ts',
         'src/tests/inv-status-deep-link-v2356.test.ts',
         'src/tests/inv-stock-deep-link-v2329.test.ts',
+        // v2.397.0: the elder loom's own suite is admitted (the THE_ELDER
+        // block speaks this word's bytes — an admission line carries the
+        // word it admits)
+        'src/tests/landing-chip-loom-v2394.test.ts',
         'src/tests/ly-type-deep-link-v2368.test.ts',
       // the thirty-second word's own ledger — admitted (its own ledger
       // LISTS this file's path — the third-order ripple: a ledger line

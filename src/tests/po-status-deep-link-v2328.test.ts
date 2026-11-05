@@ -17,6 +17,8 @@
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
+
+const LOOM = readFileSync('src/components/landing-chip.tsx', 'utf8');
 import { parseInitialNamedMember } from '@/lib/tab-url';
 
 const PO_STATUSES = ['DRAFT', 'PENDING_APPROVAL', 'APPROVED', 'SENT', 'CONFIRMED', 'PARTIALLY_RECEIVED', 'RECEIVED', 'CANCELLED'] as const;
@@ -104,12 +106,12 @@ describe('the landing chip — the face names the word it answered', () => {
   });
 
   it('the chip names the exact word it answered', () => {
-    expect(desk.includes('landed ?po-status={landedStatus}')).toBe(true);
+    expect(desk.includes('landed ?po-status=${landedStatus}')).toBe(true);
   });
 
   it('voice 1 — the dismissal clears the filter the word seeded and retires', () => {
     const at = desk.indexOf('data-testid="po-landing-word"');
-    const block = desk.slice(at, at + 400);
+    const block = desk.slice(at, at + 1200);
     expect(block).toContain("setStatusFilter('ALL')");
     expect(block).toContain('setPage(1)');
     expect(block).toContain('setLandingLive(false)');
@@ -131,8 +133,12 @@ describe('the landing chip — the face names the word it answered', () => {
   });
 
   it('the chip wears the roster\u2019s indigo family in BOTH modes', () => {
-    expect(desk.includes('border-indigo-200 bg-indigo-50 text-indigo-700')).toBe(true);
-    expect(desk.includes('dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300')).toBe(true);
+    // v2.397.0 THE LOOM: the elder wardrobe moved into the loom's 200
+    // registry — the desk proves its family by hue, the registry carries
+    // the bytes.
+    expect(desk.includes('hue="indigo"')).toBe(true);
+    expect(LOOM.includes('border-indigo-200 bg-indigo-50 text-indigo-700')).toBe(true);
+    expect(LOOM.includes('dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300')).toBe(true);
   });
 });
 

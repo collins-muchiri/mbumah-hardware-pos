@@ -59,6 +59,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 // v2.341.0: the bare Progress import left the desk — the Next Tier cell
 // draws the honest tier-progress meter now (the aria meter precedent).
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { LandingChip } from '@/components/landing-chip';
 
 // Sub-tab type
 type LoyaltySubTab = 'tiers' | 'members' | 'transactions' | 'campaigns';
@@ -1133,20 +1134,17 @@ export default function LoyaltyTab() {
               the group-hover dismiss detail; the position law: the chip
               sits immediately BEFORE the Select it landed into. */}
           {lyLandingLive && landedLyType !== 'all' && txTypeFilter === landedLyType && (
-            <button
-              type="button"
-              onClick={() => {
+            <LandingChip
+              storey={200}
+              hue="green"
+              data-testid="ly-type-landing-word"
+              title="The ledger landed with this type from the address bar — press to clear it"
+              label={`landed ?ly-type=${landedLyType}`}
+              onDismiss={() => {
                 setTxTypeFilter('all');
                 setLyLandingLive(false);
               }}
-              className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-green-200 bg-green-50 text-green-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-green-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-300 dark:hover:bg-green-500/20"
-              data-testid="ly-type-landing-word"
-              title="The ledger landed with this type from the address bar — press to clear it"
-            >
-              <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-              <span className="tabular-nums">landed ?ly-type={landedLyType}</span>
-              <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-            </button>
+            />
           )}
           <Select value={txTypeFilter} onValueChange={chooseLyType}>
             <SelectTrigger className="h-9 w-full sm:w-[150px]">

@@ -95,6 +95,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { LandingChip } from '@/components/landing-chip';
 
 // Types
 
@@ -794,20 +795,17 @@ function EmployeesSubTab({ storeId }: { storeId: string }) {
                 `data-testid="pr-status-landing-word"` — the QA walk's
                 handle. */}
             {prLandingLive && landedPrStatus !== 'ALL' && statusFilter === landedPrStatus && (
-              <button
-                type="button"
-                onClick={() => {
+              <LandingChip
+                storey={200}
+                hue="stone"
+                data-testid="pr-status-landing-word"
+                title="The desk landed with this filter from the address bar — press to clear it"
+                label={`landed ?pr-status=${landedPrStatus}`}
+                onDismiss={() => {
                   setStatusFilter('ALL');
                   setPrLandingLive(false);
                 }}
-                className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-stone-200 bg-stone-50 text-stone-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 dark:border-stone-500/30 dark:bg-stone-500/10 dark:text-stone-300 dark:hover:bg-stone-500/20"
-                data-testid="pr-status-landing-word"
-                title="The desk landed with this filter from the address bar — press to clear it"
-              >
-                <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-                <span className="tabular-nums">landed ?pr-status={landedPrStatus}</span>
-                <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-              </button>
+              />
             )}
             <Select value={statusFilter} onValueChange={choosePrStatus}>
               <SelectTrigger className="w-full sm:w-40"><SelectValue placeholder="Status" /></SelectTrigger>

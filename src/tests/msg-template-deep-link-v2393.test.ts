@@ -187,8 +187,12 @@ describe('the messaging desk — ?msg-template= lands as visible state', () => {
     // (its two border faces, its one bg-100 face):
     expect(desk.split('border-yellow-').length - 1).toBe(0);
     expect(desk.split('bg-yellow-100').length - 1).toBe(0);
-    expect(loom.split('border-yellow-').length - 1).toBe(2);
-    expect(loom.split('bg-yellow-100').length - 1).toBe(1);
+    // v2.397.0 THE ELDER LOOM: the credits chip's yellow joins the loom
+    // at the 200 storey — the census counts both storeys (4)
+    expect(loom.split('border-yellow-').length - 1).toBe(4);
+    // the 200 storey's hover:bg-yellow-100 doubles the face (the elder
+    // entry's hover form) — 1 -> 2
+    expect(loom.split('bg-yellow-100').length - 1).toBe(2);
   });
 
   it('the chip sits BEFORE the grid it lands into (the position law)', () => {
@@ -306,18 +310,19 @@ describe('the address-bar vocabulary — the thirty-second row (cross-suite pins
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.396.0 leads the feed', () => {
+describe('whats-new — v2.397.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.396.0');
-    // the lead's story hand-over (v2.396.0, the Task 111 law's second
-    // application): the head story is the M-Pesa statuses' — the lens's
-    // words became real, reachable and honest. The receipt story exits
-    // the head this round; the census re-types honestly, again.
-    expect(head.title).toContain('M-Pesa');
+    expect(head.version).toBe('2.397.0');
+    // the lead's story hand-over (v2.397.0, the Task 111 law's third
+    // application): the head story is the elder loom's — the census's 22
+    // loomable faces joined the shared component, the byte-fidelity law
+    // held per chip. The M-Pesa story exits the head this round; the
+    // census re-types honestly, again.
+    expect(head.title).toContain('loom');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('no row lies'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('Dispute'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('every word it offers'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('22 more desks'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('one-press dismissal'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('zero drift'))).toBe(true);
   });
 });

@@ -6,10 +6,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
   ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area,
 } from 'recharts';
-import {
-  Shield, ShieldOff, AlertTriangle, Users,
-  Activity, Eye, Ban, RefreshCw, Filter, X, ScrollText, Loader2, Download, Link2,
-} from 'lucide-react';
+import { Shield, ShieldOff, AlertTriangle, Users, Activity, Eye, Ban, RefreshCw, Filter, X, ScrollText, Loader2, Download } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -63,6 +60,7 @@ import {
 // an RFC-4180 CSV from the ONE filing home (the lib builds the bytes and the
 // name; the tab only hands them to the browser's Blob download).
 import { gateDrillToCsv, gateDrillCsvFilename } from '@/lib/gate-drill-csv';
+import { LandingChip } from '@/components/landing-chip';
 
 // Types
 
@@ -726,20 +724,18 @@ export default function SecurityTab() {
                     are byte-free on this desk. The chip borrows the
                     surface's hue and none of its clothes. */}
                 {secLandingLive && landedSecType !== 'all' && filterEventType === landedSecType && (
-                  <button
-                    type="button"
-                    onClick={() => {
+                  <LandingChip
+                    variant="compact"
+                    storey={200}
+                    hue="gray"
+                    data-testid="sec-type-landing-word"
+                    title="The watchtower landed with this event type from the address bar — press to clear it"
+                    label={`landed ?sec-type=${landedSecType}`}
+                    onDismiss={() => {
                       setFilterEventType('all');
                       setSecLandingLive(false);
                     }}
-                    className="group inline-flex items-center gap-1 h-6 px-2 rounded-full border border-gray-200 bg-gray-50 text-gray-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 dark:border-gray-500/30 dark:bg-gray-500/10 dark:text-gray-300 dark:hover:bg-gray-500/20"
-                    data-testid="sec-type-landing-word"
-                    title="The watchtower landed with this event type from the address bar — press to clear it"
-                  >
-                    <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-                    <span className="tabular-nums">landed ?sec-type={landedSecType}</span>
-                    <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-                  </button>
+                  />
                 )}
                 <Select value={filterEventType} onValueChange={chooseSecType}>
                   <SelectTrigger className="h-9 text-sm">

@@ -13,17 +13,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import {
-  AlertTriangle,
-  CalendarClock,
-  CheckCircle2,
-  ClipboardList,
-  Link2,
-  Loader2,
-  Plus,
-  RefreshCw,
-  X,
-} from 'lucide-react';
+import { AlertTriangle, CalendarClock, CheckCircle2, ClipboardList, Loader2, Plus, RefreshCw } from 'lucide-react';
 import { parseInitialNamedMember } from '@/lib/tab-url';
 
 import { useAppStore } from '@/lib/stores';
@@ -40,6 +30,7 @@ import { PlansStatsCards } from '@/components/debt-plans/plans-stats-cards';
 import { PaymentPlanCard } from '@/components/debt-plans/payment-plan-card';
 import { CreatePlanDialog } from '@/components/debt-plans/create-plan-dialog';
 import { PlanDetailsDialog } from '@/components/debt-plans/plan-details-dialog';
+import { LandingChip } from '@/components/landing-chip';
 
 type FilterKey = 'all' | 'pending' | 'active' | 'overdue' | 'completed';
 
@@ -273,20 +264,18 @@ export function DebtPlansTab() {
             `data-testid="dp-status-landing-word"` — the QA walk's
             handle. */}
         {dpLandingLive && landedDpStatus !== 'all' && filter === landedDpStatus && (
-          <button
-            type="button"
-            onClick={() => {
+          <LandingChip
+            variant="compact"
+            storey={200}
+            hue="zinc"
+            data-testid="dp-status-landing-word"
+            title="The desk landed with this filter from the address bar — press to clear it"
+            label={`landed ?dp-status=${landedDpStatus}`}
+            onDismiss={() => {
               setFilter('all');
               setDpLandingLive(false);
             }}
-            className="group inline-flex items-center gap-1 h-6 px-2 rounded-full border border-zinc-200 bg-zinc-50 text-zinc-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 dark:border-zinc-500/30 dark:bg-zinc-500/10 dark:text-zinc-300 dark:hover:bg-zinc-500/20"
-            data-testid="dp-status-landing-word"
-            title="The desk landed with this filter from the address bar — press to clear it"
-          >
-            <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-            <span className="tabular-nums">landed ?dp-status={landedDpStatus}</span>
-            <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-          </button>
+          />
         )}
         {FILTER_CHIPS.map((chip) => {
           const isActive = filter === chip.key;

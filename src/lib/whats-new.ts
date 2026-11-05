@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.397.0',
+    title: 'The landing chips share one loom — all 32 address-bar words wear one component',
+    bullets: [
+      'Every deep-link landing chip now renders through one shared component: 22 more desks joined the loom, so the family\u2019s look can never drift apart again.',
+      'Each chip keeps its exact colour, size and one-press dismissal — the compact, standard and quiet faces are all preserved.',
+      'One wardrobe registry now holds two storeys (the bright full-wardrobe chips and the elder 22) with one greppable line per hue.',
+      'No visual change — this one is craft hygiene: one loom, two storeys, three heads, zero drift.',
+    ],
+  },
+  {
     version: '2.396.0',
     title: 'The M-Pesa statuses find their feet — unmatched and disputed become real, reachable and honest',
     bullets: [

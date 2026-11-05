@@ -36,6 +36,8 @@
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
+
+const LOOM = readFileSync('src/components/landing-chip.tsx', 'utf8');
 import { join } from 'node:path';
 import {
   parseInitialDateRangeWithAlias,
@@ -329,7 +331,11 @@ describe('the landed-window chip — the face names the window it answered', () 
 
   it('the type word\u2019s chip keeps its green and its own honest-face law (no masquerade)', () => {
     expect(desk.includes('data-testid="ly-type-landing-word"')).toBe(true);
-    expect(desk.includes('border-green-200 bg-green-50 text-green-700')).toBe(true);
+    // v2.397.0 THE ELDER LOOM: the green chip renders through the shared
+    // LandingChip — the desk proves its family by hue, the registry
+    // carries the wardrobe
+    expect(desk.includes('hue="green"')).toBe(true);
+    expect(LOOM.includes('border-green-200 bg-green-50 text-green-700')).toBe(true);
   });
 });
 

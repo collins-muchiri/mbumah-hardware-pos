@@ -3,14 +3,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import {
-  Tag, Search, Plus, Loader2,
-  Percent, DollarSign, Package, Gift, Clock, CalendarDays, Megaphone, Pencil, Trash2, Copy, CheckCircle2,
-  ChevronDown, Filter, Users,
-  BarChart3, Receipt, Ticket,
-  AlertCircle, AlertTriangle, Phone, Mail, MessageSquare, Send, RefreshCw,
-  Link2, X,
-} from 'lucide-react';
+import { Tag, Search, Plus, Loader2, Percent, DollarSign, Package, Gift, Clock, CalendarDays, Megaphone, Pencil, Trash2, Copy, CheckCircle2, ChevronDown, Filter, Users, BarChart3, Receipt, Ticket, AlertCircle, AlertTriangle, Phone, Mail, MessageSquare, Send, RefreshCw } from 'lucide-react';
 
 import { useAppStore } from '@/lib/stores';
 import { parseInitialNamedMember } from '@/lib/tab-url';
@@ -55,6 +48,7 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
+import { LandingChip } from '@/components/landing-chip';
 
 // Types
 
@@ -1144,20 +1138,17 @@ export default function VouchersTab() {
                     handle. */}
                 {vcLandingLive && landedVcStatus !== 'all' && statusFilter === landedVcStatus && (
                   <div className="flex flex-wrap items-center gap-2 mt-3">
-                    <button
-                      type="button"
-                      onClick={() => {
+                    <LandingChip
+                      storey={200}
+                      hue="pink"
+                      data-testid="vc-status-landing-word"
+                      title="The desk landed with this filter from the address bar — press to clear it"
+                      label={`landed ?vc-status=${landedVcStatus}`}
+                      onDismiss={() => {
                         setStatusFilter('all');
                         setVcLandingLive(false);
                       }}
-                      className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-pink-200 bg-pink-50 text-pink-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-pink-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 dark:border-pink-500/30 dark:bg-pink-500/10 dark:text-pink-300 dark:hover:bg-pink-500/20"
-                      data-testid="vc-status-landing-word"
-                      title="The desk landed with this filter from the address bar — press to clear it"
-                    >
-                      <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-                      <span className="tabular-nums">landed ?vc-status={landedVcStatus}</span>
-                      <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-                    </button>
+                    />
                   </div>
                 )}
 

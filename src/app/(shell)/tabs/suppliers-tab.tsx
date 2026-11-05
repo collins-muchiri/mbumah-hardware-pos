@@ -3,14 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import {
-  Truck, Search, Plus, Star, Eye, Loader2, X,
-  Phone, Mail, MapPin, Building2, User, FileText,
-  ChevronRight, Download, Package, CalendarDays,
-  ClipboardCheck, AlertTriangle, Hash, Clock, CheckCircle2,
-  Circle, Award, Timer, MessageSquare, Smartphone,
-  Send, MoreVertical, DollarSign, ClipboardList, Link2,
-} from 'lucide-react';
+import { Truck, Search, Plus, Star, Eye, Loader2, X, Phone, Mail, MapPin, Building2, User, FileText, ChevronRight, Download, Package, CalendarDays, ClipboardCheck, AlertTriangle, Hash, Clock, CheckCircle2, Circle, Award, Timer, MessageSquare, Smartphone, Send, MoreVertical, DollarSign, ClipboardList } from 'lucide-react';
 import { parseInitialNamedMember } from '@/lib/tab-url';
 
 // v2.253.0 THE BIRTH'S FIFTH FACE — the supplier's roster wears the
@@ -65,6 +58,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { LandingChip } from '@/components/landing-chip';
 
 // v2.255.0 THE SUPPLIERS' LENS — the row's own band, read from above:
 // the family the wire's spoke wore, or the silent absence (a hand-raised
@@ -2216,20 +2210,18 @@ export default function SuppliersTab() {
                   `data-testid="sup-landing-word"` — the QA walk's
                   handle. */}
               {landingLive && landedSupStatus !== 'all' && filterStatus === landedSupStatus && (
-                <button
-                  type="button"
-                  onClick={() => {
+                <LandingChip
+                  variant="quiet"
+                  storey={200}
+                  hue="emerald"
+                  data-testid="sup-landing-word"
+                  title="The desk landed with this filter from the address bar — press to clear it"
+                  label={`landed ?sup-status=${landedSupStatus}`}
+                  onDismiss={() => {
                     setFilterStatus('all');
                     setLandingLive(false);
                   }}
-                  className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300 dark:hover:bg-emerald-500/20"
-                  data-testid="sup-landing-word"
-                  title="The desk landed with this filter from the address bar — press to clear it"
-                >
-                  <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-                  <span className="tabular-nums">landed ?sup-status={landedSupStatus}</span>
-                  <X className="h-3 w-3 shrink-0 opacity-60" aria-hidden="true" />
-                </button>
+                />
               )}
               <Button variant="outline" size="sm" className="h-9" onClick={exportCSV} disabled={suppliers.length === 0}>
                 <Download className="h-4 w-4 mr-1" />
@@ -2451,20 +2443,18 @@ export default function SuppliersTab() {
                   `data-testid="sup-po-landing-word"` — the QA walk's
                   handle. */}
               {poLandingLive && landedSupPo !== 'all' && poFilterStatus === landedSupPo && (
-                <button
-                  type="button"
-                  onClick={() => {
+                <LandingChip
+                  variant="quiet"
+                  storey={200}
+                  hue="cyan"
+                  data-testid="sup-po-landing-word"
+                  title="The desk landed with this filter from the address bar — press to clear it"
+                  label={`landed ?sup-po=${landedSupPo}`}
+                  onDismiss={() => {
                     setPoFilterStatus('all');
                     setPoLandingLive(false);
                   }}
-                  className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-cyan-200 bg-cyan-50 text-cyan-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-cyan-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 dark:border-cyan-500/30 dark:bg-cyan-500/10 dark:text-cyan-300 dark:hover:bg-cyan-500/20"
-                  data-testid="sup-po-landing-word"
-                  title="The desk landed with this filter from the address bar — press to clear it"
-                >
-                  <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-                  <span className="tabular-nums">landed ?sup-po={landedSupPo}</span>
-                  <X className="h-3 w-3 shrink-0 opacity-60" aria-hidden="true" />
-                </button>
+                />
               )}
               <Button size="sm" className="h-9" onClick={() => setCreatePOOpen(true)}>
                 <Plus className="h-4 w-4 mr-1" />

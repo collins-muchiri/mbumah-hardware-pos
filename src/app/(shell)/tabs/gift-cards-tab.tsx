@@ -3,14 +3,7 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import {
-  Gift, Search, Plus, Copy, Eye, EyeOff, Loader2,
-  ArrowUpDown, Filter, CreditCard, Calendar,
-  Mail, User, FileText, AlertTriangle, CheckCircle2, Clock, ChevronDown, Settings2, Sparkles,
-  TrendingDown, TrendingUp, Ban, RefreshCw, Wallet,
-  MoreHorizontal, Pencil, Trash2, ShieldAlert, Info,
-  MessageCircle, MessageSquare, Link2, X,
-} from 'lucide-react';
+import { Gift, Search, Plus, Copy, Eye, EyeOff, Loader2, ArrowUpDown, Filter, CreditCard, Calendar, Mail, User, FileText, AlertTriangle, CheckCircle2, Clock, ChevronDown, Settings2, Sparkles, TrendingDown, TrendingUp, Ban, RefreshCw, Wallet, MoreHorizontal, Pencil, Trash2, ShieldAlert, Info, MessageCircle, MessageSquare } from 'lucide-react';
 import { parseInitialNamedMember } from '@/lib/tab-url';
 
 import {
@@ -65,6 +58,7 @@ import {
   DropdownMenuSeparator, DropdownMenuTrigger,
   DropdownMenuLabel, DropdownMenuGroup,
 } from '@/components/ui/dropdown-menu';
+import { LandingChip } from '@/components/landing-chip';
 
 // Props
 interface GiftCardsTabProps {
@@ -934,20 +928,17 @@ export default function GiftCardsTab({ storeId, userRole, userId: _userId }: Gif
             handle. */}
         {gcLandingLive && landedGcStatus !== 'ALL' && statusFilter === landedGcStatus && (
           <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={() => {
+            <LandingChip
+              storey={200}
+              hue="lime"
+              data-testid="gc-status-landing-word"
+              title="The desk landed with this filter from the address bar — press to clear it"
+              label={`landed ?gc-status=${landedGcStatus}`}
+              onDismiss={() => {
                 setStatusFilter('ALL');
                 setGcLandingLive(false);
               }}
-              className="group inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-lime-200 bg-lime-50 text-lime-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-lime-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime-400 dark:border-lime-500/30 dark:bg-lime-500/10 dark:text-lime-300 dark:hover:bg-lime-500/20"
-              data-testid="gc-status-landing-word"
-              title="The desk landed with this filter from the address bar — press to clear it"
-            >
-              <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-              <span className="tabular-nums">landed ?gc-status={landedGcStatus}</span>
-              <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-            </button>
+            />
           </div>
         )}
 

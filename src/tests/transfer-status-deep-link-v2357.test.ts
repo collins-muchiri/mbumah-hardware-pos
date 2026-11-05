@@ -33,6 +33,8 @@
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
+
+const LOOM = readFileSync('src/components/landing-chip.tsx', 'utf8');
 import { join } from 'node:path';
 import { parseInitialNamedMember } from '@/lib/tab-url';
 
@@ -153,12 +155,12 @@ describe('the landing chip — the face names the word it answered', () => {
   });
 
   it('the chip names the exact word it answered', () => {
-    expect(desk.includes('landed ?transfer-status={landedTransferStatus}')).toBe(true);
+    expect(desk.includes('landed ?transfer-status=${landedTransferStatus}')).toBe(true);
   });
 
   it('voice 1 — the dismissal clears the lens the word seeded and retires', () => {
     const at = desk.indexOf('data-testid="transfer-status-landing-word"');
-    const block = desk.slice(at, at + 400);
+    const block = desk.slice(at, at + 1200);
     expect(block).toContain("setStatusFilter('all')");
     expect(block).toContain('setTransferLandingLive(false)');
   });
@@ -174,17 +176,21 @@ describe('the landing chip — the face names the word it answered', () => {
   });
 
   it('the chip wears the lens\u2019s blue family in BOTH modes', () => {
-    expect(desk.includes('border-blue-200 bg-blue-50 text-blue-700')).toBe(true);
-    expect(desk.includes('dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-300')).toBe(true);
+    // v2.397.0 THE LOOM: the elder wardrobe moved into the loom's 200
+    // registry — the desk proves its family by hue, the registry carries
+    // the bytes.
+    expect(desk.includes('hue="blue"')).toBe(true);
+    expect(LOOM.includes('border-blue-200 bg-blue-50 text-blue-700')).toBe(true);
+    expect(LOOM.includes('dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-300')).toBe(true);
   });
 
   it('the dismiss hint sharpens on hover (the group-hover detail)', () => {
-    expect(desk.includes('opacity-60 transition-opacity group-hover:opacity-100')).toBe(true);
+    expect(LOOM.includes('opacity-60 transition-opacity group-hover:opacity-100')).toBe(true);
   });
 
   it('the chip explains itself (the tooltip law)', () => {
     expect(desk.includes('title="The desk landed with this filter from the address bar — press to clear it"')).toBe(true);
-    expect(desk.includes('aria-hidden="true"')).toBe(true);
+    expect(LOOM.includes('aria-hidden="true"')).toBe(true); // v2.397.0 THE LOOM: the icons live in the one hand
   });
 
   it('the counting lens voice keeps its emerald beside the chip (no masquerade)', () => {
@@ -192,7 +198,7 @@ describe('the landing chip — the face names the word it answered', () => {
     // a voice, not a badge; it borrows nothing from the chip's blue
     expect(desk.includes('data-testid="transfer-lens-voice"')).toBe(true);
     expect(desk.includes('border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700')).toBe(true);
-    expect(desk.includes('border-blue-200 bg-blue-50 text-blue-700 text-xs font-medium')).toBe(true);
+    expect(LOOM.includes('border-blue-200 bg-blue-50 text-blue-700 text-xs font-medium')).toBe(true);
   });
 });
 

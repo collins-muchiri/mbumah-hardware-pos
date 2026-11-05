@@ -3,18 +3,7 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import {
-  Activity, ArrowRight, Plus, CheckCircle, Loader2,
-  Cpu, Clock, Users, Zap, Trash2, RefreshCw,
-  Database, ShieldCheck, AlertCircle, Info, Bell,
-  Search, ChevronDown, FileDown, Globe, Package,
-  Shield, Wrench, PackageX, AlertOctagon,
-  UserCheck, UserX, PlusCircle, MinusCircle,
-  Settings, Save, Edit3, UserPlus, X,
-  AlertTriangle, Terminal, MapPin, Phone,
-  MessageSquare, Mail, Smartphone, Store,
-  KeyRound, Link2,
-} from 'lucide-react';
+import { Activity, ArrowRight, Plus, CheckCircle, Loader2, Cpu, Clock, Users, Zap, Trash2, RefreshCw, Database, ShieldCheck, AlertCircle, Info, Bell, Search, ChevronDown, FileDown, Globe, Package, Shield, Wrench, PackageX, AlertOctagon, UserCheck, UserX, PlusCircle, MinusCircle, Settings, Save, Edit3, UserPlus, X, AlertTriangle, Terminal, MapPin, Phone, MessageSquare, Mail, Smartphone, Store, KeyRound } from 'lucide-react';
 import { composeLatencyVoice } from '@/lib/report-voices';
 
 import { useAppStore } from '@/lib/stores';
@@ -55,6 +44,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { LandingChip } from '@/components/landing-chip';
 
 /**
  * Authenticated fetch helper for health-check pings. Adds the JWT token
@@ -789,20 +779,18 @@ function AuditLogSection({ storeId }: { storeId: string }) {
               `data-testid="ad-severity-landing-word"` — the QA walk's
               handle. */}
           {adLandingLive && landedAdSeverity !== 'all' && filters.severity === landedAdSeverity && (
-            <button
-              type="button"
-              onClick={() => {
+            <LandingChip
+              variant="compact"
+              storey={200}
+              hue="neutral"
+              data-testid="ad-severity-landing-word"
+              title="The audit log landed with this severity from the address bar — press to clear it"
+              label={`landed ?ad-severity=${landedAdSeverity}`}
+              onDismiss={() => {
                 setFilters(f => ({ ...f, severity: 'all' }));
                 setAdLandingLive(false);
               }}
-              className="group inline-flex items-center gap-1 h-6 px-2 rounded-full border border-neutral-200 bg-neutral-50 text-neutral-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 dark:border-neutral-500/30 dark:bg-neutral-500/10 dark:text-neutral-300 dark:hover:bg-neutral-500/20"
-              data-testid="ad-severity-landing-word"
-              title="The audit log landed with this severity from the address bar — press to clear it"
-            >
-              <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-              <span className="tabular-nums">landed ?ad-severity={landedAdSeverity}</span>
-              <X className="h-3 w-3 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-            </button>
+            />
           )}
           <Select value={filters.severity} onValueChange={chooseAdSeverity}>
             <SelectTrigger className="w-32 h-8 text-xs"><SelectValue placeholder="Severity" /></SelectTrigger>
