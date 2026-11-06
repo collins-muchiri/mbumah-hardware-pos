@@ -107,7 +107,7 @@ describe('the faces (v2.426.0) \u2014 the chip, the call door and the DOM\u2019s
 
   it('the dialog reads the ONE home \u2014 the import, the maker read, the toast call', () => {
     expect(tabSrc).toContain(
-      "import { buildReceiveInitials, receiveRowState, describeReceivePlan, drillLineState, describeDrillProgress, receiveMaker, receiveSuccessVoice } from '@/lib/po-receive';"
+      "import { buildReceiveInitials, receiveRowState, describeReceivePlan, drillLineState, describeDrillProgress, receiveMaker, receiveSuccessVoice, drillFollowUpDoor } from '@/lib/po-receive';"
     );
     expect(tabSrc).toContain('const maker = receiveMaker(purchaseOrder?.supplier);');
     expect(tabSrc).toContain('toast.success(receiveSuccessVoice(maker));');

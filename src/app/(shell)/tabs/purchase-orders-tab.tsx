@@ -27,7 +27,7 @@ import { consumeOrderHandoff, mapOrderHandoffToPoItems, type OrderHandoffPayload
 // v2.419.0 THE DRILL'S PROGRESS — the drill wears the receive's truth
 // (the mirror law: the committed rows read the SAME one home the dialog
 // reads — one answer paints the row, speaks the words, fills the meter).
-import { buildReceiveInitials, receiveRowState, describeReceivePlan, drillLineState, describeDrillProgress, receiveMaker, receiveSuccessVoice } from '@/lib/po-receive';
+import { buildReceiveInitials, receiveRowState, describeReceivePlan, drillLineState, describeDrillProgress, receiveMaker, receiveSuccessVoice, drillFollowUpDoor } from '@/lib/po-receive';
 // v2.251.0 THE WALK'S WHEN — the detail strip's cadence chip wears the
 // census's own four houses (one home, byte-identical classes to the
 // org drill's chip).
@@ -1044,6 +1044,14 @@ function ReceiveItemsDialog({
   const clearAllPens = () =>
     setReceivedQtys(Object.fromEntries(items.map((item) => [item.id, '0'])));
   const plan = describeReceivePlan(items, receivedQtys);
+  // v2.427.0 THE RECEIPT WEARS THE DAY — the dialog stops being
+  // day-blind: the expected day's voice (the v2.418 one home — the
+  // roster cell's own rule) rides the header under the maker chip, so
+  // the actor receives against the day the supplier named (a late
+  // delivery is visible in the very face that records it). The tone's
+  // shade is the metric families' own (poExpectedDayFamily — never a
+  // new palette); a wire without a day stays silent.
+  const dayVoice = poExpectedDayVoice(purchaseOrder, new Date());
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -1085,6 +1093,20 @@ function ReceiveItemsDialog({
                 </a>
               )}
             </div>
+          )}
+          {purchaseOrder.expectedDate && dayVoice.text && (
+            <p
+              data-testid="receive-expected-day"
+              className="mt-1 flex items-center gap-1.5 text-[11px] font-medium leading-tight"
+            >
+              <CalendarDays className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
+              <span className="text-muted-foreground">expected {formatDate(purchaseOrder.expectedDate)}</span>
+              {/* the middot separator — the day's voice never runs into
+                  the date (the description's own byte, aria-hidden to
+                  ears: the pause is for eyes only) */}
+              <span className="text-muted-foreground" aria-hidden="true">&middot;</span>
+              <span className={poExpectedDayFamily(dayVoice.tone)}>{dayVoice.text}</span>
+            </p>
           )}
           <DialogDescription>
             Enter quantities received for each item. Stock will be updated automatically.
@@ -1531,6 +1553,13 @@ function PODetailView({
   // v2.419.0 THE ORDER'S VOICE — the card's truth reads the ONE home (the
   // receive lib's own arithmetic, never a second copy of the counts).
   const drillProgress = describeDrillProgress(detail.items ?? []);
+  // v2.427.0 THE SHORTFALL'S OWN DOOR — the card's follow-up reads the
+  // SAME one home (the day's maker through receiveMaker, the door's own
+  // honest read): when the order owes and the wire carries a phone, the
+  // shortfall's number lives exactly where the shortfall shows. The
+  // honest absence is the null — no maker, no phone, or nothing short
+  // and the card stays silent (never a fake door, never a dead dial).
+  const drillFollowUp = drillFollowUpDoor(receiveMaker(detail.supplier), drillProgress);
   const drillProgressVoice = drillProgress.complete
     ? 'the order completes'
     : [
@@ -1699,6 +1728,26 @@ function PODetailView({
                 >
                   {drillProgressVoice}
                 </p>
+                {/* v2.427.0 THE SHORTFALL'S OWN DOOR — the follow-up pill
+                    sits under the voice line (the sky census family the
+                    receipt's own call door taught, one home): when the
+                    order owes and the maker carries a phone, the
+                    shortfall's number lives exactly where the shortfall
+                    shows. The honest absence holds — the door renders
+                    CONDITIONALLY, never a fake door, never a dead dial. */}
+                {drillFollowUp && (
+                  <div className="pt-0.5">
+                    <a
+                      data-testid="po-drill-followup-call"
+                      href={`tel:${drillFollowUp.phone}`}
+                      title={drillFollowUp.title}
+                      className="inline-flex items-center gap-1 rounded-full bg-sky-100 px-2 py-0.5 text-[11px] font-semibold text-sky-800 ring-1 ring-inset ring-sky-300 transition-[filter] hover:brightness-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/60 dark:bg-sky-500/20 dark:text-sky-100 dark:ring-sky-500/40"
+                    >
+                      <Phone className="h-3 w-3" aria-hidden="true" />
+                      {drillFollowUp.words}
+                    </a>
+                  </div>
+                )}
               </div>
             )}
 
