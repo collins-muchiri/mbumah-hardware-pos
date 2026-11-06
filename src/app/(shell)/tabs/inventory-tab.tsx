@@ -15,6 +15,11 @@ import {
   type CreateProductPayload,
 } from '@/lib/api';
 import { formatQtyWithUnit } from '@/lib/utils/financialMath';
+// THE ORDER LIST (v2.414.0): the banner's copy face speaks a plain-text
+// restock order through this pure voice — the same honest-absence law as
+// the support copy family (null when nothing needs attention).
+import { formatRestockOrder, restockRowsNeedingAttention, type RestockRow } from '@/lib/stock-order';
+import { STORE_LIST } from '@/lib/store-info';
 import { useSendPrompt } from '@/components/send-prompt-dialog';
 import { unitLabel } from '@/lib/units';
 import { parseInitialNamedMember } from '@/lib/tab-url';
@@ -187,6 +192,54 @@ function StockStatusBadge({ product }: { product: ProductListItem }) {
 // law): the landing word is the LANDING lens, never rewritten; the
 // Select, the banner buttons and the clear button own the state after.
 export const INV_STOCK_FILTERS = ['all', 'ok', 'low', 'out'] as const;
+
+// THE ORDER LIST'S COPY FACE (v2.414.0): the support-copy family's two-beat
+// face on the floor's desk — Copy → Copied → Copy after the 2s beat, the
+// icons swap with the words, and the success state wears the emerald
+// family (the established success voice) while the resting face rides the
+// banner's own amber family. Honest absence is the PARENT's duty: the
+// button only mounts when the order has rows to speak.
+function CopyOrderListButton({ storeName, rows, dateLabel }: { storeName: string; rows: RestockRow[]; dateLabel: string }) {
+  const [copied, setCopied] = useState(false);
+  React.useEffect(() => {
+    if (!copied) return;
+    const t = window.setTimeout(() => setCopied(false), 2000);
+    return () => window.clearTimeout(t);
+  }, [copied]);
+  const order = useMemo(() => formatRestockOrder({ storeName, dateLabel, rows }), [storeName, dateLabel, rows]);
+  const onCopy = async () => {
+    if (!order) return;
+    try {
+      await navigator.clipboard.writeText(order);
+      setCopied(true);
+    } catch {
+      toast.error('Could not copy the order list — the clipboard refused.');
+    }
+  };
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="sm"
+      data-testid="inv-order-copy"
+      onClick={onCopy}
+      title="Copy the restock order as plain text — ready to paste into a supplier chat"
+      aria-label={copied
+        ? 'Restock order copied to the clipboard.'
+        : `Copy the restock order (${rows.length} item${rows.length === 1 ? '' : 's'}) as text`}
+      className={`h-7 gap-1.5 rounded-md px-2 text-xs transition-colors ${
+        copied
+          ? 'border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300 dark:hover:bg-emerald-900/40'
+          : 'border-amber-300 text-amber-800 hover:bg-amber-100 hover:text-amber-900 dark:border-amber-700 dark:text-amber-200 dark:hover:bg-amber-900/40'
+      }`}
+    >
+      {copied
+        ? <Check className="h-3 w-3" aria-hidden="true" />
+        : <Copy className="h-3 w-3" aria-hidden="true" />}
+      {copied ? 'Copied' : 'Copy order'}
+    </Button>
+  );
+}
 
 function initialStockLens(): string {
   if (typeof window === 'undefined') return 'all';
@@ -618,6 +671,16 @@ export default function InventoryTab() {
 
   const lowStockCount = allProducts.filter(p => p.quantityInStock <= p.reorderLevel && p.quantityInStock > 0).length;
   const outOfStockCount = allProducts.filter(p => p.quantityInStock <= 0).length;
+  // v2.414.0 THE ORDER LIST: the rows the copy face speaks, derived from
+  // the same wire the banner counts (the nothing-to-order law lives in
+  // the selector — reorder-0 out rows never join). The branch's name
+  // rides STORE_LIST (the receipts' own source of truth) with an honest
+  // fallback when the wire carries a store the list has not met. Plain
+  // derivations, deliberately hook-less — the desk's rows are small and
+  // the lint baseline holds (455).
+  const orderRows = restockRowsNeedingAttention(allProducts.map((p) => ({ sku: p.sku, name: p.name, onHand: p.quantityInStock, reorderLevel: p.reorderLevel })));
+  const orderStoreName = STORE_LIST.find((s) => s.id === currentStoreId)?.name ?? 'MBUMAH HARDWARE';
+  const orderDateLabel = formatDate(new Date().toISOString());
   // v2.12.5 RBAC: with cost prices stripped (null), the stock value is
   // meaningless - hide it behind "•••" instead of showing a fake 0.
   const totalInventoryValue = canViewCost
@@ -836,6 +899,13 @@ export default function InventoryTab() {
             <span className="text-amber-700 dark:text-amber-400"> - items need attention</span>
           </div>
           <div className="flex gap-2">
+            {/* v2.414.0 THE ORDER LIST: the banner's first action — the list
+                the manager would otherwise re-type into a supplier chat.
+                Honest absence: no rows, no button (the banner itself is
+                already gated on the same counts). */}
+            {orderRows.length > 0 && (
+              <CopyOrderListButton storeName={orderStoreName} rows={orderRows} dateLabel={orderDateLabel} />
+            )}
             {outOfStockCount > 0 && (
               <Button variant="outline" size="sm" className="h-7 text-xs border-red-300 dark:border-red-700 text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30" onClick={() => { setStockFilter('out'); setLandingLive(false); }}>
                 View Out of Stock

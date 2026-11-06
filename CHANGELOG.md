@@ -1,3 +1,13 @@
+## [2.414.0] The order list hands you the words
+
+v2.400.0 taught the health desk to hand you its words. This round the inventory desk learns the same trick for the floor's oldest chore: the low-stock banner now speaks the supplier's order — out of stock first, the gap math per line, ready to paste.
+
+### Added
+- **THE ORDER LIST** (`src/lib/stock-order.ts` + `src/app/(shell)/tabs/inventory-tab.tsx`): the low-stock banner gains the Copy order button (testid `inv-order-copy`) — one pure formatter turns the wire's product rows into a plain-text restock order (`MBUMAH HARDWARE — RESTOCK ORDER`, branch + date, the count, then `[OUT]`/`[LOW]` lines sorted out-first, deepest gap, sku word — each naming on hand / reorder / order). Honest absence twice: no rows → no button; and the NOTHING-TO-ORDER LAW — an out-of-stock shelf whose reorder level is 0 asks for nothing, so it is never spoken.
+
+### Changed
+- **THE COPY FACE RIDES THE BANNER'S FAMILY** (the styling round): the resting face wears the banner's own amber family; the Copied beat wears the emerald success family (Copy → Copied → Copy after the 2s beat, the icons swap with the words) — the same two-beat law the support copy family established on the health desk.
+
 ## [2.413.0] The census rides the org desk
 
 v2.412.0 put the census on the admin card. This round it rides the org desk: the Organization Console shows the same provenance census under its header — no click required — and the password-rotation guard's type shrinks to what it actually reads.

@@ -356,25 +356,26 @@ describe('the address-bar vocabulary — the thirty-first row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.413.0 leads the feed', () => {
+describe('whats-new — v2.414.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.413.0');
-    // the lead's story hand-over (v2.413.0, the Task 111 law's nineteenth
-    // application): the head story is the org desk's voice — the census
-    // rides the Organization Console: the same provenance census under
-    // the header row (N admin-set · N API · N built-in beside the age
-    // dot) spoken without opening the currency menu — one shared cache,
-    // the observer law (the strip never fetches), the quiet neutral
-    // surface kept because the amber invitation is the actor's voice,
-    // and the password-rotation guard's type shrinks to what it reads
-    // (six strict-mode faces stand down).
-    // The echo's story exits the head this round; the desk
-    // carries the eye.
-    expect(head.title).toContain('org desk');
+    expect(head.version).toBe('2.414.0');
+    // the lead's story hand-over (v2.414.0, the Task 111 law's twentieth
+    // application): the head story is the floor's voice — the order list
+    // hands you the words: the low-stock banner's Copy order button
+    // speaks the whole restock order as plain text (out of stock first,
+    // the gap math per line, ready to paste into a supplier chat), the
+    // honest absences hold twice (no rows → no button; the
+    // nothing-to-order law — an out shelf with reorder 0 asks for
+    // nothing and is never spoken), and the copy face rides the
+    // banner's amber family at rest and the emerald success family on
+    // the Copied beat (the support copy family's two-beat law).
+    // The org desk's story exits the head this round; the
+    // banner carries the eye.
+    expect(head.title).toContain('order list');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('on the desk'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('without opening'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('strict-mode faces'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('Copy order button'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('restock order'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('nothing-to-order law'))).toBe(true);
   });
 });

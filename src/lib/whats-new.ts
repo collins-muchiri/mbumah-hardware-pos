@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.414.0',
+    title: 'The order list hands you the words — the low-stock banner speaks a restock order',
+    bullets: [
+      'The low-stock banner\u2019s new Copy order button hands you the whole restock order as plain text — every shelf at or under its reorder level, out of stock first, each line naming the badge (OUT/LOW), the shelf, what\u2019s on hand, and exactly how many units to order — ready to paste straight into a supplier chat.',
+      'The button is honest twice: it only appears when there is something to actually order, and the copy face wears the emerald Copied beat (Copy \u2192 Copied \u2192 Copy after two seconds) the support copy family taught it.',
+      'Under the hood: the order list is one pure formatter (src/lib/stock-order.ts) with the nothing-to-order law — an out-of-stock shelf whose reorder level is 0 asks for nothing, so it is never spoken — and the branch\u2019s name rides the receipts\u2019 own source of truth.',
+    ],
+  },
+  {
     version: '2.413.0',
     title: 'The census rides the org desk — the wire\u2019s truth, no click required',
     bullets: [
