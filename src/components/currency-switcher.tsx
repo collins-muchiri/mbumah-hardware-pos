@@ -35,6 +35,11 @@
 //   owner sees at a glance whether the branch's rates are maintained or
 //   factory. Honest absence: before the wire answers the strip is not
 //   rendered at all.
+// • Since v2.411.0 the census speaks first: an all-factory census (no
+//   admin-set, no API rows) gains the MAINTENANCE VOICE — a quiet amber
+//   invitation naming the door that fixes it (the Exchange Rates card on
+//   the System tab). A maintained census stays silent — no nagging; the
+//   strip's tone follows its census (amber invitation vs quiet neutral).
 // • Selecting an item calls `switchCurrency()` from `useCurrency()`, which
 //   updates the persisted `activeCurrency` in `useAppStore` - every
 //   component that calls `useCurrency().format()` re-renders automatically.
@@ -186,6 +191,19 @@ export function wireAgeVoice(ageMs: number): { label: string; dot: string } | nu
   if (ageMs < 45_000) return { label: 'fresh', dot: 'bg-emerald-500 dark:bg-emerald-400' };
   if (ageMs < 5 * 60_000) return { label: 'aging', dot: 'bg-amber-500 dark:bg-amber-400' };
   return { label: 'stale', dot: 'bg-red-500 dark:bg-red-400' };
+}
+
+/**
+ * THE MAINTENANCE VOICE (v2.411.0, pure): when every row on the wire is a
+ * factory figure (no admin-set, no API), the census says so and names the
+ * door that fixes it — a maintained census stays silent (no nagging: the
+ * moment one rate is admin-set or API-backed, the invitation is gone).
+ * `null` on an absent census (honest absence — no strip, no voice).
+ */
+export function censusMaintenanceVoice(census: RateCensus | null | undefined): string | null {
+  if (!census) return null;
+  if (census.manual > 0 || census.api > 0) return null;
+  return `All ${census.builtIn} rates are factory figures — set yours in the Exchange Rates card (System tab).`;
 }
 
 /**
@@ -364,8 +382,15 @@ export function CurrencySwitcher({
 
   // THE RATE CENSUS STRIP (v2.410.0): one pure voice, rendered only when
   // the wire answered. The age rides the cache's own recorded read time.
+  // v2.411.0: an all-factory census gains the MAINTENANCE VOICE — a quiet
+  // amber invitation naming the door that fixes it; a maintained census
+  // stays silent.
   const census = useMemo(() => rateCensus(ratesQuery.data?.data?.currencies), [ratesQuery.data]);
   const ageVoice = wireAgeVoice(wireAgeMs(ratesQuery.dataUpdatedAt));
+  const maintenanceVoice = useMemo(
+    () => censusMaintenanceVoice(census),
+    [census],
+  );
 
   const handleSelect = (code: CurrencyCode) => {
     switchCurrency(code);
@@ -491,19 +516,37 @@ export function CurrencySwitcher({
           {census && (
             <div
               data-testid="currency-rate-census"
-              className="mt-1.5 flex items-center gap-1.5 rounded-md border border-border/60 bg-muted/40 px-1.5 py-1"
-            >
-              {ageVoice && (
-                <span
-                  aria-hidden
-                  title="How long ago the wire answered this census"
-                  className={cn('h-1.5 w-1.5 shrink-0 rounded-full', ageVoice.dot)}
-                />
+              className={cn(
+                'mt-1.5 rounded-md border px-1.5 py-1',
+                // v2.411.0: the strip's tone follows its census — a
+                // factory-only census wears the amber invitation family,
+                // a maintained one stays on the quiet neutral surface.
+                maintenanceVoice
+                  ? 'border-amber-200/70 bg-amber-50/60 dark:border-amber-500/25 dark:bg-amber-500/10'
+                  : 'border-border/60 bg-muted/40',
               )}
-              <span className="font-mono text-[9px] tabular-nums leading-tight text-muted-foreground">
-                {census.manual} admin-set · {census.api} API · {census.builtIn} built-in
-                {ageVoice ? ` · ${ageVoice.label}` : ''}
-              </span>
+            >
+              <div className="flex items-center gap-1.5">
+                {ageVoice && (
+                  <span
+                    aria-hidden
+                    title="How long ago the wire answered this census"
+                    className={cn('h-1.5 w-1.5 shrink-0 rounded-full', ageVoice.dot)}
+                  />
+                )}
+                <span className="font-mono text-[9px] tabular-nums leading-tight text-muted-foreground">
+                  {census.manual} admin-set · {census.api} API · {census.builtIn} built-in
+                  {ageVoice ? ` · ${ageVoice.label}` : ''}
+                </span>
+              </div>
+              {maintenanceVoice && (
+                <p
+                  data-testid="currency-census-nudge"
+                  className="mt-1 border-t border-amber-200/60 pt-1 text-[9px] leading-snug text-amber-700 dark:border-amber-500/20 dark:text-amber-300"
+                >
+                  {maintenanceVoice}
+                </p>
+              )}
             </div>
           )}
         </div>

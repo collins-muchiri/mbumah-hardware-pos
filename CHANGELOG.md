@@ -1,3 +1,14 @@
+## [2.411.0] The census speaks first
+
+v2.410.0 gave the currency dropdown's footer the rate census strip — the rows counted by provenance beside an age voice. This round the census gets its honest follow-through: a census that says "everything is factory" now also says what to do about it.
+
+### Added
+- **THE MAINTENANCE VOICE** (`src/components/currency-switcher.tsx`): when every row on the wire is a factory figure (no admin-set, no API), the strip renders a quiet amber invitation — "All N rates are factory figures — set yours in the Exchange Rates card (System tab)." A maintained census stays silent: the moment one rate is admin-set or API-backed, the invitation is gone (no nagging). The voice is a PURE export (`censusMaintenanceVoice`) pinned behaviorally; `null` on an absent census (honest absence).
+
+### Changed
+- **THE STRIP'S TONE FOLLOWS ITS CENSUS** (the styling round): an all-factory census wears the amber invitation family (`border-amber-200/70 bg-amber-50/60` + the dark twins); a maintained one stays on the quiet neutral surface (`border-border/60 bg-muted/40`). The nudge line rides a key-line separation (`border-t border-amber-200/60`) in `text-amber-700` / `dark:text-amber-300`.
+- **EIGHT STRICT-MODE FACES STOOD DOWN** (299 → 291): the payroll engine's six money inputs (`basicSalary`/`houseAllowance`/`transportAllowance`/`medicalAllowance`/`otherAllowances`/`hourlyRate`) are coerced with `Number()` at the BOUNDARY — Prisma's decimal.js objects never reach the engine's numbers (the widen-and-fix law: the coercion lives at the door, not inside the engine); the leave allocation's `available` figure rides the same law (`round2(Number(allocated))`); and the payroll tab's terminate mutation names the envelope its TData resolves (`apiFetch<{ message?; data?: { fullName? } }>`).
+
 ## [2.410.0] The wire answers on mount
 
 BUG 1 — carried since Task 125 and closed with four instrumented agent-browser bursts — is fixed: on /console and /org/dashboard the CurrencySwitcher's two queries (`enabled: opened`, the v2.212.0 laziness law) NEVER fetched. The browser evidence was unambiguous: the dropdown visibly opened while ZERO requests left the browser (resource-timing empty, dev log silent, the in-page fetch logger caught nothing), the rows rendered static fallbacks, no branch-default chip, no freshness line — a mid-boot open DID fetch (the chip rendered, explaining why earlier QA saw the chip "live"), and one run showed the whole switcher remount (trigger data-state open → gone → closed, `opened` reset before the fetch could fire). The open-gated laziness bought silence with honesty.

@@ -629,14 +629,17 @@ export async function processPayrollRun(
             (sum, r) => sum + Number(r.overtimeHours || 0), 0
           );
 
-          // Calculate pay
+          // Calculate pay — the Decimal columns are coerced at the BOUNDARY
+          // (v2.411.0): the engine's inputs are numbers, Prisma returns
+          // decimal.js objects, and the widen-and-fix law puts the Number()
+          // at the door, not inside the engine.
           const calcResult = calculatePayForPeriod({
-            basicSalary: employee.basicSalary,
-            houseAllowance: employee.houseAllowance,
-            transportAllowance: employee.transportAllowance,
-            medicalAllowance: employee.medicalAllowance,
-            otherAllowances: employee.otherAllowances,
-            hourlyRate: employee.hourlyRate,
+            basicSalary: Number(employee.basicSalary),
+            houseAllowance: Number(employee.houseAllowance),
+            transportAllowance: Number(employee.transportAllowance),
+            medicalAllowance: Number(employee.medicalAllowance),
+            otherAllowances: Number(employee.otherAllowances),
+            hourlyRate: Number(employee.hourlyRate),
             payeExempt: employee.payeExempt,
             nssfExempt: employee.nssfExempt,
             nhifExempt: employee.nhifExempt,
@@ -820,7 +823,9 @@ export async function getOrCreateLeaveBalance(
 
   return {
     ...created,
-    available: round2(allocated),
+    // v2.411.0: allocated rides the same Decimal boundary law — Number()
+    // before the arithmetic helper, never a decimal.js object past the door.
+    available: round2(Number(allocated)),
   };
 }
 

@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.411.0',
+    title: 'The census speaks first — factory rates name their door',
+    bullets: [
+      'The currency dropdown\u2019s census strip now tells you when every rate is still a factory figure: a quiet amber invitation names the door that fixes it (the Exchange Rates card on the System tab). Set one rate and the nudge disappears — no nagging a maintained branch.',
+      'The strip\u2019s tone follows its census: an all-factory census wears the amber invitation family; a maintained one stays on the quiet neutral surface.',
+      'Under the hood: the payroll engine\u2019s six money inputs are coerced at the boundary (Prisma\u2019s decimal.js objects no longer reach the engine\u2019s numbers), the leave allocation\u2019s available figure rides the same law, and the payroll tab\u2019s terminate mutation names its envelope — eight strict-mode faces stand down (299 \u2192 291).',
+    ],
+  },
+  {
     version: '2.410.0',
     title: 'The wire answers on mount — the desks\u2019 currency truth stops depending on the open',
     bullets: [

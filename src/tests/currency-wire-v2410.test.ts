@@ -183,7 +183,9 @@ describe('the rate census strip renders after the freshness line (v2.410.0)', ()
     expect(switcher).toMatch(
       /font-mono text-\[9px\] tabular-nums leading-tight text-muted-foreground/,
     );
-    expect(switcher).toMatch(/bg-muted\/40 px-1\.5 py-1/);
+    // v2.411.0 re-anchor: the quiet surface rides the tone ternary (the
+    // amber invitation family is the other arm)
+    expect(switcher).toMatch(/'border-border\/60 bg-muted\/40',/);
   });
 
   it('the age dot is decorative only — the word beside it carries the meaning', () => {
