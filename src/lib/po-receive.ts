@@ -390,3 +390,27 @@ export function drillFollowUpDoor(
     words: `Follow up with ${name} — ${units} unit${units === 1 ? '' : 's'} short`,
   };
 }
+
+// ============================================================================
+// v2.428.0 THE TOAST POINTS AT THE FOLLOW-UP — the shortfall survives the close
+// ============================================================================
+// The success toast used to end the story: a short submit landed, the
+// dialog closed, and the words never said the order still OWES — the
+// follow-up door (the drill's own pill) waited one surface away,
+// unannounced. When the submit is short, the toast now speaks the
+// pointer: the units still owed and WHERE the follow-up waits — the
+// order's face, the drill's own door. The plan rides the submit (the
+// pens' truth at the press), so the pointer speaks what WAS submitted,
+// never a later render's guess. A full receipt points nowhere (the
+// honest silence). Pure; the caller owns the surface.
+// --------------------------------------------------------------------------
+
+/** THE SHORTFALL'S POINTER — the toast's second line when the submit
+ *  was short: the units still owed and where the follow-up waits. The
+ *  honest gate: zero units (or a number that is not one — a NaN, an
+ *  infinity, a negative) reads the null — a full receipt points
+ *  nowhere, never a fake pointer, never a run-on of nothing. */
+export function receiveShortfallPointer(shortUnits: number): string | null {
+  if (!Number.isFinite(shortUnits) || shortUnits <= 0) return null;
+  return `${shortUnits} unit${shortUnits === 1 ? '' : 's'} still owed — the follow-up waits on the order's face`;
+}

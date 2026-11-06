@@ -27,7 +27,8 @@ import { consumeOrderHandoff, mapOrderHandoffToPoItems, type OrderHandoffPayload
 // v2.419.0 THE DRILL'S PROGRESS — the drill wears the receive's truth
 // (the mirror law: the committed rows read the SAME one home the dialog
 // reads — one answer paints the row, speaks the words, fills the meter).
-import { buildReceiveInitials, receiveRowState, describeReceivePlan, drillLineState, describeDrillProgress, receiveMaker, receiveSuccessVoice, drillFollowUpDoor } from '@/lib/po-receive';
+import { buildReceiveInitials, receiveRowState, describeReceivePlan, drillLineState, describeDrillProgress, receiveMaker, receiveSuccessVoice, receiveShortfallPointer, drillFollowUpDoor } from '@/lib/po-receive';
+import type { ReceivePlan } from '@/lib/po-receive';
 // v2.251.0 THE WALK'S WHEN — the detail strip's cadence chip wears the
 // census's own four houses (one home, byte-identical classes to the
 // org drill's chip).
@@ -986,25 +987,41 @@ function ReceiveItemsDialog({
   }, [purchaseOrder, open]);
 
   const receiveMutation = useMutation({
-    mutationFn: () => {
+    // v2.428.0 THE PLAN RIDES THE SUBMIT — the pens' truth at the press
+    // travels with the mutation, so the toast's pointer speaks what WAS
+    // submitted, never a later render's guess. The plan's own empty says
+    // the same 'nothing to receive' the payload's length says (the
+    // closed pens are disabled — the two gates agree by the fill's law;
+    // the pair is defense, not divergence).
+    mutationFn: (submitPlan: ReceivePlan) => {
       if (!purchaseOrder) throw new Error('No PO selected');
       const receivedItems = Object.entries(receivedQtys)
         .filter(([, qty]) => parseFloat(qty) > 0)
         .map(([itemId, qty]) => ({ itemId, receivedQty: parseFloat(qty) }));
-      if (receivedItems.length === 0) throw new Error('No items to receive');
+      if (receivedItems.length === 0 || submitPlan.empty) throw new Error('No items to receive');
       return purchaseOrdersApi.receiveItems(
         purchaseOrder.id,
         receivedItems,
         user?.id || undefined
       );
     },
-    onSuccess: () => {
+    onSuccess: (_data, submitPlan) => {
       queryClient.invalidateQueries({ queryKey: ['purchase-orders'] });
       queryClient.invalidateQueries({ queryKey: ['purchase-order-detail'] });
       // v2.426.0 THE TOAST NAMES THE DAY — the receipt speaks its maker
       // when the wire carries one (receiveSuccessVoice's two faces, one
       // home), the old byte when it does not (the honest silence).
-      toast.success(receiveSuccessVoice(maker));
+      // v2.428.0 THE TOAST POINTS AT THE FOLLOW-UP — a short submit
+      // speaks the pointer as the toast's own second line (the units
+      // still owed, where the follow-up waits — the order's face, the
+      // drill's own door), wearing the door's own sky; a full receipt
+      // points nowhere (the honest silence — no description, never a
+      // fake pointer).
+      const pointer = receiveShortfallPointer(submitPlan.shortUnits);
+      toast.success(
+        receiveSuccessVoice(maker),
+        pointer ? { description: <span className="text-sky-700 dark:text-sky-400">{pointer}</span> } : undefined
+      );
       onOpenChange(false);
     },
     onError: (err: unknown) => {
@@ -1030,7 +1047,9 @@ function ReceiveItemsDialog({
       }
     }
 
-    receiveMutation.mutate();
+    // v2.428.0 — the plan rides the submit: the pens' truth at the
+    // press, computed over the same wire the validation loop just read.
+    receiveMutation.mutate(describeReceivePlan(purchaseOrder.items, receivedQtys));
   };
 
   if (!purchaseOrder?.items) return null;

@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.428.0',
+    title: 'The toast points at the follow-up \u2014 the shortfall survives the close',
+    bullets: [
+      'A short receive no longer ends the story: when the submit lands short, the success toast grows a second line \u2014 \u201cN units still owed \u2014 the follow-up waits on the order\u2019s face\u201d \u2014 so the shortfall and its follow-up are named in the very breath that confirms the goods.',
+      'The pointer speaks the pens\u2019 truth at the press: the receive plan rides the submit, and a full receipt points nowhere \u2014 the toast never points on a full receipt, never fakes a debt.',
+      'The pointer wears the door\u2019s own sky (the same family the follow-up pill taught), so the words and the door they name read as one color.',
+    ],
+  },
+  {
     version: '2.427.0',
     title: 'The shortfall\u2019s own door \u2014 the drill wears the follow-up',
     bullets: [

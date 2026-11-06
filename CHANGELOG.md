@@ -1,3 +1,14 @@
+## [2.428.0] The toast points at the follow-up
+
+v2.427.0 gave the shortfall its own door on the drill; this round the success toast learns to point at it: a short submit's confirmation now carries a second line — the units still owed and where the follow-up waits — so the shortfall survives the dialog's close, and a full receipt points nowhere.
+
+### Added
+- **THE ARC'S NINTH WORD** (`src/lib/po-receive.ts` + `src/app/(shell)/tabs/purchase-orders-tab.tsx`): `receiveShortfallPointer` (the toast's second line when the submit was short — "N units still owed — the follow-up waits on the order's face"; the honest gate reads zero, a negative, a NaN and an infinity as the null — a full receipt points nowhere, never a fake pointer, never a crash; the pen's own truth lands halves the same way the plan's units always have) joins the receive's one home, and the success toast grows the conditional description wearing the follow-up door's own sky (`text-sky-700 dark:text-sky-400`, the byte-identical family the maker chip and the drill's pill taught) — conditionally: no pointer, no description, never a run-on of nothing.
+
+### Changed
+- **THE PLAN RIDES THE SUBMIT**: the receive plan computed over the pens' truth at the press travels with the mutation (`receiveMutation.mutate(describeReceivePlan(...))`), so the toast's pointer speaks what WAS submitted, never a later render's guess; the mutation's gate reads the plan's own `empty` beside the payload's length (the closed pens are disabled — the two gates agree by the fill's law, the pair is defense, not divergence).
+- **ONE HOME, WIDENED**: the tab's `po-receive` import grows `receiveShortfallPointer` (plus the `ReceivePlan` type ride), and the old bare toast byte is retired — the maker's face still leads the call.
+
 ## [2.427.0] The shortfall's own door
 
 v2.426.0 taught the receipt to name its maker; this round the drill learns what to do about a shortfall: the Receiving Progress card wears the follow-up door — who to chase, how many units are short, the maker's number one press away — and the Receive Items dialog stops being day-blind, the expected day's voice riding the header in the metric families' own shades.

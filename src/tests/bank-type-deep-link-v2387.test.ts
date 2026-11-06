@@ -273,32 +273,30 @@ describe('the address-bar vocabulary — the twenty-sixth row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.427.0 leads the feed', () => {
+describe('whats-new — v2.428.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.427.0');
-    // the lead's story hand-over (v2.427.0, the Task 111 law's
-    // thirty-third application): the head story is the hand-over's
-    // voice — the shortfall's own door: the drill's Receiving
-    // Progress card grew the follow-up pill (po-drill-followup-call,
-    // the sky census family the receipt's own call door taught, the
-    // Phone icon, 'Follow up with {maker} — {units} units short',
-    // the day's contact speaking through the title — conditional:
-    // no maker, no phone, or nothing short and the card stays
-    // silent, never a fake door, never a dead dial), the door's
-    // honest read lives in the receive's ONE home (drillFollowUpDoor:
-    // the door exists only when the order OWES and the maker carries
-    // a real phone, the dial's grace trims even a caller-supplied
-    // phone), and the receive dialog stops being day-blind
-    // (receive-expected-day — the expected day's voice, the v2.418
-    // one home, the metric families' own shade, the strip conditional
-    // on a real day).
-    // The receipt's story exits the head this round; the
-    // shortfall's own door carries the eye.
-    expect(head.title).toContain('shortfall');
+    expect(head.version).toBe('2.428.0');
+    // the lead's story hand-over (v2.428.0, the Task 111 law's
+    // thirty-fourth application): the head story is the hand-over's
+    // voice — the toast points at the follow-up: the success toast
+    // grew the pointer's own second line (receiveShortfallPointer,
+    // the units still owed and where the follow-up waits — 'N units
+    // still owed — the follow-up waits on the order's face', the
+    // honest gate reads zero, a negative, a NaN and an infinity as
+    // the null — a full receipt points nowhere, never a fake
+    // pointer), the plan rides the submit (the pens' truth at the
+    // press travels with the mutation — the pointer speaks what WAS
+    // submitted, never a later render's guess), and the pointer
+    // wears the follow-up door's own sky (the conditional
+    // description, the byte-identical family the maker chip and the
+    // drill's pill taught).
+    // The shortfall's story exits the head this round; the
+    // toast's own pointer carries the eye.
+    expect(head.title).toContain('toast');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('Follow up with {supplier}'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('never dials a dead number'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('the very face that records it'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('the follow-up waits on the order'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('never points on a full receipt'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('the door\u2019s own sky'))).toBe(true);
   });
 });

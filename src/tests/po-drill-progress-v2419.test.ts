@@ -176,7 +176,7 @@ describe('THE WIRE\u2019S GRACE (v2.419.0) — a string arrival can never lie', 
 describe('THE DRILL\u2019S FACES (v2.419.0) — one home, source-pinned', () => {
   it('the drill imports the receive lib\u2019s own reads (never a second copy)', () => {
     expect(tabSrc).toContain(
-      "import { buildReceiveInitials, receiveRowState, describeReceivePlan, drillLineState, describeDrillProgress, receiveMaker, receiveSuccessVoice, drillFollowUpDoor } from '@/lib/po-receive';",
+      "import { buildReceiveInitials, receiveRowState, describeReceivePlan, drillLineState, describeDrillProgress, receiveMaker, receiveSuccessVoice, receiveShortfallPointer, drillFollowUpDoor } from '@/lib/po-receive';",
     );
     expect(libSrc).toContain('export function drillLineState(item: ReceivePlanLine): DrillLineState {');
     expect(libSrc).toContain('receiveRowState(item, \'0\')');
