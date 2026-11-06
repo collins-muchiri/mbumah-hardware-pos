@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.412.0',
+    title: 'The census echoes — the Exchange Rates card shows what your users see',
+    bullets: [
+      'The Exchange Rates card on the System tab now renders the same rate census the top-bar dropdown shows: one glance counts the wire\u2019s rows by provenance (N admin-set · N API · N built-in) beside a fresh/aging/stale age dot — the admin sees exactly what their users see, on the same wire, right where they can act.',
+      'When every rate is still a factory figure, the card speaks its own quiet amber invitation \u2014 \u201Cset one with the Set rate action\u201D \u2014 and goes silent the moment a rate is maintained (same tone family as the dropdown, scaled for the panel).',
+      'Under the hood: the credits ledger\u2019s print handler now speaks the row the desk actually hands it (the wire\u2019s credit widened by the running balance the ledger computes), and the banking reconciliation dialog lost its phantom approver line — dead UI reading a field the wire never carried — four strict-mode faces stand down (291 \u2192 287).',
+    ],
+  },
+  {
     version: '2.411.0',
     title: 'The census speaks first — factory rates name their door',
     bullets: [

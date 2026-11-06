@@ -48,7 +48,7 @@ import { useAuthStore } from '@/lib/stores';
 import { composeRatesProvenanceVoice } from '@/lib/report-voices';
 import { formatDateTime } from '@/lib/api';
 import { cn } from '@/lib/utils';
-import { ADMIN_CURRENCY_RATES_QUERY_KEY } from '@/components/currency-switcher';
+import { ADMIN_CURRENCY_RATES_QUERY_KEY, rateCensus, wireAgeVoice, type RateCensus } from '@/components/currency-switcher';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -76,6 +76,31 @@ async function authedFetch(input: string, init: RequestInit = {}): Promise<Respo
   const headers = new Headers(init.headers || {});
   if (token) headers.set('Authorization', `Bearer ${token}`);
   return fetch(input, { ...init, headers, credentials: 'same-origin' });
+}
+
+/**
+ * THE CARD'S AGE READ (v2.412.0): the wire's age in ms at NOW — the one
+ * impure clock read behind the echo strip's age voice, kept OUT of the
+ * component body (the react-hooks purity law; the switcher keeps its own
+ * twin for the same reason). A silent cache (dataUpdatedAt 0) answers -1,
+ * which the age voice renders as nothing.
+ */
+function censusAgeMs(dataUpdatedAt: number): number {
+  return dataUpdatedAt > 0 ? Date.now() - dataUpdatedAt : -1;
+}
+
+/**
+ * THE ADMIN'S OWN NUDGE (v2.412.0, pure): the census echo's maintenance
+ * voice, addressed to the admin standing ON this card — the switcher's
+ * invitation names this card as the door; here the door is open, so the
+ * voice names the action instead. A maintained census stays silent (no
+ * nagging: one admin-set or API row silences it). `null` on an absent
+ * census (honest absence — no strip, no voice).
+ */
+export function adminCensusNudge(census: RateCensus | null | undefined): string | null {
+  if (!census) return null;
+  if (census.manual > 0 || census.api > 0) return null;
+  return 'Every rate below is a factory figure — set one with the Set rate action.';
 }
 
 /** What one /api/currency/rates `currencies[]` entry teaches the card. */
@@ -180,6 +205,16 @@ export function CurrencyRatesSection() {
     () => composeRatesProvenanceVoice(currencies.length > 0 ? currencies : null),
     [currencies],
   );
+
+  // v2.412.0 THE CENSUS ECHO: the same provenance census the top-bar
+  // switcher's footer renders — same wire (the shared query key), same
+  // pure voices — so the admin sees exactly what their users see, right
+  // where they can act on it. The tone follows the census (amber
+  // invitation family vs the quiet neutral surface), scale-honest to the
+  // card (a panel, not a dropdown).
+  const census = useMemo(() => rateCensus(ratesQuery.data?.data?.currencies), [ratesQuery.data]);
+  const ageVoice = wireAgeVoice(censusAgeMs(ratesQuery.dataUpdatedAt));
+  const adminNudge = useMemo(() => adminCensusNudge(census), [census]);
 
   const invalidateRates = () => {
     void queryClient.invalidateQueries({ queryKey: ADMIN_CURRENCY_RATES_QUERY_KEY });
@@ -355,7 +390,43 @@ export function CurrencyRatesSection() {
             ))}
           </div>
         ) : (
-          <Table>
+          <>
+            {census && (
+              <div
+                data-testid="admin-census-strip"
+                className={cn(
+                  'rounded-md border px-2.5 py-1.5',
+                  // The strip's tone follows its census — the SAME family
+                  // the switcher's footer wears (one voice, one look).
+                  adminNudge
+                    ? 'border-amber-200/70 bg-amber-50/60 dark:border-amber-500/25 dark:bg-amber-500/10'
+                    : 'border-border/60 bg-muted/40',
+                )}
+              >
+                <div className="flex items-center gap-1.5">
+                  {ageVoice && (
+                    <span
+                      aria-hidden
+                      title="How long ago the wire answered this census"
+                      className={cn('h-1.5 w-1.5 shrink-0 rounded-full', ageVoice.dot)}
+                    />
+                  )}
+                  <span className="font-mono text-[10px] tabular-nums leading-tight text-muted-foreground">
+                    {census.manual} admin-set · {census.api} API · {census.builtIn} built-in
+                    {ageVoice ? ` · ${ageVoice.label}` : ''}
+                  </span>
+                </div>
+                {adminNudge && (
+                  <p
+                    data-testid="admin-census-nudge"
+                    className="mt-1 border-t border-amber-200/60 pt-1 text-[11px] leading-snug text-amber-700 dark:border-amber-500/20 dark:text-amber-300"
+                  >
+                    {adminNudge}
+                  </p>
+                )}
+              </div>
+            )}
+            <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Currency</TableHead>
@@ -438,6 +509,7 @@ export function CurrencyRatesSection() {
               })}
             </TableBody>
           </Table>
+          </>
         )}
 
         {/* Custom pairs (base ≠ KES): stored on the wire but read by no

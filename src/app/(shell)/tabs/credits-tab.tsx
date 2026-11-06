@@ -135,6 +135,12 @@ function getAmountPrefix(creditType: string): string {
 }
 
 type SortField = 'date' | 'customer' | 'type' | 'amount' | 'balance';
+// THE LEDGER'S RUNNING TRUTH (v2.412.0): the ledger rows the desk renders
+// are the wire's credits WIDENED by the running balance the memo computes
+// (per-customer, chronological). The print handler reads that figure in
+// its totals block, so its parameter speaks the row the desk actually
+// hands it — the widened type, not the wire's narrower shape.
+type CreditLedgerRow = CustomerCreditItem & { runningBalance: number };
 // ═══════════════ THE CREDITS DESK'S OWN WORD (v2.361.0) ═══════════════
 // The ledger's type lens answers the address bar: a landing that names
 // `?cr-type=DEBIT` (or CREDIT, ADJUSTMENT, REFUND) seeds the customer
@@ -544,7 +550,7 @@ export default function CreditsTab() {
   }
 
   // Task 35-b: branded credit note (red accent + logo + QR + thank-you).
-  async function handlePrintCredit(entry: CustomerCreditItem) {
+  async function handlePrintCredit(entry: CreditLedgerRow) {
     try {
       const customer = customers.find((c: CustomerItem) => c.id === entry.customerId);
       const customerName = customer?.name || 'Unknown Customer';

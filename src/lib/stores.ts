@@ -128,6 +128,15 @@ export const useAuthStore = create<AuthState>((set) => ({
           user,
           isAuthenticated: true,
         });
+        // v2.412.0 THE TOKEN ASKS WHO IT IS: a token without its user blob
+        // is a valid session the boot cannot name — until now it stayed
+        // user:null forever and every role-gated surface silently rendered
+        // read-only (the Exchange Rates card's Actions column was the
+        // live-proven victim). The cookie path already backfills through
+        // fetchUser; the token path now runs the SAME self-contained ask —
+        // on success the role arrives and the surfaces wake; on a 401
+        // fetchUser clears everything (no zombie session).
+        if (!user) void useAuthStore.getState().fetchUser();
       } else {
         // v2.16.0 WORKSPACE COOKIE ADOPTION: on a branch subdomain origin the
         // shared session cookie (Domain=.mbumah.test) may exist even though

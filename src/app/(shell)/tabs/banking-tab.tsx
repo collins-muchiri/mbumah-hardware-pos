@@ -1649,12 +1649,11 @@ export default function BankingTab() {
                   </div>
                 </>
               )}
-              {reconToView.approvedBy && (
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-700" />
-                  Approved by {reconToView.approvedBy}
-                </div>
-              )}
+              {/* v2.412.0: the old approver line is gone — it read a field
+                  the wire never carried (the BankReconciliation model has
+                  no approver column), so the branch was unreachable dead
+                  UI the compiler finally caught. The recon's status badge
+                  above is the honest approval voice. */}
             </div>
           )}
           <DialogFooter>
