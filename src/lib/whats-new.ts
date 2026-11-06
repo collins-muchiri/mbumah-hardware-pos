@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.425.0',
+    title: 'The carried row knows its maker \u2014 every PO line wears its own via',
+    bullets: [
+      'The purchase-order desk\u2019s rows grew the per-row maker: every line the shelf can name wears its own sky \u201cvia {supplier}\u201d sub-line (the Truck icon, the strip\u2019s own census family) \u2014 a MIXED order\u2019s rows carry their own suppliers where you can see them, no more guessing which line belongs to which maker.',
+      'The voice is the LIVE shelf\u2019s link, never the envelope\u2019s word: a stale pocket cannot name a live order (the pre-pick\u2019s own law, now per-row) \u2014 and the hand-built rows (search add, low-stock add) read the same link, one voice for every row.',
+      'The pre-pick\u2019s whole-order law is unchanged: when every row names the same maker the supplier pen still dresses itself; two makers and the rows simply speak their own names while the pen stays yours.',
+    ],
+  },
+  {
     version: '2.424.0',
     title: 'The shelf answers its debt \u2014 the drill grows the reorder press',
     bullets: [

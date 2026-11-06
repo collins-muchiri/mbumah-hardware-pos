@@ -1,3 +1,13 @@
+## [2.425.0] The carried row knows its maker
+
+v2.424.0 taught the shelf to fold its debt into the PO desk; this round the desk's rows learn who makes what: every row the shelf can name wears its own sky "via {supplier}" sub-line — a mixed order's makers visible line by line, straight from the live shelf's link.
+
+### Added
+- **THE ARC'S SIXTH WORD** (`src/lib/order-handoff.ts` + `src/app/(shell)/tabs/purchase-orders-tab.tsx`): `OrderHandoffPoItem` grows `supplierName?` (the row's own maker), `mapOrderHandoffToPoItems` reads it from the LIVE product's nested supplier (the pre-pick's ledger voice — the envelope's names never feed it, the stale-pocket law now per-row), and the create dialog's rows render the maker sub-line (`po-row-supplier`, the Truck icon, the sky census family, "via {name}") — conditionally: an unnamed row stays silent, never a fake via.
+
+### Changed
+- **ONE HOME FOR THE ROW SHAPE**: the dialog's `poItems` state and the restock-sheet's picks now wear the pocket's own `OrderHandoffPoItem` shape (no second inline copy), and the hand-built paths — the search add and the low-stock add — read the same shelf link, so every row that knows its maker speaks it.
+
 ## [2.424.0] The shelf answers its debt
 
 v2.423.0 opened the shelf; this round the shelf answers back: the drill grows the reorder press — the debt's own strip speaks what the order would carry, and one press folds the owed rows into the purchase-order desk's pocket, the create form opening pre-picked with the maker's pen already dressed.

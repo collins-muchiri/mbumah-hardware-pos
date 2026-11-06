@@ -356,32 +356,31 @@ describe('the address-bar vocabulary — the thirty-first row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.424.0 leads the feed', () => {
+describe('whats-new — v2.425.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.424.0');
-    // the lead's story hand-over (v2.424.0, the Task 111 law's thirtieth
-    // application): the head story is the hand-over's voice — the
-    // shelf answers its debt: the drill grows the reorder press and the
-    // debt's own strip answers 'what does this supplier's shelf owe'
-    // (the census speaks the order's shape — '2 products owe 30 units
-    // to reorder' — and one press folds the owed rows into the PO
-    // desk's pocket, the create form opening with the rows pre-picked,
-    // the maker's pen dressed by the desk's own pre-pick law). ONE
-    // arithmetic, never a second copy: the owed rows read
-    // restockNeedsAttention's own nothing-to-order law (an order line
-    // asking 0 units would be a lie with a checkbox), the id is the
-    // truth (a stale row never rides another supplier's order), and
-    // the string grace coerces every read. The honest faces hold:
-    // amber only when something is owed, emerald only when EVERY row
-    // is healthy, neutral the at-level world, and the disabled press
-    // keeps its voice ('All healthy — nothing to reorder').
-    // The shelf-door story exits the head this round; the
-    // debt's answer carries the eye.
-    expect(head.title).toContain('debt');
+    expect(head.version).toBe('2.425.0');
+    // the lead's story hand-over (v2.425.0, the Task 111 law's
+    // thirty-first application): the head story is the hand-over's
+    // voice — the carried row knows its maker: the purchase-order
+    // desk's rows grew the per-row maker (OrderHandoffPoItem's own
+    // supplierName — the pocket's seed shape now ONE home for the
+    // dialog's state and the restock-sheet's picks too), the map
+    // reads it from the LIVE shelf's link (the envelope's names never
+    // feed it — a stale pocket cannot name a live order, the pre-pick's
+    // own law now per-row), the hand-built rows read the same link,
+    // and the sub-line wears the sky census family the strip's chip
+    // taught (po-row-supplier, the Truck icon, 'via {name}' —
+    // conditional: an unnamed row stays silent, never a fake via).
+    // The pre-pick's whole-order law is unchanged: every row the same
+    // maker and the pen still dresses itself; two makers and the rows
+    // simply speak their own names while the pen stays yours.
+    // The debt's story exits the head this round; the
+    // row's own maker carries the eye.
+    expect(head.title).toContain('maker');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('Reorder this shelf'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('a lie'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('positive gaps'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('via {supplier}'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('stale pocket cannot name a live order'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('two makers'))).toBe(true);
   });
 });
