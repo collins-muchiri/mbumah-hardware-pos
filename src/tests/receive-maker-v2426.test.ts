@@ -107,10 +107,13 @@ describe('the faces (v2.426.0) \u2014 the chip, the call door and the DOM\u2019s
 
   it('the dialog reads the ONE home \u2014 the import, the maker read, the toast call', () => {
     expect(tabSrc).toContain(
-      "import { buildReceiveInitials, receiveRowState, describeReceivePlan, drillLineState, describeDrillProgress, receiveMaker, receiveSuccessVoice, drillFollowUpDoor } from '@/lib/po-receive';"
+      "import { buildReceiveInitials, receiveRowState, describeReceivePlan, drillLineState, describeDrillProgress, receiveMaker, receiveSuccessVoice, receiveShortfallPointer, drillFollowUpDoor } from '@/lib/po-receive';"
     );
     expect(tabSrc).toContain('const maker = receiveMaker(purchaseOrder?.supplier);');
-    expect(tabSrc).toContain('toast.success(receiveSuccessVoice(maker));');
+    // v2.428.0 RE-ANCHOR \u2014 the toast call grew the pointer's conditional
+    // (the shortfall's second line, the v2428 suite's own pins); the
+    // maker's face still leads the call.
+    expect(tabSrc).toContain('receiveSuccessVoice(maker),');
   });
 
   it('the header chip: the sky census family, the Truck icon, the via voice, testid receive-supplier-chip', () => {
