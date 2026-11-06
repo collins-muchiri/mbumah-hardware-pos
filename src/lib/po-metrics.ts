@@ -166,3 +166,129 @@ export function poMetricWhyVoice(kind: PoMetricKind, po: PoMetricWhyShape): stri
     ? 'arrived late — raised later in the day the supplier named.'
     : `arrived late — raised ${daysAfter} day${daysAfter === 1 ? '' : 's'} after the day the supplier named.`;
 }
+
+// ============================================================================
+// v2.418.0 THE EXPECTED DAY — the day the supplier names, spoken everywhere
+// ============================================================================
+// The roster's Expected Date cell sat silent (a bare `-` when no day was
+// named, a bare date when one was) while the metric predicates already
+// knew what the day MEANS. One voice now speaks it — the roster cell, the
+// drill and the create dialog read the same rule — and the received split
+// calls the METRIC's own predicate (the one-home law: a cell and a tile
+// can never disagree about what "late" means).
+//
+// THE SUGGESTION: the walk's honest default. An order born of the
+// inventory banner asks for goods the shelf already misses — the desk
+// opens with a day named a week out (EXPECTED_DAY_LEAD_DAYS). The pen
+// stays the actor's: a suggestion is PRE-FILLED, never forced, and a
+// manual New PO keeps the empty pen — no day is invented where nobody
+// asked for one.
+// ============================================================================
+
+/** The walk's lead — a carried order names its day this many days out. */
+export const EXPECTED_DAY_LEAD_DAYS = 7;
+
+/** The "soon" window — an open order inside this many days wears the
+ *  amber-today-blue ladder's near rung, not the far one. */
+export const EXPECTED_DAY_SOON_DAYS = 3;
+
+const EXPECTED_DAY_MS = 86_400_000;
+
+/** The date-input's own dialect ('yyyy-mm-dd', LOCAL parts) — `leadDays`
+ *  after `from`. Pure; the clock belongs to the caller (the walk passes
+ *  its carried instant, the quick fill passes now). */
+export function suggestExpectedDay(from: Date, leadDays: number = EXPECTED_DAY_LEAD_DAYS): string {
+  const t = new Date(from.getFullYear(), from.getMonth(), from.getDate() + leadDays);
+  const mm = String(t.getMonth() + 1).padStart(2, '0');
+  const dd = String(t.getDate()).padStart(2, '0');
+  return `${t.getFullYear()}-${mm}-${dd}`;
+}
+
+/** The calendar-day gap (UTC midnights — the wire's own dates, the same
+ *  arithmetic poMetricWhyVoice speaks): `to` minus `from` in whole days.
+ *  Twenty-five hours past midnight is ONE day after, never two. */
+export function poDaysBetween(from: Date, to: Date): number {
+  return (
+    Math.floor(to.getTime() / EXPECTED_DAY_MS) -
+    Math.floor(from.getTime() / EXPECTED_DAY_MS)
+  );
+}
+
+export interface ExpectedDayVoice {
+  /** none — the honest absence (no day named) or the cancelled silence;
+   *  late/today/soon/far — an open order's day ladder; onTime /
+   *  lateArrival — the received split, the metric predicate's own answer. */
+  tone: 'none' | 'late' | 'today' | 'soon' | 'far' | 'onTime' | 'lateArrival';
+  /** The words the face speaks — empty for the cancelled silence (the
+   *  row keeps its date and nothing more). */
+  text: string;
+}
+
+/** The expected day's voice — ONE rule for every face that names a day:
+ *  the roster cell, the drill's Expected Date field and the create
+ *  dialog's live hint. Pure; the caller owns the clock.
+ *
+ *  THE AGREEMENT LAW: for a RECEIVED order the voice's split IS the
+ *  metric's own predicate (poMetricPredicate('late', …) — the tile's
+ *  rule, byte-matched), so a roster cell and an on-time tile can never
+ *  disagree about what "late" means. An open order reads the day ladder:
+ *  past → late, the named day itself → due today, inside the soon window
+ *  → soon, beyond → far. */
+export function poExpectedDayVoice(
+  po: { status: string; createdAt?: string | null; expectedDate?: string | null },
+  now: Date,
+): ExpectedDayVoice {
+  if (!po.expectedDate) return { tone: 'none', text: 'no day named' };
+  const expected = new Date(po.expectedDate);
+  if (Number.isNaN(expected.getTime())) return { tone: 'none', text: 'no day named' };
+  // the cancelled silence: a dead order's day speaks nothing
+  if (po.status === 'CANCELLED') return { tone: 'none', text: '' };
+  if (po.status === 'RECEIVED') {
+    // THE ONE HOME — the metric's own rule answers the split
+    if (poMetricPredicate('late', po)) {
+      const created = po.createdAt ? new Date(po.createdAt) : null;
+      const days =
+        created && !Number.isNaN(created.getTime())
+          ? poDaysBetween(expected, created)
+          : 0;
+      return {
+        tone: 'lateArrival',
+        text:
+          days > 0
+            ? `arrived ${days} day${days === 1 ? '' : 's'} past the day named`
+            : 'arrived after the day named',
+      };
+    }
+    return { tone: 'onTime', text: 'arrived on time' };
+  }
+  const diff = poDaysBetween(now, expected);
+  if (diff < 0) {
+    const n = -diff;
+    return { tone: 'late', text: `${n} day${n === 1 ? '' : 's'} past the day named` };
+  }
+  if (diff === 0) return { tone: 'today', text: 'due today' };
+  if (diff <= EXPECTED_DAY_SOON_DAYS) {
+    return { tone: 'soon', text: `in ${diff} day${diff === 1 ? '' : 's'}` };
+  }
+  return { tone: 'far', text: `in ${diff} days` };
+}
+
+/** The voice's own family — the faces wear the METRIC families' text
+ *  shades (rose for late, amber for today, blue for soon, green for
+ *  on-time), never a new palette. The none tone keeps the muted
+ *  foreground (an honest absence is not an alarm). */
+export function poExpectedDayFamily(tone: ExpectedDayVoice['tone']): string {
+  switch (tone) {
+    case 'late':
+    case 'lateArrival':
+      return 'text-rose-600 dark:text-rose-400';
+    case 'today':
+      return 'text-amber-600 dark:text-amber-400';
+    case 'soon':
+      return 'text-blue-600 dark:text-blue-400';
+    case 'onTime':
+      return 'text-green-600 dark:text-green-400';
+    default:
+      return 'text-muted-foreground';
+  }
+}
