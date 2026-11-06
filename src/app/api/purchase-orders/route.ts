@@ -8,7 +8,7 @@ import { requireStoreAccess, type AuthSession } from '@/lib/auth';
 // v2.250.0: the gate's reader lives with the org wires' own (the auth
 // module never exported it — the build caught the import's address).
 import { hasFeaturePermission } from '@/lib/permissions';
-import { withSequenceRetry } from '@/lib/sequence';
+import { withSequenceRetry, nextSequenceNumber } from '@/lib/sequence';
 // Task 12-c: canonical financial math - line totalCost = round2(qty × unitCost)
 // computed in Decimal (HALF_UP). The old `Math.round(qty × unitCost × 100)/100`
 // was a float hack that biased half-cent lines DOWN (x.xx5 → x.xx) and let
@@ -320,15 +320,22 @@ async function createPurchaseOrderHandler(
   // submit) with a re-allocated per-store sequence number. The schema's
   // uniqueness is now @@unique([storeId, poNumber]) - matching the per-store
   // counter - so store B no longer collides with store A's numbers.
+  // v2.417.0 THE NUMBER'S NEXT: the allocation re-derived from MAX instead
+  // of COUNT — count+1 assumed today's numbers contiguous from -0001, so a
+  // deleted/rolled-back document's GAP made every retry recompute the same
+  // poisoned number (a P2002 no retry could escape — the QA burst's own
+  // burst-POs proved it live against a stale draft). MAX+1 survives gaps
+  // and races alike (nextSequenceNumber — src/lib/sequence.ts).
   // F1-5 remediation: money rounded 2dp per line BEFORE header summation
   // (the old path summed raw IEEE-754 products into Decimal columns).
   const { created: purchaseOrder, poNumber, subTotal, taxAmount, totalAmount } = await withSequenceRetry(async () => {
     const today = new Date();
     const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '');
-    const existingCount = await db.purchaseOrder.count({
-      where: { storeId, poNumber: { startsWith: `PO-${dateStr}` } },
+    const existing = await db.purchaseOrder.findMany({
+      where: { storeId, poNumber: { startsWith: `PO-${dateStr}-` } },
+      select: { poNumber: true },
     });
-    const poNumber = `PO-${dateStr}-${String(existingCount + 1).padStart(4, '0')}`;
+    const poNumber = nextSequenceNumber(`PO-${dateStr}-`, existing.map((r) => r.poNumber));
 
     // Task 12-c: POs are VAT-EXCLUSIVE B2B documents - VAT is added ON TOP of
     // the net subtotal (unchanged policy). All sums now run in Decimal:

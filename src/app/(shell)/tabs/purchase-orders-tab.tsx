@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { ClipboardList, Search, Plus, Eye, Loader2, X, Package, CalendarDays, Filter, ArrowUpDown, FileText, Clock, CheckCircle2, Circle, AlertTriangle, Truck, ChevronLeft, ChevronRight, Trash2, Send, Ban, MoreHorizontal, PackageCheck, PackageX, ShieldCheck, Stamp, Receipt, ShoppingBag, DollarSign, ArrowUpRight, History } from 'lucide-react';
+import { ClipboardList, Search, Plus, Eye, Loader2, X, Package, CalendarDays, Filter, ArrowUpDown, FileText, Clock, CheckCircle2, Circle, AlertTriangle, Truck, ChevronLeft, ChevronRight, Trash2, Send, Ban, MoreHorizontal, PackageCheck, PackageX, ShieldCheck, Stamp, Receipt, ShoppingBag, DollarSign, ArrowUpRight, History, ListChecks, Eraser } from 'lucide-react';
 
 import { useAppStore } from '@/lib/stores';
 import { useAuthStore } from '@/lib/stores';
@@ -21,6 +21,10 @@ import { handleError } from '@/lib/error-handler';
 // dialog maps the carried rows into its own editable rows through the
 // pure mapper (the honest dropped count included).
 import { consumeOrderHandoff, mapOrderHandoffToPoItems, type OrderHandoffPayload } from '@/lib/order-handoff';
+// v2.417.0 THE RECEIVE'S FILL — the receive dialog's one home: the pens'
+// initial fill, each row's honest state (the short face included), and
+// the plan the strip speaks before the actor commits (pure, tested).
+import { buildReceiveInitials, receiveRowState, describeReceivePlan } from '@/lib/po-receive';
 // v2.251.0 THE WALK'S WHEN — the detail strip's cadence chip wears the
 // census's own four houses (one home, byte-identical classes to the
 // org drill's chip).
@@ -832,12 +836,9 @@ function ReceiveItemsDialog({
 
   React.useEffect(() => {
     if (purchaseOrder?.items && open) {
-      const initial: Record<string, string> = {};
-      purchaseOrder.items.forEach((item) => {
-        const remaining = item.quantity - item.receivedQty;
-        initial[item.id] = remaining > 0 ? String(remaining) : '0';
-      });
-      setReceivedQtys(initial);
+      // v2.417.0 THE REMAINING LAW — every open pen opens at its line's
+      // remaining units, every closed line at '0' (the fill's one home).
+      setReceivedQtys(buildReceiveInitials(purchaseOrder.items));
       setError(null);
     }
   }, [purchaseOrder, open]);
@@ -889,10 +890,15 @@ function ReceiveItemsDialog({
 
   if (!purchaseOrder?.items) return null;
 
-  const totalBeingReceived = Object.values(receivedQtys).reduce(
-    (sum, qty) => sum + (parseFloat(qty) || 0),
-    0
-  );
+  const items = purchaseOrder.items;
+  // v2.417.0: the quick fills — the whole dialog's pens read from the
+  // same one-home helpers, so "fill everything" and "clear everything"
+  // can never disagree with what a single row shows.
+  const openLines = items.filter((item) => item.quantity - item.receivedQty > 0);
+  const fillAllRemaining = () => setReceivedQtys(buildReceiveInitials(items));
+  const clearAllPens = () =>
+    setReceivedQtys(Object.fromEntries(items.map((item) => [item.id, '0'])));
+  const plan = describeReceivePlan(items, receivedQtys);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -906,45 +912,130 @@ function ReceiveItemsDialog({
             Enter quantities received for each item. Stock will be updated automatically.
           </DialogDescription>
         </DialogHeader>
+        {openLines.length > 0 && (
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-[11px] text-muted-foreground">
+              {openLines.length} line{openLines.length === 1 ? '' : 's'} open to receive
+            </p>
+            <div className="flex items-center gap-1.5">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-7 px-2 text-xs"
+                data-testid="receive-fill-all"
+                onClick={fillAllRemaining}
+              >
+                <ListChecks className="mr-1 h-3.5 w-3.5" />
+                Fill all remaining
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-7 px-2 text-xs"
+                data-testid="receive-clear-all"
+                onClick={clearAllPens}
+              >
+                <Eraser className="mr-1 h-3.5 w-3.5" />
+                Clear all
+              </Button>
+            </div>
+          </div>
+        )}
         <div className="space-y-3 max-h-80 overflow-y-auto">
-          {purchaseOrder.items.map((item) => {
-            const remaining = item.quantity - item.receivedQty;
+          {items.map((item) => {
+            // v2.417.0: the row's honest state — one read paints the row
+            // AND speaks its words (over in red, short in amber, closed
+            // in green), so a row can never show one state and say another.
+            const state = receiveRowState(item, receivedQtys[item.id]);
+            const { remaining, qty, isOver, isShort, shortfall, isClosed, pct } = state;
             const product = item.product;
-            const currentVal = parseFloat(receivedQtys[item.id] || '0');
-            const isOver = currentVal > remaining;
+            const rowName = product?.name || item.productName || 'Unknown';
             return (
               <div
                 key={item.id}
-                className={`flex items-center gap-3 border rounded-lg p-3 transition-colors ${
-                  isOver ? 'border-red-300 bg-red-50/50 dark:border-red-800 dark:bg-red-900/20' : ''
+                className={`space-y-2 border rounded-lg p-3 transition-colors ${
+                  isOver
+                    ? 'border-red-300 bg-red-50/50 dark:border-red-800 dark:bg-red-900/20'
+                    : isShort
+                      ? 'border-amber-300 bg-amber-50/50 dark:border-amber-800 dark:bg-amber-900/20'
+                      : ''
                 }`}
               >
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{product?.name || item.productName || 'Unknown'}</p>
-                  <p className="text-xs text-muted-foreground">
-                    <span>Ordered: {formatQtyWithUnit(item.quantity, product?.unitType)}</span>
-                    <span className="mx-1">&middot;</span>
-                    <span>Received: {formatQtyWithUnit(item.receivedQty, product?.unitType)}</span>
-                    <span className="mx-1">&middot;</span>
-                    <span className={remaining > 0 ? 'text-amber-700 font-medium' : 'text-green-700'}>
-                      Remaining: {formatQtyWithUnit(remaining, product?.unitType)}
-                    </span>
-                  </p>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{rowName}</p>
+                    <p className="text-xs text-muted-foreground">
+                      <span>Ordered: {formatQtyWithUnit(item.quantity, product?.unitType)}</span>
+                      <span className="mx-1">&middot;</span>
+                      <span>Received: {formatQtyWithUnit(item.receivedQty, product?.unitType)}</span>
+                      <span className="mx-1">&middot;</span>
+                      {isClosed ? (
+                        <span className="text-green-700 font-medium">Fully received</span>
+                      ) : (
+                        <span className="text-amber-700 font-medium">
+                          Remaining: {formatQtyWithUnit(remaining, product?.unitType)}
+                          {isShort && (
+                            <span>
+                              {' '}— short by {formatQtyWithUnit(shortfall, product?.unitType)}
+                            </span>
+                          )}
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  <div className="w-28 space-y-1">
+                    <div className="flex items-center justify-between gap-1">
+                      <Label className="text-[10px] text-muted-foreground">Receiving Now</Label>
+                      {!isClosed && (
+                        <button
+                          type="button"
+                          data-testid={`receive-fill-${item.id}`}
+                          aria-label={`Fill remaining for ${rowName}`}
+                          onClick={() =>
+                            setReceivedQtys({ ...receivedQtys, [item.id]: String(remaining) })
+                          }
+                          className="text-[10px] font-medium text-emerald-700 hover:text-emerald-800 hover:underline dark:text-emerald-400"
+                        >
+                          Fill
+                        </button>
+                      )}
+                    </div>
+                    <Input
+                      type="number"
+                      min="0"
+                      max={remaining}
+                      value={receivedQtys[item.id] || '0'}
+                      onChange={(e) =>
+                        setReceivedQtys({ ...receivedQtys, [item.id]: e.target.value })
+                      }
+                      className={`h-9 text-sm ${
+                        isOver
+                          ? 'border-red-400 focus-visible:ring-red-400'
+                          : isShort
+                            ? 'border-amber-400 focus-visible:ring-amber-400'
+                            : ''
+                      }`}
+                      disabled={isClosed}
+                    />
+                  </div>
                 </div>
-                <div className="w-28 space-y-1">
-                  <Label className="text-[10px] text-muted-foreground">Receiving Now</Label>
-                  <Input
-                    type="number"
-                    min="0"
-                    max={remaining}
-                    value={receivedQtys[item.id] || '0'}
-                    onChange={(e) =>
-                      setReceivedQtys({ ...receivedQtys, [item.id]: e.target.value })
-                    }
-                    className={`h-9 text-sm ${isOver ? 'border-red-400 focus-visible:ring-red-400' : ''}`}
-                    disabled={remaining <= 0}
+                {/* v2.417.0: the row's meter — this pass's live completion
+                    preview (received + receiving against ordered); emerald
+                    when the line completes, amber while it runs short. */}
+                <span
+                  className="block h-1 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700"
+                  role="img"
+                  aria-label={`${rowName}: ${pct}% received after this pass`}
+                >
+                  <span
+                    className={`block h-1 rounded-full transition-all ${
+                      pct >= 100 ? 'bg-emerald-500' : qty > 0 ? 'bg-amber-500' : 'bg-slate-400'
+                    }`}
+                    style={{ width: `${pct}%` }}
                   />
-                </div>
+                </span>
               </div>
             );
           })}
@@ -957,16 +1048,45 @@ function ReceiveItemsDialog({
           </div>
         )}
 
+        {/* v2.417.0 THE RECEIVE'S PLAN — the strip speaks the pass before
+            the actor commits: emerald when the order completes, amber when
+            lines run short or stay untouched, muted before anything is set. */}
+        <div
+          data-testid="receive-plan-strip"
+          className={`flex items-center gap-2 text-sm rounded-md p-2 ${
+            plan.empty
+              ? 'text-muted-foreground bg-muted/40'
+              : plan.partial
+                ? 'text-amber-800 bg-amber-50 dark:text-amber-300 dark:bg-amber-900/20'
+                : 'text-emerald-800 bg-emerald-50 dark:text-emerald-300 dark:bg-emerald-900/20'
+          }`}
+        >
+          {plan.empty ? (
+            <Circle className="h-4 w-4 shrink-0" />
+          ) : plan.partial ? (
+            <AlertTriangle className="h-4 w-4 shrink-0" />
+          ) : (
+            <CheckCircle2 className="h-4 w-4 shrink-0" />
+          )}
+          <span>
+            {plan.empty
+              ? 'nothing set to receive yet'
+              : plan.partial
+                ? `receiving ${plan.units} unit${plan.units === 1 ? '' : 's'} across ${plan.fullLines + plan.shortLines} of ${plan.openLines} line${plan.openLines === 1 ? '' : 's'}${plan.shortLines > 0 ? ` — ${plan.shortLines} short by ${plan.shortUnits} unit${plan.shortUnits === 1 ? '' : 's'}` : ''}${plan.untouchedLines > 0 ? `, ${plan.untouchedLines} untouched` : ''}`
+                : `receiving ${plan.units} unit${plan.units === 1 ? '' : 's'} across ${plan.fullLines} line${plan.fullLines === 1 ? '' : 's'} — the order completes`}
+          </span>
+        </div>
+
         <div className="flex items-center justify-between text-sm pt-2 border-t">
           <span className="text-muted-foreground">Total items being received</span>
-          <span className="font-bold text-lg">{totalBeingReceived}</span>
+          <span className="font-bold text-lg">{plan.units}</span>
         </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={validateAndSubmit} disabled={receiveMutation.isPending || totalBeingReceived === 0}>
+          <Button onClick={validateAndSubmit} disabled={receiveMutation.isPending || plan.empty}>
             {receiveMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Receive Items
           </Button>

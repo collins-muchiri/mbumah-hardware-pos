@@ -139,3 +139,29 @@ export async function withSequenceRetry<T>(
   }
   throw lastErr;
 }
+
+/**
+ * v2.417.0 THE NUMBER'S NEXT — the PO route's allocation, promoted to a
+ * pure helper and re-derived from MAX instead of COUNT.
+ *
+ * The old route derived the next PO number as `count(PO-<date>*) + 1`,
+ * which quietly assumes today's numbers are CONTIGUOUS from -0001. They
+ * are not: a deleted or rolled-back document leaves a GAP, and count+1
+ * then lands ON an existing number — a P2002 the retry cannot escape
+ * (the colliding row is pre-existing, so every retry recomputes the same
+ * poisoned number; the QA burst's own burst-POs proved it live). Deriving
+ * from MAX(existing suffix) + 1 survives gaps AND concurrent races: the
+ * retry's re-run sees the contender's higher number and steps past it.
+ *
+ * Pure (no Prisma) — the caller reads the day's numbers, the helper
+ * speaks the next one; unit-tested in po-receive-v2417.test.ts.
+ */
+export function nextSequenceNumber(prefix: string, existing: string[], width = 4): string {
+  let max = 0;
+  for (const num of existing) {
+    if (!num.startsWith(prefix)) continue;
+    const suffix = Number(num.slice(prefix.length));
+    if (Number.isInteger(suffix) && suffix > max) max = suffix;
+  }
+  return `${prefix}${String(max + 1).padStart(width, '0')}`;
+}

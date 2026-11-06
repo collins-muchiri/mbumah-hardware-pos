@@ -1,3 +1,17 @@
+## [2.417.0] The receive fills itself
+
+v2.416.0 taught the order to walk to the desk. This round the desk's receive side catches up — the Receive dialog's pens fill themselves, a short delivery speaks its shortfall, and the plan is spoken before the actor commits.
+
+### Added
+- **THE RECEIVE'S FILL** (`src/lib/po-receive.ts` + `purchase-orders-tab.tsx`): the Receive dialog grows the quick fills — **Fill all remaining** (testid `receive-fill-all`) tops every open pen up to its line's remaining units in one press, **Clear all** (testid `receive-clear-all`) empties them, and each open row carries its own **Fill** pen (testid `receive-fill-<itemId>`). The initials ride the REMAINING LAW's one home (`buildReceiveInitials`).
+
+### Changed
+- **THE SHORT FACE** (the styling round): a line receiving more than 0 but less than its remaining wears the amber family — row, pen ring and the words "short by N" (one read, `receiveRowState`, paints and speaks together, so a row can never show one state and say another). A fully received line speaks green ("Fully received"), never amber.
+- **THE RECEIVE'S PLAN** (the styling round): every row wears a live completion meter (received + receiving against ordered; emerald at 100, amber while short), and the receive-plan strip (testid `receive-plan-strip`) speaks the pass before the commit — emerald when the order completes, amber when lines run short or stay untouched, muted before anything is set; the old total row now reads the plan's own units.
+
+### Fixed
+- **THE NUMBER'S NEXT** (`src/lib/sequence.ts` + the PO create route): the PO number allocation re-derived from **MAX instead of COUNT** — `count(PO-<date>*) + 1` assumed today's numbers contiguous from -0001, so a deleted or rolled-back document's GAP made every P2002 retry recompute the same poisoned number (a 500 no retry could escape; the QA burst's own burst-POs proved it live against a stale draft). `nextSequenceNumber` reads the highest suffix and steps past — gaps and concurrent races alike.
+
 ## [2.416.0] The order's handover
 
 v2.414.0 taught the banner to speak the order, v2.415.0 taught it to leave a file. This round the order walks itself to the purchase-order desk — the banner's third face folds the rows into a one-way pocket, and the PO create form opens with the carried lines pre-picked.
