@@ -310,25 +310,26 @@ describe('the address-bar vocabulary — the thirty-second row (cross-suite pins
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.416.0 leads the feed', () => {
+describe('whats-new — v2.417.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.416.0');
-    // the lead's story hand-over (v2.416.0, the Task 111 law's twenty-second
-    // application): the head story is the hand-over's voice — the order
-    // walks itself to the purchase-order desk: the banner's third face
-    // (Send) folds the same rows into a one-way sessionStorage pocket and
-    // the PO create form opens with the carried lines pre-picked under
-    // an amber carriage strip (lines, units, the honest dropped count),
-    // the pocket is consumed once at mount (a manual New PO never
-    // inherits a birth by accident), and the nothing-to-order law
-    // defends the fold too (the reorder gap is the ask).
-    // The order file's story exits the head this round; the
-    // handover carries the eye.
-    expect(head.title).toContain('handover');
+    expect(head.version).toBe('2.417.0');
+    // the lead's story hand-over (v2.417.0, the Task 111 law's twenty-third
+    // application): the head story is the hand-over's voice — the receive
+    // fills itself: the Receive dialog's pens stop being a bare wall —
+    // Fill all remaining tops every open pen up to its line's remaining
+    // units in one press (Clear all empties them, each row carries its
+    // own Fill), a short delivery speaks its shortfall (the amber row,
+    // the 'short by N' count, the amber meter), and the receive plan
+    // strip speaks the pass before the actor commits (emerald when the
+    // order completes, amber when lines run short or stay untouched,
+    // muted before anything is set).
+    // The order's handover story exits the head this round; the
+    // receive carries the eye.
+    expect(head.title).toContain('receive');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('Send button'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('restock order'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('nothing-to-order law'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('Fill all remaining'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('short by'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('receive plan strip'))).toBe(true);
   });
 });

@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.417.0',
+    title: 'The receive fills itself \u2014 the PO desk\u2019s receive speaks the plan and the shortfall',
+    bullets: [
+      'The Receive dialog grew quick fills: Fill all remaining tops up every pen to its line\u2019s remaining units in one press, Clear all empties them, and each row carries its own Fill \u2014 no more typing the same numbers by hand.',
+      'The short-receive face: when a delivery brings less than the order asked, the line speaks it \u2014 amber row, a \u201cshort by N\u201d count and an amber meter, so a short supplier is seen, never silently accepted as a full receipt.',
+      'The receive plan strip speaks the pass before you commit: emerald when the order completes, amber when lines run short or stay untouched, muted before anything is set.',
+      'Under the hood: one pure module is the fill\u2019s home (initials, row states, the plan), pinned byte-for-byte \u2014 the pens, the paint and the strip can never disagree.',
+    ],
+  },
+  {
     version: '2.416.0',
     title: 'The order\u2019s handover — the restock order walks itself to the purchase-order desk',
     bullets: [

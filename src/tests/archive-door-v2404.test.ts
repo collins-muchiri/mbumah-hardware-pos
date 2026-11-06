@@ -135,15 +135,15 @@ describe('main-app - the archive door on the main desk', () => {
   // ── 7. The release cascade ─────────────────────────────────────────────────
 
   it('WHATS_NEW leads with the current release — the door story rides the archive below', () => {
-    // v2.416.0 hand-over: the lead tells the order-handover story now; the
-    // order-file story lives one entry down, the order-list two, the
-    // org-desk three, the census-echoes four, the census-speaks five, the
-    // wire-answers six, the desk-remembers seven, the branch-voice eight,
-    // the ghost-routes nine, the jump-door ten, the shares' eleven, the
-    // archive-door story twelve — all still in the feed
+    // v2.417.0 hand-over: the lead tells the receive story now; the
+    // order-handover story lives one entry down, the order-file two, the
+    // order-list three, the org-desk four, the census-echoes five, the
+    // census-speaks six, the wire-answers seven, the desk-remembers eight,
+    // the branch-voice nine, the ghost-routes ten, the jump-door eleven,
+    // the shares' twelve, the archive-door story thirteen — all still in the feed
     const lead = WHATS_NEW[0];
-    expect(lead.version).toBe('2.416.0');
-    expect(lead.title).toContain('handover');
+    expect(lead.version).toBe('2.417.0');
+    expect(lead.title).toContain('receive');
     expect(lead.bullets.length).toBeGreaterThanOrEqual(3);
     const branchVoice = WHATS_NEW.find((e) => e.version === '2.408.0');
     expect(branchVoice?.title).toContain('branch speaks first');
