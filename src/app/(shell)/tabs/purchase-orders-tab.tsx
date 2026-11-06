@@ -24,7 +24,10 @@ import { consumeOrderHandoff, mapOrderHandoffToPoItems, type OrderHandoffPayload
 // v2.417.0 THE RECEIVE'S FILL — the receive dialog's one home: the pens'
 // initial fill, each row's honest state (the short face included), and
 // the plan the strip speaks before the actor commits (pure, tested).
-import { buildReceiveInitials, receiveRowState, describeReceivePlan } from '@/lib/po-receive';
+// v2.419.0 THE DRILL'S PROGRESS — the drill wears the receive's truth
+// (the mirror law: the committed rows read the SAME one home the dialog
+// reads — one answer paints the row, speaks the words, fills the meter).
+import { buildReceiveInitials, receiveRowState, describeReceivePlan, drillLineState, describeDrillProgress } from '@/lib/po-receive';
 // v2.251.0 THE WALK'S WHEN — the detail strip's cadence chip wears the
 // census's own four houses (one home, byte-identical classes to the
 // org drill's chip).
@@ -1411,7 +1414,23 @@ function PODetailView({
   // Calculate receiving progress
   const totalOrdered = detail.items?.reduce((s, i) => s + i.quantity, 0) ?? 0;
   const totalReceived = detail.items?.reduce((s, i) => s + i.receivedQty, 0) ?? 0;
-  const receivePct = totalOrdered > 0 ? (totalReceived / totalOrdered) * 100 : 0;
+  // v2.419.0 THE ORDER'S VOICE — the card's truth reads the ONE home (the
+  // receive lib's own arithmetic, never a second copy of the counts).
+  const drillProgress = describeDrillProgress(detail.items ?? []);
+  const drillProgressVoice = drillProgress.complete
+    ? 'the order completes'
+    : [
+        drillProgress.fullLines > 0
+          ? `${drillProgress.fullLines} of ${detail.items?.length ?? 0} lines fully received`
+          : detail.items?.length
+            ? `${drillProgress.openLines} line${drillProgress.openLines === 1 ? '' : 's'} still open`
+            : '',
+        drillProgress.shortLines > 0
+          ? `${drillProgress.shortLines} short by ${drillProgress.shortUnits} unit${drillProgress.shortUnits === 1 ? '' : 's'}`
+          : null,
+      ]
+        .filter(Boolean)
+        .join(' — ');
 
   return (
     <>
@@ -1548,7 +1567,19 @@ function PODetailView({
                     {totalReceived} / {totalOrdered} items
                   </span>
                 </div>
-                <Progress value={receivePct} className="h-2" />
+                {/* v2.419.0 THE ORDER'S VOICE — the card speaks the plan's
+                    truth (lines + the shortfall counted), and the bar answers
+                    by its aria-label (the committed units, the committed pct). */}
+                <Progress
+                  value={drillProgress.pct}
+                  aria-label={`${totalReceived} of ${totalOrdered} units received — ${drillProgress.pct}%`}
+                />
+                <p
+                  data-testid="po-drill-progress-voice"
+                  className={`text-xs ${drillProgress.complete ? 'text-emerald-700 dark:text-emerald-400' : 'text-muted-foreground'}`}
+                >
+                  {drillProgressVoice}
+                </p>
               </div>
             )}
 
@@ -1680,23 +1711,20 @@ function PODetailView({
                   </TableHeader>
                   <TableBody>
                     {detail.items?.map((item) => {
-                      const itemReceivedPct =
-                        item.quantity > 0 ? (item.receivedQty / item.quantity) * 100 : 0;
-                      const itemStatus =
-                        item.receivedQty >= item.quantity
-                          ? 'Received'
-                          : item.receivedQty > 0
-                            ? 'Partial'
-                            : 'Pending';
-                      const itemStatusColor =
-                        itemStatus === 'Received'
-                          ? 'text-emerald-700'
-                          : itemStatus === 'Partial'
-                            ? 'text-amber-700'
+                      // v2.419.0 THE DRILL'S MIRROR — one read paints the row,
+                      // speaks the words and fills the meter (the receive's
+                      // own rule with the pen at rest — the drill and the
+                      // dialog can never disagree about what "partial" means).
+                      const lineState = drillLineState(item);
+                      const lineWordsClass =
+                        lineState.tone === 'full'
+                          ? 'text-emerald-700 dark:text-emerald-400'
+                          : lineState.tone === 'short'
+                            ? 'text-amber-700 dark:text-amber-400'
                             : 'text-muted-foreground';
 
                       return (
-                        <TableRow key={item.id}>
+                        <TableRow key={item.id} className={lineState.rowClass} data-testid="po-drill-line-row">
                           <TableCell>
                             <div>
                               <p className="text-sm font-medium">
@@ -1729,11 +1757,32 @@ function PODetailView({
                               <span className="text-sm">
                                 {formatQty(item.receivedQty)}/{formatQtyWithUnit(item.quantity, item.product?.unitType)}
                               </span>
-                              <Progress value={itemReceivedPct} className="h-1 w-12" />
+                              {/* v2.419.0 THE LINE'S METER — the dialog's own
+                                  span anatomy (role=img, the aria answer), the
+                                  fill wearing the tone's colour: emerald at
+                                  100, amber while the line owes, slate at rest. */}
+                              <span
+                                role="img"
+                                aria-label={`${item.product?.name || item.productName || 'Line'}: ${lineState.pct}% received`}
+                                className="block h-1 w-16 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700"
+                              >
+                                <span
+                                  className={`block h-1 rounded-full transition-all ${
+                                    lineState.pct >= 100
+                                      ? 'bg-emerald-500'
+                                      : lineState.pct > 0
+                                        ? 'bg-amber-500'
+                                        : 'bg-slate-400'
+                                  }`}
+                                  style={{ width: `${lineState.pct}%` }}
+                                />
+                              </span>
                             </div>
                           </TableCell>
                           <TableCell className="text-center">
-                            <span className={`text-xs font-medium ${itemStatusColor}`}>{itemStatus}</span>
+                            <span data-testid="po-drill-line-words" className={`text-xs font-medium ${lineWordsClass}`}>
+                              {lineState.words}
+                            </span>
                           </TableCell>
                         </TableRow>
                       );

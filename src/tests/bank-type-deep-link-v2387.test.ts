@@ -273,26 +273,27 @@ describe('the address-bar vocabulary — the twenty-sixth row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.418.0 leads the feed', () => {
+describe('whats-new — v2.419.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.418.0');
-    // the lead's story hand-over (v2.418.0, the Task 111 law's twenty-fourth
-    // application): the head story is the hand-over's voice — the day gets
-    // named: the walk's carried order opens the create dialog with an
-    // expected day suggested seven days out (the pen stays the actor's —
-    // a manual New PO keeps the empty pen), the roster's Expected Date
-    // cell speaks the day's own voice under every date (rose late, amber
-    // today, blue soon, green arrived-on-time — the metric families' own
-    // shades), the bare dash is retired for the honest 'no day named',
-    // and the received split calls the metric's own predicate (THE
-    // AGREEMENT LAW — a cell and a tile can never disagree).
-    // The receive's story exits the head this round; the
-    // expected day carries the eye.
-    expect(head.title).toContain('expected day');
+    expect(head.version).toBe('2.419.0');
+    // the lead's story hand-over (v2.419.0, the Task 111 law's twenty-fifth
+    // application): the head story is the hand-over's voice — the drill
+    // wears the receive's truth: the PO desk's line rows read the SAME
+    // one home the receive dialog reads (the committed truth, the pen at
+    // rest — never a second copy of the arithmetic), so a fully received
+    // line speaks 'fully received' in the emerald family, a short line
+    // speaks its shortfall COUNTED ('short by N units') in the amber
+    // family, an untouched line speaks 'nothing received yet' (the bare
+    // 'Partial' word retired), every line carries the dialog's own meter
+    // (role=img, aria-labelled), and the Receiving Progress card speaks
+    // the plan's truth — 'the order completes' when every line is closed.
+    // The expected day's story exits the head this round; the
+    // drill's mirror carries the eye.
+    expect(head.title).toContain('drill');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('no day named'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('in 7 days'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('on-time tile'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('fully received'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('nothing received yet'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('mirror law'))).toBe(true);
   });
 });

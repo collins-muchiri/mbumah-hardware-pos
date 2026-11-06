@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.419.0',
+    title: 'The drill wears the receive\u2019s truth — the PO desk\u2019s lines speak their shortfall',
+    bullets: [
+      'The purchase-order drill\u2019s line rows wear the receive dialog\u2019s own truth: a fully received line speaks \u201cfully received\u201d in emerald, a short line speaks its shortfall COUNTED (\u201cshort by 18 units\u201d) in amber, an untouched line speaks \u201cnothing received yet\u201d — the bare \u201cPartial\u201d word is retired.',
+      'Every line carries the receive dialog\u2019s own meter (answered by its aria-label) and the row wears the dialog\u2019s family at rest — the drill and the dialog can never disagree about what \u201cpartial\u201d means (the mirror law: one read, two surfaces).',
+      'The Receiving Progress card speaks the plan\u2019s truth: lines fully received, the shortfall summed, \u201cthe order completes\u201d when every line is closed — and the bar\u2019s aria answers in committed units.',
+      'Under the hood: the drill reads the receive lib\u2019s own arithmetic (the receive at rest — zero new copies), pinned byte-for-byte.',
+    ],
+  },
+  {
     version: '2.418.0',
     title: 'The day gets named — the PO desk speaks the expected day',
     bullets: [

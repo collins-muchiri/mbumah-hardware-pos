@@ -120,6 +120,15 @@ async function getPurchaseOrderHandler(
       totalAmount: canViewCost ? Number(purchaseOrder.totalAmount) : null,
       items: purchaseOrder.items.map((it) => ({
         ...it,
+        // v2.419.0 THE WIRE'S NUMBERS — quantity and receivedQty are
+        // Prisma Decimals (JSON strings if they ride raw), and every
+        // consumer's arithmetic ADDS them (the receive's pct, the
+        // drill's progress): a string arrival makes `'12' + 0` concat —
+        // a meter that clamps to a lying 100 on a short line. The org
+        // wire has coerced its lines since birth; the branch wire now
+        // answers the same truth (units are units — every viewer's).
+        quantity: Number(it.quantity),
+        receivedQty: Number(it.receivedQty),
         unitCost: canViewCost ? Number(it.unitCost) : null,
         totalCost: canViewCost ? Number(it.totalCost) : null,
         product: it.product
