@@ -3005,7 +3005,12 @@ export interface PurchaseOrderListItem {
   cancelledAt: string | null;
   createdAt: string;
   updatedAt: string;
-  supplier?: { id: string; name: string; phone?: string | null; email?: string | null };
+  // v2.426.0 THE RECEIVE'S MAKER: the detail wire carries the supplier
+  // whole (`supplier: true` — every scalar rides), so the receive face
+  // can name the maker and dial the day's contact. contactPerson rides
+  // the type additively + optional; a stale wire row reads undefined
+  // and keeps the honest silence (the chip never guesses a person).
+  supplier?: { id: string; name: string; phone?: string | null; email?: string | null; contactPerson?: string | null };
   createdBy?: { id: string; name: string } | null;
   approvedBy?: { id: string; name: string } | null;
   receivedBy?: { id: string; name: string } | null;

@@ -281,3 +281,61 @@ export function describeDrillProgress(items: ReceivePlanLine[]): DrillProgress {
     complete: items.length > 0 && openLines === 0,
   };
 }
+
+// ============================================================================
+// v2.426.0 THE RECEIVE'S MAKER — the receipt names the maker that filled it
+// ============================================================================
+// The receive dialog used to be maker-blind: the actor received goods
+// without the face ever saying WHO filled the order — the maker's name
+// lived one surface away (the detail's description) and the phone lived
+// in another desk entirely. The receipt now wears its maker: the day's
+// honest read lives HERE (one home with the fill's arithmetic), the
+// header chip and the call door render it, and the success toast
+// speaks it. Pure; the caller owns the surface.
+// --------------------------------------------------------------------------
+
+/** The day's maker, honestly read — the shape the chip, the call door
+ *  and the toast all share. */
+export interface ReceiveMaker {
+  /** The supplier's trimmed name (the chip's "via" word). */
+  name: string;
+  /** The day's phone when the wire carries a real one, else null —
+   *  the call door stays silent, never a dead dial. */
+  phone: string | null;
+  /** The named contact when the wire carries one, else null — the
+   *  door's title speaks the day's person. */
+  contactPerson: string | null;
+}
+
+/** THE RECEIVE'S MAKER — the supplier's own honest read: a trimmed,
+ *  non-empty name makes the maker (a whitespace name is no name); the
+ *  phone and the contact ride only when they are real strings too.
+ *  The honest absence is the null — a stale wire row (or an order
+ *  whose maker the wire lost) renders the silent face, never a fake
+ *  via, never a dead dial. The grace coerces every read (a non-string
+ *  arrival is the absence, never a crash). */
+export function receiveMaker(
+  supplier?: { name?: string | null; phone?: string | null; contactPerson?: string | null } | null
+): ReceiveMaker | null {
+  const name = typeof supplier?.name === 'string' ? supplier.name.trim() : '';
+  if (!name) return null;
+  const phone =
+    typeof supplier?.phone === 'string' && supplier.phone.trim()
+      ? supplier.phone.trim()
+      : null;
+  const contactPerson =
+    typeof supplier?.contactPerson === 'string' && supplier.contactPerson.trim()
+      ? supplier.contactPerson.trim()
+      : null;
+  return { name, phone, contactPerson };
+}
+
+/** The receive success toast's two faces — the day's maker named when
+ *  the read found one, the round's old byte when it did not (the
+ *  honest silence). One home: the dialog reads THIS, never a second
+ *  copy of the words. */
+export function receiveSuccessVoice(maker: ReceiveMaker | null): string {
+  return maker
+    ? `Items received and stock updated — ${maker.name}'s goods are on the shelf`
+    : 'Items received and stock updated';
+}

@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.426.0',
+    title: 'The receipt names its maker \u2014 the receive face learns the supplier\u2019s day',
+    bullets: [
+      'The Receive Items dialog wears the day\u2019s maker: a sky \u201cvia {supplier}\u201d chip sits beside the order\u2019s number (the Truck icon, the rows\u2019 own census family) \u2014 you can see who filled the order without leaving the face, and a wire without the maker stays silent.',
+      'The maker\u2019s phone rides the chip when the wire carries one: one press on the call chip dials the day\u2019s contact \u2014 a short delivery has its number exactly where the shortfall shows.',
+      'The success toast names the day: \u201cItems received and stock updated \u2014 {supplier}\u2019s goods are on the shelf\u201d when the maker is known; the honest silence keeps the old words when it is not.',
+    ],
+  },
+  {
     version: '2.425.0',
     title: 'The carried row knows its maker \u2014 every PO line wears its own via',
     bullets: [
