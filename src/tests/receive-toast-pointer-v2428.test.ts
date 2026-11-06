@@ -74,7 +74,7 @@ describe('the faces (v2.428.0) \u2014 the plan rides the submit, the toast point
 
   it('the dialog reads the ONE home \u2014 the widened import and the type ride', () => {
     expect(tabSrc).toContain(
-      "import { buildReceiveInitials, receiveRowState, describeReceivePlan, drillLineState, describeDrillProgress, receiveMaker, receiveSuccessVoice, receiveShortfallPointer, drillFollowUpDoor } from '@/lib/po-receive';"
+      "import { buildReceiveInitials, receiveRowState, describeReceivePlan, drillLineState, describeDrillProgress, receiveMaker, receiveSuccessVoice, receiveShortfallPointer, receiveShortfallEcho, drillFollowUpDoor } from '@/lib/po-receive';"
     );
     expect(tabSrc).toContain("import type { ReceivePlan } from '@/lib/po-receive';");
   });

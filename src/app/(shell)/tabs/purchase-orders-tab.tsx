@@ -27,7 +27,7 @@ import { consumeOrderHandoff, mapOrderHandoffToPoItems, type OrderHandoffPayload
 // v2.419.0 THE DRILL'S PROGRESS — the drill wears the receive's truth
 // (the mirror law: the committed rows read the SAME one home the dialog
 // reads — one answer paints the row, speaks the words, fills the meter).
-import { buildReceiveInitials, receiveRowState, describeReceivePlan, drillLineState, describeDrillProgress, receiveMaker, receiveSuccessVoice, receiveShortfallPointer, drillFollowUpDoor } from '@/lib/po-receive';
+import { buildReceiveInitials, receiveRowState, describeReceivePlan, drillLineState, describeDrillProgress, receiveMaker, receiveSuccessVoice, receiveShortfallPointer, receiveShortfallEcho, drillFollowUpDoor } from '@/lib/po-receive';
 import type { ReceivePlan } from '@/lib/po-receive';
 // v2.251.0 THE WALK'S WHEN — the detail strip's cadence chip wears the
 // census's own four houses (one home, byte-identical classes to the
@@ -962,10 +962,16 @@ function ReceiveItemsDialog({
   open,
   onOpenChange,
   purchaseOrder,
+  // v2.429.0 THE EYE'S OWN ARC — the callback that crosses the close:
+  // the drill's pill learns the receipt's own truth. Additive +
+  // optional (the door's own law): a face without the callback keeps
+  // the plain toast, never an assumed listener.
+  onShortSubmit,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   purchaseOrder: PurchaseOrderListItem | null;
+  onShortSubmit?: (shortUnits: number | null) => void;
 }) {
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
@@ -1018,6 +1024,11 @@ function ReceiveItemsDialog({
       // points nowhere (the honest silence — no description, never a
       // fake pointer).
       const pointer = receiveShortfallPointer(submitPlan.shortUnits);
+      // v2.429.0 THE EYE'S OWN ARC — the callback crosses the close: the
+      // short units ride to the drill's pill when the pointer speaks,
+      // the honest null when the receipt was full — the echo belongs
+      // to the short receipt alone, never a stale emphasis.
+      onShortSubmit?.(pointer ? submitPlan.shortUnits : null);
       toast.success(
         receiveSuccessVoice(maker),
         pointer ? { description: <span className="text-sky-700 dark:text-sky-400">{pointer}</span> } : undefined
@@ -1348,6 +1359,23 @@ function PODetailView({
   const { vatRate } = useVatRate();
   const { user } = useAuthStore();
   const [receiveOpen, setReceiveOpen] = useState(false);
+  // v2.429.0 THE EYE'S OWN ARC — the pill's callback state: the short
+  // units of the last receipt this drill's session saw (the honest
+  // null when the receipt was full or none has landed yet). The close
+  // ends the arc — a reopened drill starts honest, never a stale echo.
+  const [shortfallEcho, setShortfallEcho] = useState<number | null>(null);
+  // v2.429.0 THE EYE'S OWN ARC — the close ends the arc, by the close's
+  // OWN event (never a listener on the open prop): every Radix-driven
+  // close and the drill's own delete path cross this wrapper, so a
+  // reopened drill starts honest — never a stale echo, never a
+  // cascading render (the lint zero's own law).
+  const closeDrill = useCallback(
+    (v: boolean) => {
+      onOpenChange(v);
+      if (!v) setShortfallEcho(null);
+    },
+    [onOpenChange]
+  );
   const [confirmAction, setConfirmAction] = useState<{
     action: string;
     label: string;
@@ -1391,7 +1419,9 @@ function PODetailView({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['purchase-orders'] });
       toast.success('Purchase order deleted');
-      onOpenChange(false);
+      // v2.429.0 — the drill's own close path wears the wrapper too
+      // (the close ends the arc — every close resets the echo).
+      closeDrill(false);
     },
     onError: (err: unknown) => {
       const msg = handleError(err, 'Delete purchase order');
@@ -1579,6 +1609,10 @@ function PODetailView({
   // honest absence is the null — no maker, no phone, or nothing short
   // and the card stays silent (never a fake door, never a dead dial).
   const drillFollowUp = drillFollowUpDoor(receiveMaker(detail.supplier), drillProgress);
+  // v2.429.0 THE EYE'S OWN ARC — the pill's callback word: the one
+  // home's honest read over the session's own short receipt (the null
+  // keeps the plain census face, never a fake echo).
+  const followUpEcho = receiveShortfallEcho(shortfallEcho);
   const drillProgressVoice = drillProgress.complete
     ? 'the order completes'
     : [
@@ -1598,7 +1632,7 @@ function PODetailView({
     <>
       <ResponsiveDialog
         open={open}
-        onOpenChange={onOpenChange}
+        onOpenChange={closeDrill}
         title={
           <div className="flex items-center gap-2">
             <ClipboardList className="h-5 w-5 text-primary" />
@@ -1760,11 +1794,32 @@ function PODetailView({
                       data-testid="po-drill-followup-call"
                       href={`tel:${drillFollowUp.phone}`}
                       title={drillFollowUp.title}
-                      className="inline-flex items-center gap-1 rounded-full bg-sky-100 px-2 py-0.5 text-[11px] font-semibold text-sky-800 ring-1 ring-inset ring-sky-300 transition-[filter] hover:brightness-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/60 dark:bg-sky-500/20 dark:text-sky-100 dark:ring-sky-500/40"
+                      className={
+                        'inline-flex items-center gap-1 rounded-full bg-sky-100 px-2 py-0.5 text-[11px] font-semibold text-sky-800 transition-[filter] hover:brightness-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/60 dark:bg-sky-500/20 dark:text-sky-100 ' +
+                        // v2.429.0 THE EYE'S OWN ARC — the echo deepens the
+                        // paint: the bolder ring when the last receipt was
+                        // short, the plain census ring when it was not.
+                        (followUpEcho
+                          ? 'ring-2 ring-inset ring-sky-400 dark:ring-sky-400/70'
+                          : 'ring-1 ring-inset ring-sky-300 dark:ring-sky-500/40')
+                      }
                     >
                       <Phone className="h-3 w-3" aria-hidden="true" />
                       {drillFollowUp.words}
                     </a>
+                    {/* v2.429.0 THE EYE'S OWN ARC — the echo line: the
+                        pill's own answer to the toast's point (the door's
+                        sky family, one home with the pointer's words).
+                        CONDITIONAL — no short receipt, no echo line,
+                        never a run-on of nothing. */}
+                    {followUpEcho && (
+                      <p
+                        data-testid="po-drill-followup-echo"
+                        className="mt-1 text-[10px] font-medium text-sky-700 dark:text-sky-400"
+                      >
+                        {followUpEcho}
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
@@ -2040,6 +2095,7 @@ function PODetailView({
         open={receiveOpen}
         onOpenChange={setReceiveOpen}
         purchaseOrder={detail}
+        onShortSubmit={setShortfallEcho}
       />
 
       {/* Confirm Action Dialog */}
