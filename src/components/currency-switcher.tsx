@@ -15,13 +15,26 @@
 //   unreachable the rows render exactly as before — no chip, no invented
 //   provenance — and the footer's "indicative" sentence stays the truth.
 // • Since v2.212.0 the read shares the ADMIN CARD's query cache (the SAME
-//   ['admin-currency-rates'] key): laziness is preserved — nothing is
-//   fetched until the first open — but once the dropdown has been opened
-//   the switcher is a live observer of the one wire, so a rate the admin
-//   card writes (or resets) re-renders the chips and figures HERE without
-//   a remount. One wire, two surfaces, one truth — now LIVE.
+//   ['admin-currency-rates'] key) — one key, one cached wire body, so a
+//   rate the admin card writes (or resets) re-renders the chips and
+//   figures HERE without a remount. One wire, two surfaces, one truth.
+// • Since v2.410.0 THE WIRE ANSWERS ON MOUNT: the v2.212.0 laziness law
+//   ("nothing fetched until the first open") failed live on the console
+//   and org desks — the open-state race left the dropdown's `enabled:
+//   opened` queries permanently silent there (browser-proven: the menu
+//   visibly open, zero requests at resource-timing level, static fallback
+//   rows). The queries now ride the same mount-fetch path every other
+//   panel uses (the seed already asked the branch-default wire on every
+//   page load, so the laziness "savings" were already spent). The open is
+//   pure display again — no query state behind it.
 // • The footer speaks the read's freshness (the timestamp the cache
 //   recorded) only when the wire actually answered; silence stays silence.
+// • Since v2.410.0 the footer carries THE RATE CENSUS STRIP: when the wire
+//   answered, one mono line counts the rows by provenance (N admin-set ·
+//   N API · N built-in) beside an age voice (fresh/aging/stale dot) — the
+//   owner sees at a glance whether the branch's rates are maintained or
+//   factory. Honest absence: before the wire answers the strip is not
+//   rendered at all.
 // • Selecting an item calls `switchCurrency()` from `useCurrency()`, which
 //   updates the persisted `activeCurrency` in `useAppStore` - every
 //   component that calls `useCurrency().format()` re-renders automatically.
@@ -34,7 +47,7 @@
 // This is a DISPLAY-ONLY conversion. The canonical accounting currency
 // remains KES; only the rendered strings change.
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Check, ChevronDown, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -126,6 +139,56 @@ export const RATE_SOURCE_PHRASE: Record<string, string> = {
 };
 
 /**
+ * THE RATE CENSUS (v2.410.0, pure): count the wire's rows by provenance —
+ * the one truth the footer's census strip renders. `null` on an empty
+ * wire (honest absence — no strip, no invented zeros).
+ */
+export interface RateCensus {
+  manual: number;
+  api: number;
+  builtIn: number;
+  total: number;
+}
+
+export function rateCensus(entries: RateWireEntry[] | undefined | null): RateCensus | null {
+  let manual = 0;
+  let api = 0;
+  let builtIn = 0;
+  for (const entry of entries ?? []) {
+    if (!entry || typeof entry?.code !== 'string') continue;
+    if (entry.source === 'MANUAL') manual += 1;
+    else if (entry.source === 'API') api += 1;
+    else builtIn += 1;
+  }
+  const total = manual + api + builtIn;
+  return total > 0 ? { manual, api, builtIn, total } : null;
+}
+
+/**
+ * THE AGE READ (v2.410.0): the wire's age in ms at NOW. The one impure
+ * clock read behind the age voice, kept OUT of the component body (the
+ * react-hooks purity law) — the render only reads the result. A silent
+ * cache (dataUpdatedAt 0) answers -1, which the age voice renders as
+ * nothing.
+ */
+function wireAgeMs(dataUpdatedAt: number): number {
+  return dataUpdatedAt > 0 ? Date.now() - dataUpdatedAt : -1;
+}
+
+/**
+ * THE AGE VOICE (v2.410.0, pure): how stale the wire's answer is, as one
+ * dot + word — fresh (under 45 s, emerald), aging (under 5 min, amber),
+ * stale (red). `null` for a non-positive age (an impossible clock answer
+ * renders nothing, never a wrong word).
+ */
+export function wireAgeVoice(ageMs: number): { label: string; dot: string } | null {
+  if (!Number.isFinite(ageMs) || ageMs < 0) return null;
+  if (ageMs < 45_000) return { label: 'fresh', dot: 'bg-emerald-500 dark:bg-emerald-400' };
+  if (ageMs < 5 * 60_000) return { label: 'aging', dot: 'bg-amber-500 dark:bg-amber-400' };
+  return { label: 'stale', dot: 'bg-red-500 dark:bg-red-400' };
+}
+
+/**
  * Render a single currency row in the dropdown. Extracted so the parent
  * component stays declarative and the row's aria-label is consistent.
  */
@@ -165,8 +228,14 @@ function CurrencyRow({
         onSelect(meta.code);
       }}
       className={cn(
-        'flex items-center gap-2.5 px-2.5 py-2 cursor-pointer',
+        'relative flex items-center gap-2.5 px-2.5 py-2 cursor-pointer',
         'focus:bg-accent focus:text-accent-foreground',
+        // v2.410.0: the active row wears a soft tint and an emerald rail
+        // (the same family the branch-default chip speaks) so the current
+        // choice reads at a glance even beside the Check mark.
+        active && 'bg-accent/50',
+        active &&
+          'before:absolute before:left-0 before:top-1 before:bottom-1 before:w-0.5 before:rounded-full before:bg-emerald-500/80 dark:before:bg-emerald-400/80',
       )}
       aria-label={`Switch display currency to ${meta.name} (${meta.code})${sourcePhrase ? ` — ${sourcePhrase}` : ''}`}
       role="menuitemradio"
@@ -191,7 +260,7 @@ function CurrencyRow({
           )}
         </div>
         <div className="flex items-center gap-1.5 min-w-0">
-          <p className="text-[10px] text-muted-foreground tabular-nums truncate">
+          <p className="font-mono text-[10px] text-muted-foreground tabular-nums truncate">
             {rateLabel}
           </p>
           {dbRate && sourcePhrase && (
@@ -226,15 +295,17 @@ export function CurrencySwitcher({
 }: CurrencySwitcherProps) {
   const { currency, switchCurrency, meta } = useCurrency();
 
-  // THE LAZY OBSERVER (v2.212.0): the wire is read through the SAME query
-  // cache the admin card uses (one key, one truth), but the query stays
-  // DISABLED until the first open — never on mount, never on a timer
-  // (refetchInterval false). After the first open the switcher is a live
-  // observer: a rate the card writes or resets invalidates the shared key
-  // and the chips/figures here re-render WITHOUT a remount. A failed wire
-  // leaves `rates` empty and the rows render exactly as before (honest
-  // absence — the footer's "indicative" sentence covers it).
-  const [opened, setOpened] = useState(false);
+  // THE WIRE ANSWERS ON MOUNT (v2.410.0): both queries are enabled from the
+  // first render — the same mount-fetch path every other panel on these
+  // desks uses. The v2.212.0 laziness law (`enabled: opened`, set by the
+  // dropdown's own onOpenChange) failed live on the console and org desks:
+  // the open-state race left the queries PERMANENTLY silent there (browser
+  // evidence: menu visibly open, zero requests at resource-timing level,
+  // static fallback rows, no chip, no freshness). A dropdown that may never
+  // open no longer buys silence with honesty — and the seed already asked
+  // the branch-default wire on every page load anyway. refetchInterval
+  // stays false (no polling): the wire arrives on mount and on
+  // invalidation, never on a timer.
 
   // v2.408.0 — THE BRANCH SPEAKS FIRST: a user who never explicitly chose a
   // display currency greets the branch's own default (the v2.407.0 setting
@@ -246,8 +317,8 @@ export function CurrencySwitcher({
     void seedCurrencyFromBranch();
   }, []);
 
-  // The branch-default chip's wire: asked when the dropdown opens, the SAME
-  // laziness law the rates query keeps. isDefault:true (never set) renders
+  // The branch-default chip's wire: answered on mount, the SAME cache law
+  // the rates query keeps. isDefault:true (never set) renders
   // no chip — the factory default is never presented as a branch choice.
   const branchDefaultQuery = useQuery({
     queryKey: ['branch-default-currency'],
@@ -257,7 +328,7 @@ export function CurrencySwitcher({
       const body = (await res.json()) as { data?: BranchCurrencyWire };
       return body?.data ?? null;
     },
-    enabled: opened,
+    enabled: true,
     staleTime: 30_000,
     refetchInterval: false,
   });
@@ -273,7 +344,7 @@ export function CurrencySwitcher({
       if (!res.ok) throw new Error(`The rates wire answered ${res.status}`);
       return (await res.json()) as RatesWireBody;
     },
-    enabled: opened,
+    enabled: true,
     staleTime: 30_000,
     refetchInterval: false,
   });
@@ -291,9 +362,10 @@ export function CurrencySwitcher({
     return map.size > 0 ? map : null;
   }, [ratesQuery.data]);
 
-  const handleOpenChange = (next: boolean) => {
-    if (next) setOpened(true);
-  };
+  // THE RATE CENSUS STRIP (v2.410.0): one pure voice, rendered only when
+  // the wire answered. The age rides the cache's own recorded read time.
+  const census = useMemo(() => rateCensus(ratesQuery.data?.data?.currencies), [ratesQuery.data]);
+  const ageVoice = wireAgeVoice(wireAgeMs(ratesQuery.dataUpdatedAt));
 
   const handleSelect = (code: CurrencyCode) => {
     switchCurrency(code);
@@ -333,7 +405,7 @@ export function CurrencySwitcher({
   );
 
   return (
-    <DropdownMenu onOpenChange={handleOpenChange}>
+    <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
           type="button"
@@ -342,6 +414,11 @@ export function CurrencySwitcher({
           className={cn(
             'gap-1.5 font-semibold tabular-nums',
             'h-9 px-2.5',
+            // v2.410.0: the trigger echoes the open (a soft accent lift) so
+            // the pressed state reads even when the menu renders beside —
+            // surfaces that pass their own data-[state=open] voice (the
+            // console's dark banner) still win via the cn merge.
+            'data-[state=open]:bg-accent/60',
             className,
           )}
           aria-label={`Display currency: ${meta.name}. Click to change.`}
@@ -410,6 +487,24 @@ export function CurrencySwitcher({
                 {freshnessLabel}
               </span>
             </>
+          )}
+          {census && (
+            <div
+              data-testid="currency-rate-census"
+              className="mt-1.5 flex items-center gap-1.5 rounded-md border border-border/60 bg-muted/40 px-1.5 py-1"
+            >
+              {ageVoice && (
+                <span
+                  aria-hidden
+                  title="How long ago the wire answered this census"
+                  className={cn('h-1.5 w-1.5 shrink-0 rounded-full', ageVoice.dot)}
+                />
+              )}
+              <span className="font-mono text-[9px] tabular-nums leading-tight text-muted-foreground">
+                {census.manual} admin-set · {census.api} API · {census.builtIn} built-in
+                {ageVoice ? ` · ${ageVoice.label}` : ''}
+              </span>
+            </div>
           )}
         </div>
       </DropdownMenuContent>

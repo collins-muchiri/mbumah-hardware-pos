@@ -119,7 +119,7 @@ describe('the switcher mounts the seed and names the branch row', () => {
     expect(switcher).toContain('useEffect(() => {\n    void seedCurrencyFromBranch();\n  }, []);');
   });
 
-  it('the chip wire is lazy (enabled: opened) and gates the factory default away', () => {
+  it('the chip wire answers on mount (v2.410.0 re-anchor: the open-gated laziness retired) and gates the factory default away', () => {
     expect(switcher).toContain("queryKey: ['branch-default-currency']");
     expect(switcher).toContain("authedFetch('/api/settings/currency')");
     expect(switcher).toContain('branchDefaultQuery.data && !branchDefaultQuery.data.isDefault');

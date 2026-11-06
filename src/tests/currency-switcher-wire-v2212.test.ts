@@ -7,10 +7,14 @@
 //     WITHOUT a remount. Before this release the switcher fetched once
 //     per mount into local state — a same-mount card write left the
 //     dropdown stale until a full page remount.
-//   - THE LAZY OBSERVER LAW: sharing the cache must not cost laziness —
-//     the switcher's query stays DISABLED until the first open (nothing
-//     fetched on mount) and never polls (refetchInterval false). After
-//     the first open it is a live observer of the one wire.
+//   - THE LAZY OBSERVER LAW (v2.212.0, RETIRED BY v2.410.0): the query
+//     used to stay DISABLED until the first open. That laziness failed
+//     live on the console and org desks (the open-state race left the
+//     queries permanently silent there — browser-proven), so v2.410.0
+//     mounts the wire instead: THE WIRE ANSWERS ON MOUNT, the open is
+//     pure display. The no-polling half of the law SURVIVES
+//     (refetchInterval stays false — the wire arrives on mount and on
+//     invalidation, never on a timer).
 //   - THE FRESHNESS VOICE: the dropdown footer speaks WHEN the wire
 //     answered ("Wire read at 14:32."), from the cache's own recorded
 //     read time — honest recency, not a pretend "live". Before the first
@@ -71,7 +75,7 @@ describe('the one-wire query key (v2.212.0)', () => {
   });
 });
 
-// ── THE LAZY OBSERVER LAW ───────────────────────────────────────────────────
+// ── THE MOUNT LAW (v2.410.0 re-anchor of the v2.212.0 lazy block) ──────────────
 
 describe('the switcher joins the cache without losing its laziness (v2.212.0)', () => {
   it('reads the wire through useQuery — not through local fetch-once state', () => {
@@ -82,13 +86,18 @@ describe('the switcher joins the cache without losing its laziness (v2.212.0)', 
     expect(switcher).not.toMatch(/setRates\(map\)/);
   });
 
-  it('the query stays disabled until the first open — nothing fetched on mount', () => {
-    expect(switcher).toMatch(/enabled: opened,/);
-    expect(switcher).toMatch(/const \[opened, setOpened\] = useState\(false\);/);
-    expect(switcher).toMatch(/if \(next\) setOpened\(true\);/);
+  it('the wire answers on mount — the settled-page open race is retired (v2.410.0)', () => {
+    // Both queries are enabled from the first render (the same mount-fetch
+    // path every other panel uses); the open-gated laziness is gone — the
+    // trailing-comma byte is the CODE form, the prose comment never wears it.
+    expect((switcher.match(/enabled: true,/g) ?? []).length).toBe(2);
+    expect(switcher).not.toMatch(/enabled: opened,/);
+    expect(switcher).not.toMatch(/const \[opened, setOpened\]/);
+    expect(switcher).not.toMatch(/handleOpenChange/);
+    expect(switcher).not.toMatch(/<DropdownMenu onOpenChange=/);
   });
 
-  it('never polls — the wire arrives on open and on invalidation, not on a timer', () => {
+  it('never polls — the wire arrives on mount and on invalidation, not on a timer', () => {
     expect(switcher).toMatch(/refetchInterval: false,/);
   });
 
