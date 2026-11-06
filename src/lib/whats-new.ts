@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.413.0',
+    title: 'The census rides the org desk — the wire\u2019s truth, no click required',
+    bullets: [
+      'The Organization Console now shows the rate census right on the desk — N admin-set · N API · N built-in beside a fresh/aging/stale dot, under the header, without opening the currency menu. One glance tells every org reader whether the branch\u2019s rates are maintained or factory.',
+      'The strip stays quiet-neutral by design: reading the census and acting on it are different desks — the amber invitation keeps living where an actor stands (the switcher\u2019s menu and the admin card).',
+      'Under the hood: the password-rotation guard now types only what it reads (the request\u2019s url — a real NextRequest and the tests\u2019 honest fake both satisfy it), the org strip observes the shared rates cache without fetching, and six strict-mode faces stand down (287 \u2192 281).',
+    ],
+  },
+  {
     version: '2.412.0',
     title: 'The census echoes — the Exchange Rates card shows what your users see',
     bullets: [

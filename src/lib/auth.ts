@@ -179,9 +179,15 @@ export function isPasswordRotationExemptPath(pathname: string): boolean {
 /**
  * Returns the 403 response when the session still owes a password rotation
  * and the request is not allowlisted; `null` when the request may proceed.
+ *
+ * v2.413.0: the request parameter speaks the shape the guard actually READS
+ * — `{ url: string }` — not the full NextRequest bag (the widen-and-fix law:
+ * a type that says what the function uses, not what callers might pass; a
+ * real NextRequest satisfies it structurally, and so does the test's
+ * honest fake — six strict-mode faces stood down).
  */
 export function assertPasswordRotation(
-  request: NextRequest,
+  request: { url: string },
   session: AuthSession,
 ): Response | null {
   if (!session.mustChangePassword) return null;

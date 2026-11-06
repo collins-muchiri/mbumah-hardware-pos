@@ -45,7 +45,10 @@ const row = read(ROW_PATH);
 
 describe('the switcher reaches the org desk banner (v2.216.0)', () => {
   it('org-console imports the shared switcher', () => {
-    expect(orgConsole.includes("import { CurrencySwitcher } from '@/components/currency-switcher';")).toBe(true);
+    // v2.413.0 re-anchor: the import now also carries the org census
+    // strip's voices (the shared key + rateCensus + wireAgeVoice +
+    // RatesWireBody) — the shared-switcher intent is unchanged.
+    expect(orgConsole.includes("import { ADMIN_CURRENCY_RATES_QUERY_KEY, CurrencySwitcher, rateCensus, wireAgeVoice, type RatesWireBody } from '@/components/currency-switcher';")).toBe(true);
   });
 
   it('the desk banner mounts it compact with its E2E hook', () => {

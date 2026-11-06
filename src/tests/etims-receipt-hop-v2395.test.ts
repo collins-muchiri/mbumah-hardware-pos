@@ -121,14 +121,14 @@ describe('the paper-trail dialog — the receipt speaks its record', () => {
 
 describe('the what\u2019s-new feed — the round announces itself', () => {
   it('v2.395.0 is the lead entry with the round\u2019s title', () => {
-    expect(FEED).toContain("version: '2.412.0'");
+    expect(FEED).toContain("version: '2.413.0'");
     expect(FEED.indexOf("version: '2.395.0'")).toBeLessThan(FEED.indexOf("version: '2.394.0'"));
     expect(FEED).toContain('The submission receipt hop');
   });
 
   it('the version slots speak 2.395.0', () => {
-    expect(pkg.version).toBe('2.412.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.412.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.412.0');
+    expect(pkg.version).toBe('2.413.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.413.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.413.0');
   });
 });
