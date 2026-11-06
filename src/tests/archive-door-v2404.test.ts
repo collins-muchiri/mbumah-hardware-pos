@@ -135,22 +135,23 @@ describe('main-app - the archive door on the main desk', () => {
   // ── 7. The release cascade ─────────────────────────────────────────────────
 
   it('WHATS_NEW leads with the current release — the door story rides the archive below', () => {
-    // v2.426.0 hand-over: the lead tells the receipt’s story now; the
-    // row-maker’s story lives one entry down, the debt’s two, the
-    // shelf-door three, the supplier-rides four, the order-blocks
-    // five, the supplier-lens six, the drill-mirror seven, the
-    // expected-day eight, the receive nine, the order-handover ten,
-    // the order-file eleven, the order-list twelve, the org-desk
-    // thirteen, the census-echoes fourteen, the census-speaks
-    // fifteen, the wire-answers sixteen, the desk-remembers
-    // seventeen, the branch-voice eighteen, the ghost-routes
-    // nineteen, the jump-door twenty, the shares’ twenty-one, the
-    // archive-door story twenty-two — all still in the feed
+    // v2.427.0 hand-over: the lead tells the shortfall’s story now;
+    // the receipt’s story lives one entry down, the row-maker’s
+    // two, the debt’s three, the shelf-door four, the
+    // supplier-rides five, the order-blocks six, the supplier-lens
+    // seven, the drill-mirror eight, the expected-day nine, the
+    // receive ten, the order-handover eleven, the order-file twelve,
+    // the order-list thirteen, the org-desk fourteen, the
+    // census-echoes fifteen, the census-speaks sixteen, the
+    // wire-answers seventeen, the desk-remembers eighteen, the
+    // branch-voice nineteen, the ghost-routes twenty, the jump-door
+    // twenty-one, the shares’ twenty-two, the archive-door story
+    // twenty-three — all still in the feed
     const lead = WHATS_NEW[0];
-    expect(lead.version).toBe('2.426.0');
-    expect(lead.title).toContain('receipt');
+    expect(lead.version).toBe('2.427.0');
+    expect(lead.title).toContain('shortfall');
     expect(lead.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(lead.bullets.some((b) => b.includes('via {supplier}'))).toBe(true);
+    expect(lead.bullets.some((b) => b.includes('Follow up with {supplier}'))).toBe(true);
     const branchVoice = WHATS_NEW.find((e) => e.version === '2.408.0');
     expect(branchVoice?.title).toContain('branch speaks first');
     const ghost = WHATS_NEW.find((e) => e.version === '2.407.0');

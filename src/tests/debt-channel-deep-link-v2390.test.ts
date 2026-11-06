@@ -270,35 +270,32 @@ describe('the address-bar vocabulary — the twenty-ninth row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.426.0 leads the feed', () => {
+describe('whats-new — v2.427.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.426.0');
-    // the lead's story hand-over (v2.426.0, the Task 111 law's
-    // thirty-second application): the head story is the hand-over's
-    // voice — the receipt names its maker: the receive dialog grew
-    // the maker chip (receive-supplier-chip, the sky census family
-    // the rows taught, the Truck icon, 'via {name}' — conditional:
-    // a wire without the maker stays silent, never a fake via) and
-    // the call door (receive-supplier-call — the tel: door gated on
-    // the maker's own phone, so a short delivery has its number
-    // exactly where the shortfall shows; the day's contact speaks
-    // through the title), the success toast names the day
-    // (receiveSuccessVoice's two faces — 'Items received and stock
-    // updated — {maker}'s goods are on the shelf', the old byte when
-    // the read found nothing), and the day's honest read lives in
-    // the receive's ONE home (receiveMaker: a trimmed non-empty name
-    // makes the maker, the whitespace and non-string arrivals read
-    // the absence — never a crash, never a dead dial).
-    // THE DOM'S LAW rode the same round: the detail's description
-    // stays phrasing content (the div-in-p hydration wound the
-    // opening burst caught is healed).
-    // The row-maker's story exits the head this round; the
-    // receipt's own maker carries the eye.
-    expect(head.title).toContain('receipt');
+    expect(head.version).toBe('2.427.0');
+    // the lead's story hand-over (v2.427.0, the Task 111 law's
+    // thirty-third application): the head story is the hand-over's
+    // voice — the shortfall's own door: the drill's Receiving
+    // Progress card grew the follow-up pill (po-drill-followup-call,
+    // the sky census family the receipt's own call door taught, the
+    // Phone icon, 'Follow up with {maker} — {units} units short',
+    // the day's contact speaking through the title — conditional:
+    // no maker, no phone, or nothing short and the card stays
+    // silent, never a fake door, never a dead dial), the door's
+    // honest read lives in the receive's ONE home (drillFollowUpDoor:
+    // the door exists only when the order OWES and the maker carries
+    // a real phone, the dial's grace trims even a caller-supplied
+    // phone), and the receive dialog stops being day-blind
+    // (receive-expected-day — the expected day's voice, the v2.418
+    // one home, the metric families' own shade, the strip conditional
+    // on a real day).
+    // The receipt's story exits the head this round; the
+    // shortfall's own door carries the eye.
+    expect(head.title).toContain('shortfall');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('via {supplier}'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('call chip dials'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('goods are on the shelf'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('Follow up with {supplier}'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('never dials a dead number'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('the very face that records it'))).toBe(true);
   });
 });

@@ -1,3 +1,14 @@
+## [2.427.0] The shortfall's own door
+
+v2.426.0 taught the receipt to name its maker; this round the drill learns what to do about a shortfall: the Receiving Progress card wears the follow-up door — who to chase, how many units are short, the maker's number one press away — and the Receive Items dialog stops being day-blind, the expected day's voice riding the header in the metric families' own shades.
+
+### Added
+- **THE ARC'S EIGHTH WORD** (`src/lib/po-receive.ts` + `src/app/(shell)/tabs/purchase-orders-tab.tsx`): `drillFollowUpDoor` (the drill's honest follow-up — the door exists only when the order OWES (short lines counted; a whole order's open lines are the plan, not a debt) AND the maker carries a real phone; the dial's grace trims even a caller-supplied phone, so a whitespace number is no dial) joins the receive's one home, and the Receiving Progress card grows the follow-up pill (`po-drill-followup-call`, the sky census family the receipt's own call door taught, the Phone icon, "Follow up with {maker} — {units} units short", the day's contact speaking through the title) — conditionally: no maker, no phone, or nothing short and the card stays silent, never a fake door, never a dead dial.
+
+### Changed
+- **THE RECEIPT WEARS THE DAY**: the Receive Items dialog stops being day-blind — a strip under the maker chip (`receive-expected-day`, the CalendarDays icon, "expected {date}") speaks the expected day's voice (the v2.418 one home, the roster cell's own rule) with the tone's shade from `poExpectedDayFamily` (the metric families' own palette, never a new one); a wire without a day stays silent.
+- **ONE HOME, WIDENED**: the tab's `po-receive` import grows `drillFollowUpDoor`, and the drill's follow-up reads the maker through `receiveMaker(detail.supplier)` — one read shared by the chip, the call door, the toast and the drill's pill, never a second copy of the maker's read.
+
 ## [2.426.0] The receipt names its maker
 
 v2.425.0 taught the desk's rows to name their makers; this round the receive face learns the supplier's day: the Receive Items dialog wears the maker's chip (and the call door when the wire carries a phone), the success toast names whose goods landed, and the detail's description obeys the DOM's law — the div-in-p hydration wound the burst caught on this very face is healed.

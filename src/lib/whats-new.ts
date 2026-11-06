@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.427.0',
+    title: 'The shortfall\u2019s own door \u2014 the drill wears the follow-up',
+    bullets: [
+      'The drill\u2019s Receiving Progress card grew the shortfall\u2019s own door: when an order owes, a sky \u201cFollow up with {supplier}\u201d pill sits under the progress voice \u2014 who to chase and how many units are short, and one press dials the maker\u2019s number.',
+      'The follow-up\u2019s honesty is the maker\u2019s own read: no maker, a whitespace phone, or nothing short and the card stays silent \u2014 the shortfall\u2019s follow-up never dials a dead number or opens on an order that owes nothing.',
+      'The Receive Items dialog wears the expected day now: a strip under the maker chip speaks the day the supplier named (\u201cexpected {date}\u201d) with the day\u2019s own voice \u2014 late, due today, or inbound \u2014 so a late delivery is visible in the very face that records it.',
+    ],
+  },
+  {
     version: '2.426.0',
     title: 'The receipt names its maker \u2014 the receive face learns the supplier\u2019s day',
     bullets: [

@@ -339,3 +339,54 @@ export function receiveSuccessVoice(maker: ReceiveMaker | null): string {
     ? `Items received and stock updated — ${maker.name}'s goods are on the shelf`
     : 'Items received and stock updated';
 }
+
+// ============================================================================
+// v2.427.0 THE SHORTFALL'S OWN DOOR — the drill wears the follow-up
+// ============================================================================
+// The drill's Receiving Progress card counts the shortfall ("1 short by
+// 18 units") but never said WHAT TO DO about it — the maker's number
+// lived in the receive dialog one surface earlier and vanished the
+// moment the dialog closed. When the order OWES, the card now wears the
+// follow-up door: the same call door the receipt speaks, one surface
+// later — the shortfall's number exactly where the shortfall shows.
+// Pure; the caller owns the surface.
+// --------------------------------------------------------------------------
+
+/** The drill's follow-up door — the shape the card's pill wears. */
+export interface DrillFollowUp {
+  /** The maker's own phone (the tel: href — real by the read's law). */
+  phone: string;
+  /** The hover/assist words (the day's contact named when the wire
+   *  carries one, the maker's silence honest when it does not). */
+  title: string;
+  /** The pill's own words — who to follow up with, what is owed. */
+  words: string;
+}
+
+/** THE SHORTFALL'S OWN DOOR — the drill's honest follow-up: the door
+ *  exists only when the order OWES (short lines counted — a whole
+ *  order's open lines are the plan, not a debt) AND the maker carries a
+ *  real phone. The honest absences: no maker, a whitespace phone, or
+ *  nothing short all read the null — never a fake door, never a dead
+ *  dial, never a door on an order that owes nothing. */
+export function drillFollowUpDoor(
+  maker: ReceiveMaker | null,
+  progress: DrillProgress
+): DrillFollowUp | null {
+  if (!maker || !maker.phone) return null;
+  // THE DIAL'S GRACE — a whitespace phone is no dial, even when the
+  // caller skipped receiveMaker's own trim (the honest law, defended
+  // here too).
+  const phone = maker.phone.trim();
+  if (!phone) return null;
+  if (progress.shortLines <= 0) return null;
+  const units = progress.shortUnits;
+  const { name, contactPerson } = maker;
+  return {
+    phone,
+    title: contactPerson
+      ? `Call ${contactPerson} — ${phone} — the shortfall's follow-up`
+      : `Call the maker — ${phone} — the shortfall's follow-up`,
+    words: `Follow up with ${name} — ${units} unit${units === 1 ? '' : 's'} short`,
+  };
+}
