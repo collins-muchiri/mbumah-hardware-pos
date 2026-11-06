@@ -2008,7 +2008,7 @@ export default function SuppliersTab() {
     : '0';
 
   const exportCSV = () => {
-    const headers = ['Name', 'Email', 'Phone', 'City', 'Contact Person', 'Payment Terms', 'Rating', 'Active', 'PO Count'];
+    const headers = ['Name', 'Email', 'Phone', 'City', 'Contact Person', 'Payment Terms', 'Rating', 'Active', 'PO Count', 'Product Count'];
     const rows = suppliers.map((s) => [
       s.name,
       s.email || '',
@@ -2019,6 +2019,8 @@ export default function SuppliersTab() {
       String(s.rating),
       String(s.isActive),
       String(s.purchaseOrderCount || 0),
+      // v2.420.0 THE ARC'S FIRST WORD: the roster's size rides the export.
+      String(s.productCount || 0),
     ]);
 
     const csv = [headers.join(','), ...rows.map((r) => r.map((c) => `"${c}"`).join(','))].join('\n');
@@ -2263,6 +2265,10 @@ export default function SuppliersTab() {
                     <TableHead>Status</TableHead>
                     <TableHead className="hidden sm:table-cell">Last Order</TableHead>
                     <TableHead className="text-right">POs</TableHead>
+                    {/* v2.420.0 THE ARC'S FIRST WORD: the supplier's own product
+                        roster size — the desk answers "what does this supplier
+                        provide" in one read (the wire's productCount). */}
+                    <TableHead className="text-right">Products</TableHead>
                     <TableHead className="w-[60px] text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -2312,6 +2318,21 @@ export default function SuppliersTab() {
                         {supplier.purchaseOrders?.[0]?.orderDate ? formatDate(supplier.purchaseOrders[0].orderDate) : '-'}
                       </TableCell>
                       <TableCell className="text-right font-medium">{supplier.purchaseOrderCount || 0}</TableCell>
+                      {/* v2.420.0: the arc's answer on the supplier's own row —
+                          a zero reads honestly (this supplier provides nothing
+                          yet), never hidden. */}
+                      <TableCell className="text-right">
+                        <span
+                          data-testid="sup-products-chip"
+                          className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium tabular-nums ${
+                            (supplier.productCount || 0) > 0
+                              ? 'bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300'
+                              : 'bg-muted text-muted-foreground'
+                          }`}
+                        >
+                          {supplier.productCount || 0}
+                        </span>
+                      </TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>

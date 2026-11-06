@@ -363,6 +363,15 @@ model Product {
   store              Store               @relation(fields: [storeId], references: [id], onDelete: Cascade)
   category           ProductCategory?    @relation(fields: [categoryId], references: [id])
   subcategory        SubCategory?        @relation(fields: [subcategoryId], references: [id])
+  // ── v2.420.0 THE ARC'S FIRST WORD ────────────────────────────────────
+  // The product remembers its supplier. Nullable by design: a product
+  // born before the arc (or from a hand-raised row) keeps the honest
+  // absence — the grouping lens answers "No supplier yet" instead of a
+  // guessed name, and no backfill is required. Same-store rule is
+  // enforced at the WIRE (POST/PATCH validate supplier.storeId ===
+  // product.storeId) — the schema's FK is cross-store by shape alone.
+  supplierId         String?
+  supplier           Supplier?           @relation(fields: [supplierId], references: [id])
   bundleItems        ProductBundle[]     @relation("BundleParent")
   parentBundles      ProductBundle[]     @relation("BundleChild")
   saleItems          SaleItem[]
@@ -389,6 +398,7 @@ model Product {
   @@index([categoryId])
   @@index([subcategoryId])
   @@index([isActive])
+  @@index([supplierId])
   // Composite multi-tenant performance index (ISO 27001: scoped storeId + time range)
   @@index([storeId, createdAt])
   @@map("products")
@@ -1045,6 +1055,10 @@ model Supplier {
 
   store          Store           @relation(fields: [storeId], references: [id])
   purchaseOrders PurchaseOrder[]
+  // v2.420.0 THE ARC'S FIRST WORD: the supplier's own product roster —
+  // the desk can answer "what does this supplier provide" from the
+  // supplier's side (the _count rides the wire as productCount).
+  products       Product[]
 
   @@index([storeId])
   @@index([name])

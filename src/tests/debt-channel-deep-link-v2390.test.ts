@@ -270,27 +270,29 @@ describe('the address-bar vocabulary — the twenty-ninth row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.419.0 leads the feed', () => {
+describe('whats-new — v2.420.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.419.0');
-    // the lead's story hand-over (v2.419.0, the Task 111 law's twenty-fifth
-    // application): the head story is the hand-over's voice — the drill
-    // wears the receive's truth: the PO desk's line rows read the SAME
-    // one home the receive dialog reads (the committed truth, the pen at
-    // rest — never a second copy of the arithmetic), so a fully received
-    // line speaks 'fully received' in the emerald family, a short line
-    // speaks its shortfall COUNTED ('short by N units') in the amber
-    // family, an untouched line speaks 'nothing received yet' (the bare
-    // 'Partial' word retired), every line carries the dialog's own meter
-    // (role=img, aria-labelled), and the Receiving Progress card speaks
-    // the plan's truth — 'the order completes' when every line is closed.
-    // The expected day's story exits the head this round; the
-    // drill's mirror carries the eye.
-    expect(head.title).toContain('drill');
+    expect(head.version).toBe('2.420.0');
+    // the lead's story hand-over (v2.420.0, the Task 111 law's twenty-sixth
+    // application): the head story is the hand-over's voice — the shelf
+    // remembers its supplier: the Product schema grows its own nullable
+    // supplierId (the honest absence — no backfill, no row lies), the ONE
+    // arithmetic home groups the shelf by supplier with the Decimal grace
+    // carried, the inventory desk wears the sky lens strip (every supplier
+    // a card — products, units, shelf value; one press filters the roster),
+    // the 'No supplier yet' card is a REAL group for the unassigned
+    // (never hidden, never guessed a name), named rows carry the quiet
+    // 'via Supplier' sub-line, both form faces grow the supplier select
+    // behind the wires' SAME-STORE DOOR (a cross-store assignment is
+    // refused, never guessed; '' clears honestly), and the suppliers
+    // desk answers with its Products chip and CSV column.
+    // The drill's mirror story exits the head this round; the
+    // supplier's lens carries the eye.
+    expect(head.title).toContain('supplier');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('fully received'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('nothing received yet'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('mirror law'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('supplier lens'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('No supplier yet'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('same-store door'))).toBe(true);
   });
 });

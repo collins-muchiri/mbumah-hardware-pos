@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.420.0',
+    title: 'The shelf remembers its supplier \u2014 the inventory desk answers \u201cwho provides this?\u201d',
+    bullets: [
+      'The inventory desk grew a supplier lens: a sky strip above the table where every supplier wears a card speaking its group\u2019s truth \u2014 N products, units on the shelf, shelf value \u2014 and one press filters the table to that supplier (the census chip speaks \u201cN suppliers \u00b7 M products placed \u00b7 K waiting\u201d).',
+      'The honest absence is a REAL group: products with no supplier yet wear their own \u201cNo supplier yet\u201d card (never hidden, never guessed a name), and a named row carries a quiet \u201cvia Supplier\u201d sub-line under its name.',
+      'The arc\u2019s write faces: a product can be born with its supplier (the Add form\u2019s optional select) and the Edit form can assign or clear one \u2014 the wire enforces the same-store door (a cross-store assignment is refused, never guessed).',
+      'The suppliers desk answers from its side: every supplier row wears a Products chip (the roster\u2019s size, sky when placed, honest at zero), and the CSV export rides the same count.',
+    ],
+  },
+  {
     version: '2.419.0',
     title: 'The drill wears the receive\u2019s truth — the PO desk\u2019s lines speak their shortfall',
     bullets: [

@@ -98,6 +98,10 @@ async function getProductsHandler(
       where,
       include: {
         category: { select: { id: true, name: true, color: true, icon: true } },
+        // v2.420.0 THE ARC'S FIRST WORD: the product's own supplier rides
+        // the list wire (id + name only — the grouping lens and the row's
+        // sub-line read these; the supplier's ledger stays on its own desk).
+        supplier: { select: { id: true, name: true } },
         bundleItems: {
           include: {
             childProduct: { select: { id: true, name: true, sku: true, quantityInStock: true, pricePerUnit: true } },
@@ -180,6 +184,9 @@ async function createProductHandler(
     isRental?: boolean;
     isBundle?: boolean;
     imageUrl?: string;
+    // v2.420.0 THE ARC'S FIRST WORD: the product's own supplier (optional;
+    // the wire validates same-store before it ever writes).
+    supplierId?: string;
   }>(request);
   if (!door.ok) {
     return bodyDoorRejected();
@@ -206,6 +213,9 @@ async function createProductHandler(
     isRental,
     isBundle,
     imageUrl,
+    // v2.420.0 THE ARC'S FIRST WORD: the product may be born with its
+    // supplier (validated below — same store or nothing).
+    supplierId,
   } = body;
 
   if (!storeId || !name || !pricePerUnit || !costPrice) {
@@ -280,6 +290,24 @@ async function createProductHandler(
     }
   }
 
+  // v2.420.0 THE ARC'S FIRST WORD — the same-store door: a supplierId
+  // must name a supplier of the SAME store the product lives in (a
+  // cross-store assignment would leak one branch's ledger into another's
+  // shelf); '' or null reads the honest absence (no supplier yet).
+  const normalizedSupplierId = supplierId === undefined ? undefined : (supplierId === null || supplierId === '' ? null : String(supplierId).trim() || null);
+  if (normalizedSupplierId) {
+    const supplierForProduct = await db.supplier.findUnique({
+      where: { id: normalizedSupplierId },
+      select: { id: true, storeId: true, isActive: true },
+    });
+    if (!supplierForProduct || supplierForProduct.storeId !== storeId) {
+      return Response.json(
+        { success: false, error: 'supplierId must name a supplier of the same store.' },
+        { status: 400 }
+      );
+    }
+  }
+
   const product = await db.product.create({
     data: {
       storeId,
@@ -288,6 +316,7 @@ async function createProductHandler(
       barcode: productBarcode,
       description: description || null,
       categoryId: categoryId || null,
+      supplierId: normalizedSupplierId ?? null,
       unitType: unitType || 'PIECE',
       sellingUnit: sellingUnit ? String(sellingUnit).trim().toUpperCase().slice(0, 20) : null,
       conversionFactor: Number.isFinite(Number(conversionFactor)) && Number(conversionFactor) > 0
@@ -305,6 +334,9 @@ async function createProductHandler(
     },
     include: {
       category: { select: { id: true, name: true, color: true } },
+      // v2.420.0: the born-with face — the create answer names the
+      // supplier too (the desk never re-fetches to learn what it wrote).
+      supplier: { select: { id: true, name: true } },
     },
   });
 

@@ -40,6 +40,9 @@ async function getProductHandler(...args: unknown[]): Promise<Response> {
     where: { id },
     include: {
       category: { select: { id: true, name: true, color: true, icon: true } },
+      // v2.420.0: the detail wire answers the supplier too (the same face
+      // the list wire carries — one truth on every product wire).
+      supplier: { select: { id: true, name: true } },
       bundleItems: {
         include: {
           childProduct: { select: { id: true, name: true, sku: true, quantityInStock: true, pricePerUnit: true, unitType: true } },
@@ -174,6 +177,11 @@ async function updateProductHandler(...args: unknown[]): Promise<Response> {
     // `conversionFactor` (how many BASE units one SELLING unit contains -
     // validated below). The checkout deducts quantity × conversionFactor.
     'sellingUnit', 'conversionFactor',
+    // v2.420.0 THE ARC'S FIRST WORD: `supplierId` rides the same loop, but
+    // the SAME-STORE door below validates it before the update ever lands
+    // ('' clears the assignment — the honest absence; a foreign-store
+    // supplier is refused, never guessed).
+    'supplierId',
   ];
 
   // SKU is editable so legacy products can be re-coded to the branch-code
@@ -221,6 +229,32 @@ async function updateProductHandler(...args: unknown[]): Promise<Response> {
       );
     }
     updateData.conversionFactor = cf;
+  }
+
+  // v2.420.0 THE ARC'S FIRST WORD — the same-store door on the edit face:
+  // '' clears the assignment (the honest absence), a real id must name a
+  // supplier of the product's OWN store (a cross-store assignment would
+  // leak one branch's ledger into another's shelf), an unknown id is a
+  // 400 — never a silent write, never a guessed name.
+  if (updateData.supplierId !== undefined) {
+    const raw = updateData.supplierId;
+    const cleared = raw === null || raw === '' || (typeof raw === 'string' && raw.trim() === '');
+    if (cleared) {
+      updateData.supplierId = null;
+    } else {
+      const candidateId = String(raw).trim();
+      const supplierForProduct = await db.supplier.findUnique({
+        where: { id: candidateId },
+        select: { id: true, storeId: true },
+      });
+      if (!supplierForProduct || supplierForProduct.storeId !== existing.storeId) {
+        return Response.json(
+          { success: false, error: 'supplierId must name a supplier of the same store.' },
+          { status: 400 }
+        );
+      }
+      updateData.supplierId = candidateId;
+    }
   }
 
   if (Object.keys(updateData).length === 0) {
@@ -380,6 +414,10 @@ async function updateProductHandler(...args: unknown[]): Promise<Response> {
     data: updateData,
     include: {
       category: { select: { id: true, name: true, color: true } },
+      // v2.420.0: the edit answer names the supplier too — the desk reads
+      // what it wrote from the same response (never a re-fetch, never a
+      // second copy of the truth).
+      supplier: { select: { id: true, name: true } },
     },
   });
 

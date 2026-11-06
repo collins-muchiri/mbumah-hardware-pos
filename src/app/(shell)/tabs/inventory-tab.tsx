@@ -3,17 +3,22 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Package, Search, Plus, AlertTriangle, AlertCircle, DollarSign, MoreVertical, Edit, Trash2, Loader2, CheckCircle, Copy, ArrowUpDown, Minus, BarChart3, ChevronUp, ChevronDown, ChevronsUpDown, Download, History, RotateCcw, X, Filter, ChevronRight, Tag, Palette, Zap, ShoppingCart, Info, MessageCircle, RefreshCw, Pencil, Settings2, Check, PackagePlus, Send } from 'lucide-react';
+import { Package, Search, Plus, AlertTriangle, AlertCircle, DollarSign, MoreVertical, Edit, Trash2, Loader2, CheckCircle, Copy, ArrowUpDown, Minus, BarChart3, ChevronUp, ChevronDown, ChevronsUpDown, Download, History, RotateCcw, X, Filter, ChevronRight, Tag, Palette, Zap, ShoppingCart, Info, MessageCircle, RefreshCw, Pencil, Settings2, Check, PackagePlus, Send, Truck } from 'lucide-react';
 
 import { useAppStore, useAuthStore } from '@/lib/stores';
 import { canFeature } from '@/hooks/use-permissions';
 import {
-  productsApi, categoriesApi, stockMovementsApi, whatsappApi,
+  productsApi, categoriesApi, stockMovementsApi, whatsappApi, suppliersApi,
   formatKES, formatDate, formatDateTime,
   type ProductListItem,
   type StockMovementItem,
   type CreateProductPayload,
+  type SupplierItem,
 } from '@/lib/api';
+// THE ARC'S FIRST WORD (v2.420.0): the supplier lens reads ONE home for
+// its grouping arithmetic — the strip, the row sub-lines and the tests
+// all answer through buildSupplierGroups (never a second copy).
+import { buildSupplierGroups, describeSupplierCensus, NO_SUPPLIER_KEY, NO_SUPPLIER_LABEL } from '@/lib/product-groups';
 import { formatQtyWithUnit } from '@/lib/utils/financialMath';
 // THE ORDER LIST (v2.414.0): the banner's copy face speaks a plain-text
 // restock order through this pure voice — the same honest-absence law as
@@ -364,6 +369,11 @@ export default function InventoryTab() {
   // (membership law, one home); a hand-driven Select afterwards is the
   // human's truth.
   const [stockFilter, setStockFilter] = useState<string>(initialStockLens);
+  // v2.420.0 THE ARC'S FIRST WORD: the supplier lens — 'all' shows every
+  // row; a supplier id (or NO_SUPPLIER_KEY) filters the table to that
+  // group. The strip itself always speaks the whole shelf (the census is
+  // computed from allProducts, never from the filtered view).
+  const [supplierFilter, setSupplierFilter] = useState<string>('all');
   // v2.329.0 THE LANDING WORD — the address-bar word the desk answered at
   // mount ('all' when the landing carried no lens). The chip speaks it
   // ONCE: dismissed, hand-changed, or cleared, the landing is over and
@@ -421,6 +431,8 @@ export default function InventoryTab() {
     name: '', sku: '', barcode: '', pricePerUnit: '', costPrice: '', quantityInStock: '',
     reorderLevel: '10', unitType: 'PIECE', categoryId: '', description: '',
     isRental: false, isBundle: false,
+    // v2.420.0 THE ARC'S FIRST WORD: born-with supplier ('' = the absence).
+    supplierId: '',
   });
 
   // SKU/BARCODE AUTOGENERATION (v2.5.2)
@@ -516,6 +528,14 @@ export default function InventoryTab() {
     queryFn: () => categoriesApi.list(currentStoreId),
   });
 
+  // v2.420.0 THE ARC'S FIRST WORD: the lens's own supplier roster — the
+  // form selects' options read this one query (same-store by construction:
+  // the wire only lists this store's suppliers).
+  const { data: suppliersData } = useQuery({
+    queryKey: ['suppliers', currentStoreId],
+    queryFn: () => suppliersApi.list({ storeId: currentStoreId, limit: 200 }),
+  });
+
   // Stock movements query for history section with filters
   const { data: stockMovementsData } = useQuery({
     queryKey: ['stock-movements', currentStoreId, movementTypeFilter, movementDateFrom, movementDateTo],
@@ -540,7 +560,7 @@ export default function InventoryTab() {
       setAddProductOpen(false);
       skuGeneratedRef.current = false;
       barcodeGeneratedRef.current = false;
-      setNewProduct({ name: '', sku: '', barcode: '', pricePerUnit: '', costPrice: '', quantityInStock: '', reorderLevel: '10', unitType: 'PIECE', categoryId: '', description: '', isRental: false, isBundle: false });
+      setNewProduct({ name: '', sku: '', barcode: '', pricePerUnit: '', costPrice: '', quantityInStock: '', reorderLevel: '10', unitType: 'PIECE', categoryId: '', description: '', isRental: false, isBundle: false, supplierId: '' });
       queryClient.invalidateQueries({ queryKey: ['products', currentStoreId] });
     },
     onError: (err: unknown) => {
@@ -707,8 +727,26 @@ export default function InventoryTab() {
 
   // Filtered and sorted products
   const allProducts = Array.isArray(productsData?.data) ? productsData.data : [];
+  const suppliersForSelect: SupplierItem[] = Array.isArray(suppliersData?.data) ? suppliersData.data : [];
+  // v2.420.0 THE ARC'S FIRST WORD: the strip's groups — ONE read of the
+  // grouping home over the whole shelf (never the filtered view; a lens
+  // that hides its own members would lie about the shelf). Plain calls,
+  // NOT useMemos: allProducts' identity is already unstable (the query's
+  // conditional), so a memo here would only buy the linter a warning.
+  const supplierGroups = buildSupplierGroups(allProducts);
+  const supplierCensus = describeSupplierCensus(supplierGroups);
   const filteredProducts = useMemo(() => {
     let result = allProducts.filter((p) => {
+      // v2.420.0: the supplier lens filters first — a named key keeps that
+      // supplier's rows, NO_SUPPLIER_KEY keeps the honest absence (the
+      // 'none' group's own members), 'all' keeps everything.
+      if (supplierFilter !== 'all') {
+        if (supplierFilter === NO_SUPPLIER_KEY) {
+          if (p.supplierId) return false;
+        } else if (p.supplierId !== supplierFilter) {
+          return false;
+        }
+      }
       if (stockFilter === 'low') return p.quantityInStock <= p.reorderLevel && p.quantityInStock > 0;
       if (stockFilter === 'out') return p.quantityInStock <= 0;
       if (stockFilter === 'ok') return p.quantityInStock > p.reorderLevel;
@@ -739,7 +777,7 @@ export default function InventoryTab() {
     });
 
     return result;
-  }, [allProducts, stockFilter, sortField, sortDirection]);
+  }, [allProducts, stockFilter, sortField, sortDirection, supplierFilter]);
 
   const categories = Array.isArray(categoriesData?.data) ? categoriesData.data : [];
   const stockMovements = Array.isArray(stockMovementsData?.data) ? stockMovementsData.data : [];
@@ -883,6 +921,8 @@ export default function InventoryTab() {
       unitType: newProduct.unitType,
       categoryId: newProduct.categoryId || undefined,
       description: newProduct.description || undefined,
+      // v2.420.0: born-with supplier (undefined = the honest absence).
+      supplierId: newProduct.supplierId || undefined,
       isRental: newProduct.isRental,
       isBundle: newProduct.isBundle,
     });
@@ -1263,6 +1303,21 @@ export default function InventoryTab() {
                     <Label>Description</Label>
                     <Textarea value={newProduct.description} onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })} placeholder="Product description..." rows={2} />
                   </div>
+                  {/* v2.420.0 THE ARC'S FIRST WORD: the born-with supplier — an
+                      optional select; 'none' reads the honest absence and the
+                      wire validates same-store before it ever writes. */}
+                  <div className="space-y-2 col-span-2">
+                    <Label>Supplier</Label>
+                    <Select value={newProduct.supplierId || 'none'} onValueChange={(v) => setNewProduct({ ...newProduct, supplierId: v === 'none' ? '' : v })}>
+                      <SelectTrigger data-testid="new-product-supplier-select"><SelectValue placeholder="No supplier yet (optional)" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">No supplier yet</SelectItem>
+                        {suppliersForSelect.map((s) => (
+                          <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
 
@@ -1444,6 +1499,58 @@ export default function InventoryTab() {
         </div>
       )}
 
+      {/* v2.420.0 THE ARC'S FIRST WORD — the supplier lens. One strip, one
+          arithmetic home: each card speaks its group's truth (products,
+          units, shelf value) and clicking it filters the table to that
+          group. The 'none' card is the honest absence — unassigned rows
+          are a REAL group, never hidden, never guessed a name. */}
+      {!isLoading && supplierGroups.length > 0 && (
+        <div data-testid="inv-supplier-lens" className="rounded-xl border border-sky-200/70 bg-gradient-to-br from-sky-50/80 via-white to-white p-3 shadow-sm dark:border-sky-900/40 dark:from-sky-950/20 dark:via-transparent dark:to-transparent">
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-sky-700 dark:text-sky-300 flex items-center gap-1.5">
+              <Truck className="h-3.5 w-3.5" aria-hidden="true" />
+              By supplier
+              <span data-testid="inv-supplier-lens-census" className="ml-1 inline-flex items-center rounded-full bg-sky-100 px-2 py-px text-[10px] font-medium normal-case text-sky-700 dark:bg-sky-500/15 dark:text-sky-300">
+                {supplierCensus.voice}
+              </span>
+            </p>
+            {supplierFilter !== 'all' && (
+              <button type="button" data-testid="inv-supplier-lens-clear" onClick={() => setSupplierFilter('all')} className="inline-flex items-center gap-1 rounded-full border border-sky-300 bg-white px-2 py-0.5 text-[10px] font-medium text-sky-700 hover:bg-sky-50 dark:border-sky-700 dark:bg-sky-950/40 dark:text-sky-300">
+                <X className="h-3 w-3" aria-hidden="true" /> Clear supplier lens
+              </button>
+            )}
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-1 custom-scrollbar">
+            {supplierGroups.map((g) => {
+              const active = supplierFilter === g.key;
+              const isNone = g.key === NO_SUPPLIER_KEY;
+              const groupName = isNone ? NO_SUPPLIER_LABEL : (g.supplierName ?? g.key);
+              return (
+                <button
+                  key={g.key}
+                  type="button"
+                  data-testid={`inv-supplier-card-${g.key}`}
+                  onClick={() => setSupplierFilter(active ? 'all' : g.key)}
+                  aria-pressed={active}
+                  className={`shrink-0 text-left rounded-lg border px-3 py-2 transition-all hover:shadow-sm ${
+                    active
+                      ? 'border-sky-500 bg-sky-100/80 ring-1 ring-sky-400 dark:border-sky-500 dark:bg-sky-500/15'
+                      : 'border-slate-200 bg-white/70 hover:border-sky-300 dark:border-slate-700 dark:bg-slate-800/60 dark:hover:border-sky-700'
+                  }`}
+                >
+                  <p className={`text-xs font-semibold truncate max-w-[180px] ${active ? 'text-sky-800 dark:text-sky-200' : 'text-slate-700 dark:text-slate-200'}`}>
+                    {groupName}
+                  </p>
+                  <p className="mt-0.5 text-[10px] tabular-nums text-slate-500 dark:text-slate-400">
+                    {g.productCount} product{g.productCount === 1 ? '' : 's'} · {g.totalUnits} units · {formatKES(g.shelfValue)} on shelf
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Product Table */}
       <Card className="backdrop-blur-sm shadow-sm">
         <CardContent className="p-0">
@@ -1455,6 +1562,9 @@ export default function InventoryTab() {
               {stockFilter !== 'all' && <span> · {stockFilter === 'ok' ? 'In Stock' : stockFilter === 'low' ? 'Low Stock' : 'Out of Stock'}</span>}
               {selectedCategory !== 'all' && categories.find(c => c.id === selectedCategory) && (
                 <span> · {categories.find(c => c.id === selectedCategory)?.name}</span>
+              )}
+              {supplierFilter !== 'all' && (
+                <span data-testid="inv-supplier-filter-voice"> · via {supplierFilter === NO_SUPPLIER_KEY ? NO_SUPPLIER_LABEL : supplierGroups.find(g => g.key === supplierFilter)?.supplierName ?? supplierFilter}</span>
               )}
             </p>
           </div>
@@ -1592,6 +1702,17 @@ export default function InventoryTab() {
                             <div className="flex items-center gap-3">
                               <div>
                                 <p className="font-medium text-sm group-hover:text-primary transition-colors cursor-pointer" onClick={() => setDetailProduct(product)}>{product.name}</p>
+                                {/* v2.420.0 THE ARC'S FIRST WORD: the row names its
+                                    supplier (a quiet sky sub-line); a row with no
+                                    supplier speaks nothing here — the strip's 'none'
+                                    card carries the absence's voice, a per-row "no
+                                    supplier" would be noise. */}
+                                {product.supplier?.name && (
+                                  <p data-testid="inv-row-supplier" className="mt-0.5 flex items-center gap-1 text-[10px] font-medium text-sky-600 dark:text-sky-400">
+                                    <Truck className="h-2.5 w-2.5 shrink-0" aria-hidden="true" />
+                                    via {product.supplier.name}
+                                  </p>
+                                )}
                                 <div className="flex gap-1 mt-0.5">
                                   {product.isRental && <Badge variant="outline" className="text-[9px] h-4 px-1">RENTAL</Badge>}
                                   {product.isBundle && <Badge variant="outline" className="text-[9px] h-4 px-1">BUNDLE</Badge>}
@@ -2187,6 +2308,24 @@ export default function InventoryTab() {
                 <div className="space-y-2 sm:col-span-2">
                   <Label>Description</Label>
                   <Textarea value={editProduct.description || ''} onChange={(e) => setEditProduct({ ...editProduct, description: e.target.value })} rows={3} />
+                </div>
+                {/* v2.420.0 THE ARC'S FIRST WORD: the edit face's supplier select —
+                    assigning rides the PATCH's same-store door; choosing 'none'
+                    clears the assignment (the honest absence, never a guess). */}
+                <div className="space-y-2 sm:col-span-2">
+                  <Label>Supplier</Label>
+                  <Select
+                    value={editProduct.supplierId || 'none'}
+                    onValueChange={(v) => setEditProduct({ ...editProduct, supplierId: v === 'none' ? '' : v })}
+                  >
+                    <SelectTrigger data-testid="edit-product-supplier-select"><SelectValue placeholder="No supplier yet" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">No supplier yet</SelectItem>
+                      {suppliersForSelect.map((s) => (
+                        <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </section>
