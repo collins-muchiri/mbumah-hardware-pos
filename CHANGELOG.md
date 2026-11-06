@@ -1,3 +1,14 @@
+## [2.413.0] The census rides the org desk
+
+v2.412.0 put the census on the admin card. This round it rides the org desk: the Organization Console shows the same provenance census under its header — no click required — and the password-rotation guard's type shrinks to what it actually reads.
+
+### Added
+- **THE ORG CENSUS STRIP** (`src/components/workspace/org-console.tsx`): the Organization Console renders the rate census (`N admin-set · N API · N built-in` + the fresh/aging/stale age dot) under the header row, spoken WITHOUT opening the currency menu. One shared cache — the strip observes with `enabled: false` (the v2.215.0 observer law); the switcher's mount fetch fills it. Honest absence: before the wire answers, the line is not there.
+
+### Changed
+- **THE ADDRESSEE KEEPS THE AMBER** (the styling round's law): the org strip stays on the quiet neutral surface (`border-border/60 bg-muted/40` + the mono census line + the age dot) — reading the census and acting on it are different desks; the amber invitation family keeps living where an actor stands (the switcher's menu, the admin card).
+- **SIX STRICT-MODE FACES STOOD DOWN** (287 → 281): `assertPasswordRotation`'s request parameter now speaks the shape the guard READS — `{ url: string }` — not the full NextRequest bag (a real NextRequest satisfies it structurally; so does the test's honest fake).
+
 ## [2.412.0] The census echoes
 
 v2.411.0 taught the top-bar census to speak first. This round the census echoes onto the card that door names: the Exchange Rates admin card now renders the same provenance census — same wire, same pure voices — so the admin sees exactly what their users see, right where they can act on it.

@@ -68,7 +68,12 @@ import { APP_VERSION } from '@/lib/version';
 // org desk's own banner, the shell where the desk's strip-bearing slice
 // modals live (the shelf law the v2.215.0 console shelf established: the
 // supply lives where the consumers live).
-import { CurrencySwitcher } from '@/components/currency-switcher';
+import { ADMIN_CURRENCY_RATES_QUERY_KEY, CurrencySwitcher, rateCensus, wireAgeVoice, type RatesWireBody } from '@/components/currency-switcher';
+// v2.413.0: the org census strip observes the SAME shared rates cache the
+// switcher fills on mount (the observer law the v2.215.0 kpi-row shelf
+// established — enabled:false, never fetches, only reads).
+import { useQuery } from '@tanstack/react-query';
+import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/lib/stores';
 import { useAppStoreHydration } from '@/lib/app-store-hydration';
 import { authorizedFetchJson } from '@/lib/api';
@@ -697,6 +702,63 @@ function StatCard({
     );
   }
   return <div className="rounded-lg border bg-card p-4">{body}</div>;
+}
+
+/**
+ * THE CARD'S AGE READ (v2.413.0): the wire's age in ms at NOW — the one
+ * impure clock read behind the org census strip's age voice, kept OUT of
+ * the component body (the react-hooks purity law; the switcher and the
+ * admin card keep their own twins for the same reason). A silent cache
+ * (dataUpdatedAt 0) answers -1, which the age voice renders as nothing.
+ */
+function orgCensusAgeMs(dataUpdatedAt: number): number {
+  return dataUpdatedAt > 0 ? Date.now() - dataUpdatedAt : -1;
+}
+
+/**
+ * THE ORG CENSUS STRIP (v2.413.0): the same provenance census the switcher's
+ * dropdown footer speaks, rendered ON the desk — without opening anything.
+ * One shared cache (the observer law: enabled:false, the switcher's mount
+ * fetch fills it), the same pure voices (rateCensus + wireAgeVoice). The
+ * org reader cannot set rates, so the strip stays on the quiet neutral
+ * surface — the amber invitation family is the ACTOR's voice, and this
+ * desk's reader is not the actor (the switcher's own footer names the door
+ * where an actor should go). Honest absence: before the wire answers, the
+ * line is not there.
+ */
+function OrgCensusStrip() {
+  const censusQuery = useQuery<RatesWireBody>({
+    queryKey: ADMIN_CURRENCY_RATES_QUERY_KEY,
+    queryFn: async () => {
+      throw new Error('the org census never fetches — it observes the shared currency cache');
+    },
+    enabled: false,
+    staleTime: 30_000,
+    refetchInterval: false,
+  });
+  const census = rateCensus(censusQuery.data?.data?.currencies);
+  const ageVoice = wireAgeVoice(orgCensusAgeMs(censusQuery.dataUpdatedAt));
+  if (!census) return null;
+  return (
+    <div className="max-w-7xl mx-auto px-4 pb-3">
+      <div
+        data-testid="org-census-strip"
+        className="inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-muted/40 px-2 py-1"
+      >
+        {ageVoice && (
+          <span
+            aria-hidden
+            title="How long ago the wire answered this census"
+            className={cn('h-1.5 w-1.5 shrink-0 rounded-full', ageVoice.dot)}
+          />
+        )}
+        <span className="font-mono text-[10px] tabular-nums leading-tight text-muted-foreground">
+          {census.manual} admin-set · {census.api} API · {census.builtIn} built-in
+          {ageVoice ? ` · ${ageVoice.label}` : ''}
+        </span>
+      </div>
+    </div>
+  );
 }
 
 export function OrgConsole() {
@@ -1711,6 +1773,12 @@ export function OrgConsole() {
             </Button>
           </div>
         </div>
+        {/* v2.413.0 THE CENSUS RIDES THE ORG DESK — a quiet read-only line
+            under the header row: the same provenance census the switcher's
+            dropdown speaks (one shared cache, the mount fetch fills it),
+            spoken WITHOUT opening anything. Honest absence: before the wire
+            answers, the line is not there. */}
+        <OrgCensusStrip />
       </header>
       }
     >
