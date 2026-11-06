@@ -155,3 +155,71 @@ export function describeSupplierCensus(groups: readonly SupplierGroup[]): {
   if (waitingCount > 0) parts.push(`${waitingCount} waiting`);
   return { supplierCount, placedCount, waitingCount, voice: parts.join(' · ') };
 }
+
+/** v2.423.0 THE ARC'S FOURTH WORD — the shelf's own summary. The
+ *  suppliers desk's drill-down reads ONE home: the rows the wire
+ *  answered reduce to the shelf's voice (products, units, value, cost)
+ *  by the SAME arithmetic the grouping strip speaks (buildSupplierGroups'
+ *  own reduce — never a second copy of the sum). The rows are NOT
+ *  trusted pre-filtered: the helper keeps only the rows the supplier's
+ *  own id claims, so a stale wire row can never ride another supplier's
+ *  shelf (the same honesty the pre-pick's census speaks — the id is the
+ *  truth, the name waits for the wire). An empty or fully-stale answer
+ *  reads the honest zeros.
+ */
+export interface SupplierShelfSummary {
+  /** How many of the supplier's own rows the answer carries. */
+  products: number;
+  /** Units on the shelf across the rows (coerced — never a concat). */
+  totalUnits: number;
+  /** Shelf value: Σ(pricePerUnit × quantityInStock), rounded to cents. */
+  shelfValue: number;
+  /** Shelf cost: Σ(costPrice × quantityInStock) where a cost is known. */
+  shelfCost: number;
+}
+
+export function supplierShelfSummary(
+  products: readonly SupplierGroupProduct[],
+  supplierId: string,
+): SupplierShelfSummary {
+  const own = products.filter((p) => p.supplierId === supplierId);
+  const group = buildSupplierGroups(own).find((g) => g.key === supplierId);
+  return {
+    products: group?.productCount ?? 0,
+    totalUnits: group?.totalUnits ?? 0,
+    shelfValue: group?.shelfValue ?? 0,
+    shelfCost: group?.shelfCost ?? 0,
+  };
+}
+
+/** The shelf row's own state — the drill's row family, spoken in the
+ *  inventory desk's own low-stock vocabulary: 'out' is the empty shelf,
+ *  'low' the shelf that owes (AT or UNDER its reorder level — the
+ *  boundary is owed, never hidden), 'ok' the healthy shelf. The numbers
+ *  ride the grace: a Decimal-as-string arrival can never flip a family
+ *  (the lexicographic wound's own regression guard — "9" vs 10 reads
+ *  the owed shelf, never "9" > "10"). */
+export type ShelfRowState = 'ok' | 'low' | 'out';
+
+export function shelfRowState(
+  quantityInStock: number | string,
+  reorderLevel: number | string,
+): ShelfRowState {
+  const stock = num(quantityInStock);
+  const reorder = num(reorderLevel);
+  if (stock <= 0) return 'out';
+  if (stock <= reorder) return 'low';
+  return 'ok';
+}
+
+/** The owed units — how far the shelf sits under its reorder level,
+ *  floored at zero (a healthy shelf owes nothing, an over-stocked one
+ *  never reads a negative debt). The grace applies: string arrivals
+ *  coerce before the minus — a Decimal-as-string can never concat into
+ *  the row's voice. The drill's 'Low' rows speak THIS number. */
+export function shelfShortfall(
+  quantityInStock: number | string,
+  reorderLevel: number | string,
+): number {
+  return Math.max(num(reorderLevel) - num(quantityInStock), 0);
+}

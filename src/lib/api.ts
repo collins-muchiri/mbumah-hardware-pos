@@ -710,13 +710,18 @@ export interface CreateProductPayload {
 }
 
 export const productsApi = {
-  list: async (params?: { storeId?: string; page?: number; limit?: number; categoryId?: string; search?: string }) => {
+  // v2.423.0 THE ARC'S FOURTH WORD: the list may ask for ONE supplier's
+  // products (the suppliers desk's shelf drill-down) — the wire's own
+  // filter, so the drill never downloads the whole catalog to count one
+  // supplier's shelf.
+  list: async (params?: { storeId?: string; page?: number; limit?: number; categoryId?: string; search?: string; supplierId?: string }) => {
     const query = new URLSearchParams();
     if (params?.storeId) query.set('storeId', params.storeId);
     if (params?.page) query.set('page', String(params.page));
     if (params?.limit) query.set('limit', String(params.limit));
     if (params?.categoryId) query.set('categoryId', params.categoryId);
     if (params?.search) query.set('search', params.search);
+    if (params?.supplierId) query.set('supplierId', params.supplierId);
     const qs = query.toString();
     return request<ProductListItem[]>(`/products${qs ? `?${qs}` : ''}`);
   },
