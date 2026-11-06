@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.429.0',
+    title: 'The follow-up answers the toast \u2014 the shortfall\u2019s echo names the last receipt',
+    bullets: [
+      'When a short receive lands, the drill\u2019s follow-up pill answers the toast: the ring deepens and a small sky word rides beneath \u2014 \u201cnamed by the last receipt\u201d \u2014 so the door the toast pointed at is the door that answers.',
+      'The echo\u2019s honesty is the callback\u2019s own: a full receipt clears the echo and the drill\u2019s close ends the arc \u2014 the callback belongs to the short receipt alone, never a stale emphasis, never a fake echo.',
+      'The pill\u2019s plain census face is untouched when nothing was short: the echo wears the follow-up door\u2019s own sky, one home with the pointer\u2019s words.',
+    ],
+  },
+  {
     version: '2.428.0',
     title: 'The toast points at the follow-up \u2014 the shortfall survives the close',
     bullets: [

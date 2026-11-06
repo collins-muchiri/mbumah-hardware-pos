@@ -1,3 +1,14 @@
+## [2.429.0] The follow-up answers the toast
+
+v2.428.0 taught the toast to point at the follow-up; this round the follow-up answers: a short submit's callback crosses the dialog's close, the drill's pill deepens its ring, and a small sky word under the pill — "named by the last receipt" — closes the eye's own arc.
+
+### Added
+- **THE ARC'S TENTH WORD** (`src/lib/po-receive.ts` + `src/app/(shell)/tabs/purchase-orders-tab.tsx`): `receiveShortfallEcho` (the pill's callback word when the LAST receipt this session was short — "named by the last receipt"; the honest gate mirrors the pointer's own: a null, a zero, or a number that is not one reads the null — never a fake echo, never an echo on a full receipt, never a crash) joins the receive's one home, and the drill's follow-up pill grows the echo line (`po-drill-followup-echo`, the door's own sky family `text-sky-700 dark:text-sky-400`, one home with the pointer's words) — conditionally: no short receipt, no echo line, never a run-on of nothing.
+
+### Changed
+- **THE CALLBACK CROSSES THE CLOSE**: the Receive Items dialog grows the additive + optional `onShortSubmit` callback — the success hands the drill the receipt's own truth (the short units when the pointer speaks, the honest null when the receipt was full — the echo belongs to the short receipt alone), the drill holds it in session state, and the close ends the arc (a reopened drill starts honest, never a stale echo).
+- **THE PAINT DEEPENS**: when the echo lives, the pill's ring deepens (`ring-2 ring-sky-400 dark:ring-sky-400/70` over the plain census ring `ring-1 ring-sky-300 dark:ring-sky-500/40`); the echo speaks NO units — the pill's own words already carry them, recomputed from the fresh wire; a second count could only disagree with the first.
+
 ## [2.428.0] The toast points at the follow-up
 
 v2.427.0 gave the shortfall its own door on the drill; this round the success toast learns to point at it: a short submit's confirmation now carries a second line — the units still owed and where the follow-up waits — so the shortfall survives the dialog's close, and a full receipt points nowhere.

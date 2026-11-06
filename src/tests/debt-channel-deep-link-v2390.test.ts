@@ -270,30 +270,32 @@ describe('the address-bar vocabulary — the twenty-ninth row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.428.0 leads the feed', () => {
+describe('whats-new — v2.429.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.428.0');
-    // the lead's story hand-over (v2.428.0, the Task 111 law's
-    // thirty-fourth application): the head story is the hand-over's
-    // voice — the toast points at the follow-up: the success toast
-    // grew the pointer's own second line (receiveShortfallPointer,
-    // the units still owed and where the follow-up waits — 'N units
-    // still owed — the follow-up waits on the order's face', the
-    // honest gate reads zero, a negative, a NaN and an infinity as
-    // the null — a full receipt points nowhere, never a fake
-    // pointer), the plan rides the submit (the pens' truth at the
-    // press travels with the mutation — the pointer speaks what WAS
-    // submitted, never a later render's guess), and the pointer
-    // wears the follow-up door's own sky (the conditional
-    // description, the byte-identical family the maker chip and the
-    // drill's pill taught).
-    // The shortfall's story exits the head this round; the
-    // toast's own pointer carries the eye.
-    expect(head.title).toContain('toast');
+    expect(head.version).toBe('2.429.0');
+    // the lead's story hand-over (v2.429.0, the Task 111 law's
+    // thirty-fifth application): the head story is the hand-over's
+    // voice — the follow-up answers the toast: the drill's pill
+    // wears the echo (receiveShortfallEcho — 'named by the last
+    // receipt', the honest gate mirrors the pointer's own: a null,
+    // a zero, or a number that is not one reads the null — never a
+    // fake echo, never an echo on a full receipt), the callback
+    // crosses the close (the ReceiveItemsDialog's additive +
+    // optional onShortSubmit hands the drill the receipt's own
+    // truth — the short units when the pointer speaks, the honest
+    // null when the receipt was full — the echo belongs to the
+    // short receipt alone, and the drill's close ends the arc, a
+    // reopened drill starts honest), and the paint deepens (the
+    // ring-2 sky-400 echo ring over the plain census ring, the echo
+    // line's byte-identical sky family one home with the pointer's
+    // words).
+    // The toast's story exits the head this round; the
+    // echo's own answer carries the eye.
+    expect(head.title).toContain('echo');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('the follow-up waits on the order'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('never points on a full receipt'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('the door\u2019s own sky'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('named by the last receipt'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('the callback belongs to the short receipt'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('the door the toast pointed at'))).toBe(true);
   });
 });

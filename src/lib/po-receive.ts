@@ -414,3 +414,35 @@ export function receiveShortfallPointer(shortUnits: number): string | null {
   if (!Number.isFinite(shortUnits) || shortUnits <= 0) return null;
   return `${shortUnits} unit${shortUnits === 1 ? '' : 's'} still owed — the follow-up waits on the order's face`;
 }
+
+// ============================================================================
+// v2.429.0 THE EYE'S OWN ARC — the pill answers the toast's point
+// ============================================================================
+// The toast's pointer ended the story one face too soon: it named where
+// the follow-up waits, the dialog closed, and the drill's own door sat
+// unchanged — nothing on the pill said WHY the eye just came here. When
+// a short submit lands, the callback now crosses the close: the
+// ReceiveItemsDialog hands the drill the receipt's own truth, and the
+// pill wears the echo — the ring deepens and a small sky word answers
+// ("named by the last receipt"), so the door the toast pointed at is
+// the door that answers. A full submit clears the echo (the callback
+// belongs to the short receipt alone) and the drill's close ends the
+// arc (a reopened drill starts honest). The echo speaks NO units — the
+// pill's own words already carry them, recomputed from the fresh wire;
+// a second count could only disagree with the first. Pure; the caller
+// owns the surface.
+// --------------------------------------------------------------------------
+
+/** THE SHORTFALL'S ECHO — the pill's callback word when the LAST
+ *  receipt this session was short. The honest gate mirrors the
+ *  pointer's own: a null (no short submit, or the drill reopened), a
+ *  zero, or a number that is not one reads the null — never a fake
+ *  echo, never an echo on a full receipt, never a crash. */
+export function receiveShortfallEcho(
+  shortUnits: number | null | undefined
+): string | null {
+  if (shortUnits == null || !Number.isFinite(shortUnits) || shortUnits <= 0) {
+    return null;
+  }
+  return 'named by the last receipt';
+}

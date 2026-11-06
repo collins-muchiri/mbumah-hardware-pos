@@ -136,7 +136,7 @@ describe('the faces (v2.427.0) \u2014 the drill\u2019s pill and the one home, pi
 
   it('the drill reads the ONE home \u2014 the widened import, the maker through receiveMaker', () => {
     expect(tabSrc).toContain(
-      "import { buildReceiveInitials, receiveRowState, describeReceivePlan, drillLineState, describeDrillProgress, receiveMaker, receiveSuccessVoice, receiveShortfallPointer, drillFollowUpDoor } from '@/lib/po-receive';"
+      "import { buildReceiveInitials, receiveRowState, describeReceivePlan, drillLineState, describeDrillProgress, receiveMaker, receiveSuccessVoice, receiveShortfallPointer, receiveShortfallEcho, drillFollowUpDoor } from '@/lib/po-receive';"
     );
     expect(tabSrc).toContain('drillFollowUpDoor(receiveMaker(detail.supplier), drillProgress);');
   });
