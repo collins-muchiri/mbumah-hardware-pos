@@ -275,30 +275,30 @@ describe('the address-bar vocabulary — the twenty-seventh row (cross-suite pin
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.421.0 leads the feed', () => {
+describe('whats-new — v2.422.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.421.0');
-    // the lead's story hand-over (v2.421.0, the Task 111 law's twenty-seventh
-    // application): the head story is the hand-over's voice — the restock
-    // order rides with its supplier: the banner's copy/download faces group
-    // the order into per-supplier blocks when the rows' world names ANY
-    // supplier (named blocks alphabetical, the honest-absence block
-    // 'No supplier yet:' always LAST, the selector's own sort holding
-    // inside every block, a blank line between blocks, the header and the
-    // count line staying global), a world that never names suppliers reads
-    // the FLAT order byte-for-byte as v2.414 shipped it (the formatter
-    // never invents a fact the caller didn't hand it), the banner wears
-    // the census chip ('via N suppliers', the sky family, only when
-    // earned), and the copy button's title tells the truth about the
-    // blocks.
-    // The supplier lens's story exits the head this round; the
-    // order's blocks carry the eye.
-    expect(head.title).toContain('supplier');
+    expect(head.version).toBe('2.422.0');
+    // the lead's story hand-over (v2.422.0, the Task 111 law's twenty-eighth
+    // application): the head story is the hand-over's voice — the walk's
+    // order knows its maker: the banner's Send face folds the supplier
+    // names into the handoff pocket (every line's maker rides, absent
+    // lines ride null) and the purchase-order desk's create form dresses
+    // the supplier pen itself when every carried line names the same
+    // maker (the walk's order arrives supplier-aware — the shelf's own
+    // link is the only voice, a stale pocket never names a live order);
+    // two makers, or a maker and an absence, and the pen stays the
+    // actor's (the honest absence, never a majority's guess). The
+    // carriage strip wears the sky chip ('via {name}') and speaks 'the
+    // order names {name}' — the chip retires the moment the actor names
+    // a different supplier — and the send toast speaks 'for {name}'.
+    // The order-blocks story exits the head this round; the
+    // supplier's ride carries the eye.
+    expect(head.title).toContain('maker');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('ONE BLOCK PER SUPPLIER'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('supplier pen'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('No supplier yet'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('never invents a fact'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('stale pocket never names a live order'))).toBe(true);
   });
 });
 

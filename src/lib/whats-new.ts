@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.422.0',
+    title: 'The walk\u2019s order knows its maker \u2014 the supplier rides from the banner into the PO desk\u2019s pen',
+    bullets: [
+      'Send the restock order and the maker rides along: the pocket the banner folds now carries every line\u2019s supplier, and the purchase-order desk\u2019s create form DRESSES THE SUPPLIER PEN ITSELF when every carried line names the same maker \u2014 the walk\u2019s order arrives supplier-aware, no re-picking the supplier you already told the banner about.',
+      'The honest law holds: two makers, or a maker and a \u201cNo supplier yet\u201d, and the pen stays YOURS \u2014 the pre-pick only speaks when the whole order agrees, and the shelf\u2019s own link is the only voice (a stale pocket never names a live order).',
+      'The carriage strip wears the census: the amber strip grows a sky chip \u201cvia {name}\u201d and speaks \u201cthe order names {name}\u201d \u2014 and the chip retires the moment you pick a different supplier (the pen stays the actor\u2019s).',
+      'The banner\u2019s send receipt tells the truth too: the toast and the Send button\u2019s own title speak \u201cfor {name}\u201d when the order names one maker \u2014 the walk\u2019s supplier pen already dressed.',
+    ],
+  },
+  {
     version: '2.421.0',
     title: 'The restock order rides with its supplier \u2014 one block per supplier, ready for each chat',
     bullets: [

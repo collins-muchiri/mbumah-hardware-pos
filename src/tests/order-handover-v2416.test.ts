@@ -183,7 +183,10 @@ describe('the Send face (v2.416.0) — the banner\u2019s third action', () => {
   it('the click folds, walks and toasts the receipt', () => {
     expect(tabSrc).toContain("buildOrderHandoff(storeId, storeName, new Date(), rows)");
     expect(tabSrc).toContain("setActiveTab('purchase-orders')");
-    expect(tabSrc).toContain("toast.success(`The order rides to the purchase order desk — ${payload.lines} line${payload.lines === 1 ? '' : 's'}, ${payload.units} unit${payload.units === 1 ? '' : 's'} carried.`)");
+    // v2.422.0 re-anchor: the receipt grew the census voice — when every
+    // row names the same maker, the toast speaks "for {name}" (the quiet
+    // face keeps the v2.416 bytes after "carried").
+    expect(tabSrc).toContain("toast.success(`The order rides to the purchase order desk — ${payload.lines} line${payload.lines === 1 ? '' : 's'}, ${payload.units} unit${payload.units === 1 ? '' : 's'} carried${supplierName ? ` for ${supplierName}` : ''}.`)");
   });
 
   it('the empty fold is refused at the face too (no pocket for a zero order)', () => {

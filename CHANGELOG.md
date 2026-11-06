@@ -1,3 +1,16 @@
+## [2.422.0] The walk's order knows its maker
+
+v2.421.0 taught the restock order to ride with its supplier; this round the ride goes the whole way: the banner's Send face folds the supplier names into the handoff pocket, and the purchase-order desk's create form dresses the supplier pen itself when every carried line names the same maker — the walk's order arrives supplier-aware.
+
+### Added
+- **THE ARC'S THIRD WORD** (`src/lib/order-handoff.ts`): `OrderHandoffItem` grows `supplierName?` (the fold carries the shelf's answer line by line — absent rows ride null); `mapOrderHandoffToPoItems` derives the **pre-pick** from the shelf's own link — when EVERY mapped line's product names the same supplier (id AND name, the wire's nested face), the map hands the dialog `{ supplierId, supplierName }`; `orderHandoffSupplier` is the census (every line the same trimmed maker, or null — the honest absence, never a majority's guess).
+
+### Changed
+- **THE PRE-PICK'S DRESSING** (the create dialog): the map's supplier becomes the select's own value the moment the dialog's active suppliers list carries it — one application, then the pending state is spent; a pre-pick naming a retired/inactive supplier is refused by silence. THE VOICE RETIRES: the moment the actor names a different supplier, the strip's chip stops speaking (the pen stays the actor's — the v2.418 day-suggestion's own law).
+- **THE CARRIAGE STRIP'S CENSUS** (the styling round): the amber strip grows the sky chip (testid `po-order-handoff-supplier`, "via {name}") and speaks "the order names {name} and the supplier pen wears it" — any mixed world keeps the quiet face ("the supplier is your call").
+- **THE SEND FACE'S RECEIPT**: the banner's send toast and the Send button's own title/aria speak "for {name}" when the order names one maker (the census's second reader — one law, two faces).
+- **THE SHAPE LAW'S TOLERANCE**: the older envelopes (v2.416–v2.421) carried no `supplierName` field and still parse (undefined reads the old mail, null reads the honest absence, any other shape refuses the WHOLE envelope).
+
 ## [2.421.0] The restock order rides with its supplier
 
 v2.420.0 taught the shelf to remember its supplier; this round the restock order — the banner's copy/download faces — rides with it: one block per supplier, ready to paste into THAT supplier's chat, with the honest absence riding its own block last.

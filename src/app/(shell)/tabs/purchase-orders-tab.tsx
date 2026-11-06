@@ -294,7 +294,15 @@ function CreatePODialog({
   // v2.8.0: admin-controlled VAT rate for the live preview.
   const { vatRate } = useVatRate();
 
-  const [supplierId, setSupplierId] = useState('');
+  // v2.422.0 THE PRE-PICK — the map's derived supplier (the shelf's own
+  // truth, every line agreeing) waits here; THE DERIVED DRESS dresses
+  // the pen without an effect (no cascading render, no unstable dep —
+  // the Task 117 law's own shape): the pen reads the actor's word when
+  // they gave one, else the pre-pick when the active list carries it.
+  // A pre-pick naming a supplier the list refuses (retired, inactive)
+  // never dresses — refused by silence, not by a lie.
+  const [actorSupplierId, setActorSupplierId] = useState('');
+  const [orderPrePick, setOrderPrePick] = useState<{ supplierId: string; supplierName: string } | null>(null);
   const [expectedDate, setExpectedDate] = useState('');
   // v2.418.0 THE EXPECTED DAY — the walk's suggestion, remembered so the
   // hint can speak its own words ("seven days from the walk") while the
@@ -315,7 +323,7 @@ function CreatePODialog({
   const [restockVoice, setRestockVoice] = useState<{ aisle: string | null; units: number; lines: number } | null>(null);
   const [restockLoading, setRestockLoading] = useState(false);
   const [restockError, setRestockError] = useState<string | null>(null);
-  // v2.416.0: the order birth's own strip — a LOCAL digest, so the strip
+  // v2.422.0: the order birth's own strip — a LOCAL digest, so the strip
   // keeps speaking after the tab hands the envelope over (the one-way
   // law: the pocket and the stash are consumed; the reading stays).
   const [orderStrip, setOrderStrip] = useState<{ lines: number; units: number; dropped: string[] } | null>(null);
@@ -333,7 +341,7 @@ function CreatePODialog({
       try {
         const res = await productsApi.list({ storeId, limit: 200 });
         const products: ProductListItem[] = Array.isArray(res?.data) ? res.data : [];
-        const { items, droppedSkus } = mapOrderHandoffToPoItems(orderBirth, products);
+        const { items, droppedSkus, prePick } = mapOrderHandoffToPoItems(orderBirth, products);
         if (cancelled) return;
         if (items.length > 0) setPoItems(items);
         // v2.418.0 THE SUGGESTION — the carried order opens with a day
@@ -343,6 +351,9 @@ function CreatePODialog({
         setExpectedDate(suggestExpectedDay(new Date(orderBirth.carriedAt)));
         setSuggestedDay(suggestExpectedDay(new Date(orderBirth.carriedAt)));
         setOrderStrip({ lines: orderBirth.lines, units: orderBirth.units, dropped: droppedSkus });
+        // v2.422.0 THE PRE-PICK — the map's supplier waits for the
+        // active list; the apply effect below does the dressing.
+        setOrderPrePick(prePick);
       } catch {
         if (!cancelled) setOrderStrip({ lines: orderBirth.lines, units: orderBirth.units, dropped: orderBirth.items.map((i) => i.sku) });
       } finally {
@@ -360,6 +371,21 @@ function CreatePODialog({
     enabled: open,
   });
   const suppliers: SupplierItem[] = Array.isArray(suppliersData?.data) ? suppliersData.data : [];
+
+  // v2.422.0 THE DERIVED DRESS — the pre-pick's own reading, computed at
+  // the only place it's read: the pen wears the actor's word when they
+  // gave one, else the pre-pick when the active list carries it (the
+  // list may still be loading — the wait is honest). The voice speaks
+  // only while the pen WEARS the pre-pick: the moment the actor names
+  // their own supplier, the chip stops speaking by the same derivation
+  // (the pen stays the actor's — the v2.418 day-suggestion's own law).
+  const prePickSupplier = (() => {
+    if (!orderPrePick) return null;
+    const hit = suppliers.find((s) => s.id === orderPrePick.supplierId && s.isActive);
+    return hit ? { id: hit.id, name: hit.name } : null;
+  })();
+  const supplierId = actorSupplierId !== '' ? actorSupplierId : (prePickSupplier?.id ?? '');
+  const prePickVoice = actorSupplierId === '' ? prePickSupplier : null;
 
   // Product search
   const { data: productSearchData, isLoading: productSearchLoading } = useQuery({
@@ -540,13 +566,14 @@ function CreatePODialog({
   });
 
   const resetForm = () => {
-    setSupplierId('');
+    setActorSupplierId('');
     setExpectedDate('');
     setSuggestedDay(null);
     setNotes('');
     setPoItems([]);
     setProductSearch('');
     setOrderStrip(null);
+    setOrderPrePick(null);
   };
 
   const handleOpenChange = (nextOpen: boolean) => {
@@ -619,24 +646,45 @@ function CreatePODialog({
         {/* v2.416.0 THE CARRIAGE STRIP — the amber door family's reading:
             the dialog says WHICH desk the order rode from and what it
             carried (lines, units), and speaks the honest dropped count
-            when the shelf no longer knows a carried sku. The birth is a
-            DRAFT: every row below stays the actor's to edit, and the
-            supplier is always the actor's own choice — the order never
-            named one. */}
+            when the shelf no longer knows a carried sku. v2.422.0: when
+            the shelf named ONE maker for every carried line, the strip
+            wears the sky chip and speaks the name — the pre-pick below
+            is the shelf's own doing, still the actor's to overrule. The
+            birth is a DRAFT: every row stays the actor's to edit. */}
         {orderStrip && (
           <div
             data-testid="po-order-handoff-provenance"
-            aria-label={orderStrip.dropped.length > 0
-              ? `carried from the restock order — ${orderStrip.lines} line${orderStrip.lines === 1 ? '' : 's'}, ${orderStrip.units} unit${orderStrip.units === 1 ? '' : 's'}; ${orderStrip.dropped.length} line${orderStrip.dropped.length === 1 ? '' : 's'} the shelf no longer knows: ${orderStrip.dropped.join(', ')}`
-              : `carried from the restock order — ${orderStrip.lines} line${orderStrip.lines === 1 ? '' : 's'}, ${orderStrip.units} unit${orderStrip.units === 1 ? '' : 's'} pre-picked below`}
+            aria-label={[
+              prePickVoice
+                ? `carried from the restock order — ${orderStrip.lines} line${orderStrip.lines === 1 ? '' : 's'}, ${orderStrip.units} unit${orderStrip.units === 1 ? '' : 's'}, the order names ${prePickVoice.name}`
+                : `carried from the restock order — ${orderStrip.lines} line${orderStrip.lines === 1 ? '' : 's'}, ${orderStrip.units} unit${orderStrip.units === 1 ? '' : 's'} pre-picked below`,
+              orderStrip.dropped.length > 0
+                ? `${orderStrip.dropped.length} line${orderStrip.dropped.length === 1 ? '' : 's'} the shelf no longer knows: ${orderStrip.dropped.join(', ')}`
+                : null,
+            ].filter(Boolean).join('; ')}
             className="rounded-lg border border-amber-200 bg-amber-50/60 px-2.5 py-2 text-[11px] text-amber-800 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200"
           >
             <p className="flex items-center gap-1 text-[9px] font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-300">
               <Truck className="h-3 w-3" aria-hidden="true" />
               carried from the restock order
+              {/* v2.422.0 THE SUPPLIER CHIP — the pre-pick's own face, the
+                  sky census family the lens taught (an earned voice, never
+                  a decoration): it rides the header line and speaks only
+                  while the pen wears the pre-pick. */}
+              {prePickVoice && (
+                <span
+                  data-testid="po-order-handoff-supplier"
+                  className="ml-1 inline-flex items-center rounded-full bg-sky-100 px-2 py-px text-[10px] font-medium normal-case text-sky-700 dark:bg-sky-500/15 dark:text-sky-300"
+                >
+                  via {prePickVoice.name}
+                </span>
+              )}
             </p>
             <p className="mt-0.5 font-medium">
-              {orderStrip.lines} line{orderStrip.lines === 1 ? '' : 's'} · {orderStrip.units} unit{orderStrip.units === 1 ? '' : 's'} pre-picked below — the supplier is your call; every row stays yours to edit.
+              {orderStrip.lines} line{orderStrip.lines === 1 ? '' : 's'} · {orderStrip.units} unit{orderStrip.units === 1 ? '' : 's'} pre-picked below —{' '}
+              {prePickVoice
+                ? <>the order names {prePickVoice.name} and the supplier pen wears it; every row stays yours to edit.</>
+                : <>the supplier is your call; every row stays yours to edit.</>}
             </p>
             {orderStrip.dropped.length > 0 && (
               <p data-testid="po-order-handoff-dropped" className="mt-1 font-medium text-red-700 dark:text-red-300">
@@ -650,7 +698,10 @@ function CreatePODialog({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>Supplier *</Label>
-            <Select value={supplierId} onValueChange={setSupplierId}>
+            <Select
+              value={supplierId}
+              onValueChange={setActorSupplierId}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select supplier" />
               </SelectTrigger>
