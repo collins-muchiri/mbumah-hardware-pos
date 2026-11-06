@@ -39,7 +39,7 @@ describe('the branch\u2019s answer \u2014 the detail wears the why-strip (v2.262
   });
 
   it('the tab imports the why voice + the kind \u2014 one home, never a copy', () => {
-    expect(branch).toContain("poMetricWhyVoice,\n  type PoMetricKind,\n  type PoMetricLens,\n} from '@/lib/po-metrics';");
+    expect(branch).toContain("poMetricWhyVoice,\n  // v2.418.0 THE EXPECTED DAY — the day the supplier names, spoken\n  // everywhere (the suggestion, the voice, the family — one home).\n  suggestExpectedDay,\n  poExpectedDayVoice,\n  poExpectedDayFamily,\n  type PoMetricKind,\n  type PoMetricLens,\n} from '@/lib/po-metrics';");
   });
 
   it('the gate reads the FRESH wire\u2019s own row \u2014 a stale row keeps the strip silent', () => {

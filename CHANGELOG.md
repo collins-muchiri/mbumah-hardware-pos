@@ -1,3 +1,17 @@
+## [2.418.0] The day gets named
+
+v2.416.0 walked the order to the desk, v2.417.0 filled the receive. This round the desk learned when the goods should arrive — the walk names a day, the roster speaks it, and the honest absence has words.
+
+### Added
+- **THE EXPECTED DAY** (`src/lib/po-metrics.ts` + `purchase-orders-tab.tsx`): the walk's carried order opens the create dialog with an expected day **suggested seven days out** (`suggestExpectedDay`, from the walk's own instant) — the pen stays the actor's (a manual New PO keeps the empty pen), an **in 7 days** quick fill (testid `po-expected-suggest`) names a day in one press, and a **live hint** (testid `po-expected-hint`) speaks the day's meaning as the actor types ("due today", "in N days", "N days past the day named").
+
+### Changed
+- **THE ROSTER'S VOICE** (the styling round): the Expected Date cell speaks — the date with the day's own voice under it (testid `po-row-expected-voice`; rose late, amber today, blue soon, green arrived-on-time — the metric families' own shades), and the bare `-` is retired for the honest **"no day named"** (italic, muted). The drill's Expected Date field wears the same words.
+- **THE AGREEMENT LAW** (one home): the received split in the voice IS the metric predicate's own rule (`poMetricPredicate('late', …)` byte-called, never re-copied) — a roster cell and an on-time tile can never disagree about what "late" means; the day math (`poDaysBetween`) reads UTC midnights, the wire's own dates.
+
+### Fixed
+- **THE SILENT EXPECTATION**: the roster band rail and the on-time metrics always knew what an expected date means, but every walk-born PO shipped with a `-` in the column (the walk never carried a day) — the bands and rates sat on silent expectations. The suggestion closes the loop at the source: the carried order names its day at the desk.
+
 ## [2.417.0] The receive fills itself
 
 v2.416.0 taught the order to walk to the desk. This round the desk's receive side catches up — the Receive dialog's pens fill themselves, a short delivery speaks its shortfall, and the plan is spoken before the actor commits.

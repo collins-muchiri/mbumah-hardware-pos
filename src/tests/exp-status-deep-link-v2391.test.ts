@@ -294,26 +294,26 @@ describe('the address-bar vocabulary — the thirtieth row (cross-suite pins)', 
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.417.0 leads the feed', () => {
+describe('whats-new — v2.418.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.417.0');
-    // the lead's story hand-over (v2.417.0, the Task 111 law's twenty-third
-    // application): the head story is the hand-over's voice — the receive
-    // fills itself: the Receive dialog's pens stop being a bare wall —
-    // Fill all remaining tops every open pen up to its line's remaining
-    // units in one press (Clear all empties them, each row carries its
-    // own Fill), a short delivery speaks its shortfall (the amber row,
-    // the 'short by N' count, the amber meter), and the receive plan
-    // strip speaks the pass before the actor commits (emerald when the
-    // order completes, amber when lines run short or stay untouched,
-    // muted before anything is set).
-    // The order's handover story exits the head this round; the
-    // receive carries the eye.
-    expect(head.title).toContain('receive');
+    expect(head.version).toBe('2.418.0');
+    // the lead's story hand-over (v2.418.0, the Task 111 law's twenty-fourth
+    // application): the head story is the hand-over's voice — the day gets
+    // named: the walk's carried order opens the create dialog with an
+    // expected day suggested seven days out (the pen stays the actor's —
+    // a manual New PO keeps the empty pen), the roster's Expected Date
+    // cell speaks the day's own voice under every date (rose late, amber
+    // today, blue soon, green arrived-on-time — the metric families' own
+    // shades), the bare dash is retired for the honest 'no day named',
+    // and the received split calls the metric's own predicate (THE
+    // AGREEMENT LAW — a cell and a tile can never disagree).
+    // The receive's story exits the head this round; the
+    // expected day carries the eye.
+    expect(head.title).toContain('expected day');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('Fill all remaining'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('short by'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('receive plan strip'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('no day named'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('in 7 days'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('on-time tile'))).toBe(true);
   });
 });

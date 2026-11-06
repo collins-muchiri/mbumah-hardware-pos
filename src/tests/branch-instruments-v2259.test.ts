@@ -40,7 +40,7 @@ const apiLib = read('src/lib/api.ts');
 
 describe('the branch\u2019s instruments \u2014 the one home and the combined ear (v2.259.0)', () => {
   it('the rail reads the metrics\u2019 one home \u2014 the tab imports the lib, never a copy (the import grew the why voice + the kind at v2.262.0 \u2014 the branch\u2019s answer rides the same home)', () => {
-    expect(tab).toContain("import {\n  poMetricPredicate,\n  poMetricVoice,\n  poMetricEmptyVoice,\n  poMetricFamily,\n  poMetricWhyVoice,\n  type PoMetricKind,\n  type PoMetricLens,\n} from '@/lib/po-metrics';");
+    expect(tab).toContain("import {\n  poMetricPredicate,\n  poMetricVoice,\n  poMetricEmptyVoice,\n  poMetricFamily,\n  poMetricWhyVoice,\n  // v2.418.0 THE EXPECTED DAY — the day the supplier names, spoken\n  // everywhere (the suggestion, the voice, the family — one home).\n  suggestExpectedDay,\n  poExpectedDayVoice,\n  poExpectedDayFamily,\n  type PoMetricKind,\n  type PoMetricLens,\n} from '@/lib/po-metrics';");
     expect(lib).toContain('export function poMetricPredicate(kind: PoMetricKind, po: PoMetricShape): boolean {');
   });
 

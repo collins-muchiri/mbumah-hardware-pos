@@ -43,6 +43,11 @@ import {
   poMetricEmptyVoice,
   poMetricFamily,
   poMetricWhyVoice,
+  // v2.418.0 THE EXPECTED DAY — the day the supplier names, spoken
+  // everywhere (the suggestion, the voice, the family — one home).
+  suggestExpectedDay,
+  poExpectedDayVoice,
+  poExpectedDayFamily,
   type PoMetricKind,
   type PoMetricLens,
 } from '@/lib/po-metrics';
@@ -288,6 +293,11 @@ function CreatePODialog({
 
   const [supplierId, setSupplierId] = useState('');
   const [expectedDate, setExpectedDate] = useState('');
+  // v2.418.0 THE EXPECTED DAY — the walk's suggestion, remembered so the
+  // hint can speak its own words ("seven days from the walk") while the
+  // pen still wears it — the moment the actor names their own day, the
+  // suggestion's voice retires (the pen stays the actor's).
+  const [suggestedDay, setSuggestedDay] = useState<string | null>(null);
   const [notes, setNotes] = useState('');
   const [poItems, setPoItems] = useState<
     { productId: string; name: string; sku: string; quantity: string; unitCost: string; currentStock: number }[]
@@ -323,6 +333,12 @@ function CreatePODialog({
         const { items, droppedSkus } = mapOrderHandoffToPoItems(orderBirth, products);
         if (cancelled) return;
         if (items.length > 0) setPoItems(items);
+        // v2.418.0 THE SUGGESTION — the carried order opens with a day
+        // named a week out from the walk's own instant (the shelf asked
+        // for these goods today; a day the supplier can answer). The pen
+        // stays the actor's — the hint says so.
+        setExpectedDate(suggestExpectedDay(new Date(orderBirth.carriedAt)));
+        setSuggestedDay(suggestExpectedDay(new Date(orderBirth.carriedAt)));
         setOrderStrip({ lines: orderBirth.lines, units: orderBirth.units, dropped: droppedSkus });
       } catch {
         if (!cancelled) setOrderStrip({ lines: orderBirth.lines, units: orderBirth.units, dropped: orderBirth.items.map((i) => i.sku) });
@@ -523,6 +539,7 @@ function CreatePODialog({
   const resetForm = () => {
     setSupplierId('');
     setExpectedDate('');
+    setSuggestedDay(null);
     setNotes('');
     setPoItems([]);
     setProductSearch('');
@@ -646,8 +663,52 @@ function CreatePODialog({
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>Expected Delivery Date</Label>
-            <Input type="date" value={expectedDate} onChange={(e) => setExpectedDate(e.target.value)} />
+            <div className="flex items-center justify-between gap-2">
+              <Label>Expected Delivery Date</Label>
+              {/* v2.418.0 THE QUICK FILL — naming the day is one press (the
+                  manual face's own path to the suggestion; the walk already
+                  rode in with its day named). The pen stays editable. */}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                data-testid="po-expected-suggest"
+                className="h-6 rounded-md px-2 text-[11px] text-muted-foreground"
+                onClick={() => {
+                  setExpectedDate(suggestExpectedDay(new Date()));
+                  setSuggestedDay(null);
+                }}
+                title="Name the day seven days out — the pen stays yours to change"
+              >
+                in 7 days
+              </Button>
+            </div>
+            <Input
+              type="date"
+              data-testid="po-expected-input"
+              value={expectedDate}
+              onChange={(e) => {
+                setExpectedDate(e.target.value);
+                setSuggestedDay(null);
+              }}
+            />
+            {/* v2.418.0 THE LIVE HINT — the named day speaks the same voice
+                the roster cell will wear (one home — the dialog can never
+                promise a face the roster would not paint). Empty pen, no
+                hint; a past day speaks its warning in its own family. */}
+            {(() => {
+              const hint = expectedDate
+                ? poExpectedDayVoice({ status: 'DRAFT', expectedDate }, new Date())
+                : null;
+              if (!hint || !hint.text) return null;
+              const isSuggestion = suggestedDay != null && suggestedDay === expectedDate;
+              return (
+                <p data-testid="po-expected-hint" className={`text-[11px] leading-snug ${poExpectedDayFamily(hint.tone)}`}>
+                  {isSuggestion ? 'suggested — seven days from the walk; the pen stays yours. ' : ''}
+                  {hint.text}
+                </p>
+              );
+            })()}
           </div>
         </div>
 
@@ -1499,7 +1560,17 @@ function PODetailView({
               <InfoItem
                 icon={<Truck className="h-4 w-4" />}
                 label="Expected Date"
-                value={detail.expectedDate ? formatDate(detail.expectedDate) : 'Not set'}
+                // v2.418.0 THE EXPECTED DAY — the drill speaks the day's
+                // voice too (the one home's own words under the date), and
+                // the honest absence answers in the roster's own words.
+                value={
+                  detail.expectedDate
+                    ? `${formatDate(detail.expectedDate)}${(() => {
+                        const voice = poExpectedDayVoice(detail, new Date());
+                        return voice.text ? ` — ${voice.text}` : '';
+                      })()}`
+                    : 'no day named'
+                }
               />
               <InfoItem
                 icon={<Receipt className="h-4 w-4" />}
@@ -2719,7 +2790,30 @@ export default function PurchaseOrdersTab() {
                             {formatDate(po.orderDate)}
                           </TableCell>
                           <TableCell className="text-sm text-muted-foreground">
-                            {po.expectedDate ? formatDate(po.expectedDate) : '-'}
+                            {/* v2.418.0 THE EXPECTED DAY — the cell learned to
+                                speak: the date, and the day's own voice under
+                                it (one home — the same rule the metric tiles
+                                read, so a cell and a tile can never disagree).
+                                A silent expectation says so — the bare `-` is
+                                retired, the honest absence has words. */}
+                            {po.expectedDate ? (
+                              <div className="flex flex-col gap-0.5">
+                                <span>{formatDate(po.expectedDate)}</span>
+                                {(() => {
+                                  const voice = poExpectedDayVoice(po, new Date(currentTime));
+                                  return voice.text ? (
+                                    <span
+                                      data-testid="po-row-expected-voice"
+                                      className={`text-[10px] font-medium leading-tight ${poExpectedDayFamily(voice.tone)}`}
+                                    >
+                                      {voice.text}
+                                    </span>
+                                  ) : null;
+                                })()}
+                              </div>
+                            ) : (
+                              <span className="italic text-muted-foreground/60">no day named</span>
+                            )}
                           </TableCell>
                           <TableCell className="text-right font-medium text-sm">
                             {/* v2.250.0: the roster's money cell — the mask voice

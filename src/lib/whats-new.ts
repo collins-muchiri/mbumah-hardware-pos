@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.418.0',
+    title: 'The day gets named — the PO desk speaks the expected day',
+    bullets: [
+      'The walk names the day: an order riding in from the inventory banner opens the create form with an expected day suggested seven days out — the pen stays yours to change, and a manual New PO keeps its empty pen.',
+      'The roster\u2019s Expected Date column learned to speak: \u201cin 4 days\u201d, \u201cdue today\u201d, \u201c2 days past the day named\u201d under every date — and the received split agrees with the on-time tile (the metric\u2019s own rule, one home).',
+      'A silent expectation says so: \u201cno day named\u201d replaces the bare dash — and naming a day is one press (\u201cin 7 days\u201d beside the pen, with a live hint that speaks the day\u2019s meaning as you type).',
+      'Under the hood: one pure voice in the metrics\u2019 own home (the suggestion, the day math, the tones and their families), pinned byte-for-byte — the cell, the drill and the dialog can never disagree.',
+    ],
+  },
+  {
     version: '2.417.0',
     title: 'The receive fills itself \u2014 the PO desk\u2019s receive speaks the plan and the shortfall',
     bullets: [
