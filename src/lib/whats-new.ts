@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.424.0',
+    title: 'The shelf answers its debt \u2014 the drill grows the reorder press',
+    bullets: [
+      'The shelf drill grew the press (\u201cReorder this shelf\u201d): the sheet\u2019s footer wears the debt\u2019s own strip \u2014 the census speaks what the order would carry (\u201c2 products owe 30 units to reorder\u201d) and one press folds the owed rows into the purchase-order desk\u2019s pocket, the create form opening with the rows pre-picked and the maker\u2019s pen already dressed.',
+      'ONE arithmetic, never a second copy: the owed rows read restockNeedsAttention\u2019s own nothing-to-order law (an order line asking 0 units would be a lie with a checkbox), a stale row never rides another supplier\u2019s order (the id is the truth), and the string grace coerces every read (\u201c9\u201d vs 10 reads the owed shelf).',
+      'The honest faces hold: the strip wears amber only when something is owed, emerald only when EVERY row is healthy, and the press is disabled with its voice when the positive gaps come to nothing \u2014 \u201cAll healthy \u2014 nothing to reorder\u201d keeps its face.',
+    ],
+  },
+  {
     version: '2.423.0',
     title: 'The supplier opens its shelf \u2014 the Products chip is a door to what it provides',
     bullets: [

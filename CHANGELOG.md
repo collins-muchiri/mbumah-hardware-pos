@@ -1,3 +1,14 @@
+## [2.424.0] The shelf answers its debt
+
+v2.423.0 opened the shelf; this round the shelf answers back: the drill grows the reorder press — the debt's own strip speaks what the order would carry, and one press folds the owed rows into the purchase-order desk's pocket, the create form opening pre-picked with the maker's pen already dressed.
+
+### Added
+- **THE ARC'S FIFTH WORD** (`src/app/(shell)/tabs/suppliers-tab.tsx`): `SupplierShelfSheet` grows the debt strip (`sup-shelf-actions` / `sup-shelf-owed`) and the press (`sup-shelf-reorder` — "Reorder this shelf"): the census speaks the order's shape ("2 products owe 30 units to reorder"), and the press folds the owed rows into the SAME pocket the inventory banner uses (one envelope, the same one-way laws), closes the sheet, and walks to the PO desk — whose mount consumes it and opens the create form with the rows pre-picked (the desk's own pre-pick law dressing the maker's pen from the live shelf). The toast speaks the census: lines, units, and "for {maker}" when every row agrees.
+- **THE OWED ARITHMETIC** (`src/lib/product-groups.ts`): `shelfOwedRows` (the id-claimed rows whose shelf sits at/below its level AND asks for a positive gap — `restockNeedsAttention`'s own nothing-to-order law, so the census and the fold can never disagree; the string grace coerces every read; the maker's name rides the row) and `shelfOwedUnits` (the gaps, summed — each floored by `reorderGap`); `ShelfReorderProduct` is the action's own shape (a grouping row that also carries the SKU and the level).
+
+### Changed
+- **THE STRIP'S HONEST FAMILIES**: the debt strip wears amber only when something is owed, emerald only when EVERY row is healthy, and the neutral card family for the at-level world (a red or amber row never sits under a green census); the press is disabled with its honest voice when the positive gaps come to nothing ("All healthy — nothing to reorder" / "Nothing to reorder — every shelf sits at or above its level"), and its title/aria speak the double state.
+
 ## [2.423.0] The supplier opens its shelf
 
 v2.420.0 taught the shelf to remember its supplier and the suppliers desk to speak the roster's size; this round the chip becomes the door: one press on a supplier's Products chip opens its shelf — every product it provides, each row wearing the inventory desk's own low-stock family, and the summary reading the SAME arithmetic the lens speaks.

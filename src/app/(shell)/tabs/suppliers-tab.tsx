@@ -24,8 +24,16 @@ import {
 // summary reads the grouping strip's own reduce, the rows wear the
 // low-stock family (out / low / ok) — never a second copy.
 import {
-  supplierShelfSummary, shelfRowState, shelfShortfall,
+  supplierShelfSummary, shelfRowState, shelfShortfall, shelfOwedRows, shelfOwedUnits,
 } from '@/lib/product-groups';
+// v2.424.0 THE ARC'S FIFTH WORD: the sheet's reorder action folds the
+// owed rows into the SAME pocket the inventory banner uses (one home —
+// the shape/store/one-way laws already written), and the census voice
+// names the maker when every carried row agrees.
+import { buildOrderHandoff, orderHandoffSupplier, writeOrderHandoff } from '@/lib/order-handoff';
+// The branch's name rides STORE_LIST (the receipts' own source of truth),
+// the same derivation the inventory banner's send face speaks.
+import { STORE_LIST } from '@/lib/store-info';
 
 import { useAppStore } from '@/lib/stores';
 import {
@@ -2615,7 +2623,12 @@ export default function SuppliersTab() {
  *     yet") — the zero chip's press keeps its face;
  *   - the sheet closes without disturbing the roster (no state of the
  *     desk's own moves — the roster's filters, landing chips and
- *     selections stay exactly as the human left them).
+ *     selections stay exactly as the human left them);
+ *   - v2.424.0 THE ARC'S FIFTH WORD: the debt's own strip — the census
+ *     speaks what the order would carry and the press folds the owed
+ *     rows into the PO desk's pocket (ONE home with the banner's send:
+ *     the same envelope, the same one-way laws, the desk's own pre-pick
+ *     dressing the maker's pen from the live shelf).
  */
 function SupplierShelfSheet({
   supplier,
@@ -2640,6 +2653,41 @@ function SupplierShelfSheet({
   // supplier (a stale row never rides the shelf: the helper keeps only
   // the rows the id claims).
   const summary = supplier ? supplierShelfSummary(rows, supplier.id) : { products: 0, totalUnits: 0, shelfValue: 0, shelfCost: 0 };
+  // v2.424.0 THE ARC'S FIFTH WORD — the action's arithmetic: the owed
+  // rows the order would carry (the lib's own filter keyed to THIS
+  // supplier — the id is the truth), the census's unit voice, and the
+  // maker's census (every carried row names the same maker on this
+  // wire, so the toast speaks the name; any mixed world stays quiet —
+  // the honest absence, never a majority's guess).
+  const setActiveTab = useAppStore((s) => s.setActiveTab);
+  const owedRows = supplier ? shelfOwedRows(rows, supplier.id) : [];
+  const owedUnits = shelfOwedUnits(owedRows);
+  const owedMaker = orderHandoffSupplier(owedRows);
+  const owed = owedRows.length > 0;
+  // The strip's honest faces: emerald only when EVERY row is healthy —
+  // a shelf with a red or amber row never wears the healthy green (the
+  // census speaks the order's shape, never a mood).
+  const allOk = rows.length > 0 && rows.every((p) => shelfRowState(p.quantityInStock, p.reorderLevel) === 'ok');
+  // The branch's name as the pocket prints it (STORE_LIST's own voice,
+  // the banner's honest fallback when the wire carries a store the list
+  // has not met).
+  const reorderStoreName = STORE_LIST.find((s) => s.id === storeId)?.name ?? 'MBUMAH HARDWARE';
+  // THE FOLD (the banner's own order of operations): the rows ride the
+  // sessionStorage pocket, the sheet closes, the shell walks to the PO
+  // desk — whose mount consumes the envelope ONE time and opens the
+  // create form with the rows pre-picked (the desk's own pre-pick law
+  // dresses the supplier's pen from the live shelf, never the pocket's
+  // names). A fold that lands empty never walks (an order of zero lines
+  // would be a lie with a receipt).
+  const onReorder = () => {
+    if (!supplier || !owed) return;
+    const payload = buildOrderHandoff(storeId, reorderStoreName, new Date(), owedRows);
+    if (payload.items.length === 0) return;
+    writeOrderHandoff(payload);
+    onOpenChange(false);
+    setActiveTab('purchase-orders');
+    toast.success(`The shelf's debt rides to the purchase order desk — ${payload.lines} line${payload.lines === 1 ? '' : 's'}, ${payload.units} unit${payload.units === 1 ? '' : 's'} carried${owedMaker ? ` for ${owedMaker}` : ''}.`);
+  };
 
   return (
     <Sheet open={!!supplier} onOpenChange={onOpenChange}>
@@ -2714,6 +2762,65 @@ function SupplierShelfSheet({
                   </div>
                 );
               })
+            )}
+            {/* v2.424.0 THE ARC'S FIFTH WORD — the debt's own strip: the
+                census speaks what the order would carry (the family keyed
+                to the honest state — amber owes, emerald all-healthy,
+                neutral the at-level world), and the press folds the owed
+                rows into the pocket and walks to the PO desk (the create
+                form opens with the rows pre-picked, the maker's pen
+                dressed by the desk's own pre-pick law). */}
+            {!isLoading && rows.length > 0 && (
+              <div
+                data-testid="sup-shelf-actions"
+                className={`flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5 transition-colors ${
+                  owed
+                    ? 'border-amber-200 bg-amber-50/60 dark:border-amber-500/25 dark:bg-amber-500/10'
+                    : allOk
+                      ? 'border-emerald-200 bg-emerald-50/60 dark:border-emerald-500/25 dark:bg-emerald-500/10'
+                      : 'border-border/60 bg-card'
+                }`}
+              >
+                <div className="min-w-0">
+                  <p
+                    data-testid="sup-shelf-owed"
+                    className={`text-xs font-medium ${
+                      owed
+                        ? 'text-amber-700 dark:text-amber-300'
+                        : allOk
+                          ? 'text-emerald-700 dark:text-emerald-300'
+                          : 'text-muted-foreground'
+                    }`}
+                  >
+                    {owed
+                      ? `${owedRows.length} product${owedRows.length === 1 ? '' : 's'} ${owedRows.length === 1 ? 'owes' : 'owe'} ${formatQty(owedUnits)} unit${owedUnits === 1 ? '' : 's'} to reorder`
+                      : allOk
+                        ? 'All healthy — nothing to reorder'
+                        : 'Nothing to reorder — every shelf sits at or above its level'}
+                  </p>
+                  <p className="text-[11px] leading-tight text-muted-foreground">
+                    The press asks the purchase order desk for the positive gaps only.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  data-testid="sup-shelf-reorder"
+                  disabled={!owed}
+                  onClick={onReorder}
+                  title={owed
+                    ? `Fold the owed rows into the purchase order desk — the create form opens with the rows pre-picked${owedMaker ? ` for ${owedMaker}` : ''}`
+                    : 'Nothing to reorder yet — the order carries only the shelves under their levels with units to ask'}
+                  aria-label={owed
+                    ? `Reorder this shelf (${owedRows.length} product${owedRows.length === 1 ? '' : 's'}, ${formatQty(owedUnits)} units owed) into a purchase order`
+                    : 'Nothing to reorder'}
+                  className="h-8 shrink-0 gap-1.5 rounded-md border-amber-300 px-3 text-xs font-medium transition-colors hover:bg-amber-100 hover:text-amber-900 dark:border-amber-700 dark:text-amber-200 dark:hover:bg-amber-900/40"
+                >
+                  <Send className="h-3 w-3" aria-hidden="true" />
+                  Reorder this shelf
+                </Button>
+              </div>
             )}
           </div>
         )}

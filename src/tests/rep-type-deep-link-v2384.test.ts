@@ -217,29 +217,32 @@ describe('the lockfile parity guard — root-version and range legs', () => {
 // 4. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.423.0 leads the feed', () => {
+describe('whats-new — v2.424.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.423.0');
-    // the lead's story hand-over (v2.423.0, the Task 111 law's twenty-ninth
+    expect(head.version).toBe('2.424.0');
+    // the lead's story hand-over (v2.424.0, the Task 111 law's thirtieth
     // application): the head story is the hand-over's voice — the
-    // supplier opens its shelf: the Products chip grows the PRESS and a
-    // right-side shelf drill answers 'what does this supplier provide'
-    // without leaving the roster (the row's own click stays the detail
-    // drill; the zero chip's press keeps its honest empty face —
-    // 'provides nothing yet'). The summary reads the grouping strip's
-    // OWN reduce keyed to the supplier (one home — a stale wire row
-    // never rides another supplier's shelf), the rows wear the
-    // inventory desk's low-stock family (out / low / ok, the owed units
-    // floored at zero), and the wire grew the door too (/products
-    // answers ONE supplier's roster — the drill never downloads the
-    // whole catalog).
-    // The supplier-rides story exits the head this round; the
-    // shelf's door carries the eye.
-    expect(head.title).toContain('shelf');
+    // shelf answers its debt: the drill grows the reorder press and the
+    // debt's own strip answers 'what does this supplier's shelf owe'
+    // (the census speaks the order's shape — '2 products owe 30 units
+    // to reorder' — and one press folds the owed rows into the PO
+    // desk's pocket, the create form opening with the rows pre-picked,
+    // the maker's pen dressed by the desk's own pre-pick law). ONE
+    // arithmetic, never a second copy: the owed rows read
+    // restockNeedsAttention's own nothing-to-order law (an order line
+    // asking 0 units would be a lie with a checkbox), the id is the
+    // truth (a stale row never rides another supplier's order), and
+    // the string grace coerces every read. The honest faces hold:
+    // amber only when something is owed, emerald only when EVERY row
+    // is healthy, neutral the at-level world, and the disabled press
+    // keeps its voice ('All healthy — nothing to reorder').
+    // The shelf-door story exits the head this round; the
+    // debt's answer carries the eye.
+    expect(head.title).toContain('debt');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('PRESS'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('provides nothing yet'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('stale row never rides'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('Reorder this shelf'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('a lie'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('positive gaps'))).toBe(true);
   });
 });
