@@ -1,3 +1,15 @@
+## [2.412.0] The census echoes
+
+v2.411.0 taught the top-bar census to speak first. This round the census echoes onto the card that door names: the Exchange Rates admin card now renders the same provenance census — same wire, same pure voices — so the admin sees exactly what their users see, right where they can act on it.
+
+### Added
+- **THE CENSUS ECHO** (`src/components/admin/currency-rates-section.tsx`): the Exchange Rates card renders the rate census strip the top-bar dropdown shows — the rows counted by provenance (`N admin-set · N API · N built-in`) beside the fresh/aging/stale age dot. One wire (the shared `ADMIN_CURRENCY_RATES_QUERY_KEY`), the same pure voices (`rateCensus`, `wireAgeVoice`) — the admin sees what the users see, right where they can act.
+- **THE ADMIN'S OWN NUDGE** (pure export `adminCensusNudge`): when every row is a factory figure, the card speaks its own invitation — "Every rate below is a factory figure — set one with the Set rate action." (The switcher names this card as the door; here the door is open, so the voice names the action instead.) A maintained census stays silent.
+
+### Changed
+- **THE ECHO STRIP'S TONE FOLLOWS ITS CENSUS** (the styling round): the SAME amber invitation family vs the quiet neutral surface the switcher wears, scale-honest to a panel (`px-2.5 py-1.5`, `text-[10px]` mono census line, `text-[11px]` nudge line on the `border-t border-amber-200/60` key line); the nudge carries its own testid `admin-census-nudge`, the strip `admin-census-strip`.
+- **FOUR STRICT-MODE FACES STOOD DOWN** (291 → 287): the credits ledger's print handler speaks the row the desk actually hands it (`CreditLedgerRow = CustomerCreditItem & { runningBalance: number }` — the widened row the ledger memo computes), and the banking reconciliation dialog lost its phantom approver line — unreachable dead UI reading a field the wire never carried (the `BankReconciliation` model has no approver column); the status badge remains the honest approval voice.
+
 ## [2.411.0] The census speaks first
 
 v2.410.0 gave the currency dropdown's footer the rate census strip — the rows counted by provenance beside an age voice. This round the census gets its honest follow-through: a census that says "everything is factory" now also says what to do about it.

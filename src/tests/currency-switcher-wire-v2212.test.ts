@@ -60,7 +60,10 @@ describe('the one-wire query key (v2.212.0)', () => {
   });
 
   it('is imported by the card — the inline literal is gone from the card', () => {
-    expect(section).toMatch(/import \{ ADMIN_CURRENCY_RATES_QUERY_KEY \} from '@\/components\/currency-switcher';/);
+    // v2.412.0 re-anchor: the import now also carries the census echo's
+    // pure voices (rateCensus/wireAgeVoice/RateCensus) — the shared-key
+    // intent is unchanged, one key, one writer.
+    expect(section).toMatch(/import \{ ADMIN_CURRENCY_RATES_QUERY_KEY, rateCensus, wireAgeVoice, type RateCensus \} from '@\/components\/currency-switcher';/);
     // The card must not keep its own copy of the literal: one key, one writer.
     expect(section).not.toMatch(/queryKey: \['admin-currency-rates'\]/);
   });

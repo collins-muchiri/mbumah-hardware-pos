@@ -275,24 +275,25 @@ describe('the address-bar vocabulary — the twenty-seventh row (cross-suite pin
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.411.0 leads the feed', () => {
+describe('whats-new — v2.412.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.411.0');
-    // the lead's story hand-over (v2.411.0, the Task 111 law's seventeenth
-    // application): the head story is the census's voice — v2.410.0's rate
-    // census strip gains its honest follow-through: an all-factory census
-    // renders a quiet amber invitation naming the door that fixes it (the
-    // Exchange Rates card on the System tab), a maintained census stays
-    // silent (no nagging), the strip's tone follows its census, and the
-    // payroll engine's six money inputs are coerced at the boundary
-    // (eight strict-mode faces stand down).
-    // The wire's story exits the head this round; the census
+    expect(head.version).toBe('2.412.0');
+    // the lead's story hand-over (v2.412.0, the Task 111 law's eighteenth
+    // application): the head story is the echo's voice — the census
+    // reaches the door it named: the Exchange Rates admin card renders
+    // the same rate census the top-bar dropdown shows (same wire, the
+    // same pure voices), the card's own amber invitation names the
+    // action instead of the door (set one with the Set rate action),
+    // a maintained census silences both voices, and the credits ledger's
+    // print handler speaks the row the desk actually hands it (four
+    // strict-mode faces stand down).
+    // The census's story exits the head this round; the echo
     // carries the eye.
-    expect(head.title).toContain('census speaks first');
+    expect(head.title).toContain('census echoes');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('factory figure'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('amber invitation'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('the same rate census'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('Set rate action'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('strict-mode faces'))).toBe(true);
   });
 });
