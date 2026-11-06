@@ -135,20 +135,20 @@ describe('main-app - the archive door on the main desk', () => {
   // ── 7. The release cascade ─────────────────────────────────────────────────
 
   it('WHATS_NEW leads with the current release — the door story rides the archive below', () => {
-    // v2.422.0 hand-over: the lead tells the supplier-rides story now; the
-    // order-blocks story lives one entry down, the supplier-lens two, the
-    // drill-mirror three, the expected-day four, the receive five, the
-    // order-handover six, the order-file seven, the order-list eight, the
-    // org-desk nine, the census-echoes ten, the census-speaks eleven, the
-    // wire-answers twelve, the desk-remembers thirteen, the branch-voice
-    // fourteen, the ghost-routes fifteen, the jump-door sixteen, the
-    // shares' seventeen, the archive-door story eighteen — all still in
-    // the feed
+    // v2.423.0 hand-over: the lead tells the shelf-door story now; the
+    // supplier-rides story lives one entry down, the order-blocks two, the
+    // supplier-lens three, the drill-mirror four, the expected-day five,
+    // the receive six, the order-handover seven, the order-file eight,
+    // the order-list nine, the org-desk ten, the census-echoes eleven,
+    // the census-speaks twelve, the wire-answers thirteen, the
+    // desk-remembers fourteen, the branch-voice fifteen, the ghost-routes
+    // sixteen, the jump-door seventeen, the shares’ eighteen, the
+    // archive-door story nineteen — all still in the feed
     const lead = WHATS_NEW[0];
-    expect(lead.version).toBe('2.422.0');
-    expect(lead.title).toContain('supplier');
+    expect(lead.version).toBe('2.423.0');
+    expect(lead.title).toContain('shelf');
     expect(lead.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(lead.bullets.some((b) => b.includes('No supplier yet'))).toBe(true);
+    expect(lead.bullets.some((b) => b.includes('provides nothing yet'))).toBe(true);
     const branchVoice = WHATS_NEW.find((e) => e.version === '2.408.0');
     expect(branchVoice?.title).toContain('branch speaks first');
     const ghost = WHATS_NEW.find((e) => e.version === '2.407.0');

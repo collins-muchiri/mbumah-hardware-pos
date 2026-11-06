@@ -20,6 +20,12 @@ import {
   poMetricPredicate, poMetricVoice, poMetricEmptyVoice, poMetricFamily,
   type PoMetricKind, type PoMetricLens,
 } from '@/lib/po-metrics';
+// v2.423.0 THE ARC'S FOURTH WORD — the shelf drill's ONE arithmetic: the
+// summary reads the grouping strip's own reduce, the rows wear the
+// low-stock family (out / low / ok) — never a second copy.
+import {
+  supplierShelfSummary, shelfRowState, shelfShortfall,
+} from '@/lib/product-groups';
 
 import { useAppStore } from '@/lib/stores';
 import {
@@ -50,6 +56,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+// v2.423.0: the shelf drill's own door — a right-side sheet, the roster
+// stays live underneath.
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -1964,6 +1973,11 @@ export default function SuppliersTab() {
   // Send Order dialog state
   const [sendOrderOpen, setSendOrderOpen] = useState(false);
   const [sendOrderSupplier, setSendOrderSupplier] = useState<SupplierItem | null>(null);
+  // v2.423.0 THE ARC'S FOURTH WORD — the shelf drill's door: the
+  // products chip grows the PRESS (the row's own click keeps opening
+  // the full detail drill — the chip answers the narrower question,
+  // "what does this supplier provide", without leaving the roster).
+  const [shelfSupplier, setShelfSupplier] = useState<SupplierItem | null>(null);
 
   // Debounce search input by 300ms so typing doesn't fire a request per keystroke.
   useEffect(() => {
@@ -2320,18 +2334,35 @@ export default function SuppliersTab() {
                       <TableCell className="text-right font-medium">{supplier.purchaseOrderCount || 0}</TableCell>
                       {/* v2.420.0: the arc's answer on the supplier's own row —
                           a zero reads honestly (this supplier provides nothing
-                          yet), never hidden. */}
+                          yet), never hidden.
+                          v2.423.0 THE ARC'S FOURTH WORD: the chip grows the
+                          PRESS — one press opens the shelf drill (a right-side
+                          sheet listing this supplier's products, the roster
+                          staying live underneath). The row's own click still
+                          opens the full detail drill — the chip answers the
+                          narrower question without leaving the roster, so the
+                          press stops the row's propagation. The zero chip is
+                          pressable too: the honest empty shelf is a REAL
+                          face, never a hidden one. */}
                       <TableCell className="text-right">
-                        <span
+                        <button
+                          type="button"
                           data-testid="sup-products-chip"
-                          className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium tabular-nums ${
+                          title={`Open ${supplier.name}'s shelf — the products this supplier provides`}
+                          aria-label={`Open ${supplier.name}'s shelf — ${(supplier.productCount || 0)} product${(supplier.productCount || 0) === 1 ? '' : 's'} provided`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShelfSupplier(supplier);
+                          }}
+                          className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium tabular-nums transition-colors cursor-pointer ${
                             (supplier.productCount || 0) > 0
-                              ? 'bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300'
-                              : 'bg-muted text-muted-foreground'
+                              ? 'bg-sky-100 text-sky-700 hover:bg-sky-200 dark:bg-sky-500/15 dark:text-sky-300 dark:hover:bg-sky-500/25'
+                              : 'bg-muted text-muted-foreground hover:bg-muted/70 dark:hover:bg-muted/50'
                           }`}
                         >
+                          <Package className="h-3 w-3" />
                           {supplier.productCount || 0}
-                        </span>
+                        </button>
                       </TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
@@ -2550,6 +2581,143 @@ export default function SuppliersTab() {
         supplier={sendOrderSupplier}
         storeId={currentStoreId}
       />
+      {/* v2.423.0 THE ARC'S FOURTH WORD: the shelf drill — the chip's own
+          door, keyed by the supplier so a second press on another row
+          opens THAT supplier's shelf fresh (the SendOrderDialog's own
+          keying law). */}
+      <SupplierShelfSheet
+        key={shelfSupplier?.id ?? 'shelf-none'}
+        supplier={shelfSupplier}
+        storeId={currentStoreId}
+        onOpenChange={(open) => {
+          if (!open) setShelfSupplier(null);
+        }}
+      />
     </div>
+  );
+}
+
+/* v2.423.0 THE ARC'S FOURTH WORD — THE SUPPLIER OPENS ITS SHELF.
+ *
+ * The products chip's door: a right-side sheet answering "what does
+ * this supplier provide" without leaving the roster. ONE fetch (the
+ * wire's own supplierId filter — the drill never downloads the whole
+ * catalog), ONE arithmetic (supplierShelfSummary reads the grouping
+ * strip's own reduce; the rows wear shelfRowState's out/low/ok
+ * families), and the honest faces:
+ *   - the summary strip speaks the shelf's voice (N products · M units ·
+ *     KES shelf value) — the SAME numbers the inventory lens's card
+ *     speaks for the same supplier, from the same home;
+ *   - every row wears its family: rose 'Out of stock', amber 'Low —
+ *     stock ≤ reorder', emerald healthy (the inventory desk's own
+ *     low-stock vocabulary, never a second copy);
+ *   - an empty answer reads the honest empty shelf ("provides nothing
+ *     yet") — the zero chip's press keeps its face;
+ *   - the sheet closes without disturbing the roster (no state of the
+ *     desk's own moves — the roster's filters, landing chips and
+ *     selections stay exactly as the human left them).
+ */
+function SupplierShelfSheet({
+  supplier,
+  storeId,
+  onOpenChange,
+}: {
+  supplier: SupplierItem | null;
+  storeId: string;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const { data, isLoading } = useQuery({
+    queryKey: ['supplier-shelf', storeId, supplier?.id],
+    // enabled keeps the fetch honest — the id rides only when the door
+    // names its supplier (no non-null assertion: the lint baseline is
+    // bought, never borrowed).
+    queryFn: () => productsApi.list({ storeId, supplierId: supplier?.id ?? '', limit: 500 }),
+    enabled: !!supplier && !!storeId,
+  });
+
+  const rows: ProductListItem[] = Array.isArray(data?.data) ? data.data : [];
+  // The shelf's own voice — the grouping lib's arithmetic, keyed to THIS
+  // supplier (a stale row never rides the shelf: the helper keeps only
+  // the rows the id claims).
+  const summary = supplier ? supplierShelfSummary(rows, supplier.id) : { products: 0, totalUnits: 0, shelfValue: 0, shelfCost: 0 };
+
+  return (
+    <Sheet open={!!supplier} onOpenChange={onOpenChange}>
+      <SheetContent
+        side="right"
+        className="w-full sm:max-w-lg overflow-y-auto custom-scrollbar"
+        data-testid="sup-shelf-sheet"
+      >
+        <SheetHeader className="pb-2">
+          <SheetTitle className="flex items-center gap-2 text-base">
+            <Avatar className="h-7 w-7">
+              <AvatarFallback className={`bg-gradient-to-br ${supplier ? getAvatarGradient(supplier.name) : ''} text-white text-[10px] font-bold`}>
+                {supplier ? supplier.name.slice(0, 2).toUpperCase() : ''}
+              </AvatarFallback>
+            </Avatar>
+            <span data-testid="sup-shelf-title">{supplier ? `${supplier.name}'s shelf` : 'Shelf'}</span>
+          </SheetTitle>
+          <SheetDescription className="text-xs" data-testid="sup-shelf-summary">
+            {supplier
+              ? `${summary.products} product${summary.products === 1 ? '' : 's'} · ${formatQty(summary.totalUnits)} unit${summary.totalUnits === 1 ? '' : 's'} on the shelf · ${formatKES(summary.shelfValue)} shelf value`
+              : ''}
+          </SheetDescription>
+        </SheetHeader>
+
+        {supplier && (
+          <div className="px-4 pb-6 space-y-2">
+            {isLoading ? (
+              <div className="space-y-2 pt-2">
+                {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-14" />)}
+              </div>
+            ) : rows.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground" data-testid="sup-shelf-empty">
+                <Package className="mx-auto h-8 w-8 mb-2 opacity-40" />
+                <p className="text-sm font-medium">{supplier.name} provides nothing yet</p>
+                <p className="text-xs mt-1">Assign this supplier to a product on the inventory desk and its shelf fills here.</p>
+              </div>
+            ) : (
+              rows.map((p) => {
+                const state = shelfRowState(p.quantityInStock, p.reorderLevel);
+                return (
+                  <div
+                    key={p.id}
+                    data-testid="sup-shelf-row"
+                    data-shelf-state={state}
+                    className={`flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5 transition-colors ${
+                      state === 'out'
+                        ? 'border-rose-200 bg-rose-50/60 dark:border-rose-500/25 dark:bg-rose-500/10'
+                        : state === 'low'
+                          ? 'border-amber-200 bg-amber-50/60 dark:border-amber-500/25 dark:bg-amber-500/10'
+                          : 'border-border/60 bg-card hover:bg-muted/40'
+                    }`}
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">{p.name}</p>
+                      <p className="text-xs text-muted-foreground font-mono">{p.sku}</p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-sm font-semibold tabular-nums">{formatQty(p.quantityInStock)}</p>
+                      <p
+                        className={`text-[11px] leading-tight ${
+                          state === 'out'
+                            ? 'text-rose-600 dark:text-rose-400'
+                            : state === 'low'
+                              ? 'text-amber-600 dark:text-amber-400'
+                              : 'text-emerald-600 dark:text-emerald-400'
+                        }`}
+                      >
+                        {state === 'out' ? 'Out of stock' : state === 'low' ? `Low — owes ${formatQty(shelfShortfall(p.quantityInStock, p.reorderLevel))} to reorder` : 'Healthy'}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground tabular-nums">{formatKES(p.pricePerUnit)}</p>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        )}
+      </SheetContent>
+    </Sheet>
   );
 }

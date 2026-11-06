@@ -294,29 +294,29 @@ describe('the address-bar vocabulary — the thirtieth row (cross-suite pins)', 
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.422.0 leads the feed', () => {
+describe('whats-new — v2.423.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.422.0');
-    // the lead's story hand-over (v2.422.0, the Task 111 law's twenty-eighth
-    // application): the head story is the hand-over's voice — the walk's
-    // order knows its maker: the banner's Send face folds the supplier
-    // names into the handoff pocket (every line's maker rides, absent
-    // lines ride null) and the purchase-order desk's create form dresses
-    // the supplier pen itself when every carried line names the same
-    // maker (the walk's order arrives supplier-aware — the shelf's own
-    // link is the only voice, a stale pocket never names a live order);
-    // two makers, or a maker and an absence, and the pen stays the
-    // actor's (the honest absence, never a majority's guess). The
-    // carriage strip wears the sky chip ('via {name}') and speaks 'the
-    // order names {name}' — the chip retires the moment the actor names
-    // a different supplier — and the send toast speaks 'for {name}'.
-    // The order-blocks story exits the head this round; the
-    // supplier's ride carries the eye.
-    expect(head.title).toContain('maker');
+    expect(head.version).toBe('2.423.0');
+    // the lead's story hand-over (v2.423.0, the Task 111 law's twenty-ninth
+    // application): the head story is the hand-over's voice — the
+    // supplier opens its shelf: the Products chip grows the PRESS and a
+    // right-side shelf drill answers 'what does this supplier provide'
+    // without leaving the roster (the row's own click stays the detail
+    // drill; the zero chip's press keeps its honest empty face —
+    // 'provides nothing yet'). The summary reads the grouping strip's
+    // OWN reduce keyed to the supplier (one home — a stale wire row
+    // never rides another supplier's shelf), the rows wear the
+    // inventory desk's low-stock family (out / low / ok, the owed units
+    // floored at zero), and the wire grew the door too (/products
+    // answers ONE supplier's roster — the drill never downloads the
+    // whole catalog).
+    // The supplier-rides story exits the head this round; the
+    // shelf's door carries the eye.
+    expect(head.title).toContain('shelf');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('supplier pen'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('No supplier yet'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('stale pocket never names a live order'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('PRESS'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('provides nothing yet'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('stale row never rides'))).toBe(true);
   });
 });

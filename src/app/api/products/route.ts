@@ -73,6 +73,20 @@ async function getProductsHandler(
     where.categoryId = categoryId;
   }
 
+  // v2.423.0 THE ARC'S FOURTH WORD — the shelf's own door: the wire
+  // answers ONE supplier's products (the suppliers desk's drill-down
+  // fetches its roster through this same home). Additive, mirroring the
+  // categoryId filter's own shape: an absent/empty param reads "no
+  // filter" (every older caller rides unchanged); a value narrows the
+  // where. The 'none' absence key stays a CLIENT lens word (the
+  // inventory strip's grouping) and never reaches the wire — the drill
+  // always asks by the supplier's real id, and an empty answer is the
+  // honest empty shelf.
+  const supplierId = searchParams.get('supplierId') || '';
+  if (supplierId) {
+    where.supplierId = supplierId;
+  }
+
   if (isRental !== null && isRental !== undefined) {
     where.isRental = isRental === 'true';
   }

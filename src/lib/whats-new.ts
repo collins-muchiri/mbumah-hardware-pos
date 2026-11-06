@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.423.0',
+    title: 'The supplier opens its shelf \u2014 the Products chip is a door to what it provides',
+    bullets: [
+      'The suppliers desk\u2019s Products chip grew the PRESS: one press opens a right-side shelf drill listing every product that supplier provides \u2014 name, SKU, units on the shelf, and each row\u2019s own family (Out of stock / Low — owes N to reorder / Healthy) \u2014 without leaving the roster (the row\u2019s own click still opens the full detail drill).',
+      'The shelf\u2019s summary speaks the lens\u2019s own numbers: N products · M units · KES shelf value, read from the SAME arithmetic the inventory strip speaks \u2014 one home, and a stale row never rides another supplier\u2019s shelf.',
+      'The wire grew the door too: /products answers ONE supplier\u2019s roster, so the drill never downloads the whole catalog \u2014 and an empty answer reads the honest empty shelf (\u201cprovides nothing yet\u201d): the zero chip\u2019s press keeps its face.',
+    ],
+  },
+  {
     version: '2.422.0',
     title: 'The walk\u2019s order knows its maker \u2014 the supplier rides from the banner into the PO desk\u2019s pen',
     bullets: [

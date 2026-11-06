@@ -1,3 +1,14 @@
+## [2.423.0] The supplier opens its shelf
+
+v2.420.0 taught the shelf to remember its supplier and the suppliers desk to speak the roster's size; this round the chip becomes the door: one press on a supplier's Products chip opens its shelf — every product it provides, each row wearing the inventory desk's own low-stock family, and the summary reading the SAME arithmetic the lens speaks.
+
+### Added
+- **THE ARC'S FOURTH WORD** (`src/app/(shell)/tabs/suppliers-tab.tsx`): the Products chip (`sup-products-chip`) grows the PRESS — a right-side shelf drill (`SupplierShelfSheet`, testids `sup-shelf-sheet` / `sup-shelf-title` / `sup-shelf-summary` / `sup-shelf-row` / `sup-shelf-empty`) listing that supplier's products (name, SKU, units, price) with each row's family (rose `Out of stock` / amber `Low — owes N to reorder` / emerald `Healthy`, `data-shelf-state`). The row's own click still opens the full detail drill; the zero chip stays pressable — the honest empty shelf ("provides nothing yet") is a REAL face.
+- **THE SHELF'S ARITHMETIC** (`src/lib/product-groups.ts`): `supplierShelfSummary` (the drill's summary reads `buildSupplierGroups`' own reduce keyed to THIS supplier — a stale wire row never rides another supplier's shelf), `shelfRowState` (`'ok' | 'low' | 'out'`, the boundary AT the level is owed; the string grace — `"9"` vs 10 reads the owed shelf, never `"9" > "10"`), and `shelfShortfall` (the owed units, floored at zero — a healthy shelf owes nothing).
+
+### Changed
+- **THE WIRE'S DOOR** (`src/app/api/products/route.ts` + `productsApi.list`): the products list answers ONE supplier's roster (`?supplierId=`) — additive, mirroring the `categoryId` filter's own shape; the drill never downloads the whole catalog to count one supplier's shelf.
+
 ## [2.422.0] The walk's order knows its maker
 
 v2.421.0 taught the restock order to ride with its supplier; this round the ride goes the whole way: the banner's Send face folds the supplier names into the handoff pocket, and the purchase-order desk's create form dresses the supplier pen itself when every carried line names the same maker — the walk's order arrives supplier-aware.
