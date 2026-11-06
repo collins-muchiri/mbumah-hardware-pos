@@ -15,13 +15,17 @@
  */
 
 /** One row the order list speaks. Shaped from ProductListItem (the wire's
- *  own fields — the wire carries no supplier on this desk, so the list
- *  names none: honesty over invention). */
+ *  own fields). v2.421.0 THE ARC'S SECOND WORD: the row may carry its
+ *  supplier's NAME (the wire hydrates it since v2.420.0) — the order's
+ *  blocks read it. Undefined/null = the caller's world doesn't know (an
+ *  older caller) or the product has none (the honest absence) — the
+ *  formatter never invents a fact the caller didn't hand it. */
 export interface RestockRow {
   sku: string;
   name: string;
   onHand: number;
   reorderLevel: number;
+  supplierName?: string | null;
 }
 
 /** The units the floor orders in — the wire's unitType, honestly passed
@@ -87,7 +91,33 @@ export function formatRestockLine(row: RestockRow): string {
  *   [LOW] Cement 32.5N (SKU CEM-32) — on hand 4 / reorder 10 — order 6
  *
  * The count line speaks its grammar honestly (1 item needs attention /
- * N items need attention) — the ledger-citation family's plural law. */
+ * N items need attention) — the ledger-citation family's plural law.
+ *
+ * v2.421.0 THE ARC'S SECOND WORD — the order rides with its supplier.
+ * TWO faces, chosen by the INPUT's own shape (the formatter never
+ * invents a fact the caller didn't hand it):
+ *
+ *  - THE FLAT FACE (byte-stable, the v2.414 lines): when NO row names a
+ *    supplier, the caller's world simply doesn't carry suppliers — the
+ *    order speaks the flat list exactly as it always has. An absence
+ *    block invented for a world that never named a supplier would be a
+ *    lie.
+ *  - THE BLOCKS FACE: when the world names ANY supplier, the order
+ *    groups into per-supplier blocks — one block per supplier, ready to
+ *    paste into THAT supplier's chat:
+ *
+ *      Bamburi Cement Ltd:
+ *      [OUT] ... — order 50
+ *
+ *      No supplier yet:
+ *      [LOW] ... — order 60
+ *
+ *    Named blocks sort alphabetically (a stable, honest paste order);
+ *    the honest-absence block (NO_SUPPLIER_ORDER_LABEL) always rides
+ *    LAST when the world itself carries unassigned rows; the lines keep
+ *    the selector's own sort inside each block (out first, deepest gap,
+ *    sku word); a blank line separates blocks; the header and the count
+ *    stay global. */
 export function formatRestockOrder(input: RestockOrderInput): string | null {
   const rows = restockRowsNeedingAttention(input.rows);
   if (rows.length === 0) return null;
@@ -98,8 +128,49 @@ export function formatRestockOrder(input: RestockOrderInput): string | null {
     `Branch: ${input.storeName} · ${input.dateLabel}`,
     countLine,
   ].join('\n');
-  const lines = rows.map(formatRestockLine);
-  return [header, '', ...lines].join('\n');
+  const knowsSuppliers = rows.some(
+    (r) => typeof r.supplierName === 'string' && r.supplierName.trim() !== '',
+  );
+  if (!knowsSuppliers) {
+    return [header, '', ...rows.map(formatRestockLine)].join('\n');
+  }
+  const named = new Map<string, RestockRow[]>();
+  const absence: RestockRow[] = [];
+  for (const r of rows) {
+    const name = r.supplierName?.trim();
+    if (name) {
+      const bucket = named.get(name);
+      if (bucket) bucket.push(r);
+      else named.set(name, [r]);
+    } else {
+      absence.push(r);
+    }
+  }
+  const blockNames = [...named.keys()].sort((a, b) => a.localeCompare(b));
+  const blocks: string[][] = blockNames.map((name) => {
+    const bucket = named.get(name);
+    return [`${name}:`, ...(bucket ?? []).map(formatRestockLine)];
+  });
+  if (absence.length > 0) {
+    blocks.push([`${NO_SUPPLIER_ORDER_LABEL}:`, ...absence.map(formatRestockLine)]);
+  }
+  return [header, '', blocks.map((b) => b.join('\n')).join('\n\n')].join('\n');
+}
+
+/** The honest absence's own voice in the blocks face — the block header
+ *  the unassigned rows ride under. Never a guessed supplier name. */
+export const NO_SUPPLIER_ORDER_LABEL = 'No supplier yet';
+
+/** The order's own supplier census: how many DISTINCT named suppliers the
+ *  order actually rides with (the banner chip's voice; the absence never
+ *  counts — a product with no supplier is not a supplier). */
+export function restockSupplierCount(rows: RestockRow[]): number {
+  const names = new Set<string>();
+  for (const r of restockRowsNeedingAttention(rows)) {
+    const name = r.supplierName?.trim();
+    if (name) names.add(name);
+  }
+  return names.size;
 }
 
 /** THE FILE'S NAME (v2.415.0) — the download face's pure twin, the support
