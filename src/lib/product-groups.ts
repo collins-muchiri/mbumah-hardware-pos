@@ -12,6 +12,13 @@
 // times — a string arrival can never lie here, even if another wire
 // leaks one (defense in depth: the wire AND the lib both coerce).
 
+// v2.424.0: the owed arithmetic reads the order list's own law
+// (restockNeedsAttention — the nothing-to-order shape) and its gap
+// (reorderGap), ONE home: the census and the fold can never disagree
+// with the inventory banner's own voice. stock-order is PURE
+// (client-safe, zero imports) — the read stays on the client side.
+import { reorderGap, restockNeedsAttention, type RestockRow } from '@/lib/stock-order';
+
 /** The shape the grouping lib needs — a superset of the products wire's
  *  own faces (quantityInStock/pricePerUnit arrive coerced numbers from
  *  /api/products, but the lib accepts strings too, per the grace). */
@@ -23,6 +30,15 @@ export interface SupplierGroupProduct {
   quantityInStock: number | string;
   pricePerUnit: number | string;
   costPrice?: number | string | null;
+}
+
+/** v2.424.0: the reorder action's own shape — a grouping row that also
+ *  carries the two fields the order needs (the SKU the pocket's honest
+ *  map matches by, the level the gap reads). The wire's ProductListItem
+ *  satisfies it as-is; the lib never widens the wire's own faces. */
+export interface ShelfReorderProduct extends SupplierGroupProduct {
+  sku: string;
+  reorderLevel: number | string;
 }
 
 /** The honest absence: the group key products with no supplier carry. */
@@ -222,4 +238,46 @@ export function shelfShortfall(
   reorderLevel: number | string,
 ): number {
   return Math.max(num(reorderLevel) - num(quantityInStock), 0);
+}
+
+/** v2.424.0 THE ARC'S FIFTH WORD — the shelf's owed rows, the reorder
+ *  action's ONE arithmetic. The drill's sheet answers "what does this
+ *  supplier provide"; its action answers "what does this supplier's
+ *  shelf OWE". The rows the pocket carries are the id-claimed rows
+ *  whose shelf sits at/below its reorder level AND asks for a positive
+ *  gap — restockNeedsAttention's own nothing-to-order law (an
+ *  out-of-stock row with reorder level 0 has no order to place: an
+ *  order line asking for 0 units would be a lie with a checkbox), so
+ *  the census and the fold can never disagree. The supplier's name
+ *  rides the row (the wire's own voice) so the pocket's census speaks
+ *  the maker; the honest absence stays null. The grace coerces every
+ *  number before the comparison — a Decimal-as-string arrival reads
+ *  the owed shelf, never the lexicographic wound ("9" vs 10).
+ *
+ *  @remarks the rows are NOT trusted pre-filtered (the shelf summary's
+ *  own law): a stale wire row can never ride another supplier's order
+ *  — the id is the truth. */
+export function shelfOwedRows(
+  products: readonly ShelfReorderProduct[],
+  supplierId: string,
+): RestockRow[] {
+  return products
+    .filter((p) => p.supplierId === supplierId)
+    .map((p) => ({
+      sku: p.sku,
+      name: p.name,
+      onHand: num(p.quantityInStock),
+      reorderLevel: num(p.reorderLevel),
+      supplierName: p.supplier?.name ?? null,
+    }))
+    .filter((row) => restockNeedsAttention(row));
+}
+
+/** The owed census's unit voice — the fold's own total ask, one home:
+ *  every carried row's gap back to its reorder level, summed (each gap
+ *  already floored by reorderGap — a healthy row never rides, so the
+ *  sum is the order's weight, never a negative debt). An empty carry
+ *  reads the honest zero. */
+export function shelfOwedUnits(owed: readonly RestockRow[]): number {
+  return owed.reduce((sum, row) => sum + reorderGap(row), 0);
 }
