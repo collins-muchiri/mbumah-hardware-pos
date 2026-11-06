@@ -62,6 +62,13 @@ export interface OrderHandoffPoItem {
   quantity: string;
   unitCost: string;
   currentStock: number;
+  /** v2.425.0 THE ROW'S OWN MAKER: the LIVE shelf's link names the row
+   *  (the wire's nested face — the same voice the pre-pick's ledger
+   *  reads). Undefined/null = the honest absence: an older map's row, a
+   *  product the shelf left unnamed, the sheet's own world. The
+   *  envelope's names never feed it — a stale pocket must not name a
+   *  live order (the v2.422 law, now per-row). */
+  supplierName?: string | null;
 }
 
 /** Fold the banner's rows into an envelope. Pure: the caller owns the
@@ -197,6 +204,10 @@ export function mapOrderHandoffToPoItems(
       // actor's own typed truth), never the string "null" or a fake 0.
       unitCost: product.costPrice != null ? String(product.costPrice) : '',
       currentStock: product.quantityInStock,
+      // v2.425.0 THE ROW'S OWN MAKER — the live shelf's link names the
+      // row (the ledger's own read below shares this face): the
+      // envelope's names never feed it, the pre-pick's own law.
+      supplierName: product.supplier?.name ?? null,
     });
     // THE PRE-PICK'S LEDGER: collect every mapped line's own maker; a
     // single unnamed line dissolves the pre-pick for the WHOLE order —

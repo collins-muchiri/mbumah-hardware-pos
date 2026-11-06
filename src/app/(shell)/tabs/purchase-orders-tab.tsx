@@ -20,7 +20,7 @@ import { handleError } from '@/lib/error-handler';
 // reader — the tab consumes the envelope ONCE at mount (one-way), and the
 // dialog maps the carried rows into its own editable rows through the
 // pure mapper (the honest dropped count included).
-import { consumeOrderHandoff, mapOrderHandoffToPoItems, type OrderHandoffPayload } from '@/lib/order-handoff';
+import { consumeOrderHandoff, mapOrderHandoffToPoItems, type OrderHandoffPayload, type OrderHandoffPoItem } from '@/lib/order-handoff';
 // v2.417.0 THE RECEIVE'S FILL — the receive dialog's one home: the pens'
 // initial fill, each row's honest state (the short face included), and
 // the plan the strip speaks before the actor commits (pure, tested).
@@ -310,9 +310,10 @@ function CreatePODialog({
   // suggestion's voice retires (the pen stays the actor's).
   const [suggestedDay, setSuggestedDay] = useState<string | null>(null);
   const [notes, setNotes] = useState('');
-  const [poItems, setPoItems] = useState<
-    { productId: string; name: string; sku: string; quantity: string; unitCost: string; currentStock: number }[]
-  >([]);
+  // v2.425.0: the rows wear the pocket's own seed shape (ONE home —
+  // OrderHandoffPoItem), so the carried rows and the hand-built rows
+  // speak the same fields, the maker riding since v2.425.0.
+  const [poItems, setPoItems] = useState<OrderHandoffPoItem[]>([]);
   const [productSearch, setProductSearch] = useState('');
   const [lowStockLoading, setLowStockLoading] = useState(false);
   // v2.248.0: the birth's reading — the sheet's own truth for the provenance
@@ -414,6 +415,10 @@ function CreatePODialog({
         // never the string "null".
         unitCost: product.costPrice != null ? String(product.costPrice) : '',
         currentStock: product.quantityInStock,
+        // v2.425.0 THE ROW'S OWN MAKER — the shelf's own link, the same
+        // voice every row reads (the actor picked this product, and the
+        // row still tells them who makes it).
+        supplierName: product.supplier?.name ?? null,
       },
     ]);
     setProductSearch('');
@@ -439,6 +444,9 @@ function CreatePODialog({
         // v2.250.0: the empty pen past the gate (never the "null" string).
         unitCost: p.costPrice != null ? String(p.costPrice) : '',
         currentStock: p.quantityInStock,
+        // v2.425.0 THE ROW'S OWN MAKER — the shelf's own link rides the
+        // low-stock adds too (one voice, every row).
+        supplierName: p.supplier?.name ?? null,
       }));
       setPoItems([...poItems, ...newItems]);
       toast.success(`Added ${newItems.length} low-stock item${newItems.length > 1 ? 's' : ''}`);
@@ -489,7 +497,7 @@ function CreatePODialog({
           return;
         }
         const lines = Array.isArray(sheet.lines) ? sheet.lines : [];
-        const picks: { productId: string; name: string; sku: string; quantity: string; unitCost: string; currentStock: number }[] = [];
+        const picks: OrderHandoffPoItem[] = [];
         let units = 0;
         for (const l of lines) {
           const variance = l?.variance == null ? null : Number(l.variance);
@@ -847,6 +855,20 @@ function CreatePODialog({
                         </span>
                       )}
                     </p>
+                    {/* v2.425.0 THE ROW'S OWN MAKER — the sky census family
+                        the strip's chip taught: every row that knows its
+                        maker speaks it (the live shelf's link, never the
+                        pocket's names), so a mixed order's rows carry
+                        their own suppliers where the actor can see them. */}
+                    {item.supplierName && (
+                      <p
+                        data-testid="po-row-supplier"
+                        className="mt-0.5 flex items-center gap-1 text-[11px] text-sky-700 dark:text-sky-400"
+                      >
+                        <Truck className="h-3 w-3 shrink-0" aria-hidden="true" />
+                        via {item.supplierName}
+                      </p>
+                    )}
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <div className="w-16">
