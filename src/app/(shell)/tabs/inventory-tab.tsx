@@ -18,7 +18,7 @@ import { formatQtyWithUnit } from '@/lib/utils/financialMath';
 // THE ORDER LIST (v2.414.0): the banner's copy face speaks a plain-text
 // restock order through this pure voice — the same honest-absence law as
 // the support copy family (null when nothing needs attention).
-import { formatRestockOrder, restockRowsNeedingAttention, type RestockRow } from '@/lib/stock-order';
+import { formatRestockOrder, restockOrderFileName, restockRowsNeedingAttention, type RestockRow } from '@/lib/stock-order';
 import { STORE_LIST } from '@/lib/store-info';
 import { useSendPrompt } from '@/components/send-prompt-dialog';
 import { unitLabel } from '@/lib/units';
@@ -244,6 +244,66 @@ function CopyOrderListButton({ storeName, rows, dateLabel }: { storeName: string
 function initialStockLens(): string {
   if (typeof window === 'undefined') return 'all';
   return parseInitialNamedMember(window.location.search, 'inv-stock', INV_STOCK_FILTERS, 'all');
+}
+
+// THE ORDER LIST'S DOWNLOAD FACE (v2.415.0) — the copy face's sibling, the
+// support-file family's pattern (the health desk's DownloadDiagnostics
+// button): the same order bytes leave as a NAMED text file — the branch's
+// slug, the date and the minute ride in the name so two branches' orders on
+// the same day never argue about which file is which. Download → a
+// two-second Saved hand-back → Download again; the icon swaps with the
+// label; the resting face rides the banner's amber family and the Saved
+// beat wears the emerald success family; a refused save answers with an
+// honest toast; the Blob's object URL revokes itself.
+function DownloadOrderButton({ storeName, storeSlug, rows, dateLabel }: { storeName: string; storeSlug: string; rows: RestockRow[]; dateLabel: string }) {
+  const [saved, setSaved] = useState(false);
+  React.useEffect(() => {
+    if (!saved) return;
+    const t = window.setTimeout(() => setSaved(false), 2000);
+    return () => window.clearTimeout(t);
+  }, [saved]);
+  const onDownload = () => {
+    try {
+      const order = formatRestockOrder({ storeName, dateLabel, rows });
+      if (!order) return;
+      const name = restockOrderFileName(storeSlug, new Date());
+      const blob = new Blob([order], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setSaved(true);
+    } catch {
+      toast.error('Could not save the order file — the browser refused.');
+    }
+  };
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="sm"
+      data-testid="inv-order-download"
+      onClick={onDownload}
+      title="Save the restock order as a text file — ready to attach to an email or a purchase order"
+      aria-label={saved
+        ? 'Restock order file saved.'
+        : `Download the restock order (${rows.length} item${rows.length === 1 ? '' : 's'}) as a text file`}
+      className={`h-7 gap-1.5 rounded-md px-2 text-xs transition-colors ${
+        saved
+          ? 'border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300 dark:hover:bg-emerald-900/40'
+          : 'border-amber-300 text-amber-800 hover:bg-amber-100 hover:text-amber-900 dark:border-amber-700 dark:text-amber-200 dark:hover:bg-amber-900/40'
+      }`}
+    >
+      {saved
+        ? <Check className="h-3 w-3" aria-hidden="true" />
+        : <Download className="h-3 w-3" aria-hidden="true" />}
+      {saved ? 'Saved' : 'Download'}
+    </Button>
+  );
 }
 
 export default function InventoryTab() {
@@ -679,7 +739,9 @@ export default function InventoryTab() {
   // derivations, deliberately hook-less — the desk's rows are small and
   // the lint baseline holds (455).
   const orderRows = restockRowsNeedingAttention(allProducts.map((p) => ({ sku: p.sku, name: p.name, onHand: p.quantityInStock, reorderLevel: p.reorderLevel })));
-  const orderStoreName = STORE_LIST.find((s) => s.id === currentStoreId)?.name ?? 'MBUMAH HARDWARE';
+  const orderStore = STORE_LIST.find((s) => s.id === currentStoreId);
+  const orderStoreName = orderStore?.name ?? 'MBUMAH HARDWARE';
+  const orderStoreSlug = orderStore?.slug ?? 'order';
   const orderDateLabel = formatDate(new Date().toISOString());
   // v2.12.5 RBAC: with cost prices stripped (null), the stock value is
   // meaningless - hide it behind "•••" instead of showing a fake 0.
@@ -905,6 +967,9 @@ export default function InventoryTab() {
                 already gated on the same counts). */}
             {orderRows.length > 0 && (
               <CopyOrderListButton storeName={orderStoreName} rows={orderRows} dateLabel={orderDateLabel} />
+            )}
+            {orderRows.length > 0 && (
+              <DownloadOrderButton storeName={orderStoreName} storeSlug={orderStoreSlug} rows={orderRows} dateLabel={orderDateLabel} />
             )}
             {outOfStockCount > 0 && (
               <Button variant="outline" size="sm" className="h-7 text-xs border-red-300 dark:border-red-700 text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30" onClick={() => { setStockFilter('out'); setLandingLive(false); }}>
