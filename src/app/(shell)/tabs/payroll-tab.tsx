@@ -652,7 +652,10 @@ function EmployeesSubTab({ storeId }: { storeId: string }) {
   });
 
   const terminateMutation = useMutation({
-    mutationFn: (id: string) => apiFetch(`/api/employees/${id}`, { method: 'DELETE' }),
+    // v2.411.0: the generic names the envelope the mutation actually
+    // resolves — TData can no longer be inferred as `unknown`.
+    mutationFn: (id: string) =>
+      apiFetch<{ message?: string; data?: { fullName?: string } }>(`/api/employees/${id}`, { method: 'DELETE' }),
     onSuccess: (res: { message?: string; data?: { fullName?: string } }) => {
       toast.success(res?.message || 'Employee terminated - payroll history preserved');
       qc.invalidateQueries({ queryKey: ['payroll-employees', storeId] });

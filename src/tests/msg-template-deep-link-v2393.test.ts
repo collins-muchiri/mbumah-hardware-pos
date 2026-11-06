@@ -310,24 +310,24 @@ describe('the address-bar vocabulary — the thirty-second row (cross-suite pins
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.410.0 leads the feed', () => {
+describe('whats-new — v2.411.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.410.0');
-    // the lead's story hand-over (v2.410.0, the Task 111 law's sixteenth
-    // application): the head story is the wire's voice — BUG 1, carried
-    // since Task 125, closed with four instrumented browser bursts: the
-    // switcher's open-gated queries never fetched on the console and org
-    // desks (menu open, zero requests), so the wires answer on mount and
-    // the open is pure display again; the footer's rate census strip
-    // counts the rows by provenance beside an age voice, and the
-    // dropdown wears its styling round.
-    // The desk's story exits the head this round; the wire
+    expect(head.version).toBe('2.411.0');
+    // the lead's story hand-over (v2.411.0, the Task 111 law's seventeenth
+    // application): the head story is the census's voice — v2.410.0's rate
+    // census strip gains its honest follow-through: an all-factory census
+    // renders a quiet amber invitation naming the door that fixes it (the
+    // Exchange Rates card on the System tab), a maintained census stays
+    // silent (no nagging), the strip's tone follows its census, and the
+    // payroll engine's six money inputs are coerced at the boundary
+    // (eight strict-mode faces stand down).
+    // The wire's story exits the head this round; the census
     // carries the eye.
-    expect(head.title).toContain('wire answers');
+    expect(head.title).toContain('census speaks first');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('open-gated queries never fetched'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('census strip'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('emerald rail'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('factory figure'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('amber invitation'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('strict-mode faces'))).toBe(true);
   });
 });
