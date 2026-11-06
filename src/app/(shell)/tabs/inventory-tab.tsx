@@ -23,7 +23,7 @@ import { formatQtyWithUnit } from '@/lib/utils/financialMath';
 // THE ORDER LIST (v2.414.0): the banner's copy face speaks a plain-text
 // restock order through this pure voice — the same honest-absence law as
 // the support copy family (null when nothing needs attention).
-import { formatRestockOrder, restockOrderFileName, restockRowsNeedingAttention, type RestockRow } from '@/lib/stock-order';
+import { formatRestockOrder, restockOrderFileName, restockRowsNeedingAttention, restockSupplierCount, type RestockRow } from '@/lib/stock-order';
 // THE ORDER'S HANDOFF (v2.416.0): the banner's third face folds the same
 // rows into a pocket the purchase-order desk reads once — the pure laws
 // (shape, store, one-way, honest map) live there; this face only folds
@@ -233,7 +233,7 @@ function CopyOrderListButton({ storeName, rows, dateLabel }: { storeName: string
       size="sm"
       data-testid="inv-order-copy"
       onClick={onCopy}
-      title="Copy the restock order as plain text — ready to paste into a supplier chat"
+      title="Copy the restock order as plain text — one block per supplier, ready to paste into each supplier's chat"
       aria-label={copied
         ? 'Restock order copied to the clipboard.'
         : `Copy the restock order (${rows.length} item${rows.length === 1 ? '' : 's'}) as text`}
@@ -818,7 +818,11 @@ export default function InventoryTab() {
   // fallback when the wire carries a store the list has not met. Plain
   // derivations, deliberately hook-less — the desk's rows are small and
   // the lint baseline holds (455).
-  const orderRows = restockRowsNeedingAttention(allProducts.map((p) => ({ sku: p.sku, name: p.name, onHand: p.quantityInStock, reorderLevel: p.reorderLevel })));
+  const orderRows = restockRowsNeedingAttention(allProducts.map((p) => ({ sku: p.sku, name: p.name, onHand: p.quantityInStock, reorderLevel: p.reorderLevel, supplierName: p.supplier?.name ?? null })));
+  // v2.421.0 THE ARC'S SECOND WORD: the banner's chip voice — how many
+  // DISTINCT named suppliers the order rides with (the absence never
+  // counts; a world that knows no suppliers stays chip-silent).
+  const orderSupplierCount = restockSupplierCount(orderRows);
   const orderStore = STORE_LIST.find((s) => s.id === currentStoreId);
   const orderStoreName = orderStore?.name ?? 'MBUMAH HARDWARE';
   const orderStoreSlug = orderStore?.slug ?? 'order';
@@ -1041,6 +1045,15 @@ export default function InventoryTab() {
               {lowStockCount > 0 && `${lowStockCount} low stock`}
             </span>
             <span className="text-amber-700 dark:text-amber-400"> - items need attention</span>
+            {/* v2.421.0 THE ARC'S SECOND WORD: the order's supplier census —
+                the sky family (the lens's own voice). Only when the world
+                NAMES suppliers: a chip invented for a supplier-less world
+                would be a lie. */}
+            {orderSupplierCount > 0 && (
+              <span data-testid="inv-order-suppliers" className="ml-2 inline-flex items-center rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-semibold text-sky-700 dark:bg-sky-500/15 dark:text-sky-300" title="The order below groups itself into one block per supplier — each block is ready to paste into that supplier's chat">
+                via {orderSupplierCount} supplier{orderSupplierCount === 1 ? '' : 's'}
+              </span>
+            )}
           </div>
           <div className="flex gap-2">
             {/* v2.414.0 THE ORDER LIST: the banner's first action — the list

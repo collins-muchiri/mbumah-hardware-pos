@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.421.0',
+    title: 'The restock order rides with its supplier \u2014 one block per supplier, ready for each chat',
+    bullets: [
+      'The low-stock banner\u2019s restock order grew the blocks face: when the shelf\u2019s world names suppliers, the copied text (and the downloaded file) groups itself into ONE BLOCK PER SUPPLIER \u2014 each block headed by the supplier\u2019s own name, ready to paste straight into THAT supplier\u2019s chat; no more re-typing the list per order.',
+      'The honest absence rides its own block: products with no supplier yet answer \u201cNo supplier yet:\u201d (always last, never hidden) \u2014 and a world that never names suppliers reads the flat order byte-for-byte as before (the formatter never invents a fact the caller didn\u2019t hand it).',
+      'The banner wears the census: a sky chip speaks \u201cvia N suppliers\u201d next to the item count (only when the order actually rides with suppliers \u2014 the absence never counts), and the copy button\u2019s own title tells the truth about the blocks.',
+      'Under the hood: one pure home grew the grouping (the selector\u2019s own sort holds inside every block, named blocks sort alphabetically, the count line stays global) \u2014 pinned byte-for-byte, and the new suite caught a real char-splitting bug before it ever shipped.',
+    ],
+  },
+  {
     version: '2.420.0',
     title: 'The shelf remembers its supplier \u2014 the inventory desk answers \u201cwho provides this?\u201d',
     bullets: [

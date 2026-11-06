@@ -1,3 +1,18 @@
+## [2.421.0] The restock order rides with its supplier
+
+v2.420.0 taught the shelf to remember its supplier; this round the restock order — the banner's copy/download faces — rides with it: one block per supplier, ready to paste into THAT supplier's chat, with the honest absence riding its own block last.
+
+### Added
+- **THE ARC'S SECOND WORD** (`src/lib/stock-order.ts`): `formatRestockOrder`'s **blocks face** — when the rows' world names ANY supplier, the copied text and the downloaded file group into per-supplier blocks (`Bamburi Cement Ltd:` → its lines), named blocks alphabetical, the honest-absence block (`No supplier yet:`) always LAST, the selector's own sort holding inside every block, a blank line between blocks, and the header + count line staying global. `RestockRow` grows `supplierName?`; `restockSupplierCount` is the census (DISTINCT named suppliers only — the absence never counts).
+
+### Changed
+- **TWO FACES, ONE LAW** (the honesty round): a world that never names suppliers reads the FLAT order byte-for-byte as v2.414 shipped it — the formatter never invents a fact the caller didn't hand it (an absence block invented for a supplier-less world would be a lie); the v2.414/v2.415 suites pass UNTOUCHED (the flat face's regression proof).
+- **THE BANNER'S CENSUS** (the styling round): a sky chip (testid `inv-order-suppliers`) speaks "via N suppliers" beside the item count — only when the order actually rides with suppliers — and the copy button's title tells the truth ("one block per supplier, ready to paste into each supplier's chat").
+- **THE DESK'S ROWS**: the inventory mapping now hands the formatter the wire's supplier name (`supplierName: p.supplier?.name ?? null`) — the copy, download and send faces all read the same rows (one home).
+
+### Fixed
+- **THE CHAR-SPLITTING SPREAD** (caught by the new suite before it shipped): the blocks' first draft spread the JOINED BLOCKS STRING into the outer array (`...str` → characters) — every byte of the order would have ridden its own line; the suite's byte-pins caught it, the fix is one spread less.
+
 ## [2.420.0] The shelf remembers its supplier
 
 v2.419.0 taught the drill to speak the receive's truth. This round opens THE ARC: the product grows its own supplier link, and both desks that meet it — the inventory shelf and the suppliers ledger — learn to answer "who provides this?" from the same one home.
