@@ -205,16 +205,19 @@ describe('v2.210.0 — the rates route speaks its own history', () => {
 describe('v2.210.0 — the currency switcher speaks each rate\u2019s source', () => {
   const sw = read(SWITCHER_PATH);
 
-  it('the wire is fetched lazily on the FIRST open — never on mount', () => {
-    expect(sw).toContain('<DropdownMenu onOpenChange={handleOpenChange}>');
-    // v2.212.0: the lazy gate rides the shared query cache now — the query
-    // stays DISABLED until the first open (same law, new machinery).
-    expect(sw).toContain('enabled: opened,');
-    expect(sw).toContain('const [opened, setOpened] = useState(false);');
+  it('the wire answers on mount — the laziness retired by the v2.410.0 mount law', () => {
+    expect(sw).toContain('<DropdownMenu>');
+    // v2.212.0 moved the open gate onto the shared query cache; v2.410.0
+    // retired the gate entirely — the open-state race left the queries
+    // permanently silent on the console/org desks (browser-proven: menu
+    // open, zero requests). The wire answers on mount now.
+    expect(sw).toContain('enabled: true,');
+    expect(sw).not.toContain('enabled: opened,');
     expect(sw).toContain("authedFetch('/api/currency/rates')");
-    // No mount-time fetch: no useEffect around the fetch in this component.
-    const fn = sw.slice(sw.indexOf('const handleOpenChange'), sw.indexOf('const handleSelect'));
-    expect(fn).not.toContain('useEffect');
+    // The fetch is the queryFn's own — no effect wraps it (the seed's
+    // effect is the only mount effect in this component).
+    const ratesQuery = sw.slice(sw.indexOf('const ratesQuery'), sw.indexOf('const rates ='));
+    expect(ratesQuery).not.toContain('useEffect');
   });
 
   it('a wire that never answered renders NO chip (honest absence)', () => {
@@ -309,9 +312,9 @@ describe('v2.210.0 — the suite rides at the head', () => {
   };
 
   it('the release is 2.210.0 in all three version fields', () => {
-    expect(pkg.version).toBe('2.409.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.409.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.409.0');
+    expect(pkg.version).toBe('2.410.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.410.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.410.0');
   });
 
   it('the What\u2019s New feed heads this release', () => {

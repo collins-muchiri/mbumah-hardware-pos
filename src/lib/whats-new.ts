@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.410.0',
+    title: 'The wire answers on mount — the desks\u2019 currency truth stops depending on the open',
+    bullets: [
+      'BUG 1 closed: on the console and org desks the currency dropdown could open forever with static rows — the open-gated queries never fetched (browser-proven: menu open, zero requests leaving the page). The rates and branch-default wires now answer on mount, the same reliable path every panel uses; the open is pure display again.',
+      'The footer gains the rate census strip: one glance counts the wire\u2019s rows by provenance (N admin-set · N API · N built-in) beside a fresh/aging/stale age dot — see at a look whether your branch\u2019s rates are maintained or factory.',
+      'The dropdown wears its styling round: rate figures align in mono, the active row rides a soft tint with an emerald rail, and the trigger echoes the open.',
+    ],
+  },
+  {
     version: '2.409.0',
     title: 'The desk remembers — the org desk stops forgetting who you were',
     bullets: [

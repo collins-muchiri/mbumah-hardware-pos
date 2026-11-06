@@ -1,3 +1,17 @@
+## [2.410.0] The wire answers on mount
+
+BUG 1 — carried since Task 125 and closed with four instrumented agent-browser bursts — is fixed: on /console and /org/dashboard the CurrencySwitcher's two queries (`enabled: opened`, the v2.212.0 laziness law) NEVER fetched. The browser evidence was unambiguous: the dropdown visibly opened while ZERO requests left the browser (resource-timing empty, dev log silent, the in-page fetch logger caught nothing), the rows rendered static fallbacks, no branch-default chip, no freshness line — a mid-boot open DID fetch (the chip rendered, explaining why earlier QA saw the chip "live"), and one run showed the whole switcher remount (trigger data-state open → gone → closed, `opened` reset before the fetch could fire). The open-gated laziness bought silence with honesty.
+
+### Fixed
+- **THE WIRE ANSWERS ON MOUNT** (`src/components/currency-switcher.tsx`): both queries are `enabled: true` from the first render — the same mount-fetch path every other panel on these desks uses (the seed already asked the branch-default wire on every page load, so the laziness "savings" were already spent). The `opened` state, `handleOpenChange`, and the DropdownMenu's `onOpenChange` are gone — the open is pure display, no query state behind it. No polling joined the change: `refetchInterval: false` stays on both legs (the wire arrives on mount and on invalidation, never on a timer).
+
+### Added
+- **THE RATE CENSUS STRIP** (same file): when the wire answered, the footer renders one mono strip — the rows counted by provenance (`N admin-set · N API · N built-in`) beside an age voice (fresh under 45 s emerald, aging under 5 min amber, stale red — fed by the cache's own recorded read time). Honest absence: before the wire answers the strip is not rendered. Both voices are PURE exports (`rateCensus`, `wireAgeVoice`) pinned behaviorally in `currency-wire-v2410.test.ts`.
+- **THE DROPDOWN'S STYLING ROUND**: the rows' rate figures align in mono tabular digits, the active row wears a soft accent tint with an emerald rail (the branch-default chip's family), and the trigger echoes the open with a soft accent lift (surfaces with their own open voice — the console's dark banner — still win the cn merge).
+
+### Changed
+- **THE MOUNT LAW CASCADE**: `currency-switcher-wire-v2212.test.ts`'s lazy block re-anchored to the mount law (the no-polling half survives, byte-pinned), `branch-voice-v2408`'s chip-wire pin re-titled honestly, and the new `currency-wire-v2410.test.ts` suite pins the mount law, the census, the age voice, and the styling round.
+
 ## [2.409.0] The desk remembers
 
 The opening QA burst walked the branch-default seed onto the org desk for the first time and caught an honesty-law violation with teeth: the app store persists with `skipHydration: true` and only the tabs SPA's boot ever asked for the persisted state back — on the org desk the seed read FACTORY state (`currencyChosen: false`), so a branch default STEAMROLLED an explicit choice that sat unread in localStorage (browser-verified live: KES/true → reload → USD/false), and the seed's write-back then destroyed that choice in storage. This release makes every surface ask, the seed wait, and the desk remember.
