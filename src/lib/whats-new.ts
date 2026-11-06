@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.416.0',
+    title: 'The order\u2019s handover — the restock order walks itself to the purchase-order desk',
+    bullets: [
+      'The low-stock banner\u2019s new Send button hands the whole restock order to the purchase-order desk: the create form opens with every line pre-picked (the same rows Copy and Download speak), the counts spoken on an amber strip \u2014 lines, units, ready to pick a supplier and send.',
+      'The pocket is one-way: the order is consumed the moment the desk reads it, so a manual New PO never inherits a birth by accident \u2014 and a cancelled dialog never resurrects a stale order (the live shelf is always the truth).',
+      'The honest map rides: a line whose sku the shelf no longer knows is dropped and counted on the strip (never a silently shortened order), and a cost the gate hides leaves the pen empty for your own figure.',
+      'Under the hood: one pure helper folds the rows (the reorder gap is the ask \u2014 the nothing-to-order law defends the fold too), one pure mapper lands them, both pinned byte-for-byte.',
+    ],
+  },
+  {
     version: '2.415.0',
     title: 'The order file leaves the desk — the restock order travels as a named text file',
     bullets: [
