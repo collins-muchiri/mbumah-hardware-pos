@@ -28,7 +28,7 @@ import { formatRestockOrder, restockOrderFileName, restockRowsNeedingAttention, 
 // rows into a pocket the purchase-order desk reads once — the pure laws
 // (shape, store, one-way, honest map) live there; this face only folds
 // and walks.
-import { buildOrderHandoff, writeOrderHandoff } from '@/lib/order-handoff';
+import { buildOrderHandoff, orderHandoffSupplier, writeOrderHandoff } from '@/lib/order-handoff';
 import { STORE_LIST } from '@/lib/store-info';
 import { useSendPrompt } from '@/components/send-prompt-dialog';
 import { unitLabel } from '@/lib/units';
@@ -329,12 +329,17 @@ function DownloadOrderButton({ storeName, storeSlug, rows, dateLabel }: { storeN
 // to speak.
 function SendOrderButton({ storeId, storeName, rows }: { storeId: string; storeName: string; rows: RestockRow[] }) {
   const setActiveTab = useAppStore((s) => s.setActiveTab);
+  // v2.422.0 THE CENSUS VOICE — when every row names the same maker,
+  // the send's faces say so (the toast's receipt and the title's truth);
+  // any mixed world keeps the quiet face (the honest absence, never a
+  // majority's guess).
+  const supplierName = orderHandoffSupplier(rows);
   const onSend = () => {
     const payload = buildOrderHandoff(storeId, storeName, new Date(), rows);
     if (payload.items.length === 0) return;
     writeOrderHandoff(payload);
     setActiveTab('purchase-orders');
-    toast.success(`The order rides to the purchase order desk — ${payload.lines} line${payload.lines === 1 ? '' : 's'}, ${payload.units} unit${payload.units === 1 ? '' : 's'} carried.`);
+    toast.success(`The order rides to the purchase order desk — ${payload.lines} line${payload.lines === 1 ? '' : 's'}, ${payload.units} unit${payload.units === 1 ? '' : 's'} carried${supplierName ? ` for ${supplierName}` : ''}.`);
   };
   return (
     <Button
@@ -343,8 +348,10 @@ function SendOrderButton({ storeId, storeName, rows }: { storeId: string; storeN
       size="sm"
       data-testid="inv-order-send"
       onClick={onSend}
-      title="Hand the restock order to the purchase order desk — the rows arrive pre-picked in the create form"
-      aria-label={`Send the restock order (${rows.length} item${rows.length === 1 ? '' : 's'}, ${rows.reduce((sum, r) => sum + Math.max(r.reorderLevel - r.onHand, 0), 0)} units) to the purchase order desk`}
+      title={supplierName
+        ? `Hand the restock order to the purchase order desk — the rows arrive pre-picked in the create form, ${supplierName}'s own supplier pen already dressed`
+        : 'Hand the restock order to the purchase order desk — the rows arrive pre-picked in the create form'}
+      aria-label={`Send the restock order (${rows.length} item${rows.length === 1 ? '' : 's'}, ${rows.reduce((sum, r) => sum + Math.max(r.reorderLevel - r.onHand, 0), 0)} units${supplierName ? `, for ${supplierName}` : ''}) to the purchase order desk`}
       className="h-7 gap-1.5 rounded-md border-amber-300 px-2 text-xs text-amber-800 transition-colors hover:bg-amber-100 hover:text-amber-900 dark:border-amber-700 dark:text-amber-200 dark:hover:bg-amber-900/40"
     >
       <Send className="h-3 w-3" aria-hidden="true" />

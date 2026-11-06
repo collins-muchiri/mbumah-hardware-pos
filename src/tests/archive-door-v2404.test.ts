@@ -135,16 +135,17 @@ describe('main-app - the archive door on the main desk', () => {
   // ── 7. The release cascade ─────────────────────────────────────────────────
 
   it('WHATS_NEW leads with the current release — the door story rides the archive below', () => {
-    // v2.421.0 hand-over: the lead tells the order-blocks story now; the
-    // supplier-lens story lives one entry down, the drill-mirror two, the
-    // expected-day three, the receive four, the order-handover five, the
-    // order-file six, the order-list seven, the org-desk eight, the
-    // census-echoes nine, the census-speaks ten, the wire-answers
-    // eleven, the desk-remembers twelve, the branch-voice thirteen, the
-    // ghost-routes fourteen, the jump-door fifteen, the shares' sixteen,
-    // the archive-door story seventeen — all still in the feed
+    // v2.422.0 hand-over: the lead tells the supplier-rides story now; the
+    // order-blocks story lives one entry down, the supplier-lens two, the
+    // drill-mirror three, the expected-day four, the receive five, the
+    // order-handover six, the order-file seven, the order-list eight, the
+    // org-desk nine, the census-echoes ten, the census-speaks eleven, the
+    // wire-answers twelve, the desk-remembers thirteen, the branch-voice
+    // fourteen, the ghost-routes fifteen, the jump-door sixteen, the
+    // shares' seventeen, the archive-door story eighteen — all still in
+    // the feed
     const lead = WHATS_NEW[0];
-    expect(lead.version).toBe('2.421.0');
+    expect(lead.version).toBe('2.422.0');
     expect(lead.title).toContain('supplier');
     expect(lead.bullets.length).toBeGreaterThanOrEqual(3);
     expect(lead.bullets.some((b) => b.includes('No supplier yet'))).toBe(true);
