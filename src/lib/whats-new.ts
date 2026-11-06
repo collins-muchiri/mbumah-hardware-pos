@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.415.0',
+    title: 'The order file leaves the desk — the restock order travels as a named text file',
+    bullets: [
+      'The low-stock banner\u2019s new Download button hands the whole restock order to a NAMED text file \u2014 mbumah-restock-<branch>-<date>-<time>.txt \u2014 the branch\u2019s slug, the date and the minute ride in the name, so two branches\u2019 orders on the same day never argue about which file is which. Same bytes as the Copy button, ready to attach to an email or a purchase order.',
+      'The banner\u2019s pair works as one: Copy and Download mount together or not at all (the same honest absence gates both), the two-second Saved beat wears the same emerald success family as the Copied beat, and a refused save answers with an honest toast.',
+      'Under the hood: the nothing-to-order law rides (an out-of-stock shelf whose reorder level is 0 asks for nothing, so it is never spoken), and the file\u2019s name is one pure helper pinned byte-for-byte \u2014 zero-padded month, day and minute.',
+    ],
+  },
+  {
     version: '2.414.0',
     title: 'The order list hands you the words — the low-stock banner speaks a restock order',
     bullets: [

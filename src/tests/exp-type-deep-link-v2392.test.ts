@@ -356,25 +356,24 @@ describe('the address-bar vocabulary — the thirty-first row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.414.0 leads the feed', () => {
+describe('whats-new — v2.415.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.414.0');
-    // the lead's story hand-over (v2.414.0, the Task 111 law's twentieth
-    // application): the head story is the floor's voice — the order list
-    // hands you the words: the low-stock banner's Copy order button
-    // speaks the whole restock order as plain text (out of stock first,
-    // the gap math per line, ready to paste into a supplier chat), the
-    // honest absences hold twice (no rows → no button; the
-    // nothing-to-order law — an out shelf with reorder 0 asks for
-    // nothing and is never spoken), and the copy face rides the
-    // banner's amber family at rest and the emerald success family on
-    // the Copied beat (the support copy family's two-beat law).
-    // The org desk's story exits the head this round; the
-    // banner carries the eye.
-    expect(head.title).toContain('order list');
+    expect(head.version).toBe('2.415.0');
+    // the lead's story hand-over (v2.415.0, the Task 111 law's twenty-first
+    // application): the head story is the file's voice — the order file
+    // leaves the desk: the banner's pair grows the Download button and
+    // the SAME order bytes leave as a NAMED text file (the branch's slug,
+    // the date and the minute ride in the name — two branches' orders on
+    // the same day never argue about which file is which), the pair's
+    // co-mount law holds (Copy and Download mount together or not at
+    // all), and the Saved beat wears the same emerald success family as
+    // the Copied beat (the two-beat law, twice over).
+    // The order list's story exits the head this round; the
+    // file carries the eye.
+    expect(head.title).toContain('order file');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('Copy order button'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('Download button'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('restock order'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('nothing-to-order law'))).toBe(true);
   });

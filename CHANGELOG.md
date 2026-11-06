@@ -1,3 +1,13 @@
+## [2.415.0] The order file leaves the desk
+
+v2.414.0 taught the banner to hand you the words. This round the same order leaves as a named text file — the support-file family's pattern (the health desk's download face) riding on the inventory desk.
+
+### Added
+- **THE ORDER FILE** (`src/lib/stock-order.ts` + `src/app/(shell)/tabs/inventory-tab.tsx`): the banner's pair grows the **Download** button (testid `inv-order-download`) — the SAME order bytes leave as a NAMED text file via `restockOrderFileName(storeSlug, at)` → `mbumah-restock-<slug>-<YYYYMMDD>-<HHmm>.txt` (zero-padded, the branch's slug rides verbatim — two branches' orders on the same day never argue about which file is which). The Blob's object URL revokes itself; a refused save answers with an honest toast.
+
+### Changed
+- **THE PAIR'S CO-MOUNT LAW** (the styling round): Copy and Download mount together or not at all — both gated on the same honest absence; the Saved beat wears the same emerald success family as the Copied beat, the resting face rides the banner's amber family, the icons swap with the labels (the two-beat law, twice over).
+
 ## [2.414.0] The order list hands you the words
 
 v2.400.0 taught the health desk to hand you its words. This round the inventory desk learns the same trick for the floor's oldest chore: the low-stock banner now speaks the supplier's order — out of stock first, the gap math per line, ready to paste.

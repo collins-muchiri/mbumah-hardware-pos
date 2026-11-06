@@ -101,3 +101,20 @@ export function formatRestockOrder(input: RestockOrderInput): string | null {
   const lines = rows.map(formatRestockLine);
   return [header, '', ...lines].join('\n');
 }
+
+/** THE FILE'S NAME (v2.415.0) — the download face's pure twin, the support
+ *  file family's pattern (diagnosticsFileName): the branch's slug, the date
+ *  and the minute ride in the name, zero-padded, so two branches' orders on
+ *  the same day never argue about which file is which.
+ *
+ *   restockOrderFileName('juja-main', new Date(2026, 10, 6, 14, 7))
+ *     → 'mbumah-restock-juja-main-20261106-1407.txt' */
+export function restockOrderFileName(storeSlug: string, at: Date): string {
+  const pad = (n: number): string => String(n).padStart(2, '0');
+  const y = at.getFullYear();
+  const m = pad(at.getMonth() + 1);
+  const d = pad(at.getDate());
+  const hh = pad(at.getHours());
+  const mm = pad(at.getMinutes());
+  return `mbumah-restock-${storeSlug}-${y}${m}${d}-${hh}${mm}.txt`;
+}
