@@ -1,3 +1,14 @@
+## [2.426.0] The receipt names its maker
+
+v2.425.0 taught the desk's rows to name their makers; this round the receive face learns the supplier's day: the Receive Items dialog wears the maker's chip (and the call door when the wire carries a phone), the success toast names whose goods landed, and the detail's description obeys the DOM's law — the div-in-p hydration wound the burst caught on this very face is healed.
+
+### Added
+- **THE ARC'S SEVENTH WORD** (`src/lib/po-receive.ts` + `src/app/(shell)/tabs/purchase-orders-tab.tsx`): `receiveMaker` (the day's honest read — a trimmed, non-empty name makes the maker; the phone and the contact ride only when they are real strings; the whitespace and non-string arrivals read the absence, never a crash, never a fake via, never a dead dial) and `receiveSuccessVoice` (the toast's two faces) join the receive's one home; the Receive Items dialog grows the maker chip (`receive-supplier-chip`, the sky census family, the Truck icon, "via {name}" — conditional: a wire without the maker stays silent) and the call door (`receive-supplier-call`, a `tel:` chip gated on the maker's own phone, the day's contact speaking through the title).
+
+### Changed
+- **THE TOAST NAMES THE DAY**: the receive success speaks "Items received and stock updated — {maker}'s goods are on the shelf" when the maker is known, the round's old byte when it is not (one home: the dialog reads `receiveSuccessVoice`, never a second copy of the words).
+- **THE DOM'S LAW**: the PO detail's description is phrasing content now (the status badge and the maker's name ride a `span` wearing the flex classes) — a block inside Radix's `<p>` description is the hydration error the opening burst caught on this very face; `PurchaseOrderListItem.supplier` carries `contactPerson?` additively (the detail wire already brought it — `supplier: true`), so the door's title can name the day's person.
+
 ## [2.425.0] The carried row knows its maker
 
 v2.424.0 taught the shelf to fold its debt into the PO desk; this round the desk's rows learn who makes what: every row the shelf can name wears its own sky "via {supplier}" sub-line — a mixed order's makers visible line by line, straight from the live shelf's link.

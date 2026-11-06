@@ -135,19 +135,20 @@ describe('main-app - the archive door on the main desk', () => {
   // ── 7. The release cascade ─────────────────────────────────────────────────
 
   it('WHATS_NEW leads with the current release — the door story rides the archive below', () => {
-    // v2.425.0 hand-over: the lead tells the row-maker’s story now; the
-    // debt’s story lives one entry down, the shelf-door two, the
-    // supplier-rides three, the order-blocks four, the supplier-lens
-    // five, the drill-mirror six, the expected-day seven, the receive
-    // eight, the order-handover nine, the order-file ten, the
-    // order-list eleven, the org-desk twelve, the census-echoes
-    // thirteen, the census-speaks fourteen, the wire-answers fifteen,
-    // the desk-remembers sixteen, the branch-voice seventeen, the
-    // ghost-routes eighteen, the jump-door nineteen, the shares’
-    // twenty, the archive-door story twenty-one — all still in the feed
+    // v2.426.0 hand-over: the lead tells the receipt’s story now; the
+    // row-maker’s story lives one entry down, the debt’s two, the
+    // shelf-door three, the supplier-rides four, the order-blocks
+    // five, the supplier-lens six, the drill-mirror seven, the
+    // expected-day eight, the receive nine, the order-handover ten,
+    // the order-file eleven, the order-list twelve, the org-desk
+    // thirteen, the census-echoes fourteen, the census-speaks
+    // fifteen, the wire-answers sixteen, the desk-remembers
+    // seventeen, the branch-voice eighteen, the ghost-routes
+    // nineteen, the jump-door twenty, the shares’ twenty-one, the
+    // archive-door story twenty-two — all still in the feed
     const lead = WHATS_NEW[0];
-    expect(lead.version).toBe('2.425.0');
-    expect(lead.title).toContain('maker');
+    expect(lead.version).toBe('2.426.0');
+    expect(lead.title).toContain('receipt');
     expect(lead.bullets.length).toBeGreaterThanOrEqual(3);
     expect(lead.bullets.some((b) => b.includes('via {supplier}'))).toBe(true);
     const branchVoice = WHATS_NEW.find((e) => e.version === '2.408.0');

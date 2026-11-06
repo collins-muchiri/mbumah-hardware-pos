@@ -239,7 +239,7 @@ describe('the receive dialog\u2019s face (v2.417.0) — the fill lands on the de
   it('the dialog reads the fill\u2019s one home (no private re-implementation)', () => {
     // v2.419.0: the import grew the drill's mirror reads (the drill wears
     // the receive's truth from the SAME one home) — the pin grew with it.
-    expect(tabSrc).toContain("import { buildReceiveInitials, receiveRowState, describeReceivePlan, drillLineState, describeDrillProgress } from '@/lib/po-receive';");
+    expect(tabSrc).toContain("import { buildReceiveInitials, receiveRowState, describeReceivePlan, drillLineState, describeDrillProgress, receiveMaker, receiveSuccessVoice } from '@/lib/po-receive';");
     expect(tabSrc).toContain('setReceivedQtys(buildReceiveInitials(purchaseOrder.items));');
     expect(tabSrc).toContain('receiveRowState(item, receivedQtys[item.id])');
     expect(tabSrc).toContain('describeReceivePlan(items, receivedQtys)');

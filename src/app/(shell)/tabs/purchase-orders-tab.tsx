@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { ClipboardList, Search, Plus, Eye, Loader2, X, Package, CalendarDays, Filter, ArrowUpDown, FileText, Clock, CheckCircle2, Circle, AlertTriangle, Truck, ChevronLeft, ChevronRight, Trash2, Send, Ban, MoreHorizontal, PackageCheck, PackageX, ShieldCheck, Stamp, Receipt, ShoppingBag, DollarSign, ArrowUpRight, History, ListChecks, Eraser } from 'lucide-react';
+import { ClipboardList, Search, Plus, Eye, Loader2, X, Package, CalendarDays, Filter, ArrowUpDown, FileText, Clock, CheckCircle2, Circle, AlertTriangle, Truck, Phone, ChevronLeft, ChevronRight, Trash2, Send, Ban, MoreHorizontal, PackageCheck, PackageX, ShieldCheck, Stamp, Receipt, ShoppingBag, DollarSign, ArrowUpRight, History, ListChecks, Eraser } from 'lucide-react';
 
 import { useAppStore } from '@/lib/stores';
 import { useAuthStore } from '@/lib/stores';
@@ -27,7 +27,7 @@ import { consumeOrderHandoff, mapOrderHandoffToPoItems, type OrderHandoffPayload
 // v2.419.0 THE DRILL'S PROGRESS — the drill wears the receive's truth
 // (the mirror law: the committed rows read the SAME one home the dialog
 // reads — one answer paints the row, speaks the words, fills the meter).
-import { buildReceiveInitials, receiveRowState, describeReceivePlan, drillLineState, describeDrillProgress } from '@/lib/po-receive';
+import { buildReceiveInitials, receiveRowState, describeReceivePlan, drillLineState, describeDrillProgress, receiveMaker, receiveSuccessVoice } from '@/lib/po-receive';
 // v2.251.0 THE WALK'S WHEN — the detail strip's cadence chip wears the
 // census's own four houses (one home, byte-identical classes to the
 // org drill's chip).
@@ -970,6 +970,11 @@ function ReceiveItemsDialog({
   const { user } = useAuthStore();
   const [receivedQtys, setReceivedQtys] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
+  // v2.426.0 THE RECEIVE'S MAKER — the day's honest read (one home with
+  // the fill's arithmetic): the chip, the call door and the toast all
+  // share this one answer. The honest absence is the null — a wire
+  // without the maker stays silent, never a fake via.
+  const maker = receiveMaker(purchaseOrder?.supplier);
 
   React.useEffect(() => {
     if (purchaseOrder?.items && open) {
@@ -996,7 +1001,10 @@ function ReceiveItemsDialog({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['purchase-orders'] });
       queryClient.invalidateQueries({ queryKey: ['purchase-order-detail'] });
-      toast.success('Items received and stock updated');
+      // v2.426.0 THE TOAST NAMES THE DAY — the receipt speaks its maker
+      // when the wire carries one (receiveSuccessVoice's two faces, one
+      // home), the old byte when it does not (the honest silence).
+      toast.success(receiveSuccessVoice(maker));
       onOpenChange(false);
     },
     onError: (err: unknown) => {
@@ -1045,6 +1053,39 @@ function ReceiveItemsDialog({
             <PackageCheck className="h-5 w-5 text-emerald-700" />
             Receive Items - {purchaseOrder.poNumber}
           </DialogTitle>
+          {/* v2.426.0 THE RECEIVE'S MAKER — the receipt names the maker
+              that filled it: the day's chip wears the rows' own sky
+              census family (the create dialog's sub-line bytes, one
+              home), and the call door dials the maker's own phone when
+              the wire carries one (a short delivery has its number
+              exactly where the shortfall shows — the day's contact
+              speaking through the door's title when the wire names
+              one). The honest absence holds: a wire without the maker
+              stays silent — never a fake via, never a dead dial. */}
+          {maker && (
+            <div
+              data-testid="receive-supplier-chip"
+              className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] text-sky-700 dark:text-sky-400"
+            >
+              <Truck className="h-3 w-3" aria-hidden="true" />
+              <span>via {maker.name}</span>
+              {maker.phone && (
+                <a
+                  data-testid="receive-supplier-call"
+                  href={`tel:${maker.phone}`}
+                  title={
+                    maker.contactPerson
+                      ? `Call ${maker.contactPerson} — ${maker.phone} — the day's shortfall has its number`
+                      : `Call the maker — ${maker.phone}`
+                  }
+                  className="inline-flex items-center gap-1 rounded-full bg-sky-100 px-2 py-0.5 font-semibold text-sky-800 ring-1 ring-inset ring-sky-300 transition-[filter] hover:brightness-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/60 dark:bg-sky-500/20 dark:text-sky-100 dark:ring-sky-500/40"
+                >
+                  <Phone className="h-3 w-3" aria-hidden="true" />
+                  {maker.phone}
+                </a>
+              )}
+            </div>
+          )}
           <DialogDescription>
             Enter quantities received for each item. Stock will be updated automatically.
           </DialogDescription>
@@ -1530,14 +1571,19 @@ function PODetailView({
           </div>
         }
         description={
-          <div className="flex items-center gap-2 mt-1">
+          /* v2.426.0 THE DOM'S LAW — the description rides Radix's own
+             <p> (the ResponsiveDialog's Description), so the row's
+             faces must stay phrasing content: a span wearing the flex
+             classes, never a div (a block inside a p is the hydration
+             wound the burst caught on this very face). */
+          <span className="flex items-center gap-2 mt-1">
             <Badge className={`text-xs gap-1 ${getStatusBadgeClasses(detail.status)}`}>
               {getStatusIcon(detail.status)}
               {formatStatusLabel(detail.status)}
             </Badge>
             <span className="text-muted-foreground">&middot;</span>
             <span className="text-muted-foreground">{detail.supplier?.name || 'Unknown Supplier'}</span>
-          </div>
+          </span>
         }
         size="xl"
       >

@@ -273,31 +273,35 @@ describe('the address-bar vocabulary — the twenty-sixth row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.425.0 leads the feed', () => {
+describe('whats-new — v2.426.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.425.0');
-    // the lead's story hand-over (v2.425.0, the Task 111 law's
-    // thirty-first application): the head story is the hand-over's
-    // voice — the carried row knows its maker: the purchase-order
-    // desk's rows grew the per-row maker (OrderHandoffPoItem's own
-    // supplierName — the pocket's seed shape now ONE home for the
-    // dialog's state and the restock-sheet's picks too), the map
-    // reads it from the LIVE shelf's link (the envelope's names never
-    // feed it — a stale pocket cannot name a live order, the pre-pick's
-    // own law now per-row), the hand-built rows read the same link,
-    // and the sub-line wears the sky census family the strip's chip
-    // taught (po-row-supplier, the Truck icon, 'via {name}' —
-    // conditional: an unnamed row stays silent, never a fake via).
-    // The pre-pick's whole-order law is unchanged: every row the same
-    // maker and the pen still dresses itself; two makers and the rows
-    // simply speak their own names while the pen stays yours.
-    // The debt's story exits the head this round; the
-    // row's own maker carries the eye.
-    expect(head.title).toContain('maker');
+    expect(head.version).toBe('2.426.0');
+    // the lead's story hand-over (v2.426.0, the Task 111 law's
+    // thirty-second application): the head story is the hand-over's
+    // voice — the receipt names its maker: the receive dialog grew
+    // the maker chip (receive-supplier-chip, the sky census family
+    // the rows taught, the Truck icon, 'via {name}' — conditional:
+    // a wire without the maker stays silent, never a fake via) and
+    // the call door (receive-supplier-call — the tel: door gated on
+    // the maker's own phone, so a short delivery has its number
+    // exactly where the shortfall shows; the day's contact speaks
+    // through the title), the success toast names the day
+    // (receiveSuccessVoice's two faces — 'Items received and stock
+    // updated — {maker}'s goods are on the shelf', the old byte when
+    // the read found nothing), and the day's honest read lives in
+    // the receive's ONE home (receiveMaker: a trimmed non-empty name
+    // makes the maker, the whitespace and non-string arrivals read
+    // the absence — never a crash, never a dead dial).
+    // THE DOM'S LAW rode the same round: the detail's description
+    // stays phrasing content (the div-in-p hydration wound the
+    // opening burst caught is healed).
+    // The row-maker's story exits the head this round; the
+    // receipt's own maker carries the eye.
+    expect(head.title).toContain('receipt');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
     expect(head.bullets.some((b) => b.includes('via {supplier}'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('stale pocket cannot name a live order'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('two makers'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('call chip dials'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('goods are on the shelf'))).toBe(true);
   });
 });
