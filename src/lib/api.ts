@@ -678,6 +678,11 @@ export interface ProductListItem {
   createdAt: string;
   updatedAt: string;
   category?: { id: string; name: string; color?: string; icon?: string };
+  // v2.420.0 THE ARC'S FIRST WORD: the product's own supplier rides the
+  // wire (id + name); null/absent reads the honest absence (no supplier
+  // yet — the grouping lens never guesses a name).
+  supplierId?: string | null;
+  supplier?: { id: string; name: string } | null;
   bundleItems?: { childProductId: string; quantityRequired: number; childProduct?: { id: string; name: string; sku: string; quantityInStock: number; pricePerUnit: number } }[];
 }
 
@@ -699,6 +704,9 @@ export interface CreateProductPayload {
   isRental?: boolean;
   isBundle?: boolean;
   imageUrl?: string;
+  // v2.420.0 THE ARC'S FIRST WORD: the product may be born with its
+  // supplier (the wire validates same-store; '' reads the absence).
+  supplierId?: string;
 }
 
 export const productsApi = {
@@ -2958,6 +2966,9 @@ export interface SupplierItem {
   createdAt: string;
   updatedAt: string;
   purchaseOrderCount?: number;
+  // v2.420.0 THE ARC'S FIRST WORD: the supplier's own product roster size
+  // (the desk's chip answers "what does this supplier provide" in one read).
+  productCount?: number;
   summary?: {
     totalPOs: number;
     totalPOValue: number;

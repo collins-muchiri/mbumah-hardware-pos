@@ -1,3 +1,17 @@
+## [2.420.0] The shelf remembers its supplier
+
+v2.419.0 taught the drill to speak the receive's truth. This round opens THE ARC: the product grows its own supplier link, and both desks that meet it — the inventory shelf and the suppliers ledger — learn to answer "who provides this?" from the same one home.
+
+### Added
+- **THE ARC'S FIRST WORD** (`prisma/schema.prisma` + `prisma/migrations/20261107070000_add_product_supplier/` + `src/lib/product-groups.ts`): `Product.supplierId` — nullable by design (the honest absence, no backfill required, no row lies), indexed for the lens, FK to `suppliers` (ON DELETE SET NULL); `Supplier.products` rides the count wire as `productCount`; `buildSupplierGroups` is the lens's ONE arithmetic (grouping, sums with the Decimal grace, the census voice) — pinned byte-for-byte.
+- **THE SUPPLIER LENS** (`inventory-tab.tsx`): the sky strip above the table — every supplier wears a card (products · units · shelf value), one press filters the roster to that group, the "No supplier yet" card is a real group for the unassigned, and the census chip speaks "N suppliers · M products placed · K waiting".
+- **THE WRITE FACES**: the Add form's optional Supplier select (born-with) and the Edit form's assign/clear select ride the PATCH/POST **same-store door** — a cross-store assignment is refused with a 400, '' clears honestly, and the create/edit answers name the supplier they wrote.
+
+### Changed
+- **THE ROW'S SUB-LINE** (the styling round): a named row carries a quiet sky "via Supplier" sub-line under its name (testid `inv-row-supplier`); a row with no supplier speaks nothing there — the strip's absence card carries that voice, a per-row "no supplier" would be noise.
+- **THE SUPPLIERS DESK'S ANSWER**: every supplier row wears a Products chip (testid `sup-products-chip`; sky when placed, muted at zero), the table grows the Products column, and the CSV export rides the same count.
+- **THE DEMO WORLD REMEMBERS**: the seed's idempotent assignment pass names the real-world makers (Bamburi makes the cements and Savanna, Mabati Rolling Mills the sheets, AkzoNobel the Dulux paints) — heals fresh worlds AND pre-arc rows, leaving real members in the absence group.
+
 ## [2.419.0] The drill wears the receive's truth
 
 v2.417.0 taught the receive dialog to speak the shortfall; v2.418.0 named the days. This round the drill — the desk's own mirror — wears the same truth: the committed lines speak what the dialog's pens spoke, from the same one home.

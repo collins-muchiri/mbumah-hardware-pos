@@ -775,6 +775,35 @@ async function seedBody() {
   }
   done7('ok', (products.length + 1) + ' products + bundle');
 
+  // v2.420.0 THE ARC'S FIRST WORD — the shelf remembers its supplier
+  // (the demo face of the same law the wire enforces: assignment is
+  // same-store by construction — every id here is a Juja Main supplier
+  // and every product lives in Juja Main). Idempotent on re-run: the
+  // update pass heals BOTH fresh worlds and pre-arc rows whose create
+  // skip would otherwise leave them silent forever. Paints named by
+  // their real-world maker (Bamburi makes Savanna; AkzoNobel makes
+  // Dulux); everything else keeps the honest absence — the lens's
+  // "No supplier yet" group gets real members, never a guessed name.
+  const productSupplierAssignments: Array<readonly [string, string]> = [
+    ['prod_cement_bamburi', 'sup_juja_bamburi'],
+    ['prod_cement_savanna', 'sup_juja_bamburi'],
+    ['prod_mabati_30', 'sup_juja_mabati'],
+    ['prod_mabati_28', 'sup_juja_mabati'],
+    ['prod_mabati_26', 'sup_juja_mabati'],
+    ['prod_dulux_20l', 'sup_juja_dulux'],
+    ['prod_dulux_4l', 'sup_juja_dulux'],
+  ];
+  let _supAssigned = 0;
+  for (const [productId, supplierId] of productSupplierAssignments) {
+    try {
+      await prisma.product.update({ where: { id: productId }, data: { supplierId } });
+      _supAssigned++;
+    } catch {
+      // Skip - idempotent on re-run (missing product rows stay absent)
+    }
+  }
+  done7('ok', _supAssigned + ' products remember their supplier');
+
   // 9. Seed Demo Customers (expanded with more variety)
   const done9 = stage(9, TOTAL_STAGES, 'Seed demo customers (8)');
   const customers = [

@@ -55,6 +55,10 @@ async function getSuppliersHandler(...args: unknown[]): Promise<Response> {
         _count: {
           select: {
             purchaseOrders: true,
+            // v2.420.0 THE ARC'S FIRST WORD: the supplier's own product
+            // roster rides the count (the desk's "N products" chip reads
+            // productCount — the supplier side of the arc's answer).
+            products: true,
           },
         },
       },
@@ -70,6 +74,8 @@ async function getSuppliersHandler(...args: unknown[]): Promise<Response> {
     return {
       ...supplierData,
       purchaseOrderCount: _count.purchaseOrders,
+      // v2.420.0: the roster's size on the supplier's own card.
+      productCount: _count.products,
     };
   });
 
