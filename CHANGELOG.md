@@ -1,3 +1,17 @@
+## [2.419.0] The drill wears the receive's truth
+
+v2.417.0 taught the receive dialog to speak the shortfall; v2.418.0 named the days. This round the drill — the desk's own mirror — wears the same truth: the committed lines speak what the dialog's pens spoke, from the same one home.
+
+### Added
+- **THE DRILL'S PROGRESS** (`src/lib/po-receive.ts` + `purchase-orders-tab.tsx`): `drillLineState` — the committed truth read through the receive's own rule (`receiveRowState` with the pen at rest), and `describeDrillProgress` — the order card's truth (units, lines, the shortfall summed, `complete` only when every line is closed).
+
+### Changed
+- **THE MIRROR LAW** (the styling round): the drill's line rows wear the receive dialog's faces at rest — emerald family for "fully received", amber family for "short by N units" (the shortfall COUNTED, the singular honest), transparent for "nothing received yet"; every line carries the dialog's own span meter (role=img, aria-labelled, emerald at 100 / amber while the line owes / slate at rest); the bare "Partial" word is retired — a row can never paint one state and speak another.
+- **THE ORDER'S VOICE**: the Receiving Progress card speaks the plan's truth (testid `po-drill-progress-voice` — lines fully received, the shortfall summed, "the order completes" when every line is closed) and the bar's aria answers in committed units and percent; the card's arithmetic reads the ONE home (the hand-rolled totals are gone).
+
+### Fixed
+- **THE UNPOKEN SHORTFALL**: the drill's rows knew "Partial" but never the NUMBER — the units a supplier still owes lived unspoken one surface away from the dialog that counts them; now the same read answers both (12 of 30 speaks "short by 18 units" in the drill exactly as the dialog's own arithmetic says).
+
 ## [2.418.0] The day gets named
 
 v2.416.0 walked the order to the desk, v2.417.0 filled the receive. This round the desk learned when the goods should arrive — the walk names a day, the roster speaks it, and the honest absence has words.

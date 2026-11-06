@@ -83,9 +83,11 @@ export function parseReceiveQty(raw: string | undefined): number {
 }
 
 /** THE REMAINING LAW — a line's open units, floored at 0 (a wire that
- *  over-received by accident can never ask for a negative fill). */
+ *  over-received by accident can never ask for a negative fill; a Decimal
+ *  that arrives as a STRING — Prisma's JSON face — coerces first, so a
+ *  minus can never str-diff and a concat can never be born). */
 export function receiveRemaining(line: { quantity: number; receivedQty: number }): number {
-  return Math.max(0, line.quantity - line.receivedQty);
+  return Math.max(0, Number(line.quantity) - Number(line.receivedQty));
 }
 
 /** The pens' initial fill — every open line opens at its remaining
@@ -106,15 +108,21 @@ export function receiveRowState(
   line: ReceivePlanLine,
   rawQty: string | undefined
 ): ReceiveRowState {
-  const remaining = receiveRemaining(line);
+  // THE WIRE'S GRACE (v2.419.0): a Decimal arriving as a string must
+  // never meet a `+` (a concat makes the pct clamp to a lying 100 on a
+  // short line) — the line's own fields coerce before any arithmetic,
+  // the same grace the pen gets.
+  const ordered = Number(line.quantity);
+  const received = Number(line.receivedQty);
+  const remaining = Math.max(0, ordered - received);
   const qty = parseReceiveQty(rawQty);
   const isClosed = remaining <= 0;
   const isOver = !isClosed && qty > remaining;
   const isShort = !isClosed && qty > 0 && qty < remaining;
   const shortfall = isShort ? remaining - qty : 0;
   const pct =
-    line.quantity > 0
-      ? Math.min(100, Math.max(0, Math.round(((line.receivedQty + qty) / line.quantity) * 100)))
+    ordered > 0
+      ? Math.min(100, Math.max(0, Math.round(((received + qty) / ordered) * 100)))
       : 0;
   return { remaining, qty, isOver, isShort, shortfall, isClosed, pct };
 }
@@ -155,5 +163,121 @@ export function describeReceivePlan(
     shortUnits,
     empty: fullLines + shortLines === 0,
     partial: shortLines + untouchedLines > 0,
+  };
+}
+
+// ============================================================================
+// v2.419.0 THE DRILL'S PROGRESS — the drill wears the receive's truth
+// ============================================================================
+// The drill's line rows used to speak a bare word ("Partial") over a
+// bare bar — the shortfall the receive dialog counts lived unspoken one
+// surface away. The drill now reads the SAME one home: its committed
+// truth IS the receive at rest (every pen empty), so the drill and the
+// dialog can never disagree about what "partial" means — THE DRILL'S
+// MIRROR LAW. Pure; the caller owns the surface.
+// --------------------------------------------------------------------------
+
+/** One drill row's honest state — the paint (the row's family), the
+ *  words (the Status cell) and the meter (the committed pct) all read
+ *  from this one answer. */
+export interface DrillLineState {
+  /** full — nothing remaining; short — received some, owes the rest;
+   *  open — nothing received yet. */
+  tone: 'full' | 'short' | 'open';
+  /** The words the Status cell speaks. */
+  words: string;
+  /** Units the line still owes (short lines only, else 0). */
+  shortfall: number;
+  /** The committed completion — 0–100. */
+  pct: number;
+  /** The row's own family (the dialog's faces, at rest — emerald for
+   *  full, amber for short, transparent for open). */
+  rowClass: string;
+}
+
+/** One drill row's honest state — the committed truth read through the
+ *  receive's own rule (receiveRowState with the pen at rest), never a
+ *  second copy of the arithmetic. */
+export function drillLineState(item: ReceivePlanLine): DrillLineState {
+  const s = receiveRowState(item, '0');
+  if (s.isClosed) {
+    return {
+      tone: 'full',
+      words: 'fully received',
+      shortfall: 0,
+      pct: s.pct,
+      rowClass:
+        'border-l-2 border-l-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20',
+    };
+  }
+  if (item.receivedQty > 0) {
+    return {
+      tone: 'short',
+      words: `short by ${s.remaining} ${s.remaining === 1 ? 'unit' : 'units'}`,
+      shortfall: s.remaining,
+      pct: s.pct,
+      rowClass:
+        'border-l-2 border-l-amber-500 bg-amber-50/40 dark:bg-amber-950/20',
+    };
+  }
+  return {
+    tone: 'open',
+    words: 'nothing received yet',
+    shortfall: 0,
+    pct: 0,
+    rowClass: 'border-l-2 border-l-transparent',
+  };
+}
+
+/** The order's committed progress — the drill's Receiving Progress card
+ *  speaks the plan's truth over the committed facts (units and lines,
+ *  the shortfall summed, the whole-order completion honest: `complete`
+ *  only when every line is closed). */
+export interface DrillProgress {
+  receivedUnits: number;
+  orderedUnits: number;
+  pct: number;
+  fullLines: number;
+  shortLines: number;
+  openLines: number;
+  shortUnits: number;
+  complete: boolean;
+}
+
+export function describeDrillProgress(items: ReceivePlanLine[]): DrillProgress {
+  let receivedUnits = 0;
+  let orderedUnits = 0;
+  let fullLines = 0;
+  let shortLines = 0;
+  let openLines = 0;
+  let shortUnits = 0;
+  for (const item of items) {
+    // the wire's grace rides the sums too (a string arrival can never
+    // concat its way into the card's totals)
+    receivedUnits += Number(item.receivedQty);
+    orderedUnits += Number(item.quantity);
+    const s = receiveRowState(item, '0');
+    if (s.isClosed) {
+      fullLines++;
+      continue;
+    }
+    openLines++;
+    if (item.receivedQty > 0) {
+      shortLines++;
+      shortUnits += s.remaining;
+    }
+  }
+  return {
+    receivedUnits,
+    orderedUnits,
+    pct:
+      orderedUnits > 0
+        ? Math.min(100, Math.round((receivedUnits / orderedUnits) * 100))
+        : 0,
+    fullLines,
+    shortLines,
+    openLines,
+    shortUnits,
+    complete: items.length > 0 && openLines === 0,
   };
 }
