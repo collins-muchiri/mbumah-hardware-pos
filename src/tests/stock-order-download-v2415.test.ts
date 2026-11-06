@@ -55,9 +55,9 @@ describe('the Download button (v2.415.0) — the order file leaves the desk', ()
     expect(tabSrc).toContain('<DownloadOrderButton storeName={orderStoreName} storeSlug={orderStoreSlug} rows={orderRows} dateLabel={orderDateLabel} />');
   });
 
-  it('the pair\u2019s co-mount law: both faces gated on the same honest absence', () => {
+  it('the co-mount law: the faces gated on the same honest absence (the pair became the trio when v2.416.0\u2019s Send face joined the same gate)', () => {
     const mounts = tabSrc.split('{orderRows.length > 0 && (').length - 1;
-    expect(mounts).toBe(2);
+    expect(mounts).toBe(3);
   });
 
   it('the two-beat face: Download → Saved → Download, the icons swap with the label', () => {

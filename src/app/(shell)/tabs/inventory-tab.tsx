@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Package, Search, Plus, AlertTriangle, AlertCircle, DollarSign, MoreVertical, Edit, Trash2, Loader2, CheckCircle, Copy, ArrowUpDown, Minus, BarChart3, ChevronUp, ChevronDown, ChevronsUpDown, Download, History, RotateCcw, X, Filter, ChevronRight, Tag, Palette, Zap, ShoppingCart, Info, MessageCircle, RefreshCw, Pencil, Settings2, Check, PackagePlus } from 'lucide-react';
+import { Package, Search, Plus, AlertTriangle, AlertCircle, DollarSign, MoreVertical, Edit, Trash2, Loader2, CheckCircle, Copy, ArrowUpDown, Minus, BarChart3, ChevronUp, ChevronDown, ChevronsUpDown, Download, History, RotateCcw, X, Filter, ChevronRight, Tag, Palette, Zap, ShoppingCart, Info, MessageCircle, RefreshCw, Pencil, Settings2, Check, PackagePlus, Send } from 'lucide-react';
 
 import { useAppStore, useAuthStore } from '@/lib/stores';
 import { canFeature } from '@/hooks/use-permissions';
@@ -19,6 +19,11 @@ import { formatQtyWithUnit } from '@/lib/utils/financialMath';
 // restock order through this pure voice — the same honest-absence law as
 // the support copy family (null when nothing needs attention).
 import { formatRestockOrder, restockOrderFileName, restockRowsNeedingAttention, type RestockRow } from '@/lib/stock-order';
+// THE ORDER'S HANDOFF (v2.416.0): the banner's third face folds the same
+// rows into a pocket the purchase-order desk reads once — the pure laws
+// (shape, store, one-way, honest map) live there; this face only folds
+// and walks.
+import { buildOrderHandoff, writeOrderHandoff } from '@/lib/order-handoff';
 import { STORE_LIST } from '@/lib/store-info';
 import { useSendPrompt } from '@/components/send-prompt-dialog';
 import { unitLabel } from '@/lib/units';
@@ -302,6 +307,43 @@ function DownloadOrderButton({ storeName, storeSlug, rows, dateLabel }: { storeN
         ? <Check className="h-3 w-3" aria-hidden="true" />
         : <Download className="h-3 w-3" aria-hidden="true" />}
       {saved ? 'Saved' : 'Download'}
+    </Button>
+  );
+}
+
+// THE ORDER'S HANDOFF (v2.416.0) — the banner's third face. Copy and
+// Download hand the order to the WORLD (a chat window, an email); this
+// face hands it to the house's own purchase-order desk: the rows fold
+// into the sessionStorage pocket (one-way, the desk consumes it once)
+// and the shell walks to the PO desk, whose dialog opens with the
+// carried rows pre-picked. The face keeps the banner's amber family at
+// rest — no two-beat here, because the desk leaves the moment the click
+// lands: the toast IS the send's receipt (the dialog opening with the
+// carried rows is the walk's proof). Honest absence is the parent's
+// duty, same as the pair: the face only mounts when the order has rows
+// to speak.
+function SendOrderButton({ storeId, storeName, rows }: { storeId: string; storeName: string; rows: RestockRow[] }) {
+  const setActiveTab = useAppStore((s) => s.setActiveTab);
+  const onSend = () => {
+    const payload = buildOrderHandoff(storeId, storeName, new Date(), rows);
+    if (payload.items.length === 0) return;
+    writeOrderHandoff(payload);
+    setActiveTab('purchase-orders');
+    toast.success(`The order rides to the purchase order desk — ${payload.lines} line${payload.lines === 1 ? '' : 's'}, ${payload.units} unit${payload.units === 1 ? '' : 's'} carried.`);
+  };
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="sm"
+      data-testid="inv-order-send"
+      onClick={onSend}
+      title="Hand the restock order to the purchase order desk — the rows arrive pre-picked in the create form"
+      aria-label={`Send the restock order (${rows.length} item${rows.length === 1 ? '' : 's'}, ${rows.reduce((sum, r) => sum + Math.max(r.reorderLevel - r.onHand, 0), 0)} units) to the purchase order desk`}
+      className="h-7 gap-1.5 rounded-md border-amber-300 px-2 text-xs text-amber-800 transition-colors hover:bg-amber-100 hover:text-amber-900 dark:border-amber-700 dark:text-amber-200 dark:hover:bg-amber-900/40"
+    >
+      <Send className="h-3 w-3" aria-hidden="true" />
+      Send
     </Button>
   );
 }
@@ -970,6 +1012,9 @@ export default function InventoryTab() {
             )}
             {orderRows.length > 0 && (
               <DownloadOrderButton storeName={orderStoreName} storeSlug={orderStoreSlug} rows={orderRows} dateLabel={orderDateLabel} />
+            )}
+            {orderRows.length > 0 && (
+              <SendOrderButton storeId={currentStoreId} storeName={orderStoreName} rows={orderRows} />
             )}
             {outOfStockCount > 0 && (
               <Button variant="outline" size="sm" className="h-7 text-xs border-red-300 dark:border-red-700 text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30" onClick={() => { setStockFilter('out'); setLandingLive(false); }}>

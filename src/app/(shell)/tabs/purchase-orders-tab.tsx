@@ -16,6 +16,11 @@ import {
   type ProductListItem,
 } from '@/lib/api';
 import { handleError } from '@/lib/error-handler';
+// THE ORDER'S HANDOFF (v2.416.0): the purchase-order desk is the pocket's
+// reader — the tab consumes the envelope ONCE at mount (one-way), and the
+// dialog maps the carried rows into its own editable rows through the
+// pure mapper (the honest dropped count included).
+import { consumeOrderHandoff, mapOrderHandoffToPoItems, type OrderHandoffPayload } from '@/lib/order-handoff';
 // v2.251.0 THE WALK'S WHEN — the detail strip's cadence chip wears the
 // census's own four houses (one home, byte-identical classes to the
 // org drill's chip).
@@ -249,6 +254,8 @@ function CreatePODialog({
   onOpenChange,
   storeId,
   restockSheetId,
+  orderBirth,
+  onBirthConsumed,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -259,6 +266,16 @@ function CreatePODialog({
   // the units the shelf lost, cost = the product's own cost price) and the
   // created PO carries originStockTakeId — the violet birth, for life.
   restockSheetId?: string | null;
+  // v2.416.0 THE ORDER'S BIRTH — the envelope the banner's Send face
+  // folded (the tab consumed the pocket once at mount and holds it
+  // here). When present and the dialog opens, the carried lines map
+  // into the same editable rows (qty = the reorder gap the banner
+  // asked for, cost = the product's own cost price or an empty pen)
+  // and the amber strip speaks the carriage — lines, units, and the
+  // honest dropped count. A manual "New PO" never inherits the birth:
+  // the tab hands it to the dialog exactly once (onBirthConsumed).
+  orderBirth?: OrderHandoffPayload | null;
+  onBirthConsumed?: () => void;
 }) {
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
@@ -281,6 +298,37 @@ function CreatePODialog({
   const [restockVoice, setRestockVoice] = useState<{ aisle: string | null; units: number; lines: number } | null>(null);
   const [restockLoading, setRestockLoading] = useState(false);
   const [restockError, setRestockError] = useState<string | null>(null);
+  // v2.416.0: the order birth's own strip — a LOCAL digest, so the strip
+  // keeps speaking after the tab hands the envelope over (the one-way
+  // law: the pocket and the stash are consumed; the reading stays).
+  const [orderStrip, setOrderStrip] = useState<{ lines: number; units: number; dropped: string[] } | null>(null);
+  // THE ORDER'S MAP — the carried rows become the dialog's own rows.
+  // The mapping reads the shelf once (the same list call the low-stock
+  // loader speaks): a sku the shelf no longer knows is dropped and
+  // counted, never silently shortened; a cost the gate hides leaves the
+  // pen empty for the actor's own truth. After the map lands (or
+  // honestly fails), the tab is told the birth is spent — a manual
+  // reopen starts empty.
+  useEffect(() => {
+    if (!open || !orderBirth) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await productsApi.list({ storeId, limit: 200 });
+        const products: ProductListItem[] = Array.isArray(res?.data) ? res.data : [];
+        const { items, droppedSkus } = mapOrderHandoffToPoItems(orderBirth, products);
+        if (cancelled) return;
+        if (items.length > 0) setPoItems(items);
+        setOrderStrip({ lines: orderBirth.lines, units: orderBirth.units, dropped: droppedSkus });
+      } catch {
+        if (!cancelled) setOrderStrip({ lines: orderBirth.lines, units: orderBirth.units, dropped: orderBirth.items.map((i) => i.sku) });
+      } finally {
+        if (!cancelled) onBirthConsumed?.();
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, orderBirth, storeId]);
 
   // Fetch active suppliers
   const { data: suppliersData } = useQuery({
@@ -474,6 +522,7 @@ function CreatePODialog({
     setNotes('');
     setPoItems([]);
     setProductSearch('');
+    setOrderStrip(null);
   };
 
   const handleOpenChange = (nextOpen: boolean) => {
@@ -540,6 +589,36 @@ function CreatePODialog({
                 </p>
               </>
             ) : null}
+          </div>
+        )}
+
+        {/* v2.416.0 THE CARRIAGE STRIP — the amber door family's reading:
+            the dialog says WHICH desk the order rode from and what it
+            carried (lines, units), and speaks the honest dropped count
+            when the shelf no longer knows a carried sku. The birth is a
+            DRAFT: every row below stays the actor's to edit, and the
+            supplier is always the actor's own choice — the order never
+            named one. */}
+        {orderStrip && (
+          <div
+            data-testid="po-order-handoff-provenance"
+            aria-label={orderStrip.dropped.length > 0
+              ? `carried from the restock order — ${orderStrip.lines} line${orderStrip.lines === 1 ? '' : 's'}, ${orderStrip.units} unit${orderStrip.units === 1 ? '' : 's'}; ${orderStrip.dropped.length} line${orderStrip.dropped.length === 1 ? '' : 's'} the shelf no longer knows: ${orderStrip.dropped.join(', ')}`
+              : `carried from the restock order — ${orderStrip.lines} line${orderStrip.lines === 1 ? '' : 's'}, ${orderStrip.units} unit${orderStrip.units === 1 ? '' : 's'} pre-picked below`}
+            className="rounded-lg border border-amber-200 bg-amber-50/60 px-2.5 py-2 text-[11px] text-amber-800 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200"
+          >
+            <p className="flex items-center gap-1 text-[9px] font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-300">
+              <Truck className="h-3 w-3" aria-hidden="true" />
+              carried from the restock order
+            </p>
+            <p className="mt-0.5 font-medium">
+              {orderStrip.lines} line{orderStrip.lines === 1 ? '' : 's'} · {orderStrip.units} unit{orderStrip.units === 1 ? '' : 's'} pre-picked below — the supplier is your call; every row stays yours to edit.
+            </p>
+            {orderStrip.dropped.length > 0 && (
+              <p data-testid="po-order-handoff-dropped" className="mt-1 font-medium text-red-700 dark:text-red-300">
+                {orderStrip.dropped.length} line{orderStrip.dropped.length === 1 ? '' : 's'} the shelf no longer knows (left behind): {orderStrip.dropped.join(', ')}.
+              </p>
+            )}
           </div>
         )}
 
@@ -1702,7 +1781,19 @@ export default function PurchaseOrdersTab() {
   const [page, setPage] = useState<number>(initialPoPage);
   const [sortField, setSortField] = useState<'orderDate' | 'totalAmount' | 'status'>('orderDate');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
-  const [createOpen, setCreateOpen] = useState(false);
+  // v2.416.0 THE ORDER'S HANDOFF LANDING — the tab consumes the banner's
+  // pocket ONE time at mount (one-way: the sessionStorage envelope is
+  // read and cleared here, so a manual "New PO" can never inherit the
+  // birth by accident — the same law the ?restockFrom= door speaks).
+  // The dialog opens on the FIRST render (createOpen's lazy initializer
+  // below), never through an effect's setState — and hands the envelope
+  // over exactly once (the dialog calls onBirthConsumed after its map
+  // lands).
+  const [orderBirth, setOrderBirth] = useState<OrderHandoffPayload | null>(() =>
+    typeof window === 'undefined' ? null : consumeOrderHandoff(currentStoreId)
+  );
+  const consumeBirth = useCallback(() => setOrderBirth(null), []);
+  const [createOpen, setCreateOpen] = useState<boolean>(() => orderBirth != null);
   const [detailOpen, setDetailOpen] = useState(false);
   // v2.248.0 THE RESTOCK DOOR'S LANDING — the tab reads ?restockFrom= ONE
   // time at mount (the drill's restock door is a HARD anchor navigation;
@@ -2618,7 +2709,7 @@ export default function PurchaseOrdersTab() {
       </Card>
 
       {/* ── Create PO Dialog ── */}
-      <CreatePODialog open={createOpen} onOpenChange={setCreateOpen} storeId={currentStoreId} restockSheetId={restockFrom || null} />
+      <CreatePODialog open={createOpen} onOpenChange={setCreateOpen} storeId={currentStoreId} restockSheetId={restockFrom || null} orderBirth={orderBirth} onBirthConsumed={consumeBirth} />
 
       {/* ── PO Detail Dialog ── */}
       <PODetailView
