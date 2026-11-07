@@ -1,3 +1,14 @@
+## [2.439.0] The stuck row learns to bow out
+
+The data-export pipeline finishes its row synchronously, so a PENDING/PROCESSING row only exists when the invocation died — and until this round the vocabulary had no word for what happened next: the spinner spun forever, the download answered 409 for eternity. This round the desk gets its honest exit: the cancel door, the cancelled face, and a fixture row that wears it.
+
+### Added
+- **THE CANCEL DOOR** (`src/app/api/data-exports/[id]/cancel/route.ts` + `src/lib/api.ts`): POST `/api/data-exports/[id]/cancel` retires a stuck row as CANCELLED — 404 / tenancy 403 / the stuck-row gate 409 (only PENDING/PROCESSING pass; a COMPLETED, FAILED, EXPIRED, or already-CANCELLED row is finished history and is never rewritten). The row STAYS in the history wearing its note (`Cancelled by <email> before completion.`), the audit speaks `DATA_EXPORT_CANCELLED` with the previous state, and `dataExportsApi.cancel` rides the wire type. `CANCELLED` joins `DataExportStatus` — with FAILED (both are "this file will never arrive"), before EXPIRED (the derived overlay keeps the last seat).
+- **THE WITHDRAWN FACE** (`src/components/data-exports/exports-history-table.tsx` + `src/lib/tab-url.ts` + `scripts/seed-exports-fixtures.mjs`): the desk wears the whole vocabulary — a zinc Cancelled badge with the Ban icon, a Cancelled chip (zinc, the withdrawn voice beside the loud rose/amber ones), the cancel hand on exactly the waiting rows (`export-cancel-btn`, "Cancel stuck export"), the row dimmed to `opacity-60` with the `export-row-cancelled` handle, the deep-link word `exp-status=cancelled` joining `EXP_STATUS_FILTERS`, and the fixture world wearing the face (one LOYALTY row cancelled by the owner — 14 → 15 rows: 8 completed + 1 expired, 2 failed, 1 processing, 1 pending, 1 cancelled, 2 off-union).
+
+### Changed
+- **THE DOWNLOAD ROUTE'S GATE ROW SPEAKS EVERY WORD IT KEEPS** (`src/app/api/data-exports/[id]/download/route.ts`): a cancelled row answers its OWN 409 message ("This export was cancelled before it finished.") — sitting between the FAILED gate and the expiry gate; the 410-before-COMPLETED order pin untouched. The elder suites' byte pins re-anchor honestly (the fourteen-row world → fifteen, the row lens's ternary chain).
+
 ## [2.438.0] The world learns to expire
 
 The export history's expiry story was fully written in code — the derived Expired badge, the disabled download with its honest tooltip, the endpoint's 410 Gone before the COMPLETED gate, the retention chip's silence — and never spoken on a fresh world: no fixture row carried a past `expiresAt`. This round the fixture world wears the face and the desk grows the retired read.

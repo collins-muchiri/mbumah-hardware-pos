@@ -46,11 +46,13 @@ describe('the fixture world learns to expire (v2.438.0)', () => {
     expect(fixture).not.toContain('content = completed && !expired');
   });
 
-  it('the fourteen-row world\u2019s summary census speaks the expired face', () => {
-    expect(fixture).toContain('fourteen DataExport history rows');
-    expect(fixture).not.toContain('thirteen DataExport history rows');
+  it('the fifteen-row world\u2019s summary census speaks the expired face', () => {
+    // v2.439.0 re-anchor: fourteen grew to fifteen (the cancelled face
+    // joined) — the prose pin and the not-pins move together.
+    expect(fixture).toContain('fifteen DataExport history rows');
+    expect(fixture).not.toContain('fourteen DataExport history rows');
     expect(fixture).toContain("const expired = ROWS.filter(([, , , , , , d]) => d !== null && d < 0).length;");
-    expect(fixture).toContain('(8 completed + ${expired} expired, 2 failed, 1 processing, ${pending} pending, ${offUnion} off-union: PAYROLL + ALL)');
+    expect(fixture).toContain('(8 completed + ${expired} expired, 2 failed, 1 processing, ${pending} pending, ${cancelled} cancelled, ${offUnion} off-union: PAYROLL + ALL)');
   });
 });
 
@@ -67,9 +69,11 @@ describe('the desk wears the expiry truth (v2.438.0)', () => {
     expect(table).toContain("className=\"gap-1 border-amber-300 bg-amber-50 px-1.5 py-0 text-[10px] font-medium text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-400\"");
   });
 
-  it('the retired read — the expired row dims, the rest byte-identical', () => {
-    expect(table).toContain("className={isExportExpired(item) ? 'opacity-70' : undefined}");
-    expect(table).toContain("data-testid={isExportExpired(item) ? 'export-row-expired' : undefined}");
+  it('the retired read — the expired row dims (the cancelled row joins one step past, v2.439.0)', () => {
+    // v2.439.0 re-anchor: the row lens grew the cancelled ternary — the
+    // expired face's own bytes keep their seat, first in the chain.
+    expect(table).toContain("isExportExpired(item)\n                      ? 'opacity-70'");
+    expect(table).toContain("? 'export-row-expired'");
   });
 
   it('the download refuses the expired row before the click — disabled with the honest tooltip', () => {

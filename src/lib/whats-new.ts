@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.439.0',
+    title: 'The stuck row learns to bow out — the export history speaks the cancelled face',
+    bullets: [
+      'A PENDING/PROCESSING export whose invocation died used to wait forever — the new POST /api/data-exports/[id]/cancel door retires it honestly as CANCELLED, the stuck row learns to bow out, and only a stuck row passes: a COMPLETED, FAILED, EXPIRED, or already-CANCELLED row is finished history and is never rewritten — the row stays in the history wearing its note, and the audit speaks DATA_EXPORT_CANCELLED.',
+      'The desk wears the whole face: a zinc Cancelled badge with the Ban icon (neither failure nor success — the desk stopped waiting), a Cancelled chip joins the lens row, the cancel hand appears on exactly the stuck rows, the deep-link word exp-status=cancelled lands the lens, and the cancelled row dims to opacity-60 — the withdrawn read.',
+      'The download route answers the cancelled face with its own 409 message — sitting between the FAILED gate and the expiry gate — and the fixture world wears it: one LOYALTY row cancelled by the owner joins the pile (fifteen rows), so the badge is wearable on a fresh world from day one.',
+    ],
+  },
+  {
     version: '2.438.0',
     title: 'The world learns to expire \u2014 the export history wears the retired read',
     bullets: [

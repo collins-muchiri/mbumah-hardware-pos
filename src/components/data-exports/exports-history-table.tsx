@@ -6,6 +6,8 @@
  * components and the shared EmptyState.
  *
  * Filter chips: All, Completed, Failed, Processing (PENDING + PROCESSING).
+ * v2.439.0: Cancelled joins the row — the stuck row's honest exit (the
+ * zinc voice, the withdrawn read beside the loud rose/amber ones).
  */
 
 import React, { useMemo, useState } from 'react';
@@ -13,6 +15,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
   AlertCircle,
+  Ban,
   CheckCircle2,
   Clock,
   Download,
@@ -97,7 +100,7 @@ interface ExportsHistoryTableProps {
   onTypeChange?: (type: ExpTypeFilter) => void;
 }
 
-type FilterKey = 'all' | 'completed' | 'failed' | 'processing';
+type FilterKey = 'all' | 'completed' | 'failed' | 'processing' | 'cancelled';
 
 /**
  * A COMPLETED export whose expiresAt (created + 7 days) has passed is no
@@ -115,6 +118,10 @@ const FILTER_CHIPS: Array<{ key: FilterKey; label: string; color: string }> = [
   { key: 'completed', label: 'Completed', color: 'green' },
   { key: 'failed', label: 'Failed', color: 'rose' },
   { key: 'processing', label: 'Processing', color: 'amber' },
+  // v2.439.0 THE WITHDRAWN VOICE: zinc — deliberately muted, because a
+  // cancelled export is nobody's failure and nobody's success; it is
+  // the desk choosing to stop waiting.
+  { key: 'cancelled', label: 'Cancelled', color: 'zinc' },
 ];
 
 const CHIP_ACTIVE: Record<string, string> = {
@@ -122,6 +129,7 @@ const CHIP_ACTIVE: Record<string, string> = {
   green: 'bg-green-500 text-white border-green-600',
   rose: 'bg-rose-500 text-white border-rose-600',
   amber: 'bg-amber-500 text-white border-amber-600',
+  zinc: 'bg-zinc-600 text-white border-zinc-600',
 };
 
 const CHIP_IDLE: Record<string, string> = {
@@ -129,6 +137,7 @@ const CHIP_IDLE: Record<string, string> = {
   green: 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/30 dark:text-green-300 dark:border-green-900',
   rose: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/30 dark:text-rose-300 dark:border-rose-900',
   amber: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-900',
+  zinc: 'bg-zinc-100 text-zinc-600 border-zinc-200 dark:bg-zinc-900/40 dark:text-zinc-300 dark:border-zinc-700',
 };
 
 const TYPE_META: Record<string, { title: string; color: string }> =
@@ -239,6 +248,16 @@ function StatusBadge({ status }: { status: DataExportStatus }) {
           Failed
         </Badge>
       );
+    case 'CANCELLED':
+      // v2.439.0 THE WITHDRAWN FACE: zinc, the Ban icon — the one face
+      // that is neither a failure nor a success; the desk stopped
+      // waiting and says so quietly.
+      return (
+        <Badge className="bg-zinc-100 text-zinc-600 dark:bg-zinc-900/60 dark:text-zinc-300 hover:bg-zinc-100">
+          <Ban className="h-3 w-3 mr-1" />
+          Cancelled
+        </Badge>
+      );
     case 'PROCESSING':
       return (
         <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 hover:bg-amber-100">
@@ -342,6 +361,8 @@ export function ExportsHistoryTable({
           return exports.filter(
             (e) => e.status === 'PROCESSING' || e.status === 'PENDING',
           );
+        case 'cancelled':
+          return exports.filter((e) => e.status === 'CANCELLED');
         case 'all':
         default:
           return exports;
@@ -370,7 +391,7 @@ export function ExportsHistoryTable({
 
   const filterCounts = useMemo(() => {
     if (!Array.isArray(exports)) {
-      return { all: 0, completed: 0, failed: 0, processing: 0 };
+      return { all: 0, completed: 0, failed: 0, processing: 0, cancelled: 0 };
     }
     return {
       all: exports.length,
@@ -379,6 +400,7 @@ export function ExportsHistoryTable({
       processing: exports.filter(
         (e) => e.status === 'PROCESSING' || e.status === 'PENDING',
       ).length,
+      cancelled: exports.filter((e) => e.status === 'CANCELLED').length,
     };
   }, [exports]);
 
@@ -396,6 +418,23 @@ export function ExportsHistoryTable({
     onError: (err) => {
       const msg = handleError(err, 'Download export');
       toast.error('Download failed', { description: msg });
+    },
+  });
+
+  // THE CANCEL MUTATION (v2.439.0): retires a stuck PENDING/PROCESSING
+  // row — the history keeps the row (a cancelled export is a fact about
+  // the desk, never erased) and the badge speaks the zinc face after
+  // the refetch.
+  const cancelMutation = useMutation({
+    mutationFn: async (id: string) => dataExportsApi.cancel(id),
+    onSuccess: () => {
+      toast.success('Export cancelled');
+      queryClient.invalidateQueries({ queryKey: ['data-exports'] });
+      queryClient.invalidateQueries({ queryKey: ['data-exports-stats'] });
+    },
+    onError: (err) => {
+      const msg = handleError(err, 'Cancel export');
+      toast.error('Cancel failed', { description: msg });
     },
   });
 
@@ -544,8 +583,20 @@ export function ExportsHistoryTable({
               {filtered.map((item) => (
                 <TableRow
                   key={item.id}
-                  className={isExportExpired(item) ? 'opacity-70' : undefined}
-                  data-testid={isExportExpired(item) ? 'export-row-expired' : undefined}
+                  className={
+                    isExportExpired(item)
+                      ? 'opacity-70'
+                      : item.status === 'CANCELLED'
+                        ? 'opacity-60' // v2.439.0 the withdrawn read — cancelled dims one step past the expired's retirement
+                        : undefined
+                  }
+                  data-testid={
+                    isExportExpired(item)
+                      ? 'export-row-expired'
+                      : item.status === 'CANCELLED'
+                        ? 'export-row-cancelled'
+                        : undefined
+                  }
                 >
                   <TableCell>
                     <TypeBadge type={item.exportType} />
@@ -628,6 +679,30 @@ export function ExportsHistoryTable({
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
+                      {/* v2.439.0 THE CANCEL HAND: it exists ONLY on a
+                          waiting row — the stuck PENDING/PROCESSING face
+                          whose invocation died. A finished row never
+                          wears it (the gate law, mirrored in the UI). */}
+                      {(item.status === 'PENDING' ||
+                        item.status === 'PROCESSING') && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          data-testid="export-cancel-btn"
+                          className="h-8 w-8 p-0 text-zinc-500 hover:text-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-900/40"
+                          onClick={() => cancelMutation.mutate(item.id)}
+                          disabled={cancelMutation.isPending}
+                          title="Cancel stuck export"
+                        >
+                          {cancelMutation.isPending &&
+                          cancelMutation.variables === item.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Ban className="h-4 w-4" />
+                          )}
+                          <span className="sr-only">Cancel stuck export</span>
+                        </Button>
+                      )}
                       <Button
                         size="sm"
                         variant="ghost"
