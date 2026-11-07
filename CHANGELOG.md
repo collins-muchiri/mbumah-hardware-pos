@@ -1,3 +1,13 @@
+## [2.443.0] The census becomes a door
+
+The By Type table landed last release as a census — a face that only counted. This round the rows press through to the history's own lens, the door the deep-link desks already know, opened from the census side.
+
+### Added
+- **THE CENSUS DOOR** (`src/app/(shell)/tabs/data-exports-tab.tsx` + `src/lib/tab-url.ts`): a By Type row whose wire type owns a history lens word is pressable — the press routes through the controlled hand (`chooseExpType`, never a direct state write) and lands the export history pre-filtered to that type. Press again on the active seat releases the filter (the door's second voice). The translation lives in the ONE home: `expTypeWordFor` in `tab-url.ts`, beside the word list it translates against — the wire's UPPERCASE to the lens's kebab, and the NEUTRAL IS NOT A WORD (wire `ALL` answers null with the off-union rows: a door that "filters to all" is a no-op masquerading as a door).
+
+### Changed
+- **THE DOOR'S WARDROBE** (`src/app/(shell)/tabs/data-exports-tab.tsx`): the active row wears the desk's own emerald seat in both states (light 50/70, dark 500/10) with `aria-current` and the lens icon lit; idle doors wear the hover/focus-visible seat; the ListFilter affordance rides the hover and focus; the keyboard answers Enter and Space (the scroll swallowed); the header note names the door ("press a row to lens the history"); off-union rows stay a census with a help cursor and the honest title.
+
 ## [2.442.0] The trends find their dark voice; the by-type census lands
 
 v2.441.0's tail named the small verse — the honest-zero trend had no dark-mode-specific face — and the carried verse finally took its seat: the stats wire's `byType` aggregate was computed, typed, and rendered nowhere. Both land together.

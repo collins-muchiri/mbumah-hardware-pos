@@ -16,7 +16,7 @@
 import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Database, Loader2, Plus, RefreshCw } from 'lucide-react';
+import { Database, ListFilter, Loader2, Plus, RefreshCw } from 'lucide-react';
 import { LandingChip } from '@/components/landing-chip';
 
 import { useAppStore } from '@/lib/stores';
@@ -25,7 +25,12 @@ import {
   type DataExportItem,
   type DataExportType,
 } from '@/lib/api';
-import { EXP_STATUS_FILTERS, EXP_TYPE_FILTERS, parseInitialNamedMember } from '@/lib/tab-url';
+import {
+  EXP_STATUS_FILTERS,
+  EXP_TYPE_FILTERS,
+  expTypeWordFor,
+  parseInitialNamedMember,
+} from '@/lib/tab-url';
 import { handleError } from '@/lib/error-handler';
 
 import { Button } from '@/components/ui/button';
@@ -178,7 +183,7 @@ export function DataExportsTab() {
   // the busiest desk reads first and the order is deterministic.
   const typeRows = stats
     ? Object.entries(stats.byType)
-        .map(([type, agg]) => ({ type, ...agg }))
+        .map(([type, agg]) => ({ type, ...agg, word: expTypeWordFor(type) }))
         .sort((a, b) => b.count - a.count || a.type.localeCompare(b.type))
     : [];
 
@@ -301,12 +306,15 @@ export function DataExportsTab() {
           its records, and the withdrawn split in the zinc voice (the
           table's Cancelled badge family). The empty state renders NO
           table (the empty-state probe law): the census waits for its
-          first run as a quiet card. */}
+          first run as a quiet card.
+          v2.443.0 THE CENSUS BECOMES A DOOR — a row whose type owns a
+          lens word presses through to the history pre-filtered (the
+          controlled hand); the off-union rows stay a census, honestly. */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">By Type</h2>
           <span className="text-xs text-muted-foreground">
-            {typeRows.length} type{typeRows.length === 1 ? '' : 's'} · run counts include withdrawn rows
+            {typeRows.length} type{typeRows.length === 1 ? '' : 's'} · run counts include withdrawn rows · press a row to lens the history
           </span>
         </div>
         {statsLoading ? (
@@ -332,24 +340,89 @@ export function DataExportsTab() {
                   </tr>
                 </thead>
                 <tbody>
-                  {typeRows.map((row) => (
-                    <tr key={row.type} className="border-b last:border-0">
-                      <td className="px-4 py-2.5 font-mono text-xs">{row.type}</td>
-                      <td className="px-4 py-2.5 text-right tabular-nums">{row.count}</td>
-                      <td className="px-4 py-2.5 text-right tabular-nums">
-                        {row.records.toLocaleString()}
-                      </td>
-                      <td className="px-4 py-2.5 text-right">
-                        {row.cancelled > 0 ? (
-                          <Badge className="bg-zinc-100 text-zinc-600 dark:bg-zinc-900/60 dark:text-zinc-300 hover:bg-zinc-100">
-                            {row.cancelled} withdrawn
-                          </Badge>
-                        ) : (
-                          <span className="text-muted-foreground">0</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                  {/* v2.443.0 THE CENSUS BECOMES A DOOR: a row whose wire
+                      type owns a lens word presses through to the history
+                      (the controlled hand — chooseExpType, never a direct
+                      state write), the SAME pane the deep-link desks
+                      already know. Press = land pre-filtered; press the
+                      seat again = release (the door's second voice). The
+                      off-union rows (no word) stay a census — cursor-help
+                      and the honest title, never a door that cannot open. */}
+                  {typeRows.map((row) => {
+                    const word = row.word;
+                    const active = word !== null && expTypeFilter === word;
+                    const press =
+                      word === null
+                        ? undefined
+                        : () => chooseExpType(active ? 'all' : word);
+                    const seatClass = active
+                      ? 'group cursor-pointer bg-emerald-50/70 dark:bg-emerald-500/10'
+                      : word !== null
+                        ? 'group cursor-pointer hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:outline-none'
+                        : 'cursor-help';
+                    return (
+                      <tr
+                        key={row.type}
+                        className={`border-b last:border-0 transition-colors ${seatClass}`}
+                        tabIndex={word !== null ? 0 : undefined}
+                        aria-label={
+                          word === null
+                            ? undefined
+                            : active
+                              ? `${row.type} lens is on — press again to release the history filter`
+                              : `Show ${row.type} runs in the history`
+                        }
+                        aria-current={active ? 'true' : undefined}
+                        title={
+                          word === null
+                            ? 'This type has no history lens word — the census counts it, the lens cannot speak it'
+                            : active
+                              ? 'The history lens is on this type — press again to release it'
+                              : 'Press to filter the export history by this type'
+                        }
+                        onClick={press}
+                        onKeyDown={
+                          press
+                            ? (e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault();
+                                  press();
+                                }
+                              }
+                            : undefined
+                        }
+                      >
+                        <td className="px-4 py-2.5 font-mono text-xs">
+                          <span className="inline-flex items-center gap-1.5">
+                            {row.type}
+                            {word !== null && (
+                              <ListFilter
+                                className={`h-3 w-3 text-emerald-600 dark:text-emerald-400 transition-opacity ${
+                                  active
+                                    ? 'opacity-100'
+                                    : 'opacity-0 group-hover:opacity-70 group-focus-visible:opacity-70'
+                                }`}
+                                aria-hidden="true"
+                              />
+                            )}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2.5 text-right tabular-nums">{row.count}</td>
+                        <td className="px-4 py-2.5 text-right tabular-nums">
+                          {row.records.toLocaleString()}
+                        </td>
+                        <td className="px-4 py-2.5 text-right">
+                          {row.cancelled > 0 ? (
+                            <Badge className="bg-zinc-100 text-zinc-600 dark:bg-zinc-900/60 dark:text-zinc-300 hover:bg-zinc-100">
+                              {row.cancelled} withdrawn
+                            </Badge>
+                          ) : (
+                            <span className="text-muted-foreground">0</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

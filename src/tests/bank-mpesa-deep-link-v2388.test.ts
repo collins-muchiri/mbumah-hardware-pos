@@ -275,33 +275,33 @@ describe('the address-bar vocabulary — the twenty-seventh row (cross-suite pin
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.442.0 leads the feed', () => {
+describe('whats-new — v2.443.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.442.0');
-    // the lead's story hand-over (v2.442.0, the Task 111 law's
-    // forty-eighth application): the head story is the hand-over's
-    // voice — the trends find their dark voice; the by-type census
-    // lands: v2.441.0's tail named the small verse (the honest-zero
-    // trend had no dark-mode-specific face) and the carried verse
-    // finally took its seat (the byType aggregate was computed,
-    // typed, and rendered nowhere); every stat card's trend line
-    // speaks its own family — light 600, dark 400 (the badges'
-    // dark-pair grammar) — through the trendClass field (the
-    // muted-foreground default the fallback law); the plans and
-    // schedule dashes wear the same grammar (the mirror law) and
-    // their trend lines gain the native title hover; the stats
-    // wire's byType entries grow the cancelled field (count INCLUDES
-    // the withdrawn rows — the honest inclusion) and the exports
-    // desk grows the By Type table: runs, records, and the withdrawn
-    // split in the zinc voice (the Cancelled badge family),
-    // loudest-first. The withdrawn card's own face exits the head
-    // this round; the dark voice's grammar carries the eye.
-    expect(head.title).toContain('dark voice');
+    expect(head.version).toBe('2.443.0');
+    // the lead's story hand-over (v2.443.0, the Task 111 law's
+    // forty-ninth application): the head story is the hand-over's
+    // voice — the census becomes a door; the By Type rows lens the
+    // history: the By Type table landed last release as a census (a
+    // face that only counted) and this round its rows press through
+    // to the history's own lens (the door the deep-link desks
+    // already know, opened from the census side); a row whose wire
+    // type owns a lens word lands the history pre-filtered through
+    // the controlled hand (chooseExpType, never a direct state
+    // write — press the seat again and the lens releases); the
+    // translation lives in the ONE home (expTypeWordFor in
+    // tab-url.ts — the wire's UPPERCASE to the lens's kebab, and
+    // the NEUTRAL IS NOT A WORD: wire ALL answers null with the
+    // off-union rows); the active row wears the desk's emerald
+    // seat in both states (light 50/70, dark 500/10), the keyboard
+    // answers Enter and Space, and the header note names the door.
+    // The dark voice's grammar exits the head this round; the
+    // census door's seat carries the eye.
+    expect(head.title).toContain('census becomes a door');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('light and dark'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('By Type'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('withdrawn'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('pressable'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('emerald seat'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('honest census'))).toBe(true);
   });
 });
 

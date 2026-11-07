@@ -182,6 +182,6 @@ describe('v2.352.0 — the wrapper seam speaks its shape', () => {
   });
 
   it('THE RELEASE SLOT IS HONEST: the version file names the shipped slot (the audit PR merged 03aec8e1 — no slot is reserved any more)', () => {
-    expect(read('VERSION').trim()).toBe('2.442.0');
+    expect(read('VERSION').trim()).toBe('2.443.0');
   });
 });
