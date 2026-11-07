@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.440.0',
+    title: 'The census learns the withdrawn word — the exports stats speak every status they keep',
+    bullets: [
+      'The exports dashboard now counts cancelled exports: cancelledExports joins the stats contract, so the Total Exports card trend line reads all three outcomes at a glance — N completed · M failed · K cancelled — and the census learns the withdrawn word.',
+      'The cancelled segment wears the zinc voice (the Cancelled badge family) whenever a withdrawn row exists — the card face matches the desk vocabulary.',
+      'The Success Rate card names its denominator honestly: completed vs. failed runs (cancelled excluded — a withdrawn run never had a file, so it can be neither a success nor a failure).',
+    ],
+  },
+  {
     version: '2.439.0',
     title: 'The stuck row learns to bow out — the export history speaks the cancelled face',
     bullets: [

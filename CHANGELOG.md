@@ -1,3 +1,13 @@
+## [2.440.0] The census learns the withdrawn word
+
+v2.439.0 taught the desk to retire a stuck export — but the stats contract never heard the news: `/api/data-exports/stats` counted `totalExports` / `completedExports` / `failedExports` only, so the Total Exports card's trend line ("N completed · M failed") let the cancelled row vanish from the census. This round the contract grows the fourth key and the cards speak the whole vocabulary.
+
+### Added
+- **THE FOURTH CENSUS KEY** (`src/app/api/data-exports/stats/route.ts` + `src/lib/api.ts`): `cancelledExports` joins the route's aggregate and response contract (`DataExportsStats`) — withdrawn before completion, the v2.439.0 door's own census. The honest denominator's comment names its law: cancelled rows are excluded too — a withdrawn run never had a file, so it can be neither a success nor a failure.
+
+### Changed
+- **THE CARDS SPEAK THREE SEGMENTS** (`src/components/data-exports/exports-stats-cards.tsx`): the Total Exports card's trend line reads "N completed · M failed · K cancelled" — the cancelled segment wears the zinc voice (`font-medium text-zinc-500`, the table's Cancelled badge family) whenever a withdrawn row exists, rendered through the new rich-trend node; the Success Rate card's trend line names its own denominator ("Completed vs. failed runs (cancelled excluded)").
+
 ## [2.439.0] The stuck row learns to bow out
 
 The data-export pipeline finishes its row synchronously, so a PENDING/PROCESSING row only exists when the invocation died — and until this round the vocabulary had no word for what happened next: the spinner spun forever, the download answered 409 for eternity. This round the desk gets its honest exit: the cancel door, the cancelled face, and a fixture row that wears it.

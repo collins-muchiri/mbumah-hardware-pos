@@ -280,10 +280,12 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // the eighth word's own ledger — admitted (this suite speaks
       // `rent-status` in its rides-beside truth)
       'src/tests/rent-status-deep-link-v2355.test.ts',
-      // the third word's own ledger — admitted (its feed-head hand-over
-      // speaks this word's story — the hand-over makes every re-pointed
-      // elder an honest speaker of the new lead)
-      'src/tests/rep-type-deep-link-v2384.test.ts',
+      // rep-type EXITS the ledger (v2.440.0's honest re-anchor): its
+      // only speech of this word was the v2.439.0 feed-head comment
+      // ("exp-status=cancelled lands the lens") — the census hand-over
+      // replaced that prose with a story that does not carry the word,
+      // so the elder stops being a speaker (the word's one-writer law:
+      // the ledger lists the files that speak, no more)
       // the twenty-third word's own ledger — admitted (this suite
       // speaks `tax-type` in its rides-beside truth)
       'src/tests/tax-type-deep-link-v2382.test.ts',
@@ -314,33 +316,33 @@ describe('the address-bar vocabulary — the thirtieth row (cross-suite pins)', 
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.439.0 leads the feed', () => {
+describe('whats-new — v2.440.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.439.0');
-    // the lead's story hand-over (v2.439.0, the Task 111 law's
-    // forty-fifth application): the head story is the hand-over's
-    // voice — the stuck row learns to bow out: a PENDING/PROCESSING
-    // export whose invocation died used to wait forever (a spinner
-    // that never stops, a 409 for eternity), so the new cancel door
-    // (POST /api/data-exports/[id]/cancel) retires it honestly as
-    // CANCELLED — only a stuck row passes (a finished row is never
-    // rewritten), the row STAYS wearing its note, the audit speaks
-    // DATA_EXPORT_CANCELLED; the desk wears the whole face (the zinc
-    // Cancelled badge with the Ban icon, the Cancelled chip joins
-    // the lens row, exp-status=cancelled lands the lens, the cancel
-    // hand on exactly the waiting rows, the row dims to opacity-60 —
-    // the withdrawn read), the download route answers the cancelled
-    // face with its own 409 message between the FAILED gate and the
-    // expiry gate, and the fixture world wears the face (one LOYALTY
-    // row cancelled by the owner — fifteen rows, the badge wearable
-    // on a fresh world from day one).
-    // The expiry's own truth exits the head this round; the stuck
-    // row's honest exit carries the eye.
-    expect(head.title).toContain('stuck');
+    expect(head.version).toBe('2.440.0');
+    // the lead's story hand-over (v2.440.0, the Task 111 law's
+    // forty-sixth application): the head story is the hand-over's
+    // voice — the census learns the withdrawn word: v2.439.0
+    // taught the desk to retire a stuck export but the stats
+    // contract never heard the news (totalExports /
+    // completedExports / failedExports only — the Total Exports
+    // card trend line read "10 completed · 2 failed" and the
+    // cancelled row vanished from the census), so cancelledExports
+    // joins the route's aggregate and the response contract
+    // (withdrawn before completion — the cancel door's own
+    // census); the honest denominator names its law (a withdrawn
+    // run never had a file, so it can be neither a success nor a
+    // failure); the Total Exports trend speaks three segments
+    // (completed · failed · cancelled — the cancelled segment in
+    // zinc, the Cancelled badge family, through the new
+    // rich-trend node); and the Success Rate card names its own
+    // denominator (completed vs. failed runs, cancelled excluded).
+    // The stuck row's honest exit exits the head this round; the
+    // census's whole truth carries the eye.
+    expect(head.title).toContain('census');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('the stuck row learns to bow out'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('CANCELLED'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('its own 409 message'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('the census learns the withdrawn word'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('zinc'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('a withdrawn run never had a file'))).toBe(true);
   });
 });
