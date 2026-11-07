@@ -109,7 +109,8 @@ describe('the db:fixtures door grows its third word (v2.437.0)', () => {
 
 describe('the exports world wears the schema\u2019s default face (v2.437.0)', () => {
   it('the PENDING row joins the pile — the schema\u2019s own default status, the one wire face the world never wore', () => {
-    expect(exportsFixture).toContain("['transactions-pending', 'TRANSACTIONS', 'JSON', 'PENDING', 0, 1],");
+    // v2.438.0 re-anchor: the tuples grew the retention window (the expired face's door).
+    expect(exportsFixture).toContain("['transactions-pending', 'TRANSACTIONS', 'JSON', 'PENDING', 0, 1, null],");
     expect(schema).toContain('status             String   @default("PENDING") // PENDING, PROCESSING, COMPLETED, FAILED, CANCELLED');
   });
 
@@ -121,7 +122,8 @@ describe('the exports world wears the schema\u2019s default face (v2.437.0)', ()
 
   it('the summary line\u2019s census speaks the pending face', () => {
     expect(exportsFixture).toContain("const pending = ROWS.filter(([, , , s]) => s === 'PENDING').length;");
-    expect(exportsFixture).toContain('8 completed, 2 failed, 1 processing, ${pending} pending, ${offUnion} off-union: PAYROLL + ALL');
+    // v2.438.0 re-anchor: the census grew the expired face's own count.
+    expect(exportsFixture).toContain('(8 completed + ${expired} expired, 2 failed, 1 processing, ${pending} pending, ${offUnion} off-union: PAYROLL + ALL)');
   });
 
   it('the processing word\u2019s union covers PENDING — the lens and the count paragraph speak the SAME union', () => {
@@ -129,8 +131,9 @@ describe('the exports world wears the schema\u2019s default face (v2.437.0)', ()
     expect(table.split(union).length - 1).toBe(2);
   });
 
-  it('the twelve-row world is gone — the thirteen-row world replaces it in prose and law', () => {
-    expect(exportsFixture).toContain('thirteen DataExport history rows');
+  it('the twelve-row world is gone — the fourteen-row world replaces it in prose and law', () => {
+    // v2.438.0 re-anchor: thirteen grew to fourteen (the expired face joined).
+    expect(exportsFixture).toContain('fourteen DataExport history rows');
     expect(exportsFixture).not.toContain('twelve DataExport history rows');
     expect(mpesaFixture).toContain('(2 MATCHED, 3 PENDING, 2 UNMATCHED, 1 DISPUTED, 1 legacy derived)');
   });

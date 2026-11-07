@@ -107,7 +107,10 @@ describe('the exports fixture world — both lenses speak non-zero on a fresh wo
 
   it('completed rows carry REAL inline content (a history row that lies about its file is not fidelity)', () => {
     expect(fixture.includes('content,')).toBe(true);
-    expect(fixture.includes('expiresAt: completed ? daysFromNow(7) : null')).toBe(true);
+    // v2.438.0 re-anchor: the retention window grew per-row (the seventh
+    // tuple column, default 7 = the endpoint's own law) — the expired
+    // face's door (a NEGATIVE window is already past).
+    expect(fixture.includes('expiresAt: completed ? daysFromNow(expiresInDays ?? 7) : null,')).toBe(true);
     expect(fixture.includes('completedAt: completed ? daysAgo(ago) : null')).toBe(true);
     expect(fixture.includes("errorMessage: failed")).toBe(true);
   });
