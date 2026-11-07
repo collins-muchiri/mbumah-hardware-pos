@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.434.0',
+    title: 'The archive reads its own timeline \u2014 the maker\u2019s arc wears its words',
+    bullets: [
+      'The release archive now reads the maker\u2019s arc as a ledger: every word of the supplier-maker arc \u2014 v2.420.0\u2019s \u201cthe shelf remembers its supplier\u201d through today\u2019s fifteenth word \u2014 wears an amber chip beside its line, \u201cword 7 \u00b7 Nov 6\u201d, the walk\u2019s own Footprints glyph and the memory family\u2019s amber with the digits holding their lane.',
+      'The dates are the tags\u2019 own truth, spoken exactly as the tag records it: the arc lib carries each word\u2019s release day, the short face says \u201cNov 6\u201d, and the chip\u2019s title tells the whole story \u2014 \u201cthe maker\u2019s arc \u2014 word 15 of 15, released 2026-11-07\u201d.',
+      'The absent-control law holds and the arc reads itself: a version outside the arc wears no chip at all, every word\u2019s version still lives in the feed \u2014 the arc never leaves the archive \u2014 and non-arc entries render exactly as before; the timeline joins the ledger, the ledger stays the ledger.',
+    ],
+  },
+  {
     version: '2.433.0',
     title: 'The desk reads the door\u2019s memory \u2014 the carried strip wears the send\u2019s own stamp',
     bullets: [

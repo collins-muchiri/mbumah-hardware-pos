@@ -12,9 +12,10 @@ import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, C
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import { AlertCircle, CheckCheck, ChevronDown, ChevronUp, CloudOff, ExternalLink, FileText, History, Home, Keyboard, Loader2, LogIn, Megaphone, Package, ScrollText, Sparkles, Terminal, Store } from 'lucide-react';
+import { AlertCircle, CheckCheck, ChevronDown, ChevronUp, CloudOff, ExternalLink, FileText, Footprints, History, Home, Keyboard, Loader2, LogIn, Megaphone, Package, ScrollText, Sparkles, Terminal, Store } from 'lucide-react';
 import { CurrencySwitcher } from '@/components/currency-switcher';
 import { goHomeToPos } from '@/components/console/unified-console';
+import { arcWordFace, RELEASE_ARC, releaseArcWord } from '@/lib/release-arc';
 import { APP_BUILD_LABEL, APP_VERSION } from '@/lib/version';
 import { WHATS_NEW, whatsNewMarkAllTarget, whatsNewReadState, whatsNewUnreadCount, type WhatsNewEntry } from '@/lib/whats-new';
 import { HealthGauge, kes, type KpiSummaryData, type StoreRow } from './primitives';
@@ -505,6 +506,11 @@ function JumpDoorPill({ via }: { via: ChangelogJumpVia }) {
 }
 
 function ChangelogEntry({ entry, latest, focused, via }: { entry: WhatsNewEntry; latest: boolean; focused?: boolean; via?: ChangelogJumpVia | null }) {
+  // v2.434.0: the arc reads itself - a word of the supplier-maker arc
+  // wears its release day beside its line (the tag's own truth); a
+  // version outside the arc reads the null and renders byte-identical
+  // to every earlier round (the absent-control law).
+  const arcWord = releaseArcWord(entry.version);
   return (
     <div
       data-testid={`changelog-entry-${entry.version}`}
@@ -519,6 +525,15 @@ function ChangelogEntry({ entry, latest, focused, via }: { entry: WhatsNewEntry;
           v{entry.version}
         </Badge>
         <span className={`text-sm font-semibold leading-tight ${latest ? 'text-emerald-900 dark:text-emerald-200' : 'text-slate-800 dark:text-slate-200'}`}>{entry.title}</span>
+        {arcWord ? (
+          <span
+            data-testid={`changelog-arc-chip-${entry.version}`}
+            title={`the maker's arc — word ${arcWord.ordinal} of ${RELEASE_ARC.length}, released ${arcWord.date}`}
+            className="inline-flex items-center gap-1 rounded-full border border-amber-300 bg-amber-50 px-1.5 py-px text-[9px] font-semibold tabular-nums text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/15 dark:text-amber-300"
+          >
+            <Footprints className="h-2.5 w-2.5" aria-hidden /> word {arcWord.ordinal} · {arcWordFace(arcWord.date)}
+          </span>
+        ) : null}
         {latest && (
           <span data-testid="changelog-latest-pill" className="inline-flex items-center gap-1 rounded-full border border-emerald-300 bg-white px-1.5 py-px text-[9px] font-semibold uppercase tracking-wide text-emerald-700 dark:border-emerald-500/40 dark:bg-slate-900 dark:text-emerald-300">
             <Sparkles className="h-2.5 w-2.5" aria-hidden /> latest

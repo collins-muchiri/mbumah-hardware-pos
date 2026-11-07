@@ -294,29 +294,31 @@ describe('the address-bar vocabulary — the thirtieth row (cross-suite pins)', 
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.433.0 leads the feed', () => {
+describe('whats-new — v2.434.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.433.0');
-    // the lead's story hand-over (v2.433.0, the Task 111 law's
-    // thirty-ninth application): the head story is the hand-over's
-    // voice — the desk reads the door's memory: the READING desk
-    // answers the door's memory (orderBlockRodeStamp — the strip's
-    // stamp word, pure: the desk's own verb "rode at" on the door's
-    // clock law, a null, a broken stamp, or no send this session
-    // reads the null, the honest absence), the derived gate rides
-    // orderStrip's own null-at-hydration (no state, no effect —
-    // the read never meets SSR), the stamp rides UNDER the echo
-    // line's quote-border (the memory sits under the quotation,
-    // the Footprints glyph, the quiet italic, tabular), and the
-    // stamp is a FACT never a gate (it never dresses the pen —
-    // the v2.422 derivation byte-kept).
-    // The door's story exits the head this round; the
-    // desk's own answer carries the eye.
-    expect(head.title).toContain('stamp');
+    expect(head.version).toBe('2.434.0');
+    // the lead's story hand-over (v2.434.0, the Task 111 law's
+    // fortieth application): the head story is the hand-over's
+    // voice — the archive reads its own timeline: the release
+    // changelog's story list grew the arc's own timeline
+    // (RELEASE_ARC — the fifteen words of the supplier-maker arc
+    // with their release days exactly as the tags record them,
+    // releaseArcWord — the pure lookup, a version outside the arc
+    // reads the null — the absent-control law), each arc word's
+    // entry wears the amber chip beside its line ("word 7 · Nov 6"
+    // — the walk's own Footprints glyph, the memory family's
+    // amber, tabular-nums, the title carrying the whole story),
+    // the short face speaks the day (arcWordFace — the MMM D
+    // brevity, an unparseable day reads itself), and the arc
+    // never leaves the archive (every word's version lives in
+    // the feed — the announcement dialog stays bare, one home).
+    // The desk's story exits the head this round; the
+    // arc's own timeline carries the eye.
+    expect(head.title).toContain('timeline');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('rode at'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('the two sides comparing clocks'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('the honest absence'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('the arc reads itself'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('as the tag records it'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('never leaves the archive'))).toBe(true);
   });
 });
