@@ -220,13 +220,13 @@ describe('the branch panel grows the scope and the way out (v2.220.0)', () => {
 
 describe('the round of record (v2.220.0)', () => {
   it('package.json leads 2.220.0 (all three slots)', () => {
-    expect(pkg.version).toBe('2.435.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.435.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.435.0');
+    expect(pkg.version).toBe('2.436.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.436.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.436.0');
   });
 
   it('VERSION speaks the same truth', () => {
-    expect(version).toBe('2.435.0');
+    expect(version).toBe('2.436.0');
   });
 
   it('whats-new entry at the head', () => {

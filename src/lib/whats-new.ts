@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.436.0',
+    title: 'The fixture world speaks its whole vocabulary \u2014 the two desks answer a fresh world',
+    bullets: [
+      'One door lights the fixture worlds: npm run db:fixtures stands up the M-Pesa ledger\u2019s four statuses and the export center\u2019s twelve history rows on a fresh database, so the honest zero retires \u2014 every word both desks offer, some row now wears it on day one.',
+      'The export history tells the truth about legacy spellings: a row whose type the ten cards no longer speak wears the deliberate off-card badge \u2014 the schema\u2019s own column comment keeps it \u2014 and the off-union face is now a pinned fact, never a guess.',
+      'The M-Pesa pane wears its status census: five faces counted from the same stored vocabulary the rows speak, the four status chips pressing through the ONE door \u2014 press to wear the word, press again to return to all \u2014 while the legacy derived face stays a count and never a lens word.',
+    ],
+  },
+  {
     version: '2.435.0',
     title: 'The watch confesses its window \u2014 the idle lock wears a grace strip',
     bullets: [

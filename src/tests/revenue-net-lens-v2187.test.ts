@@ -172,9 +172,9 @@ describe('the recorded history - the doc tells the deepening', () => {
 
 describe('the version contract', () => {
   it('package.json rides at 2.198.0', () => {
-    expect(pkg.version).toBe('2.435.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.435.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.435.0');
+    expect(pkg.version).toBe('2.436.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.436.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.436.0');
   });
 
   it('the fresh verify surface is wired beside the prior one', () => {
