@@ -1,3 +1,14 @@
+## [2.437.0] The taxman joins the door
+
+The db:fixtures door lit two of the three fixture worlds; the KRA/e-TIMS script (v2.386.0's taxman world) stayed manual — a fresh world's e-TIMS desk answered its honest empty after the door ran. This round the door grows its third face and the exports world wears the schema's own default status.
+
+### Added
+- **THE DOOR'S THIRD WORD** (`package.json`): `npm run db:fixtures` lights THREE fixture worlds through the one door — the M-Pesa ledger's script leads, the exports world follows, and the taxman's world (`scripts/seed-kra-fixtures.mjs`, dev-only, verified live on the current schema, idempotent by unique-key upserts) closes the parade: six SALE anchors, six KRA invoices speaking ALL FIVE submission statuses, four audit rows for the submitted faces, eight tax filings across the FOUR types, and the sandbox business profile — a fresh world answers the e-TIMS desk on day one. THE SEED-PASSWORD LAW RIDES THE HANDLE ITSELF: every face runs under `NODE_ENV=development` (the closing burst's own catch — the bare chain let the first two worlds light and then refused the third, a partial door that exit codes alone would have buried).
+- **THE DEFAULT FACE** (`scripts/seed-exports-fixtures.mjs`): the exports world grows ONE PENDING history row — the schema's own default status (`@default("PENDING")`), the one wire face the fixtures never wore; the processing word's union (`PROCESSING || PENDING`) answers it under `processing` and `all`, never stranded; the coherence law holds (a waiting row carries neither completion nor failure faces).
+
+### Changed
+- **THE THIRTEEN-ROW WORLD**: the exports fixture world speaks 12 → 13 rows (8 completed, 2 failed, 1 processing, 1 pending, 2 off-union) and the summary line's census speaks the pending face; one command answers three world-lit lines on a fresh world.
+
 ## [2.436.0] The fixture world speaks its whole vocabulary
 
 Nineteen rounds the fixture-fidelity carry stood open — the M-Pesa lens's UNMATCHED/DISPUTED answering an honest zero on a fresh world, the exports desks' lenses the same, the off-union PAYROLL row a story with no row. This round both worlds light end to end and the off-union face becomes a pinned fact.

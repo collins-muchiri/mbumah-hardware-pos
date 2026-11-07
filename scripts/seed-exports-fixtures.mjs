@@ -9,19 +9,24 @@
  * Task 104 carry kept naming (the exports fixture's PAYROLL row) had no
  * row to be honest about. This fixture lights the desk END TO END on the
  * local dev database:
- *   • twelve DataExport history rows: one per each of the TEN card types
- *     (speaking both lenses — 8 completed, 2 failed, 1 processing), PLUS
- *     the TWO off-union faces the schema's own column comment keeps
- *     (PAYROLL completed, ALL failed — "the off-wire fixture row", the
- *     debt's deliberate pin: the type lens answers them under NO card
- *     word and the badge says so, never a card they never wore),
+ *   • thirteen DataExport history rows: one per each of the TEN card types
+ *     (speaking both lenses — 8 completed, 2 failed, 1 processing) PLUS
+ *     the schema's own DEFAULT status face (one PENDING row — the one
+ *     wire status the world never wore; the processing word's union
+ *     covers it, so the lens answers it under `processing` and `all`,
+ *     never stranded) PLUS the TWO off-union faces the schema's own
+ *     column comment keeps (PAYROLL completed, ALL failed — "the
+ *     off-wire fixture row", the debt's deliberate pin: the type lens
+ *     answers them under NO card word and the badge says so, never a
+ *     card they never wore),
  *   • every COMPLETED row carries REAL inline CSV content (the download
  *     endpoint's preferred source) so the rows are downloadable exactly
  *     as real ones are — the fixture-fidelity law: a history row that
  *     lies about its file is not fidelity,
  *   • the coherence law kept exactly as the POST route writes them
  *     (COMPLETED → completedAt + expiresAt +7d; FAILED → errorMessage;
- *     PROCESSING → neither).
+ *     PROCESSING and PENDING → neither — a waiting row lies about no
+ *     completion and no failure).
  *
  * THE SEED-PASSWORD LAW is not engaged here (no users are touched).
  * Idempotent: every row is found by its marker key inside the free-form
@@ -42,9 +47,9 @@ const key = (k) => JSON.stringify({ [MARKER]: true, key: k });
 const daysFromNow = (n) => new Date(Date.now() + n * 24 * 60 * 60 * 1000);
 const daysAgo = (n) => new Date(Date.now() - n * 24 * 60 * 60 * 1000);
 
-// the twelve rows: [key, exportType, format, status, recordCount, daysAgo]
+// the thirteen rows: [key, exportType, format, status, recordCount, daysAgo]
 // coherence law: COMPLETED → completedAt + content + expiresAt (+7d);
-// FAILED → errorMessage; PROCESSING → neither.
+// FAILED → errorMessage; PROCESSING and PENDING → neither.
 const ROWS = [
   ['products-completed', 'PRODUCTS', 'CSV', 'COMPLETED', 80, 3],
   ['customers-completed', 'CUSTOMERS', 'CSV', 'COMPLETED', 25, 3],
@@ -54,6 +59,9 @@ const ROWS = [
   ['employees-completed', 'EMPLOYEES', 'CSV', 'COMPLETED', 16, 1],
   ['suppliers-completed', 'SUPPLIERS', 'CSV', 'COMPLETED', 12, 1],
   ['loyalty-processing', 'LOYALTY', 'JSON', 'PROCESSING', 0, 1],
+  // the schema's own default face — the one wire status the world never
+  // wore; the processing word's union (PROCESSING || PENDING) answers it.
+  ['transactions-pending', 'TRANSACTIONS', 'JSON', 'PENDING', 0, 1],
   ['tax-completed', 'TAX', 'CSV', 'COMPLETED', 54, 1],
   ['sales-summary-completed', 'SALES_SUMMARY', 'CSV', 'COMPLETED', 31, 1],
   // the off-union faces — the schema's column comment keeps both
@@ -115,9 +123,10 @@ async function main() {
   }
 
   const offUnion = ROWS.filter(([, t]) => t === 'PAYROLL' || t === 'ALL').length;
+  const pending = ROWS.filter(([, , , s]) => s === 'PENDING').length;
   console.log(
     `exports fixture world lit: ${ROWS.length} history rows ` +
-      `(8 completed, 2 failed, 1 processing, ${offUnion} off-union: PAYROLL + ALL) → store ${store.id}`,
+      `(8 completed, 2 failed, 1 processing, ${pending} pending, ${offUnion} off-union: PAYROLL + ALL) → store ${store.id}`,
   );
 }
 
