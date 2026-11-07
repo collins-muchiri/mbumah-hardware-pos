@@ -110,7 +110,10 @@ describe('the history’s mirror takes its seat (v2.447.0)', () => {
     expect(tbodyAt).toBeGreaterThan(theadAt);
   });
 
-  it('ONE handle in this thead — the census’s two live across the tab line', () => {
+  it('TWO handles in this thead — the census’s two live across the tab line', () => {
+    // v2.448.0 RE-ANCHOR, NAMED: the records voice joined the thead —
+    // the created handle's own count is unchanged (still exactly one);
+    // the second handle's count is pinned by the v2448 suite.
     expect((thead.match(/data-testid="history-sort-created"/g) ?? []).length).toBe(1);
   });
 

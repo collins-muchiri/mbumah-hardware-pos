@@ -17,6 +17,7 @@ import {
   AlertCircle,
   Ban,
   CheckCircle2,
+  ChevronDown,
   ChevronUp,
   ChevronsUpDown,
   Clock,
@@ -333,6 +334,12 @@ export function ExportsHistoryTable({
   // newest-first, named in the API route's own orderBy); true =
   // oldest-first, the law inverted.
   const [byOldest, setByOldest] = useState(false);
+  // v2.448.0 THE HISTORY'S RECORDS VOICE — a FIRST sort voice on a wire
+  // that never ordered by records (the census's records lens grammar,
+  // ported): false = the wire's own law (newest-first), true =
+  // loudest-by-records, desc-first. THE EXCLUSION LIVES AT THE PRESS —
+  // each handle's own press retires its sibling; no reconcile effect.
+  const [byRecords, setByRecords] = useState(false);
 
   // Effective filter - allow parent override (e.g. always show 'all').
   // v2.391.0: in the CONTROLLED form (onFilterChange provided) the desk
@@ -384,13 +391,24 @@ export function ExportsHistoryTable({
   // the wire's newest-first law keeps its seat (the API's orderBy was
   // never rewritten), and the tiebreak is the row's own id
   // (deterministic).
+  // v2.448.0 THE RECORDS VOICE JOINS: a second pass seat on the same
+  // ride — loudest-by-records, desc-first, the id as the tiebreak. The
+  // two voices are EXCLUSIVE (the most recent press names the order,
+  // synchronously, at the press) and the wire's law still falls
+  // through when neither speaks.
   const sortedRows = byOldest
     ? [...filtered].sort(
         (a, b) =>
           a.createdAt.localeCompare(b.createdAt) ||
           a.id.localeCompare(b.id),
       )
-    : filtered;
+    : byRecords
+      ? [...filtered].sort(
+          (a, b) =>
+            b.recordCount - a.recordCount ||
+            a.id.localeCompare(b.id),
+        )
+      : filtered;
 
   const typeCounts = useMemo(() => {
     const empty: Record<string, number> = {};
@@ -592,7 +610,53 @@ export function ExportsHistoryTable({
                 <TableHead className="w-[140px]">Type</TableHead>
                 <TableHead className="w-[80px]">Format</TableHead>
                 <TableHead className="w-[200px]">Date Range</TableHead>
-                <TableHead className="text-right w-[90px]">Records</TableHead>
+                {/* v2.448.0 THE HISTORY'S RECORDS VOICE — the header is
+                    the handle: a real button speaking the FIRST voice on
+                    the unordered records wire (desc-first, the census's
+                    lens grammar ported); the affordance waits for the
+                    hover (ChevronsUpDown), the active voice reads
+                    semibold under a lit ChevronDown, and aria-sort names
+                    the descending order. The press retires the mirror —
+                    the exclusion lives at the press. */}
+                <TableHead
+                  className="group text-right w-[90px]"
+                  aria-sort={byRecords ? 'descending' : undefined}
+                >
+                  <button
+                    type="button"
+                    data-testid="history-sort-records"
+                    aria-label={
+                      byRecords
+                        ? 'Sorted by records, loudest first — press again to return to newest-first'
+                        : 'Sort the history by records, loudest first'
+                    }
+                    title={
+                      byRecords
+                        ? 'The history reads loudest-by-records — press again for the newest-first law'
+                        : 'Press to sort the history by records, loudest first'
+                    }
+                    onClick={() => {
+                      setByOldest(false);
+                      setByRecords(!byRecords);
+                    }}
+                    className={`inline-flex items-center gap-1 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 ${
+                      byRecords ? 'font-semibold text-foreground' : 'hover:text-foreground'
+                    }`}
+                  >
+                    Records
+                    {byRecords ? (
+                      <ChevronDown
+                        className="h-3 w-3"
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      <ChevronsUpDown
+                        className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+                        aria-hidden="true"
+                      />
+                    )}
+                  </button>
+                </TableHead>
                 <TableHead className="text-right w-[100px]">Size</TableHead>
                 <TableHead className="w-[130px]">Status</TableHead>
                 {/* v2.447.0 THE HISTORY'S MIRROR — the header is the
@@ -619,7 +683,12 @@ export function ExportsHistoryTable({
                         ? 'The history reads oldest-first — press again for the newest-first law'
                         : 'Press to sort the history oldest-first'
                     }
-                    onClick={() => setByOldest(!byOldest)}
+                    // v2.448.0 the exclusion lives at the press — the
+                    // mirror's press retires the records voice
+                    onClick={() => {
+                      setByRecords(false);
+                      setByOldest(!byOldest);
+                    }}
                     className={`inline-flex items-center gap-1 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 ${
                       byOldest ? 'font-semibold text-foreground' : 'hover:text-foreground'
                     }`}
