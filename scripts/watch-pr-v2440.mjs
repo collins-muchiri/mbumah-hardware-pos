@@ -9,7 +9,9 @@ const TOKEN = origin.match(/^https:\/\/([^:@]+):([^@]+)@github\.com\//)[2];
 const OWNER = 'collins-muchiri';
 const REPO = 'mbumah-hardware-pos';
 const PR = 572;
-const HEAD = '494ddf1ef2f1b05a01883a115bb3d019a5cdc3d9';
+// the head sha is read from the PR itself each poll — a watcher commit
+// must never strand its own poll on a stale parent sha (v2.440.0 law)
+const HEAD = null;
 
 const api = async (path) => {
   const res = await fetch(`https://api.github.com${path}`, {
@@ -18,7 +20,8 @@ const api = async (path) => {
   return res.json();
 };
 
-const sha = HEAD;
+const pr = await api(`/repos/${OWNER}/${REPO}/pulls/${PR}`);
+  const sha = pr.head.sha;
 for (let i = 0; i < 60; i++) {
   const runs = await api(`/repos/${OWNER}/${REPO}/commits/${sha}/check-runs?per_page=100`);
   const runsList = runs.check_runs ?? [];
