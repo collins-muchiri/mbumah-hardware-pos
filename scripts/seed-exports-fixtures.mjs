@@ -9,16 +9,21 @@
  * Task 104 carry kept naming (the exports fixture's PAYROLL row) had no
  * row to be honest about. This fixture lights the desk END TO END on the
  * local dev database:
- *   • thirteen DataExport history rows: one per each of the TEN card types
+ *   • fourteen DataExport history rows: one per each of the TEN card types
  *     (speaking both lenses — 8 completed, 2 failed, 1 processing) PLUS
  *     the schema's own DEFAULT status face (one PENDING row — the one
  *     wire status the world never wore; the processing word's union
  *     covers it, so the lens answers it under `processing` and `all`,
- *     never stranded) PLUS the TWO off-union faces the schema's own
- *     column comment keeps (PAYROLL completed, ALL failed — "the
- *     off-wire fixture row", the debt's deliberate pin: the type lens
- *     answers them under NO card word and the badge says so, never a
- *     card they never wore),
+ *     never stranded) PLUS the EXPIRED face (one COMPLETED row whose
+ *     expiresAt is already PAST — expiry is time's own work, never a
+ *     status change: the derived Expired badge speaks beside Completed,
+ *     the download button goes disabled with its honest tooltip, the
+ *     download endpoint answers 410 Gone, and the retention chip stays
+ *     silent because the badge owns the past) PLUS the TWO off-union
+ *     faces the schema's own column comment keeps (PAYROLL completed,
+ *     ALL failed — "the off-wire fixture row", the debt's deliberate
+ *     pin: the type lens answers them under NO card word and the badge
+ *     says so, never a card they never wore),
  *   • every COMPLETED row carries REAL inline CSV content (the download
  *     endpoint's preferred source) so the rows are downloadable exactly
  *     as real ones are — the fixture-fidelity law: a history row that
@@ -47,27 +52,34 @@ const key = (k) => JSON.stringify({ [MARKER]: true, key: k });
 const daysFromNow = (n) => new Date(Date.now() + n * 24 * 60 * 60 * 1000);
 const daysAgo = (n) => new Date(Date.now() - n * 24 * 60 * 60 * 1000);
 
-// the thirteen rows: [key, exportType, format, status, recordCount, daysAgo]
-// coherence law: COMPLETED → completedAt + content + expiresAt (+7d);
-// FAILED → errorMessage; PROCESSING and PENDING → neither.
+// the fourteen rows: [key, exportType, format, status, recordCount, daysAgo,
+//                      expiresInDays] — the seventh column is the retention
+// window a COMPLETED row carries (default 7 = the endpoint's own law);
+// a NEGATIVE window is already past, and the derived Expired face speaks.
+// coherence law: COMPLETED → completedAt + content + expiresAt (+7d by
+// default); FAILED → errorMessage; PROCESSING and PENDING → neither.
 const ROWS = [
-  ['products-completed', 'PRODUCTS', 'CSV', 'COMPLETED', 80, 3],
-  ['customers-completed', 'CUSTOMERS', 'CSV', 'COMPLETED', 25, 3],
-  ['transactions-completed', 'TRANSACTIONS', 'JSON', 'COMPLETED', 412, 2],
-  ['debt-failed', 'DEBT', 'CSV', 'FAILED', 0, 2],
-  ['inventory-completed', 'INVENTORY', 'CSV', 'COMPLETED', 96, 2],
-  ['employees-completed', 'EMPLOYEES', 'CSV', 'COMPLETED', 16, 1],
-  ['suppliers-completed', 'SUPPLIERS', 'CSV', 'COMPLETED', 12, 1],
-  ['loyalty-processing', 'LOYALTY', 'JSON', 'PROCESSING', 0, 1],
+  ['products-completed', 'PRODUCTS', 'CSV', 'COMPLETED', 80, 3, 7],
+  ['customers-completed', 'CUSTOMERS', 'CSV', 'COMPLETED', 25, 3, 7],
+  ['transactions-completed', 'TRANSACTIONS', 'JSON', 'COMPLETED', 412, 2, 7],
+  ['debt-failed', 'DEBT', 'CSV', 'FAILED', 0, 2, null],
+  ['inventory-completed', 'INVENTORY', 'CSV', 'COMPLETED', 96, 2, 7],
+  ['employees-completed', 'EMPLOYEES', 'CSV', 'COMPLETED', 16, 1, 7],
+  ['suppliers-completed', 'SUPPLIERS', 'CSV', 'COMPLETED', 12, 1, 7],
+  ['loyalty-processing', 'LOYALTY', 'JSON', 'PROCESSING', 0, 1, null],
   // the schema's own default face — the one wire status the world never
   // wore; the processing word's union (PROCESSING || PENDING) answers it.
-  ['transactions-pending', 'TRANSACTIONS', 'JSON', 'PENDING', 0, 1],
-  ['tax-completed', 'TAX', 'CSV', 'COMPLETED', 54, 1],
-  ['sales-summary-completed', 'SALES_SUMMARY', 'CSV', 'COMPLETED', 31, 1],
+  ['transactions-pending', 'TRANSACTIONS', 'JSON', 'PENDING', 0, 1, null],
+  ['tax-completed', 'TAX', 'CSV', 'COMPLETED', 54, 1, 7],
+  ['sales-summary-completed', 'SALES_SUMMARY', 'CSV', 'COMPLETED', 31, 1, 7],
+  // the EXPIRED face — completed 9 days ago, retention ended 2 days ago;
+  // a COMPLETED row keeps its real content (the endpoint's 410 answers
+  // BEFORE content matters) and the badge owns the past.
+  ['products-expired', 'PRODUCTS', 'CSV', 'COMPLETED', 80, 9, -2],
   // the off-union faces — the schema's column comment keeps both
   // spellings; the ten cards no longer speak them (the deliberate pin).
-  ['payroll-off-union', 'PAYROLL', 'CSV', 'COMPLETED', 16, 4],
-  ['all-off-union', 'ALL', 'JSON', 'FAILED', 0, 4],
+  ['payroll-off-union', 'PAYROLL', 'CSV', 'COMPLETED', 16, 4, 7],
+  ['all-off-union', 'ALL', 'JSON', 'FAILED', 0, 4, null],
 ];
 
 const csvFor = (type, n) =>
@@ -85,7 +97,7 @@ async function main() {
     process.exit(1);
   }
 
-  for (const [k, exportType, format, status, recordCount, ago] of ROWS) {
+  for (const [k, exportType, format, status, recordCount, ago, expiresInDays] of ROWS) {
     const completed = status === 'COMPLETED';
     const failed = status === 'FAILED';
     const content = completed
@@ -112,7 +124,7 @@ async function main() {
       errorMessage: failed
         ? 'The ledger moved while the file was written — re-run the export.'
         : null,
-      expiresAt: completed ? daysFromNow(7) : null,
+      expiresAt: completed ? daysFromNow(expiresInDays ?? 7) : null,
       completedAt: completed ? daysAgo(ago) : null,
     };
     if (existing) {
@@ -124,9 +136,10 @@ async function main() {
 
   const offUnion = ROWS.filter(([, t]) => t === 'PAYROLL' || t === 'ALL').length;
   const pending = ROWS.filter(([, , , s]) => s === 'PENDING').length;
+  const expired = ROWS.filter(([, , , , , , d]) => d !== null && d < 0).length;
   console.log(
     `exports fixture world lit: ${ROWS.length} history rows ` +
-      `(8 completed, 2 failed, 1 processing, ${pending} pending, ${offUnion} off-union: PAYROLL + ALL) → store ${store.id}`,
+      `(8 completed + ${expired} expired, 2 failed, 1 processing, ${pending} pending, ${offUnion} off-union: PAYROLL + ALL) → store ${store.id}`,
   );
 }
 

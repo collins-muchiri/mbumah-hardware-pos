@@ -270,30 +270,32 @@ describe('the address-bar vocabulary — the twenty-ninth row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.437.0 leads the feed', () => {
+describe('whats-new — v2.438.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.437.0');
-    // the lead's story hand-over (v2.437.0, the Task 111 law's
-    // forty-third application): the head story is the hand-over's
-    // voice — the taxman joins the door: npm run db:fixtures grows
-    // its third face (the M-Pesa ledger's script leads, the exports
-    // world follows, the taxman's world closes the parade — six
-    // invoices speaking all five submission statuses, four audit
-    // rows for the submitted faces, eight tax filings across the
-    // four types and the schema-honest statuses, the sandbox
-    // profile — verified live on the current schema, idempotent),
-    // and the exports world wears the schema's own default status
-    // (one PENDING history row — the one wire face the fixtures
-    // never spoke — the processing word's union answering it under
-    // processing and all, never stranded; the coherence law holds:
-    // a waiting row carries neither completion nor failure faces).
-    // The fixture world's vocabulary story exits the head this
-    // round; the taxman's own door carries the eye.
-    expect(head.title).toContain('door');
+    expect(head.version).toBe('2.438.0');
+    // the lead's story hand-over (v2.438.0, the Task 111 law's
+    // forty-fourth application): the head story is the hand-over's
+    // voice — the world learns to expire: the export history's
+    // expiry story was fully written in code and never spoken on a
+    // fresh world (the derived Expired badge, the disabled download
+    // with its honest tooltip, the endpoint's 410 Gone BEFORE the
+    // COMPLETED gate, the retention chip's silence — the badge owns
+    // the past), so the fixture world wears the face (one COMPLETED
+    // row whose per-row retention window is already past — the
+    // tuples grew the seventh column, default 7 = the endpoint's
+    // own law, expiry is time's own work never a status change, a
+    // COMPLETED row keeps its real content), the expired row dims
+    // to opacity-70 (the retired read, the desk knowing at a
+    // glance), the pair badge speaks beside the stored one, and
+    // the completed lens still speaks the STORED truth (expiry is
+    // the overlay).
+    // The taxman's door story exits the head this round; the
+    // expiry's own truth carries the eye.
+    expect(head.title).toContain('expire');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('the taxman joins the door'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('the default face speaks'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('never stranded'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('the world learns to expire'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('the badge owns the past'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('410 Gone'))).toBe(true);
   });
 });

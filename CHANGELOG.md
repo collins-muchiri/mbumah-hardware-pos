@@ -1,3 +1,14 @@
+## [2.438.0] The world learns to expire
+
+The export history's expiry story was fully written in code — the derived Expired badge, the disabled download with its honest tooltip, the endpoint's 410 Gone before the COMPLETED gate, the retention chip's silence — and never spoken on a fresh world: no fixture row carried a past `expiresAt`. This round the fixture world wears the face and the desk grows the retired read.
+
+### Added
+- **THE EXPIRED FACE** (`scripts/seed-exports-fixtures.mjs`): one COMPLETED row whose retention window is already past (`products-expired`, completed 9 days ago, `expiresAt` 2 days ago, seventh tuple column `-2`) — the derived Expired badge speaks beside Completed on a fresh world, the download button goes disabled with its tooltip, and the endpoint answers 410 Gone before content matters. A COMPLETED row keeps its REAL content (expiry is time's own work, never a status change); the retention window is per-row now (`expiresInDays ?? 7` — the default IS the endpoint's own law); the world speaks 13 → 14 rows (8 completed + 1 expired, 2 failed, 1 processing, 1 pending, 2 off-union).
+- **THE RETIRED READ** (`src/components/data-exports/exports-history-table.tsx`): the expired row dims to `opacity-70` with the `export-row-expired` handle — the desk reads the retired row at a glance; non-expired rows byte-identical. The derived badge grows the `export-expired-badge` handle beside the stored StatusBadge — the pair, never a replacement.
+
+### Changed
+- **THE LENS SPEAKS THE STORED TRUTH**: the completed word matches the expired row too (the count paragraph's same filter) — expiry is the overlay, never a second status; the elder suites' byte pins re-anchor honestly to the per-row window (the seventh column's door).
+
 ## [2.437.0] The taxman joins the door
 
 The db:fixtures door lit two of the three fixture worlds; the KRA/e-TIMS script (v2.386.0's taxman world) stayed manual — a fresh world's e-TIMS desk answered its honest empty after the door ran. This round the door grows its third face and the exports world wears the schema's own default status.

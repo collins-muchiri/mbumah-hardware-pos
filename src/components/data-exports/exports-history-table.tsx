@@ -542,7 +542,11 @@ export function ExportsHistoryTable({
             </TableHeader>
             <TableBody>
               {filtered.map((item) => (
-                <TableRow key={item.id}>
+                <TableRow
+                  key={item.id}
+                  className={isExportExpired(item) ? 'opacity-70' : undefined}
+                  data-testid={isExportExpired(item) ? 'export-row-expired' : undefined}
+                >
                   <TableCell>
                     <TypeBadge type={item.exportType} />
                   </TableCell>
@@ -567,7 +571,11 @@ export function ExportsHistoryTable({
                         <span className="inline-flex items-center gap-1.5">
                           <StatusBadge status={item.status} />
                           {expired && (
-                            <Badge variant="outline" className="gap-1 border-amber-300 bg-amber-50 px-1.5 py-0 text-[10px] font-medium text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-400">
+                            <Badge
+                              variant="outline"
+                              data-testid="export-expired-badge"
+                              className="gap-1 border-amber-300 bg-amber-50 px-1.5 py-0 text-[10px] font-medium text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-400"
+                            >
                               <Clock className="h-3 w-3" />
                               Expired
                             </Badge>

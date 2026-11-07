@@ -119,10 +119,10 @@ describe('the walk\u2019s mirror — the faces (v2.247.0)', () => {
 
 describe('the walk\u2019s mirror — the release face (v2.247.0)', () => {
   it('the release face speaks 2.247.0', () => {
-    expect(version).toBe('2.437.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.437.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.437.0');
-    expect(read('VERSION').trim()).toBe('2.437.0');
+    expect(version).toBe('2.438.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.438.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.438.0');
+    expect(read('VERSION').trim()).toBe('2.438.0');
   });
 
   it('the verify gate is wired', () => {
@@ -142,7 +142,7 @@ describe('the walk\u2019s mirror — the release face (v2.247.0)', () => {
   });
 
   it('the counters ride +1 in the counter test', () => {
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(327);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(360);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(328);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(361);");
   });
 });

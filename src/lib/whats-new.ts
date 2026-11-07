@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.438.0',
+    title: 'The world learns to expire \u2014 the export history wears the retired read',
+    bullets: [
+      'One fixture row now finishes its story: a COMPLETED export whose retention window has passed wears the derived Expired badge beside Completed \u2014 expiry is time\u2019s own work, never a status change \u2014 the world learns to expire on a fresh database.',
+      'The download refuses before the click: the expired row\u2019s button goes disabled with its honest tooltip and the endpoint answers 410 Gone before content matters, while the retention chip stays silent \u2014 the badge owns the past.',
+      'The retired read lands: the expired row dims so the desk reads it at a glance, the completed lens still speaks the stored truth (expiry is the overlay, never a second status), and the retention window rides the fixture rows per-row \u2014 the tuples grew the seventh column.',
+    ],
+  },
+  {
     version: '2.437.0',
     title: 'The taxman joins the door \u2014 one handle lights three fixture worlds',
     bullets: [
