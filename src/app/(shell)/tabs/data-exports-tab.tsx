@@ -16,7 +16,15 @@
 import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Database, ListFilter, Loader2, Plus, RefreshCw } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronsUpDown,
+  Database,
+  ListFilter,
+  Loader2,
+  Plus,
+  RefreshCw,
+} from 'lucide-react';
 import { LandingChip } from '@/components/landing-chip';
 
 import { useAppStore } from '@/lib/stores';
@@ -136,6 +144,10 @@ export function DataExportsTab() {
   const [landedExpType] = useState<ExpTypeWordValue>(initialExpType);
   const [expTypeLandingLive, setExpTypeLandingLive] = useState(() => initialExpType() !== 'all');
   const [expTypeFilter, setExpTypeFilter] = useState<ExpTypeWordValue>(initialExpType);
+  // v2.445.0 THE RECORDS LENS — the census's sort voice (false = the
+  // run-count law, the default; true = loudest-by-records, the second
+  // voice; press the header again and the law returns).
+  const [byRecords, setByRecords] = useState(false);
 
   // The lens's ONE voice (v2.391.0): a hand-driven change is the lens's
   // second retirement voice — any word other than the landed one
@@ -185,6 +197,17 @@ export function DataExportsTab() {
         .map(([type, agg]) => ({ type, ...agg, word: expTypeWordFor(type) }))
         .sort((a, b) => b.count - a.count || a.type.localeCompare(b.type))
     : [];
+
+  // v2.445.0 THE RECORDS LENS — the sort law's second voice rides ABOVE
+  // the law: press the Records header and the census re-sorts loudest-by
+  // records (the busiest DATA desk reads first, not the busiest SCHEDULE
+  // desk); press again and the run-count law returns. The default law
+  // keeps its exact seat above — the elders' pin survives untouched.
+  const sortedRows = byRecords
+    ? [...typeRows].sort(
+        (a, b) => b.records - a.records || a.type.localeCompare(b.type),
+      )
+    : typeRows;
 
   // Data: exports list
   const {
@@ -334,7 +357,47 @@ export function DataExportsTab() {
                   <tr className="border-b bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
                     <th className="px-4 py-2.5 font-medium">Type</th>
                     <th className="px-4 py-2.5 text-right font-medium">Runs</th>
-                    <th className="px-4 py-2.5 text-right font-medium">Records</th>
+                    {/* v2.445.0 THE RECORDS LENS — the header is the handle:
+                        a real button speaking the second sort voice; the
+                        affordance waits for the hover (ChevronsUpDown),
+                        the active voice reads foreground under a lit
+                        ChevronDown, and aria-sort names the order. */}
+                    <th
+                      className="group px-4 py-2.5 text-right font-medium"
+                      aria-sort={byRecords ? 'descending' : undefined}
+                    >
+                      <button
+                        type="button"
+                        data-testid="census-sort-records"
+                        aria-label={
+                          byRecords
+                            ? 'Sorted by records — press again to return to run counts'
+                            : 'Sort the census by records'
+                        }
+                        title={
+                          byRecords
+                            ? 'The census reads loudest-by-records — press again for the run-count law'
+                            : 'Press to sort the census by records'
+                        }
+                        onClick={() => setByRecords(!byRecords)}
+                        className={`inline-flex items-center gap-1 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 ${
+                          byRecords ? 'text-foreground' : 'hover:text-foreground'
+                        }`}
+                      >
+                        Records
+                        {byRecords ? (
+                          <ChevronDown
+                            className="h-3 w-3"
+                            aria-hidden="true"
+                          />
+                        ) : (
+                          <ChevronsUpDown
+                            className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+                            aria-hidden="true"
+                          />
+                        )}
+                      </button>
+                    </th>
                     <th className="px-4 py-2.5 text-right font-medium">Withdrawn</th>
                   </tr>
                 </thead>
@@ -355,7 +418,7 @@ export function DataExportsTab() {
                       (one family, three seats), the keyboard answers
                       natively, and the honest zero stays a census — a
                       zero-count door invites a pointless press. */}
-                  {typeRows.map((row) => {
+                  {sortedRows.map((row) => {
                     const word = row.word;
                     const active = word !== null && expTypeFilter === word;
                     const press =

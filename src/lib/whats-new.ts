@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.445.0',
+    title: 'The records lens — the census learns a second sort voice',
+    bullets: [
+      'The By Type table\u2019s Records header is pressable now: one press re-sorts the census loudest-by-records, so the desk moving the most DATA reads first — not just the desk running the most exports.',
+      'Press again and the run-count law returns; the header carries its own affordance (the sort icon waits for your hover), the active voice reads foreground under a lit arrow, and aria-sort names the order for screen readers.',
+      'The default law was never rewritten — the records sort rides above it, and both voices break ties by the type\u2019s own name, so the census reads the same way twice.',
+    ],
+  },
+  {
     version: '2.444.0',
     title: 'The status door opens — the withdrawn badge lenses the cancelled',
     bullets: [
