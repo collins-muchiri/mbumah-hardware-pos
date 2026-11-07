@@ -1,3 +1,13 @@
+## [2.445.0] The records lens
+
+The census door learned to open panes; this round it learns to reorder itself — the Records header becomes the sort law's second voice.
+
+### Added
+- **THE RECORDS LENS** (`src/app/(shell)/tabs/data-exports-tab.tsx`): the By Type table's Records header becomes a real `<button>` — one press re-sorts the census **loudest-by-records** (the desk moving the most data reads first, not just the desk running the most exports), press again and the run-count law returns (the door's two-voice grammar). The second voice **rides above the law**: the default `.sort()` keeps its exact seat untouched, the records sort is a new pass over the sorted rows, and both voices break ties by the type's own name (deterministic).
+
+### Changed
+- **THE HEADER IS THE HANDLE** (`src/app/(shell)/tabs/data-exports-tab.tsx`): the header button carries the hover affordance (ChevronsUpDown waits at opacity-0 for the hover/focus), the active voice reads foreground under a lit ChevronDown, `aria-sort="descending"` names the order, both aria-label voices and titles speak the landing and the return, and the zinc focus-visible ring carries the styling details. The header note stays stable (it names the doors; the sort speaks its own voice).
+
 ## [2.444.0] The status door opens
 
 The census door's sibling: the withdrawn count was the one number on the By Type table that only counted — this round its badge learns to open the history's status lens.

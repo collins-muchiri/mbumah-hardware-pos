@@ -310,33 +310,32 @@ describe('the address-bar vocabulary — the thirty-second row (cross-suite pins
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.444.0 leads the feed', () => {
+describe('whats-new — v2.445.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.444.0');
-    // the lead's story hand-over (v2.444.0, the Task 111 law's
-    // fiftieth application): the head story is the hand-over's
-    // voice — the status door opens; the withdrawn badge lenses
-    // the cancelled: the census door's sibling (the withdrawn
-    // count was the one number on the By Type table that only
-    // counted) and this round its zinc badge becomes a real button
-    // whose press lands the history on the cancelled status lens
-    // through the controlled hand (chooseExpStatus, never a direct
-    // state write — press the pressed badge again and the lens
-    // releases); ONE FAMILY, THREE SEATS: the pressed wardrobe is
-    // the history chip's own zinc active bytes (bg-zinc-600
-    // text-white border-zinc-600 — beside the history chip and the
-    // stats card); the keyboard answers natively (a real button
-    // needs no manual handler) and the press stops propagation
-    // (the badge sits inside the type door's row — the two doors
-    // never conjoin a press); the honest zero stays a census (a
-    // zero-count door invites a pointless press) and the header
-    // note names both doors. The census door's seat exits the head
-    // this round; the status door's family carries the eye.
-    expect(head.title).toContain('status door opens');
+    expect(head.version).toBe('2.445.0');
+    // the lead's story hand-over (v2.445.0, the Task 111 law's
+    // fifty-first application): the head story is the hand-over's
+    // voice — the records lens; the census learns a second sort
+    // voice: the census door learned to open panes and this round
+    // it learns to reorder itself (the By Type table's Records
+    // header becomes a real button — one press re-sorts the census
+    // loudest-by-records, the desk moving the most DATA reads
+    // first, not just the desk running the most exports; press
+    // again and the run-count law returns); the second voice RIDES
+    // ABOVE THE LAW (the default .sort keeps its exact seat — the
+    // elders' pin survives verbatim — and the records sort is a new
+    // pass over the sorted rows, both voices breaking ties by the
+    // type's own name); the header is the handle (the hover
+    // affordance waits at opacity-0, the active voice reads
+    // foreground under a lit ChevronDown, aria-sort names the
+    // order, the thead sits OUTSIDE the door rows so no conjoin is
+    // even possible). The status door's family exits the head this
+    // round; the records lens's arrow carries the eye.
+    expect(head.title).toContain('records lens');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('cancelled lens'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('Cancelled family'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('door to nowhere'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('loudest-by-records'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('aria-sort'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('rides above it'))).toBe(true);
   });
 });

@@ -126,8 +126,8 @@ describe("the what\u2019s-new feed — the round announces itself", () => {
   });
 
   it('the version slots speak 2.386.0', () => {
-    expect(pkg.version).toBe('2.444.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.444.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.444.0');
+    expect(pkg.version).toBe('2.445.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.445.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.445.0');
   });
 });
