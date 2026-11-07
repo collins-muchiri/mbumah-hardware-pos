@@ -361,31 +361,32 @@ describe('the address-bar vocabulary — the thirty-first row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.441.0 leads the feed', () => {
+describe('whats-new — v2.442.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.441.0');
-    // the lead's story hand-over (v2.441.0, the Task 111 law's
-    // forty-seventh application): the head story is the hand-over's
-    // voice — the withdrawn count takes its own card: v2.440.0 grew
-    // the stats contract the fourth key (cancelledExports) and
-    // taught the Total Exports trend line three segments, but the
-    // count rode a trend line — a census without a home; the fifth
-    // glass card takes the census (the zinc voice — the table's
-    // Cancelled badge family — and the Ban icon, the withdrawn face),
-    // seated beside Total Exports (the census pair); the Total
-    // Exports trend reads "N completed · M failed" again (one
-    // number, one home — the rich-trend node retires with the
-    // hand-over); the card's trend line speaks both states honestly
-    // (withdrawn before completion — never a file; the honest zero —
-    // stuck exports retire here); and the grid wears five cards (the
-    // skeleton matching, the stagger-5 delay landing the fifth card
-    // on beat). The census's third word exits the head this round;
-    // the withdrawn card's own face carries the eye.
-    expect(head.title).toContain('withdrawn');
+    expect(head.version).toBe('2.442.0');
+    // the lead's story hand-over (v2.442.0, the Task 111 law's
+    // forty-eighth application): the head story is the hand-over's
+    // voice — the trends find their dark voice; the by-type census
+    // lands: v2.441.0's tail named the small verse (the honest-zero
+    // trend had no dark-mode-specific face) and the carried verse
+    // finally took its seat (the byType aggregate was computed,
+    // typed, and rendered nowhere); every stat card's trend line
+    // speaks its own family — light 600, dark 400 (the badges'
+    // dark-pair grammar) — through the trendClass field (the
+    // muted-foreground default the fallback law); the plans and
+    // schedule dashes wear the same grammar (the mirror law) and
+    // their trend lines gain the native title hover; the stats
+    // wire's byType entries grow the cancelled field (count INCLUDES
+    // the withdrawn rows — the honest inclusion) and the exports
+    // desk grows the By Type table: runs, records, and the withdrawn
+    // split in the zinc voice (the Cancelled badge family),
+    // loudest-first. The withdrawn card's own face exits the head
+    // this round; the dark voice's grammar carries the eye.
+    expect(head.title).toContain('dark voice');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('takes its own card'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('one number, one home'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('never a file'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('light and dark'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('By Type'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('withdrawn'))).toBe(true);
   });
 });

@@ -26,6 +26,8 @@ interface StatCardConfig {
   gradient: string;
   iconColor: string;
   trend?: string;
+  /** v2.442.0 the trend line's own voice — light 600, dark 400. */
+  trendClass?: string;
 }
 
 export function ScheduleStatsCards({ stats, isLoading }: ScheduleStatsCardsProps) {
@@ -37,6 +39,7 @@ export function ScheduleStatsCards({ stats, isLoading }: ScheduleStatsCardsProps
       gradient: 'from-emerald-500 to-emerald-600',
       iconColor: 'text-emerald-500',
       trend: `${stats?.activeStaff ?? 0} active staff`,
+      trendClass: 'text-emerald-600 dark:text-emerald-400',
     },
     {
       label: 'Active Staff',
@@ -45,6 +48,7 @@ export function ScheduleStatsCards({ stats, isLoading }: ScheduleStatsCardsProps
       gradient: 'from-teal-500 to-teal-600',
       iconColor: 'text-teal-500',
       trend: `${stats?.coverageDays ?? 0}/7 days covered`,
+      trendClass: 'text-teal-600 dark:text-teal-400',
     },
     {
       label: 'Coverage Days',
@@ -56,6 +60,7 @@ export function ScheduleStatsCards({ stats, isLoading }: ScheduleStatsCardsProps
         (stats?.coverageGaps?.length ?? 0) > 0
           ? `${stats?.coverageGaps?.length ?? 0} gap${(stats?.coverageGaps?.length ?? 0) === 1 ? '' : 's'}`
           : 'Full coverage',
+      trendClass: 'text-amber-600 dark:text-amber-400',
     },
     {
       label: 'Avg Hours / Staff',
@@ -66,6 +71,7 @@ export function ScheduleStatsCards({ stats, isLoading }: ScheduleStatsCardsProps
       trend: stats?.peakDay
         ? `Peak: ${new Date(stats.peakDay.date).toLocaleDateString('en-US', { weekday: 'short' })}`
         : 'No peak',
+      trendClass: 'text-violet-600 dark:text-violet-400',
     },
   ];
 
@@ -99,7 +105,10 @@ export function ScheduleStatsCards({ stats, isLoading }: ScheduleStatsCardsProps
                 <p className="text-xs text-muted-foreground truncate">{card.label}</p>
                 <p className="text-xl font-bold truncate">{card.value}</p>
                 {card.trend && (
-                  <p className="text-[10px] text-muted-foreground truncate">
+                  <p
+                    className={`text-[10px] ${card.trendClass ?? 'text-muted-foreground'} truncate`}
+                    title={card.trend}
+                  >
                     {card.trend}
                   </p>
                 )}

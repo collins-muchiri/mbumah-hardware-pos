@@ -8,7 +8,9 @@
 //   - totalRecordsExported
 //   - totalFileSizeBytes
 //   - successRate (0-1)
-//   - byType: { [exportType: string]: { count: number; records: number } }
+//   - byType: { [exportType: string]: { count: number; records: number; cancelled: number } }
+//     (count INCLUDES the withdrawn rows — the cancelled field splits them
+//     out, the v2.442.0 per-type split: the census speaks where it lives)
 
 import { type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
@@ -55,11 +57,16 @@ async function statsHandler(...args: unknown[]): Promise<Response> {
   const denom = completedExports + failedExports;
   const successRate = denom > 0 ? completedExports / denom : 1;
 
-  const byType: Record<string, { count: number; records: number }> = {};
+  // v2.442.0 THE PER-TYPE SPLIT: each type's entry grows the cancelled
+  // field — the withdrawn rows stay inside count (the total runs of that
+  // type) but now speak separately, so a type's census is honest at a
+  // glance: how many ran, how many never produced a file.
+  const byType: Record<string, { count: number; records: number; cancelled: number }> = {};
   for (const r of rows) {
-    if (!byType[r.exportType]) byType[r.exportType] = { count: 0, records: 0 };
+    if (!byType[r.exportType]) byType[r.exportType] = { count: 0, records: 0, cancelled: 0 };
     byType[r.exportType].count += 1;
     byType[r.exportType].records += r.recordCount || 0;
+    if (r.status === 'CANCELLED') byType[r.exportType].cancelled += 1;
   }
 
   return Response.json({

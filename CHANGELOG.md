@@ -1,3 +1,13 @@
+## [2.442.0] The trends find their dark voice; the by-type census lands
+
+v2.441.0's tail named the small verse — the honest-zero trend had no dark-mode-specific face — and the carried verse finally took its seat: the stats wire's `byType` aggregate was computed, typed, and rendered nowhere. Both land together.
+
+### Added
+- **THE BY-TYPE BREAKDOWN** (`src/app/api/data-exports/stats/route.ts` + `src/lib/api.ts` + `src/app/(shell)/tabs/data-exports-tab.tsx`): the stats wire's `byType` entries grow the `cancelled` field (count INCLUDES the withdrawn rows — the honest inclusion, written in the route's own comment), and the exports dashboard grows the **By Type** table between the type cards and history: each type's runs, records, and the withdrawn split in the zinc voice (the Cancelled badge family). Rows sort loudest-first (run count desc, then the type's name); the empty state renders NO table (the census waits for its first run as a quiet card); the loading state wears three skeleton bars.
+
+### Changed
+- **THE TREND'S DARK VOICE** (`src/components/data-exports/exports-stats-cards.tsx` + `src/components/debt-plans/plans-stats-cards.tsx` + `src/components/shift-scheduling/schedule-stats-cards.tsx`): every stat card's trend line speaks its own family — light 600, dark 400 (the badges' dark-pair grammar) — through the new `trendClass` field, with the muted-foreground default as the fallback law. The plans and schedule dashes wear the same grammar (the mirror law), and their trend lines gain the native `title` hover (the v2.441.0 styling detail, now tree-wide).
+
 ## [2.441.0] The withdrawn count takes its own card
 
 v2.440.0 grew the stats contract the fourth key and taught the Total Exports trend line three segments — but the count rode a trend line, a census without a home. This round the fifth glass card takes the census: one number, one home.
