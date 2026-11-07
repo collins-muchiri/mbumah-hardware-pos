@@ -1,3 +1,13 @@
+## [2.434.0] The archive reads its own timeline
+
+Fourteen rounds built the supplier-maker arc; this round the archive joins the comparison: the release changelog's story list wears the arc's own timeline — each word's release date beside its line — the arc reading itself.
+
+### Added
+- **THE ARC'S FIFTEENTH WORD** (`src/lib/release-arc.ts` + `src/components/org/chrome.tsx`): `RELEASE_ARC` (the fifteen words with their release days exactly as the tags record them) + `releaseArcWord` (the pure lookup; a version outside the arc reads the null — the absent-control law) + `arcWordFace` (the MMM D short face; an unparseable day reads itself), and the archive's entry wears the arc chip (`changelog-arc-chip-{version}` — "word 7 · Nov 6", the Footprints glyph, the memory family's amber, tabular-nums, the title carrying "the maker's arc — word 15 of 15, released 2026-11-07").
+
+### Changed
+- **THE LEDGER STAYS THE LEDGER**: non-arc entries render byte-identical (the chip renders only under the arc's own truth), and the announcement dialog stays bare — the archive owns the timeline, one home, never a copy.
+
 ## [2.433.0] The desk reads the door's memory
 
 v2.432.0 taught the door to remember its sends; this round the READING desk answers: when the carried order's maker's block already rode this session, the carriage strip wears the door's own stamp — "rode at 09:12" — the two sides comparing clocks.
