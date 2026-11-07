@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.437.0',
+    title: 'The taxman joins the door \u2014 one handle lights three fixture worlds',
+    bullets: [
+      'npm run db:fixtures now stands up THREE fixture worlds through the one door \u2014 the M-Pesa ledger leads, the exports world follows, and the KRA/e-TIMS pipeline closes the parade: six invoices speaking all five submission statuses, four audit rows for the submitted faces, eight tax filings across all four types, and the sandbox profile \u2014 the taxman joins the door, a fresh world answers the e-TIMS desk on day one.',
+      'The exports world wears the schema\u2019s own default face: one PENDING history row \u2014 the one wire status the fixtures never spoke \u2014 joins the thirteen-row pile, and the processing word\u2019s union answers it under processing and all \u2014 the default face speaks, never stranded.',
+      'The filings badges and the status lens find real rows on a fresh world: the tax desk\u2019s four filing types and the e-TIMS invoice list\u2019s five statuses all answer non-zero through the ONE handle \u2014 no manual script, no honest zero left behind.',
+    ],
+  },
+  {
     version: '2.436.0',
     title: 'The fixture world speaks its whole vocabulary \u2014 the two desks answer a fresh world',
     bullets: [

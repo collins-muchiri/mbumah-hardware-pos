@@ -275,35 +275,31 @@ describe('the address-bar vocabulary — the twenty-seventh row (cross-suite pin
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.436.0 leads the feed', () => {
+describe('whats-new — v2.437.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.436.0');
-    // the lead's story hand-over (v2.436.0, the Task 111 law's
-    // forty-second application): the head story is the hand-over's
-    // voice — the fixture world speaks its whole vocabulary: one
-    // door lights both fixture worlds (npm run db:fixtures — the
-    // M-Pesa ledger's script leads, the exports world follows), the
-    // exports world stands up twelve history rows (one per each of
-    // the TEN card types — both lenses speak non-zero on a fresh
-    // world — plus the TWO off-union faces the schema's own column
-    // comment keeps: PAYROLL completed, ALL failed — the deliberate
-    // pin, never a re-type), every completed row carries real
-    // inline content (a history row that lies about its file is
-    // not fidelity), the history table's unknown type wears the
-    // deliberate off-card badge (the row stays visible, the lens
-    // never guesses across the union), and the M-Pesa pane wears
-    // its status census (five faces counted from the same stored
-    // vocabulary the rows speak, the four status chips pressing
-    // through the ONE door, the legacy derived face a count and
-    // never a lens word).
-    // The watch's story exits the head this round; the
-    // fixture world's own vocabulary carries the eye.
-    expect(head.title).toContain('vocabulary');
+    expect(head.version).toBe('2.437.0');
+    // the lead's story hand-over (v2.437.0, the Task 111 law's
+    // forty-third application): the head story is the hand-over's
+    // voice — the taxman joins the door: npm run db:fixtures grows
+    // its third face (the M-Pesa ledger's script leads, the exports
+    // world follows, the taxman's world closes the parade — six
+    // invoices speaking all five submission statuses, four audit
+    // rows for the submitted faces, eight tax filings across the
+    // four types and the schema-honest statuses, the sandbox
+    // profile — verified live on the current schema, idempotent),
+    // and the exports world wears the schema's own default status
+    // (one PENDING history row — the one wire face the fixtures
+    // never spoke — the processing word's union answering it under
+    // processing and all, never stranded; the coherence law holds:
+    // a waiting row carries neither completion nor failure faces).
+    // The fixture world's vocabulary story exits the head this
+    // round; the taxman's own door carries the eye.
+    expect(head.title).toContain('door');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('the honest zero retires'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('the off-union face'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('through the ONE door'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('the taxman joins the door'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('the default face speaks'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('never stranded'))).toBe(true);
   });
 });
 

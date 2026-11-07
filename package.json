@@ -1,10 +1,10 @@
 {
   "name": "mbumah-hardware-pos",
-  "version": "2.436.0",
+  "version": "2.437.0",
   "private": true,
   "mbumah": {
-    "releaseVersion": "2.436.0",
-    "baseVersion": "2.436.0",
+    "releaseVersion": "2.437.0",
+    "baseVersion": "2.437.0",
     "hotfix": 0
   },
   "scripts": {
@@ -30,7 +30,7 @@
     "db:migrate": "node scripts/setup-prisma-provider.mjs && prisma migrate dev",
     "db:migrate:deploy": "node scripts/setup-prisma-provider.mjs && prisma migrate deploy",
     "db:seed": "prisma db seed",
-    "db:fixtures": "node scripts/seed-mpesa-fixtures.mjs && node scripts/seed-exports-fixtures.mjs",
+    "db:fixtures": "NODE_ENV=development node scripts/seed-mpesa-fixtures.mjs && NODE_ENV=development node scripts/seed-exports-fixtures.mjs && NODE_ENV=development node scripts/seed-kra-fixtures.mjs",
     "db:reset": "prisma migrate reset",
     "audit:financial": "node --import tsx scripts/run-financial-audit.ts",
     "health": "curl -s http://localhost:3000/api/health | node -e 'process.stdin.on(\"data\",d=>{try{console.log(JSON.stringify(JSON.parse(d.toString()),null,2))}catch{console.log(d.toString())}})'",
