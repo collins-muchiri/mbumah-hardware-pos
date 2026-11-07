@@ -1593,6 +1593,7 @@ export interface DataExportsStats {
   totalExports: number;
   completedExports: number;
   failedExports: number;
+  cancelledExports: number;
   totalRecordsExported: number;
   totalFileSizeBytes: number;
   successRate: number;

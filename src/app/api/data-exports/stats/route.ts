@@ -4,6 +4,7 @@
 //   - totalExports
 //   - completedExports
 //   - failedExports
+//   - cancelledExports (withdrawn before completion — the v2.439.0 door's own census)
 //   - totalRecordsExported
 //   - totalFileSizeBytes
 //   - successRate (0-1)
@@ -44,10 +45,13 @@ async function statsHandler(...args: unknown[]): Promise<Response> {
   const totalExports = rows.length;
   const completedExports = rows.filter((r) => r.status === 'COMPLETED').length;
   const failedExports = rows.filter((r) => r.status === 'FAILED').length;
+  const cancelledExports = rows.filter((r) => r.status === 'CANCELLED').length;
   const totalRecordsExported = rows.reduce((sum, r) => sum + (r.recordCount || 0), 0);
   const totalFileSizeBytes = rows.reduce((sum, r) => sum + (r.fileSizeBytes || 0), 0);
   // Success rate = completed / (completed + failed). Pending/processing rows
-  // are excluded from the denominator so they don't drag the rate down.
+  // are excluded from the denominator so they don't drag the rate down, and
+  // cancelled rows are excluded too — a withdrawn run never had a file, so it
+  // can be neither a success nor a failure.
   const denom = completedExports + failedExports;
   const successRate = denom > 0 ? completedExports / denom : 1;
 
@@ -64,6 +68,7 @@ async function statsHandler(...args: unknown[]): Promise<Response> {
       totalExports,
       completedExports,
       failedExports,
+      cancelledExports,
       totalRecordsExported,
       totalFileSizeBytes,
       successRate,

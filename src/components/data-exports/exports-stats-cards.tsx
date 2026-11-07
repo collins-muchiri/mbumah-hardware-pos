@@ -33,6 +33,8 @@ interface StatCardConfig {
   gradient: string;
   iconColor: string;
   trend?: string;
+  /** Rich trend line — wins over `trend` when present (the cancelled census voice). */
+  trendNode?: React.ReactNode;
 }
 
 function formatBytes(bytes: number): string {
@@ -48,6 +50,7 @@ export function ExportsStatsCards({ stats, isLoading }: ExportsStatsCardsProps) 
   const successRatePct = stats
     ? (stats.successRate * 100).toFixed(0)
     : '0';
+  const cancelled = stats?.cancelledExports ?? 0;
 
   const cards: StatCardConfig[] = [
     {
@@ -57,6 +60,16 @@ export function ExportsStatsCards({ stats, isLoading }: ExportsStatsCardsProps) 
       gradient: 'from-emerald-500 to-emerald-600',
       iconColor: 'text-emerald-500',
       trend: `${stats?.completedExports ?? 0} completed · ${stats?.failedExports ?? 0} failed`,
+      trendNode: (
+        <span>
+          {stats?.completedExports ?? 0} completed · {stats?.failedExports ?? 0} failed
+          {' · '}
+          {/* The withdrawn voice in zinc — the table's Cancelled badge family. */}
+          <span className={cancelled > 0 ? 'font-medium text-zinc-500' : undefined}>
+            {cancelled} cancelled
+          </span>
+        </span>
+      ),
     },
     {
       label: 'Total Records',
@@ -80,7 +93,7 @@ export function ExportsStatsCards({ stats, isLoading }: ExportsStatsCardsProps) 
       icon: CheckCircle2,
       gradient: 'from-green-500 to-green-600',
       iconColor: 'text-green-500',
-      trend: 'Completed vs. failed runs',
+      trend: 'Completed vs. failed runs (cancelled excluded)',
     },
   ];
 
@@ -116,9 +129,9 @@ export function ExportsStatsCards({ stats, isLoading }: ExportsStatsCardsProps) 
                   {card.label}
                 </p>
                 <p className="text-xl font-bold truncate">{card.value}</p>
-                {card.trend && (
+                {(card.trendNode || card.trend) && (
                   <p className="text-[10px] text-muted-foreground truncate">
-                    {card.trend}
+                    {card.trendNode ?? card.trend}
                   </p>
                 )}
               </div>
