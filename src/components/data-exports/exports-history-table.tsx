@@ -17,6 +17,8 @@ import {
   AlertCircle,
   Ban,
   CheckCircle2,
+  ChevronUp,
+  ChevronsUpDown,
   Clock,
   Download,
   Inbox,
@@ -326,6 +328,11 @@ export function ExportsHistoryTable({
   const [filter, setFilter] = useState<FilterKey>('all');
   const [typeFilter, setTypeFilter] = useState<ExpTypeFilter>('all');
   const [deleteTarget, setDeleteTarget] = useState<DataExportItem | null>(null);
+  // v2.447.0 THE HISTORY'S MIRROR — the Created header learns the
+  // census's sort grammar: false = the wire's law (createdAt desc,
+  // newest-first, named in the API route's own orderBy); true =
+  // oldest-first, the law inverted.
+  const [byOldest, setByOldest] = useState(false);
 
   // Effective filter - allow parent override (e.g. always show 'all').
   // v2.391.0: in the CONTROLLED form (onFilterChange provided) the desk
@@ -371,6 +378,19 @@ export function ExportsHistoryTable({
     if (!effectiveTypeWire) return byStatus;
     return byStatus.filter((e) => e.exportType === effectiveTypeWire);
   }, [exports, effectiveFilter, effectiveTypeWire]);
+
+  // v2.447.0 THE MIRROR RIDES ABOVE THE LENSES: the sort is a NEW pass
+  // over the already-filtered rows — the two lenses conjoin untouched,
+  // the wire's newest-first law keeps its seat (the API's orderBy was
+  // never rewritten), and the tiebreak is the row's own id
+  // (deterministic).
+  const sortedRows = byOldest
+    ? [...filtered].sort(
+        (a, b) =>
+          a.createdAt.localeCompare(b.createdAt) ||
+          a.id.localeCompare(b.id),
+      )
+    : filtered;
 
   const typeCounts = useMemo(() => {
     const empty: Record<string, number> = {};
@@ -575,12 +595,54 @@ export function ExportsHistoryTable({
                 <TableHead className="text-right w-[90px]">Records</TableHead>
                 <TableHead className="text-right w-[100px]">Size</TableHead>
                 <TableHead className="w-[130px]">Status</TableHead>
-                <TableHead className="w-[160px]">Created</TableHead>
+                {/* v2.447.0 THE HISTORY'S MIRROR — the header is the
+                    handle: a real button speaking the law's inversion
+                    (oldest-first); the affordance waits for the hover
+                    (ChevronsUpDown), the active voice reads semibold
+                    under a lit ChevronUp, and aria-sort names the
+                    ascending order. The handle lives in the THEAD — no
+                    door row can conjoin its press. */}
+                <TableHead
+                  className="group w-[160px]"
+                  aria-sort={byOldest ? 'ascending' : undefined}
+                >
+                  <button
+                    type="button"
+                    data-testid="history-sort-created"
+                    aria-label={
+                      byOldest
+                        ? 'Sorted oldest-first — press again to return to newest-first'
+                        : 'Sort the history oldest-first'
+                    }
+                    title={
+                      byOldest
+                        ? 'The history reads oldest-first — press again for the newest-first law'
+                        : 'Press to sort the history oldest-first'
+                    }
+                    onClick={() => setByOldest(!byOldest)}
+                    className={`inline-flex items-center gap-1 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 ${
+                      byOldest ? 'font-semibold text-foreground' : 'hover:text-foreground'
+                    }`}
+                  >
+                    Created
+                    {byOldest ? (
+                      <ChevronUp
+                        className="h-3 w-3"
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      <ChevronsUpDown
+                        className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+                        aria-hidden="true"
+                      />
+                    )}
+                  </button>
+                </TableHead>
                 <TableHead className="text-right w-[120px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((item) => (
+              {sortedRows.map((item) => (
                 <TableRow
                   key={item.id}
                   className={
