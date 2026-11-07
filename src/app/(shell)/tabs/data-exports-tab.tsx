@@ -19,6 +19,7 @@ import { toast } from 'sonner';
 import {
   ChevronDown,
   ChevronsUpDown,
+  ChevronUp,
   Database,
   ListFilter,
   Loader2,
@@ -148,6 +149,9 @@ export function DataExportsTab() {
   // run-count law, the default; true = loudest-by-records, the second
   // voice; press the header again and the law returns).
   const [byRecords, setByRecords] = useState(false);
+  // v2.446.0 THE RUNS MIRROR — the law's own header learns its mirror
+  // voice (false = the law; true = quietest-first, the law inverted).
+  const [byRunsAsc, setByRunsAsc] = useState(false);
 
   // The lens's ONE voice (v2.391.0): a hand-driven change is the lens's
   // second retirement voice — any word other than the landed one
@@ -203,11 +207,20 @@ export function DataExportsTab() {
   // records (the busiest DATA desk reads first, not the busiest SCHEDULE
   // desk); press again and the run-count law returns. The default law
   // keeps its exact seat above — the elders' pin survives untouched.
+  // v2.446.0 THE RUNS MIRROR — the third voice, the law's own mirror:
+  // press Runs and the census inverts (the quietest desk reads first,
+  // the same name tiebreak), press again and the law returns. Each
+  // voice is a NEW pass over the already-lawful rows — no law was
+  // rewritten; the exclusive-voices effect above names the winner.
   const sortedRows = byRecords
     ? [...typeRows].sort(
         (a, b) => b.records - a.records || a.type.localeCompare(b.type),
       )
-    : typeRows;
+    : byRunsAsc
+      ? [...typeRows].sort(
+          (a, b) => a.count - b.count || a.type.localeCompare(b.type),
+        )
+      : typeRows;
 
   // Data: exports list
   const {
@@ -356,7 +369,52 @@ export function DataExportsTab() {
                 <thead>
                   <tr className="border-b bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
                     <th className="px-4 py-2.5 font-medium">Type</th>
-                    <th className="px-4 py-2.5 text-right font-medium">Runs</th>
+                    {/* v2.446.0 THE RUNS MIRROR — the law's own header
+                        becomes the mirror's handle: a real button speaking
+                        the law's inversion (quietest-first); the affordance
+                        waits for the hover (ChevronsUpDown), the active
+                        voice reads foreground under a lit ChevronUp, and
+                        aria-sort names the ascending order. The press also
+                        retires the records lens — the voices are exclusive. */}
+                    <th
+                      className="group px-4 py-2.5 text-right font-medium"
+                      aria-sort={byRunsAsc ? 'ascending' : undefined}
+                    >
+                      <button
+                        type="button"
+                        data-testid="census-sort-runs"
+                        aria-label={
+                          byRunsAsc
+                            ? 'Sorted by runs, ascending — press again to return to run counts'
+                            : 'Sort the census by runs, ascending'
+                        }
+                        title={
+                          byRunsAsc
+                            ? 'The census reads quietest-first — press again for the run-count law'
+                            : 'Press to sort the census by runs, ascending'
+                        }
+                        onClick={() => {
+                          setByRecords(false);
+                          setByRunsAsc(!byRunsAsc);
+                        }}
+                        className={`inline-flex items-center gap-1 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 ${
+                          byRunsAsc ? 'text-foreground' : 'hover:text-foreground'
+                        }`}
+                      >
+                        Runs
+                        {byRunsAsc ? (
+                          <ChevronUp
+                            className="h-3 w-3"
+                            aria-hidden="true"
+                          />
+                        ) : (
+                          <ChevronsUpDown
+                            className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+                            aria-hidden="true"
+                          />
+                        )}
+                      </button>
+                    </th>
                     {/* v2.445.0 THE RECORDS LENS — the header is the handle:
                         a real button speaking the second sort voice; the
                         affordance waits for the hover (ChevronsUpDown),
@@ -379,7 +437,10 @@ export function DataExportsTab() {
                             ? 'The census reads loudest-by-records — press again for the run-count law'
                             : 'Press to sort the census by records'
                         }
-                        onClick={() => setByRecords(!byRecords)}
+                        onClick={() => {
+                          setByRunsAsc(false);
+                          setByRecords(!byRecords);
+                        }}
                         className={`inline-flex items-center gap-1 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 ${
                           byRecords ? 'text-foreground' : 'hover:text-foreground'
                         }`}

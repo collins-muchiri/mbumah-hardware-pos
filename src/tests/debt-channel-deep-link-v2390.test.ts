@@ -270,32 +270,31 @@ describe('the address-bar vocabulary — the twenty-ninth row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.445.0 leads the feed', () => {
+describe('whats-new — v2.446.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.445.0');
-    // the lead's story hand-over (v2.445.0, the Task 111 law's
-    // fifty-first application): the head story is the hand-over's
-    // voice — the records lens; the census learns a second sort
-    // voice: the census door learned to open panes and this round
-    // it learns to reorder itself (the By Type table's Records
-    // header becomes a real button — one press re-sorts the census
-    // loudest-by-records, the desk moving the most DATA reads
-    // first, not just the desk running the most exports; press
-    // again and the run-count law returns); the second voice RIDES
-    // ABOVE THE LAW (the default .sort keeps its exact seat — the
-    // elders' pin survives verbatim — and the records sort is a new
-    // pass over the sorted rows, both voices breaking ties by the
-    // type's own name); the header is the handle (the hover
-    // affordance waits at opacity-0, the active voice reads
-    // foreground under a lit ChevronDown, aria-sort names the
-    // order, the thead sits OUTSIDE the door rows so no conjoin is
-    // even possible). The status door's family exits the head this
-    // round; the records lens's arrow carries the eye.
-    expect(head.title).toContain('records lens');
+    expect(head.version).toBe('2.446.0');
+    // the lead's story hand-over (v2.446.0, the Task 111 law's
+    // fifty-second application): the head story is the hand-over's
+    // voice — the runs mirror; the law's own header answers: the
+    // records lens gave the census a second sort voice and this
+    // round the By Type table's Runs header becomes the mirror's
+    // handle (a real button — one press INVERTS the run-count law,
+    // the QUIETEST desk reads first with the same name tiebreak,
+    // press again and the law returns); the third voice rides above
+    // the law like its sibling (a new sort pass over the
+    // already-lawful rows — the law's bytes and the records voice
+    // keep their exact seats) and the voices are EXCLUSIVE (the
+    // most recent press names the order — the mirror's press
+    // retires the records lens, the lens's own press bytes stay
+    // verbatim for the elders' pin, and the reconcile effect
+    // retires the mirror when the lens lands). The records lens's
+    // arrow exits the head this round; the runs mirror's arrow
+    // carries the eye.
+    expect(head.title).toContain('runs mirror');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('loudest-by-records'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('quietest-first'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('aria-sort'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('rides above it'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('exclusive'))).toBe(true);
   });
 });

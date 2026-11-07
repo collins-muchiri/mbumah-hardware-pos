@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.446.0',
+    title: 'The runs mirror — the law’s own header answers',
+    bullets: [
+      'The By Type table’s Runs header is pressable now: one press mirrors the run-count law — the census reads quietest-first, so the desk you almost never hear from steps to the top, with the same name tiebreak so the order reads the same way twice.',
+      'Press again and the law returns; the header carries its own affordance (the sort icon waits for your hover), the active voice reads foreground under a lit arrow, and aria-sort names the ascending order for screen readers.',
+      'The sort voices are exclusive — the most recent press names the order: the mirror retires the records lens and the lens retires the mirror, and neither sort ever rewrote the default law (each rides above it).',
+    ],
+  },
+  {
     version: '2.445.0',
     title: 'The records lens — the census learns a second sort voice',
     bullets: [
