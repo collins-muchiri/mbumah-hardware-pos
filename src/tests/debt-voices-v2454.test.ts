@@ -85,7 +85,9 @@ describe('v2.454.0 — the ledger voice speaks its scope', () => {
 
   it('the two ledger disclosure strings are byte-identical and never blur with the mirror word', () => {
     expect(LEDGER_WORD).toBe('Ledger balances · outstanding');
-    expect(LEDGER_WORD === MIRROR_WORD).toBe(false);
+    // not.toBe, not `===` — a literal-vs-literal === is a TS2367 the
+    // compiler refuses before vitest ever runs (the dance caught it).
+    expect(LEDGER_WORD).not.toBe(MIRROR_WORD);
   });
 
   it("the KPI's elder button rides byte-exact (the debtors door keeps its seat)", () => {
