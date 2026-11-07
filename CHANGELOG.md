@@ -1,3 +1,13 @@
+## [2.431.0] The desk answers the walk
+
+v2.430.0 taught the blocks to ride to the desk; this round the desk answers back: the carriage strip wears the pocket's own census — "the walk named {maker}" — so the receipt the walk spoke on the sending side has its echo on the reading desk, even when the live pre-pick cannot speak.
+
+### Added
+- **THE ARC'S TWELFTH WORD** (`src/lib/order-handoff.ts` + `src/app/(shell)/tabs/purchase-orders-tab.tsx`): `orderHandoffPocketEcho` (the strip's gate over the pocket's own word — the envelope's every-line-agrees maker read once as the map lands; agreement is no news, a null/empty/whitespace pocket reads the null, and the spoken name is the census's trimmed form) joins the handoff's one home, and the carriage strip wears the amber echo chip (`po-order-handoff-pocket-echo`, "the walk named {maker}" — the walk's own house, never the pre-pick's sky) plus the echo line (`po-order-handoff-pocket-echo-line`, the quote-border detail — the walk's words are a quotation, not the desk's own voice).
+
+### Changed
+- **THE WORDS-ONLY LAW**: the echo never dresses the pen — the v2.422 derivation stands byte-identical (`actorSupplierId` → the pen, else the shelf's pre-pick); the pocket's names may speak as words on the reading desk, but the shelf's live link or the actor's own call remains the only voice the supplier select wears. The strip's local digest carries the pocket census beside the counts, so the echo survives the one-way consumption exactly as the lines and units do.
+
 ## [2.430.0] The census opens
 
 v2.421.0 taught the banner's census chip to count the order's suppliers; this round the census opens: the chip wears a chevron, and one press on a supplier's block folds ONLY that maker's rows into the same pocket the whole order uses — the desk answers pre-picked, and the receipt names the maker.

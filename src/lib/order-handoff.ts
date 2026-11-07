@@ -232,8 +232,10 @@ export function mapOrderHandoffToPoItems(
  *  line names the same trimmed maker, the census speaks that name; any
  *  mixed world (two makers, a maker and an absence, no maker, no
  *  lines) answers null — the honest absence, never a majority's guess.
- *  One law, two readers: the banner's send toast and the walk's own
- *  faces. Pure. */
+ *  One law, three readers: the banner's send toast, the walk's own
+ *  faces, and (v2.431.0) the desk's echo — the pocket's names may
+ *  speak as WORDS on the reading desk, but they never dress the pen
+ *  (the v2.422 law holds there, per-row and per-select). Pure. */
 export function orderHandoffSupplier(
   rows: ReadonlyArray<{ supplierName?: string | null }>,
 ): string | null {
@@ -250,6 +252,7 @@ export function orderHandoffSupplier(
 
 // ============================================================================
 // v2.430.0 THE CENSUS'S DOOR — the blocks answer the shelf, maker by maker
+// (v2.431.0: the desk answers back — the pocket's echo, below)
 // ============================================================================
 // The banner's census chip spoke the grouping ("via N suppliers") but
 // only the WHOLE order could ride to the desk — a manager who wants
@@ -304,6 +307,40 @@ export function orderSupplierBlocks(
       units: blockRows.reduce((sum, r) => sum + reorderGap(r), 0),
     }))
     .filter((b) => b.units > 0);
+}
+
+// ----------------------------------------------------------------------------
+// v2.431.0 THE POCKET'S ECHO — the desk answers the walk's receipt
+// ----------------------------------------------------------------------------
+// The block's walk already speaks its receipt on the sending side
+// ("carried for {supplier}"); the reading desk's strip answered with
+// counts alone — a block fold whose live pre-pick refuses (the shelf's
+// link moved, the maker retired, the list still loading) lost the
+// maker's name entirely, and the actor met the rows unnamed. The echo
+// gives the strip the pocket's own word: the desk wears the walk's
+// memory as WORDS, never as a decision.
+// ----------------------------------------------------------------------------
+
+/** THE POCKET'S ECHO (v2.431.0) — the strip's answer to the walk's
+ *  receipt: when the envelope's every line named ONE maker at fold
+ *  time (the pocket's own census, read once as the map lands) AND the
+ *  desk's pre-pick does not already speak that name, the echo carries
+ *  the pocket's word; agreement is no news — a chip that repeats the
+ *  live voice would be a decoration, not an answer. THE WORDS-ONLY
+ *  LAW: the echo never dresses the pen (the v2.422 law — the shelf's
+ *  live link or the actor's own call is the only voice the supplier
+ *  select wears; a stale pocket must not name a live order). Pure. */
+export function orderHandoffPocketEcho(
+  pocketSupplier: string | null,
+  prePickSupplierName: string | null | undefined,
+): string | null {
+  // The census's own trim law rides: a whitespace pocket is no word at
+  // all, and the spoken name is the trimmed form (the same voice the
+  // blocks and the banner's toast speak).
+  const name = pocketSupplier?.trim() ?? '';
+  if (!name) return null;
+  if (prePickSupplierName?.trim() === name) return null;
+  return name;
 }
 
 /** The pocket's writers and readers — the only places sessionStorage is
