@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.444.0',
+    title: 'The status door opens — the withdrawn badge lenses the cancelled',
+    bullets: [
+      'The By Type table\u2019s zinc "N withdrawn" badge is pressable now: pressing it lands the export history on the cancelled lens, so every withdrawn run across all types reads in one place.',
+      'The pressed badge wears the Cancelled family\u2019s own active voice (the same wardrobe as the history\u2019s Cancelled chip), and pressing it again releases the lens — the keyboard answers Enter and Space like any button.',
+      'A type row and its withdrawn badge are two separate doors: pressing the badge never lands the type filter, and a zero withdrawn count stays a quiet census, never a door to nowhere.',
+    ],
+  },
+  {
     version: '2.443.0',
     title: 'The census becomes a door — the By Type rows lens the history',
     bullets: [

@@ -34,7 +34,6 @@ import {
 import { handleError } from '@/lib/error-handler';
 
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 
 import {
@@ -314,7 +313,7 @@ export function DataExportsTab() {
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">By Type</h2>
           <span className="text-xs text-muted-foreground">
-            {typeRows.length} type{typeRows.length === 1 ? '' : 's'} · run counts include withdrawn rows · press a row to lens the history
+            {typeRows.length} type{typeRows.length === 1 ? '' : 's'} · run counts include withdrawn rows · press a row to lens the type · a withdrawn badge lenses the cancelled
           </span>
         </div>
         {statsLoading ? (
@@ -347,7 +346,15 @@ export function DataExportsTab() {
                       already know. Press = land pre-filtered; press the
                       seat again = release (the door's second voice). The
                       off-union rows (no word) stay a census — cursor-help
-                      and the honest title, never a door that cannot open. */}
+                      and the honest title, never a door that cannot open.
+                      v2.444.0 THE STATUS DOOR, SIBLING SHAPE: the zinc
+                      "N withdrawn" badge becomes a real button — its press
+                      speaks the status lens's 'cancelled' word through the
+                      SAME controlled hand (chooseExpStatus); the pressed
+                      wardrobe is the history chip's own zinc active bytes
+                      (one family, three seats), the keyboard answers
+                      natively, and the honest zero stays a census — a
+                      zero-count door invites a pointless press. */}
                   {typeRows.map((row) => {
                     const word = row.word;
                     const active = word !== null && expTypeFilter === word;
@@ -355,6 +362,9 @@ export function DataExportsTab() {
                       word === null
                         ? undefined
                         : () => chooseExpType(active ? 'all' : word);
+                    const statusActive = expStatusFilter === 'cancelled';
+                    const pressStatus = () =>
+                      chooseExpStatus(statusActive ? 'all' : 'cancelled');
                     const seatClass = active
                       ? 'group cursor-pointer bg-emerald-50/70 dark:bg-emerald-500/10'
                       : word !== null
@@ -413,9 +423,49 @@ export function DataExportsTab() {
                         </td>
                         <td className="px-4 py-2.5 text-right">
                           {row.cancelled > 0 ? (
-                            <Badge className="bg-zinc-100 text-zinc-600 dark:bg-zinc-900/60 dark:text-zinc-300 hover:bg-zinc-100">
+                            <button
+                              type="button"
+                              data-testid={`census-withdrawn-${row.type}`}
+                              aria-pressed={statusActive}
+                              aria-label={
+                                statusActive
+                                  ? 'The cancelled lens is on — press again to release'
+                                  : `Lens the history to the ${row.cancelled} withdrawn runs`
+                              }
+                              title={
+                                statusActive
+                                  ? 'The cancelled lens is on — press again to release it'
+                                  : 'Press to show the withdrawn runs — the history lands on the cancelled lens'
+                              }
+                              onClick={(e) => {
+                                // the badge sits INSIDE the type door's row
+                                // — the press must not bubble into
+                                // chooseExpType (the two doors never
+                                // conjoin a press)
+                                e.stopPropagation();
+                                pressStatus();
+                              }}
+                              onKeyDown={(e) => {
+                                // THE KEYBOARD CONJOIN GUARD: the row's
+                                // manual Enter/Space handler must never
+                                // speak for the badge — a keyboard press
+                                // on the focused badge would toggle the
+                                // TYPE lens (and its preventDefault would
+                                // cancel the button's native click
+                                // synthesis). stopPropagation only: the
+                                // native default must live.
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.stopPropagation();
+                                }
+                              }}
+                              className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-1 active:scale-95 ${
+                                statusActive
+                                  ? 'bg-zinc-600 text-white border-zinc-600'
+                                  : 'bg-zinc-100 text-zinc-600 border-zinc-200 dark:bg-zinc-900/60 dark:text-zinc-300 dark:border-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-900'
+                              }`}
+                            >
                               {row.cancelled} withdrawn
-                            </Badge>
+                            </button>
                           ) : (
                             <span className="text-muted-foreground">0</span>
                           )}

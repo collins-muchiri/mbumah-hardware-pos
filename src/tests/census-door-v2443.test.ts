@@ -149,13 +149,19 @@ describe('the door takes its seat (v2.443.0)', () => {
   });
 
   it('the door is named where the census lives — the header note carries the hint', () => {
-    expect(tab).toContain('run counts include withdrawn rows · press a row to lens the history');
+    // v2.444.0 RE-ANCHOR, HONEST: the note names BOTH doors now (the
+    // type row and the withdrawn badge)
+    expect(tab).toContain(
+      'run counts include withdrawn rows · press a row to lens the type · a withdrawn badge lenses the cancelled',
+    );
   });
 
   it('the elders’ laws held — the sort, the zinc split, the empty state', () => {
     expect(tab).toContain('.sort((a, b) => b.count - a.count || a.type.localeCompare(b.type))');
+    // v2.444.0 RE-ANCHOR, HONEST: the zinc split became the status door
+    // (a real button) — the idle wardrobe carries the zinc palette
     expect(tab).toContain(
-      '<Badge className="bg-zinc-100 text-zinc-600 dark:bg-zinc-900/60 dark:text-zinc-300 hover:bg-zinc-100">',
+      "'bg-zinc-100 text-zinc-600 border-zinc-200 dark:bg-zinc-900/60 dark:text-zinc-300 dark:border-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-900'",
     );
     expect(tab).toContain('No exports yet — the census waits for its first run');
   });

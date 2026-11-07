@@ -123,8 +123,12 @@ describe('the by-type census lands (v2.442.0)', () => {
   });
 
   it('the withdrawn split wears the zinc voice — the Cancelled badge family', () => {
+    // v2.444.0 RE-ANCHOR, HONEST: the badge became the STATUS DOOR — a
+    // real button speaking the cancelled lens through the controlled
+    // hand; the zinc palette rides (the idle wardrobe below), and the
+    // pressed seat is the history chip's own zinc active bytes
     expect(tab).toContain(
-      '<Badge className="bg-zinc-100 text-zinc-600 dark:bg-zinc-900/60 dark:text-zinc-300 hover:bg-zinc-100">',
+      "'bg-zinc-100 text-zinc-600 border-zinc-200 dark:bg-zinc-900/60 dark:text-zinc-300 dark:border-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-900'",
     );
     expect(tab).toContain('{row.cancelled} withdrawn');
   });

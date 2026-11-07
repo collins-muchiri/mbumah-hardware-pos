@@ -275,33 +275,34 @@ describe('the address-bar vocabulary — the twenty-seventh row (cross-suite pin
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.443.0 leads the feed', () => {
+describe('whats-new — v2.444.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.443.0');
-    // the lead's story hand-over (v2.443.0, the Task 111 law's
-    // forty-ninth application): the head story is the hand-over's
-    // voice — the census becomes a door; the By Type rows lens the
-    // history: the By Type table landed last release as a census (a
-    // face that only counted) and this round its rows press through
-    // to the history's own lens (the door the deep-link desks
-    // already know, opened from the census side); a row whose wire
-    // type owns a lens word lands the history pre-filtered through
-    // the controlled hand (chooseExpType, never a direct state
-    // write — press the seat again and the lens releases); the
-    // translation lives in the ONE home (expTypeWordFor in
-    // tab-url.ts — the wire's UPPERCASE to the lens's kebab, and
-    // the NEUTRAL IS NOT A WORD: wire ALL answers null with the
-    // off-union rows); the active row wears the desk's emerald
-    // seat in both states (light 50/70, dark 500/10), the keyboard
-    // answers Enter and Space, and the header note names the door.
-    // The dark voice's grammar exits the head this round; the
-    // census door's seat carries the eye.
-    expect(head.title).toContain('census becomes a door');
+    expect(head.version).toBe('2.444.0');
+    // the lead's story hand-over (v2.444.0, the Task 111 law's
+    // fiftieth application): the head story is the hand-over's
+    // voice — the status door opens; the withdrawn badge lenses
+    // the cancelled: the census door's sibling (the withdrawn
+    // count was the one number on the By Type table that only
+    // counted) and this round its zinc badge becomes a real button
+    // whose press lands the history on the cancelled status lens
+    // through the controlled hand (chooseExpStatus, never a direct
+    // state write — press the pressed badge again and the lens
+    // releases); ONE FAMILY, THREE SEATS: the pressed wardrobe is
+    // the history chip's own zinc active bytes (bg-zinc-600
+    // text-white border-zinc-600 — beside the history chip and the
+    // stats card); the keyboard answers natively (a real button
+    // needs no manual handler) and the press stops propagation
+    // (the badge sits inside the type door's row — the two doors
+    // never conjoin a press); the honest zero stays a census (a
+    // zero-count door invites a pointless press) and the header
+    // note names both doors. The census door's seat exits the head
+    // this round; the status door's family carries the eye.
+    expect(head.title).toContain('status door opens');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('pressable'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('emerald seat'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('honest census'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('cancelled lens'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('Cancelled family'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('door to nowhere'))).toBe(true);
   });
 });
 
