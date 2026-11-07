@@ -14,6 +14,11 @@
  * (the census pair: the total, then the count that bowed out of it). The
  * Total Exports trend line hands the census over — one number, one home —
  * and the v2.440.0 rich-trend node retires with the hand-over.
+ *
+ * v2.442.0 THE TREND'S DARK VOICE: every trend line speaks its card's own
+ * family — light 600, dark 400 (the badges' dark-pair grammar) — through
+ * the trendClass field; the muted-foreground default stays for any card
+ * that has no family to borrow (the fallback law).
  */
 
 import {
@@ -41,6 +46,8 @@ interface StatCardConfig {
   gradient: string;
   iconColor: string;
   trend?: string;
+  /** v2.442.0 the trend line's own voice — light 600, dark 400. */
+  trendClass?: string;
 }
 
 function formatBytes(bytes: number): string {
@@ -68,6 +75,7 @@ export function ExportsStatsCards({ stats, isLoading }: ExportsStatsCardsProps) 
       // v2.441.0: the census handed over — the withdrawn count lives on
       // its own card now (one number, one home).
       trend: `${stats?.completedExports ?? 0} completed · ${stats?.failedExports ?? 0} failed`,
+      trendClass: 'text-emerald-600 dark:text-emerald-400',
     },
     {
       // v2.441.0 THE WITHDRAWN CARD: the fifth card takes the census —
@@ -75,12 +83,15 @@ export function ExportsStatsCards({ stats, isLoading }: ExportsStatsCardsProps) 
       // icon (the withdrawn face), seated beside the total it bowed out
       // of. A withdrawn run never had a file: the trend line says so
       // honestly, in both states — the loud zero stays silent, the real
-      // count names its law.
+      // count names its law. v2.442.0: the trend wears the zinc voice in
+      // BOTH states, light and dark — the honest zero speaks the same
+      // family, just quieter hours.
       label: 'Cancelled Exports',
       value: String(cancelled),
       icon: Ban,
       gradient: 'from-zinc-500 to-zinc-600',
       iconColor: 'text-zinc-500',
+      trendClass: 'text-zinc-600 dark:text-zinc-400',
       trend:
         cancelled > 0
           ? 'Withdrawn before completion — never a file'
@@ -93,6 +104,7 @@ export function ExportsStatsCards({ stats, isLoading }: ExportsStatsCardsProps) 
       gradient: 'from-teal-500 to-teal-600',
       iconColor: 'text-teal-500',
       trend: 'Across all generated files',
+      trendClass: 'text-teal-600 dark:text-teal-400',
     },
     {
       label: 'Storage Used',
@@ -101,6 +113,7 @@ export function ExportsStatsCards({ stats, isLoading }: ExportsStatsCardsProps) 
       gradient: 'from-amber-500 to-amber-600',
       iconColor: 'text-amber-500',
       trend: 'Files expire after 7 days',
+      trendClass: 'text-amber-600 dark:text-amber-400',
     },
     {
       label: 'Success Rate',
@@ -109,6 +122,7 @@ export function ExportsStatsCards({ stats, isLoading }: ExportsStatsCardsProps) 
       gradient: 'from-green-500 to-green-600',
       iconColor: 'text-green-500',
       trend: 'Completed vs. failed runs (cancelled excluded)',
+      trendClass: 'text-green-600 dark:text-green-400',
     },
   ];
 
@@ -146,7 +160,7 @@ export function ExportsStatsCards({ stats, isLoading }: ExportsStatsCardsProps) 
                 <p className="text-xl font-bold truncate">{card.value}</p>
                 {card.trend && (
                   <p
-                    className="text-[10px] text-muted-foreground truncate"
+                    className={`text-[10px] ${card.trendClass ?? 'text-muted-foreground'} truncate`}
                     title={card.trend}
                   >
                     {card.trend}

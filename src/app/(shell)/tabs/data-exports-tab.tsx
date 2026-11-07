@@ -29,6 +29,7 @@ import { EXP_STATUS_FILTERS, EXP_TYPE_FILTERS, parseInitialNamedMember } from '@
 import { handleError } from '@/lib/error-handler';
 
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 
 import {
@@ -170,6 +171,17 @@ export function DataExportsTab() {
     }
   }, [statsError]);
 
+  // v2.442.0 THE BY-TYPE CENSUS: the stats wire's byType aggregate takes
+  // its own table — each type's runs, records, and the withdrawn split
+  // (count INCLUDES the withdrawn rows; the cancelled column names them).
+  // Sorted loudest-first (run count desc, then the type's own name) so
+  // the busiest desk reads first and the order is deterministic.
+  const typeRows = stats
+    ? Object.entries(stats.byType)
+        .map(([type, agg]) => ({ type, ...agg }))
+        .sort((a, b) => b.count - a.count || a.type.localeCompare(b.type))
+    : [];
+
   // Data: exports list
   const {
     data: exports,
@@ -281,6 +293,68 @@ export function DataExportsTab() {
             />
           ))}
         </div>
+      </section>
+
+      {/* v2.442.0 THE BY-TYPE BREAKDOWN — the wire's byType aggregate
+          finally takes its own face: each type's run count (WITH its
+          withdrawn rows — the honest inclusion, named in the header),
+          its records, and the withdrawn split in the zinc voice (the
+          table's Cancelled badge family). The empty state renders NO
+          table (the empty-state probe law): the census waits for its
+          first run as a quiet card. */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">By Type</h2>
+          <span className="text-xs text-muted-foreground">
+            {typeRows.length} type{typeRows.length === 1 ? '' : 's'} · run counts include withdrawn rows
+          </span>
+        </div>
+        {statsLoading ? (
+          <div className="space-y-2">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+        ) : typeRows.length === 0 ? (
+          <div className="glass-card rounded-xl p-6 text-center text-sm text-muted-foreground">
+            No exports yet — the census waits for its first run
+          </div>
+        ) : (
+          <div className="glass-card rounded-xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
+                    <th className="px-4 py-2.5 font-medium">Type</th>
+                    <th className="px-4 py-2.5 text-right font-medium">Runs</th>
+                    <th className="px-4 py-2.5 text-right font-medium">Records</th>
+                    <th className="px-4 py-2.5 text-right font-medium">Withdrawn</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {typeRows.map((row) => (
+                    <tr key={row.type} className="border-b last:border-0">
+                      <td className="px-4 py-2.5 font-mono text-xs">{row.type}</td>
+                      <td className="px-4 py-2.5 text-right tabular-nums">{row.count}</td>
+                      <td className="px-4 py-2.5 text-right tabular-nums">
+                        {row.records.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-2.5 text-right">
+                        {row.cancelled > 0 ? (
+                          <Badge className="bg-zinc-100 text-zinc-600 dark:bg-zinc-900/60 dark:text-zinc-300 hover:bg-zinc-100">
+                            {row.cancelled} withdrawn
+                          </Badge>
+                        ) : (
+                          <span className="text-muted-foreground">0</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Export History */}

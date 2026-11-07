@@ -1597,7 +1597,7 @@ export interface DataExportsStats {
   totalRecordsExported: number;
   totalFileSizeBytes: number;
   successRate: number;
-  byType: Record<string, { count: number; records: number }>;
+  byType: Record<string, { count: number; records: number; cancelled: number }>;
 }
 
 export interface CreateDataExportPayload {

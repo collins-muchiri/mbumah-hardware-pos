@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.442.0',
+    title: 'The trends find their dark voice — the by-type census lands',
+    bullets: [
+      'Every stat card\u2019s trend line now speaks its own family in light and dark: emerald for totals, zinc for the withdrawn card, teal, amber, green — the badges\u2019 dark-pair grammar reaches the trend lines, so dark mode reads as intentional as daylight.',
+      'The debt-plans and shift-scheduling dashboards wear the same voices (the mirror law), and every trend line now carries its full sentence on hover.',
+      'A new By Type breakdown on the exports dashboard: each export type\u2019s run count, its records, and — in the zinc voice — how many of its runs were withdrawn before completion.',
+      'Run counts include their withdrawn rows (the honest inclusion, named in the header), so a type\u2019s census is true at a glance; the withdrawn split wears the badge family you already know.',
+    ],
+  },
+  {
     version: '2.441.0',
     title: 'The withdrawn count takes its own card — the exports grid wears the whole census',
     bullets: [

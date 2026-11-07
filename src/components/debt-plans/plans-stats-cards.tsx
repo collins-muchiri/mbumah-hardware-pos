@@ -26,6 +26,8 @@ interface StatCardConfig {
   gradient: string;
   iconColor: string;
   trend?: string;
+  /** v2.442.0 the trend line's own voice — light 600, dark 400. */
+  trendClass?: string;
 }
 
 export function PlansStatsCards({ stats, isLoading }: PlansStatsCardsProps) {
@@ -41,6 +43,7 @@ export function PlansStatsCards({ stats, isLoading }: PlansStatsCardsProps) {
       gradient: 'from-emerald-500 to-emerald-600',
       iconColor: 'text-emerald-500',
       trend: `${stats?.totalPendingApproval ?? 0} pending approval`,
+      trendClass: 'text-emerald-600 dark:text-emerald-400',
     },
     {
       label: 'Outstanding Balance',
@@ -52,6 +55,7 @@ export function PlansStatsCards({ stats, isLoading }: PlansStatsCardsProps) {
         defaultedOutstanding > 0
           ? `${formatKES(defaultedOutstanding)} in defaulted plans`
           : undefined,
+      trendClass: 'text-amber-600 dark:text-amber-400',
     },
     {
       label: 'Overdue Plans',
@@ -67,6 +71,7 @@ export function PlansStatsCards({ stats, isLoading }: PlansStatsCardsProps) {
       gradient: 'from-teal-500 to-teal-600',
       iconColor: 'text-teal-500',
       trend: `${stats?.completedThisMonth ?? 0} completed`,
+      trendClass: 'text-teal-600 dark:text-teal-400',
     },
   ];
 
@@ -101,7 +106,10 @@ export function PlansStatsCards({ stats, isLoading }: PlansStatsCardsProps) {
                 <p className="text-xs text-muted-foreground truncate">{card.label}</p>
                 <p className="text-xl font-bold truncate">{card.value}</p>
                 {card.trend && (
-                  <p className="text-[10px] text-muted-foreground truncate">
+                  <p
+                    className={`text-[10px] ${card.trendClass ?? 'text-muted-foreground'} truncate`}
+                    title={card.trend}
+                  >
                     {card.trend}
                   </p>
                 )}
