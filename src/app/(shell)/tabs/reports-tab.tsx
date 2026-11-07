@@ -2837,6 +2837,14 @@ export default function ReportsTab() {
                         <p className="text-sm text-muted-foreground">Outstanding Debt</p>
                       </div>
                       <p className="text-2xl font-bold whitespace-nowrap tabular-nums">{formatKES(customerAnalysis.debtTotal)}</p>
+                      {/* THE DEBT VOICES RECONCILE (v2.454.0): the MIRROR voice —
+                          this card sums Customer.currentDebtBalance over the
+                          customers wire (the same reduce as the customers desk's
+                          fifth card), while the dashboard's KPI is the LEDGER
+                          voice (DebtLedger.balance over the outstanding
+                          statuses). The disclosure names the scope so the two
+                          figures reconcile on their own terms. */}
+                      <p data-testid="reports-debt-scope" title="Sum of every customer's currentDebtBalance over the customers wire - the mirror voice. The dashboard's ledger voice (DebtLedger balances) may differ by design." className="text-[11px] text-muted-foreground/80 mt-0.5">Customer balances · all customers</p>
                     </CardContent>
                   </Card>
                 </div>

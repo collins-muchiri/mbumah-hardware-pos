@@ -972,13 +972,24 @@ function KpiRow({ data, onTab }: { data: DashboardData | null; onTab: (tab: AppT
         iconClass="bg-rose-100 text-rose-700"
         valueClass={debtTotal > 0 ? 'text-rose-700' : 'text-slate-900'}
         sub={
-          <button
-            type="button"
-            className="font-medium text-rose-700 underline-offset-2 hover:underline"
-            onClick={() => onTab('debt-management')}
-          >
-            Tap to view debtors
-          </button>
+          <>
+            {/* THE DEBT VOICES RECONCILE (v2.454.0): the LEDGER voice — this
+                KPI sums DebtLedger.balance over the outstanding statuses
+                (OUTSTANDING / PARTIAL / OVERDUE), store-scoped. The customers
+                desk's fifth card and the reports analysis card are the MIRROR
+                voice (Customer.currentDebtBalance over the customers wire).
+                The two may disagree BY DESIGN — the disclosure names the
+                source so each figure reconciles on its own terms. */}
+            <span data-testid="dashboard-debt-scope" title="Sum of DebtLedger balances with status OUTSTANDING, PARTIAL or OVERDUE - the ledger voice. The customers desk's mirror voice (customer balances) may differ by design." className="text-muted-foreground">Ledger balances · outstanding</span>
+            <span aria-hidden="true"> · </span>
+            <button
+              type="button"
+              className="font-medium text-rose-700 underline-offset-2 hover:underline"
+              onClick={() => onTab('debt-management')}
+            >
+              Tap to view debtors
+            </button>
+          </>
         }
       />
     </section>

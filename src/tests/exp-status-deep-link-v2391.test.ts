@@ -316,35 +316,31 @@ describe('the address-bar vocabulary — the thirtieth row (cross-suite pins)', 
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.453.0 leads the feed', () => {
+describe('whats-new — v2.454.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.453.0');
-    // the lead's story hand-over (v2.453.0, the Task 111 law's
-    // fifty-ninth application): the head story is the hand-over's
-    // voice — the reduce sweep; the v2.452.0 confession promised the
-    // grep and the grep RAN: every desk's summing seat audited, and
-    // the customers wire caught feeding its sums Decimal-as-string
-    // (the contract declared number, the raw spread delivered JSON
-    // strings) — the reports desk's customer-analysis card read the
-    // lie LIVE (three real debts of 3500, 1200 and 0 glued into
-    // "035001200" — Ksh 35,001,200.00 for Ksh 4,700.00 of real
-    // debt) and the customers desk carried the same shape LATENT (a
-    // sum the underscore kept silent); the fix is three seats deep —
-    // the wire's honest boundary (the list route coerces the two
-    // money fields after the spread, so every future consumer is
-    // born honest), the live seat's own Number() with its figure in
-    // tabular digits, and the latent seat LIT (the customers desk's
-    // FIFTH STAT CARD — the desk finally speaks its own debt total
-    // in the risk family's rose-to-red gradient); the aging buckets
-    // were honest by arithmetic accident (subtraction coerces) and
-    // every other desk's summing seat passed the same audit. The
-    // witnesses' arrow exits the head this round; the boundary's
-    // arrow carries the eye.
-    expect(head.title).toContain('reduce');
+    expect(head.version).toBe('2.454.0');
+    // the lead's story hand-over (v2.454.0, the Task 111 law's
+    // sixtieth application): the head story is the hand-over's
+    // voice — the debt voices reconcile; the reduce sweep's carried
+    // question ran its census and found the shell speaking
+    // "Outstanding Debt" through FIVE seats measuring TWO different
+    // ledgers — the LEDGER voice (DebtLedger.balance over the
+    // outstanding statuses, plan-tracked rows only) speaking at the
+    // dashboard KPI, the financial desk's card and the financial
+    // overview's card, and the MIRROR voice (Customer.currentDebtBalance
+    // over the customers wire) speaking at the customers desk's fifth
+    // card and the reports desk's analysis card; the two may disagree
+    // BY DESIGN and neither is wrong — every seat now says which voice
+    // it speaks (a small muted scope line under the figure, a testid
+    // apiece, and a hover coach telling which table the sum reads and
+    // why the other voice may honestly disagree), the figures
+    // themselves untouched. The boundary's arrow exits the head this
+    // round; the voices' arrow carries the eye.
+    expect(head.title).toContain('voices');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('Outstanding Debt'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('fifth stat card'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('Decimal-as-string'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('by design'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('scope line'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('reconcile on their own terms'))).toBe(true);
   });
 });

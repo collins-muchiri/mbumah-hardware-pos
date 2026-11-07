@@ -1,3 +1,13 @@
+## [2.454.0] The debt voices reconcile — every figure names its source
+
+The carried question from the reduce sweep: the dashboard's Outstanding-Debt window and the customers wire's raw sum are two voices measuring two different ledgers, and no seat said which was which. This round the census ran, the five seats learned their word, and the reconciliation is now legible at a glance.
+
+### Added
+- **THE SCOPE DISCLOSURES** (five seats): every "Outstanding Debt" figure now wears a small muted line naming its voice. THE LEDGER VOICE — "Ledger balances · outstanding" — speaks at the dashboard KPI (`data-testid="dashboard-debt-scope"`), the financial desk's card (`financial-debt-scope`) and the financial overview's card (`financial-overview-debt-scope`): all three read `DebtLedger.balance` over the outstanding statuses (`OUTSTANDING`, `PARTIAL`, `OVERDUE`), store-scoped, plan-tracked rows only. THE MIRROR VOICE — "Customer balances · all customers" — speaks at the customers desk's fifth card (`customers-debt-total-scope`) and the reports desk's analysis card (`reports-debt-scope`): both sum `Customer.currentDebtBalance` over the customers wire, all-time. The two voices may disagree BY DESIGN — the ledger only carries plan-tracked rows while the mirror carries the customer record's cached balance — and each hover coach (a `title` on every disclosure) tells that whole story: which table the sum reads, which statuses count, why the other voice may honestly disagree.
+
+### Changed
+- **THE DASHBOARD KPI'S SUB COMPOSES ITS VOICE** (`src/app/(shell)/tabs/dashboard-tab.tsx`): the debtors button keeps its seat and its byte, now preceded by the ledger scope line — the KPI's caption reads "Ledger balances · outstanding · Tap to view debtors". The figures themselves are untouched: this round teaches the cards to speak, not the sums to change.
+
 ## [2.453.0] The reduce sweep — the customers wire learns its numbers
 
 The sweep the v2.452.0 confession promised: every summing seat in the app audited by grep — and the customers wire found feeding its sums Decimal-as-string, one card reading the lie live, one seat carrying it latent.
