@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.448.0',
+    title: 'The history’s records voice — the unordered wire learns to sort',
+    bullets: [
+      'The Export History table’s Records header is pressable now: one press sorts the history loudest-by-records — the run carrying the most data reads first — and press again returns the newest-first law. The records wire never had an order of its own, so this voice leads with the descending read: the census’s records-lens grammar, ported across the tab line.',
+      'The header carries its own affordance (the sort icon waits for your hover), the active voice reads semibold under a lit arrow, and aria-sort names the descending order for screen readers; the tiebreak is the row’s own id, so the order reads the same way twice.',
+      'The exclusion lives at the press — the records voice retires the Created mirror and the mirror retires the voice, both sorts ride above the lenses (the type and status chips keep their conjoin untouched), and neither sort ever rewrote the API’s newest-first law.',
+    ],
+  },
+  {
     version: '2.447.0',
     title: 'The history’s mirror — the Created header answers',
     bullets: [

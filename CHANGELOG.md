@@ -1,3 +1,13 @@
+## [2.448.0] The history's records voice
+
+The Created header gave the history its mirror; this round the Records header learns its own FIRST voice — the unordered wire sorts loudest-by-records, and the two voices learn to take turns.
+
+### Added
+- **THE HISTORY'S RECORDS VOICE** (`src/components/data-exports/exports-history-table.tsx`): the Export History table's Records header becomes a real `<button data-testid="history-sort-records">` — one press sorts the history **loudest-by-records** (`b.recordCount - a.recordCount`, desc-first: the records wire never had an order of its own, so the voice leads with the descending read, the census's records-lens grammar ported across the tab line; the row's own id as the deterministic tiebreak), press again and the wire's newest-first law returns. The voice **rides above the lenses**: the type and status chips' conjoin keeps its exact seat, the sort is a new pass over the already-filtered rows, and the API's `orderBy: { createdAt: 'desc' }` was never rewritten. `aria-sort="descending"` names the order.
+
+### Changed
+- **THE EXCLUSION LIVES AT THE PRESS** (`src/components/data-exports/exports-history-table.tsx`): the history now holds TWO sort voices — the Created mirror (v2.447.0) and the records voice — and they are **exclusive**: the records press retires the mirror (`setByOldest(false)`), the mirror's press retires the voice (`setByRecords(false)`), no reconcile effect (the lint zero held). The voice wears the table's own wardrobe — the hover affordance, the active voice **semibold** under a lit ChevronDown (the weight speaks where the census's color spoke), both aria-label voices and titles, and the zinc focus-visible ring. The door rows, the retention countdown, and both chip families ride untouched.
+
 ## [2.447.0] The history's mirror
 
 The census learned to sort itself in three voices; this round the Export History table answers with its own mirror — the Created header inverts the wire's newest-first law, and the lenses keep their conjoin.

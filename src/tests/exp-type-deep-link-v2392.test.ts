@@ -361,31 +361,31 @@ describe('the address-bar vocabulary — the thirty-first row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.447.0 leads the feed', () => {
+describe('whats-new — v2.448.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.447.0');
-    // the lead's story hand-over (v2.447.0, the Task 111 law's
-    // fifty-third application): the head story is the hand-over's
-    // voice — the history's mirror; the Created header answers: the
-    // census learned to sort itself in three voices and this round
-    // the Export History table answers with its own mirror (the
-    // Created header becomes a real button — one press INVERTS the
-    // wire's newest-first law, the OLDEST runs read first with the
-    // row's own id as the deterministic tiebreak, press again and
-    // the law returns); the mirror RIDES ABOVE THE LENSES (a new
-    // pass over the already-filtered rows — the type and status
-    // chips' conjoin keeps its exact seat, and the API route's
-    // orderBy createdAt desc was never rewritten); the wardrobe
-    // rides this table's own light (the th already speaks
-    // text-foreground, so the active voice is SEMIBOLD under a lit
-    // ChevronUp — the weight is the visible differentiator). The
-    // runs mirror's arrow exits the head this round; the history's
-    // mirror's arrow carries the eye.
-    expect(head.title).toContain('mirror');
+    expect(head.version).toBe('2.448.0');
+    // the lead's story hand-over (v2.448.0, the Task 111 law's
+    // fifty-fourth application): the head story is the hand-over's
+    // voice — the history's records voice; the unordered wire learns
+    // to sort: the Created header gave the Export History its mirror
+    // and this round the Records header learns its own FIRST voice
+    // (one press sorts the history LOUDEST-BY-RECORDS — the run
+    // carrying the most data reads first — desc-first, the census's
+    // records-lens grammar ported across the tab line, the row's own
+    // id as the deterministic tiebreak, press again and the wire's
+    // newest-first law returns); the exclusion lives at the press
+    // (the records voice retires the Created mirror and the mirror
+    // retires the voice — no reconcile effect, the lint zero held)
+    // and both sorts ride above the lenses (the type and status
+    // chips' conjoin keeps its exact seat, the API's orderBy
+    // createdAt desc was never rewritten). The history's mirror's
+    // arrow exits the head this round; the records voice's arrow
+    // carries the eye.
+    expect(head.title).toContain('records voice');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('oldest-first'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('loudest-by-records'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('aria-sort'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('rides above the lenses'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('exclusion'))).toBe(true);
   });
 });
