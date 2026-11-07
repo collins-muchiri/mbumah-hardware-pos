@@ -948,6 +948,15 @@ export default function CustomersTab() {
               <div className="flex-1 min-w-0">
                 <p className="text-xs text-muted-foreground">Outstanding Debt</p>
                 <p data-testid="customers-debt-total-figure" className="text-xl font-bold tabular-nums whitespace-nowrap">{formatKES(totalDebt)}</p>
+                {/* THE DEBT VOICES RECONCILE (v2.454.0): this card is the MIRROR
+                    voice — it sums Customer.currentDebtBalance over the
+                    customers wire (all customers, store-scoped, all-time). The
+                    dashboard's KPI is the LEDGER voice — it sums
+                    DebtLedger.balance over the outstanding statuses. The two may
+                    disagree BY DESIGN (plan-tracked ledger rows vs the
+                    customer's cached balance); the disclosure makes the scope
+                    honest so the figures reconcile ON THEIR OWN TERMS. */}
+                <p data-testid="customers-debt-total-scope" title="Sum of every customer's currentDebtBalance over the customers wire - the mirror voice. The dashboard's ledger voice (DebtLedger balances) may differ by design." className="text-[11px] text-muted-foreground/80 mt-0.5">Customer balances · all customers</p>
               </div>
               {totalDebt > 0 ? <TrendingUp className="h-4 w-4 text-rose-500 shrink-0" /> : <Minus className="h-4 w-4 text-muted-foreground shrink-0" />}
             </div>

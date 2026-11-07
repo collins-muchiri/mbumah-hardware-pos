@@ -264,6 +264,14 @@ export function FinancialOverview({
                 <p className="text-xl font-bold text-red-600">
                   <AnimatedCounter value={stats?.outstandingDebt || 0} />
                 </p>
+                {/* THE DEBT VOICES RECONCILE (v2.454.0): the LEDGER voice —
+                    this card reads the dashboard wire's flat ledger aggregate
+                    (DebtLedger.balance over the outstanding statuses); the
+                    customers desk's fifth card is the MIRROR voice
+                    (Customer.currentDebtBalance over the customers wire). The
+                    disclosure names the source so the figures reconcile on
+                    their own terms. */}
+                <p data-testid="financial-overview-debt-scope" title="Sum of DebtLedger balances with status OUTSTANDING, PARTIAL or OVERDUE - the ledger voice. The customers desk's mirror voice (customer balances) may differ by design." className="text-[10px] text-muted-foreground/80">Ledger balances · outstanding</p>
                 <div className="flex items-center gap-1 mt-0.5">
                   {debtTrend >= 0 ? (
                     <ArrowUpRight className="h-3 w-3 text-red-500" />

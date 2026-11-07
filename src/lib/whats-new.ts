@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.454.0',
+    title: 'The debt voices reconcile — every figure names its source',
+    bullets: [
+      '“Outstanding Debt” appears on five cards across the app, and they measure two different ledgers: the dashboard, financial desk and financial overview sum the debt LEDGER’s plan-tracked balances, while the customers desk and the customer-analysis report sum the customer records’ cached balances. The two can differ by design — and now every card says which voice it speaks, in a small line under the figure.',
+      'Hover any debt figure’s new scope line for the full story: which table the sum reads, which statuses count, and why the other voice may honestly disagree. No more guessing which “Outstanding Debt” is which.',
+      'The figures themselves are untouched — this round teaches the cards to speak, not the sums to change. The ledger voice and the mirror voice reconcile on their own terms.',
+    ],
+  },
+  {
     version: '2.453.0',
     title: 'The reduce sweep — the customers wire learns its numbers',
     bullets: [
