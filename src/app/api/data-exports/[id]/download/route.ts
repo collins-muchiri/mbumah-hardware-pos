@@ -106,6 +106,21 @@ async function downloadExportHandler(...args: unknown[]): Promise<Response> {
     );
   }
 
+  // v2.439.0 THE CANCELLED FACE: a cancelled row never produced a file —
+  // its own message, not the waiting room's (the gate above) and not the
+  // generic state face below (the vocabulary speaking every word it
+  // keeps). Sits between the FAILED gate and the expiry gate: the two
+  // "this file will never arrive" faces share the front of the row.
+  if (exportRow.status === 'CANCELLED') {
+    return Response.json(
+      {
+        success: false,
+        error: 'This export was cancelled before it finished. Please generate a new export.',
+      },
+      { status: 409 },
+    );
+  }
+
   if (exportRow.expiresAt && exportRow.expiresAt.getTime() < Date.now()) {
     return Response.json(
       {

@@ -45,7 +45,8 @@ import { ExportsStatsCards } from '@/components/data-exports/exports-stats-cards
 // to the files that are ready — the export center's daily question
 // ("which of my files are ready, and which died?") becomes a bookmark.
 // The lens's words are the chip row's OWN spellings (lowercase:
-// completed | failed | processing, the chip word's voice; the wire's
+// completed | failed | processing | cancelled, the chip word's voice;
+// the wire's
 // UPPERCASE statuses — `COMPLETED`, `PENDING` — are NOT lens words, a
 // capitalized word names nothing, never a clever match; the neutral is
 // the lowercase `all`). Anything missing or unknown answers 'all'

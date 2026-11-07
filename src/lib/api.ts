@@ -1557,6 +1557,12 @@ export type DataExportStatus =
   | 'PROCESSING'
   | 'COMPLETED'
   | 'FAILED'
+  // v2.439.0 THE STUCK ROW LEARNS TO BOW OUT: a PENDING/PROCESSING row
+  // whose invocation died (serverless timeout, closed tab) would wait
+  // forever — the cancel door retires it honestly instead. The word
+  // sits with FAILED (both are "this file will never arrive") and
+  // before EXPIRED (the derived overlay keeps the last seat).
+  | 'CANCELLED'
   | 'EXPIRED';
 
 export interface DataExportItem {
@@ -1631,6 +1637,18 @@ export const dataExportsApi = {
   delete: async (id: string) => {
     return request<{ message: string }>(`/data-exports/${id}`, {
       method: 'DELETE',
+    });
+  },
+
+  // v2.439.0 THE CANCEL DOOR: retires a stuck PENDING/PROCESSING row —
+  // the invocation that died and would never come back. The endpoint
+  // refuses a row already past the waiting state (409), so finished
+  // history is never rewritten by this hand; the row itself stays in
+  // the history wearing its note (a cancelled export is a fact about
+  // the desk, not a mistake to erase).
+  cancel: async (id: string) => {
+    return request<DataExportItem>(`/data-exports/${id}/cancel`, {
+      method: 'POST',
     });
   },
 

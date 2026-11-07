@@ -123,7 +123,8 @@ describe('the exports world wears the schema\u2019s default face (v2.437.0)', ()
   it('the summary line\u2019s census speaks the pending face', () => {
     expect(exportsFixture).toContain("const pending = ROWS.filter(([, , , s]) => s === 'PENDING').length;");
     // v2.438.0 re-anchor: the census grew the expired face's own count.
-    expect(exportsFixture).toContain('(8 completed + ${expired} expired, 2 failed, 1 processing, ${pending} pending, ${offUnion} off-union: PAYROLL + ALL)');
+    // v2.439.0 re-anchor: the census grew the cancelled face's own count.
+    expect(exportsFixture).toContain('(8 completed + ${expired} expired, 2 failed, 1 processing, ${pending} pending, ${cancelled} cancelled, ${offUnion} off-union: PAYROLL + ALL)');
   });
 
   it('the processing word\u2019s union covers PENDING — the lens and the count paragraph speak the SAME union', () => {
@@ -133,7 +134,10 @@ describe('the exports world wears the schema\u2019s default face (v2.437.0)', ()
 
   it('the twelve-row world is gone — the fourteen-row world replaces it in prose and law', () => {
     // v2.438.0 re-anchor: thirteen grew to fourteen (the expired face joined).
-    expect(exportsFixture).toContain('fourteen DataExport history rows');
+    // v2.439.0 re-anchor: fourteen grew to fifteen (the cancelled face joined —
+    // the prose now speaks fifteen; the not-pins keep every elder word out).
+    expect(exportsFixture).toContain('fifteen DataExport history rows');
+    expect(exportsFixture).not.toContain('fourteen DataExport history rows');
     expect(exportsFixture).not.toContain('twelve DataExport history rows');
     expect(mpesaFixture).toContain('(2 MATCHED, 3 PENDING, 2 UNMATCHED, 1 DISPUTED, 1 legacy derived)');
   });

@@ -9,7 +9,7 @@
  * Task 104 carry kept naming (the exports fixture's PAYROLL row) had no
  * row to be honest about. This fixture lights the desk END TO END on the
  * local dev database:
- *   • fourteen DataExport history rows: one per each of the TEN card types
+ *   • fifteen DataExport history rows: one per each of the TEN card types
  *     (speaking both lenses — 8 completed, 2 failed, 1 processing) PLUS
  *     the schema's own DEFAULT status face (one PENDING row — the one
  *     wire status the world never wore; the processing word's union
@@ -28,10 +28,18 @@
  *     endpoint's preferred source) so the rows are downloadable exactly
  *     as real ones are — the fixture-fidelity law: a history row that
  *     lies about its file is not fidelity,
- *   • the coherence law kept exactly as the POST route writes them
- *     (COMPLETED → completedAt + expiresAt +7d; FAILED → errorMessage;
- *     PROCESSING and PENDING → neither — a waiting row lies about no
- *     completion and no failure).
+ *   • v2.439.0 THE CANCELLED FACE: one row cancelled by the owner while
+ *     it was stuck — the badge wearable on a fresh world (the
+ *     written-but-unspoken law: a face no row wears is a face the QA
+ *     census must ask about), coherence kept: a cancelled row carries
+ *     its note and NONE of the completion faces, never expires (it has
+ *     no file to lose — the retention chip stays silent, the badge owns
+ *     the story),
+ *   • the coherence law kept exactly as the POST route and the cancel
+ *     door write them (COMPLETED → completedAt + expiresAt +7d;
+ *     FAILED → errorMessage; CANCELLED → its note only; PROCESSING and
+ *     PENDING → neither — a waiting row lies about no completion and
+ *     no failure).
  *
  * THE SEED-PASSWORD LAW is not engaged here (no users are touched).
  * Idempotent: every row is found by its marker key inside the free-form
@@ -70,6 +78,10 @@ const ROWS = [
   // the schema's own default face — the one wire status the world never
   // wore; the processing word's union (PROCESSING || PENDING) answers it.
   ['transactions-pending', 'TRANSACTIONS', 'JSON', 'PENDING', 0, 1, null],
+  // v2.439.0 THE CANCELLED FACE — the stuck row's honest exit: the
+  // loyalty export whose invocation died, retired by the owner. The
+  // note speaks, the completion faces stay silent (the coherence law).
+  ['loyalty-cancelled', 'LOYALTY', 'CSV', 'CANCELLED', 0, 1, null],
   ['tax-completed', 'TAX', 'CSV', 'COMPLETED', 54, 1, 7],
   ['sales-summary-completed', 'SALES_SUMMARY', 'CSV', 'COMPLETED', 31, 1, 7],
   // the EXPIRED face — completed 9 days ago, retention ended 2 days ago;
@@ -100,6 +112,7 @@ async function main() {
   for (const [k, exportType, format, status, recordCount, ago, expiresInDays] of ROWS) {
     const completed = status === 'COMPLETED';
     const failed = status === 'FAILED';
+    const cancelled = status === 'CANCELLED';
     const content = completed
       ? format === 'JSON'
         ? JSON.stringify({ type: exportType, records: recordCount, fixture: MARKER }, null, 2)
@@ -123,7 +136,9 @@ async function main() {
       status,
       errorMessage: failed
         ? 'The ledger moved while the file was written — re-run the export.'
-        : null,
+        : cancelled
+          ? 'Cancelled by the owner while it was stuck — the generation never finished.'
+          : null,
       expiresAt: completed ? daysFromNow(expiresInDays ?? 7) : null,
       completedAt: completed ? daysAgo(ago) : null,
     };
@@ -136,10 +151,11 @@ async function main() {
 
   const offUnion = ROWS.filter(([, t]) => t === 'PAYROLL' || t === 'ALL').length;
   const pending = ROWS.filter(([, , , s]) => s === 'PENDING').length;
+  const cancelled = ROWS.filter(([, , , s]) => s === 'CANCELLED').length;
   const expired = ROWS.filter(([, , , , , , d]) => d !== null && d < 0).length;
   console.log(
     `exports fixture world lit: ${ROWS.length} history rows ` +
-      `(8 completed + ${expired} expired, 2 failed, 1 processing, ${pending} pending, ${offUnion} off-union: PAYROLL + ALL) → store ${store.id}`,
+      `(8 completed + ${expired} expired, 2 failed, 1 processing, ${pending} pending, ${cancelled} cancelled, ${offUnion} off-union: PAYROLL + ALL) → store ${store.id}`,
   );
 }
 

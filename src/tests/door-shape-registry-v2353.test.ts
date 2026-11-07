@@ -86,9 +86,11 @@ describe('THE DOOR-SHAPE REGISTRY — the census is derived, not remembered', ()
   it('the walk covers the whole API surface (the registry scope is honest)', () => {
     // 380 route files at v2.353.0; 381 at v2.373.0 — the stranded-gap heal
     // route (src/app/api/transactions/[id]/refund-heal/route.ts) joined.
-    // A route added or deleted must move this number HERE — that is the
-    // registry working.
-    expect(routeFiles.length).toBe(381);
+    // 382 at v2.439.0 — the cancel door joined
+    // (src/app/api/data-exports/[id]/cancel/route.ts): the stuck row's
+    // honest exit. A route added or deleted must move this number HERE —
+    // that is the registry working.
+    expect(routeFiles.length).toBe(382);
   });
 
   it('every hard-door call carries its explicit generic (the v2.344 tombstone, tree-wide)', () => {
