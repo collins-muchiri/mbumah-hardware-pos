@@ -19,6 +19,13 @@
 //     family) whenever a withdrawn row exists,
 //   • the clarifier: the Success Rate card's trend line names its own
 //     denominator — "Completed vs. failed runs (cancelled excluded)".
+//
+// v2.441.0 RE-KEY (honest): the census took a home of its own — the
+// fifth glass card ('Cancelled Exports', the zinc voice, the Ban icon)
+// — and the Total Exports trend line hands the three-segment read over
+// (one number, one home). The face pins below now pin the two-segment
+// trend and the rich node's retirement; the card's own bytes live in
+// export-withdrawn-card-v2441.test.ts.
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -101,21 +108,14 @@ describe('the honest denominator (v2.440.0)', () => {
   });
 });
 
-describe('the face speaks three segments (v2.440.0)', () => {
-  it('the Total Exports trend is a rich node — the cancelled segment in zinc', () => {
-    expect(cards).toContain('  const cancelled = stats?.cancelledExports ?? 0;');
-    expect(cards).toContain('      trendNode: (');
-    // the zinc voice rides ONLY when a withdrawn row exists — the
-    // table\u2019s Cancelled badge family (font-medium text-zinc-500)
+describe('the face (v2.440.0, re-keyed v2.441.0 — the census took its own card)', () => {
+  it('the Total Exports trend reads two segments — the census handed over', () => {
     expect(cards).toContain(
-      "          <span className={cancelled > 0 ? 'font-medium text-zinc-500' : undefined}>",
+      '      trend: `${stats?.completedExports ?? 0} completed · ${stats?.failedExports ?? 0} failed`,',
     );
-    expect(cards).toContain('            {cancelled} cancelled\n          </span>');
-  });
-
-  it('the renderer prefers the rich node and falls back to the plain trend', () => {
-    expect(cards).toContain('                {(card.trendNode || card.trend) && (');
-    expect(cards).toContain('                    {card.trendNode ?? card.trend}');
+    // the rich-trend node retired with the hand-over (one number, one
+    // home — the withdrawn count lives on its own card now)
+    expect(cards).not.toContain('trendNode');
   });
 
   it('the Success Rate card names its own denominator — the clarifier', () => {

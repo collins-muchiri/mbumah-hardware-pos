@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.441.0',
+    title: 'The withdrawn count takes its own card — the exports grid wears the whole census',
+    bullets: [
+      'Cancelled exports now have a card of their own: a fifth stat card on the exports dashboard wears the zinc voice (the Cancelled badge family) and the Ban icon, seated right beside Total Exports — the census the withdrawn word learned last release takes its own card.',
+      'The Total Exports trend line hands the census over and reads N completed · M failed again — one number, one home, so the withdrawn count can never get lost in a trend line.',
+      'The card\u2019s trend line speaks the law honestly in both states: "Withdrawn before completion — never a file" when a withdrawn row exists, and a calm honest zero when the census holds none.',
+      'The grid wears five cards with the fifth landing on its own stagger beat, every trend line carries its full sentence on hover, and the Success Rate card still names its denominator (cancelled excluded) — the excluded count now has a face right beside the census pair.',
+    ],
+  },
+  {
     version: '2.440.0',
     title: 'The census learns the withdrawn word — the exports stats speak every status they keep',
     bullets: [
