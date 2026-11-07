@@ -294,31 +294,33 @@ describe('the address-bar vocabulary — the thirtieth row (cross-suite pins)', 
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.434.0 leads the feed', () => {
+describe('whats-new — v2.435.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.434.0');
-    // the lead's story hand-over (v2.434.0, the Task 111 law's
-    // fortieth application): the head story is the hand-over's
-    // voice — the archive reads its own timeline: the release
-    // changelog's story list grew the arc's own timeline
-    // (RELEASE_ARC — the fifteen words of the supplier-maker arc
-    // with their release days exactly as the tags record them,
-    // releaseArcWord — the pure lookup, a version outside the arc
-    // reads the null — the absent-control law), each arc word's
-    // entry wears the amber chip beside its line ("word 7 · Nov 6"
-    // — the walk's own Footprints glyph, the memory family's
-    // amber, tabular-nums, the title carrying the whole story),
-    // the short face speaks the day (arcWordFace — the MMM D
-    // brevity, an unparseable day reads itself), and the arc
-    // never leaves the archive (every word's version lives in
-    // the feed — the announcement dialog stays bare, one home).
-    // The desk's story exits the head this round; the
-    // arc's own timeline carries the eye.
-    expect(head.title).toContain('timeline');
+    expect(head.version).toBe('2.435.0');
+    // the lead's story hand-over (v2.435.0, the Task 111 law's
+    // forty-first application): the head story is the hand-over's
+    // voice — the watch confesses its window: the portal's idle
+    // lock no longer arrives without warning (the last 60 seconds
+    // grow the floating amber strip — "Still there? Signing out in
+    // Ns", role=status, aria-live=polite, the tabular countdown
+    // holding its lane, Stay signed in the one action), the
+    // re-arm law rides the hook's own reset (one reset owns both
+    // timers — the strip returns after another full window), the
+    // strip and the lock hang off the ONE setTimeout schedule (the
+    // countdown reaches zero exactly as the lock lands — the two
+    // clocks agree), the logout POST is guarded to fire at most
+    // once, the hook's grace options stay OPTIONAL (the till
+    // passes none — its v2.6.0 contract byte-identical), and every
+    // sentence that speaks the window derives its number from the
+    // window constant (SELF_SERVICE_IDLE_MINUTES — the copy can
+    // never drift from the contract it describes).
+    // The arc's story exits the head this round; the
+    // watch's own confession carries the eye.
+    expect(head.title).toContain('grace');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('the arc reads itself'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('as the tag records it'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('never leaves the archive'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('Still there?'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('the two clocks agree'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('derives its number'))).toBe(true);
   });
 });
