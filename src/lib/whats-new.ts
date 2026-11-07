@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.452.0',
+    title: 'The fixture world learns to bill — the invoice register gets its witnesses',
+    bullets: [
+      'npm run db:fixtures now stands up FOUR fixture worlds through the one door — and the invoices desk finally renders rows on day one: eleven witnesses where every document type (invoice, quotation, proforma, credit note, debit note) and every register status wears a row, so no QA burst meets an honest empty state again.',
+      'The seeds carry a money bait: the six register totals are distinct and their lexicographic order differs from their numeric order (the cent total sorts first numerically but near-last as text), so the walk that catches a string/string comparator is one press away — and the total-amount coercion seat keeps its live proof forever. The witnesses’ first boot also exposed the stats row’s own string lie: the outstanding card read Ksh 950 trillion for a Ksh 174,500 register, and the money reduces coerce now.',
+      'The lazy-expiry law is spoken by the seeds, not fought: living quotations carry future due dates, one past-due quotation already wears the expired face, and the register’s money column now wears tabular digits — the money that sorts honestly also aligns honestly.',
+    ],
+  },
+  {
     version: '2.451.0',
     title: 'The money-sort sweep — every desk’s comparator tells the truth',
     bullets: [

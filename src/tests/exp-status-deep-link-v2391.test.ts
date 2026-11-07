@@ -316,34 +316,38 @@ describe('the address-bar vocabulary — the thirtieth row (cross-suite pins)', 
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.451.0 leads the feed', () => {
+describe('whats-new — v2.452.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.451.0');
-    // the lead's story hand-over (v2.451.0, the Task 111 law's
-    // fifty-seventh application): the head story is the hand-over's
-    // voice — the money-sort sweep; every desk's comparator tells the
-    // truth: the customers desk confessed in v2.450.0 and this round
-    // the sweep greps every generic aVal-comparator for the same
-    // string/string lie — and finds TWO more desks lying (the invoice
-    // register's total-amount read and the inventory desk's price,
-    // cost and stock reads — quantityInStock is a DECIMAL column in
-    // the schema, NOT an integer, so all four seats received
-    // Decimal-as-string and compared LEXICOGRAPHICALLY, "120000"
-    // before "15000"); all four seats now COERCE at the comparator
-    // (the one seat each desk owns — the v2.12.5 cost-hidden coalesce
-    // keeps its seat inside the coercion) so the biggest invoice, the
-    // priciest shelf and the fullest stock read honestly; the SAFE
-    // patterns are pinned as positive controls (the profit margin's
-    // arithmetic — subtraction and division coerce — the supplier
-    // leaderboard's computed metrics — reduce with arithmetic, numbers
-    // before the comparator — and the identifier sorts' lexical-by-
-    // design law). The money sort's arrow exits the head this round;
-    // the sweep's arrow carries the eye.
-    expect(head.title).toContain('sweep');
+    expect(head.version).toBe('2.452.0');
+    // the lead's story hand-over (v2.452.0, the Task 111 law's
+    // fifty-eighth application): the head story is the hand-over's
+    // voice — the fixture world learns to bill; the invoices desk
+    // answered every QA burst honestly empty (the other three
+    // fixture worlds never wrote an Invoice row — the v2.451.0
+    // carry), so db:fixtures now stands up FOUR worlds through the
+    // one door and the register gets its ELEVEN WITNESSES — every
+    // document type wears a row (INVOICE, QUOTATION, PROFORMA,
+    // CREDIT_NOTE, DEBIT_NOTE) and the register's statuses wear
+    // rows too (PAID, SENT, DRAFT, CANCELLED, INVOICED — EXPIRED
+    // rides the quotation, where the lazy expiry law writes it);
+    // the money bait is set (the six register totals are distinct
+    // AND lexicographic ≠ numeric — 725.75 first numerically,
+    // "9500" last lexicographically — so the walk that catches a
+    // string/string comparator is one press away and the v2.451.0
+    // coercion seat keeps its LIVE proof forever); the lazy-expiry
+    // law is spoken by the seeds, not fought (living quotations
+    // carry FUTURE due dates, one past-due quotation already wears
+    // EXPIRED); the watcher learned to COUNT THE RUNS, NOT JUST THE
+    // PENDING (the green verdict requires the known total, eleven
+    // faces, AND zero pending — a half-born CI is named, tolerated,
+    // then refused, never green); and the register's money column
+    // wears tabular digits. The sweep's arrow exits the head this
+    // round; the witnesses' arrow carries the eye.
+    expect(head.title).toContain('fixture world');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('lexicographically'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('coerce'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('reduce'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('db:fixtures'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('money bait'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('tabular'))).toBe(true);
   });
 });

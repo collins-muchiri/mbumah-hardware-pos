@@ -467,10 +467,17 @@ export default function InvoicesTab() {
       ['DRAFT', 'SENT', 'ACCEPTED', 'INVOICED'].includes(i.status) && i.invoiceType === 'INVOICE'
     );
     const pendingQuotations = quotations.filter(i => ['DRAFT', 'SENT'].includes(i.status));
+    // v2.452.0 THE FIXTURE WORLD'S CONFESSION — the stats row lied the same
+    // lie the sweep fixed at the comparators, one seat over: the reduce
+    // seeds 0 (a number) and the wire delivers Decimal-as-string, so
+    // 0 + "9500" CONCATENATES ("09500") and the outstanding card read
+    // Ksh 950,012,000,045,000.00 for a Ksh 174,500 register. The fixture
+    // world's witnesses exposed it on their first boot. Coerce at the
+    // reduce — the one seat the stats row owns.
     return {
       totalInvoices: invoicesOnly.length,
-      totalRevenue: paidInvoices.reduce((s, i) => s + i.totalAmount, 0),
-      outstandingAmount: outstanding.reduce((s, i) => s + i.totalAmount, 0),
+      totalRevenue: paidInvoices.reduce((s, i) => s + Number(i.totalAmount), 0),
+      outstandingAmount: outstanding.reduce((s, i) => s + Number(i.totalAmount), 0),
       pendingQuotations: pendingQuotations.length,
     };
   }, [rawInvoices]);
@@ -1072,7 +1079,7 @@ export default function InvoicesTab() {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="text-right font-semibold">
+                      <TableCell className="text-right font-semibold tabular-nums">
                         {formatKES(inv.totalAmount)}
                       </TableCell>
                       <TableCell>{getStatusBadge(inv.status as InvoiceStatus)}</TableCell>
