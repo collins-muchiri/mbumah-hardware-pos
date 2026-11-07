@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.453.0',
+    title: 'The reduce sweep — the customers wire learns its numbers',
+    bullets: [
+      'Every summing seat in the app was audited by grep — and the customers wire was caught feeding its sums Decimal-as-string. The customer-analysis report’s Outstanding Debt card read the digits glued end-to-end (three real debts of Ksh 3,500, 1,200 and 0 rendered as Ksh 35,001,200.00); the reduce coerces now and the wire itself carries honest numbers at the boundary.',
+      'The customers desk grows a fifth stat card: its own debt total. The file always computed the sum — the underscore kept it silent — and now the "Outstanding Debt" card wears the risk family’s rose-to-red gradient and tabular digits, so the desk counts shillings beside its faces.',
+      'The rest of the house is clean: every other desk’s money sums coerce at their boundary or derive client-side — the invoices stats’ confession (v2.452.0) was the pattern, and the sweep found its last hiding seats.',
+    ],
+  },
+  {
     version: '2.452.0',
     title: 'The fixture world learns to bill — the invoice register gets its witnesses',
     bullets: [

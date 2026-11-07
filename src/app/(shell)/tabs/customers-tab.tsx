@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Users, Search, Plus, CircleDollarSign, AlertTriangle, Eye, Loader2, HandCoins, Banknote, Smartphone, ShoppingBag, Phone, Mail, MapPin, CreditCard, Clock, ArrowUpDown, ChevronDown, ChevronUp, ChevronsUpDown, Filter, UserPlus, TrendingUp, FileText, Bell, History, Send, Tag, Gift, Truck, FileCheck, Receipt, Minus, Printer, MessageSquare } from 'lucide-react';
+import { Users, Search, Plus, CircleDollarSign, AlertTriangle, Eye, Loader2, HandCoins, Banknote, Smartphone, ShoppingBag, Phone, Mail, MapPin, CreditCard, Clock, ArrowUpDown, ChevronDown, ChevronUp, ChevronsUpDown, Filter, UserPlus, TrendingUp, FileText, Bell, History, Send, Tag, Gift, Truck, FileCheck, Receipt, Minus, Printer, MessageSquare, Wallet } from 'lucide-react';
 import { parseInitialNamedMember } from '@/lib/tab-url';
 
 import { useAppStore, useAuthStore } from '@/lib/stores';
@@ -754,7 +754,14 @@ export default function CustomersTab() {
   }, [rawCustomers, debtFilter, regDateFrom, regDateTo, sortField, sortDirection]);
 
   // Statistics
-  const _totalDebt = rawCustomers.reduce((s, c) => s + c.currentDebtBalance, 0);
+  // v2.453.0 THE REDUCE SWEEP — the dead seat lit: this sum sat unused
+  // (the underscore's silence) while the wire delivered Decimal-as-string,
+  // so the digits would have GLUED had anyone ever read it ("0" + "3500"
+  // + "1200" = "035001200"). The wire coerces at its own boundary now;
+  // the seat keeps its own Number() anyway (the invoices-stats law,
+  // v2.452.0) — and the desk finally SPEAKS its own debt total: the
+  // fifth stat card below renders what this reduce always meant to say.
+  const totalDebt = rawCustomers.reduce((s, c) => s + Number(c.currentDebtBalance), 0);
   const activeDebts = debts.filter((d) => d.status !== 'SETTLED');
   const paymentAmountNum = parseFloat(debtPaymentAmount) || 0;
   // QA FIX (Kenya Plumbing Co. incident): when the customer has exactly ONE
@@ -865,8 +872,11 @@ export default function CustomersTab() {
 
   return (
     <div className="space-y-4">
-      {/* Stats Cards - Glass-morphism with gradient icons */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      {/* Stats Cards - Glass-morphism with gradient icons
+          (v2.453.0: the row learns a FIFTH voice — the desk's own debt
+          total, the reduce the file always carried and never rendered;
+          the grid steps to five so no card wraps alone) */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
         <Card className="glass-card stagger-1 hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-default">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -920,6 +930,26 @@ export default function CustomersTab() {
                 <p className="text-xl font-bold">{loyaltyMembers}</p>
               </div>
               <TrendingUp className="h-4 w-4 text-purple-500 shrink-0" />
+            </div>
+          </CardContent>
+        </Card>
+        {/* v2.453.0 THE FIFTH VOICE — the desk's own debt total. The reduce
+            above always computed it; the underscore kept it silent. The
+            card wears the risk family's rose-to-red gradient (the With
+            Debt card's amber counts faces, this one counts SHILLINGS),
+            tabular digits (the money that sums honestly aligns
+            honestly), and the title names the seat's own law. */}
+        <Card data-testid="customers-debt-total-card" className="glass-card stagger-5 hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-default">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-sm">
+                <Wallet className="h-5 w-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-muted-foreground">Outstanding Debt</p>
+                <p data-testid="customers-debt-total-figure" className="text-xl font-bold tabular-nums whitespace-nowrap">{formatKES(totalDebt)}</p>
+              </div>
+              {totalDebt > 0 ? <TrendingUp className="h-4 w-4 text-rose-500 shrink-0" /> : <Minus className="h-4 w-4 text-muted-foreground shrink-0" />}
             </div>
           </CardContent>
         </Card>
