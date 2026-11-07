@@ -316,31 +316,34 @@ describe('the address-bar vocabulary — the thirtieth row (cross-suite pins)', 
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.448.0 leads the feed', () => {
+describe('whats-new — v2.449.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.448.0');
-    // the lead's story hand-over (v2.448.0, the Task 111 law's
-    // fifty-fourth application): the head story is the hand-over's
-    // voice — the history's records voice; the unordered wire learns
-    // to sort: the Created header gave the Export History its mirror
-    // and this round the Records header learns its own FIRST voice
-    // (one press sorts the history LOUDEST-BY-RECORDS — the run
-    // carrying the most data reads first — desc-first, the census's
-    // records-lens grammar ported across the tab line, the row's own
-    // id as the deterministic tiebreak, press again and the wire's
-    // newest-first law returns); the exclusion lives at the press
-    // (the records voice retires the Created mirror and the mirror
-    // retires the voice — no reconcile effect, the lint zero held)
-    // and both sorts ride above the lenses (the type and status
-    // chips' conjoin keeps its exact seat, the API's orderBy
-    // createdAt desc was never rewritten). The history's mirror's
-    // arrow exits the head this round; the records voice's arrow
-    // carries the eye.
-    expect(head.title).toContain('records voice');
+    expect(head.version).toBe('2.449.0');
+    // the lead's story hand-over (v2.449.0, the Task 111 law's
+    // fifty-fifth application): the head story is the hand-over's
+    // voice — the debt desk wears the family's wardrobe; the
+    // customers' sort handles learn the census's grammar: four rounds
+    // taught the census and the history the sort grammar and this
+    // round the CUSTOMERS DESK's three handles (Customer, Debt
+    // Balance, Loyalty) learn it (aria-sort comes to the desk that
+    // had NONE — ascending or descending on the speaking column,
+    // silence on the rest; the active voice reads SEMIBOLD under a
+    // lit arrow — up for ascending, down for descending, the
+    // always-on rotated ArrowUpDown retired; the waiting
+    // ChevronsUpDown appears on hover/focus and the zinc
+    // focus-visible ring carries the keyboard; both aria-label
+    // voices and titles speak the landing and the flip; QA gains
+    // testids on all three handles); the desk's own two-press law
+    // rides untouched — ONE sortField state means only one voice can
+    // speak at a time BY CONSTRUCTION and the sort's ties break by
+    // the customer's own name (the family's determinism law). The
+    // records voice's arrow exits the head this round; the debt
+    // desk's wardrobe carries the eye.
+    expect(head.title).toContain('wardrobe');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('loudest-by-records'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('aria-sort'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('exclusion'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('deterministic'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('semibold'))).toBe(true);
   });
 });
