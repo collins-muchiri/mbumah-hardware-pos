@@ -343,6 +343,64 @@ export function orderHandoffPocketEcho(
   return name;
 }
 
+/** v2.432.0 THE DOOR'S MEMORY — the block's send word. The SENDING side's
+ *  own session memory speaks under the block's census: "sent at 09:12" —
+ *  the viewer's clock face (the send's own moment, local hours and
+ *  minutes, zero-padded so the digits hold their lane). No send this
+ *  session reads the null (the honest absence — a menu that invents a
+ *  send would be a lie, and the door never lies). The word is a FACT,
+ *  never a gate: the block stays pressable — sending the same maker
+ *  again is legitimate, and the memory keeps the LAST send's face.
+ *  Pure. */
+export function orderBlockSendWord(sentAt: number | null | undefined): string | null {
+  if (typeof sentAt !== 'number' || !Number.isFinite(sentAt) || sentAt <= 0) return null;
+  const at = new Date(sentAt);
+  const hh = String(at.getHours()).padStart(2, '0');
+  const mm = String(at.getMinutes()).padStart(2, '0');
+  return `sent at ${hh}:${mm}`;
+}
+
+/** The door's memory HOME — the only places sessionStorage carries the
+ *  sending side's own session memory (maker name → the moment their
+ *  block was last sent), so the pure word above stays testable without
+ *  a window. The memory rides the TAB SESSION (sessionStorage, the
+ *  pocket's own house): it survives the walk to the desk and the walk
+ *  back — the very trip that would kill component state — and a CLOSED
+ *  tab honestly forgets. The read is defensive (bad bytes read the
+ *  honest absence, never a throw); the write obeys the census's trim
+ *  law and the LAST send wins (the record overwrites). */
+export const ORDER_BLOCK_SENDS_KEY = 'mbumah.order-block-sends.v1';
+
+export function readBlockSends(): Record<string, number> {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = window.sessionStorage.getItem(ORDER_BLOCK_SENDS_KEY);
+    if (!raw) return {};
+    const parsed: unknown = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+    const out: Record<string, number> = {};
+    for (const [maker, at] of Object.entries(parsed as Record<string, unknown>)) {
+      if (typeof at === 'number' && Number.isFinite(at) && at > 0) out[maker] = at;
+    }
+    return out;
+  } catch {
+    return {};
+  }
+}
+
+export function recordBlockSend(maker: string, at: number): void {
+  if (typeof window === 'undefined') return;
+  const name = maker.trim();
+  if (!name || !Number.isFinite(at) || at <= 0) return;
+  try {
+    const next = { ...readBlockSends(), [name]: at };
+    window.sessionStorage.setItem(ORDER_BLOCK_SENDS_KEY, JSON.stringify(next));
+  } catch {
+    // A full/private-mode memory refuses to carry — the walk's toast
+    // speaks its side; the order is never silently lost on read.
+  }
+}
+
 /** The pocket's writers and readers — the only places sessionStorage is
  *  touched, so the pure laws above stay testable without a window. */
 export function writeOrderHandoff(payload: OrderHandoffPayload): void {

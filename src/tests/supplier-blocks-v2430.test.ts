@@ -108,8 +108,8 @@ describe('the faces (v2.430.0) \u2014 the chip opens, pinned to the source', () 
 
   it('the tab reads the ONE home \u2014 the widened import and the blocks computation', () => {
     expect(tabSrc).toContain(
-      "import { buildOrderHandoff, orderHandoffSupplier, orderSupplierBlocks, writeOrderHandoff, type OrderSupplierBlock } from '@/lib/order-handoff';"
-    );
+      "import { buildOrderHandoff, orderBlockSendWord, orderHandoffSupplier, orderSupplierBlocks, readBlockSends, recordBlockSend, writeOrderHandoff, type OrderSupplierBlock } from '@/lib/order-handoff';"
+    ); // v2.432.0 honest re-anchor: the door's memory word joined the import
     expect(tabSrc).toContain('const supplierBlocks = orderSupplierBlocks(orderRows);');
   });
 

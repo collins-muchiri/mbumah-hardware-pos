@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Package, Search, Plus, AlertTriangle, AlertCircle, DollarSign, MoreVertical, Edit, Trash2, Loader2, CheckCircle, Copy, ArrowUpDown, Minus, BarChart3, ChevronUp, ChevronDown, ChevronsUpDown, Download, History, RotateCcw, X, Filter, ChevronRight, Tag, Palette, Zap, ShoppingCart, Info, MessageCircle, RefreshCw, Pencil, Settings2, Check, PackagePlus, Send, Truck } from 'lucide-react';
+import { Package, Search, Plus, AlertTriangle, AlertCircle, DollarSign, MoreVertical, Edit, Trash2, Loader2, CheckCircle, Copy, ArrowUpDown, Minus, BarChart3, ChevronUp, ChevronDown, ChevronsUpDown, Download, History, RotateCcw, X, Filter, ChevronRight, Tag, Palette, Zap, ShoppingCart, Info, MessageCircle, RefreshCw, Pencil, Settings2, Check, Clock, PackagePlus, Send, Truck } from 'lucide-react';
 
 import { useAppStore, useAuthStore } from '@/lib/stores';
 import { canFeature } from '@/hooks/use-permissions';
@@ -29,7 +29,7 @@ import { formatRestockOrder, restockOrderFileName, restockRowsNeedingAttention, 
 // rows into a pocket the purchase-order desk reads once — the pure laws
 // (shape, store, one-way, honest map) live there; this face only folds
 // and walks.
-import { buildOrderHandoff, orderHandoffSupplier, orderSupplierBlocks, writeOrderHandoff, type OrderSupplierBlock } from '@/lib/order-handoff';
+import { buildOrderHandoff, orderBlockSendWord, orderHandoffSupplier, orderSupplierBlocks, readBlockSends, recordBlockSend, writeOrderHandoff, type OrderSupplierBlock } from '@/lib/order-handoff';
 import { STORE_LIST } from '@/lib/store-info';
 import { useSendPrompt } from '@/components/send-prompt-dialog';
 import { unitLabel } from '@/lib/units';
@@ -1086,7 +1086,14 @@ export default function InventoryTab() {
                 <DropdownMenuContent align="start" className="w-72">
                   <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">Send one supplier&apos;s block to the PO desk</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  {supplierBlocks.map((block: OrderSupplierBlock) => (
+                  {supplierBlocks.map((block: OrderSupplierBlock) => {
+                    // v2.432.0 — the send word reads the TAB SESSION's own
+                    // memory at render (the menu is open-gated, so the read
+                    // never meets SSR; no state, no effect — the derived
+                    // law's shape). No send this session: the honest
+                    // absence, the row stands alone.
+                    const sentAt = readBlockSends()[block.name];
+                    return (
                     <DropdownMenuItem
                       key={block.name}
                       data-testid="inv-order-supplier-block"
@@ -1098,18 +1105,44 @@ export default function InventoryTab() {
                         const payload = buildOrderHandoff(currentStoreId, orderStoreName, new Date(), block.rows);
                         if (payload.items.length === 0) return;
                         writeOrderHandoff(payload);
+                        // v2.432.0 THE DOOR'S MEMORY — the send's own
+                        // moment joins the TAB SESSION's record (the
+                        // LAST send wins: the record overwrites the
+                        // maker's old face). It rides sessionStorage,
+                        // the pocket's own house — the memory survives
+                        // this very walk to the desk and the walk back.
+                        recordBlockSend(block.name, Date.now());
                         setActiveTab('purchase-orders');
                         toast.success(`The order rides to the purchase order desk — ${payload.lines} line${payload.lines === 1 ? '' : 's'}, ${payload.units} unit${payload.units === 1 ? '' : 's'} carried for ${block.name}.`);
                       }}
-                      className="gap-2 text-xs"
+                      className="flex-col items-stretch gap-1 text-xs"
                     >
-                      <Send className="h-3 w-3 shrink-0 text-sky-600 dark:text-sky-400" aria-hidden="true" />
-                      <span className="min-w-0 flex-1 truncate font-medium" title={block.name}>{block.name}</span>
-                      <span className="shrink-0 tabular-nums text-muted-foreground">
-                        {block.lines} line{block.lines === 1 ? '' : 's'} · {block.units} unit{block.units === 1 ? '' : 's'}
-                      </span>
+                      {/* v2.432.0 — the item's two rows: the census row (the
+                          v2.430 bytes, byte-kept) and — when THIS SESSION
+                          already sent the maker's block — the send word
+                          under it (the door's memory, the viewer's clock,
+                          the muted quiet of a fact already spoken). The
+                          block stays pressable: the word is a memory,
+                          never a gate. */}
+                      <div className="flex min-w-0 items-center gap-2">
+                        <Send className="h-3 w-3 shrink-0 text-sky-600 dark:text-sky-400" aria-hidden="true" />
+                        <span className="min-w-0 flex-1 truncate font-medium" title={block.name}>{block.name}</span>
+                        <span className="shrink-0 tabular-nums text-muted-foreground">
+                          {block.lines} line{block.lines === 1 ? '' : 's'} · {block.units} unit{block.units === 1 ? '' : 's'}
+                        </span>
+                      </div>
+                      {orderBlockSendWord(sentAt) !== null && (
+                        <div
+                          data-testid="inv-order-supplier-block-sent"
+                          className="flex items-center gap-1 pl-5 text-[10px] text-muted-foreground/80"
+                        >
+                          <Clock className="h-2.5 w-2.5 shrink-0" aria-hidden="true" />
+                          <span className="tabular-nums">{orderBlockSendWord(sentAt)}</span>
+                        </div>
+                      )}
                     </DropdownMenuItem>
-                  ))}
+                    );
+                  })}
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
