@@ -434,13 +434,20 @@ export default function InvoicesTab() {
         (inv.customerEmail && inv.customerEmail.toLowerCase().includes(q))
       );
     }
-    // Sort
+    // Sort — the desk's own two-press law rides untouched.
+    // v2.451.0 THE MONEY-SORT SWEEP — the invoice register's total-amount
+    // read lied the same lie the customers desk confessed in v2.450.0:
+    // the wire delivers Decimal-as-string (the contract says number) and
+    // string vs string compares LEXICOGRAPHICALLY, so "120000" sorted
+    // before "15000". Coerce at the comparator — the one seat the desk
+    // owns. The identifier sorts (invoice number) stay lexical BY DESIGN;
+    // the date sorts read Date.getTime() — numbers.
     result = [...result].sort((a, b) => {
       let aVal: number | string;
       let bVal: number | string;
       switch (sortField) {
         case 'invoiceNumber': aVal = a.invoiceNumber; bVal = b.invoiceNumber; break;
-        case 'totalAmount': aVal = a.totalAmount; bVal = b.totalAmount; break;
+        case 'totalAmount': aVal = Number(a.totalAmount); bVal = Number(b.totalAmount); break;
         case 'issueDate': aVal = new Date(a.issueDate).getTime(); bVal = new Date(b.issueDate).getTime(); break;
         case 'createdAt': default: aVal = new Date(a.createdAt).getTime(); bVal = new Date(b.createdAt).getTime(); break;
       }

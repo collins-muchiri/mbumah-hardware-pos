@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.451.0',
+    title: 'The money-sort sweep — every desk’s comparator tells the truth',
+    bullets: [
+      'The sweep greps every desk’s sort comparator for the string/string lie the customers desk confessed in v2.450.0 — and finds two more: the invoice register’s total-amount read and the inventory desk’s price, cost and stock reads all sorted lexicographically (“120000” before “15000”).',
+      'All four seats now coerce to numbers at the comparator — the one seat each desk owns — so the biggest invoice, the priciest shelf and the fullest stock read honestly; the stock column is a DECIMAL column in the schema, not an integer, so it lied with the money.',
+      'The safe patterns are pinned: the profit margin’s arithmetic already coerced correctly (subtraction and division are coercion seats too), the supplier leaderboard’s metrics are computed client-side with reduce (numbers before they ever reach a comparator), and the identifier sorts (invoice number, SKU, name) stay lexical by design.',
+    ],
+  },
+  {
     version: '2.450.0',
     title: 'The money sort — the debt desk’s loudest read tells the truth',
     bullets: [

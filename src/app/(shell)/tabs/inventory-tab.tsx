@@ -761,18 +761,27 @@ export default function InventoryTab() {
       return true;
     });
 
-    // Apply sorting
+    // Apply sorting — the desk's own two-press law rides untouched.
+    // v2.451.0 THE MONEY-SORT SWEEP — the shelves' three numeric reads
+    // (price, cost, stock) lied the same lie the customers desk confessed
+    // in v2.450.0: quantityInStock is a DECIMAL column (not an Int — the
+    // schema's own word), so the wire delivers Decimal-as-string for all
+    // three and string vs string compares LEXICOGRAPHICALLY ("120000"
+    // before "15000"). Coerce at the comparator — the one seat the desk
+    // owns; the cost-hidden coalesce (v2.12.5) keeps its seat inside the
+    // coercion, and the profit margin's arithmetic already coerced
+    // correctly (subtraction and division are coercion seats too).
     result = [...result].sort((a, b) => {
       let aVal: number | string;
       let bVal: number | string;
       switch (sortField) {
         case 'name': aVal = a.name.toLowerCase(); bVal = b.name.toLowerCase(); break;
         case 'sku': aVal = a.sku.toLowerCase(); bVal = b.sku.toLowerCase(); break;
-        case 'pricePerUnit': aVal = a.pricePerUnit; bVal = b.pricePerUnit; break;
+        case 'pricePerUnit': aVal = Number(a.pricePerUnit); bVal = Number(b.pricePerUnit); break;
         // v2.12.5 RBAC: costPrice is null on the wire for cost-hidden roles -
         // coalesce so comparisons never hit NaN.
-        case 'costPrice': aVal = a.costPrice ?? 0; bVal = b.costPrice ?? 0; break;
-        case 'quantityInStock': aVal = a.quantityInStock; bVal = b.quantityInStock; break;
+        case 'costPrice': aVal = Number(a.costPrice ?? 0); bVal = Number(b.costPrice ?? 0); break;
+        case 'quantityInStock': aVal = Number(a.quantityInStock); bVal = Number(b.quantityInStock); break;
         case 'profitMargin':
           aVal = a.pricePerUnit > 0 ? (a.pricePerUnit - (a.costPrice ?? 0)) / a.pricePerUnit : 0;
           bVal = b.pricePerUnit > 0 ? (b.pricePerUnit - (b.costPrice ?? 0)) / b.pricePerUnit : 0;

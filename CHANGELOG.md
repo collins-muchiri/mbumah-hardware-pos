@@ -1,3 +1,10 @@
+## [2.451.0] The money-sort sweep
+
+The customers desk confessed in v2.450.0; this round the sweep greps every desk's comparator for the same string/string lie — and finds two more desks lying.
+
+### Fixed
+- **THE MONEY-SORT SWEEP** (`src/app/(shell)/tabs/invoices-tab.tsx`, `src/app/(shell)/tabs/inventory-tab.tsx`): the invoice register's `case 'totalAmount'` and the inventory desk's `case 'pricePerUnit'` / `case 'costPrice'` / `case 'quantityInStock'` read their fields raw into the generic `aVal < bVal` comparator — and all four are **Decimal** columns in the schema (`quantityInStock` included: a DECIMAL, not an integer), so the wire delivers Decimal-as-string and the comparison was **lexicographic**. All four seats now **coerce** at the comparator (`Number(...)`; the v2.12.5 cost-hidden `?? 0` coalesce keeps its seat inside the coercion), so the biggest invoice, the priciest shelf and the fullest stock read honestly. The SAFE patterns are pinned as positive controls: the profit margin's arithmetic (subtraction and division coerce), the supplier leaderboard's computed metrics (reduce → numbers before the comparator), and the identifier sorts (invoice number, SKU, name) which stay lexical by design.
+
 ## [2.450.0] The money sort
 
 A live QA probe caught the debt sort lying — the wire's Decimal-as-string met a string/string comparator and the order came out lexical. The comparator coerces now, at the one seat the desk owns.

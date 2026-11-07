@@ -316,34 +316,34 @@ describe('the address-bar vocabulary — the thirtieth row (cross-suite pins)', 
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.450.0 leads the feed', () => {
+describe('whats-new — v2.451.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.450.0');
-    // the lead's story hand-over (v2.450.0, the Task 111 law's
-    // fifty-sixth application): the head story is the hand-over's
-    // voice — the money sort; the debt desk's loudest read tells the
-    // truth: a live QA probe caught the customers desk's debt sort
-    // LYING (the wardrobe round's honest probe proved the aria flip
-    // while the order refused to be numeric — 0, 0, 120000, 15000,
-    // 250000 as the "ascending" walk): balances arrive as
-    // DECIMAL-AS-STRING (the contract says number — the Kenya
-    // Plumbing Co. law that contract types don't enforce runtime) and
-    // string vs string compares LEXICOGRAPHICALLY ("120000" sorts
-    // before "15000"), so the loudest-debtor read put 5,000 above
-    // 45,000; the comparator now COERCES at the one seat the desk
-    // owns (Number(a.currentDebtBalance) — and loyaltyPoints with
-    // it, the same incident class) — the debt filters and the
-    // credit-envelope meter already coerced correctly (number-literal
-    // comparisons and division), the wardrobe's bytes keep their
-    // exact seats, and the ascending walk and the loudest-debtor read
-    // are honest for every balance. The debt desk's wardrobe's arrow
-    // exits the head this round; the money sort's arrow
-    // carries the eye.
-    expect(head.title).toContain('money sort');
+    expect(head.version).toBe('2.451.0');
+    // the lead's story hand-over (v2.451.0, the Task 111 law's
+    // fifty-seventh application): the head story is the hand-over's
+    // voice — the money-sort sweep; every desk's comparator tells the
+    // truth: the customers desk confessed in v2.450.0 and this round
+    // the sweep greps every generic aVal-comparator for the same
+    // string/string lie — and finds TWO more desks lying (the invoice
+    // register's total-amount read and the inventory desk's price,
+    // cost and stock reads — quantityInStock is a DECIMAL column in
+    // the schema, NOT an integer, so all four seats received
+    // Decimal-as-string and compared LEXICOGRAPHICALLY, "120000"
+    // before "15000"); all four seats now COERCE at the comparator
+    // (the one seat each desk owns — the v2.12.5 cost-hidden coalesce
+    // keeps its seat inside the coercion) so the biggest invoice, the
+    // priciest shelf and the fullest stock read honestly; the SAFE
+    // patterns are pinned as positive controls (the profit margin's
+    // arithmetic — subtraction and division coerce — the supplier
+    // leaderboard's computed metrics — reduce with arithmetic, numbers
+    // before the comparator — and the identifier sorts' lexical-by-
+    // design law). The money sort's arrow exits the head this round;
+    // the sweep's arrow carries the eye.
+    expect(head.title).toContain('sweep');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('Decimal'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('lexicographically'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('coerces'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('coerce'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('reduce'))).toBe(true);
   });
 });
