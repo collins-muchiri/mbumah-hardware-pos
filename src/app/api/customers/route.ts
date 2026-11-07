@@ -80,6 +80,19 @@ async function getCustomersHandler(...args: unknown[]): Promise<Response> {
     const { _count, ...customerData } = cust;
     return {
       ...customerData,
+      // v2.453.0 THE REDUCE SWEEP — the wire's honest boundary: the
+      // contract (CustomerItem) declares these two Decimals as numbers,
+      // but the raw spread let Prisma's Decimal ride as a JSON STRING,
+      // so every summing seat downstream concatenated instead of added
+      // (the reports desk's Outstanding Debt card read the digits
+      // glued end-to-end — the same lie class the invoices stats
+      // confessed in v2.452.0). The two money fields coerce HERE, at
+      // the one seat the wire owns — the comparators (v2.450.0), the
+      // filters, the aging buckets and the single-value renders were
+      // honest by arithmetic accident; the sums never were. Number at
+      // the boundary, so every future consumer is born honest.
+      currentDebtBalance: Number(customerData.currentDebtBalance),
+      debtLimit: Number(customerData.debtLimit),
       activeDebtCount: _count.debtLedgers,
       transactionCount: _count.transactions,
     };

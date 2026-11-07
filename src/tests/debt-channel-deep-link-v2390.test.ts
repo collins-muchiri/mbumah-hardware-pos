@@ -270,38 +270,35 @@ describe('the address-bar vocabulary — the twenty-ninth row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.452.0 leads the feed', () => {
+describe('whats-new — v2.453.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.452.0');
-    // the lead's story hand-over (v2.452.0, the Task 111 law's
-    // fifty-eighth application): the head story is the hand-over's
-    // voice — the fixture world learns to bill; the invoices desk
-    // answered every QA burst honestly empty (the other three
-    // fixture worlds never wrote an Invoice row — the v2.451.0
-    // carry), so db:fixtures now stands up FOUR worlds through the
-    // one door and the register gets its ELEVEN WITNESSES — every
-    // document type wears a row (INVOICE, QUOTATION, PROFORMA,
-    // CREDIT_NOTE, DEBIT_NOTE) and the register's statuses wear
-    // rows too (PAID, SENT, DRAFT, CANCELLED, INVOICED — EXPIRED
-    // rides the quotation, where the lazy expiry law writes it);
-    // the money bait is set (the six register totals are distinct
-    // AND lexicographic ≠ numeric — 725.75 first numerically,
-    // "9500" last lexicographically — so the walk that catches a
-    // string/string comparator is one press away and the v2.451.0
-    // coercion seat keeps its LIVE proof forever); the lazy-expiry
-    // law is spoken by the seeds, not fought (living quotations
-    // carry FUTURE due dates, one past-due quotation already wears
-    // EXPIRED); the watcher learned to COUNT THE RUNS, NOT JUST THE
-    // PENDING (the green verdict requires the known total, eleven
-    // faces, AND zero pending — a half-born CI is named, tolerated,
-    // then refused, never green); and the register's money column
-    // wears tabular digits. The sweep's arrow exits the head this
-    // round; the witnesses' arrow carries the eye.
-    expect(head.title).toContain('fixture world');
+    expect(head.version).toBe('2.453.0');
+    // the lead's story hand-over (v2.453.0, the Task 111 law's
+    // fifty-ninth application): the head story is the hand-over's
+    // voice — the reduce sweep; the v2.452.0 confession promised the
+    // grep and the grep RAN: every desk's summing seat audited, and
+    // the customers wire caught feeding its sums Decimal-as-string
+    // (the contract declared number, the raw spread delivered JSON
+    // strings) — the reports desk's customer-analysis card read the
+    // lie LIVE (three real debts of 3500, 1200 and 0 glued into
+    // "035001200" — Ksh 35,001,200.00 for Ksh 4,700.00 of real
+    // debt) and the customers desk carried the same shape LATENT (a
+    // sum the underscore kept silent); the fix is three seats deep —
+    // the wire's honest boundary (the list route coerces the two
+    // money fields after the spread, so every future consumer is
+    // born honest), the live seat's own Number() with its figure in
+    // tabular digits, and the latent seat LIT (the customers desk's
+    // FIFTH STAT CARD — the desk finally speaks its own debt total
+    // in the risk family's rose-to-red gradient); the aging buckets
+    // were honest by arithmetic accident (subtraction coerces) and
+    // every other desk's summing seat passed the same audit. The
+    // witnesses' arrow exits the head this round; the boundary's
+    // arrow carries the eye.
+    expect(head.title).toContain('reduce');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('db:fixtures'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('money bait'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('tabular'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('Outstanding Debt'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('fifth stat card'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('Decimal-as-string'))).toBe(true);
   });
 });

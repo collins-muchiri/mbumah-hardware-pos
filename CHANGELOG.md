@@ -1,3 +1,16 @@
+## [2.453.0] The reduce sweep — the customers wire learns its numbers
+
+The sweep the v2.452.0 confession promised: every summing seat in the app audited by grep — and the customers wire found feeding its sums Decimal-as-string, one card reading the lie live, one seat carrying it latent.
+
+### Added
+- **THE FIFTH STAT CARD** (`src/app/(shell)/tabs/customers-tab.tsx`): the customers desk finally speaks its own debt total. The file always carried the reduce (`rawCustomers.reduce((s, c) => s + c.currentDebtBalance, 0)`) — the underscore kept it silent, a sum nobody read. The seat is lit now: a fifth card ("Outstanding Debt") wears the risk family's rose-to-red gradient, tabular digits, and the Wallet face; the grid steps to five (`grid-cols-2 md:grid-cols-3 lg:grid-cols-5`) so no card wraps alone. Every other desk's stat row was audited the same pass: kpi-doors, branch-doors, desk-doors, kpi-row, payroll, restock, checkout, stock-take, sheet-drill, plans, reports' other eight seats — all coerce at their boundary or derive client-side; the honest house pattern holds.
+
+### Changed
+- **THE WIRE'S HONEST BOUNDARY** (`src/app/api/customers/route.ts`): the list route's map now coerces the two Decimal money fields (`currentDebtBalance`, `debtLimit`) to numbers after the spread. The contract (`CustomerItem`) declared them `number`; the raw Prisma spread delivered JSON strings — the v2.450.0 comparator fix told the truth at its seat while the wire kept lying underneath. The comparators, the filters, the aging buckets and the single-value renders were honest by arithmetic accident (relational operators, subtraction and `toDec` all coerce); the SUMS never were. Number at the boundary, so every future consumer is born honest.
+
+### Fixed
+- **THE LIVE CONCAT LIE** (`src/app/(shell)/tabs/reports-tab.tsx`): the customer-analysis "Outstanding Debt" card read the digits glued end-to-end — three debts of "3500", "1200" and "0" summed as `0 + "3500" + "1200" + "0"` = `"035001200"`, rendered **Ksh 35,001,200.00** for **Ksh 4,700.00** of real debt (the same lie class the invoices stats confessed in v2.452.0, one tab line over). The reduce now coerces at the seat (`s + Number(c.currentDebtBalance)`) — defense in depth, the invoices-stats law — and the card's figure wears `tabular-nums`. The customers desk's own latent seat (the dead `_totalDebt`) coerces the same way, now that it has a reader.
+
 ## [2.452.0] The fixture world learns to bill
 
 The invoices desk answered every QA burst honestly empty; this round the fixture door stands up the register's witnesses — and the CI watcher learns to count the runs, not just the pending.

@@ -1543,7 +1543,13 @@ export default function ReportsTab() {
     const paymentMethods = Array.from(pmMap.entries()).map(([method, data]) => ({ method, ...data }));
 
     const totalSpent = topCustomers.reduce((s, c) => s + c.totalSpent, 0);
-    const debtTotal = customers.reduce((s, c) => s + c.currentDebtBalance, 0);
+    // v2.453.0 THE REDUCE SWEEP — the live confession: this reduce summed
+    // the customers wire's raw Decimal-as-string and the digits GLUED
+    // ("0" + "3500" + "1200" = "035001200" — the Outstanding Debt card
+    // read Ksh 35,001,200.00 for Ksh 4,700.00 of real debt). The wire
+    // coerces at its own boundary now; the seat keeps its own Number()
+    // anyway — defense in depth, the invoices-stats law (v2.452.0).
+    const debtTotal = customers.reduce((s, c) => s + Number(c.currentDebtBalance), 0);
 
     return {
       topCustomers,
@@ -2830,7 +2836,7 @@ export default function ReportsTab() {
                         <CreditCard className="h-4 w-4 text-red-500" />
                         <p className="text-sm text-muted-foreground">Outstanding Debt</p>
                       </div>
-                      <p className="text-2xl font-bold whitespace-nowrap">{formatKES(customerAnalysis.debtTotal)}</p>
+                      <p className="text-2xl font-bold whitespace-nowrap tabular-nums">{formatKES(customerAnalysis.debtTotal)}</p>
                     </CardContent>
                   </Card>
                 </div>
