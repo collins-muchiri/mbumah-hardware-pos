@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.432.0',
+    title: 'The door remembers its send \u2014 the block menu wears the session\u2019s own memory',
+    bullets: [
+      'The inventory banner\u2019s supplier census now remembers: after you send a maker\u2019s block to the purchase order desk, the door wears that maker\u2019s own memory \u2014 \u201csent at 09:12\u201d under their line-and-unit census \u2014 so the menu tells you who has already ridden and when.',
+      'The memory is this session\u2019s own: it speaks the LAST send (resending a maker updates the word), it never gates the door (any block stays pressable), and a reload honestly forgets \u2014 the door never claims yesterday\u2019s sends.',
+      'The word rides your own clock: zero-padded hours and minutes in a quiet line under the census \u2014 a fact already spoken, never a decoration.',
+    ],
+  },
+  {
     version: '2.431.0',
     title: 'The desk answers the walk \u2014 the pocket\u2019s echo wears the walk\u2019s name',
     bullets: [

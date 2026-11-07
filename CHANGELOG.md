@@ -1,3 +1,13 @@
+## [2.432.0] The door remembers its send
+
+v2.431.0 taught the desk to answer the walk; this round the SENDING side keeps its own memory: after a maker's block rides to the purchase order desk, the census door wears that maker's send word — "sent at 09:12" under their line-and-unit census — so the menu tells you who has already ridden and when.
+
+### Added
+- **THE ARC'S THIRTEENTH WORD** (`src/lib/order-handoff.ts` + `src/app/(shell)/tabs/inventory-tab.tsx`): `orderBlockSendWord` (the block's send word, pure — a null, a broken stamp, or no send this session reads the null, the honest absence; the viewer's own clock, zero-padded, exactly one colon — the census's own brevity) joins the handoff's one home, and the door's items grow the session's own memory (`blockSends` — component state, never persisted; a reload honestly forgets; the LAST send wins as the record overwrites), spoken under the maker's census (`inv-order-supplier-block-sent`) only when this session already sent that block.
+
+### Changed
+- **THE WORD IS A FACT, NEVER A GATE**: the door's items are two rows now — the v2.430 census row byte-kept, the send word (clock glyph, muted, tabular) riding under it — and the block stays pressable; the memory never gates the door, and resending a maker updates the word the menu speaks.
+
 ## [2.431.0] The desk answers the walk
 
 v2.430.0 taught the blocks to ride to the desk; this round the desk answers back: the carriage strip wears the pocket's own census — "the walk named {maker}" — so the receipt the walk spoke on the sending side has its echo on the reading desk, even when the live pre-pick cannot speak.

@@ -294,32 +294,29 @@ describe('the address-bar vocabulary — the thirtieth row (cross-suite pins)', 
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.431.0 leads the feed', () => {
+describe('whats-new — v2.432.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.431.0');
-    // the lead's story hand-over (v2.431.0, the Task 111 law's
-    // thirty-seventh application): the head story is the hand-over's
-    // voice — the desk answers the walk: the carriage strip on the
-    // purchase order desk wears the pocket's own word
-    // (orderHandoffPocketEcho — the strip's gate over the envelope's
-    // every-line-agrees maker read once as the map lands; agreement
-    // is no news — the pre-pick speaking the same name quiets the
-    // echo; a null, an empty, or a whitespace pocket reads the null,
-    // and the spoken name is the census's trimmed form), the amber
-    // chip rides the strip's header ("the walk named {maker}" — the
-    // walk's own house, never the pre-pick's sky) with the echo
-    // line's quote-border under the counts, the digest carries the
-    // pocket census beside the counts so the echo survives the
-    // one-way consumption, and the WORDS-ONLY law holds at the pen
-    // (the v2.422 derivation byte-identical — the shelf's live link
-    // or the actor's own call stays the only voice the select wears).
-    // The census's story exits the head this round; the
-    // echo's own answer carries the eye.
-    expect(head.title).toContain('echo');
+    expect(head.version).toBe('2.432.0');
+    // the lead's story hand-over (v2.432.0, the Task 111 law's
+    // thirty-eighth application): the head story is the hand-over's
+    // voice — the door remembers its send: the inventory banner's
+    // census door grew the SENDING side's own session memory
+    // (orderBlockSendWord — the block's send word, pure: a null, a
+    // broken stamp, or no send this session reads the null, the
+    // honest absence; the viewer's own clock, zero-padded, exactly
+    // one colon — the census's own brevity), the record is
+    // component state never persisted (a reload honestly forgets —
+    // a menu claiming yesterday's sends would be a lie), the LAST
+    // send wins as the record overwrites, and the word is a FACT
+    // never a gate (the v2.430 census row byte-kept under the
+    // two-row item — the block stays pressable).
+    // The echo's story exits the head this round; the
+    // door's own memory carries the eye.
+    expect(head.title).toContain('remembers');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('answers the walk'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('agreement is no news'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('never names a live order'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('sent at'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('the LAST send'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('a reload honestly forgets'))).toBe(true);
   });
 });
