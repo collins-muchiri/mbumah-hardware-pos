@@ -20,6 +20,7 @@ import {
 // all answer through buildSupplierGroups (never a second copy).
 import { buildSupplierGroups, describeSupplierCensus, NO_SUPPLIER_KEY, NO_SUPPLIER_LABEL } from '@/lib/product-groups';
 import { formatQtyWithUnit } from '@/lib/utils/financialMath';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 // THE ORDER LIST (v2.414.0): the banner's copy face speaks a plain-text
 // restock order through this pure voice — the same honest-absence law as
 // the support copy family (null when nothing needs attention).
@@ -28,7 +29,7 @@ import { formatRestockOrder, restockOrderFileName, restockRowsNeedingAttention, 
 // rows into a pocket the purchase-order desk reads once — the pure laws
 // (shape, store, one-way, honest map) live there; this face only folds
 // and walks.
-import { buildOrderHandoff, orderHandoffSupplier, writeOrderHandoff } from '@/lib/order-handoff';
+import { buildOrderHandoff, orderHandoffSupplier, orderSupplierBlocks, writeOrderHandoff, type OrderSupplierBlock } from '@/lib/order-handoff';
 import { STORE_LIST } from '@/lib/store-info';
 import { useSendPrompt } from '@/components/send-prompt-dialog';
 import { unitLabel } from '@/lib/units';
@@ -50,7 +51,6 @@ import { ProductImage } from '@/components/product-image';
 // SKU/BARCODE AUTOGEN (v2.5.2): selecting a category auto-fills a
 // branch-coded SKU draft and a valid EAN-13 barcode (user edits always win).
 import { generateSkuDraft, generateEan13Barcode } from '@/lib/utils/product-codes';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
@@ -361,6 +361,7 @@ function SendOrderButton({ storeId, storeName, rows }: { storeId: string; storeN
 }
 
 export default function InventoryTab() {
+  const setActiveTab = useAppStore((s) => s.setActiveTab);
   const [searchQuery, setSearchQuery] = useState('');
   // v2.376.0: the inventory-report WhatsApp send asks through the app's own
   // dialog (the native prompt was swallowed in embedded webviews).
@@ -830,6 +831,12 @@ export default function InventoryTab() {
   // DISTINCT named suppliers the order rides with (the absence never
   // counts; a world that knows no suppliers stays chip-silent).
   const orderSupplierCount = restockSupplierCount(orderRows);
+  // v2.430.0 THE CENSUS'S DOOR — the blocks the chip opens: the order's
+  // rows grouped by their trimmed maker (one home, the census's own
+  // arithmetic agrees by construction — every counted supplier has at
+  // least one asking row, so the door's items and the chip's number
+  // can never disagree).
+  const supplierBlocks = orderSupplierBlocks(orderRows);
   const orderStore = STORE_LIST.find((s) => s.id === currentStoreId);
   const orderStoreName = orderStore?.name ?? 'MBUMAH HARDWARE';
   const orderStoreSlug = orderStore?.slug ?? 'order';
@@ -1055,11 +1062,56 @@ export default function InventoryTab() {
             {/* v2.421.0 THE ARC'S SECOND WORD: the order's supplier census —
                 the sky family (the lens's own voice). Only when the world
                 NAMES suppliers: a chip invented for a supplier-less world
-                would be a lie. */}
+                would be a lie.
+                v2.430.0 THE CENSUS'S DOOR — the arc's eleventh word: the
+                chip spoke the grouping; now it opens. One item per
+                supplier block — each press folds ONLY that maker's rows
+                into the same pocket the whole order uses (the same
+                one-way envelope, the same walk, the same desk). The
+                census words stay the census's own (the v2.421 byte); the
+                chevron is the door's one new word. */}
             {orderSupplierCount > 0 && (
-              <span data-testid="inv-order-suppliers" className="ml-2 inline-flex items-center rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-semibold text-sky-700 dark:bg-sky-500/15 dark:text-sky-300" title="The order below groups itself into one block per supplier — each block is ready to paste into that supplier's chat">
-                via {orderSupplierCount} supplier{orderSupplierCount === 1 ? '' : 's'}
-              </span>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    data-testid="inv-order-suppliers"
+                    title="The order below groups itself into one block per supplier — open the census to send one supplier's block to the purchase order desk, pre-picked"
+                    className="ml-2 inline-flex items-center gap-0.5 rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-semibold text-sky-700 transition-colors hover:bg-sky-200 focus:bg-sky-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/50 dark:bg-sky-500/15 dark:text-sky-300 dark:hover:bg-sky-500/25 dark:focus:bg-sky-500/25"
+                  >
+                    via {orderSupplierCount} supplier{orderSupplierCount === 1 ? '' : 's'}
+                    <ChevronDown className="h-2.5 w-2.5" aria-hidden="true" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-72">
+                  <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">Send one supplier&apos;s block to the PO desk</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {supplierBlocks.map((block: OrderSupplierBlock) => (
+                    <DropdownMenuItem
+                      key={block.name}
+                      data-testid="inv-order-supplier-block"
+                      onSelect={() => {
+                        // v2.430.0 — the block's own fold: ONLY this
+                        // maker's rows ride (the pocket's one-way law
+                        // unchanged; the whole-order Send keeps its own
+                        // face beside the door).
+                        const payload = buildOrderHandoff(currentStoreId, orderStoreName, new Date(), block.rows);
+                        if (payload.items.length === 0) return;
+                        writeOrderHandoff(payload);
+                        setActiveTab('purchase-orders');
+                        toast.success(`The order rides to the purchase order desk — ${payload.lines} line${payload.lines === 1 ? '' : 's'}, ${payload.units} unit${payload.units === 1 ? '' : 's'} carried for ${block.name}.`);
+                      }}
+                      className="gap-2 text-xs"
+                    >
+                      <Send className="h-3 w-3 shrink-0 text-sky-600 dark:text-sky-400" aria-hidden="true" />
+                      <span className="min-w-0 flex-1 truncate font-medium" title={block.name}>{block.name}</span>
+                      <span className="shrink-0 tabular-nums text-muted-foreground">
+                        {block.lines} line{block.lines === 1 ? '' : 's'} · {block.units} unit{block.units === 1 ? '' : 's'}
+                      </span>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
           </div>
           <div className="flex gap-2">

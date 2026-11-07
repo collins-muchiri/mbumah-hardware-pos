@@ -166,7 +166,7 @@ describe('the Release workflow gates the publish on the RELEASE (v2.378.0)', () 
 
 describe('the release slots', () => {
   it('VERSION speaks v2.378.0', () => {
-    expect(version).toBe('2.429.0');
+    expect(version).toBe('2.430.0');
   });
 
   it('the desk carries the round\u2019s name', () => {
