@@ -714,6 +714,30 @@ export const EXP_TYPE_FILTERS = [
 export type ExpTypeFilter = (typeof EXP_TYPE_FILTERS)[number];
 
 /**
+ * v2.443.0 — THE CENSUS DOOR'S TRANSLATION. The By Type census speaks
+ * the wire's UPPERCASE types (`LOYALTY`, `SALES_SUMMARY`) while the
+ * history lens speaks the lowercase kebab words (`loyalty`,
+ * `sales-summary` — the card grid's own law: sales-summary's kebab
+ * carries SALES_SUMMARY's underscore). The door between them needs the
+ * one honest mapping: lowercase, underscores to kebab, and a membership
+ * check against the ONE array above. A wire type with no lens word (the
+ * off-union rows the census honestly counts — `PAYROLL`) answers
+ * null: its row stays a census, never a door. THE NEUTRAL IS NOT A
+ * WORD: wire `ALL` lowers to `all`, but `all` is the lens's RESTING
+ * state, not a lens word — a door that "filters to all" is a no-op
+ * masquerading as a door, and the ALL row would wear the active seat
+ * at the resting state (a lie). It answers null with the off-union
+ * rows. Lives here (the ONE home) so the desk, its deep-link word and
+ * the test suite speak one array — the same home the word list itself
+ * keeps.
+ */
+export function expTypeWordFor(wire: string): ExpTypeFilter | null {
+  const word = wire.toLowerCase().replace(/_/g, '-') as ExpTypeFilter;
+  if (word === 'all') return null;
+  return (EXP_TYPE_FILTERS as readonly string[]).includes(word) ? word : null;
+}
+
+/**
  * v2.393.0 — THE PROMISE KEPT, THE THIRTY-SECOND WORD: the messaging
  * desk's Templates pane answers BY THE TEMPLATE. The shop's other daily
  * question — "which template do I send the debtors?" — speaks its

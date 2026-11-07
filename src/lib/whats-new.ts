@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.443.0',
+    title: 'The census becomes a door — the By Type rows lens the history',
+    bullets: [
+      'The By Type table is pressable now: a row whose type owns a history lens word lands the export history pre-filtered to that type — the same pane the deep-link desks already know, opened from the census side.',
+      'The active row wears the desk\u2019s emerald seat in light and dark and lights its lens icon; pressing the seat again releases the filter, and the keyboard answers Enter and Space like any button.',
+      'Rows the lens cannot speak (the off-union types like PAYROLL) stay an honest census — a help cursor and a title say so, never a door that cannot open.',
+    ],
+  },
+  {
     version: '2.442.0',
     title: 'The trends find their dark voice — the by-type census lands',
     bullets: [
