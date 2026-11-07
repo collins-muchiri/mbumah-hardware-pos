@@ -1,3 +1,13 @@
+## [2.444.0] The status door opens
+
+The census door's sibling: the withdrawn count was the one number on the By Type table that only counted — this round its badge learns to open the history's status lens.
+
+### Added
+- **THE STATUS DOOR** (`src/app/(shell)/tabs/data-exports-tab.tsx`): the zinc "N withdrawn" badge in the By Type table becomes a real `<button>` — pressing it lands the export history on the **cancelled** status lens through the controlled hand (`chooseExpStatus`, never a direct state write), so every withdrawn run across all types reads in one place. Press the pressed badge again and the lens releases (the door's second voice). The keyboard answers natively (Enter/Space — a real button needs no manual handler), and the press **stops propagation**: the badge sits inside the type door's row, and the two doors never conjoin a press.
+
+### Changed
+- **ONE FAMILY, THREE SEATS** (`src/app/(shell)/tabs/data-exports-tab.tsx` + `src/components/data-exports/exports-history-table.tsx`): the pressed badge wears the Cancelled family's own active wardrobe (`bg-zinc-600 text-white border-zinc-600` — the history chip's exact zinc active bytes; the family's third seat beside the history chip and the stats card), the idle wardrobe keeps the zinc palette with a deepening hover, `aria-pressed` rides the state, the zinc focus-visible ring and an `active:scale-95` tactile press carry the styling details, and the header note names both doors ("press a row to lens the type · a withdrawn badge lenses the cancelled"). The honest zero stays a census — a zero-count door invites a pointless press.
+
 ## [2.443.0] The census becomes a door
 
 The By Type table landed last release as a census — a face that only counted. This round the rows press through to the history's own lens, the door the deep-link desks already know, opened from the census side.
