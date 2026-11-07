@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.450.0',
+    title: 'The money sort — the debt desk’s loudest read tells the truth',
+    bullets: [
+      'A live QA probe caught the customers desk’s debt sort lying: balances arrive as Decimal-as-string (the contract says number — the Kenya Plumbing Co. law), and string against string compares lexicographically, so “120000” sorted before “15000” and the loudest-debtor read put 5,000 above 45,000.',
+      'The comparator now coerces both money fields to numbers at the one seat the desk owns — the debt filters and the credit-envelope meter already coerced correctly; only this sort’s string/string pair lied.',
+      'The wardrobe’s bytes keep their exact seats — the semibold voice, the lit arrows, aria-sort and the deterministic name tiebreak all ride untouched; the ascending walk and the loudest-debtor read are now honest for every balance.',
+    ],
+  },
+  {
     version: '2.449.0',
     title: 'The debt desk wears the family’s wardrobe — the customers’ sort handles learn the census’s grammar',
     bullets: [

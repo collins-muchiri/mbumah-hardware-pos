@@ -731,9 +731,17 @@ export default function CustomersTab() {
       let aVal: number | string;
       let bVal: number | string;
       switch (sortField) {
+        // v2.450.0 THE MONEY SORT — the contract says number, the wire
+        // says Decimal-as-string (the Kenya Plumbing Co. law: contract
+        // types don't enforce runtime): string vs string compares
+        // LEXICOGRAPHICALLY ("120000" sorts before "15000"), so the
+        // loudest-debtor read lied. Coerce at the comparator — the one
+        // seat the desk owns (the debt filters already compare against
+        // number literals, which JS coerces correctly; the meter divides,
+        // which coerces too — only this sort's string/string pair lied).
         case 'name': aVal = a.name.toLowerCase(); bVal = b.name.toLowerCase(); break;
-        case 'debt': aVal = a.currentDebtBalance; bVal = b.currentDebtBalance; break;
-        case 'loyalty': aVal = a.loyaltyPoints; bVal = b.loyaltyPoints; break;
+        case 'debt': aVal = Number(a.currentDebtBalance); bVal = Number(b.currentDebtBalance); break;
+        case 'loyalty': aVal = Number(a.loyaltyPoints); bVal = Number(b.loyaltyPoints); break;
         case 'created': aVal = new Date(a.createdAt).getTime(); bVal = new Date(b.createdAt).getTime(); break;
         default: aVal = a.name.toLowerCase(); bVal = b.name.toLowerCase();
       }

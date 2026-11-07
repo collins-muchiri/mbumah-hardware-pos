@@ -1,3 +1,10 @@
+## [2.450.0] The money sort
+
+A live QA probe caught the debt sort lying — the wire's Decimal-as-string met a string/string comparator and the order came out lexical. The comparator coerces now, at the one seat the desk owns.
+
+### Fixed
+- **THE MONEY SORT** (`src/app/(shell)/tabs/customers-tab.tsx`): the debt comparator read `aVal = a.currentDebtBalance` against `bVal = b.currentDebtBalance` — both arrive as **Decimal-as-string** (the contract says `number`, the runtime says string: the Kenya Plumbing Co. law), so the comparison was **lexicographic** ("120000" < "15000") and the ascending walk read `0, 0, 120000, 15000, 250000`. The comparator now **coerces** at the seat — `Number(a.currentDebtBalance)` / `Number(b.currentDebtBalance)`, and `loyaltyPoints` with it — so the ascending walk and the loudest-debtor read are honest for every balance. The debt FILTERS and the credit-envelope meter already coerced correctly (number-literal comparisons and division); the wardrobe's bytes keep their exact seats.
+
 ## [2.449.0] The debt desk wears the family's wardrobe
 
 The census and history taught the sort grammar; this round the customers desk's three sort handles learn it — aria-sort comes to the desk that had none, and the ties learn the family's determinism.
