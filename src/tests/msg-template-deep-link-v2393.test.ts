@@ -310,34 +310,34 @@ describe('the address-bar vocabulary — the thirty-second row (cross-suite pins
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.449.0 leads the feed', () => {
+describe('whats-new — v2.450.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.449.0');
-    // the lead's story hand-over (v2.449.0, the Task 111 law's
-    // fifty-fifth application): the head story is the hand-over's
-    // voice — the debt desk wears the family's wardrobe; the
-    // customers' sort handles learn the census's grammar: four rounds
-    // taught the census and the history the sort grammar and this
-    // round the CUSTOMERS DESK's three handles (Customer, Debt
-    // Balance, Loyalty) learn it (aria-sort comes to the desk that
-    // had NONE — ascending or descending on the speaking column,
-    // silence on the rest; the active voice reads SEMIBOLD under a
-    // lit arrow — up for ascending, down for descending, the
-    // always-on rotated ArrowUpDown retired; the waiting
-    // ChevronsUpDown appears on hover/focus and the zinc
-    // focus-visible ring carries the keyboard; both aria-label
-    // voices and titles speak the landing and the flip; QA gains
-    // testids on all three handles); the desk's own two-press law
-    // rides untouched — ONE sortField state means only one voice can
-    // speak at a time BY CONSTRUCTION and the sort's ties break by
-    // the customer's own name (the family's determinism law). The
-    // records voice's arrow exits the head this round; the debt
-    // desk's wardrobe carries the eye.
-    expect(head.title).toContain('wardrobe');
+    expect(head.version).toBe('2.450.0');
+    // the lead's story hand-over (v2.450.0, the Task 111 law's
+    // fifty-sixth application): the head story is the hand-over's
+    // voice — the money sort; the debt desk's loudest read tells the
+    // truth: a live QA probe caught the customers desk's debt sort
+    // LYING (the wardrobe round's honest probe proved the aria flip
+    // while the order refused to be numeric — 0, 0, 120000, 15000,
+    // 250000 as the "ascending" walk): balances arrive as
+    // DECIMAL-AS-STRING (the contract says number — the Kenya
+    // Plumbing Co. law that contract types don't enforce runtime) and
+    // string vs string compares LEXICOGRAPHICALLY ("120000" sorts
+    // before "15000"), so the loudest-debtor read put 5,000 above
+    // 45,000; the comparator now COERCES at the one seat the desk
+    // owns (Number(a.currentDebtBalance) — and loyaltyPoints with
+    // it, the same incident class) — the debt filters and the
+    // credit-envelope meter already coerced correctly (number-literal
+    // comparisons and division), the wardrobe's bytes keep their
+    // exact seats, and the ascending walk and the loudest-debtor read
+    // are honest for every balance. The debt desk's wardrobe's arrow
+    // exits the head this round; the money sort's arrow
+    // carries the eye.
+    expect(head.title).toContain('money sort');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('aria-sort'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('deterministic'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('semibold'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('Decimal'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('lexicographically'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('coerces'))).toBe(true);
   });
 });
