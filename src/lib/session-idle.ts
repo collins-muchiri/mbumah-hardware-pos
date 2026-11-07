@@ -24,6 +24,14 @@
 export const SELF_SERVICE_IDLE_MS = 30 * 60 * 1000;
 
 /**
+ * v2.435.0 - the window's human face: 30. Derived from the constant, never
+ * hardcoded, so the copy can never drift from the contract it describes
+ * (bump the ms constant and every sentence that speaks the window speaks
+ * the new number with it).
+ */
+export const SELF_SERVICE_IDLE_MINUTES = SELF_SERVICE_IDLE_MS / 60_000;
+
+/**
  * Is the session idle-expired as of `now`?
  *
  * Degradation contract (the same honest-garbage posture the attendance desk
@@ -59,8 +67,10 @@ export function sessionIdleExpiredResponse(): Response {
   return Response.json(
     {
       success: false,
-      error:
-        'Signed out after 30 minutes of inactivity. Sign in again to continue.',
+      // v2.435.0: the sentence derives its number from the window constant
+      // (SELF_SERVICE_IDLE_MINUTES) — the copy can never drift from the
+      // contract. Renders byte-identical: "Signed out after 30 minutes ...".
+      error: `Signed out after ${SELF_SERVICE_IDLE_MINUTES} minutes of inactivity. Sign in again to continue.`,
       code: SESSION_IDLE_EXPIRED_CODE,
     },
     { status: 401 },

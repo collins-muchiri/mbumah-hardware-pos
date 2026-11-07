@@ -1,3 +1,13 @@
+## [2.435.0] The watch confesses its window
+
+The portal's idle lock has spoken only after the fact since v2.162.0; this round the watch asks before it locks — a grace strip in the last minute, the two clocks agreeing at zero.
+
+### Added
+- **THE GRACE STRIP** (`src/components/hr/self-service-idle-watch.tsx` + `src/hooks/use-idle-timeout.ts`): in the last 60 seconds of the idle window a floating amber strip (`self-idle-grace`, role=status, aria-live=polite, pointer-events-none wrapper) asks "Still there? Signing out in Ns" — the countdown tabular and honest — with the one Stay-signed-in action (`self-idle-stay`), which re-arms the FULL window through the hook's own reset (one reset owns both timers). The hook grows the OPTIONAL grace options (`warnBeforeMs` + `onWarning`): the till passes none and its v2.6.0 contract stays byte-identical; the strip and the lock hang off the ONE setTimeout schedule (the two clocks agree), and the logout POST is guarded by `didTimeoutRef` to fire at most once.
+
+### Changed
+- **THE NUMBER DERIVED, NEVER HARDCODED**: every sentence that speaks the window now reads `SELF_SERVICE_IDLE_MINUTES` (new, derived from `SELF_SERVICE_IDLE_MS / 60_000`) — the overlay hint ("closes after 30 minutes of inactivity"), the 401 SESSION_IDLE_EXPIRED sentence and the strip all derive from the constant, so the copy can never drift from the contract it describes; the rendered sentences are byte-identical.
+
 ## [2.434.0] The archive reads its own timeline
 
 Fourteen rounds built the supplier-maker arc; this round the archive joins the comparison: the release changelog's story list wears the arc's own timeline — each word's release date beside its line — the arc reading itself.

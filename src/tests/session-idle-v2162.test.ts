@@ -95,7 +95,12 @@ describe('the pure idle contract', () => {
 
   it('ships the 401 shape: stable code, human sentence', () => {
     expect(idleModule).toMatch(/SESSION_IDLE_EXPIRED_CODE = 'SESSION_IDLE_EXPIRED'/);
-    expect(idleModule).toMatch(/Signed out after 30 minutes of inactivity/);
+    // v2.435.0 honest re-anchor: the sentence now DERIVES its number from
+    // SELF_SERVICE_IDLE_MINUTES (the copy can never drift from the
+    // constant); the rendered value is pinned below to still be 30.
+    expect(idleModule).toMatch(
+      /Signed out after \$\{SELF_SERVICE_IDLE_MINUTES\} minutes of inactivity/,
+    );
     expect(idleModule).toMatch(/status: 401/);
   });
 });
@@ -153,7 +158,13 @@ describe('the SSR portal guard renders the honest idle note', () => {
 describe('the client watch reuses the till hook literally', () => {
   it('imports the SAME useIdleTimeout the POS shell uses', () => {
     expect(idleWatch).toContain("import { useIdleTimeout } from '@/hooks/use-idle-timeout';");
-    expect(idleWatch).toMatch(/useIdleTimeout\(handleIdleTimeout\)/);
+    // v2.435.0 honest re-anchor: the call now passes the window from the
+    // shared constant + the grace strip's options (the till passes none —
+    // its v2.6.0 contract untouched); the hook itself is still THE SAME
+    // import, which is what "literal reuse" always meant.
+    expect(idleWatch).toMatch(
+      /useIdleTimeout\(\s*handleIdleTimeout,\s*SELF_SERVICE_IDLE_MS,/,
+    );
   });
 
   it('kills the server session on timeout (client and server agree — no zombie cookie)', () => {

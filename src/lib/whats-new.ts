@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.435.0',
+    title: 'The watch confesses its window \u2014 the idle lock wears a grace strip',
+    bullets: [
+      'Before the portal locks, it asks: in the last minute of the idle window a quiet amber strip appears \u2014 \u201cStill there?\u201d with a live countdown \u2014 and Stay signed in re-arms the full thirty minutes, so an untended screen never costs a colleague their payslips without warning.',
+      'The strip and the lock share one clock: the countdown reaches zero exactly as the lock lands \u2014 the two clocks agree \u2014 the sign-out still deletes the server session exactly as before, and the safety net never had a surprise to begin with.',
+      'Every sentence that speaks the window now derives its number from the window constant \u2014 the overlay, the sign-out note and the strip all read the same thirty \u2014 so the copy can never drift from the contract it describes.',
+    ],
+  },
+  {
     version: '2.434.0',
     title: 'The archive reads its own timeline \u2014 the maker\u2019s arc wears its words',
     bullets: [

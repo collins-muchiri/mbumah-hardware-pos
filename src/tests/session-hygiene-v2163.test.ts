@@ -166,7 +166,12 @@ describe('the idle overlay - the client half of the return path', () => {
 
   it('builds the sign-in href through the validated builder', () => {
     expect(overlay).toContain('href={buildPortalReturnHref(returnPath)}');
-    expect(overlay).toContain("import {\n  buildPortalReturnHref,\n} from '@/lib/session-idle';");
+    // v2.435.0 honest re-anchor: the watch also derives its window + the
+    // copy's number from the shared constants now (SELF_SERVICE_IDLE_MS /
+    // SELF_SERVICE_IDLE_MINUTES ride the same import).
+    expect(overlay).toContain(
+      "import {\n  buildPortalReturnHref,\n  SELF_SERVICE_IDLE_MINUTES,\n  SELF_SERVICE_IDLE_MS,\n} from '@/lib/session-idle';",
+    );
   });
 
   it('speaks the promise where the click happens', () => {
