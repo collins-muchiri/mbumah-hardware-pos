@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.449.0',
+    title: 'The debt desk wears the family’s wardrobe — the customers’ sort handles learn the census’s grammar',
+    bullets: [
+      'The customers desk’s three sort headers now speak the census’s full grammar: the active voice reads semibold under a lit arrow (up for ascending, down for descending), the waiting double-arrow appears on hover, and every handle carries its own focus ring for keyboard readers.',
+      'aria-sort names the order to screen readers — ascending or descending on the speaking column, silence on the rest; each handle speaks both aria-label voices and titles, and QA gains testids on all three handles.',
+      'The sort’s ties are deterministic now — equal values break by the customer’s own name, so the order reads the same way twice; the desk’s own two-press law (press to sort, press again to flip the direction) rides untouched.',
+    ],
+  },
+  {
     version: '2.448.0',
     title: 'The history’s records voice — the unordered wire learns to sort',
     bullets: [

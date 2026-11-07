@@ -1,3 +1,13 @@
+## [2.449.0] The debt desk wears the family's wardrobe
+
+The census and history taught the sort grammar; this round the customers desk's three sort handles learn it — aria-sort comes to the desk that had none, and the ties learn the family's determinism.
+
+### Added
+- **ARIA-SORT COMES TO THE CUSTOMERS DESK** (`src/app/(shell)/tabs/customers-tab.tsx`): the Customer / Debt Balance / Loyalty `<TableHead>`s gain `aria-sort` (ascending or descending on the speaking column, silence on the rest), both aria-label voices ("Sort the customers by debt balance" / "Sorted by debt balance, ascending — press again to flip the direction") and matching titles, and QA testids (`customers-sort-name` / `customers-sort-debt` / `customers-sort-loyalty`). The desk's own two-press law rides untouched — ONE `sortField` state means only one voice can speak at a time BY CONSTRUCTION.
+
+### Changed
+- **THE WARDROBE AND THE DETERMINISM** (`src/app/(shell)/tabs/customers-tab.tsx`): the three handles wear the census's grammar — the hover affordance (ChevronsUpDown waits at `opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100`), the active voice reads **font-semibold** under a lit arrow (ChevronUp ascending, ChevronDown descending — replacing the always-on rotated ArrowUpDown), and the zinc focus-visible ring carries the keyboard. The sort memo's tie now breaks by the customer's own name (`a.name.localeCompare(b.name)` — the family's determinism law, ported; `return 0;` is gone), so the order reads the same way twice.
+
 ## [2.448.0] The history's records voice
 
 The Created header gave the history its mirror; this round the Records header learns its own FIRST voice — the unordered wire sorts loudest-by-records, and the two voices learn to take turns.

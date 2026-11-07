@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Users, Search, Plus, CircleDollarSign, AlertTriangle, Eye, Loader2, HandCoins, Banknote, Smartphone, ShoppingBag, Phone, Mail, MapPin, CreditCard, Clock, ArrowUpDown, Filter, UserPlus, TrendingUp, FileText, Bell, History, Send, Tag, Gift, Truck, FileCheck, Receipt, Minus, Printer, MessageSquare } from 'lucide-react';
+import { Users, Search, Plus, CircleDollarSign, AlertTriangle, Eye, Loader2, HandCoins, Banknote, Smartphone, ShoppingBag, Phone, Mail, MapPin, CreditCard, Clock, ArrowUpDown, ChevronDown, ChevronUp, ChevronsUpDown, Filter, UserPlus, TrendingUp, FileText, Bell, History, Send, Tag, Gift, Truck, FileCheck, Receipt, Minus, Printer, MessageSquare } from 'lucide-react';
 import { parseInitialNamedMember } from '@/lib/tab-url';
 
 import { useAppStore, useAuthStore } from '@/lib/stores';
@@ -722,7 +722,11 @@ export default function CustomersTab() {
       result = result.filter(c => new Date(c.createdAt) <= to);
     }
 
-    // Sort
+    // Sort — the desk's own two-press law (press to sort, press again to
+    // flip the direction) rides untouched.
+    // v2.449.0 THE FAMILY'S DETERMINISM — a tie is the row's own name:
+    // equal values break by the customer's own name, so the order reads
+    // the same way twice (the census/history tiebreak law, ported).
     result = [...result].sort((a, b) => {
       let aVal: number | string;
       let bVal: number | string;
@@ -735,7 +739,7 @@ export default function CustomersTab() {
       }
       if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
       if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
-      return 0;
+      return a.name.localeCompare(b.name);
     });
 
     return result;
@@ -1204,21 +1208,124 @@ export default function CustomersTab() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>
-                      <button type="button" className="flex items-center gap-1 hover:text-foreground transition-colors" onClick={() => handleSort('name')}>
-                        Customer {sortField === 'name' && (sortDirection === 'asc' ? <ArrowUpDown className="h-3 w-3" /> : <ArrowUpDown className="h-3 w-3 rotate-180" />)}
+                    {/* v2.449.0 THE FAMILY'S WARDROBE — the header is the
+                        handle: the census's grammar comes to the customers
+                        desk (the hover affordance waits at opacity-0, the
+                        active voice reads semibold under a lit arrow — up
+                        for ascending, down for descending — aria-sort names
+                        the order to the machine, both aria-label voices and
+                        titles speak the landing and the flip, and the zinc
+                        focus-visible ring carries the keyboard). The desk's
+                        own two-press law rides untouched — ONE sortField
+                        state means only one voice can speak at a time BY
+                        CONSTRUCTION (the exclusion is structural here). */}
+                    <TableHead
+                      className="group"
+                      aria-sort={sortField === 'name' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : undefined}
+                    >
+                      <button
+                        type="button"
+                        data-testid="customers-sort-name"
+                        aria-label={
+                          sortField === 'name'
+                            ? `Sorted by name, ${sortDirection === 'asc' ? 'ascending' : 'descending'} — press again to flip the direction`
+                            : 'Sort the customers by name'
+                        }
+                        title={
+                          sortField === 'name'
+                            ? `The customers read by name, ${sortDirection === 'asc' ? 'ascending' : 'descending'} — press again to flip`
+                            : 'Press to sort the customers by name'
+                        }
+                        onClick={() => handleSort('name')}
+                        className={`inline-flex items-center gap-1 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 ${
+                          sortField === 'name' ? 'font-semibold text-foreground' : 'hover:text-foreground'
+                        }`}
+                      >
+                        Customer
+                        {sortField === 'name' ? (
+                          sortDirection === 'asc' ? (
+                            <ChevronUp className="h-3 w-3" aria-hidden="true" />
+                          ) : (
+                            <ChevronDown className="h-3 w-3" aria-hidden="true" />
+                          )
+                        ) : (
+                          <ChevronsUpDown className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100" aria-hidden="true" />
+                        )}
                       </button>
                     </TableHead>
                     <TableHead>Phone</TableHead>
-                    <TableHead>
-                      <button type="button" className="flex items-center gap-1 hover:text-foreground transition-colors" onClick={() => handleSort('debt')}>
-                        Debt Balance {sortField === 'debt' && (sortDirection === 'asc' ? <ArrowUpDown className="h-3 w-3" /> : <ArrowUpDown className="h-3 w-3 rotate-180" />)}
+                    {/* v2.449.0 THE FAMILY'S WARDROBE — the debt handle: the
+                        loudest debtor read (descending) is one press past
+                        the ascending walk; aria-sort speaks both. */}
+                    <TableHead
+                      className="group"
+                      aria-sort={sortField === 'debt' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : undefined}
+                    >
+                      <button
+                        type="button"
+                        data-testid="customers-sort-debt"
+                        aria-label={
+                          sortField === 'debt'
+                            ? `Sorted by debt balance, ${sortDirection === 'asc' ? 'ascending' : 'descending'} — press again to flip the direction`
+                            : 'Sort the customers by debt balance'
+                        }
+                        title={
+                          sortField === 'debt'
+                            ? `The customers read by debt balance, ${sortDirection === 'asc' ? 'ascending' : 'descending'} — press again to flip`
+                            : 'Press to sort the customers by debt balance'
+                        }
+                        onClick={() => handleSort('debt')}
+                        className={`inline-flex items-center gap-1 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 ${
+                          sortField === 'debt' ? 'font-semibold text-foreground' : 'hover:text-foreground'
+                        }`}
+                      >
+                        Debt Balance
+                        {sortField === 'debt' ? (
+                          sortDirection === 'asc' ? (
+                            <ChevronUp className="h-3 w-3" aria-hidden="true" />
+                          ) : (
+                            <ChevronDown className="h-3 w-3" aria-hidden="true" />
+                          )
+                        ) : (
+                          <ChevronsUpDown className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100" aria-hidden="true" />
+                        )}
                       </button>
                     </TableHead>
                     <TableHead>Debt Status</TableHead>
-                    <TableHead>
-                      <button type="button" className="flex items-center gap-1 hover:text-foreground transition-colors" onClick={() => handleSort('loyalty')}>
-                        Loyalty {sortField === 'loyalty' && (sortDirection === 'asc' ? <ArrowUpDown className="h-3 w-3" /> : <ArrowUpDown className="h-3 w-3 rotate-180" />)}
+                    {/* v2.449.0 THE FAMILY'S WARDROBE — the loyalty handle:
+                        the same grammar on the members' own column. */}
+                    <TableHead
+                      className="group"
+                      aria-sort={sortField === 'loyalty' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : undefined}
+                    >
+                      <button
+                        type="button"
+                        data-testid="customers-sort-loyalty"
+                        aria-label={
+                          sortField === 'loyalty'
+                            ? `Sorted by loyalty points, ${sortDirection === 'asc' ? 'ascending' : 'descending'} — press again to flip the direction`
+                            : 'Sort the customers by loyalty points'
+                        }
+                        title={
+                          sortField === 'loyalty'
+                            ? `The customers read by loyalty points, ${sortDirection === 'asc' ? 'ascending' : 'descending'} — press again to flip`
+                            : 'Press to sort the customers by loyalty points'
+                        }
+                        onClick={() => handleSort('loyalty')}
+                        className={`inline-flex items-center gap-1 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 ${
+                          sortField === 'loyalty' ? 'font-semibold text-foreground' : 'hover:text-foreground'
+                        }`}
+                      >
+                        Loyalty
+                        {sortField === 'loyalty' ? (
+                          sortDirection === 'asc' ? (
+                            <ChevronUp className="h-3 w-3" aria-hidden="true" />
+                          ) : (
+                            <ChevronDown className="h-3 w-3" aria-hidden="true" />
+                          )
+                        ) : (
+                          <ChevronsUpDown className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100" aria-hidden="true" />
+                        )}
                       </button>
                     </TableHead>
                     <TableHead className="w-[100px]">Actions</TableHead>
