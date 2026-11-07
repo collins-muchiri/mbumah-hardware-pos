@@ -275,33 +275,33 @@ describe('the address-bar vocabulary — the twenty-seventh row (cross-suite pin
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.430.0 leads the feed', () => {
+describe('whats-new — v2.431.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.430.0');
-    // the lead's story hand-over (v2.430.0, the Task 111 law's
-    // thirty-sixth application): the head story is the hand-over's
-    // voice — the census opens: the inventory banner's census chip
-    // became the door (orderSupplierBlocks — the census's own
-    // grouping, pure: rows by trimmed maker, sorted by name, units
-    // summed over the gaps; an unnamed row never invents a block,
-    // and a block whose whole ask is zero is refused — the
-    // nothing-to-order law, per block), the trigger wears the
-    // v2.421 census bytes with the chevron the door's one new word
-    // (one item per maker carrying the block's own line-and-unit
-    // census — the chip's number and the menu's items share the
-    // same rows, the two can never disagree), each press folds ONLY
-    // that maker's rows into the same pocket the whole order uses
-    // (buildOrderHandoff over block.rows, the one-way write, the
-    // walk, the receipt naming the maker), and the whole-order Send
-    // keeps its own face beside the door.
-    // The echo's story exits the head this round; the
-    // census's own door carries the eye.
-    expect(head.title).toContain('census');
+    expect(head.version).toBe('2.431.0');
+    // the lead's story hand-over (v2.431.0, the Task 111 law's
+    // thirty-seventh application): the head story is the hand-over's
+    // voice — the desk answers the walk: the carriage strip on the
+    // purchase order desk wears the pocket's own word
+    // (orderHandoffPocketEcho — the strip's gate over the envelope's
+    // every-line-agrees maker read once as the map lands; agreement
+    // is no news — the pre-pick speaking the same name quiets the
+    // echo; a null, an empty, or a whitespace pocket reads the null,
+    // and the spoken name is the census's trimmed form), the amber
+    // chip rides the strip's header ("the walk named {maker}" — the
+    // walk's own house, never the pre-pick's sky) with the echo
+    // line's quote-border under the counts, the digest carries the
+    // pocket census beside the counts so the echo survives the
+    // one-way consumption, and the WORDS-ONLY law holds at the pen
+    // (the v2.422 derivation byte-identical — the shelf's live link
+    // or the actor's own call stays the only voice the select wears).
+    // The census's story exits the head this round; the
+    // echo's own answer carries the eye.
+    expect(head.title).toContain('echo');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('one block per supplier'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('never invents a block'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('the receipt names the maker'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('answers the walk'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('agreement is no news'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('never names a live order'))).toBe(true);
   });
 });
 

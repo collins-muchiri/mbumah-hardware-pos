@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.431.0',
+    title: 'The desk answers the walk \u2014 the pocket\u2019s echo wears the walk\u2019s name',
+    bullets: [
+      'The purchase order desk now answers the walk\u2019s receipt: when the carried order rode for one maker, the carriage strip wears the pocket\u2019s own word \u2014 \u201cthe walk named Bamburi Cement Ltd\u201d \u2014 so the maker\u2019s name survives the walk even when the desk\u2019s pre-pick cannot speak.',
+      'The echo\u2019s honesty is agreement\u2019s own: when the supplier pen already wears the same maker (the live pre-pick), the echo stays quiet \u2014 agreement is no news, never a repeated chip.',
+      'The echo is words, never a decision: the supplier pen is dressed by the shelf\u2019s live link or your own call \u2014 the pocket\u2019s memory never names a live order.',
+    ],
+  },
+  {
     version: '2.430.0',
     title: 'The census opens \u2014 each supplier\u2019s block rides to the desk alone',
     bullets: [

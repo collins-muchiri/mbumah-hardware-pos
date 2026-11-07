@@ -19,8 +19,10 @@ import { handleError } from '@/lib/error-handler';
 // THE ORDER'S HANDOFF (v2.416.0): the purchase-order desk is the pocket's
 // reader — the tab consumes the envelope ONCE at mount (one-way), and the
 // dialog maps the carried rows into its own editable rows through the
-// pure mapper (the honest dropped count included).
-import { consumeOrderHandoff, mapOrderHandoffToPoItems, type OrderHandoffPayload, type OrderHandoffPoItem } from '@/lib/order-handoff';
+// pure mapper (the honest dropped count included). v2.431.0 THE POCKET'S
+// ECHO: the strip also answers the walk's receipt with the pocket's own
+// census (the lib's gate — words, never the pen).
+import { consumeOrderHandoff, mapOrderHandoffToPoItems, orderHandoffPocketEcho, orderHandoffSupplier, type OrderHandoffPayload, type OrderHandoffPoItem } from '@/lib/order-handoff';
 // v2.417.0 THE RECEIVE'S FILL — the receive dialog's one home: the pens'
 // initial fill, each row's honest state (the short face included), and
 // the plan the strip speaks before the actor commits (pure, tested).
@@ -328,7 +330,10 @@ function CreatePODialog({
   // v2.422.0: the order birth's own strip — a LOCAL digest, so the strip
   // keeps speaking after the tab hands the envelope over (the one-way
   // law: the pocket and the stash are consumed; the reading stays).
-  const [orderStrip, setOrderStrip] = useState<{ lines: number; units: number; dropped: string[] } | null>(null);
+  // v2.431.0: the digest carries the POCKET'S OWN CENSUS too — the
+  // envelope's every-line-agrees maker read ONCE as the map lands, so
+  // the echo survives the consumption exactly as the counts do.
+  const [orderStrip, setOrderStrip] = useState<{ lines: number; units: number; dropped: string[]; pocketSupplier: string | null } | null>(null);
   // THE ORDER'S MAP — the carried rows become the dialog's own rows.
   // The mapping reads the shelf once (the same list call the low-stock
   // loader speaks): a sku the shelf no longer knows is dropped and
@@ -352,12 +357,12 @@ function CreatePODialog({
         // stays the actor's — the hint says so.
         setExpectedDate(suggestExpectedDay(new Date(orderBirth.carriedAt)));
         setSuggestedDay(suggestExpectedDay(new Date(orderBirth.carriedAt)));
-        setOrderStrip({ lines: orderBirth.lines, units: orderBirth.units, dropped: droppedSkus });
+        setOrderStrip({ lines: orderBirth.lines, units: orderBirth.units, dropped: droppedSkus, pocketSupplier: orderHandoffSupplier(orderBirth.items) });
         // v2.422.0 THE PRE-PICK — the map's supplier waits for the
         // active list; the apply effect below does the dressing.
         setOrderPrePick(prePick);
       } catch {
-        if (!cancelled) setOrderStrip({ lines: orderBirth.lines, units: orderBirth.units, dropped: orderBirth.items.map((i) => i.sku) });
+        if (!cancelled) setOrderStrip({ lines: orderBirth.lines, units: orderBirth.units, dropped: orderBirth.items.map((i) => i.sku), pocketSupplier: orderHandoffSupplier(orderBirth.items) });
       } finally {
         if (!cancelled) onBirthConsumed?.();
       }
@@ -388,6 +393,14 @@ function CreatePODialog({
   })();
   const supplierId = actorSupplierId !== '' ? actorSupplierId : (prePickSupplier?.id ?? '');
   const prePickVoice = actorSupplierId === '' ? prePickSupplier : null;
+
+  // v2.431.0 THE POCKET'S ECHO — the walk's receipt answered: when the
+  // envelope's every line named ONE maker at fold time and the pre-pick
+  // does not already speak that name (agreement is no news), the strip
+  // wears the pocket's word. The echo is the lib's own gate — WORDS
+  // only: it never dresses the pen (the v2.422 law), the shelf's live
+  // link or the actor's own call stays the only voice the select wears.
+  const pocketEcho = orderHandoffPocketEcho(orderStrip?.pocketSupplier ?? null, prePickVoice?.name ?? null);
 
   // Product search
   const { data: productSearchData, isLoading: productSearchLoading } = useQuery({
@@ -667,6 +680,7 @@ function CreatePODialog({
               prePickVoice
                 ? `carried from the restock order — ${orderStrip.lines} line${orderStrip.lines === 1 ? '' : 's'}, ${orderStrip.units} unit${orderStrip.units === 1 ? '' : 's'}, the order names ${prePickVoice.name}`
                 : `carried from the restock order — ${orderStrip.lines} line${orderStrip.lines === 1 ? '' : 's'}, ${orderStrip.units} unit${orderStrip.units === 1 ? '' : 's'} pre-picked below`,
+              pocketEcho ? `the walk named ${pocketEcho}` : null,
               orderStrip.dropped.length > 0
                 ? `${orderStrip.dropped.length} line${orderStrip.dropped.length === 1 ? '' : 's'} the shelf no longer knows: ${orderStrip.dropped.join(', ')}`
                 : null,
@@ -688,6 +702,20 @@ function CreatePODialog({
                   via {prePickVoice.name}
                 </span>
               )}
+              {/* v2.431.0 THE POCKET'S ECHO — the walk's own chip (the amber
+                  family the strip wears, never the pre-pick's sky: the two
+                  voices are different houses — the pocket's memory vs the
+                  shelf's live link). It speaks only when the pre-pick does
+                  not already carry the same name (agreement is no news). */}
+              {pocketEcho && (
+                <span
+                  data-testid="po-order-handoff-pocket-echo"
+                  title={`the walk's pocket carried this order for ${pocketEcho} — the pen below never wears the pocket's word`}
+                  className="ml-1 inline-flex items-center rounded-full bg-amber-100 px-2 py-px text-[10px] font-medium normal-case text-amber-800 dark:bg-amber-500/20 dark:text-amber-200"
+                >
+                  the walk named {pocketEcho}
+                </span>
+              )}
             </p>
             <p className="mt-0.5 font-medium">
               {orderStrip.lines} line{orderStrip.lines === 1 ? '' : 's'} · {orderStrip.units} unit{orderStrip.units === 1 ? '' : 's'} pre-picked below —{' '}
@@ -695,6 +723,19 @@ function CreatePODialog({
                 ? <>the order names {prePickVoice.name} and the supplier pen wears it; every row stays yours to edit.</>
                 : <>the supplier is your call; every row stays yours to edit.</>}
             </p>
+            {/* v2.431.0 THE ECHO'S OWN LINE — the pocket's law spoken under
+                the counts (the quote-border detail: the walk's words are a
+                quotation, not the desk's own voice). Universal wording —
+                it holds whether the pen wears the shelf's pre-pick, the
+                actor's own call, or nothing yet. */}
+            {pocketEcho && (
+              <p
+                data-testid="po-order-handoff-pocket-echo-line"
+                className="mt-1 border-l-2 border-amber-300 pl-2 font-medium dark:border-amber-500/50"
+              >
+                the pen below never wears the pocket&apos;s word — the shelf&apos;s link or your own call dresses it.
+              </p>
+            )}
             {orderStrip.dropped.length > 0 && (
               <p data-testid="po-order-handoff-dropped" className="mt-1 font-medium text-red-700 dark:text-red-300">
                 {orderStrip.dropped.length} line{orderStrip.dropped.length === 1 ? '' : 's'} the shelf no longer knows (left behind): {orderStrip.dropped.join(', ')}.
