@@ -5,10 +5,12 @@
 // live proof: two world-lit lines, then "No KRA invoices found."). This
 // round the door grows its third face and the exports world wears the
 // schema's own default status:
-//   • `npm run db:fixtures` lights THREE fixture worlds through the ONE
-//     door — the M-Pesa ledger's script leads, the exports world follows,
-//     and the taxman's world closes the parade (the handle's order is
-//     the parade's order, pinned byte-exact),
+//   • `npm run db:fixtures` lights FOUR fixture worlds through the ONE
+//     door (v2.452.0's re-anchor: the invoice world joins the parade) —
+//     the M-Pesa ledger's script leads, the exports world follows, the
+//     taxman's world closes behind it, and the register's witnesses
+//     light LAST (the handle's order is the parade's order, pinned
+//     byte-exact),
 //   • the taxman's world keeps every law it shipped with: dev-only (the
 //     NODE_ENV refusal), the local file: URL refusal, the finder-then-
 //     upsert idempotence (receiptNumber, transactionId, the period+type
@@ -40,11 +42,11 @@ const schema = readFileSync(SCHEMA, 'utf8');
 const table = readFileSync(TABLE, 'utf8');
 
 describe('the db:fixtures door grows its third word (v2.437.0)', () => {
-  it('the handle lights THREE fixture worlds in the parade order — mpesa leads, exports follows, the taxman closes — under the seed-password law (every face NODE_ENV=development, the burst\u2019s own catch)', () => {
+  it('the handle lights FOUR fixture worlds in the parade order — mpesa leads, exports follows, the taxman rides, the register\u2019s witnesses close — under the seed-password law (every face NODE_ENV=development, the burst\u2019s own catch)', () => {
     expect(pkg).toContain(
-      '"db:fixtures": "NODE_ENV=development node scripts/seed-mpesa-fixtures.mjs && NODE_ENV=development node scripts/seed-exports-fixtures.mjs && NODE_ENV=development node scripts/seed-kra-fixtures.mjs"',
+      '"db:fixtures": "NODE_ENV=development node scripts/seed-mpesa-fixtures.mjs && NODE_ENV=development node scripts/seed-exports-fixtures.mjs && NODE_ENV=development node scripts/seed-kra-fixtures.mjs && NODE_ENV=development node scripts/seed-invoices-fixtures.mjs"',
     );
-    expect(pkg.match(/NODE_ENV=development node scripts\/seed-/g)?.length).toBe(3);
+    expect(pkg.match(/NODE_ENV=development node scripts\/seed-/g)?.length).toBe(4);
   });
 
   it('the taxman world is dev-only and refuses a non-local database (the seed-password law\u2019s own bytes)', () => {

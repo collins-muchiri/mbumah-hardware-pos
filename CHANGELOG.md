@@ -1,3 +1,17 @@
+## [2.452.0] The fixture world learns to bill
+
+The invoices desk answered every QA burst honestly empty; this round the fixture door stands up the register's witnesses — and the CI watcher learns to count the runs, not just the pending.
+
+### Added
+- **THE INVOICE FIXTURE WORLD** (`scripts/seed-invoices-fixtures.mjs`, wired as `db:fixtures`' fourth leg): eleven witnesses where every document type (`INVOICE`, `QUOTATION`, `PROFORMA`, `CREDIT_NOTE`, `DEBIT_NOTE`) and every register status (`PAID`, `SENT`, `DRAFT`, `CANCELLED`, `INVOICED` — `EXPIRED` rides the quotation) wears a row. The money is coherent by construction (`lineTotal = quantity × pricePerUnit`; `total = subtotal + tax − discount`, row 1 speaking the 16% VAT face), and the six register totals are the **money bait**: distinct totals whose lexicographic order differs from their numeric order, so the walk that catches a string/string comparator is one press away — the v2.451.0 coercion seat keeps its LIVE proof forever. The lazy-expiry law is spoken by the seeds, not fought: living quotations carry FUTURE due dates and one past-due quotation already wears `EXPIRED` — exactly what the GET route's `expireStaleQuotes` writes.
+- **THE WATCHER MEND** (`scripts/watch-pr-v2452.mjs`): the v2.451.0 law — THE WATCHER COUNTS THE RUNS, NOT JUST THE PENDING. The green verdict now requires the KNOWN TOTAL (`EXPECTED_RUNS = 11`: nine blocking faces + the Type Check advisory pool face + the skipped Deploy Production) AND zero pending; a half-born CI (the seen runs drained while the count still grew) is named, tolerated for a plateau window, then refused with an honest exit — never green.
+
+### Changed
+- **THE MONEY COLUMN WEARS TABULAR DIGITS** (`src/app/(shell)/tabs/invoices-tab.tsx`): the register's total-amount cell gains `tabular-nums` — the money that sorts honestly also aligns honestly (every digit box the same width, the column a real ruler).
+
+### Fixed
+- **THE STATS ROW'S OWN LIE** (`src/app/(shell)/tabs/invoices-tab.tsx`): the witnesses' first boot exposed what the v2.451.0 sweep's comparator grep could not see — one seat over, the stats memo's money reduces. `paidInvoices.reduce((s, i) => s + i.totalAmount, 0)` seeds `0` (a number) and the wire delivers **Decimal-as-string**, so `0 + "9500"` **concatenates** (`"09500"`) and the outstanding card read **Ksh 950,012,000,045,000.00** for a Ksh 174,500 register (totalRevenue the same shape: "Ksh 725.75" for 17,225.75 — `0725.75` + `2000` + `14500` concatenated, then HALF-UP-rounded to 2dp). Both reduces now **coerce at the seat** (`s + Number(i.totalAmount)`) — the desk's own QA world caught the desk's own arithmetic.
+
 ## [2.451.0] The money-sort sweep
 
 The customers desk confessed in v2.450.0; this round the sweep greps every desk's comparator for the same string/string lie — and finds two more desks lying.
