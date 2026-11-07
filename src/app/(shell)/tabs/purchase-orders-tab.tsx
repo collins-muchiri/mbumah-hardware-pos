@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { ClipboardList, Search, Plus, Eye, Loader2, X, Package, CalendarDays, Filter, ArrowUpDown, FileText, Clock, CheckCircle2, Circle, AlertTriangle, Truck, Phone, ChevronLeft, ChevronRight, Trash2, Send, Ban, MoreHorizontal, PackageCheck, PackageX, ShieldCheck, Stamp, Receipt, ShoppingBag, DollarSign, ArrowUpRight, History, ListChecks, Eraser } from 'lucide-react';
+import { ClipboardList, Search, Plus, Eye, Loader2, X, Package, CalendarDays, Filter, ArrowUpDown, FileText, Clock, CheckCircle2, Circle, AlertTriangle, Truck, Phone, ChevronLeft, ChevronRight, Trash2, Send, Ban, MoreHorizontal, PackageCheck, PackageX, ShieldCheck, Stamp, Receipt, ShoppingBag, DollarSign, ArrowUpRight, History, ListChecks, Eraser, Footprints } from 'lucide-react';
 
 import { useAppStore } from '@/lib/stores';
 import { useAuthStore } from '@/lib/stores';
@@ -22,7 +22,7 @@ import { handleError } from '@/lib/error-handler';
 // pure mapper (the honest dropped count included). v2.431.0 THE POCKET'S
 // ECHO: the strip also answers the walk's receipt with the pocket's own
 // census (the lib's gate — words, never the pen).
-import { consumeOrderHandoff, mapOrderHandoffToPoItems, orderHandoffPocketEcho, orderHandoffSupplier, type OrderHandoffPayload, type OrderHandoffPoItem } from '@/lib/order-handoff';
+import { consumeOrderHandoff, mapOrderHandoffToPoItems, orderBlockRodeStamp, orderHandoffPocketEcho, orderHandoffSupplier, readBlockSends, type OrderHandoffPayload, type OrderHandoffPoItem } from '@/lib/order-handoff';
 // v2.417.0 THE RECEIVE'S FILL — the receive dialog's one home: the pens'
 // initial fill, each row's honest state (the short face included), and
 // the plan the strip speaks before the actor commits (pure, tested).
@@ -402,6 +402,17 @@ function CreatePODialog({
   // link or the actor's own call stays the only voice the select wears.
   const pocketEcho = orderHandoffPocketEcho(orderStrip?.pocketSupplier ?? null, prePickVoice?.name ?? null);
 
+  // v2.433.0 THE DESK READS THE DOOR'S MEMORY — the same TAB SESSION
+  // carries the sending side's own record (readBlockSends, one home):
+  // when the pocket's walk named a maker whose block already rode, the
+  // strip wears the door's own stamp ("rode at 09:12") — the two sides
+  // comparing clocks. The read rides orderStrip's own null-at-hydration
+  // (the pocket is consumed client-side — the read never meets SSR);
+  // no state, no effect — the derived law's shape. The stamp is a FACT:
+  // it never gates, never dresses the pen.
+  const doorSentAt = orderStrip?.pocketSupplier ? readBlockSends()[orderStrip.pocketSupplier] : undefined;
+  const doorStamp = orderBlockRodeStamp(doorSentAt);
+
   // Product search
   const { data: productSearchData, isLoading: productSearchLoading } = useQuery({
     queryKey: ['po-product-search', storeId, productSearch],
@@ -681,6 +692,7 @@ function CreatePODialog({
                 ? `carried from the restock order — ${orderStrip.lines} line${orderStrip.lines === 1 ? '' : 's'}, ${orderStrip.units} unit${orderStrip.units === 1 ? '' : 's'}, the order names ${prePickVoice.name}`
                 : `carried from the restock order — ${orderStrip.lines} line${orderStrip.lines === 1 ? '' : 's'}, ${orderStrip.units} unit${orderStrip.units === 1 ? '' : 's'} pre-picked below`,
               pocketEcho ? `the walk named ${pocketEcho}` : null,
+              doorStamp ? `the door's memory — this block ${doorStamp}` : null,
               orderStrip.dropped.length > 0
                 ? `${orderStrip.dropped.length} line${orderStrip.dropped.length === 1 ? '' : 's'} the shelf no longer knows: ${orderStrip.dropped.join(', ')}`
                 : null,
@@ -734,6 +746,21 @@ function CreatePODialog({
                 className="mt-1 border-l-2 border-amber-300 pl-2 font-medium dark:border-amber-500/50"
               >
                 the pen below never wears the pocket&apos;s word — the shelf&apos;s link or your own call dresses it.
+              </p>
+            )}
+            {/* v2.433.0 THE DOOR'S STAMP — the desk answers the door's
+                memory: the sending side's own clock face, the walk's own
+                verb, the quiet italic of a fact already spoken. It rides
+                under the echo line's quote (the memory sits under the
+                quotation), Footprints the walk's own glyph, tabular so
+                the digits hold their lane. */}
+            {doorStamp && (
+              <p
+                data-testid="po-order-handoff-door-stamp"
+                className="mt-1 flex items-center gap-1 pl-2 text-[10px] italic tabular-nums text-amber-700/80 dark:text-amber-300/80"
+              >
+                <Footprints className="h-2.5 w-2.5 shrink-0" aria-hidden="true" />
+                this block {doorStamp} — the door&apos;s own send.
               </p>
             )}
             {orderStrip.dropped.length > 0 && (
