@@ -86,7 +86,7 @@ describe('the pocket echo\u2019s home (v2.431.0) \u2014 source of record', () =>
 
   it('the derived gate \u2014 no effect, no state, the lib\u2019s own voice', () => {
     expect(poTabSrc).toContain('const pocketEcho = orderHandoffPocketEcho(orderStrip?.pocketSupplier ?? null, prePickVoice?.name ?? null);');
-    expect(poTabSrc).toContain("import { consumeOrderHandoff, mapOrderHandoffToPoItems, orderHandoffPocketEcho, orderHandoffSupplier, type OrderHandoffPayload, type OrderHandoffPoItem } from '@/lib/order-handoff';");
+    expect(poTabSrc).toContain("import { consumeOrderHandoff, mapOrderHandoffToPoItems, orderBlockRodeStamp, orderHandoffPocketEcho, orderHandoffSupplier, readBlockSends, type OrderHandoffPayload, type OrderHandoffPoItem } from '@/lib/order-handoff';"); // v2.433.0 honest re-anchor: the desk's stamp + the memory's reader joined the import
   });
 
   it('the chip is the walk\u2019s own amber house \u2014 never the pre-pick\u2019s sky', () => {

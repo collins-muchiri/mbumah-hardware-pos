@@ -401,6 +401,23 @@ export function recordBlockSend(maker: string, at: number): void {
   }
 }
 
+/** v2.433.0 THE DESK READS THE DOOR'S MEMORY — the strip's stamp word.
+ *  The reading desk answers the door's memory: when the pocket's walk
+ *  named a maker whose block THIS SESSION already rode, the strip wears
+ *  the door's own stamp — "rode at 09:12" — the two sides comparing
+ *  clocks (the door speaks "sent at", the desk answers "rode at": one
+ *  clock law, two verbs, the same zero-padded brevity). A null, a broken
+ *  stamp, or no send this session reads the null (the honest absence).
+ *  The stamp is a FACT: it never gates, never dresses the pen (the
+ *  v2.422 law). Pure. */
+export function orderBlockRodeStamp(sentAt: number | null | undefined): string | null {
+  if (typeof sentAt !== 'number' || !Number.isFinite(sentAt) || sentAt <= 0) return null;
+  const at = new Date(sentAt);
+  const hh = String(at.getHours()).padStart(2, '0');
+  const mm = String(at.getMinutes()).padStart(2, '0');
+  return `rode at ${hh}:${mm}`;
+}
+
 /** The pocket's writers and readers — the only places sessionStorage is
  *  touched, so the pure laws above stay testable without a window. */
 export function writeOrderHandoff(payload: OrderHandoffPayload): void {

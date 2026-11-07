@@ -1,3 +1,13 @@
+## [2.433.0] The desk reads the door's memory
+
+v2.432.0 taught the door to remember its sends; this round the READING desk answers: when the carried order's maker's block already rode this session, the carriage strip wears the door's own stamp — "rode at 09:12" — the two sides comparing clocks.
+
+### Added
+- **THE ARC'S FOURTEENTH WORD** (`src/lib/order-handoff.ts` + `src/app/(shell)/tabs/purchase-orders-tab.tsx`): `orderBlockRodeStamp` (the strip's stamp word, pure — the desk's own verb on the door's clock law: a null, a broken stamp, or no send this session reads the null, the honest absence) joins the handoff's one home, and the carriage strip wears the door's stamp (`po-order-handoff-door-stamp` — "this block rode at 09:12 — the door's own send", the Footprints glyph, the quiet italic, tabular) whenever the pocket's maker's block sits in the door's TAB SESSION record (`readBlockSends`, the derived gate: no state, no effect — the read rides orderStrip's own null-at-hydration).
+
+### Changed
+- **THE FACT'S LAW**: the stamp never gates and never dresses the pen (the v2.422 derivation byte-kept) — it rides UNDER the echo line's quote-border as the memory under the quotation, and the aria carries the door's own segment (`the door's memory — this block rode at 09:12`).
+
 ## [2.432.0] The door remembers its send
 
 v2.431.0 taught the desk to answer the walk; this round the SENDING side keeps its own memory: after a maker's block rides to the purchase order desk, the census door wears that maker's send word — "sent at 09:12" under their line-and-unit census — so the menu tells you who has already ridden and when.

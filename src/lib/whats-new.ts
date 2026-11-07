@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.433.0',
+    title: 'The desk reads the door\u2019s memory \u2014 the carried strip wears the send\u2019s own stamp',
+    bullets: [
+      'The purchase order desk now answers the inventory door\u2019s memory: when the carried order\u2019s maker\u2019s block already rode this session, the strip wears the door\u2019s own stamp \u2014 \u201crode at 09:12\u201d \u2014 so the desk tells you when this block last rode, straight from the sending side\u2019s own record.',
+      'One clock law, two verbs: the door speaks \u201csent at\u201d, the desk answers \u201crode at\u201d \u2014 the two sides comparing clocks, zero-padded, the digits holding their lane.',
+      'The stamp is a fact, never a gate: it never dresses the supplier pen, a session that never sent reads the honest absence, and a closed tab forgets \u2014 the memory rides the session\u2019s own house.',
+    ],
+  },
+  {
     version: '2.432.0',
     title: 'The door remembers its send \u2014 the block menu wears the session\u2019s own memory',
     bullets: [
