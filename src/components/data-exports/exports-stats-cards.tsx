@@ -1,15 +1,23 @@
 'use client';
 
 /**
- * ExportsStatsCards - 4 glass-card stat cards for the Data Export Dashboard
- * header: Total Exports, Total Records, Storage Used, Success Rate.
+ * ExportsStatsCards - 5 glass-card stat cards for the Data Export Dashboard
+ * header: Total Exports, Cancelled Exports, Total Records, Storage Used,
+ * Success Rate.
  *
  * Mirrors the styling of `PlansStatsCards` (debt-plans) so the dashboards
  * share a consistent visual language across the app.
+ *
+ * v2.441.0 THE WITHDRAWN CARD: the cancelled census takes a home of its
+ * own — a fifth card in the zinc voice (the table's Cancelled badge
+ * family, the Ban icon — the withdrawn face), seated beside Total Exports
+ * (the census pair: the total, then the count that bowed out of it). The
+ * Total Exports trend line hands the census over — one number, one home —
+ * and the v2.440.0 rich-trend node retires with the hand-over.
  */
 
-import React from 'react';
 import {
+  Ban,
   CheckCircle2,
   Database,
   HardDrive,
@@ -33,8 +41,6 @@ interface StatCardConfig {
   gradient: string;
   iconColor: string;
   trend?: string;
-  /** Rich trend line — wins over `trend` when present (the cancelled census voice). */
-  trendNode?: React.ReactNode;
 }
 
 function formatBytes(bytes: number): string {
@@ -59,17 +65,26 @@ export function ExportsStatsCards({ stats, isLoading }: ExportsStatsCardsProps) 
       icon: Database,
       gradient: 'from-emerald-500 to-emerald-600',
       iconColor: 'text-emerald-500',
+      // v2.441.0: the census handed over — the withdrawn count lives on
+      // its own card now (one number, one home).
       trend: `${stats?.completedExports ?? 0} completed · ${stats?.failedExports ?? 0} failed`,
-      trendNode: (
-        <span>
-          {stats?.completedExports ?? 0} completed · {stats?.failedExports ?? 0} failed
-          {' · '}
-          {/* The withdrawn voice in zinc — the table's Cancelled badge family. */}
-          <span className={cancelled > 0 ? 'font-medium text-zinc-500' : undefined}>
-            {cancelled} cancelled
-          </span>
-        </span>
-      ),
+    },
+    {
+      // v2.441.0 THE WITHDRAWN CARD: the fifth card takes the census —
+      // the zinc voice (the table's Cancelled badge family) and the Ban
+      // icon (the withdrawn face), seated beside the total it bowed out
+      // of. A withdrawn run never had a file: the trend line says so
+      // honestly, in both states — the loud zero stays silent, the real
+      // count names its law.
+      label: 'Cancelled Exports',
+      value: String(cancelled),
+      icon: Ban,
+      gradient: 'from-zinc-500 to-zinc-600',
+      iconColor: 'text-zinc-500',
+      trend:
+        cancelled > 0
+          ? 'Withdrawn before completion — never a file'
+          : 'Nothing withdrawn — stuck exports retire here',
     },
     {
       label: 'Total Records',
@@ -99,8 +114,8 @@ export function ExportsStatsCards({ stats, isLoading }: ExportsStatsCardsProps) 
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {Array.from({ length: 4 }).map((_, i) => (
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        {Array.from({ length: 5 }).map((_, i) => (
           <Skeleton key={i} className="h-24" />
         ))}
       </div>
@@ -108,10 +123,10 @@ export function ExportsStatsCards({ stats, isLoading }: ExportsStatsCardsProps) 
   }
 
   // Static stagger classes so Tailwind's JIT can statically detect them.
-  const STAGGER_CLASSES = ['stagger-1', 'stagger-2', 'stagger-3', 'stagger-4'];
+  const STAGGER_CLASSES = ['stagger-1', 'stagger-2', 'stagger-3', 'stagger-4', 'stagger-5'];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
       {cards.map((card, idx) => (
         <Card
           key={card.label}
@@ -129,9 +144,12 @@ export function ExportsStatsCards({ stats, isLoading }: ExportsStatsCardsProps) 
                   {card.label}
                 </p>
                 <p className="text-xl font-bold truncate">{card.value}</p>
-                {(card.trendNode || card.trend) && (
-                  <p className="text-[10px] text-muted-foreground truncate">
-                    {card.trendNode ?? card.trend}
+                {card.trend && (
+                  <p
+                    className="text-[10px] text-muted-foreground truncate"
+                    title={card.trend}
+                  >
+                    {card.trend}
                   </p>
                 )}
               </div>

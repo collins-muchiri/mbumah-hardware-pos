@@ -217,33 +217,31 @@ describe('the lockfile parity guard — root-version and range legs', () => {
 // 4. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.440.0 leads the feed', () => {
+describe('whats-new — v2.441.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.440.0');
-    // the lead's story hand-over (v2.440.0, the Task 111 law's
-    // forty-sixth application): the head story is the hand-over's
-    // voice — the census learns the withdrawn word: v2.439.0
-    // taught the desk to retire a stuck export but the stats
-    // contract never heard the news (totalExports /
-    // completedExports / failedExports only — the Total Exports
-    // card trend line read "10 completed · 2 failed" and the
-    // cancelled row vanished from the census), so cancelledExports
-    // joins the route's aggregate and the response contract
-    // (withdrawn before completion — the cancel door's own
-    // census); the honest denominator names its law (a withdrawn
-    // run never had a file, so it can be neither a success nor a
-    // failure); the Total Exports trend speaks three segments
-    // (completed · failed · cancelled — the cancelled segment in
-    // zinc, the Cancelled badge family, through the new
-    // rich-trend node); and the Success Rate card names its own
-    // denominator (completed vs. failed runs, cancelled excluded).
-    // The stuck row's honest exit exits the head this round; the
-    // census's whole truth carries the eye.
-    expect(head.title).toContain('census');
+    expect(head.version).toBe('2.441.0');
+    // the lead's story hand-over (v2.441.0, the Task 111 law's
+    // forty-seventh application): the head story is the hand-over's
+    // voice — the withdrawn count takes its own card: v2.440.0 grew
+    // the stats contract the fourth key (cancelledExports) and
+    // taught the Total Exports trend line three segments, but the
+    // count rode a trend line — a census without a home; the fifth
+    // glass card takes the census (the zinc voice — the table's
+    // Cancelled badge family — and the Ban icon, the withdrawn face),
+    // seated beside Total Exports (the census pair); the Total
+    // Exports trend reads "N completed · M failed" again (one
+    // number, one home — the rich-trend node retires with the
+    // hand-over); the card's trend line speaks both states honestly
+    // (withdrawn before completion — never a file; the honest zero —
+    // stuck exports retire here); and the grid wears five cards (the
+    // skeleton matching, the stagger-5 delay landing the fifth card
+    // on beat). The census's third word exits the head this round;
+    // the withdrawn card's own face carries the eye.
+    expect(head.title).toContain('withdrawn');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('the census learns the withdrawn word'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('zinc'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('a withdrawn run never had a file'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('takes its own card'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('one number, one home'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('never a file'))).toBe(true);
   });
 });

@@ -1,3 +1,13 @@
+## [2.441.0] The withdrawn count takes its own card
+
+v2.440.0 grew the stats contract the fourth key and taught the Total Exports trend line three segments — but the count rode a trend line, a census without a home. This round the fifth glass card takes the census: one number, one home.
+
+### Added
+- **THE WITHDRAWN CARD** (`src/components/data-exports/exports-stats-cards.tsx`): a fifth stat card — "Cancelled Exports" — joins the grid in the zinc voice (the table's Cancelled badge family) with the Ban icon, the withdrawn face, seated beside Total Exports (the census pair). The trend line speaks both states honestly: "Withdrawn before completion — never a file" when a withdrawn row exists; "Nothing withdrawn — stuck exports retire here" when the census holds zero. The grid wears five cards (`grid-cols-2 md:grid-cols-5`), the skeleton matches, and the stagger-5 delay lands the fifth card on beat.
+
+### Changed
+- **THE CENSUS HANDS OVER** (`src/components/data-exports/exports-stats-cards.tsx`): the Total Exports trend line reads "N completed · M failed" again — the withdrawn count lives on its own card now (one number, one home), and the v2.440.0 rich-trend node retires with the hand-over. The v2.440.0 suite's face pins re-key honestly (the two-segment trend + the retirement), and the new `export-withdrawn-card-v2441.test.ts` suite pins the card's own bytes.
+
 ## [2.440.0] The census learns the withdrawn word
 
 v2.439.0 taught the desk to retire a stuck export — but the stats contract never heard the news: `/api/data-exports/stats` counted `totalExports` / `completedExports` / `failedExports` only, so the Total Exports card's trend line ("N completed · M failed") let the cancelled row vanish from the census. This round the contract grows the fourth key and the cards speak the whole vocabulary.
