@@ -24,8 +24,13 @@ const tab = readFileSync(TAB, 'utf8');
 const theadAt = tab.indexOf('<thead>');
 const tbodyAt = tab.indexOf('<tbody>');
 const thead = tab.slice(theadAt, tbodyAt);
-const buttonAt = thead.indexOf('<button');
-const buttonBlock = thead.slice(buttonAt, thead.indexOf('</button>', buttonAt));
+// v2.446.0 THE RUNS MIRROR: a SECOND handle (census-sort-runs) joined
+// the thead ahead of this one — this suite's block is the RECORDS
+// handle BY NAME, not by first-button order. The extraction names its
+// handle; every pin below keeps its exact bytes and intent.
+const recordsAt = thead.indexOf('data-testid="census-sort-records"');
+const buttonAt = thead.lastIndexOf('<button', recordsAt);
+const buttonBlock = thead.slice(buttonAt, thead.indexOf('</button>', recordsAt));
 
 describe('the records lens takes its seat (v2.445.0)', () => {
   it('the header is the handle — a real button with the walk’s testid', () => {
@@ -47,7 +52,11 @@ describe('the records lens takes its seat (v2.445.0)', () => {
 
   it('the door’s second voice — press again and the law returns', () => {
     expect(tab).toContain('const [byRecords, setByRecords] = useState(false);');
-    expect(buttonBlock).toContain('onClick={() => setByRecords(!byRecords)}');
+    // v2.446.0: the voices are exclusive — the lens's press now retires
+    // the mirror first (setByRunsAsc(false)); the toggle bytes keep
+    // their seat inside the press. ONE pin re-anchor, named.
+    expect(buttonBlock).toContain('setByRunsAsc(false);');
+    expect(buttonBlock).toContain('setByRecords(!byRecords)');
     expect(tab).toContain('const sortedRows = byRecords');
   });
 

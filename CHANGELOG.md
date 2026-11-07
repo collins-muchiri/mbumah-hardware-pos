@@ -1,3 +1,13 @@
+## [2.446.0] The runs mirror
+
+The records lens gave the census a second sort voice; this round the law's own header answers with its mirror — Runs becomes the third voice, and the voices learn to take turns.
+
+### Added
+- **THE RUNS MIRROR** (`src/app/(shell)/tabs/data-exports-tab.tsx`): the By Type table's Runs header becomes a real `<button data-testid="census-sort-runs">` — one press **inverts the run-count law** (the census reads quietest-first: `a.count - b.count`, the same name tiebreak so the order is deterministic), press again and the law returns. The mirror **rides above the law** like its sibling: the default `.sort()` and the records sort keep their exact seats untouched, the mirror is a new pass over the already-lawful rows, and `aria-sort="ascending"` names the order.
+
+### Changed
+- **THE VOICES ARE EXCLUSIVE** (`src/app/(shell)/tabs/data-exports-tab.tsx`): the most recent press names the order — the mirror's press retires the records lens (and vice versa through the reconcile effect, the lens's own press bytes kept verbatim for the elders' pin), so a second press can never resurrect a voice the user retired. The mirror wears the lens's exact wardrobe (the hover affordance, the lit ChevronUp, both aria voices and titles, the zinc focus-visible ring), and the header note stays stable — the sorts speak their own voices.
+
 ## [2.445.0] The records lens
 
 The census door learned to open panes; this round it learns to reorder itself — the Records header becomes the sort law's second voice.
