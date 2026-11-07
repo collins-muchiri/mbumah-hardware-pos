@@ -104,7 +104,12 @@ describe('builder — reviewsToCsv is the governed family', () => {
   it('dates are ISO day keys and empty cells are honest for a null acknowledgment', () => {
     const f = must(reviewsToCsv(ROWS, META));
     expect(f.csv).toContain('Grace Achieng,Accounts Assistant,H2 2026 Reviews,DRAFT,,2026-10-01');
-    expect(f.csv).not.toContain('T08:30'); // day precision, like the screen
+    // day precision, like the screen — scoped to the LEDGER BODY, past
+    // the generated-at stamp: v2.436.0's run landed inside the :30 UTC
+    // hour and the stamp legitimately spoke T08:30 (a pure time-of-day
+    // collision — the stamp may carry the clock, the cells may not)
+    const bodyAt = f.csv.indexOf('\n', f.csv.indexOf('Generated (UTC)'));
+    expect(f.csv.slice(bodyAt)).not.toContain('T08:30');
   });
 
   it('the OWASP formula-injection guard rides the shared escaper', () => {

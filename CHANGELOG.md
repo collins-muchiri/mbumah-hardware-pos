@@ -1,3 +1,14 @@
+## [2.436.0] The fixture world speaks its whole vocabulary
+
+Nineteen rounds the fixture-fidelity carry stood open — the M-Pesa lens's UNMATCHED/DISPUTED answering an honest zero on a fresh world, the exports desks' lenses the same, the off-union PAYROLL row a story with no row. This round both worlds light end to end and the off-union face becomes a pinned fact.
+
+### Added
+- **THE db:fixtures HANDLE** (`package.json` + `scripts/seed-exports-fixtures.mjs`): `npm run db:fixtures` lights BOTH fixture worlds through one door — the M-Pesa ledger's script leads, the exports world follows. The exports fixture world (dev-only, idempotent by marker key, the seed-password law not engaged) stands up TWELVE history rows: one per each of the TEN card types (8 completed, 2 failed, 1 processing — `?exp-status=` and `?exp-type=` speak non-zero on a fresh world) PLUS the TWO off-union faces the schema's own column comment keeps (PAYROLL completed, ALL failed — the deliberate pin, never a re-type). Every COMPLETED row carries REAL inline content (the download endpoint's preferred source) — a history row that lies about its file is not fidelity.
+- **THE CENSUS STRIP** (`src/app/(shell)/tabs/banking-tab.tsx`): the M-Pesa pane wears the five faces' counts derived from the SAME stored vocabulary the rows speak — the four status chips press through the ONE retirement door (`chooseMpesaStatus`, the toggle on the second press, the landing's retirement riding every hand-driven change) while the legacy derived face stays a COUNT and never a lens word (`mpesa-census-legacy`, BANK_MPESA_FILTERS keeps its five members).
+
+### Changed
+- **THE OFF-CARD FACE, DELIBERATE** (`src/components/data-exports/exports-history-table.tsx`): the history table's unknown type wears the slate off-card badge (`exp-type-offcard`, the title naming the schema's column comment as ground truth) instead of speaking a card it never wore — the row stays visible, the lens never guesses across the union; the known face stays byte-identical. The M-Pesa pane's stale "simulated" aside retires — the comment now speaks the stored vocabulary and the legacy derivation honestly.
+
 ## [2.435.0] The watch confesses its window
 
 The portal's idle lock has spoken only after the fact since v2.162.0; this round the watch asks before it locks — a grace strip in the last minute, the two clocks agreeing at zero.

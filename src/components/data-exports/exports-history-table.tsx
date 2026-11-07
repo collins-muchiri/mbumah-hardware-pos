@@ -268,7 +268,23 @@ function StatusBadge({ status }: { status: DataExportStatus }) {
 function TypeBadge({ type }: { type: string }) {
   const meta = TYPE_META[type];
   if (!meta) {
-    return <Badge variant="outline">{type}</Badge>;
+    // v2.436.0 THE OFF-CARD FACE, DELIBERATE — the schema's column
+    // comment keeps a WIDER stored vocabulary than the ten cards
+    // ("SUPPLIERS, PAYROLL, ... SALES_SUMMARY, ALL"): a legacy row
+    // answers under NO card word, and the badge says so instead of
+    // speaking a card it never wore (the fixture-fidelity carry's
+    // honest pin — the row stays visible, the lens never guesses
+    // across the union).
+    return (
+      <Badge
+        variant="outline"
+        data-testid="exp-type-offcard"
+        title={`${type} — a legacy spelling the ten cards no longer speak (the schema's own column comment keeps it)`}
+        className="border-slate-300 bg-slate-50 text-slate-600 dark:border-slate-700 dark:bg-slate-900/40 dark:text-slate-300"
+      >
+        {type}
+      </Badge>
+    );
   }
   return (
     <Badge variant="outline" className={`border-current/30 ${meta.color}`}>

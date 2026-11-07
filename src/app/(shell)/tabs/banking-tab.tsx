@@ -366,12 +366,34 @@ export default function BankingTab() {
   const txTotalPages = Math.max(1, Math.ceil(filteredTransactions.length / TX_PAGE_SIZE));
   const pagedTransactions = filteredTransactions.slice((txPage - 1) * TX_PAGE_SIZE, txPage * TX_PAGE_SIZE);
 
-  // M-Pesa Data (simulated from transactions on M-Pesa accounts)
+  // M-Pesa Data — the pane derives from the transactions on the store's
+  // MPESA accounts (v2.436.0: the old "simulated" aside is retired — the
+  // ledger stores its own vocabulary since v2.396.0, the derivation only
+  // speaks for the legacy face).
 
   const mpesaTransactions = useMemo(() => {
     const mpesaAccIds = new Set(mpesaAccounts.map((a) => a.id));
     return transactions.filter((t) => mpesaAccIds.has(t.bankAccountId));
   }, [transactions, mpesaAccounts]);
+
+  // v2.436.0 THE CENSUS STRIP — the five faces' counts derived from the
+  // SAME stored vocabulary the rows speak, plus the legacy derived face
+  // as its own bucket (a NULL status is a fact the four words must not
+  // swallow). The four status chips press through the ONE door
+  // (chooseMpesaStatus — the landing's retirement rides every
+  // hand-driven change) with the active chip's second press answering
+  // 'all'; the legacy face is a COUNT, never a lens word —
+  // BANK_MPESA_FILTERS keeps its five members.
+  const mpesaCensus = useMemo(() => {
+    const counts = { MATCHED: 0, PENDING: 0, UNMATCHED: 0, DISPUTED: 0, LEGACY: 0 };
+    for (const t of mpesaTransactions) {
+      const bucket = t.reconciliationStatus && t.reconciliationStatus in counts
+        ? t.reconciliationStatus
+        : 'LEGACY';
+      counts[bucket as keyof typeof counts] += 1;
+    }
+    return counts;
+  }, [mpesaTransactions]);
 
   const filteredMpesa = useMemo(() => {
     let list = [...mpesaTransactions];
@@ -1001,6 +1023,35 @@ export default function BankingTab() {
 
         {/* ─── M-PESA TAB ─────────────────────────────────── */}
         <TabsContent value="mpesa" className="mt-4 space-y-4">
+          <div className="flex flex-wrap items-center gap-1.5" data-testid="mpesa-census" role="group" aria-label="M-Pesa status census">
+            {([
+              ['MATCHED', mpesaCensus.MATCHED, 'bg-emerald-100 text-emerald-700', 'bg-emerald-600 text-white', 'Matched'],
+              ['PENDING', mpesaCensus.PENDING, 'bg-amber-100 text-amber-700', 'bg-amber-600 text-white', 'Pending'],
+              ['UNMATCHED', mpesaCensus.UNMATCHED, 'bg-red-100 text-red-700', 'bg-red-600 text-white', 'Unmatched'],
+              ['DISPUTED', mpesaCensus.DISPUTED, 'bg-orange-100 text-orange-700', 'bg-orange-600 text-white', 'Disputed'],
+            ] as const).map(([word, count, idleCls, activeCls, label]) => (
+              <button
+                key={word}
+                type="button"
+                data-testid={`mpesa-census-${word.toLowerCase()}`}
+                aria-pressed={mpesaFilterStatus === word}
+                title={`${label}: ${count} — press to wear the word, press again to return to all`}
+                className={`rounded-full border border-transparent px-2 py-0.5 text-[10px] font-medium tabular-nums transition-colors ${
+                  mpesaFilterStatus === word ? activeCls : `${idleCls} hover:opacity-80`
+                }`}
+                onClick={() => chooseMpesaStatus(mpesaFilterStatus === word ? 'all' : word)}
+              >
+                {label} · {count}
+              </button>
+            ))}
+            <span
+              data-testid="mpesa-census-legacy"
+              title="Legacy rows — no stored status, the isReconciled derivation speaks for them; a count, never a lens word"
+              className="rounded-full border border-transparent bg-slate-100 text-slate-600 px-2 py-0.5 text-[10px] font-medium tabular-nums dark:bg-slate-900/40 dark:text-slate-300"
+            >
+              Legacy · {mpesaCensus.LEGACY}
+            </span>
+          </div>
           <div className="flex items-center gap-2">
             {/* v2.388.0 THE LANDING CHIP — the address bar's word, spoken
                 while the lens still shows the landing (the two retirement

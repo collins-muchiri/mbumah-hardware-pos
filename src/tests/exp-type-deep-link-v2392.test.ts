@@ -311,6 +311,11 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // the registry stress parses the constitution's rows — the
       // thirty-first row rides through its parse (an honest speaker)
       'src/tests/family-registry-stress-v2370.test.ts',
+      // the fixture world's own ledger — admitted (v2.436.0: the
+      // fixture-fidelity suite speaks this word in its both-lenses
+      // truth — the world that makes the lens speak is an honest
+      // speaker of the word)
+      'src/tests/fixture-fidelity-v2436.test.ts',
       // the po-status word's ledger — admitted (its OWN ledger now
       // LISTS this suite's path — the admission line carries the word
       // it admits; the third-order ripple)
@@ -356,33 +361,34 @@ describe('the address-bar vocabulary — the thirty-first row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.435.0 leads the feed', () => {
+describe('whats-new — v2.436.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.435.0');
-    // the lead's story hand-over (v2.435.0, the Task 111 law's
-    // forty-first application): the head story is the hand-over's
-    // voice — the watch confesses its window: the portal's idle
-    // lock no longer arrives without warning (the last 60 seconds
-    // grow the floating amber strip — "Still there? Signing out in
-    // Ns", role=status, aria-live=polite, the tabular countdown
-    // holding its lane, Stay signed in the one action), the
-    // re-arm law rides the hook's own reset (one reset owns both
-    // timers — the strip returns after another full window), the
-    // strip and the lock hang off the ONE setTimeout schedule (the
-    // countdown reaches zero exactly as the lock lands — the two
-    // clocks agree), the logout POST is guarded to fire at most
-    // once, the hook's grace options stay OPTIONAL (the till
-    // passes none — its v2.6.0 contract byte-identical), and every
-    // sentence that speaks the window derives its number from the
-    // window constant (SELF_SERVICE_IDLE_MINUTES — the copy can
-    // never drift from the contract it describes).
-    // The arc's story exits the head this round; the
-    // watch's own confession carries the eye.
-    expect(head.title).toContain('grace');
+    expect(head.version).toBe('2.436.0');
+    // the lead's story hand-over (v2.436.0, the Task 111 law's
+    // forty-second application): the head story is the hand-over's
+    // voice — the fixture world speaks its whole vocabulary: one
+    // door lights both fixture worlds (npm run db:fixtures — the
+    // M-Pesa ledger's script leads, the exports world follows), the
+    // exports world stands up twelve history rows (one per each of
+    // the TEN card types — both lenses speak non-zero on a fresh
+    // world — plus the TWO off-union faces the schema's own column
+    // comment keeps: PAYROLL completed, ALL failed — the deliberate
+    // pin, never a re-type), every completed row carries real
+    // inline content (a history row that lies about its file is
+    // not fidelity), the history table's unknown type wears the
+    // deliberate off-card badge (the row stays visible, the lens
+    // never guesses across the union), and the M-Pesa pane wears
+    // its status census (five faces counted from the same stored
+    // vocabulary the rows speak, the four status chips pressing
+    // through the ONE door, the legacy derived face a count and
+    // never a lens word).
+    // The watch's story exits the head this round; the
+    // fixture world's own vocabulary carries the eye.
+    expect(head.title).toContain('vocabulary');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('Still there?'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('the two clocks agree'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('derives its number'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('the honest zero retires'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('the off-union face'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('through the ONE door'))).toBe(true);
   });
 });
