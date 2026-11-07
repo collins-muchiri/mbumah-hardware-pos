@@ -248,6 +248,64 @@ export function orderHandoffSupplier(
   return name;
 }
 
+// ============================================================================
+// v2.430.0 THE CENSUS'S DOOR — the blocks answer the shelf, maker by maker
+// ============================================================================
+// The banner's census chip spoke the grouping ("via N suppliers") but
+// only the WHOLE order could ride to the desk — a manager who wants
+// only one maker's goods today had to hand-edit the carried rows at
+// the far end. The census now opens: the order's rows group into the
+// supplier blocks the chip already promised, and each block folds
+// ALONE into the same pocket the whole order uses (the same one-way
+// envelope, the same walk, the same desk — the live shelf's link
+// dresses the supplier pen there, the pre-pick's own law). Pure; the
+// caller owns the surface.
+// --------------------------------------------------------------------------
+
+/** One supplier's block — the door's own raw material. */
+export interface OrderSupplierBlock {
+  /** The trimmed maker's name (the block's own word). */
+  name: string;
+  /** The rows that belong to this maker (the fold's own input). */
+  rows: RestockRow[];
+  /** The block's line count (every row in the order asks — the
+   *  selector's own law upstream). */
+  lines: number;
+  /** The block's total ask (the gaps, summed — the units the fold
+   *  would carry). */
+  units: number;
+}
+
+/** THE SUPPLIER BLOCKS — the census's own grouping, pure: rows group by
+ *  their trimmed maker; an unnamed row never invents a block (the
+ *  honest absence — the whole-order send already carries it, and the
+ *  census chip never counted the unnamed either); the blocks sort by
+ *  name so the same shelf always reads the same order; a block whose
+ *  whole ask is zero is refused (the nothing-to-order law, per block —
+ *  a menu item that folds an empty envelope would be a lie with a
+ *  press attached). */
+export function orderSupplierBlocks(
+  rows: ReadonlyArray<RestockRow>
+): OrderSupplierBlock[] {
+  const map = new Map<string, RestockRow[]>();
+  for (const row of rows) {
+    const name = row.supplierName?.trim() ?? '';
+    if (!name) continue;
+    const list = map.get(name) ?? [];
+    list.push(row);
+    map.set(name, list);
+  }
+  return [...map.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([name, blockRows]) => ({
+      name,
+      rows: blockRows,
+      lines: blockRows.length,
+      units: blockRows.reduce((sum, r) => sum + reorderGap(r), 0),
+    }))
+    .filter((b) => b.units > 0);
+}
+
 /** The pocket's writers and readers — the only places sessionStorage is
  *  touched, so the pure laws above stay testable without a window. */
 export function writeOrderHandoff(payload: OrderHandoffPayload): void {

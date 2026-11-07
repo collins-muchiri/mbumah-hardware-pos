@@ -281,32 +281,32 @@ describe('the address-bar vocabulary — the twenty-eighth row (cross-suite pins
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.429.0 leads the feed', () => {
+describe('whats-new — v2.430.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.429.0');
-    // the lead's story hand-over (v2.429.0, the Task 111 law's
-    // thirty-fifth application): the head story is the hand-over's
-    // voice — the follow-up answers the toast: the drill's pill
-    // wears the echo (receiveShortfallEcho — 'named by the last
-    // receipt', the honest gate mirrors the pointer's own: a null,
-    // a zero, or a number that is not one reads the null — never a
-    // fake echo, never an echo on a full receipt), the callback
-    // crosses the close (the ReceiveItemsDialog's additive +
-    // optional onShortSubmit hands the drill the receipt's own
-    // truth — the short units when the pointer speaks, the honest
-    // null when the receipt was full — the echo belongs to the
-    // short receipt alone, and the drill's close ends the arc, a
-    // reopened drill starts honest), and the paint deepens (the
-    // ring-2 sky-400 echo ring over the plain census ring, the echo
-    // line's byte-identical sky family one home with the pointer's
-    // words).
-    // The toast's story exits the head this round; the
-    // echo's own answer carries the eye.
-    expect(head.title).toContain('echo');
+    expect(head.version).toBe('2.430.0');
+    // the lead's story hand-over (v2.430.0, the Task 111 law's
+    // thirty-sixth application): the head story is the hand-over's
+    // voice — the census opens: the inventory banner's census chip
+    // became the door (orderSupplierBlocks — the census's own
+    // grouping, pure: rows by trimmed maker, sorted by name, units
+    // summed over the gaps; an unnamed row never invents a block,
+    // and a block whose whole ask is zero is refused — the
+    // nothing-to-order law, per block), the trigger wears the
+    // v2.421 census bytes with the chevron the door's one new word
+    // (one item per maker carrying the block's own line-and-unit
+    // census — the chip's number and the menu's items share the
+    // same rows, the two can never disagree), each press folds ONLY
+    // that maker's rows into the same pocket the whole order uses
+    // (buildOrderHandoff over block.rows, the one-way write, the
+    // walk, the receipt naming the maker), and the whole-order Send
+    // keeps its own face beside the door.
+    // The echo's story exits the head this round; the
+    // census's own door carries the eye.
+    expect(head.title).toContain('census');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('named by the last receipt'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('the callback belongs to the short receipt'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('the door the toast pointed at'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('one block per supplier'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('never invents a block'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('the receipt names the maker'))).toBe(true);
   });
 });

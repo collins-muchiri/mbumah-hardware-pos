@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.430.0',
+    title: 'The census opens \u2014 each supplier\u2019s block rides to the desk alone',
+    bullets: [
+      'The inventory banner\u2019s supplier census opens: the \u201cvia N suppliers\u201d chip now wears a chevron, and opening it lists one block per supplier \u2014 each maker\u2019s own line and unit count \u2014 ready to ride to the purchase order desk alone.',
+      'A block\u2019s honesty is the census\u2019s own: rows group by their trimmed maker, an unnamed row never invents a block, and a block with nothing to order never shows \u2014 the door\u2019s items and the chip\u2019s number can never disagree.',
+      'Pressing a block folds ONLY that maker\u2019s rows into the same pocket the whole order uses \u2014 the create dialog opens pre-picked with that supplier\u2019s own goods, and the receipt names the maker.',
+    ],
+  },
+  {
     version: '2.429.0',
     title: 'The follow-up answers the toast \u2014 the shortfall\u2019s echo names the last receipt',
     bullets: [

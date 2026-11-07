@@ -1,3 +1,13 @@
+## [2.430.0] The census opens
+
+v2.421.0 taught the banner's census chip to count the order's suppliers; this round the census opens: the chip wears a chevron, and one press on a supplier's block folds ONLY that maker's rows into the same pocket the whole order uses — the desk answers pre-picked, and the receipt names the maker.
+
+### Added
+- **THE ARC'S ELEVENTH WORD** (`src/lib/order-handoff.ts` + `src/app/(shell)/tabs/inventory-tab.tsx`): `orderSupplierBlocks` (the census's own grouping, pure — rows group by their trimmed maker, sorted by name, the units summed over the gaps; an unnamed row never invents a block, and a block whose whole ask is zero is refused — the nothing-to-order law, per block) joins the handoff's one home, and the banner's census chip becomes the door (the trigger wears the v2.421 census bytes with the chevron the door's one new word; one `inv-order-supplier-block` item per maker carrying the block's own line-and-unit census; each press folds `buildOrderHandoff(..., block.rows)` into the same one-way pocket, walks to the PO desk, and the receipt names the maker — "carried for {supplier}").
+
+### Changed
+- **THE CENSUS AGREES WITH THE DOOR**: the chip's number and the menu's items share the same rows by construction — every counted supplier has at least one asking row, so the two can never disagree; the whole-order Send keeps its own face beside the door (the pair is a choice, not a divergence).
+
 ## [2.429.0] The follow-up answers the toast
 
 v2.428.0 taught the toast to point at the follow-up; this round the follow-up answers: a short submit's callback crosses the dialog's close, the drill's pill deepens its ring, and a small sky word under the pill — "named by the last receipt" — closes the eye's own arc.
