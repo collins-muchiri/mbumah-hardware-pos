@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.447.0',
+    title: 'The history’s mirror — the Created header answers',
+    bullets: [
+      'The Export History table’s Created header is pressable now: one press mirrors the wire’s newest-first law — the history reads oldest-first, so the oldest runs step to the top, with the row’s own id breaking ties so the order reads the same way twice.',
+      'Press again and the law returns; the header carries its own affordance (the sort icon waits for your hover), the active voice reads semibold under a lit arrow, and aria-sort names the ascending order for screen readers.',
+      'The mirror rides above the lenses — the type and status chips keep their conjoin untouched, the sort is a new pass over the already-filtered rows, and the API’s newest-first law was never rewritten.',
+    ],
+  },
+  {
     version: '2.446.0',
     title: 'The runs mirror — the law’s own header answers',
     bullets: [

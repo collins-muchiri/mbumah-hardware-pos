@@ -1,3 +1,13 @@
+## [2.447.0] The history's mirror
+
+The census learned to sort itself in three voices; this round the Export History table answers with its own mirror — the Created header inverts the wire's newest-first law, and the lenses keep their conjoin.
+
+### Added
+- **THE HISTORY'S MIRROR** (`src/components/data-exports/exports-history-table.tsx`): the Export History table's Created header becomes a real `<button data-testid="history-sort-created">` — one press **inverts the wire's newest-first law** (oldest-first: `a.createdAt.localeCompare(b.createdAt)`, the row's own id as the deterministic tiebreak), press again and the law returns. The mirror **rides above the lenses**: the type and status chips' conjoin keeps its exact seat, the sort is a new pass over the already-filtered rows, and the API route's `orderBy: { createdAt: 'desc' }` was never rewritten. `aria-sort="ascending"` names the order.
+
+### Changed
+- **THE WARDROBE RIDES THIS TABLE'S OWN LIGHT** (`src/components/data-exports/exports-history-table.tsx`): the handle wears the census sort family's grammar — the hover affordance (ChevronsUpDown waits at opacity-0 for the hover/focus), the active voice reads **semibold** under a lit ChevronUp (this table's th already speaks `text-foreground`, so the weight is the visible differentiator), both aria-label voices and titles speak the landing and the return, and the zinc focus-visible ring carries the styling details. The door rows, the retention countdown, and both lens chip families ride untouched.
+
 ## [2.446.0] The runs mirror
 
 The records lens gave the census a second sort voice; this round the law's own header answers with its mirror — Runs becomes the third voice, and the voices learn to take turns.

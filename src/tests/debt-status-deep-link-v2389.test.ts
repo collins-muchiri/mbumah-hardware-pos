@@ -281,31 +281,31 @@ describe('the address-bar vocabulary — the twenty-eighth row (cross-suite pins
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.446.0 leads the feed', () => {
+describe('whats-new — v2.447.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.446.0');
-    // the lead's story hand-over (v2.446.0, the Task 111 law's
-    // fifty-second application): the head story is the hand-over's
-    // voice — the runs mirror; the law's own header answers: the
-    // records lens gave the census a second sort voice and this
-    // round the By Type table's Runs header becomes the mirror's
-    // handle (a real button — one press INVERTS the run-count law,
-    // the QUIETEST desk reads first with the same name tiebreak,
-    // press again and the law returns); the third voice rides above
-    // the law like its sibling (a new sort pass over the
-    // already-lawful rows — the law's bytes and the records voice
-    // keep their exact seats) and the voices are EXCLUSIVE (the
-    // most recent press names the order — the mirror's press
-    // retires the records lens, the lens's own press bytes stay
-    // verbatim for the elders' pin, and the reconcile effect
-    // retires the mirror when the lens lands). The records lens's
-    // arrow exits the head this round; the runs mirror's arrow
-    // carries the eye.
-    expect(head.title).toContain('runs mirror');
+    expect(head.version).toBe('2.447.0');
+    // the lead's story hand-over (v2.447.0, the Task 111 law's
+    // fifty-third application): the head story is the hand-over's
+    // voice — the history's mirror; the Created header answers: the
+    // census learned to sort itself in three voices and this round
+    // the Export History table answers with its own mirror (the
+    // Created header becomes a real button — one press INVERTS the
+    // wire's newest-first law, the OLDEST runs read first with the
+    // row's own id as the deterministic tiebreak, press again and
+    // the law returns); the mirror RIDES ABOVE THE LENSES (a new
+    // pass over the already-filtered rows — the type and status
+    // chips' conjoin keeps its exact seat, and the API route's
+    // orderBy createdAt desc was never rewritten); the wardrobe
+    // rides this table's own light (the th already speaks
+    // text-foreground, so the active voice is SEMIBOLD under a lit
+    // ChevronUp — the weight is the visible differentiator). The
+    // runs mirror's arrow exits the head this round; the history's
+    // mirror's arrow carries the eye.
+    expect(head.title).toContain('mirror');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('quietest-first'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('oldest-first'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('aria-sort'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('exclusive'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('rides above the lenses'))).toBe(true);
   });
 });
