@@ -1,3 +1,14 @@
+## [2.464.0] The resting ledger learns to reach out and to carry — the clearance note rides the file
+
+The clearance note's third door: the dead-stock CSV carries the same deterministic word the Ask copies and the share door sends — the whole resting ledger rides to the supplier conversation as one file.
+
+### Added
+- **THE FILE'S WORD** (`src/app/(shell)/tabs/reports-tab.tsx`): the dead-stock CSV export (the client-side door — the server door is never borrowed) gains a `Clearance note` column: `deadStockClearanceNote(r, deadStockSummary?.days ?? deadStockDays)` per row, composed in the ONE home (never re-typed in the desk), CSV-escaped (inner quotes doubled, the cell quoted), the window that caught each row riding inside the word. One voice, three doors — the clipboard, the chat, and the sheet read the same note.
+- **THE SHARE DRAWN** (`src/app/(shell)/tabs/reports-tab.tsx`): the Share of Stock Value card grows a thin rose bar under the number (`bg-rose-500` in a `bg-muted` track, width = the share capped 0–100) — the resting share at a glance, the family's own word, never a second palette. The bar is `aria-hidden`: the number above IS the voice, a second label would be a stutter (the never-sold badge's law).
+
+### Changed
+- **THE EXPORT BUTTON SPEAKS ITS FILE** (`src/app/(shell)/tabs/reports-tab.tsx`): when the dead-stock report is on stage, the CSV button wears the double voice — `title` "Exports the ledger rows with each product's clearance note" and `aria-label` "Export CSV with clearance notes"; other reports keep the plain CSV face (the conditional `undefined` falls back to the button's own text).
+
 ## [2.463.0] The resting ledger learns to reach out — the clearance note takes the share door
 
 The clearance note's second door: every dead-stock row's Ask gains a Share sibling that opens the maker's own WhatsApp with the same deterministic note already composed — one voice, two doors, zero retyping.

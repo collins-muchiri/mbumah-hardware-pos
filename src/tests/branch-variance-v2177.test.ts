@@ -277,8 +277,8 @@ describe('the release surfaces', () => {
 
   it('package.json leads 2.177.0 in all three slots + the verify script', () => {
     const pkg = JSON.parse(readRepo('package.json'));
-    expect(pkg.version).toBe('2.463.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.463.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.463.0');
+    expect(pkg.version).toBe('2.464.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.464.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.464.0');
   });
 });

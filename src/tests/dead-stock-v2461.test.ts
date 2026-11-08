@@ -280,7 +280,11 @@ describe('the reports desk — the ninth card and its faces', () => {
   });
 
   it('the CSV file carries the section\u2019s own rows — and "never" is a word, never a fabricated zero', () => {
-    expect(TAB).toContain("'Product,SKU,Category,Qty on hand,Unit cost,Capital tied,Last sold,Days idle\\n'");
+    // v2.464.0 re-key (dated): the file's header grew the Clearance note
+    // column (the word rides the file — one voice, three doors); the
+    // header byte below speaks the grown file, the note's composer still
+    // lives in the ONE home.
+    expect(TAB).toContain("'Product,SKU,Category,Qty on hand,Unit cost,Capital tied,Last sold,Days idle,Clearance note\\n'");
     expect(TAB).toContain("r.lastSoldAt ?? 'never'");
     expect(TAB).toContain("r.daysIdle ?? 'never'");
     expect(TAB).toContain('Dead share of stock value');

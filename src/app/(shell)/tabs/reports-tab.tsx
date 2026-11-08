@@ -1419,6 +1419,14 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
               <CardContent className="p-4">
                 <p className="text-xs text-muted-foreground">Share of Stock Value</p>
                 <p className="text-2xl font-bold tabular-nums" data-testid="dead-stock-share">{summary.deadSharePct}%</p>
+                {/* v2.464.0: the share DRAWN — a thin rose bar under the
+                    number, the resting share at a glance (the family's
+                    own word, never a second palette). Purely visual:
+                    the number above IS the voice — a second label would
+                    be a stutter, so the bar stays aria-hidden. */}
+                <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden" aria-hidden="true" data-testid="dead-stock-share-bar">
+                  <div className="h-full rounded-full bg-rose-500 transition-all" style={{ width: `${Math.min(100, Math.max(0, summary.deadSharePct))}%` }} />
+                </div>
                 <p className="text-[10px] text-muted-foreground mt-1">of total inventory value (qty × cost)</p>
               </CardContent>
             </Card>
@@ -2120,9 +2128,15 @@ export default function ReportsTab() {
       // v2.461.0: the dead stock file carries the same rows the section
       // shows — the ledger's own words, plus the summary's four numbers.
       // "never" is spoken as the word, never as a fabricated zero.
-      csvContent = 'Product,SKU,Category,Qty on hand,Unit cost,Capital tied,Last sold,Days idle\n';
+      // v2.464.0: the file carries the share door's word — a Clearance
+      // note column speaking the SAME deterministic note the Ask copies
+      // and the share door sends, composed in the ONE home (never
+      // re-typed here), CSV-escaped, with the window that caught each
+      // row riding inside the word.
+      csvContent = 'Product,SKU,Category,Qty on hand,Unit cost,Capital tied,Last sold,Days idle,Clearance note\n';
       deadStockRows.forEach((r) => {
-        csvContent += `"${r.name}",${r.sku},"${r.categoryName ?? 'Uncategorised'}",${r.quantityInStock},${r.costPrice},${r.capitalTied},${r.lastSoldAt ?? 'never'},${r.daysIdle ?? 'never'}\n`;
+        const note = deadStockClearanceNote(r, deadStockSummary?.days ?? deadStockDays).replaceAll('"', '""');
+        csvContent += `"${r.name}",${r.sku},"${r.categoryName ?? 'Uncategorised'}",${r.quantityInStock},${r.costPrice},${r.capitalTied},${r.lastSoldAt ?? 'never'},${r.daysIdle ?? 'never'},"${note}"\n`;
       });
       csvContent += `\nDays window,${deadStockSummary?.days ?? deadStockDays}\n`;
       csvContent += `Dead products,${deadStockSummary?.deadCount ?? deadStockRows.length}\n`;
@@ -2372,7 +2386,10 @@ export default function ReportsTab() {
               <Button variant="outline" size="sm" onClick={handlePDFExport} className="h-8">
                 <Printer className="h-3.5 w-3.5 mr-1.5" /> PDF
               </Button>
-              <Button variant="outline" size="sm" onClick={handleExport} className="h-8">
+              <Button variant="outline" size="sm" onClick={handleExport} className="h-8"
+                title={reportType === 'dead_stock' ? 'Exports the ledger rows with each product\u2019s clearance note' : undefined}
+                aria-label={reportType === 'dead_stock' ? 'Export CSV with clearance notes' : undefined}
+              >
                 <FileDown className="h-3.5 w-3.5 mr-1.5" /> CSV
               </Button>
             </div>

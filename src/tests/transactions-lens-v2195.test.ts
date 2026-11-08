@@ -233,9 +233,9 @@ describe('the modal ground fix - the panel owns its dark half', () => {
 
 describe('docs and release surfaces', () => {
   it('package.json rides at 2.198.0 (all three slots)', () => {
-    expect(pkg.version).toBe('2.463.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.463.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.463.0');
+    expect(pkg.version).toBe('2.464.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.464.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.464.0');
     expect(readRepo('scripts/release-attestations/verify-v2-195-0.mjs')).toContain('v2.195.0 verification');
   });
 
@@ -252,9 +252,9 @@ describe('docs and release surfaces', () => {
 
   it('the head-pin counters re-anchored to the new head', () => {
     const counter = readRepo('src/tests/console-changelog.test.ts');
-    expect(counter).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(353);");
+    expect(counter).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(354);");
     const a11yShell = readRepo('src/tests/a11y-shell-v2148.test.ts');
-    expect(a11yShell).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(353);");
+    expect(a11yShell).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(354);");
   });
 
   it('the workspace doc speaks the transactions lens', () => {

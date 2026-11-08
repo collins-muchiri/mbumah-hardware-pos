@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.464.0',
+    title: 'The resting ledger learns to reach out and to carry — the clearance note rides the file',
+    bullets: [
+      'The dead-stock export learns the word: the CSV file now carries a clearance note column — the same deterministic clearance note the Ask copies and the share door sends, composed in the ONE home, row by row, so the whole resting ledger rides to the supplier conversation as one file.',
+      'The share of stock value is DRAWN: a thin rose bar under the number puts the resting share at a glance — the family’s own word, never a second palette — and the capital’s category shape above stays exactly as the last rounds drew it.',
+      'One voice, three doors: the clipboard keeps its Ask, the chat keeps its share door, and the file joins them without a re-typed word — the wa.me text and the sheet cell read the same note, and the export button now says so.',
+    ],
+  },
+  {
     version: '2.463.0',
     title: 'The resting ledger learns to reach out — the clearance note takes the share door',
     bullets: [

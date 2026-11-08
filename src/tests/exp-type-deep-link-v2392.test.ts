@@ -361,32 +361,32 @@ describe('the address-bar vocabulary — the thirty-first row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.463.0 leads the feed', () => {
+describe('whats-new — v2.464.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.463.0');
-    // the lead's story hand-over (v2.463.0, the Task 111 law's
-    // sixty-ninth application): the head story is the hand-over's
-    // voice — the reaching-out round: THE NOTE TAKES THE SHARE DOOR —
-    // every ledger row's Ask handle gains a Share sibling that opens
-    // the maker's own WhatsApp with the SAME deterministic clearance
-    // note already composed (one voice, two doors — the URL is the
-    // wa.me word for the note, composed in the classifier's ONE home
-    // THROUGH the note's own composer, so the clipboard and the chat
-    // can never drift apart); the row names no supplier, so the URL
-    // carries no phone — WhatsApp opens with the text pre-filled and
-    // the maker picks the chat (the recipient-addressed instrument
-    // stays api.ts's own); THE LAST COLUMN WEARS ITS PAIR — a tight
-    // two-door group, the share handle in the emerald hover the
-    // family already speaks, the double voice every row action wears,
-    // and a browser that blocks the window speaks its side (the toast
-    // answers, the row stays whole).
-    // The note copies; the share opens; the word rides out.
-    expect(head.title).toContain('reach out');
+    expect(head.version).toBe('2.464.0');
+    // the lead's story hand-over (v2.464.0, the Task 111 law's
+    // seventieth application): the head story is the hand-over's
+    // voice — the carrying round: THE NOTE RIDES THE FILE — the
+    // dead-stock CSV export (the client-side door, the server door
+    // never borrowed) gains a Clearance note column speaking the
+    // SAME deterministic note the Ask copies and the share door
+    // sends, composed in the ONE home row by row (never re-typed
+    // in the desk), CSV-escaped with the window that caught each
+    // row riding inside the word — one voice, three doors, the
+    // clipboard and the chat and the sheet can never drift apart;
+    // THE SHARE IS DRAWN — a thin rose bar under the number (the
+    // family's own word, never a second palette), aria-hidden
+    // because the number above IS the voice — a second label
+    // would be a stutter; and the export button speaks its file
+    // only when the dead-stock report is on stage (the
+    // conditional undefined falls back to the plain CSV face).
+    // The note copies; the share opens; the file carries the word.
+    expect(head.title).toContain('carry');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('share door'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('file'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('clearance note'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('wa.me'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('clipboard'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('share door'))).toBe(true);
   });
 });
