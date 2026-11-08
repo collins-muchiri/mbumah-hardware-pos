@@ -1,3 +1,14 @@
+## [2.467.0] The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus
+
+The wa.me door grows its honest second face: a store with a phone on file answers its own door — the share handle and the file's share link column pre-address to the store's own chat, the clearance note byte-for-byte the one the clipboard holds — and the ledger header speaks which door answers.
+
+### Added
+- **THE STORE'S OWN DIGITS** (`src/lib/reports/dead-stock.ts`): `waMeDigits(phone)` — the pre-address normalizer, the SAME rules the api.ts door speaks (spaces/dashes/parens stripped, the 0-prefix grown to 254, the + shaved) but PURE, living in the ONE home so the lib never imports a DOM door; `waMeDisplay(phone)` — the chip's reading (`+254…`), empty answers empty. `deadStockShareUrl(row, days, storePhone?)` grows the optional third word: digits after the normalize answer as `https://wa.me/<digits>?text=...` with the SAME encoded note; no phone, null, or a word that normalizes to nothing keeps the picker door byte-for-byte.
+- **THE DOOR'S STATE, SPOKEN** (`src/app/(shell)/tabs/reports-tab.tsx`): the ledger header wears the share door's address chip — the pre-addressed face (emerald outline, the Phone icon, the branch's name and its `+254…` number, `data-testid="dead-stock-share-addressed"`) when the store keeps a phone, the quiet picker face (`data-testid="dead-stock-share-unaddressed"`) when it doesn't. A status word, not a handle: the chip carries a title and NO aria-label — the census's three handles stay three. The store contact rides one session-validated `/api/stores` wire (`['dead-stock-store-contact', currentStoreId]`), fetched only on the dead-stock stage and handed down as a prop.
+
+### Changed
+- **ONE DOOR EVERYWHERE** (`src/app/(shell)/tabs/reports-tab.tsx`): the per-row share handle and the CSV's Share link column both pass the store contact's phone as the composer's third word — the chat and the sheet can never name two different doors; the note text, the Ask, the Copy all chorus and the print appendix ride untouched.
+
 ## [2.466.0] The resting ledger learns to reach out and to carry in one breath onto paper — the chorus takes the print door
 
 The clearance note's fifth door: the dead-stock PDF closes with the clearance asks — the collective composer's own word printed beside the summary's four numbers — and the print door learns to refuse honestly.

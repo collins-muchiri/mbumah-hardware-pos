@@ -275,34 +275,34 @@ describe('the address-bar vocabulary — the twenty-seventh row (cross-suite pin
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.466.0 leads the feed', () => {
+describe('whats-new — v2.467.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.466.0');
-    // the lead's story hand-over (v2.466.0, the Task 111 law's
-    // seventy-second application): the head story is the hand-over's
-    // voice — the carrying round: THE CHORUS TAKES THE PRINT DOOR —
-    // the clearance note's FIFTH door: on the dead-stock stage the
-    // printed page closes with the clearance asks (the collective
-    // composer's OWN word, the ONE home's header line over every
-    // row's clearance note, escaped for the print window, wearing
-    // the rose family in the print window's own inline CSS — the
-    // desk's alarm word, never a second palette), and the print
-    // button wears the double voice on the dead-stock stage (the
-    // plain face everywhere else — the export button's law, the
-    // print door's turn); THE PRINT WINDOW'S HONESTY — a browser
-    // that blocks the print window no longer answers silence, the
-    // toast speaks its side (the share door's popup-blocked law,
-    // now the print door's own) — one voice, five doors, the
-    // clipboard and the chat and the sheet cell and the sheet
-    // column and the paper can never drift apart.
-    // The chorus takes the paper.
-    expect(head.title).toContain('print door');
+    expect(head.version).toBe('2.467.0');
+    // the lead's story hand-over (v2.467.0, the Task 111 law's
+    // seventy-third application): the head story is the hand-over's
+    // voice — the carrying round: THE SHARE DOOR LEARNS THE STORE'S
+    // OWN NUMBER — the wa.me door grows its honest second face: a
+    // store with a phone on file answers its own door (the
+    // composer's optional third word: the digits normalize pure in
+    // the ONE home, and the URL pre-addresses with the SAME encoded
+    // note the clipboard holds — no phone, null, or a word that
+    // normalizes to nothing keeps the picker door byte-for-byte),
+    // and the ledger header speaks which door answers (the emerald
+    // pre-addressed chip names the branch and its number, the quiet
+    // picker face says the chat picker answers — a status word,
+    // never a handle, the census's three handles stay three); ONE
+    // DOOR EVERYWHERE — the share handle and the sheet's share link
+    // column ride the SAME pre-addressed composer, the chat and the
+    // sheet can never name two different doors — one voice, five
+    // doors, and now the door knows where home is.
+    // The door knows its store.
+    expect(head.title).toContain('share door learns the store');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('clearance asks'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('pre-addressed'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('clearance note'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('clipboard'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('print button'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('share door'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('chat picker'))).toBe(true);
   });
 });
 

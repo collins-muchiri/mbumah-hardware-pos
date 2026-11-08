@@ -97,7 +97,10 @@ describe('the dead-stock CSV — the share link rides beside the note', () => {
   });
 
   it('the share cell is composed in the ONE home — never re-typed in the desk', () => {
-    expect(desk.includes('const share = deadStockShareUrl(r, deadStockSummary?.days ?? deadStockDays);')).toBe(true);
+    // v2.467.0 re-key (dated): the file's share column rides the SAME
+    // pre-addressed door the chat rides — the store contact's phone as
+    // the composer's third word; the ONE home still owns the composer.
+    expect(desk.includes('const share = deadStockShareUrl(r, deadStockSummary?.days ?? deadStockDays, deadStockStoreContact?.phone);')).toBe(true);
     expect((desk.match(/function deadStockShareUrl/g) ?? []).length).toBe(0);
     expect(home.includes('export function deadStockShareUrl')).toBe(true);
   });
@@ -163,7 +166,7 @@ describe('the Copy all handle — the ledger header\u2019s collective voice', ()
 describe('whats-new — the round leads the feed', () => {
   it('the head wears the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.466.0');
+    expect(head.version).toBe('2.467.0');
     expect(head.title).toContain('one breath');
     expect(head.title).toContain('carry');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);

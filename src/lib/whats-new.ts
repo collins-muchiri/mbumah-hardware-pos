@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.467.0',
+    title: 'The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus',
+    bullets: [
+      'The share door learns the store’s own number: when the branch keeps a phone on file, every Share press opens WhatsApp pre-addressed to it — the same wa.me word the door always composed, now carrying the store’s own address, and the clearance note inside is byte-for-byte the one the clipboard’s Ask copies.',
+      'The door’s state is spoken, never guessed: the ledger header wears a quiet chip — the pre-addressed face names the branch and its number, the empty face says the chat picker answers — and the file’s share link column rides the same door, so the sheet and the chat can never name two doors; the copy all chorus, the print button’s double voice and the print door’s clearance asks keep their seats.',
+      'One home, one address: the digits normalizer and the display word live beside the composer in the ONE home — the wa.me word’s own house — the capital’s category shape above untouched, five doors one voice, and now the door knows where home is.',
+    ],
+  },
+  {
     version: '2.466.0',
     title: 'The resting ledger learns to reach out and to carry in one breath onto paper — the chorus takes the print door',
     bullets: [

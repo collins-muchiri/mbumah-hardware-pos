@@ -135,7 +135,7 @@ describe('main-app - the archive door on the main desk', () => {
   // ── 7. The release cascade ─────────────────────────────────────────────────
 
   it('WHATS_NEW leads with the current release — the door story rides the archive below', () => {
-    // v2.466.0 hand-over: the lead tells the print story now; the
+    // v2.467.0 hand-over: the lead tells the share-door story now; the
     // census’s story lives one entry down, the toast’s two, the
     // shortfall’s three, the receipt’s four, the row-maker’s five,
     // the debt’s six, the shelf-door seven, the supplier-rides
@@ -147,15 +147,15 @@ describe('main-app - the archive door on the main desk', () => {
     // wire-answers twenty, the desk-remembers twenty-one, the
     // branch-voice twenty-two, the ghost-routes twenty-three, the
     // jump-door twenty-four, the shares’ twenty-five, the
-    // archive-door story fifty-nine — all still in the feed
+    // archive-door story sixty — all still in the feed
     const lead = WHATS_NEW[0];
-    // v2.466.0 re-key (dated): the lead speaks the print round —
-    // the chorus takes the print door (one voice, five doors), and
-    // the print window learns to refuse honestly.
-    expect(lead.version).toBe('2.466.0');
-    expect(lead.title).toContain('print door');
+    // v2.467.0 re-key (dated): the lead speaks the pre-address round —
+    // the share door learns the store's own number (one door
+    // everywhere), and the ledger header speaks which door answers.
+    expect(lead.version).toBe('2.467.0');
+    expect(lead.title).toContain('own number');
     expect(lead.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(lead.bullets.some((b) => b.includes('clearance asks'))).toBe(true);
+    expect(lead.bullets.some((b) => b.includes('pre-addressed'))).toBe(true);
     expect(lead.bullets.some((b) => b.includes('clearance note'))).toBe(true);
     const branchVoice = WHATS_NEW.find((e) => e.version === '2.408.0');
     expect(branchVoice?.title).toContain('branch speaks first');

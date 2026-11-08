@@ -196,14 +196,56 @@ export function deadStockClearanceNote(row: DeadStockRow, days: number): string 
 // with the text pre-filled and the maker picks the chat. The
 // recipient-addressed instrument (openWhatsApp, src/lib/api.ts) stays
 // api.ts's own — a phone-bearing word this row does not carry.
+//
+// v2.467.0 THE DOOR LEARNS THE STORE'S OWN NUMBER — the law above grows
+// its honest second face. The STORE has a phone on file (the Store
+// model's own column, the seed's Juja word 0795191909), and a store that
+// answered the census deserves a door addressed to itself: when the desk
+// hands the composer a store phone, the wa.me word pre-addresses —
+// `https://wa.me/<digits>?text=...` — and WhatsApp opens straight into
+// the store's own chat, the note untouched. The normalization lives HERE
+// (the share URL's own home) as a PURE word — the same rules the api.ts
+// door speaks (spaces/dashes/parens stripped, the 0-prefix grown to 254,
+// the + shaved), but never a DOM import: lib/report files stay pure.
+// A store without a phone (or an empty/null word) keeps the picker door,
+// byte-for-byte the v2.463.0 word — silence is the honest no-address.
+
+/** THE STORE'S OWN DIGITS (v2.467.0) — the share door's pre-address
+ *  normalizer. The SAME rules openWhatsApp (src/lib/api.ts) speaks —
+ *  spaces, dashes and parentheses stripped; a leading 0 grown to the
+ *  254 country code (the Kenyan mobile's own word); a leading + shaved —
+ *  but PURE, so the ONE home can wear the address without importing a
+ *  DOM door. An empty word answers empty: no digits, no address. Pure. */
+export function waMeDigits(phone: string): string {
+  let normalized = phone.replace(/[\s\-()]/g, '');
+  if (normalized.startsWith('0')) normalized = '254' + normalized.substring(1);
+  if (normalized.startsWith('+')) normalized = normalized.substring(1);
+  return normalized;
+}
+
+/** THE DOOR'S DISPLAY WORD (v2.467.0) — the address as the desk's chip
+ *  shows it: the normalized digits under a + (the wa.me convention's own
+ *  reading — the URL never carries the +, the chip does). An empty word
+ *  answers empty — a chip with no number would be a lie. Pure. */
+export function waMeDisplay(phone: string): string {
+  const digits = waMeDigits(phone);
+  return digits ? `+${digits}` : '';
+}
 
 /** THE SHARE'S OWN DOOR (v2.463.0) — the wa.me word for the clearance
  *  note. The note's composer rides UNCHANGED (one voice, two doors — the
  *  clipboard and the chat can never drift apart), and the URL is the
  *  encodeURIComponent of the same deterministic word, so the chat reads
- *  exactly what the clipboard holds. Pure. */
-export function deadStockShareUrl(row: DeadStockRow, days: number): string {
-  return `https://wa.me/?text=${encodeURIComponent(deadStockClearanceNote(row, days))}`;
+ *  exactly what the clipboard holds.
+ *  v2.467.0: the door learns the store's own number — an optional THIRD
+ *  word, the store phone. Digits after the normalize answer as the
+ *  pre-addressed door (`https://wa.me/<digits>?text=...`, the SAME text —
+ *  only the address grows); no phone, an empty word, or one that
+ *  normalizes to nothing keeps the picker door byte-for-byte. Pure. */
+export function deadStockShareUrl(row: DeadStockRow, days: number, storePhone?: string | null): string {
+  const digits = storePhone ? waMeDigits(storePhone) : '';
+  const base = digits ? `https://wa.me/${digits}` : 'https://wa.me/';
+  return `${base}?text=${encodeURIComponent(deadStockClearanceNote(row, days))}`;
 }
 
 // ============================================================================
