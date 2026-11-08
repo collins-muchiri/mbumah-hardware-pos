@@ -361,8 +361,12 @@ export function sortDeadStockRows(
 //     back in its arrival order — a resting lens is the desk opening
 //     exactly as it always has.
 //   • A row whose shelf never named a category still answers on its name
-//     and SKU — the null is a voice (the Uncategorised word), never a
-//     crash, and never a silent "no match".
+//     and SKU — the null is a voice, never a crash. And since v2.474.0
+//     the lens answers THE LEDGER'S OWN WORD for that shelf: the shape
+//     (the capital-by-category chart) calls the unnamed shelf
+//     "Uncategorised", and a press on that segment rides the word into
+//     the lens — so the lens answers it (the shape and the lens share
+//     ONE vocabulary; a press that answered nothing would be a lie).
 //
 // THE VIEW/ARCHIVE LAW (the sort door's own law, grown one lens): the
 // search is a VIEWER, never a rewrite. The file (the CSV), the clipboard
@@ -371,11 +375,19 @@ export function sortDeadStockRows(
 // at. The lens composes with the sort door: the filtered rows are what
 // the pressed order leads, never the other way round (filter first, then
 // sort — a narrower shelf wearing the same honest order).
+// THE SHAPE'S OWN LAW (v2.474.0): the shape keeps the WHOLE ledger's
+// capital — the chart reads the canonical `rows` (never the lensed
+// view), so the picture never narrows whatever the lens is looking at.
+// A press only RIDES the segment's word into the lens; it never redraws
+// the shape to match the answer.
 
-/** THE LEDGER'S OWN LENS (v2.473.0) — the rows that answer to the query,
- *  matched case-insensitively on the words a row already carries: the
- *  name, the SKU, the category (a null category speaks as the empty
- *  word — the row still answers on its name and SKU). The trimmed query
+/** THE LEDGER'S OWN LENS (v2.473.0; the shape's word joined v2.474.0) —
+ *  the rows that answer to the query, matched case-insensitively on the
+ *  words a row already carries: the name, the SKU, the category. A null
+ *  category speaks as the ledger's own "Uncategorised" word — the same
+ *  word the capital-shape chart already calls the unnamed shelf (the
+ *  shape's press rides that word into the lens, so the lens answers it;
+ *  the row still answers on its name and SKU besides). The trimmed query
  *  is the honest word; an empty or whitespace-only lens RESTS and the
  *  whole ledger comes back in its arrival order. Returns a NEW array —
  *  the input is never mutated (the canonical order the file, the
@@ -390,6 +402,6 @@ export function filterDeadStockRows(
   return rows.filter((r) =>
     r.name.toLowerCase().includes(needle) ||
     r.sku.toLowerCase().includes(needle) ||
-    (r.categoryName ?? '').toLowerCase().includes(needle),
+    (r.categoryName ?? 'Uncategorised').toLowerCase().includes(needle),
   );
 }

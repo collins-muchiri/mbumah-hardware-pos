@@ -310,26 +310,27 @@ describe('the address-bar vocabulary — the thirty-second row (cross-suite pins
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.473.0 leads the feed', () => {
+describe('whats-new — v2.474.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.473.0');
-    // the lead's story hand-over (v2.473.0, the Task 111 law's
-    // seventy-ninth application): the head story is the hand-over's
-    // voice — the carrying round: THE LEDGER ANSWERS TO ITS OWN
-    // NAME — the dead-stock ledger learns its search door: the lens
-    // above the table answers to the words a row already carries
-    // (the name, the SKU, the category), composed in the ONE home
-    // filterDeadStockRows — the trimmed word the honest word, the
-    // case never mattering, an empty lens resting the whole ledger,
-    // a null category never crashing and never lying; the two lenses
-    // compose in ONE memo (filter first, then sort — a narrower
-    // shelf wearing the same honest order), the count badge answers
-    // the lens (the honest fraction, the whole size at rest), and
-    // the view/archive law holds — the file, the clipboard's copy
-    // all chorus and the print door keep the canonical rows, the
-    // lens is a viewer never a rewrite.
-    // The ledger answers to its own name.
+    expect(head.version).toBe('2.474.0');
+    // the lead's story hand-over (v2.474.0, the Task 111 law's
+    // eightieth application): the head story is the hand-over's
+    // voice — the carrying round: THE SHAPE ANSWERS TO THE
+    // LEDGER — the dead-stock capital chart learns its presses:
+    // the pie's legend rows and the bar chart's bars become real
+    // handles through the charts' own optional onPress door (the
+    // double voice, aria-pressed, the keyboard's Enter and Space,
+    // the pressed segment's own face), one press riding the
+    // segment's own word into the search lens; the ONE home's lens
+    // answers the ledger's own Uncategorised word now (the word
+    // the shape already calls the unnamed shelf, so a press can
+    // never draw an empty answer), and the shape keeps the WHOLE
+    // ledger's capital — the chart reads the canonical rows, a
+    // press re-words the lens never the picture, and the file, the
+    // clipboard's copy all chorus and the print door keep the
+    // canonical rows.
+    // The shape answers to the ledger.
     expect(head.title).toContain('edit door');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
     expect(head.bullets.some((b) => b.includes('edit door'))).toBe(true);

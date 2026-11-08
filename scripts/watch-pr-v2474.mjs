@@ -19,7 +19,7 @@ const origin = execSync('git -C /home/z/ems remote get-url origin', { encoding: 
 const TOKEN = origin.match(/^https:\/\/([^:@]+):([^@]+)@github\.com\//)[2];
 const OWNER = 'collins-muchiri';
 const REPO = 'mbumah-hardware-pos';
-const PR = 605;
+const PR = 606;
 const EXPECTED_RUNS = 11; // 9 blocking + Type Check (advisory) + Deploy Production (skipped)
 const PLATEAU_LIMIT = 15; // half-born polls tolerated before the honest exit
 

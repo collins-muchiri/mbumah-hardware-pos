@@ -175,7 +175,12 @@ describe('the dead-stock section — the chart and the ask, pinned from the desk
 
   it('the section draws the face the state carries — a line/area state inherited from another report reads as the bar', () => {
     expect(desk.includes("{chartType === 'pie' ? (")).toBe(true);
-    expect(desk.includes('<ConicPieChart segments={categorySegments} />')).toBe(true);
+    // v2.474.0 re-key (dated): the shape learned its presses — the pie
+    // call grew the lens door (onPress + pressedLabel, the segment's own
+    // word riding the search lens); the call still reads the section's
+    // own segments, and the bar still reads capitalByCategory.
+    expect(desk.includes('<ConicPieChart\n                      segments={categorySegments}')).toBe(true);
+    expect(desk.includes('onPress={(label) => setDeadStockSearch(label)}')).toBe(true);
     expect(desk.includes('data={capitalByCategory}')).toBe(true);
   });
 
@@ -224,7 +229,7 @@ describe('the classifier\u2019s home — one file, every voice', () => {
 describe('whats-new — the round leads the feed', () => {
   it('the head wears the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.473.0');
+    expect(head.version).toBe('2.474.0');
     expect(head.title).toContain('resting ledger');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
     expect(head.bullets.some((b) => b.includes('category'))).toBe(true);
