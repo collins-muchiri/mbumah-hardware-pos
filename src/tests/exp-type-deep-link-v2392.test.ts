@@ -361,31 +361,29 @@ describe('the address-bar vocabulary — the thirty-first row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.454.0 leads the feed', () => {
+describe('whats-new — v2.455.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.454.0');
-    // the lead's story hand-over (v2.454.0, the Task 111 law's
-    // sixtieth application): the head story is the hand-over's
-    // voice — the debt voices reconcile; the reduce sweep's carried
-    // question ran its census and found the shell speaking
-    // "Outstanding Debt" through FIVE seats measuring TWO different
-    // ledgers — the LEDGER voice (DebtLedger.balance over the
-    // outstanding statuses, plan-tracked rows only) speaking at the
-    // dashboard KPI, the financial desk's card and the financial
-    // overview's card, and the MIRROR voice (Customer.currentDebtBalance
-    // over the customers wire) speaking at the customers desk's fifth
-    // card and the reports desk's analysis card; the two may disagree
-    // BY DESIGN and neither is wrong — every seat now says which voice
-    // it speaks (a small muted scope line under the figure, a testid
-    // apiece, and a hover coach telling which table the sum reads and
-    // why the other voice may honestly disagree), the figures
-    // themselves untouched. The boundary's arrow exits the head this
-    // round; the voices' arrow carries the eye.
-    expect(head.title).toContain('voices');
+    expect(head.version).toBe('2.455.0');
+    // the lead's story hand-over (v2.455.0, the Task 111 law's
+    // sixty-first application): the head story is the hand-over's
+    // voice — the elder loom's first weave; the carry that stood
+    // since v2.397.0 took its first family — the ELDER lens chips
+    // (the pill filters that predate the deep-link era) met ONE
+    // wardrobe component: the muted/50 head, the primary active
+    // face, the idle face, the compact py-1 face, the pressed voice
+    // (aria-pressed — debt-plans' own precedent) and the family's
+    // zinc keyboard ring, while the payment chips kept their
+    // signature v2.333 violet through the loom's opt-out; SIX faces
+    // in TWO desks migrated and the desks speak no wardrobe byte
+    // (the masquerade law, loom form); the LEDGER names the
+    // remaining dialects for the next weaves. The voices' arrow
+    // exits the head this round; the loom's
+    // arrow carries the eye.
+    expect(head.title).toContain('loom');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('by design'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('scope line'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('reconcile on their own terms'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('aria-pressed'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('zinc ring'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('ledger'))).toBe(true);
   });
 });

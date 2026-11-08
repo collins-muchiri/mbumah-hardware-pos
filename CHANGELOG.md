@@ -1,3 +1,15 @@
+## [2.455.0] The elder loom's first weave — every lens chip speaks its pressed state
+
+The elder lens chips predate the deep-link era; the landing chips loomed in v2.394.0 while the pill filters stayed hand-rolled — the carry has stood since v2.397.0. This round weaves the first family: six faces in two desks move to ONE wardrobe component, with a ledger naming every remaining dialect for the weaves that follow.
+
+### Added
+- **THE FILTER-CHIP LOOM** (`src/components/filter-chip.tsx`): one component owns the muted/50 family's wardrobe — the pill head (`px-3 py-1.5 rounded-full text-xs font-medium border transition-all`, plus a compact `py-1` face), the active face (`bg-primary text-primary-foreground border-primary shadow-sm`), the idle face (`bg-muted/50 text-muted-foreground border-border hover:bg-muted hover:text-foreground`), the pressed voice and the keyboard ring. The desks keep their own words, icons, counts, handlers and testids — they ride props and children. **Six faces migrate**: the transactions desk's date presets, payment-method quick chips, type census and amount toggle; the reports desk's date presets and chart-type chips (compact).
+- **THE PRESSED VOICE** (`aria-pressed`): every lens chip now tells screen readers whether it is the lens's live choice — the debt-plans desk already spoke it; all six faces speak it now.
+- **THE FAMILY'S KEYBOARD RING**: the faces that never wore a focus ring gain the family's zinc ring (`focus-visible:ring-zinc-400`); the payment chips keep their signature v2.333 violet ring through the loom's opt-out (`focusRing="none"` — two ring colours in one class list would resolve in the stylesheet's order, not the attribute's, and the loom refuses that coin flip).
+
+### Changed
+- **THE MASQUERADE LAW, LOOM FORM**: the active and idle palette strings live in exactly ONE src file each (the loom; the POS gradient chips' idle string is the one named rider until its weave joins). The desks speak no wardrobe byte.
+
 ## [2.454.0] The debt voices reconcile — every figure names its source
 
 The carried question from the reduce sweep: the dashboard's Outstanding-Debt window and the customers wire's raw sum are two voices measuring two different ledgers, and no seat said which was which. This round the census ran, the five seats learned their word, and the reconciliation is now legible at a glance.
