@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.469.0',
+    title: 'The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, the number learns its edit door, and the settings desk learns the branch’s own words',
+    bullets: [
+      'The mock retired: the admin desk’s Store Settings form loads the branch’s real name, location and phone from the branch on file — the words it spoke from hard-coded state for its whole life now come from the Store model, and the save walks the two honest doors: the details ride PATCH /api/stores/settings, the phone keeps its ONE home at PATCH /api/stores/phone — the edit door the last round opened, now answered from the settings desk as well.',
+      'The write is guarded and honest: the details ride an owner-only PATCH scoped to the organization (a foreign store is a calm 404 that never leaks the id), an empty name refuses locally before the wire moves, a short number refuses the same way, and the save invalidates BOTH wires so the reports desk’s pre-addressed chip flips without a re-load.',
+      'The desk shows its work: dirty fields wear the amber ring and the unsaved dot, the save button sleeps until a word changes, the VAT rate keeps its own honest button, and when the name and a valid number stand together the desk previews the share door’s exact voice — the ONE home’s display word, the wa.me word’s own house, never a re-format.',
+      'The family keeps its seats: the clearance note and the clipboard’s Ask keep their bytes, the copy all chorus, the print button’s double voice and the print door’s clearance asks keep their seats, the chat picker still answers for the branch with no number, and the file’s share link column and the ledger’s capital and category shape stand untouched — the settings desk joins a chorus it never had to re-tune.',
+    ],
+  },
+  {
     version: '2.468.0',
     title: 'The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, and the number learns its edit door',
     bullets: [

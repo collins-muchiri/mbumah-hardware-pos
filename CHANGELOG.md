@@ -1,3 +1,14 @@
+## [2.469.0] The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, the number learns its edit door, and the settings desk learns the branch’s own words
+
+The admin desk's Store Settings mock retired: the branch's own words reach the Store model at last — the form loads the branch on file, the save walks the two honest doors, and the desk previews the share door's exact voice.
+
+### Added
+- **THE DETAILS WRITE** (`src/app/api/stores/settings/route.ts`): `PATCH /api/stores/settings` — SUPER_ADMIN or STORE_OWNER only (the vat rate's own law), the body zod-guarded (`storeId` required, the name 1–120 characters, the location optional 0–160), the write shaped org-scoped (`updateMany` cannot address a store outside the session's organization; a count of zero answers a calm 404 that never leaks the id), an empty location word clearing the nullable column honestly, and the log speaking `STORE_SETTINGS_UPDATED` with the branch's public name. The body read rides the ONE home (`readJsonBody` with its explicit generic) — the door-shape registry moves 384 → 385 and the hard-door generic census 118 → 119.
+- **THE BRANCH ON FILE, LOADED** (`src/app/(shell)/tabs/admin-tab.tsx`): the Store Settings form no longer speaks hard-coded words — the branch's real name, location and phone load from the session-validated `/api/stores` wire (`['admin-store-details', storeId]`, the vat rate's own draft-wins pattern: a null draft mirrors the persisted words, a typed draft wins until save), and the save walks the TWO honest doors — details to `PATCH /api/stores/settings`, the phone to its ONE home at `PATCH /api/stores/phone` — invalidating BOTH wires so the reports desk's pre-addressed chip flips without a re-load.
+
+### Changed
+- **THE DESK SHOWS ITS WORK** (`src/app/(shell)/tabs/admin-tab.tsx`): dirty fields wear the amber ring (`border-amber-400/70`) and the unsaved dot; the save button sleeps until a word changes and answers with the display word from the ONE home; when the name and a valid number stand together a quiet emerald preview speaks the share door's exact voice ("Shares pre-addressed to …"), `data-testid="admin-store-share-preview"`, never spelling the host. The mock's single save button splits into two honest words — **Save Store Details** and **Save VAT Rate** (the rate's semantics untouched).
+
 ## [2.468.0] The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, and the number learns its edit door
 
 The picker chip's promise kept on the desk where the promise lives: the quiet "Shares open with the chat picker" face grew its press — one button, one dialog, one owner-only write, and the share door pre-addresses live.

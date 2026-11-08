@@ -96,7 +96,10 @@ describe('THE DOOR-SHAPE REGISTRY — the census is derived, not remembered', ()
     // 384 at v2.468.0 — the store's share phone write joined
     // (src/app/api/stores/phone/route.ts): the picker chip's promise
     // kept, the owner-only org-scoped PATCH.
-    expect(routeFiles.length).toBe(384);
+    // 385 at v2.469.0 — the store's details write joined
+    // (src/app/api/stores/settings/route.ts): the admin desk's mock
+    // retired, the branch's name and location reaching the Store model.
+    expect(routeFiles.length).toBe(385);
   });
 
   it('every hard-door call carries its explicit generic (the v2.344 tombstone, tree-wide)', () => {
@@ -105,7 +108,9 @@ describe('THE DOOR-SHAPE REGISTRY — the census is derived, not remembered', ()
     // (the M-Pesa statuses' own body door).
     // v2.468.0: +1 — the share phone door (the picker chip's promise
     // kept, the owner-only org-scoped PATCH speaks its own generic).
-    expect(count(/\breadJsonBody\s*</g, src)).toBe(118);
+    // v2.469.0: +1 — the store's details door (the mock retired, the
+    // name/location write speaks its own generic).
+    expect(count(/\breadJsonBody\s*</g, src)).toBe(119);
     // THE TOMBSTONE, LIVE: a bare call — the generic-less form — matches ZERO files.
     expect(count(/\breadJsonBody\s*\(/g, src)).toBe(0);
   });

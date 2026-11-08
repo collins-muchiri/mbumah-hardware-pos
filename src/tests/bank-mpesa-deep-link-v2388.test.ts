@@ -275,27 +275,30 @@ describe('the address-bar vocabulary — the twenty-seventh row (cross-suite pin
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.468.0 leads the feed', () => {
+describe('whats-new — v2.469.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.468.0');
-    // the lead's story hand-over (v2.468.0, the Task 111 law's
-    // seventy-fourth application): the head story is the hand-over's
-    // voice — the carrying round: THE NUMBER LEARNS ITS EDIT DOOR —
-    // the picker chip's promise kept on the desk where the promise
-    // lives: the quiet picker face grew its press (a real button, the
-    // double voice every handle wears, the dashed border the pressable
-    // hint), one press opens the edit dialog (one Input, Enter saves,
-    // the door's own normalize spoken as the helper word), and the
-    // save rides the owner-only PATCH (SUPER_ADMIN or STORE_OWNER,
-    // the write shaped org-scoped — a foreign store is a calm 404 —
-    // the number stored exactly as typed, the ONE home normalizes at
-    // composition time, the log masked to the last three digits); THE
-    // LIVE FLIP — the save invalidates the desk's own wire and the
-    // chip flips to the pre-addressed face in place, no other tab, no
-    // re-load; the census grows its fourth voice — the edit door's
-    // own handle.
-    // The number learns its edit door.
+    expect(head.version).toBe('2.469.0');
+    // the lead's story hand-over (v2.469.0, the Task 111 law's
+    // seventy-fifth application): the head story is the hand-over's
+    // voice — the carrying round: THE SETTINGS DESK LEARNS THE
+    // BRANCH'S OWN WORDS — the admin desk's Store Settings mock
+    // retired: the form spoke 'Mbumah Hardware' from component state
+    // for its whole life while the save button beside it wrote only
+    // the VAT rate; the branch's real name, location and phone now
+    // load from the session-validated /api/stores wire (the vat
+    // rate's own draft-wins pattern — a typed draft wins until save),
+    // and the save walks the TWO honest doors — the details ride the
+    // owner-only PATCH /api/stores/settings (SUPER_ADMIN or
+    // STORE_OWNER, the write shaped org-scoped — updateMany cannot
+    // rename a foreign store, a count of zero answers the calm 404),
+    // the phone keeps its ONE home at PATCH /api/stores/phone; BOTH
+    // wires invalidate so the reports desk's pre-addressed chip flips
+    // without a re-load; the desk shows its work — dirty fields wear
+    // the amber ring and the unsaved dot, the save sleeps until a
+    // word changes, and the share door's exact voice is previewed
+    // through the ONE home's display word.
+    // The settings desk learns the branch's own words.
     expect(head.title).toContain('edit door');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
     expect(head.bullets.some((b) => b.includes('edit door'))).toBe(true);
