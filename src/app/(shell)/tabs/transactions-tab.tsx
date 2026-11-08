@@ -30,6 +30,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from '@/components/ui/dialog';
 import { LandingChip } from '@/components/landing-chip';
+import { FilterChip } from '@/components/filter-chip';
 
 function startOfDay(date: Date): Date {
   const d = new Date(date);
@@ -2146,17 +2147,17 @@ export default function TransactionsTab() {
           <div className="flex flex-wrap items-center gap-2">
             <CalendarDays className="h-4 w-4 text-muted-foreground shrink-0" />
             {DATE_PRESETS.map((preset) => (
-              <button
+              // THE ELDER LOOM'S FIRST WEAVE (v2.455.0): the wardrobe lives
+              // in one component now — the desk keeps its words and its
+              // handler; the loom adds the family's pressed voice and the
+              // zinc keyboard ring.
+              <FilterChip
                 key={preset.id}
+                active={datePreset === preset.id}
                 onClick={() => setDatePreset(preset.id)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                  datePreset === preset.id
-                    ? 'bg-primary text-primary-foreground border-primary shadow-sm'
-                    : 'bg-muted/50 text-muted-foreground border-border hover:bg-muted hover:text-foreground'
-                }`}
               >
                 {preset.label}
-              </button>
+              </FilterChip>
             ))}
             {datePreset === 'custom' && (
               <div className="flex items-center gap-2 ml-2">
@@ -2218,18 +2219,20 @@ export default function TransactionsTab() {
             {/* v2.333.0: the hand-driven quick chips are voice 2 — a
                 hand-driven change retires the landing word. */}
             {['all', 'CASH', 'MPESA', 'DEBT'].map((method) => (
-              <button
+              // the payment face keeps its OWN named ring voice — the
+              // v2.333 violet — via focusRing="none" (the loom emits no
+              // competing ring; two ring colours in one class list would
+              // resolve in the stylesheet's order, not the attribute's).
+              <FilterChip
                 key={method}
+                active={paymentFilter === method}
                 onClick={() => chooseTxnPay(method)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-1 ${
-                  paymentFilter === method
-                    ? 'bg-primary text-primary-foreground border-primary shadow-sm'
-                    : 'bg-muted/50 text-muted-foreground border-border hover:bg-muted hover:text-foreground'
-                }`}
+                focusRing="none"
+                className="flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-1"
               >
                 {method !== 'all' && getPaymentMethodIcon(method)}
                 {method === 'all' ? 'All Methods' : method}
-              </button>
+              </FilterChip>
             ))}
           </div>
 
@@ -2243,19 +2246,16 @@ export default function TransactionsTab() {
           <div className="flex flex-wrap items-center gap-2" data-testid="txn-type-census">
             <ShoppingBag className="h-4 w-4 text-muted-foreground shrink-0" />
             {(['all', 'sale', 'refund', 'settlement', 'void'] as const).map((type) => (
-              <button
+              <FilterChip
                 key={type}
+                active={typeFilter === type}
                 onClick={() => chooseTxnType(type)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all flex items-center gap-1 ${
-                  typeFilter === type
-                    ? 'bg-primary text-primary-foreground border-primary shadow-sm'
-                    : 'bg-muted/50 text-muted-foreground border-border hover:bg-muted hover:text-foreground'
-                }`}
+                className="flex items-center gap-1"
               >
                 {type !== 'all' && getTransactionTypeIcon(type)}
                 {type === 'all' ? 'All Types' : getTransactionTypeLabel(type)}
                 <span className="tabular-nums opacity-70">· {typeCensus[type]}</span>
-              </button>
+              </FilterChip>
             ))}
             {/* v2.354.0 THE LANDING WORD CHIP, SEVENTH WEARING — a link
                 that landed the ledger pre-filtered wears a chip naming
@@ -2328,16 +2328,12 @@ export default function TransactionsTab() {
                 </span>
               </p>
             )}
-            <button
+            <FilterChip
+              active={showAmountFilter || !!amountFilterMin || !!amountFilterMax}
               onClick={() => setShowAmountFilter(!showAmountFilter)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                showAmountFilter || amountFilterMin || amountFilterMax
-                  ? 'bg-primary text-primary-foreground border-primary shadow-sm'
-                  : 'bg-muted/50 text-muted-foreground border-border hover:bg-muted hover:text-foreground'
-              }`}
             >
               Amount Range
-            </button>
+            </FilterChip>
           </div>
 
           {/* Amount range filter */}

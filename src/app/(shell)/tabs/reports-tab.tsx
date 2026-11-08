@@ -45,6 +45,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
+import { FilterChip } from '@/components/filter-chip';
 import { ResponsiveDialog } from '@/components/ui/responsive-dialog';
 
 // Types & helpers for Trends & Predictions
@@ -1955,17 +1956,16 @@ export default function ReportsTab() {
                 { id: 'last_month', label: 'Last Month' },
                 { id: 'custom', label: 'Custom' },
               ] as { id: DatePreset; label: string }[]).map((preset) => (
-                <button
+                // THE ELDER LOOM'S FIRST WEAVE (v2.455.0): the wardrobe lives
+                // in one component now — the desk keeps its words; the loom
+                // adds the family's pressed voice and the zinc keyboard ring.
+                <FilterChip
                   key={preset.id}
+                  active={datePreset === preset.id}
                   onClick={() => setDatePreset(preset.id)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                    datePreset === preset.id
-                      ? 'bg-primary text-primary-foreground border-primary shadow-sm'
-                      : 'bg-muted/50 text-muted-foreground border-border hover:bg-muted hover:text-foreground'
-                  }`}
                 >
                   {preset.label}
-                </button>
+                </FilterChip>
               ))}
             </div>
             {datePreset === 'custom' && (
@@ -2080,18 +2080,18 @@ export default function ReportsTab() {
               <Label className="text-xs font-medium">Chart Type:</Label>
               <div className="flex items-center gap-1">
                 {(['bar', 'line', 'area', 'pie'] as const).map(ct => (
-                  <button
+                  // the chart-type face rides the loom's COMPACT wardrobe
+                  // (py-1, the face's historic size) — the pressed voice and
+                  // the zinc ring join the family's first weave.
+                  <FilterChip
                     key={ct}
+                    compact
+                    active={chartType === ct}
                     onClick={() => setChartType(ct)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${
-                      chartType === ct
-                        ? 'bg-primary text-primary-foreground border-primary shadow-sm'
-                        : 'bg-muted/50 text-muted-foreground border-border hover:bg-muted hover:text-foreground'
-                    }`}
                   >
                     {ct === 'bar' ? <BarChart3 className="h-3 w-3 inline mr-1" /> : ct === 'line' ? <TrendingUp className="h-3 w-3 inline mr-1" /> : ct === 'area' ? <TrendingDown className="h-3 w-3 inline mr-1" /> : <PieChart className="h-3 w-3 inline mr-1" />}
                     {ct.charAt(0).toUpperCase() + ct.slice(1)}
-                  </button>
+                  </FilterChip>
                 ))}
               </div>
             </div>

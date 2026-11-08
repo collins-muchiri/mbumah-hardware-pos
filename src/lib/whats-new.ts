@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.455.0',
+    title: 'The elder loom’s first weave — every lens chip speaks its pressed state',
+    bullets: [
+      'The pill filters on the transactions and reports desks now share ONE wardrobe component — the same hand-typed button lived in six places, and the loom owns the head, the active and idle faces, and the keyboard ring in one file. The desks keep their own words, icons, counts and handlers.',
+      'Every lens chip now speaks its pressed state to screen readers (aria-pressed) — and the chips that never wore a keyboard focus ring gain the family’s zinc ring. The payment chips keep their signature violet ring.',
+      'The loom’s ledger names the remaining chip dialects — inventory’s scale chips, the customers desk’s emerald chips, the POS gradient chips, the HR goal chips and the registry-color chips — so each joins the one wardrobe in its own round.',
+    ],
+  },
+  {
     version: '2.454.0',
     title: 'The debt voices reconcile — every figure names its source',
     bullets: [
