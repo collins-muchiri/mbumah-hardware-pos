@@ -143,12 +143,15 @@ describe('console — the goals take edits', () => {
   });
 
   it('status is a park-or-reopen switch — achieved and missed stay computed', () => {
-    expect(page).toMatch(/data-testid=\{`goal-edit-status-\$\{s\.toLowerCase\(\)\}`\}/);
+    // v2.457.0 re-anchor: the switch rides the filter chip loom — the
+    // desk passes testId/active/tone; the loom speaks aria-pressed.
+    expect(page).toMatch(/testId=\{`goal-edit-status-\$\{s\.toLowerCase\(\)\}`\}/);
     expect(page).toMatch(/\(\['OPEN', 'CLOSED'\] as const\)\.map/);
-    expect(page).toMatch(/aria-pressed=\{active\}/);
+    expect(page).toMatch(/tone=\{GOAL_TONE\[s\]\}/);
     expect(page).toContain('ACHIEVED and MISSED are computed from progress — you can only park or reopen a goal.');
-    // the switch wears the same chip families the filter chips speak
-    expect(page).toMatch(/active \? GOAL_CHIP_ACTIVE\[s\]/);
+    // the switch wears the same chip families the filter chips speak —
+    // now by construction: both read the ONE tint registry's words
+    expect(page).toMatch(/variant="tint"/);
   });
 });
 
@@ -218,7 +221,7 @@ describe('privacy floor + release anchors', () => {
 
   it('prior anchors hold — v2.90 picker, v2.89 chips, v2.87 review write', () => {
     expect(page).toMatch(/data-testid="goal-cycle-picker"/);
-    expect(page).toMatch(/data-testid=\{`goal-filter-status-\$\{s\}`\}/);
+    expect(page).toMatch(/testId=\{`goal-filter-status-\$\{s\}`\}/);
     expect(page).toMatch(/data-testid="perf-review-edit"/);
   });
 });

@@ -310,31 +310,32 @@ describe('the address-bar vocabulary — the thirty-second row (cross-suite pins
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.456.0 leads the feed', () => {
+describe('whats-new — v2.457.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.456.0');
-    // the lead's story hand-over (v2.456.0, the Task 111 law's
-    // sixty-second application): the head story is the hand-over's
-    // voice — the elder loom's second weave; the registry color
-    // dialects joined the one wardrobe — the debt-plans status
-    // lens and the exports history's status lens had carried the
-    // SAME palette in TWO hand-copied Record constants, and the
-    // loom's tone registry owns it now (emerald, green, rose,
-    // amber, zinc — the dark: variants riding the idle faces
-    // exactly as the desks kept them); the shadow unification
-    // was the weave's one named improvement (the debt-plans face
-    // lifted, the exports face stood flat, the family's primary
-    // face already lifts — the shadow rides every tone); the
-    // exports history's status chips GAINED the pressed voice and
-    // both lenses gained the family's zinc ring, while the count
-    // badges moved into the FilterChipCount companion. The loom's
-    // arrow exits the head this round; the registry's
-    // arrow carries the eye.
-    expect(head.title).toContain('tones');
+    expect(head.version).toBe('2.457.0');
+    // the lead's story hand-over (v2.457.0, the Task 111 law's
+    // sixty-third application): the head story is the hand-over's
+    // voice — the elder loom's third weave; the tint registry
+    // joined the one wardrobe — the goal chips (the HR
+    // performance desk's filter row, its park-or-reopen switch,
+    // and the self-service portal's My-goals row) had carried the
+    // badge-family palette in THREE hand-copied Record constants,
+    // and the copies had drifted — the portal's OPEN chip still
+    // wore the old sky pressed-state the console's v2.306.0
+    // one-colour law retired (the same word wore a second colour
+    // one bundle away); the loom's tint registry owns it now
+    // (amber, emerald, rose, slate — the transparent idle face
+    // tone-independent as all three desks already shared it) and
+    // the desks keep only their WORDS (the GOAL_TONE maps); the
+    // slim head joined the loom's head family and the goal chips
+    // gained the family's zinc ring. The loom's arrow exits the
+    // head this round; the tint's
+    // arrow carries the law.
+    expect(head.title).toContain('tints');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
     expect(head.bullets.some((b) => b.includes('one home'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('pressed state'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('shadow'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('one colour law'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('zinc keyboard ring'))).toBe(true);
   });
 });

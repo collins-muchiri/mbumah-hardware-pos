@@ -1,3 +1,16 @@
+## [2.457.0] The loom learns the tints — the goal chips ride one registry
+
+The elder loom's third weave: the goal chips — the HR performance desk's filter row, its park-or-reopen switch, and the self-service portal's My-goals row — carried the badge-family palette in three hand-copied Record constants, and the copies had drifted; the tints live in the loom now, and the one colour law is whole across src.
+
+### Added
+- **THE TINT REGISTRY** (`src/components/filter-chip.tsx`): `CHIP_TINT_ACTIVE` / `CHIP_TINT_IDLE` — the badge-family palette (amber, emerald, rose, slate) in ONE home, the transparent idle face tone-independent as all three desks already shared it; the loom's `variant="tint"` dialect picks the face pair, with the family face as the closed registry's fallback.
+- **THE SLIM HEAD**: the goal chips' historic size (`px-2.5 py-0.5`, `transition-colors`) joins the loom's head family — a desk's size is its own voice, so it rides the `slim` prop beside the regular and compact faces.
+- **THE FAMILY'S RING**: the goal chips gain the zinc keyboard ring through the loom (none wore one hand-rolled — the live DOM probe read zero rings before the weave); the pressed voice rides every loomed chip.
+
+### Changed
+- **THE ONE COLOUR LAW REACHES THE PORTAL** (the weave's named, honest fix): the portal's hand-copy had drifted — its OPEN chip still wore the old sky pressed-state the console's v2.306.0 law retired (the same word wore a second colour one bundle away). With one registry there is exactly ONE amber, and the word wears it everywhere; `GOAL_CHIP_ACTIVE` retires from both desks, replaced by the `GOAL_TONE` word maps.
+- **THE MASQUERADE LAW, LOOM FORM**: the tint faces live in exactly ONE src file. The review chips' dialect (`STATUS_CHIP_ACTIVE`) and the customers desk's emerald dialect stay hand-rolled — the ledger's remaining map.
+
 ## [2.456.0] The loom learns the tones — every status lens rides one palette
 
 The elder loom's second weave: the two registry-driven status lenses — the debt-plans desk's status filter and the exports history's status filter — carried the same color palette in two hand-copied Record constants; the palette lives in the loom now, and the desks speak no wardrobe byte.

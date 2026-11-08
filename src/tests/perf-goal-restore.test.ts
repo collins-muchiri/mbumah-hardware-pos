@@ -167,7 +167,7 @@ describe('privacy floor + release anchors', () => {
     expect(page).toMatch(/data-testid="perf-auth"/);
     expect(page).toMatch(/data-testid="goal-edit-dialog"/);
     expect(page).toMatch(/data-testid="goal-cycle-picker"/);
-    expect(page).toMatch(/data-testid=\{`goal-filter-status-\$\{s\}`\}/);
+    expect(page).toMatch(/testId=\{`goal-filter-status-\$\{s\}`\}/);
     expect(view).toMatch(/data-testid=\{`my-goal-panel-\$\{g\.id\}`\}/);
   });
 });

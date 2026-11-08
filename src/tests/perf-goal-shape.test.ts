@@ -72,14 +72,20 @@ describe('route — POST /api/hr/goals/recompute-all', () => {
 
 describe('console — the Goals tab speaks the same shape', () => {
   const page = readRepo('src/app/(shell)/hr/performance/page.tsx');
+  // v2.457.0: the goal chips' wardrobe lives in the filter chip loom's
+  // TINT registry — the family pins read the loom beside the desk's words.
+  const loom = readRepo('src/components/filter-chip.tsx');
 
   it('goal filter chips exist with live counts from the FULL list', () => {
     // v2.306.0 re-anchor: the vocabulary's home is the pool voice (the
     // pure seam) — the page imports it, no local copy.
+    // v2.457.0 re-anchor: the chips ride the filter chip loom — the
+    // desk passes testId/active; the loom speaks aria-pressed and the
+    // ring, once, family-wide.
     expect(page).toContain("} from '@/lib/hr/pool-voice';");
     expect(page).toMatch(/data-testid="goal-filters"/);
-    expect(page).toMatch(/aria-pressed=\{active\}/);
-    expect(page).toMatch(/data-testid=\{`goal-filter-status-\$\{s\}`\}/);
+    expect(page).toMatch(/testId=\{`goal-filter-status-\$\{s\}`\}/);
+    expect(loom).toMatch(/aria-pressed=\{active\}/);
     expect(page).toMatch(/goalStatusCounts\[s\] \?\? 0/);
   });
 
@@ -88,11 +94,17 @@ describe('console — the Goals tab speaks the same shape', () => {
     // one colour law the digest preview has spoken since v2.283.0. The
     // old sky pressed-state was the one face where the word wore a
     // second colour; the word no longer does.
-    expect(page).toMatch(/OPEN:\s*'bg-amber-100 text-amber-800 border-amber-300/);
-    expect(page).toMatch(/ACHIEVED:\s*'bg-emerald-100 text-emerald-800 border-emerald-300/);
-    expect(page).toMatch(/MISSED:\s*'bg-rose-100 text-rose-800 border-rose-300/);
-    expect(page).toMatch(/CLOSED:\s*'bg-slate-100 text-slate-800 border-slate-300/);
-    expect(page).toContain("ALL: 'bg-primary text-primary-foreground border-primary'");
+    // v2.457.0 re-anchor: the wardrobe moved into the filter chip loom's
+    // TINT registry — the desk speaks the WORDS (which status wears
+    // which family) and the loom speaks the four faces once.
+    expect(page).toMatch(/GOAL_TONE[^}]*OPEN: 'amber'/s);
+    expect(page).toMatch(/GOAL_TONE[^}]*ACHIEVED: 'emerald'/s);
+    expect(page).toMatch(/GOAL_TONE[^}]*MISSED: 'rose'/s);
+    expect(page).toMatch(/GOAL_TONE[^}]*CLOSED: 'slate'/s);
+    expect(loom).toContain("amber: 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/40 dark:text-amber-200 dark:border-amber-900',");
+    expect(loom).toContain("emerald: 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-200 dark:border-emerald-900',");
+    expect(loom).toContain("rose: 'bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/40 dark:text-rose-200 dark:border-rose-900',");
+    expect(loom).toContain("slate: 'bg-slate-100 text-slate-800 border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-600',");
   });
 
   it('employee + source picks join the filter row', () => {
