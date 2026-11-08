@@ -1,3 +1,16 @@
+## [2.473.0] The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, the number learns its edit door, the settings desk learns the branch’s own words, the paper carries a scannable door, the file sings the chorus whole, the ledger answers to its own columns, and the ledger answers to its own name
+
+The dead-stock ledger learns its search door: a small lens above the table answers to the words a row already carries — the name, the SKU, the category — composed in the ONE home, the view a viewer and never a rewrite.
+
+### Added
+- **THE SEARCH DOOR** (`src/lib/reports/dead-stock.ts`, `src/app/(shell)/tabs/reports-tab.tsx`): `filterDeadStockRows` composes the honest lens in the ONE home — the words a row already carries (the name, the SKU, the category) answered case-insensitively; the trimmed word is the honest word; an empty (or whitespace-only) lens RESTS and the whole ledger comes back in its arrival order; a null category never crashes and never lies (the row still answers on its name and SKU). Pure and deterministic — a NEW array every time, the input never mutated. The lens sits above the table: the family's search glass at the input's left, the clear × that only speaks when a word is pressed (a clear button on an empty lens would be a lie), the focus ring the family already wears, the double voice every handle wears.
+- **THE LENS'S OWN EMPTY** (`src/app/(shell)/tabs/reports-tab.tsx`): a pressed lens that answers nothing speaks honestly — the words the maker asked for, the ledger's whole size (nothing was deleted — the lens is a viewer, the archive keeps every row), and the clear handle that rests the lens. One honest face where the rows would stand, the family's PackageSearch in the muted tone.
+
+### Changed
+- **THE COMPOSITION** (`src/app/(shell)/tabs/reports-tab.tsx`): the lens and the sort door compose in ONE memo on the desk — filter first, then sort (a narrower shelf wearing the same honest order); the ONE home composes both, the desk never hand-filters. The memo rides `[rows, deadStockSearch, deadStockSort]` and nothing else.
+- **THE VIEW/ARCHIVE LAW, GROWN ONE LENS** (`src/app/(shell)/tabs/reports-tab.tsx`): the file (the CSV's footer and share link column), the clipboard's copy all chorus and the print door keep the canonical `rows` — the archive's word stays the WHOLE ledger whatever the lens is looking at. The lens is a viewer, never a rewrite.
+- **THE COUNT ANSWERS THE LENS** (`src/app/(shell)/tabs/reports-tab.tsx`): the ledger's count badge speaks the honest fraction while the lens is pressed ("2 of 6 products") and the whole size when it rests — the badge is the lens's own mirror, never a second count.
+
 ## [2.472.0] The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, the number learns its edit door, the settings desk learns the branch’s own words, the paper carries a scannable door, the file sings the chorus whole, and the ledger answers to its own columns
 
 The dead-stock ledger learns its sort door: the Capital tied and Days idle headers answer to their own column — the two honest orders composed in the ONE home, the view a lens and never a rewrite.

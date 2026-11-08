@@ -11,6 +11,7 @@ import { BarChart3, Package, TrendingUp, TrendingDown,
   AlertTriangle, Users, Timer, Printer, Wrench, Sparkle, Link2, ArrowRight,
   Receipt, UserCog, Hourglass, CheckCircle, MessageCircle, Share2, ClipboardList, Phone,
   ArrowDown, ChevronsUpDown, Coins, PackageX, Percent,
+  Search, X, PackageSearch,
 } from 'lucide-react';
 import { LandingChip } from '@/components/landing-chip';
 import {
@@ -28,7 +29,7 @@ import {
 } from '@/lib/api';
 import { handleError } from '@/lib/error-handler';
 import { parseInitialNamedMember, REP_TYPE_FILTERS } from '@/lib/tab-url';
-import { DEAD_STOCK_WINDOWS, capitalTiedByCategory, deadStockChorusHeader, deadStockClearanceNote, deadStockClearanceNotes, deadStockShareUrl, sortDeadStockRows, waMeDisplay, type DeadStockRow, type DeadStockSortKey } from '@/lib/reports/dead-stock';
+import { DEAD_STOCK_WINDOWS, capitalTiedByCategory, deadStockChorusHeader, deadStockClearanceNote, deadStockClearanceNotes, deadStockShareUrl, filterDeadStockRows, sortDeadStockRows, waMeDisplay, type DeadStockRow, type DeadStockSortKey } from '@/lib/reports/dead-stock';
 import {
   composeSeriesVoice, composeHourlyVoice,
   composeStockHealthVoice, composeProductsVoice, composeForecastVoice,
@@ -1346,10 +1347,22 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
   // the resting face is 'capital' (the classifier's own standing order,
   // so the desk opens exactly as it always has), and one press on the
   // Days idle header speaks the shelf's patience. The orders live in
-  // the ONE home (sortDeadStockRows) — the desk never hand-sorts; the
-  // memo rides [rows, deadStockSort] and nothing else.
+  // the ONE home (sortDeadStockRows) — the desk never hand-sorts.
+  // THE SEARCH DOOR (v2.473.0) — the ledger answers to its own name:
+  // the lens above the table answers to the words a row already carries
+  // (the name, the SKU, the category), composed in the ONE home
+  // (filterDeadStockRows) — the desk never hand-filters either. The two
+  // lenses compose in ONE memo (filter first, then sort — a narrower
+  // shelf wearing the same honest order); the memo rides
+  // [rows, deadStockSearch, deadStockSort] and nothing else, and the
+  // view/archive law holds — the file, the clipboard and the print door
+  // keep the canonical rows (the lens is a viewer, never a rewrite).
   const [deadStockSort, setDeadStockSort] = useState<DeadStockSortKey>('capital');
-  const sortedRows = useMemo(() => sortDeadStockRows(rows, deadStockSort), [rows, deadStockSort]);
+  const [deadStockSearch, setDeadStockSearch] = useState('');
+  const sortedRows = useMemo(
+    () => sortDeadStockRows(filterDeadStockRows(rows, deadStockSearch), deadStockSort),
+    [rows, deadStockSearch, deadStockSort],
+  );
   // THE CAPITAL'S SHAPE — the chart's own grouping, read from the ONE
   // home (the classifier's pure voice). The rows are already on the
   // desk; zero new fetches, the lens re-answers and the shape follows.
@@ -1610,8 +1623,14 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
                     the family's word), and the double voice every row
                     action wears. It only shows when rows exist — a
                     button that copies nothing would be a lie. */}
+                {/* THE COUNT ANSWERS THE LENS (v2.473.0) — a resting
+                    lens speaks the ledger's whole size, a pressed lens
+                    speaks the honest fraction ("2 of 6 products"): the
+                    badge is the lens's own mirror, never a second
+                    count. The Copy all handle keeps the WHOLE chorus —
+                    the archive's word, the lens's law. */}
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="text-[9px]" data-testid="dead-stock-ledger-count">{rows.length} products</Badge>
+                  <Badge variant="outline" className="text-[9px]" data-testid="dead-stock-ledger-count">{deadStockSearch.trim() ? `${sortedRows.length} of ${rows.length} products` : `${rows.length} products`}</Badge>
                   {rows.length > 0 && (
                     <Button
                       type="button"
@@ -1639,7 +1658,46 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
                   <p className="text-xs text-muted-foreground">Widen the window to look further back</p>
                 </div>
               ) : (
-                <div className="overflow-x-auto custom-scrollbar" data-testid="dead-stock-table">
+                <div className="space-y-3">
+                  {/* THE SEARCH DOOR (v2.473.0) — the ledger answers to
+                      its own name. The lens sits above the table and
+                      answers as the maker types to the words a row
+                      already carries (the name, the SKU, the category —
+                      composed in the ONE home filterDeadStockRows, the
+                      desk never hand-filters). Its own face: the family's
+                      search glass at the input's left, the clear × that
+                      only speaks when a word is pressed (a clear button
+                      on an empty lens would clear nothing — a lie), the
+                      focus ring the family already wears, and the double
+                      voice every handle wears (aria-label + the testid;
+                      the placeholder is the hint, not the voice). The
+                      input is the census's seventh voice, the × its
+                      eighth. */}
+                  <div className="relative w-full sm:w-72">
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+                    <input
+                      type="text"
+                      value={deadStockSearch}
+                      onChange={(e) => setDeadStockSearch(e.target.value)}
+                      placeholder="Search name, SKU or category"
+                      aria-label="Search the ledger by name, SKU or category"
+                      data-testid="dead-stock-search"
+                      className="h-8 w-full rounded-md border border-input bg-background pl-8 pr-8 text-xs shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-ring"
+                    />
+                    {deadStockSearch.trim() !== '' && (
+                      <button
+                        type="button"
+                        aria-label="Clear the ledger search"
+                        title="Clear the ledger search"
+                        onClick={() => setDeadStockSearch('')}
+                        data-testid="dead-stock-search-clear"
+                        className="absolute right-1.5 top-1/2 -translate-y-1/2 inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                      >
+                        <X className="h-3 w-3" aria-hidden="true" />
+                      </button>
+                    )}
+                  </div>
+                  <div className="overflow-x-auto custom-scrollbar" data-testid="dead-stock-table">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -1696,7 +1754,39 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
                           clipboard and the print door keep the canonical
                           rows (the view/archive law — the sort is a
                           lens, never a rewrite). */}
-                      {sortedRows.map((r, i) => {
+                      {/* THE LENS'S OWN EMPTY (v2.473.0) — a pressed lens
+                          that answers nothing speaks honestly: the words
+                          the maker asked for, the ledger's whole size
+                          (nothing was deleted — the lens is a viewer,
+                          the archive keeps every row), and the clear
+                          handle that rests the lens. The census's ninth
+                          voice. The table row spans the ledger's eight
+                          columns — one honest face where the rows would
+                          stand. */}
+                      {sortedRows.length === 0 ? (
+                        <TableRow data-testid="dead-stock-lens-empty">
+                          <TableCell colSpan={8} className="py-10">
+                            <div className="flex flex-col items-center justify-center gap-2 text-center">
+                              <PackageSearch className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+                              <p className="text-sm font-medium">No product answers to “{deadStockSearch.trim()}”</p>
+                              <p className="text-xs text-muted-foreground">The lens rests empty — the ledger keeps all {rows.length} resting products</p>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="h-7 px-2.5 text-xs"
+                                aria-label="Clear the ledger search and see every resting product"
+                                title="Clear the ledger search and see every resting product"
+                                onClick={() => setDeadStockSearch('')}
+                                data-testid="dead-stock-lens-clear"
+                              >
+                                Clear the search
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        sortedRows.map((r, i) => {
                         // The idle voice: rose past half a year, amber
                         // below; the never-sold row already wears its
                         // badge, so its days cell keeps quiet.
@@ -1782,9 +1872,11 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
                             </TableCell>
                           </TableRow>
                         );
-                      })}
+                      })
+                      )}
                     </TableBody>
                   </Table>
+                </div>
                 </div>
               )}
             </CardContent>

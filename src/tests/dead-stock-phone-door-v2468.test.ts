@@ -116,8 +116,13 @@ describe('the dead-stock desk — the edit door pinned from the desk bytes', () 
     // idle handles, the double voice every handle wears); the census
     // speaks the section's six handles now, and the edit door's own
     // handle stands untouched.
+    // v2.473.0 re-key (dated): the section grows its SEVENTH, EIGHTH and
+    // NINTH voices — the search door's three handles (the lens input,
+    // the clear × and the empty lens's own clear handle, the double
+    // voice every handle wears); the census speaks the section's nine
+    // handles now, and the edit door's own handle stands untouched.
     const section = desk.slice(desk.indexOf('function DeadStockSection'), desk.indexOf('// Main Reports Tab Component'));
-    expect(section.split('aria-label=').length - 1).toBe(6);
+    expect(section.split('aria-label=').length - 1).toBe(9);
   });
 
   it('the display word dresses the toast — the ONE home\'s reading, never a re-format', () => {
@@ -134,7 +139,7 @@ describe('whats-new — the edit door leads the feed', () => {
   const head = WHATS_NEW[0];
 
   it('the head wears the round\'s own story', () => {
-    expect(head.version).toBe('2.472.0');
+    expect(head.version).toBe('2.473.0');
     expect(head.title).toContain('resting ledger');
     expect(head.title).toContain('reach out');
     expect(head.title).toContain('one breath');

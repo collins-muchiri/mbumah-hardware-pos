@@ -270,25 +270,26 @@ describe('the address-bar vocabulary — the twenty-ninth row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.472.0 leads the feed', () => {
+describe('whats-new — v2.473.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.472.0');
-    // the lead's story hand-over (v2.472.0, the Task 111 law's
-    // seventy-eighth application): the head story is the hand-over's
+    expect(head.version).toBe('2.473.0');
+    // the lead's story hand-over (v2.473.0, the Task 111 law's
+    // seventy-ninth application): the head story is the hand-over's
     // voice — the carrying round: THE LEDGER ANSWERS TO ITS OWN
-    // COLUMNS — the dead-stock ledger learns its sort door: the
-    // Capital tied and Days idle headers answer to their own column,
-    // one press speaking that column's honest order composed in the
-    // ONE home sortDeadStockRows — the capital order the classifier's
-    // own standing word (the loudest debt first), the idle order the
-    // shelf's patience (longest idle first, the never-sold row
-    // standing at the front, its null a voice and not a zero); the
-    // pressed column wears aria-sort and the family's ArrowDown, the
-    // resting one the muted chevrons, and the view/archive law holds
-    // — the file, the clipboard's copy all chorus and the print door
-    // keep the canonical rows, the sort is a lens never a rewrite.
-    // The ledger answers to its own columns.
+    // NAME — the dead-stock ledger learns its search door: the lens
+    // above the table answers to the words a row already carries
+    // (the name, the SKU, the category), composed in the ONE home
+    // filterDeadStockRows — the trimmed word the honest word, the
+    // case never mattering, an empty lens resting the whole ledger,
+    // a null category never crashing and never lying; the two lenses
+    // compose in ONE memo (filter first, then sort — a narrower
+    // shelf wearing the same honest order), the count badge answers
+    // the lens (the honest fraction, the whole size at rest), and
+    // the view/archive law holds — the file, the clipboard's copy
+    // all chorus and the print door keep the canonical rows, the
+    // lens is a viewer never a rewrite.
+    // The ledger answers to its own name.
     expect(head.title).toContain('edit door');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
     expect(head.bullets.some((b) => b.includes('edit door'))).toBe(true);
