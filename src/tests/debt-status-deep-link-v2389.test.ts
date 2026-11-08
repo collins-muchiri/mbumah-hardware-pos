@@ -281,41 +281,32 @@ describe('the address-bar vocabulary — the twenty-eighth row (cross-suite pins
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.462.0 leads the feed', () => {
+describe('whats-new — v2.463.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.462.0');
-    // the lead's story hand-over (v2.462.0, the Task 111 law's
-    // sixty-eighth application): the head story is the hand-over's
-    // voice — the resting-ledger round: THE LENS TAKES AN ADDRESS —
-    // the ninth report's idle window joins the deep-link family as
-    // its thirty-third word: the words are the window tuple's OWN
-    // spellings read through the generic parser from the ONE home
-    // the classifier keeps (a made-up window is an unknown word,
-    // the default is 90), the lens WRITES BACK — a hand-driven turn
-    // replaceState's the word into the address (the preserve law),
-    // so a turned lens is a shareable address; the landing chip
-    // wears the ROSE byte at 300/100 — the two-storey census was
-    // FULL, so the family grew one line rather than masquerade;
-    // the chip lives in the SECTION (the lens is inside the dead
-    // stock stage — the sub-tab law's shape), the default wears no
-    // chip, and navigation is never a lens change; THE CAPITAL
-    // DRAWS ITS SHAPE — the Chart Type row covers the ninth report
-    // with the two honest faces (bar and pie of capital tied by
-    // category, grouped in the classifier's one home; line and
-    // area are time-series words categorical capital cannot wear;
-    // zero new fetches; the chart draws only when rows rest); AND
-    // EVERY ROW LEARNS TO ASK — the Ask button carries a
-    // deterministic WhatsApp-ready clearance note to the clipboard
-    // (units and base unit, capital at cost, the ISO day, the
-    // never-sold row's honest absence; no supplier name invented).
-    // The lens shares; the capital draws; the clipboard is the door.
-    expect(head.title).toContain('resting ledger');
+    expect(head.version).toBe('2.463.0');
+    // the lead's story hand-over (v2.463.0, the Task 111 law's
+    // sixty-ninth application): the head story is the hand-over's
+    // voice — the reaching-out round: THE NOTE TAKES THE SHARE DOOR —
+    // every ledger row's Ask handle gains a Share sibling that opens
+    // the maker's own WhatsApp with the SAME deterministic clearance
+    // note already composed (one voice, two doors — the URL is the
+    // wa.me word for the note, composed in the classifier's ONE home
+    // THROUGH the note's own composer, so the clipboard and the chat
+    // can never drift apart); the row names no supplier, so the URL
+    // carries no phone — WhatsApp opens with the text pre-filled and
+    // the maker picks the chat (the recipient-addressed instrument
+    // stays api.ts's own); THE LAST COLUMN WEARS ITS PAIR — a tight
+    // two-door group, the share handle in the emerald hover the
+    // family already speaks, the double voice every row action wears,
+    // and a browser that blocks the window speaks its side (the toast
+    // answers, the row stays whole).
+    // The note copies; the share opens; the word rides out.
+    expect(head.title).toContain('reach out');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('thirty-third word'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('rose byte'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('category'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('share door'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('clearance note'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('wa.me'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('clipboard'))).toBe(true);
   });
 });

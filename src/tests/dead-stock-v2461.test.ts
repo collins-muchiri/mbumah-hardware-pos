@@ -251,13 +251,13 @@ describe('the reports desk — the ninth card and its faces', () => {
     expect(tabCode).toContain('testId={`dead-stock-window-${d}`}');
     expect(tabCode).toContain('DEAD_STOCK_WINDOWS.map');
     // the loom speaks the pressed voice — the desk adds none by hand.
-    // v2.462.0 re-anchor: the section now also carries the Ask handle's
-    // aria-label (the row action's own double voice — the handle law,
-    // not a lens face); the loom's pressed-voice law is untouched, and
-    // the ONE aria-label in the section is the Ask handle's own.
+    // v2.463.0 re-anchor: the section now carries the TWO row-action
+    // handles (the Ask and the share), each with its own double voice —
+    // the handle law, not a lens face; the loom's pressed-voice law is
+    // untouched, and the TWO aria-labels are the two handles' own.
     const section = TAB.slice(TAB.indexOf('function DeadStockSection'), TAB.indexOf('// Main Reports Tab Component'));
     expect(section).not.toContain('aria-pressed');
-    expect(section.split('aria-label=').length - 1).toBe(1);
+    expect(section.split('aria-label=').length - 1).toBe(2);
     expect(section).toContain('aria-label={`Copy clearance note for ${r.name}`}');
   });
 

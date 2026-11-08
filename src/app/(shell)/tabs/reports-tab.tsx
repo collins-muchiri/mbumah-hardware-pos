@@ -9,7 +9,7 @@ import { BarChart3, Package, TrendingUp, TrendingDown,
   Calendar, Clock, Eye, Play, Sparkles, PieChart,
   HeartPulse, RotateCcw, CreditCard, Banknote, Smartphone,
   AlertTriangle, Users, Timer, Printer, Wrench, Sparkle, Link2, ArrowRight,
-  Receipt, UserCog, Hourglass, CheckCircle, MessageCircle,
+  Receipt, UserCog, Hourglass, CheckCircle, MessageCircle, Share2,
 } from 'lucide-react';
 import { LandingChip } from '@/components/landing-chip';
 import {
@@ -27,7 +27,7 @@ import {
 } from '@/lib/api';
 import { handleError } from '@/lib/error-handler';
 import { parseInitialNamedMember, REP_TYPE_FILTERS } from '@/lib/tab-url';
-import { DEAD_STOCK_WINDOWS, capitalTiedByCategory, deadStockClearanceNote, type DeadStockRow } from '@/lib/reports/dead-stock';
+import { DEAD_STOCK_WINDOWS, capitalTiedByCategory, deadStockClearanceNote, deadStockShareUrl, type DeadStockRow } from '@/lib/reports/dead-stock';
 import {
   composeSeriesVoice, composeHourlyVoice,
   composeStockHealthVoice, composeProductsVoice, composeForecastVoice,
@@ -1348,6 +1348,17 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
       toast.error('Could not copy the clearance note — the clipboard refused.');
     }
   }, [days]);
+  // THE SHARE'S OWN DOOR (v2.463.0) — the note's second door: the SAME
+  // deterministic word (one voice, two doors — the composer is never
+  // re-typed here) rides out to the maker's own WhatsApp chat. The
+  // row names no supplier, so the URL carries no phone — WhatsApp opens
+  // with the text pre-filled and the maker picks the chat. A browser
+  // that blocks the window speaks its side: the toast answers, the row
+  // stays whole (the vouchers desk's popup-blocked honesty law).
+  const shareClearanceNote = useCallback((row: DeadStockRow) => {
+    const win = window.open(deadStockShareUrl(row, days), '_blank', 'noopener,noreferrer');
+    if (!win) toast.error('The browser blocked the share window — copy the note instead.');
+  }, [days]);
   return (
     <div className="space-y-3" data-testid="dead-stock-section">
       {/* The window lens — the loom's tint dialect, the amber word.
@@ -1517,18 +1528,40 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
                                 outline face every desk's row actions
                                 wear, and the composer lives in the ONE
                                 home — the button only presses it. */}
+                            {/* THE PAIR (v2.463.0) — the row action's two
+                                doors side by side: the Ask (the clipboard)
+                                and the Share (the chat), a tight group so
+                                the pair reads as one instrument with two
+                                mouths. The share handle wears the emerald
+                                hover — the green the family already speaks
+                                (the empty state's good-news word) — and the
+                                same double voice every row action wears. */}
                             <TableCell className="text-right">
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                data-testid={`dead-stock-note-${i}`}
-                                aria-label={`Copy clearance note for ${r.name}`}
-                                title={`Copy clearance note for ${r.name}`}
-                                onClick={() => copyClearanceNote(r)}
-                              >
-                                <MessageCircle className="h-3.5 w-3.5 mr-1" /> Ask
-                              </Button>
+                              <div className="inline-flex items-center justify-end gap-1">
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  data-testid={`dead-stock-note-${i}`}
+                                  aria-label={`Copy clearance note for ${r.name}`}
+                                  title={`Copy clearance note for ${r.name}`}
+                                  onClick={() => copyClearanceNote(r)}
+                                >
+                                  <MessageCircle className="h-3.5 w-3.5 mr-1" /> Ask
+                                </Button>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  data-testid={`dead-stock-share-${i}`}
+                                  aria-label={`Share clearance note for ${r.name} on WhatsApp`}
+                                  title={`Share clearance note for ${r.name} on WhatsApp`}
+                                  onClick={() => shareClearanceNote(r)}
+                                  className="hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 dark:hover:bg-emerald-950/30 dark:hover:text-emerald-300 dark:hover:border-emerald-800"
+                                >
+                                  <Share2 className="h-3.5 w-3.5" /> Share
+                                </Button>
+                              </div>
                             </TableCell>
                           </TableRow>
                         );
