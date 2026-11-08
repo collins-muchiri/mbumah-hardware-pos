@@ -15,6 +15,10 @@ import {
 } from '@/lib/api';
 import { parseInitialNamedMember } from '@/lib/tab-url';
 import { VAT_RATE_QUERY_KEY } from '@/hooks/use-vat-rate';
+// v2.469.0: the share door's display word — the settings desk previews
+// the pre-addressed chip through the ONE home's own reading, never a
+// re-format.
+import { waMeDisplay } from '@/lib/reports/dead-stock';
 import { unitLabel } from '@/lib/units';
 import { UpdatesSafetySection } from '@/components/admin/updates-safety-section';
 import { FleetRemoteOpsSection } from '@/components/admin/fleet-remote-ops-section';
@@ -925,19 +929,96 @@ function AuditLogSection({ storeId }: { storeId: string }) {
 
 const CONFIG_CATEGORIES = ['Store', 'Receipts', 'Notifications', 'Payments', 'Advanced'];
 
-function ConfigEditor({ storeId: _storeId }: { storeId: string }) {
+function ConfigEditor({ storeId }: { storeId: string }) {
   const queryClient = useQueryClient();
   const [activeCategory, setActiveCategory] = useState('Store');
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
 
-  // Structured settings state
-  const [storeSettings, setStoreSettings] = useState({
-    name: 'Mbumah Hardware',
-    location: 'Juja, Kiambu County',
-    phone: '+254 700 123 456',
-    taxRate: '16',
+  // v2.469.0 THE STORE'S OWN WORDS — the mock retired. The form spoke
+  // 'Mbumah Hardware' from component state for its whole life while the
+  // save button beside it wrote only the VAT rate; the branch's real
+  // name, location and phone now load from the /api/stores wire (the
+  // session-validated list the dead-stock desk already reads), and the
+  // save walks the TWO honest doors: the details ride PATCH
+  // /api/stores/settings, the phone keeps its ONE home at PATCH
+  // /api/stores/phone, and both wires invalidate so the reports desk's
+  // pre-addressed chip flips without a re-load.
+  const { data: storeDetailsData, isLoading: storeDetailsLoading } = useQuery({
+    queryKey: ['admin-store-details', storeId],
+    queryFn: async (): Promise<{ name: string; location: string; phone: string }> => {
+      const res = await authedFetch('/api/stores');
+      if (!res.ok) throw new Error('Could not load the store on file.');
+      const json = await res.json() as { data?: Array<{ id: string; name: string; location: string | null; phone: string | null }> };
+      const store = (json.data ?? []).find((s) => s.id === storeId);
+      if (!store) throw new Error('The store on file could not be found.');
+      return { name: store.name, location: store.location ?? '', phone: store.phone ?? '' };
+    },
+    enabled: !!storeId,
+    staleTime: 5 * 60_000,
   });
+  const storeDetails = storeDetailsData ?? null;
+  // The vat rate's own pattern: while the user is NOT editing, the
+  // fields mirror the persisted words (a null draft); once they type,
+  // their draft wins until save.
+  const [storeDraft, setStoreDraft] = useState<{ name: string; location: string; phone: string } | null>(null);
+  const draftName = storeDraft?.name ?? storeDetails?.name ?? '';
+  const draftLocation = storeDraft?.location ?? storeDetails?.location ?? '';
+  const draftPhone = storeDraft?.phone ?? storeDetails?.phone ?? '';
+  const nameDirty = !!storeDetails && draftName !== storeDetails.name;
+  const locationDirty = !!storeDetails && draftLocation !== storeDetails.location;
+  const phoneDirty = !!storeDetails && draftPhone !== storeDetails.phone;
+  const storeDirty = !!storeDetails && (nameDirty || locationDirty || phoneDirty);
+  const setDraftField = useCallback((field: 'name' | 'location' | 'phone', value: string) => {
+    setStoreDraft((d) => ({
+      name: field === 'name' ? value : (d?.name ?? storeDetails?.name ?? ''),
+      location: field === 'location' ? value : (d?.location ?? storeDetails?.location ?? ''),
+      phone: field === 'phone' ? value : (d?.phone ?? storeDetails?.phone ?? ''),
+    }));
+  }, [storeDetails]);
+  const [storeSaving, setStoreSaving] = useState(false);
+  const saveStoreDetails = useCallback(async () => {
+    const name = draftName.trim();
+    if (!name) {
+      toast.error('The store name cannot be empty — the branch must keep its word.');
+      return;
+    }
+    const phone = draftPhone.trim();
+    if (phone && phone.length < 7) {
+      toast.error('The phone needs at least 7 digits — the share door cannot address a shorter word.');
+      return;
+    }
+    setStoreSaving(true);
+    try {
+      const res = await authedFetch('/api/stores/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ storeId, name, location: draftLocation.trim() }),
+      });
+      if (!res.ok) {
+        toast.error('Could not save the store details — the write was refused.');
+        return;
+      }
+      if (phone !== (storeDetails?.phone ?? '')) {
+        const phoneRes = await authedFetch('/api/stores/phone', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ storeId, phone }),
+        });
+        if (!phoneRes.ok) {
+          toast.error('The details saved but the phone was refused — the share door keeps its old number.');
+        }
+      }
+      toast.success(`Store details saved${phone ? ` — the share door speaks ${waMeDisplay(phone)}` : ''}.`);
+      setStoreDraft(null);
+      await queryClient.invalidateQueries({ queryKey: ['admin-store-details', storeId] });
+      await queryClient.invalidateQueries({ queryKey: ['dead-stock-store-contact', storeId] });
+    } catch {
+      toast.error('Could not save the store details — the wire refused.');
+    } finally {
+      setStoreSaving(false);
+    }
+  }, [draftName, draftLocation, draftPhone, storeDetails, storeId, queryClient]);
 
   // v2.8.0: Admin-controlled VAT rate (persisted via PATCH /api/settings/vat)
   const { data: vatRateData, isLoading: vatRateLoading } = useQuery({
@@ -959,7 +1040,6 @@ function ConfigEditor({ storeId: _storeId }: { storeId: string }) {
     onSuccess: (_data, percent) => {
       toast.success(`VAT rate set to ${percent}% - applies to all new sales, invoices and purchase orders`);
       queryClient.invalidateQueries({ queryKey: VAT_RATE_QUERY_KEY });
-      setStoreSettings((s) => ({ ...s, taxRate: String(percent) }));
       setVatRateDirty(false);
       setVatRateInput(String(percent));
     },
@@ -1039,30 +1119,62 @@ function ConfigEditor({ storeId: _storeId }: { storeId: string }) {
           ))}
         </div>
 
-        {/* Store Settings Form */}
+        {/* Store Settings Form — v2.469.0: the mock retired. The three
+            fields mirror the branch on file (the vat rate's own
+            draft-wins pattern), dirty fields wear the amber ring and
+            the unsaved dot, and the save walks the two honest doors
+            (details → /api/stores/settings, phone → its ONE home). */}
         {activeCategory === 'Store' && (
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="flex items-center gap-1.5"><Store className="h-3.5 w-3.5" /> Store Name</Label>
+                <Label className="flex items-center gap-1.5"><Store className="h-3.5 w-3.5" /> Store Name
+                  {nameDirty && <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-amber-500" data-testid="admin-store-dirty-name" />}
+                </Label>
                 <Input
-                  value={storeSettings.name}
-                  onChange={(e) => setStoreSettings({ ...storeSettings, name: e.target.value })}
+                  data-testid="admin-store-name"
+                  value={draftName}
+                  disabled={storeDetailsLoading || storeSaving}
+                  placeholder="Loading the branch on file…"
+                  onChange={(e) => setDraftField('name', e.target.value)}
+                  className={nameDirty ? 'border-amber-400/70 focus-visible:ring-amber-400/40' : undefined}
                 />
+                <p className="text-[11px] text-muted-foreground">
+                  The name the receipts, the share chip and the ledger speak.
+                </p>
               </div>
               <div className="space-y-2">
-                <Label className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" /> Location</Label>
+                <Label className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" /> Location
+                  {locationDirty && <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-amber-500" data-testid="admin-store-dirty-location" />}
+                </Label>
                 <Input
-                  value={storeSettings.location}
-                  onChange={(e) => setStoreSettings({ ...storeSettings, location: e.target.value })}
+                  data-testid="admin-store-location"
+                  value={draftLocation}
+                  disabled={storeDetailsLoading || storeSaving}
+                  placeholder="Loading the branch on file…"
+                  onChange={(e) => setDraftField('location', e.target.value)}
+                  className={locationDirty ? 'border-amber-400/70 focus-visible:ring-amber-400/40' : undefined}
                 />
+                <p className="text-[11px] text-muted-foreground">
+                  The branch&apos;s town or county — an empty word clears it honestly.
+                </p>
               </div>
               <div className="space-y-2">
-                <Label className="flex items-center gap-1.5"><Phone className="h-3.5 w-3.5" /> Phone</Label>
+                <Label className="flex items-center gap-1.5"><Phone className="h-3.5 w-3.5" /> Phone
+                  {phoneDirty && <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-amber-500" data-testid="admin-store-dirty-phone" />}
+                </Label>
                 <Input
-                  value={storeSettings.phone}
-                  onChange={(e) => setStoreSettings({ ...storeSettings, phone: e.target.value })}
+                  data-testid="admin-store-phone"
+                  inputMode="tel"
+                  value={draftPhone}
+                  disabled={storeDetailsLoading || storeSaving}
+                  placeholder="Loading the branch on file…"
+                  onChange={(e) => setDraftField('phone', e.target.value)}
+                  className={phoneDirty ? 'border-amber-400/70 focus-visible:ring-amber-400/40' : undefined}
                 />
+                <p className="text-[11px] text-muted-foreground">
+                  Pre-addresses the dead-stock share door — at least 7 digits, stored exactly as typed.
+                </p>
               </div>
               <div className="space-y-2">
                 <Label className="flex items-center gap-1.5">VAT Rate (%)</Label>
@@ -1085,25 +1197,55 @@ function ConfigEditor({ storeId: _storeId }: { storeId: string }) {
                 </p>
               </div>
             </div>
-            <Button
-              onClick={() => {
-                const rate = parseFloat(vatRateInput);
-                if (!Number.isFinite(rate) || rate < 0 || rate > 100) {
-                  toast.error('VAT rate must be a number between 0 and 100');
-                  return;
-                }
-                saveVatRateMutation.mutate(rate);
-              }}
-              disabled={saveVatRateMutation.isPending}
-              className="w-full sm:w-auto"
-            >
-              {saveVatRateMutation.isPending ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Save className="mr-2 h-4 w-4" />
-              )}
-              Save Store Settings
-            </Button>
+            {/* The share door's word, previewed at the desk it is typed
+                on: when the name and a valid number stand together, the
+                pre-addressed chip's exact voice shows before anyone
+                walks to the reports tab. Purely a reading — the ONE
+                home's display word dresses it, never a re-format. */}
+            {draftName.trim() && draftPhone.trim().length >= 7 && (
+              <div
+                className="flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50/60 px-3 py-2 text-xs text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-300"
+                data-testid="admin-store-share-preview"
+              >
+                <MessageSquare className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                <span>The share door will say: <span className="font-medium">Shares pre-addressed to {draftName.trim()} · {waMeDisplay(draftPhone.trim())}</span></span>
+              </div>
+            )}
+            <div className="flex flex-wrap gap-2">
+              <Button
+                onClick={saveStoreDetails}
+                disabled={storeDetailsLoading || !storeDirty || storeSaving}
+                data-testid="admin-store-save"
+                className="w-full sm:w-auto"
+              >
+                {storeSaving ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="mr-2 h-4 w-4" />
+                )}
+                Save Store Details
+              </Button>
+              <Button
+                onClick={() => {
+                  const rate = parseFloat(vatRateInput);
+                  if (!Number.isFinite(rate) || rate < 0 || rate > 100) {
+                    toast.error('VAT rate must be a number between 0 and 100');
+                    return;
+                  }
+                  saveVatRateMutation.mutate(rate);
+                }}
+                disabled={saveVatRateMutation.isPending}
+                variant="outline"
+                className="w-full sm:w-auto"
+              >
+                {saveVatRateMutation.isPending ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="mr-2 h-4 w-4" />
+                )}
+                Save VAT Rate
+              </Button>
+            </div>
           </div>
         )}
 

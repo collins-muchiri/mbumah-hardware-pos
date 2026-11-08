@@ -109,9 +109,9 @@ describe('the styling math - the status-badge families carry their numbers', () 
 
 describe('docs and release surfaces', () => {
   it('package.json rides at 2.198.0 (all three slots)', () => {
-    expect(pkg.version).toBe('2.468.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.468.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.468.0');
+    expect(pkg.version).toBe('2.469.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.469.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.469.0');
     expect(readRepo('scripts/release-attestations/verify-v2-191-0.mjs')).toContain('v2.191.0 verification');
   });
 
