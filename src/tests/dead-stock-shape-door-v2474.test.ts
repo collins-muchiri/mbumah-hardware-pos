@@ -168,8 +168,9 @@ describe('the shape\u2019s presses — the desk\u2019s own face', () => {
 // 3. THE FEED — the head wears the round's own story
 // ---------------------------------------------------------------------------
 
-describe('whats-new — the shape leads the feed', () => {
-  const head = WHATS_NEW[0];
+describe('whats-new — the shape, pinned in the feed', () => {
+  const head = WHATS_NEW.find((e) => e.version === '2.474.0');
+  if (!head) throw new Error('the 2.474.0 entry is gone from the feed');
 
   it('the head wears the round\u2019s own story — the elder words and the new word', () => {
     expect(head.version).toBe('2.474.0');

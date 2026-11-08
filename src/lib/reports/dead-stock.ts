@@ -405,3 +405,51 @@ export function filterDeadStockRows(
     (r.categoryName ?? 'Uncategorised').toLowerCase().includes(needle),
   );
 }
+
+// ============================================================================
+// v2.475.0 THE VIEW SPEAKS ITS OWN WORD
+// ============================================================================
+// The pressed lens learns its own mirror. The count badge has spoken the
+// honest fraction since v2.473.0 ("2 of 6 products") — the view's SIZE —
+// and now the view's MONEY speaks too: a footer under the table names the
+// rows the lens is looking at, the capital they tie at cost, and the
+// slice of the ledger's own rest they hold. The summary cards above keep
+// speaking the WHOLE ledger; a footer that repeated them would be a
+// stutter, so the word only sounds while the lens is pressed AND rows
+// answer (a lens that answers nothing already wears its own empty face).
+//
+// THE VIEW/ARCHIVE LAW, UNTOUCHED: this is the VIEW's own word, spoken
+// about what the desk is LOOKING at — the file (the CSV), the clipboard
+// (the copy all chorus) and the print door still keep the canonical
+// `rows` byte-for-byte. The arithmetic lives HERE in the ONE home (the
+// desk never hand-sums), pure and deterministic, and the honest-share law
+// the summary has always worn (a zero denominator shares ZERO, never
+// NaN) guards the slice: an empty ledger's view speaks zero, the same
+// honest word deadSharePct has spoken since v2.205.0.
+
+/** THE VIEW'S OWN SUMMARY (v2.475.0) — the pressed lens's mirror: the
+ *  view's row count, the view's own capital at cost (the round2 of the
+ *  rows' own sum — the same convention the summary's totalCapitalTied
+ *  wears, so the footer's number and the cards' numbers agree in
+ *  convention), and the view's slice of the ledger's whole rest (the
+ *  view capital over the ledger capital, one decimal — the same
+ *  one-decimal word deadSharePct speaks; a zero ledger shares ZERO,
+ *  never NaN). Pure: neither array is ever mutated, a fresh object
+ *  every call, the same rows always drawing the same word. */
+export interface DeadStockViewSummary {
+  count: number;
+  capital: number;
+  sharePct: number;
+}
+
+export function deadStockViewSummary(
+  viewRows: ReadonlyArray<DeadStockRow>,
+  ledgerRows: ReadonlyArray<DeadStockRow>,
+): DeadStockViewSummary {
+  const capital = round2b(viewRows.reduce((s, r) => s + r.capitalTied, 0));
+  const ledgerCapital = round2b(ledgerRows.reduce((s, r) => s + r.capitalTied, 0));
+  const sharePct = ledgerCapital > 0
+    ? Math.round((capital / ledgerCapital) * 1000) / 10
+    : 0;
+  return { count: viewRows.length, capital, sharePct };
+}

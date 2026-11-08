@@ -206,7 +206,7 @@ describe('whats-new — the pre-address leads the feed', () => {
   const head = WHATS_NEW[0];
 
   it('the head wears the round\'s own story', () => {
-    expect(head.version).toBe('2.474.0');
+    expect(head.version).toBe('2.475.0');
     expect(head.title).toContain('resting ledger');
     expect(head.title).toContain('reach out');
     expect(head.title).toContain('one breath');

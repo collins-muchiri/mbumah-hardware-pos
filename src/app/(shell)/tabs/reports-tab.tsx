@@ -29,7 +29,7 @@ import {
 } from '@/lib/api';
 import { handleError } from '@/lib/error-handler';
 import { parseInitialNamedMember, REP_TYPE_FILTERS } from '@/lib/tab-url';
-import { DEAD_STOCK_WINDOWS, capitalTiedByCategory, deadStockChorusHeader, deadStockClearanceNote, deadStockClearanceNotes, deadStockShareUrl, filterDeadStockRows, sortDeadStockRows, waMeDisplay, type DeadStockRow, type DeadStockSortKey } from '@/lib/reports/dead-stock';
+import { DEAD_STOCK_WINDOWS, capitalTiedByCategory, deadStockChorusHeader, deadStockClearanceNote, deadStockClearanceNotes, deadStockShareUrl, deadStockViewSummary, filterDeadStockRows, sortDeadStockRows, waMeDisplay, type DeadStockRow, type DeadStockSortKey } from '@/lib/reports/dead-stock';
 import {
   composeSeriesVoice, composeHourlyVoice,
   composeStockHealthVoice, composeProductsVoice, composeForecastVoice,
@@ -1416,6 +1416,22 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
     () => sortDeadStockRows(filterDeadStockRows(rows, deadStockSearch), deadStockSort),
     [rows, deadStockSearch, deadStockSort],
   );
+  // THE VIEW'S OWN WORD (v2.475.0) — the pressed lens's own mirror: the
+  // view's count, the view's own capital at cost, and the view's slice
+  // of the ledger's rest, composed in the ONE home (deadStockViewSummary)
+  // — the desk never hand-sums, the same law the sort and the lens
+  // speak. The lensPressed flag is the footer's own gate: a resting lens
+  // keeps the summary cards as the only voice (a footer that repeated
+  // them would be a stutter), and a lens that answers nothing already
+  // wears its own empty face. The view/archive law holds — the file, the
+  // clipboard's copy all chorus and the print door keep the canonical
+  // rows; this word is the VIEW's own, spoken about what the desk is
+  // looking at.
+  const lensPressed = deadStockSearch.trim() !== '';
+  const viewVoice = useMemo(
+    () => deadStockViewSummary(sortedRows, rows),
+    [sortedRows, rows],
+  );
   // THE CAPITAL'S SHAPE — the chart's own grouping, read from the ONE
   // home (the classifier's pure voice). The rows are already on the
   // desk; zero new fetches, the lens re-answers and the shape follows.
@@ -1945,6 +1961,35 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
                     </TableBody>
                   </Table>
                 </div>
+                  {/* THE VIEW'S OWN WORD (v2.475.0) — the pressed lens's
+                      own mirror under the table: the honest fraction (the
+                      badge's own shape), the view's own capital at cost
+                      (the family's rose word), and the view's slice of
+                      the ledger's rest drawn in the share-bar's own
+                      dialect (the bg-muted track, the rose-500 fill).
+                      The window lens's amber ground dresses the strip —
+                      the lens family's own tone, never a second palette.
+                      A spoken word, never a handle: no new voice joins
+                      the census. aria-live speaks the answer as the lens
+                      changes; the slice bar stays aria-hidden — the
+                      numbers above ARE the voice. */}
+                  {lensPressed && sortedRows.length > 0 && (
+                    <div
+                      className="rounded-md border border-amber-200/70 bg-amber-50/60 px-3 py-2 dark:border-amber-900/60 dark:bg-amber-950/20"
+                      data-testid="dead-stock-view-voice"
+                    >
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <p className="text-xs text-amber-800 dark:text-amber-300" aria-live="polite">
+                          <span className="font-semibold tabular-nums">{viewVoice.count} of {rows.length}</span> products in view ·{' '}
+                          <span className="font-semibold text-rose-700 dark:text-rose-400 tabular-nums">{formatKES(viewVoice.capital)}</span> tied in view
+                        </p>
+                        <p className="text-[10px] text-muted-foreground tabular-nums">{viewVoice.sharePct}% of the ledger’s rest</p>
+                      </div>
+                      <div aria-hidden="true" className="mt-1.5 h-1 rounded-full bg-muted overflow-hidden" data-testid="dead-stock-view-slice">
+                        <div className="h-full rounded-full bg-rose-500 transition-all" style={{ width: `${Math.min(100, Math.max(0, viewVoice.sharePct))}%` }} />
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>
