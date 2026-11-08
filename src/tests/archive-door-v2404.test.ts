@@ -135,7 +135,7 @@ describe('main-app - the archive door on the main desk', () => {
   // ── 7. The release cascade ─────────────────────────────────────────────────
 
   it('WHATS_NEW leads with the current release — the door story rides the archive below', () => {
-    // v2.469.0 hand-over: the lead tells the settings-desk story now; the
+    // v2.470.0 hand-over: the lead tells the scannable-door story now; the
     // census’s story lives one entry down, the toast’s two, the
     // shortfall’s three, the receipt’s four, the row-maker’s five,
     // the debt’s six, the shelf-door seven, the supplier-rides
@@ -147,12 +147,12 @@ describe('main-app - the archive door on the main desk', () => {
     // wire-answers twenty, the desk-remembers twenty-one, the
     // branch-voice twenty-two, the ghost-routes twenty-three, the
     // jump-door twenty-four, the shares’ twenty-five, the
-    // archive-door story sixty-two — all still in the feed
+    // archive-door story sixty-three — all still in the feed
     const lead = WHATS_NEW[0];
-    // v2.469.0 re-key (dated): the lead speaks the settings-desk round —
-    // the branch's own words come home (the mock retired), and the
-    // details write joins the registry.
-    expect(lead.version).toBe('2.469.0');
+    // v2.470.0 re-key (dated): the lead speaks the scannable-door round —
+    // the paper carries a scannable door (the draw rides the ONE home),
+    // and the chorus keeps the closing word.
+    expect(lead.version).toBe('2.470.0');
     expect(lead.title).toContain('edit door');
     expect(lead.bullets.length).toBeGreaterThanOrEqual(3);
     expect(lead.bullets.some((b) => b.includes('edit door'))).toBe(true);

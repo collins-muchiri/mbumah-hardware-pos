@@ -263,9 +263,9 @@ describe('the a11y surface - the REAL-chain math for the ledger families', () =>
 
 describe('the release surfaces', () => {
   it('package.json rides at 2.198.0 (all three slots)', () => {
-    expect(pkg.version).toBe('2.469.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.469.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.469.0');
+    expect(pkg.version).toBe('2.470.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.470.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.470.0');
     // the prior surfaces stay wired
   });
 

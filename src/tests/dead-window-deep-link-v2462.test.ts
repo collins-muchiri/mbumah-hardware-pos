@@ -272,30 +272,24 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
 // 7. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.469.0 leads the feed', () => {
+describe('whats-new — v2.470.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.469.0');
-    // the lead's story hand-over (v2.469.0, the Task 111 law's
-    // seventy-fifth application): the head story is the hand-over's
-    // voice — the carrying round: THE SETTINGS DESK LEARNS THE
-    // BRANCH'S OWN WORDS — the admin desk's Store Settings mock
-    // retired: the form spoke 'Mbumah Hardware' from component state
-    // for its whole life while the save button beside it wrote only
-    // the VAT rate; the branch's real name, location and phone now
-    // load from the session-validated /api/stores wire (the vat
-    // rate's own draft-wins pattern — a typed draft wins until save),
-    // and the save walks the TWO honest doors — the details ride the
-    // owner-only PATCH /api/stores/settings (SUPER_ADMIN or
-    // STORE_OWNER, the write shaped org-scoped — updateMany cannot
-    // rename a foreign store, a count of zero answers the calm 404),
-    // the phone keeps its ONE home at PATCH /api/stores/phone; BOTH
-    // wires invalidate so the reports desk's pre-addressed chip flips
-    // without a re-load; the desk shows its work — dirty fields wear
-    // the amber ring and the unsaved dot, the save sleeps until a
-    // word changes, and the share door's exact voice is previewed
-    // through the ONE home's display word.
-    // The settings desk learns the branch's own words.
+    expect(head.version).toBe('2.470.0');
+    // the lead's story hand-over (v2.470.0, the Task 111 law's
+    // seventy-sixth application): the head story is the hand-over's
+    // voice — the carrying round: THE PRINTED LEDGER LEARNS THE
+    // SCANNABLE DOOR — the dead-stock print page carries each row's
+    // own QR: the ONE home's share URL (the same word the Share
+    // button, the sheet and the chat speak, the store's address
+    // riding its third word) drawn as a 96px data URL by the qrcode
+    // house behind a dynamic import; the print window opens FIRST
+    // (the popup-blocked law keeps the gesture's tick) and the doors
+    // are drawn after; the scan to share appendix sits between the
+    // ledger and the chorus — the clearance asks still close the
+    // printed page — and a failed draw prints the paper without the
+    // cards while the toast speaks the honest word.
+    // The paper carries a scannable door.
     expect(head.title).toContain('edit door');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
     expect(head.bullets.some((b) => b.includes('edit door'))).toBe(true);

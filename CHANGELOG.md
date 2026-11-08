@@ -1,3 +1,13 @@
+## [2.470.0] The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, the number learns its edit door, the settings desk learns the branch’s own words, and the printed ledger learns the scannable door
+
+The dead-stock print page learns the scannable door: every printed row carries its own QR — the ONE home's share URL drawn as a data URL, the window opened first, the chorus keeping the closing word.
+
+### Added
+- **THE SCANNABLE DOOR** (`src/app/(shell)/tabs/reports-tab.tsx`): on the dead-stock stage the printed page grows the scan to share appendix — one card per row (the QR, the product's name, the sku), each card encoding the exact share URL `deadStockShareUrl` composes (the store's own address riding its third word — the same word the Share button, the sheet and the chat speak), drawn by the `qrcode` house as a 96px data URL behind a dynamic import; a failed draw prints the paper without the cards and the toast speaks the honest word ("The scannable doors could not be drawn — the ledger prints without them."). The appendix sits between the ledger and the chorus — the clearance asks still close the printed page.
+
+### Changed
+- **THE PRINT HANDLER'S SHAPE** (`src/app/(shell)/tabs/reports-tab.tsx`): `handlePDFExport` is async — the print window still opens FIRST (the popup-blocked law keeps the gesture's tick), the doors are drawn after the open, and the printed page's CSS dresses the cards (`.scan-doors` / `.scan-grid` / `.scan-card`, page-break safe, 96px images). The desk never spells the host — the URL word stays the ONE home's own house.
+
 ## [2.469.0] The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, the number learns its edit door, and the settings desk learns the branch’s own words
 
 The admin desk's Store Settings mock retired: the branch's own words reach the Store model at last — the form loads the branch on file, the save walks the two honest doors, and the desk previews the share door's exact voice.

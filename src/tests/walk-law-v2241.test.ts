@@ -48,13 +48,13 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.241.0)', () => {
   it('package.json leads 2.241.0 (all three slots)', () => {
-    expect(version).toBe('2.469.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.469.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.469.0');
+    expect(version).toBe('2.470.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.470.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.470.0');
   });
 
   it('VERSION speaks 2.241.0 (previous gate still wired)', () => {
-    expect(read('VERSION').trim()).toBe('2.469.0');
+    expect(read('VERSION').trim()).toBe('2.470.0');
   });
 
   it('the whats-new feed leads the walk\u2019s-law entry (order pin: header-anchored)', () => {
@@ -78,8 +78,8 @@ describe('the round of record (v2.241.0)', () => {
   });
 
   it('the counters ride +1 again (the birth joined; the law joins)', () => {
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(359);");
-    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(392);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(360);");
+    expect(changelogTest).toContain("expect(whatsNewUnreadCount('2.77.0')).toBe(393);");
   });
 });
 
