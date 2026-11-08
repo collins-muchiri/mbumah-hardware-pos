@@ -270,33 +270,36 @@ describe('the address-bar vocabulary — the twenty-ninth row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.460.0 leads the feed', () => {
+describe('whats-new — v2.461.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.460.0');
-    // the lead's story hand-over (v2.460.0, the Task 111 law's
-    // sixty-sixth application): the head story is the hand-over's
-    // voice — the homecoming round: THE MUSEUM SHELF (the
-    // verify-v2-* pin unwind, Task 27's last named follow-up):
-    // the 347 point-in-time attestation scripts took
-    // scripts/release-attestations/ byte-untouched, the 310
-    // verify:v2-* keys left package.json, the 86 living key-pins
-    // left the suites (nine emptied it() blocks retired with
-    // honor), and the census caught two mis-aged exhibits and
-    // re-homed them by their true ages; THE SHELF CENSUS — the
-    // ancestors sweep reads the shelf byte-wise: every
-    // attestation must speak its own v2.X.Y age-word; THE
-    // DATA-COLORED TRIBES — the ledger's last two rows taken:
-    // the POS and inventory category chips learned the family's
-    // grammar (aria-pressed and the zinc ring through the
-    // exported constants); THE MASQUERADE RETIRES — .chip-active
-    // inlined its own face and left the stylesheet. The glass
-    // keeps the card; the ledger rests empty.
-    expect(head.title).toContain('attestations');
+    expect(head.version).toBe('2.461.0');
+    // the lead's story hand-over (v2.461.0, the Task 111 law's
+    // sixty-seventh application): the head story is the hand-over's
+    // voice — the dead stock round: THE NINTH REPORT — the reports
+    // desk learns what rests: a product is dead stock when it HOLDS
+    // stock and its last sale is older than the idle window (30 | 60
+    // | 90, the lens's own tuple — a made-up window is a 400) or it
+    // never sold; the MEANING lives in one home (the pure classifier
+    // the suite proves without a database: an empty shelf is NOT dead
+    // stock, no capital rests in it; a null last-sold speaks never,
+    // never a fabricated zero; rows sort capital-tied DESC, the
+    // honest share guards the zero total); THE WIRE gathers the
+    // facts with the fast-moving sale vocabulary and the payload
+    // rides rows — the naming-as-contract law honored again; THE
+    // GRID COMPLETES ITS THREE-BY-THREE (the ninth card, the
+    // Hourglass), the window lens rides the loom (the amber tint
+    // word — pressed voice and zinc ring with the family), the
+    // ledger speaks the never-sold badge and the aged idle colours,
+    // the CSV carries the section's own rows (the server export
+    // door is never borrowed), and ?rep-type=dead_stock lands the
+    // report through the ONE home (the vocabulary speaks nine). The
+    // square completes; the stock speaks.
+    expect(head.title).toContain('dead stock');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('museum shelf'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('age-word'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('aria-pressed'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('masquerade law'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('three-by-three'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('idle window'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('loom'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('never sold'))).toBe(true);
   });
 });

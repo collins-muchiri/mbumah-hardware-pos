@@ -471,10 +471,14 @@ export function parseInitialPageWithAlias(
 
 /**
  * The reports desk's shape vocabulary (v2.384.0) — the Report Type
- * grid's OWN spellings, the eight members of the reportType state union,
+ * grid's OWN spellings, the members of the reportType state union,
  * lowercase. Lives here (the ONE home) so the desk, its deep-link word
  * and the test suite speak one array — the same home TAX_PERIOD_SHAPE
  * keeps for the tax desk's shape word.
+ * v2.461.0: the ninth word joins — `dead_stock`, the Dead Stock report
+ * (the grid completes its three-by-three). The historical "eight
+ * members" prose in the deep-link suite's header is history by date;
+ * the LIVING law is this array.
  */
 export const REP_TYPE_FILTERS = [
   'sales',
@@ -485,6 +489,7 @@ export const REP_TYPE_FILTERS = [
   'customer_analysis',
   'rental_performance',
   'trends',
+  'dead_stock',
 ] as const;
 
 export function parseInitialNamedMember<V extends string>(

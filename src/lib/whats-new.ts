@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.461.0',
+    title: 'The dead stock speaks — the reports desk counts what rests',
+    bullets: [
+      'A ninth report type joins the desk: Dead Stock — every product holding stock with no sale in the chosen window, its capital tied priced at cost, and the share of the whole inventory value that rests on the shelf. The Report Type grid completes its three-by-three.',
+      'The idle window is a lens, not a guess: 30, 60 and 90 day chips ride the filter-chip loom (the amber tint word, pressed voice and keyboard ring riding with the family), and the wire re-answers when the window turns. An empty shelf is never dead stock — no capital rests in it.',
+      'The ledger sorts by capital tied (the loudest debt first), speaks each product’s last sale date — or the honest “never sold” badge — and the CSV export carries the same rows the section shows; the server export door is never borrowed for a report it cannot speak.',
+    ],
+  },
+  {
     version: '2.460.0',
     title: 'The attestations come home — the data-colored chips learn the grammar',
     bullets: [

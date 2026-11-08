@@ -2290,7 +2290,7 @@ export interface InventoryReportData {
   totalProducts: number;
   lowStockCount: number;
   outOfStockCount: number;
-  totalInventoryValue: number;
+  totalStockValue: number;
   categories: { name: string; productCount: number; totalValue: number }[];
   topSelling: { productId: string; productName: string; quantitySold: number; revenue: number }[];
 }
@@ -2318,7 +2318,49 @@ export interface FastMovingReportData {
   }[];
 }
 
+/** v2.461.0: the dead-stock wire (GET /api/reports/dead-stock). Feeds the
+ *  reports desk's ninth report — every product holding stock with no sale
+ *  in the idle window (30 | 60 | 90 days), priced at cost. NAMING AS
+ *  CONTRACT: the array rides `rows` (NOT `products`/`items`/`data`) so
+ *  the SPA's request() normalizer leaves the wire whole — `summary` and
+ *  `range` survive the trip. */
+export interface DeadStockReportData {
+  rows: {
+    productId: string;
+    name: string;
+    sku: string;
+    categoryName: string | null;
+    quantityInStock: number;
+    costPrice: number;
+    pricePerUnit: number;
+    reorderLevel: number;
+    unitType: string;
+    capitalTied: number;
+    lastSoldAt: string | null;
+    daysIdle: number | null;
+  }[];
+  summary: {
+    days: number;
+    deadCount: number;
+    totalCapitalTied: number;
+    totalStockValue: number;
+    deadSharePct: number;
+  };
+  generatedAt: string;
+  range: { from: string; to: string };
+}
+
 export const reportsApi = {
+  /** v2.461.0: the dead-stock aggregation — the Dead Stock section's
+   *  source. Window-aware (the lens's three words only — the route
+   *  400s on any other `days`). */
+  getDeadStockReport: async (filter: { storeId: string; days?: number }) => {
+    const params = new URLSearchParams();
+    params.set('storeId', filter.storeId);
+    if (filter.days) params.set('days', String(filter.days));
+    return request<DeadStockReportData>(`/reports/dead-stock?${params.toString()}`);
+  },
+
   getSalesReport: async (filter: ReportFilter) => {
     const params = new URLSearchParams();
     params.set('storeId', filter.storeId);

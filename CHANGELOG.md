@@ -1,3 +1,16 @@
+## [2.461.0] The dead stock speaks — the reports desk counts what rests
+
+The reports desk gains its ninth report: Dead Stock — every product holding stock with no sale in the idle window, its capital tied priced at cost, and the share of the whole inventory value that rests on the shelf. The Report Type grid completes its three-by-three.
+
+### Added
+- **THE DEAD STOCK WIRE** (`src/app/api/reports/dead-stock/route.ts` + `src/lib/reports/dead-stock.ts`): a session-validated GET that gathers the facts (every active product's shelf truth + each product's last completed-or-partial sale, the fast-moving vocabulary) and feeds the ONE home of the meaning — the pure classifier. The definition: a product is dead stock when it HOLDS stock and its last sale is older than the window (30 | 60 | 90 — the lens's own tuple; anything else is a 400, default 90), or it has never sold. An empty shelf is NOT dead stock — no capital rests in it. NAMING AS CONTRACT: the payload rides `rows`, outside the request() normalizer's unwrap list, so the summary survives the trip.
+- **THE NINTH CARD AND ITS SECTION** (`src/app/(shell)/tabs/reports-tab.tsx`): the Report Type grid's ninth card (Hourglass, "Dead Stock") completes the 3×3; the section speaks three accent summary cards (capital tied in rose, dead products in amber, the dead share of stock value in primary — tabular-nums everywhere), the ledger sorted by capital tied (the loudest debt first, name tiebreak), each row's last sale date or the honest "never sold" badge, idle days aged by colour (rose past 180, amber below), and the empty truth: nothing resting is GOOD news, said plainly.
+- **THE WINDOW LENS RIDES THE LOOM**: the 30/60/90-day chips are FilterChips (the tint dialect's amber word) — `aria-pressed` and the zinc keyboard ring come with the family, never hand-rolled; the window is the desk's state, so the query re-answers when the lens turns; the deep-link word `?rep-type=dead_stock` lands the report through the ONE home in tab-url (the vocabulary's ninth member).
+
+### Changed
+- **THE FILE IS THE SECTION'S OWN** (`src/app/(shell)/tabs/reports-tab.tsx`): dead stock exports client-side — the server export door speaks only `sales` | `inventory`, and borrowing another report's door would download the WRONG report under this one's name. The CSV carries the same rows the section shows, plus the summary's four numbers; "never" is spoken as the word, never as a fabricated zero.
+- **THE VOCABULARY GROWS** (`src/lib/tab-url.ts` + `src/tests/rep-type-deep-link-v2384.test.ts`): `REP_TYPE_FILTERS` speaks nine members (dead_stock at the tail); the deep-link suite's pin re-keys with the dated note — the array is the living law.
+
 ## [2.460.0] The attestations come home — the data-colored chips learn the grammar
 
 Two comings-home in one round: the 347 point-in-time attestation scripts take the museum shelf (the verify-v2-* pin unwind — Task 27's last named follow-up), and the ledger's last two hand-rolled chip tribes — the data-colored POS and inventory category chips — learn the family's grammar.

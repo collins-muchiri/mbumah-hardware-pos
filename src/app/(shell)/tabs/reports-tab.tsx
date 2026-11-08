@@ -9,7 +9,7 @@ import { BarChart3, Package, TrendingUp, TrendingDown,
   Calendar, Clock, Eye, Play, Sparkles, PieChart,
   HeartPulse, RotateCcw, CreditCard, Banknote, Smartphone,
   AlertTriangle, Users, Timer, Printer, Wrench, Sparkle, Link2, ArrowRight,
-  Receipt, UserCog,
+  Receipt, UserCog, Hourglass, CheckCircle,
 } from 'lucide-react';
 import { LandingChip } from '@/components/landing-chip';
 import {
@@ -23,9 +23,11 @@ import {
   customersApi, rentalsApi, transactionsApi,
   formatKES,
   type FastMovingReportData,
+  type DeadStockReportData,
 } from '@/lib/api';
 import { handleError } from '@/lib/error-handler';
 import { parseInitialNamedMember, REP_TYPE_FILTERS } from '@/lib/tab-url';
+import { DEAD_STOCK_WINDOWS } from '@/lib/reports/dead-stock';
 import {
   composeSeriesVoice, composeHourlyVoice,
   composeStockHealthVoice, composeProductsVoice, composeForecastVoice,
@@ -55,7 +57,9 @@ type TrendsRange = '7d' | '30d' | '90d';
 // THE REPORTS DESK'S OWN WORD (v2.384.0 — the family's TWENTY-FIFTH): the
 // Report Type grid answers the address bar. The desk's daily question,
 // "which report am I looking at?", speaks its desk-prefixed
-// `?rep-type=sales|inventory|valuation|daily|top_products|customer_analysis|rental_performance|trends`
+// `?rep-type=sales|inventory|valuation|daily|top_products|customer_analysis|rental_performance|trends|dead_stock`
+// v2.461.0: the ninth word — dead_stock, the Dead Stock report (the grid
+// completes its three-by-three).
 // — the grid's OWN spellings (REP_TYPE_FILTERS, the ONE home in
 // tab-url.ts, lowercase, case-sensitive BY LAW: a capitalized word is an
 // unknown word, not a clever match) — and wears the landing chip in the
@@ -315,13 +319,22 @@ function ReportTypeCard({
       </div>
       <p className="text-xs text-muted-foreground mb-3">{description}</p>
       <div className="flex items-center justify-end">
+        {/* v2.461.0 THE NESTED BUTTON RETIRES: the card IS the control
+            (one click, one keyboard voice) — the Generate affordance was a
+            <button> inside that <button>, an HTML law violation that
+            hydrated as a console error on every desk visit (the live burst
+            caught it). asChild demotes the pill to a span wearing the
+            Button's own face: same look, same bubble-to-card behavior, no
+            nested interactive control announcing the same action twice. */}
         <Button
+          asChild
           size="sm"
           variant={isActive ? 'default' : 'outline'}
           className={`text-xs h-7 ${isActive ? 'bg-primary hover:bg-primary/90' : ''}`}
-          onClick={(e) => { e.stopPropagation(); onClick(); }}
         >
-          <Play className="mr-1 h-3 w-3" /> Generate
+          <span aria-hidden="true">
+            <Play className="mr-1 h-3 w-3" /> Generate
+          </span>
         </Button>
       </div>
     </button>
@@ -1217,6 +1230,166 @@ function TrendsPredictionsSection({ storeId }: { storeId: string }) {
   );
 }
 
+// ======================================================================
+// Dead Stock (v2.461.0) — the ninth report's face
+// ======================================================================
+
+/** THE DEAD STOCK SECTION — capital at rest, spoken honestly. The wire
+ *  and the window state live in the desk (the query re-answers when the
+ *  window turns); this component renders the faces:
+ *
+ *   • THE WINDOW LENS — 30/60/90-day chips riding the filter-chip loom
+ *     (the tint dialect's amber word, so the resting capital's colour is
+ *     the amber family's own): aria-pressed and the zinc keyboard ring
+ *     come with the loom, never hand-rolled.
+ *   • THE SUMMARY — three accent cards (the desk's border-l-4 face):
+ *     capital tied (rose — the money's own alarm), dead products (amber),
+ *     and the dead share of total stock value (primary). tabular-nums on
+ *     every figure.
+ *   • THE LEDGER — sorted by capital tied (the loudest first), each row
+ *     speaking its last sale date or the honest "never" badge (a null is
+ *     a voice, not a zero), and the idle days coloured by age: rose past
+ *     180, amber below, "—" for the never-sold (the badge already said
+ *     it — two voices for one fact would be a stutter).
+ *   • THE EMPTY TRUTH — a resting shelf with nothing dead is GOOD news:
+ *     the empty state says so, plainly.
+ */
+interface DeadStockSectionProps {
+  rows: DeadStockReportData['rows'];
+  summary: DeadStockReportData['summary'] | null;
+  isLoading: boolean;
+  days: 30 | 60 | 90;
+  onDaysChange: (days: 30 | 60 | 90) => void;
+}
+
+function DeadStockSection({ rows, summary, isLoading, days, onDaysChange }: DeadStockSectionProps) {
+  return (
+    <div className="space-y-3" data-testid="dead-stock-section">
+      {/* The window lens — the loom's tint dialect, the amber word */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <Label className="text-xs font-medium">Idle window:</Label>
+        {DEAD_STOCK_WINDOWS.map((d) => (
+          <FilterChip
+            key={d}
+            active={days === d}
+            onClick={() => onDaysChange(d)}
+            testId={`dead-stock-window-${d}`}
+            ariaLabel={`Show products with no sales in the last ${d} days`}
+            tone="amber"
+            variant="tint"
+          >
+            {d} days
+          </FilterChip>
+        ))}
+      </div>
+
+      {isLoading ? (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-24" />)}
+        </div>
+      ) : summary ? (
+        <>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <Card className="border-l-4 border-l-rose-500 backdrop-blur-sm bg-card/80">
+              <CardContent className="p-4">
+                <p className="text-xs text-muted-foreground">Capital Tied</p>
+                <p className="text-2xl font-bold text-rose-700 dark:text-rose-400 tabular-nums" data-testid="dead-stock-capital">{formatKES(summary.totalCapitalTied)}</p>
+                <p className="text-[10px] text-muted-foreground mt-1">qty × cost price, idle {summary.days}+ days</p>
+              </CardContent>
+            </Card>
+            <Card className="border-l-4 border-l-amber-500 backdrop-blur-sm bg-card/80">
+              <CardContent className="p-4">
+                <p className="text-xs text-muted-foreground">Dead Products</p>
+                <p className="text-2xl font-bold tabular-nums" data-testid="dead-stock-count">{summary.deadCount}</p>
+                <p className="text-[10px] text-muted-foreground mt-1">holding stock, no sale in the window</p>
+              </CardContent>
+            </Card>
+            <Card className="border-l-4 border-l-primary backdrop-blur-sm bg-card/80">
+              <CardContent className="p-4">
+                <p className="text-xs text-muted-foreground">Share of Stock Value</p>
+                <p className="text-2xl font-bold tabular-nums" data-testid="dead-stock-share">{summary.deadSharePct}%</p>
+                <p className="text-[10px] text-muted-foreground mt-1">of total inventory value (qty × cost)</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card className="backdrop-blur-sm bg-card/80">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Hourglass className="h-4 w-4" /> Dead Stock Ledger
+                </CardTitle>
+                <Badge variant="outline" className="text-[9px]" data-testid="dead-stock-ledger-count">{rows.length} products</Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {rows.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-10 gap-3" data-testid="dead-stock-empty">
+                  <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-950/40 flex items-center justify-center">
+                    <CheckCircle className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                  <p className="text-sm font-medium">Nothing rests — every product with stock sold within {summary.days} days</p>
+                  <p className="text-xs text-muted-foreground">Widen the window to look further back</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto custom-scrollbar" data-testid="dead-stock-table">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Product</TableHead>
+                        <TableHead>Category</TableHead>
+                        <TableHead className="text-right">Qty on hand</TableHead>
+                        <TableHead className="text-right">Unit cost</TableHead>
+                        <TableHead className="text-right">Capital tied</TableHead>
+                        <TableHead>Last sold</TableHead>
+                        <TableHead className="text-right">Days idle</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {rows.map((r, i) => {
+                        // The idle voice: rose past half a year, amber
+                        // below; the never-sold row already wears its
+                        // badge, so its days cell keeps quiet.
+                        const idleTone = r.daysIdle == null
+                          ? ''
+                          : r.daysIdle >= 180
+                            ? 'text-rose-700 dark:text-rose-400 font-semibold'
+                            : 'text-amber-700 dark:text-amber-400';
+                        return (
+                          <TableRow key={r.productId} data-testid={`dead-stock-row-${i}`}>
+                            <TableCell>
+                              <p className="text-sm font-medium">{r.name}</p>
+                              <p className="text-[10px] text-muted-foreground font-mono">{r.sku}</p>
+                            </TableCell>
+                            <TableCell className="text-xs text-muted-foreground">{r.categoryName ?? 'Uncategorised'}</TableCell>
+                            <TableCell className="text-right tabular-nums">{r.quantityInStock}</TableCell>
+                            <TableCell className="text-right tabular-nums">{formatKES(r.costPrice)}</TableCell>
+                            <TableCell className="text-right tabular-nums font-semibold">{formatKES(r.capitalTied)}</TableCell>
+                            <TableCell>
+                              {r.lastSoldAt ? (
+                                <span className="text-xs tabular-nums">{new Date(r.lastSoldAt).toLocaleDateString()}</span>
+                              ) : (
+                                <Badge variant="outline" className="text-[9px] bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/30 dark:text-rose-300 dark:border-rose-900" data-testid={i === 0 ? 'dead-stock-never-badge' : undefined}>never sold</Badge>
+                              )}
+                            </TableCell>
+                            <TableCell className={`text-right tabular-nums text-xs ${idleTone}`}>
+                              {r.daysIdle ?? '—'}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </>
+      ) : null}
+    </div>
+  );
+}
+
 // Main Reports Tab Component
 
 export default function ReportsTab() {
@@ -1283,6 +1456,27 @@ export default function ReportsTab() {
     queryFn: () => reportsApi.getFastMovingReport({ storeId: currentStoreId, dateFrom, dateTo, limit: 20 }),
     enabled: reportType === 'top_products',
   });
+
+  // v2.461.0 THE DEAD STOCK WIRE — the ninth report's source. The window
+  // is STATE (the lens's three words), so the wire re-answers when the
+  // window turns; enabled only when the desk shows the report.
+  const [deadStockDays, setDeadStockDays] = useState<30 | 60 | 90>(90);
+  const { data: deadStockData, isLoading: deadStockLoading } = useQuery({
+    queryKey: ['dead-stock-report', currentStoreId, deadStockDays],
+    queryFn: () => reportsApi.getDeadStockReport({ storeId: currentStoreId, days: deadStockDays }),
+    enabled: reportType === 'dead_stock',
+  });
+  // NAMING AS CONTRACT, the client side: the wire's array rides `rows` —
+  // outside the request() normalizer's unwrap list — so the summary
+  // survives beside it. The array rides its own useMemo so the CSV
+  // callback's dependency list stays stable across unrelated renders
+  // (the lint's own law — a conditional init would churn the deps).
+  const deadStockWire = deadStockData?.data as DeadStockReportData | undefined;
+  const deadStockRows = useMemo(
+    () => (Array.isArray(deadStockWire?.rows) ? deadStockWire.rows : []),
+    [deadStockWire],
+  );
+  const deadStockSummary = deadStockWire?.summary ?? null;
 
   // Customer data for customer analysis report
   const { data: customersData, isLoading: customersLoading } = useQuery({
@@ -1700,6 +1894,19 @@ export default function ReportsTab() {
       for (const r of rentalPerformance.topRented) {
         csvContent += `${r.id},${r.status},${r.totalRentalCharge},${r.securityDeposit},${r.lateFeeAccumulated}\n`;
       }
+    } else if (reportType === 'dead_stock' && deadStockRows.length > 0) {
+      // v2.461.0: the dead stock file carries the same rows the section
+      // shows — the ledger's own words, plus the summary's four numbers.
+      // "never" is spoken as the word, never as a fabricated zero.
+      csvContent = 'Product,SKU,Category,Qty on hand,Unit cost,Capital tied,Last sold,Days idle\n';
+      deadStockRows.forEach((r) => {
+        csvContent += `"${r.name}",${r.sku},"${r.categoryName ?? 'Uncategorised'}",${r.quantityInStock},${r.costPrice},${r.capitalTied},${r.lastSoldAt ?? 'never'},${r.daysIdle ?? 'never'}\n`;
+      });
+      csvContent += `\nDays window,${deadStockSummary?.days ?? deadStockDays}\n`;
+      csvContent += `Dead products,${deadStockSummary?.deadCount ?? deadStockRows.length}\n`;
+      csvContent += `Total capital tied,${deadStockSummary?.totalCapitalTied ?? 0}\n`;
+      csvContent += `Total inventory value,${deadStockSummary?.totalStockValue ?? 0}\n`;
+      csvContent += `Dead share of stock value,${deadStockSummary?.deadSharePct ?? 0}%\n`;
     } else {
       csvContent = 'No data available for export\n';
     }
@@ -1714,9 +1921,17 @@ export default function ReportsTab() {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
     toast.success('CSV exported successfully');
-  }, [reportType, salesReport, inventorySummary, categoryBreakdown, topProducts, customerAnalysis, rentalPerformance, dateFrom, dateTo]);
+  }, [reportType, salesReport, inventorySummary, categoryBreakdown, topProducts, customerAnalysis, rentalPerformance, dateFrom, dateTo, deadStockRows, deadStockSummary, deadStockDays]);
 
   const handleExport = async () => {
+    // v2.461.0: dead stock exports CLIENT-SIDE — the server export door
+    // speaks only 'sales' | 'inventory', and borrowing another report's
+    // door would download the WRONG report under this one's name. The
+    // section's own rows are the file.
+    if (reportType === 'dead_stock') {
+      handleCSVExport();
+      return;
+    }
     // Try server-side export first, fall back to client-side CSV
     try {
       const res = await reportsApi.exportCSV({ storeId: currentStoreId, type: reportType === 'valuation' ? 'inventory' : reportType === 'daily' || reportType === 'top_products' || reportType === 'customer_analysis' || reportType === 'rental_performance' ? 'sales' : reportType, dateFrom, dateTo });
@@ -1756,7 +1971,7 @@ export default function ReportsTab() {
         <body>
           <div class="header">
             <h1>MBUMAH HARDWARE</h1>
-            <h2>${reportType === 'sales' ? 'Sales' : reportType === 'inventory' ? 'Inventory' : reportType === 'valuation' ? 'Inventory Valuation' : reportType === 'daily' ? 'Daily Sales Summary' : reportType === 'top_products' ? 'Top Products' : reportType === 'customer_analysis' ? 'Customer Analysis' : 'Rental Performance'} Report</h2>
+            <h2>${reportType === 'sales' ? 'Sales' : reportType === 'inventory' ? 'Inventory' : reportType === 'valuation' ? 'Inventory Valuation' : reportType === 'daily' ? 'Daily Sales Summary' : reportType === 'top_products' ? 'Top Products' : reportType === 'customer_analysis' ? 'Customer Analysis' : reportType === 'dead_stock' ? 'Dead Stock' : 'Rental Performance'} Report</h2>
             <p style="color:#94a3b8;font-size:12px">Period: ${dateFrom} to ${dateTo}</p>
           </div>
           ${content.innerHTML}
@@ -2069,6 +2284,17 @@ export default function ReportsTab() {
                 description="Growing/declining products, 7-day revenue forecast, category trends, and frequently-bought-together recommendations"
                 isActive={reportType === 'trends'}
                 onClick={() => chooseReportType('trends')}
+                colorClass="text-primary"
+              />
+              {/* v2.461.0 THE NINTH CARD: Dead Stock — capital at rest. The
+                  grid spoke eight cards in a three-wide column (two rows of
+                  three, then a widow); the ninth completes the 3×3. */}
+              <ReportTypeCard
+                icon={<Hourglass className="h-5 w-5" />}
+                title="Dead Stock"
+                description="Capital tied in products with no sales in the chosen window — money at rest on the shelf"
+                isActive={reportType === 'dead_stock'}
+                onClick={() => chooseReportType('dead_stock')}
                 colorClass="text-primary"
               />
             </div>
@@ -3218,6 +3444,19 @@ export default function ReportsTab() {
         {/* ================================================================== */}
         {reportType === 'trends' && (
           <TrendsPredictionsSection storeId={currentStoreId} />
+        )}
+
+        {/* v2.461.0 THE DEAD STOCK SECTION — the ninth report's face. The
+            window is the desk's state (the query re-answers); the section
+            renders the summary, the ledger and the empty truth. */}
+        {reportType === 'dead_stock' && (
+          <DeadStockSection
+            rows={deadStockRows}
+            summary={deadStockSummary}
+            isLoading={deadStockLoading}
+            days={deadStockDays}
+            onDaysChange={setDeadStockDays}
+          />
         )}
       </div>
     </div>
