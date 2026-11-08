@@ -110,9 +110,13 @@ describe('v2.456.0 — the loom learns the tones: the registry rides one home', 
       loom.indexOf('CHIP_TONE_ACTIVE'),
       loom.indexOf('CHIP_TONE_IDLE')
     );
+    // v2.457.0 re-anchor: the TINT registry now rides after the TONE
+    // registry in the loom — the idle block's end anchor moves to the
+    // tint registry so this pin still reads the TONE registry's own
+    // closed shape (five tones), never the tint family's.
     const idleBlock = loom.slice(
       loom.indexOf('CHIP_TONE_IDLE'),
-      loom.indexOf('export interface')
+      loom.indexOf('CHIP_TINT_ACTIVE')
     );
     expect([...activeBlock.matchAll(/([\w]+): 'bg-/g)].map((m) => m[1])).toEqual([
       'emerald',

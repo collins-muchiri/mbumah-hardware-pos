@@ -18,6 +18,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { BadgeCheck, CalendarRange, ChevronDown, ChevronUp, Star, Target, TrendingUp } from 'lucide-react';
 import { apiGet, apiSend, EmptyState, ErrorNote, ProgressMeter, StatusBadge, formatDate } from '@/components/hr/self-service-ui';
+import { FilterChip } from '@/components/filter-chip';
 
 export interface GoalDto {
   id: string;
@@ -39,12 +40,17 @@ export interface GoalDto {
 
 // v2.90.0: the portal reads the same shape — status chips wear the same
 // badge families the console's goal chips do, light and dark.
-const GOAL_CHIP_ACTIVE: Record<string, string> = {
-  OPEN: 'bg-sky-100 text-sky-800 border-sky-300 dark:bg-sky-950/40 dark:text-sky-200 dark:border-sky-900',
-  ACHIEVED: 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-200 dark:border-emerald-900',
-  MISSED: 'bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/40 dark:text-rose-200 dark:border-rose-900',
-  CLOSED: 'bg-slate-100 text-slate-800 border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-600',
-  ALL: 'bg-primary text-primary-foreground border-primary',
+// v2.457.0: THE ONE COLOUR LAW FINALLY REACHES THE PORTAL — the wardrobe
+// retired to the filter chip loom's TINT registry (filter-chip.tsx), and
+// with it the drift dies: this desk's OPEN chip had kept the old sky
+// pressed-state the console's v2.306.0 law retired (the same word wore a
+// second colour one bundle away). The desk keeps only the WORDS — and the
+// word wears amber here too now, because there is exactly ONE amber.
+const GOAL_TONE: Record<string, string> = {
+  OPEN: 'amber',
+  ACHIEVED: 'emerald',
+  MISSED: 'rose',
+  CLOSED: 'slate',
 };
 const GOAL_CHIP_ORDER = ['ALL', 'OPEN', 'ACHIEVED', 'MISSED', 'CLOSED'] as const;
 export interface ReviewDto {
@@ -136,21 +142,19 @@ export function GoalsView({ initialGoals, initialReviews }: { initialGoals: Goal
               const active = goalStatus === s;
               const count = s === 'ALL' ? initialGoals.length : goalStatusCounts[s] ?? 0;
               return (
-                <button
+                <FilterChip
                   key={s}
-                  type="button"
-                  aria-pressed={active}
-                  data-testid={`my-goal-filter-${s}`}
+                  variant="tint"
+                  slim
+                  active={active}
+                  testId={`my-goal-filter-${s}`}
                   onClick={() => setGoalStatus(s)}
-                  className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors ${
-                    active
-                      ? GOAL_CHIP_ACTIVE[s]
-                      : 'border-border bg-transparent text-muted-foreground hover:bg-muted/60'
-                  }`}
+                  tone={s === 'ALL' ? undefined : GOAL_TONE[s]}
+                  className="inline-flex items-center gap-1 whitespace-nowrap"
                 >
                   {s === 'ALL' ? 'All' : s.replace(/_/g, ' ').toLowerCase()}
                   <span className="tabular-nums opacity-70">{count}</span>
-                </button>
+                </FilterChip>
               );
             })}
             <span className="ml-auto text-xs text-muted-foreground tabular-nums" data-testid="my-goal-count">

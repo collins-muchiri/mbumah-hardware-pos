@@ -48,6 +48,25 @@
  * count badges — the companion `FilterChipCount` owns that wardrobe
  * too, so the badge's face lives once beside the chip's.
  *
+ * THE TINT REGISTRY (v2.457.0, the elder loom's third weave): the goal
+ * chips — the HR performance desk's filter row, its edit switch, and
+ * the self-service portal's My-goals row — speak a SECOND color
+ * dialect: the badge-family tints (light wash active, transparent
+ * idle) rather than the solid lens faces. Three desks hand-copied
+ * that palette in THREE Record constants, and the copies had already
+ * drifted — the portal's OPEN chip still wore the old sky pressed-state
+ * the console's one-colour law (v2.306.0) retired from the console
+ * desk: the same word wore a second colour one bundle away. The tint
+ * palette lives here now, ONE home: pass `variant="tint"` and a tone
+ * word, and the loom picks the face pair. The tint idle face is
+ * tone-independent (the transparent voice all three desks already
+ * shared). The desks keep only their WORDS — which status wears which
+ * family — never the wardrobe bytes.
+ * THE SLIM HEAD (v2.457.0): the goal chips' historic size (`px-2.5
+ * py-0.5`, `transition-colors`) joins the loom's head family beside
+ * the regular and compact faces — a desk's size is its own voice, so
+ * it rides a prop, not a hand-rolled className.
+ *
  * THE WORD-FREE LAW: the loom speaks no address-bar token — no collision
  * ledger ever has to admit this file.
  * THE MASQUERADE LAW, LOOM FORM: a loomed desk speaks NO wardrobe byte —
@@ -58,6 +77,7 @@ import React from 'react';
 
 const CHIP_HEAD = 'px-3 py-1.5 rounded-full text-xs font-medium border transition-all';
 const CHIP_HEAD_COMPACT = 'px-3 py-1 rounded-full text-xs font-medium border transition-all';
+const CHIP_HEAD_SLIM = 'px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors';
 const CHIP_RING_ZINC =
   ' focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-1';
 const CHIP_ACTIVE = 'bg-primary text-primary-foreground border-primary shadow-sm';
@@ -84,6 +104,20 @@ export const CHIP_TONE_IDLE: Record<string, string> = {
   zinc: 'bg-zinc-100 text-zinc-600 border-zinc-200 dark:bg-zinc-900/40 dark:text-zinc-300 dark:border-zinc-700',
 };
 
+// THE TINT REGISTRY (v2.457.0, the third weave) — one home for the goal
+// chips' badge-family palette. Statically declared so Tailwind can find
+// every class. The tint idle face is ONE voice (the transparent idle all
+// three goal desks already shared) — tone-independent by design.
+export const CHIP_TINT_ACTIVE: Record<string, string> = {
+  amber: 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/40 dark:text-amber-200 dark:border-amber-900',
+  emerald: 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-200 dark:border-emerald-900',
+  rose: 'bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/40 dark:text-rose-200 dark:border-rose-900',
+  slate: 'bg-slate-100 text-slate-800 border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-600',
+};
+
+export const CHIP_TINT_IDLE =
+  'border-border bg-transparent text-muted-foreground hover:bg-muted/60';
+
 export interface FilterChipProps {
   /** Whether this chip is the lens's live choice (drives the face and aria-pressed). */
   active: boolean;
@@ -99,10 +133,17 @@ export interface FilterChipProps {
   focusRing?: 'zinc' | 'none';
   /** The compact face (`py-1`) — the chart-type chips' historic size. */
   compact?: boolean;
+  /** The slim face (`px-2.5 py-0.5`) — the goal chips' historic size
+   * (v2.457.0). Wins over `compact` when both ride. */
+  slim?: boolean;
   disabled?: boolean;
   /** The status lenses' color word — picks the face pair from the TONE
    * REGISTRY (the second weave). When set, the primary/muted faces yield. */
   tone?: string;
+  /** The color dialect: `"solid"` (default) reads the TONE REGISTRY's
+   * solid lens faces; `"tint"` (v2.457.0) reads the TINT REGISTRY's
+   * badge-family faces with the transparent idle. */
+  variant?: 'solid' | 'tint';
 }
 
 export function FilterChip({
@@ -114,16 +155,23 @@ export function FilterChip({
   className,
   focusRing = 'zinc',
   compact = false,
+  slim = false,
   disabled,
   tone,
+  variant = 'solid',
 }: FilterChipProps) {
-  const face = tone
-    ? active
-      ? (CHIP_TONE_ACTIVE[tone] ?? CHIP_ACTIVE)
-      : (CHIP_TONE_IDLE[tone] ?? CHIP_IDLE)
-    : active
-      ? CHIP_ACTIVE
-      : CHIP_IDLE;
+  const face =
+    variant === 'tint'
+      ? active
+        ? (CHIP_TINT_ACTIVE[tone ?? ''] ?? CHIP_ACTIVE)
+        : CHIP_TINT_IDLE
+      : tone
+        ? active
+          ? (CHIP_TONE_ACTIVE[tone] ?? CHIP_ACTIVE)
+          : (CHIP_TONE_IDLE[tone] ?? CHIP_IDLE)
+        : active
+          ? CHIP_ACTIVE
+          : CHIP_IDLE;
   return (
     <button
       type="button"
@@ -132,7 +180,7 @@ export function FilterChip({
       aria-pressed={active}
       disabled={disabled}
       onClick={onClick}
-      className={`${compact ? CHIP_HEAD_COMPACT : CHIP_HEAD}${focusRing === 'none' ? '' : CHIP_RING_ZINC} ${face}${className ? ` ${className}` : ''}`}
+      className={`${slim ? CHIP_HEAD_SLIM : compact ? CHIP_HEAD_COMPACT : CHIP_HEAD}${focusRing === 'none' ? '' : CHIP_RING_ZINC} ${face}${className ? ` ${className}` : ''}`}
     >
       {children}
     </button>

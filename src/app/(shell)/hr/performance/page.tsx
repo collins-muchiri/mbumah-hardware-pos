@@ -18,6 +18,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { FilterChip } from '@/components/filter-chip';
 import { ArrowRight, Award, CalendarRange, CheckCircle2, FileDown, Filter, Flag, History, LockKeyhole, LogIn, Pencil, Play, Plus, RefreshCw, Star, StickyNote, Target, Trash2, Undo2, X } from 'lucide-react';
 import { hasHrPermission } from '@/lib/hr/permissions';
 // v2.306.0: the pool voice — the ONE pure seam the digest's arithmetic,
@@ -191,12 +192,15 @@ function PoolStatusChipRow({ rows }: { rows: ReadonlyArray<PoolStatusCount> }) {
 // digest preview's own borrowed families) — OPEN is waiting, and waiting
 // wears amber; the old sky pressed-state was the one face where the word
 // wore a second colour. The word no longer does.
-const GOAL_CHIP_ACTIVE: Record<string, string> = {
-  OPEN: 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/40 dark:text-amber-200 dark:border-amber-900',
-  ACHIEVED: 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-200 dark:border-emerald-900',
-  MISSED: 'bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/40 dark:text-rose-200 dark:border-rose-900',
-  CLOSED: 'bg-slate-100 text-slate-800 border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-600',
-  ALL: 'bg-primary text-primary-foreground border-primary',
+// v2.457.0: the WARDROBE retired — the badge-family faces live in the
+// filter chip loom's TINT registry (filter-chip.tsx), and the desk keeps
+// only the WORDS: which status wears which family. The loom speaks the
+// bytes; this map speaks the law.
+const GOAL_TONE: Record<string, string> = {
+  OPEN: 'amber',
+  ACHIEVED: 'emerald',
+  MISSED: 'rose',
+  CLOSED: 'slate',
 };
 // v2.89.0: a goal card's source badge is tinted by family — sky for the
 // POS-computed sources, amber for custom, quiet slate for manual.
@@ -1474,21 +1478,19 @@ export default function PerformancePage() {
                       const active = filterGoalStatus === s;
                       const count = s === 'ALL' ? (goals ?? []).length : goalStatusCounts[s] ?? 0;
                       return (
-                        <button
+                        <FilterChip
                           key={s}
-                          type="button"
-                          aria-pressed={active}
-                          data-testid={`goal-filter-status-${s}`}
+                          variant="tint"
+                          slim
+                          active={active}
+                          testId={`goal-filter-status-${s}`}
                           onClick={() => { dropUrlParam('status'); setFilterGoalStatus(s); }}
-                          className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors ${
-                            active
-                              ? GOAL_CHIP_ACTIVE[s]
-                              : 'border-border bg-transparent text-muted-foreground hover:bg-muted/60'
-                          }`}
+                          tone={s === 'ALL' ? undefined : GOAL_TONE[s]}
+                          className="inline-flex items-center gap-1 whitespace-nowrap"
                         >
                           {s === 'ALL' ? 'All' : s.replace(/_/g, ' ').toLowerCase()}
                           <span className="tabular-nums opacity-70">{count}</span>
-                        </button>
+                        </FilterChip>
                       );
                     })}
                     {/* v2.285.0: an active goal-status filter — however it
@@ -1890,19 +1892,19 @@ export default function PerformancePage() {
                     {(['OPEN', 'CLOSED'] as const).map((s) => {
                       const active = editGoalStatus === s;
                       return (
-                        <button
+                        <FilterChip
                           key={s}
-                          type="button"
-                          aria-pressed={active}
-                          data-testid={`goal-edit-status-${s.toLowerCase()}`}
+                          variant="tint"
+                          compact
+                          active={active}
+                          testId={`goal-edit-status-${s.toLowerCase()}`}
                           disabled={busy}
                           onClick={() => setEditGoalStatus(s)}
-                          className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-medium transition-colors disabled:opacity-50 ${
-                            active ? GOAL_CHIP_ACTIVE[s] : 'border-border bg-transparent text-muted-foreground hover:bg-muted/60'
-                          }`}
+                          tone={GOAL_TONE[s]}
+                          className="inline-flex items-center gap-1 disabled:opacity-50"
                         >
                           {s === 'OPEN' ? 'Reopen (open)' : 'Park (closed)'}
-                        </button>
+                        </FilterChip>
                       );
                     })}
                   </div>

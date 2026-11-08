@@ -58,6 +58,10 @@ const perfSrc = read('src/lib/hr/performance-service.ts');
 const svcSrc = read('src/lib/hr/report-schedule-service.ts');
 const pageSrc = read('src/app/(shell)/hr/performance/page.tsx');
 const uiSrc = read('src/components/hr/self-service-ui.tsx');
+// v2.457.0: the goal chips' wardrobe moved into the filter chip loom's
+// TINT registry — the ALIGN law now reads the loom's one amber beside
+// the desk's word map.
+const loomSrc = read('src/components/filter-chip.tsx');
 
 const NOW = new Date('2026-10-31T12:00:00.000Z');
 
@@ -312,8 +316,14 @@ describe('the bands on the desk (BYTE net)', () => {
     expect(pageSrc).toContain('{s.status} {s.count}');
   });
   it('the desk\u2019s filter chips ALIGN to the one colour law — OPEN is amber, the old sky is gone', () => {
-    expect(pageSrc).toMatch(/GOAL_CHIP_ACTIVE[^}]*OPEN: 'bg-amber-100/s);
+    // v2.457.0 re-anchor: the wardrobe moved into the loom's TINT
+    // registry — the desk speaks the WORD (OPEN wears amber) and the
+    // loom speaks the one amber face; the portal's drifted sky copy
+    // retired with it, so the law is whole across src.
+    expect(pageSrc).toMatch(/GOAL_TONE[^}]*OPEN: 'amber'/s);
+    expect(loomSrc).toMatch(/CHIP_TINT_ACTIVE[^}]*amber: 'bg-amber-100/s);
     expect(pageSrc).not.toContain("OPEN: 'bg-sky-100");
+    expect(loomSrc).not.toContain("OPEN: 'bg-sky-100");
   });
   it('the table pill joins the law — OPEN is waiting, waiting wears amber', () => {
     expect(uiSrc).toMatch(/case 'OPEN':[\s\S]{0,600}return 'warn';/);

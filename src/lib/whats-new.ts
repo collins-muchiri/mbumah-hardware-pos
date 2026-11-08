@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.457.0',
+    title: 'The loom learns the tints — the goal chips ride one registry',
+    bullets: [
+      'The goal chips on the HR performance desk, its park-or-reopen switch, and the portal’s My-goals row shared the same badge-family palette in three hand-copied registries — the loom owns the tints now, one home for amber, emerald, rose and slate. The desks keep their own words, counts and handlers.',
+      'The one colour law finally reaches the portal: the My-goals OPEN chip had kept the old sky pressed-state the console retired — the same word wore a second colour one bundle away. With one registry there is exactly one amber, and the word wears it everywhere.',
+      'The goal chips gain the family’s zinc keyboard ring and keep speaking their pressed state — the whole filter row, the edit switch and the portal row answer to keyboard and screen reader alike, at their own historic slim size.',
+    ],
+  },
+  {
     version: '2.456.0',
     title: 'The loom learns the tones — every status lens rides one palette',
     bullets: [

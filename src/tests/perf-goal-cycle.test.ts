@@ -81,7 +81,7 @@ describe('console — the New goal dialog offers the cycle', () => {
   });
 
   it('the v2.89.0 shape stays intact (chips, recompute-all, filters)', () => {
-    expect(page).toMatch(/data-testid=\{`goal-filter-status-\$\{s\}`\}/);
+    expect(page).toMatch(/testId=\{`goal-filter-status-\$\{s\}`\}/);
     expect(page).toMatch(/data-testid="goal-recompute-all"/);
     expect(page).toMatch(/data-testid="goal-filter-count"/);
     expect(page).toMatch(/data-testid="goal-filters"/);
@@ -99,17 +99,24 @@ describe('portal — My goals speaks the same shape', () => {
   });
 
   it('status chips with live counts from the FULL list, pressed-aware', () => {
-    expect(view).toMatch(/data-testid=\{`my-goal-filter-\$\{s\}`\}/);
-    expect(view).toMatch(/aria-pressed=\{active\}/);
+    // v2.457.0 re-anchor: the chips ride the filter chip loom — the
+    // desk passes testId/active; the loom speaks aria-pressed.
+    expect(view).toMatch(/testId=\{`my-goal-filter-\$\{s\}`\}/);
+    expect(view).toMatch(/<FilterChip/);
     expect(view).toMatch(/const count = s === 'ALL' \? initialGoals\.length : goalStatusCounts\[s\] \?\? 0;/);
     expect(view).toMatch(/goalStatusCounts\[s\] \?\? 0/);
   });
 
   it('chips wear the console\u2019s badge families, light and dark', () => {
-    expect(view).toMatch(/OPEN: 'bg-sky-100 text-sky-800 border-sky-300/);
-    expect(view).toMatch(/ACHIEVED: 'bg-emerald-100 text-emerald-800 border-emerald-300/);
-    expect(view).toMatch(/MISSED: 'bg-rose-100 text-rose-800 border-rose-300/);
-    expect(view).toMatch(/CLOSED: 'bg-slate-100 text-slate-800 border-slate-300/);
+    // v2.457.0 re-anchor: THE ONE COLOUR LAW FINALLY REACHES THE PORTAL
+    // — the desk's drifted sky hand-copy retired; the words map to the
+    // ONE tint registry, so OPEN wears amber here exactly as on the
+    // console desk. The old sky byte is gone from this file.
+    expect(view).toMatch(/GOAL_TONE[^}]*OPEN: 'amber'/s);
+    expect(view).toMatch(/GOAL_TONE[^}]*ACHIEVED: 'emerald'/s);
+    expect(view).toMatch(/GOAL_TONE[^}]*MISSED: 'rose'/s);
+    expect(view).toMatch(/GOAL_TONE[^}]*CLOSED: 'slate'/s);
+    expect(view).not.toContain("OPEN: 'bg-sky-100");
   });
 
   it('the honest line and the filtered-empty way back', () => {
