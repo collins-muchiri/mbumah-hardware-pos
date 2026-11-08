@@ -75,7 +75,7 @@ describe('the dead-stock print — the chorus appendix', () => {
   });
 
   it('the appendix lands after the report body — the page closes with the chorus', () => {
-    expect(desk.includes('${content.innerHTML}\n          ${chorusAppendix}')).toBe(true);
+    expect(desk.includes('${content.innerHTML}\n          ${scanAppendix}\n          ${chorusAppendix}')).toBe(true);
   });
 
   it('the composer\u2019s word is the printed word — header line, then every row\u2019s note', () => {
@@ -124,7 +124,7 @@ describe('the blocked print window — the toast speaks its side', () => {
 describe('whats-new — the round leads the feed', () => {
   it('the head wears the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.469.0');
+    expect(head.version).toBe('2.470.0');
     expect(head.title).toContain('print door');
     expect(head.title).toContain('one breath');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);

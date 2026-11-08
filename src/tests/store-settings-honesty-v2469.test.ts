@@ -172,8 +172,9 @@ describe('waMeDisplay — the display word the preview dresses', () => {
 // 4. WHATS-NEW — the settings desk leads the feed
 // ---------------------------------------------------------------------------
 
-describe('whats-new — the mock retired leads the feed', () => {
-  const head = WHATS_NEW[0];
+describe('whats-new — the mock retired, pinned in the feed', () => {
+  const head = WHATS_NEW.find((e) => e.version === '2.469.0');
+  if (!head) throw new Error('the 2.469.0 entry is gone from the feed');
 
   it('the head wears the round\'s own story — the elder words and the new word', () => {
     expect(head.version).toBe('2.469.0');

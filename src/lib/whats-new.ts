@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.470.0',
+    title: 'The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, the number learns its edit door, the settings desk learns the branch’s own words, and the printed ledger learns the scannable door',
+    bullets: [
+      'The printed ledger learns the scannable door: on the dead-stock print page every row carries its own QR — each card encodes the exact share URL the Share button, the sheet and the chat already speak (the pre-addressed address riding its third word), drawn by the qrcode house as a data URL, never a re-composition on the desk.',
+      'The window opens first and the doors follow: the scan to share grid sits between the ledger and the chorus — the clearance asks still close the printed page — and a failed draw prints the paper without the cards while the toast speaks the honest word; the copy all chorus, the print button’s double voice and the print door’s clearance asks keep their seats.',
+      'The family keeps its seats: the clearance note and the clipboard’s Ask keep their bytes, the chat picker still answers for the branch with no number, the edit door keeps its dialog, the file’s share link column rides the share door, and the ledger’s capital and category shape stand untouched — the wa.me word stays the ONE home’s own house.',
+    ],
+  },
+  {
     version: '2.469.0',
     title: 'The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, the number learns its edit door, and the settings desk learns the branch’s own words',
     bullets: [

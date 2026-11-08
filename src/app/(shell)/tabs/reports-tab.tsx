@@ -2394,7 +2394,7 @@ export default function ReportsTab() {
     handleCSVExport();
   };
 
-  const handlePDFExport = () => {
+  const handlePDFExport = async () => {
     const content = document.getElementById('report-print-area');
     if (!content) return;
     const printWindow = window.open('', '_blank', 'width=800,height=600');
@@ -2423,6 +2423,30 @@ export default function ReportsTab() {
           return `\n          <div class="chorus">\n            <h3>Clearance asks — the ledger’s chorus</h3>\n            <p class="chorus-intro">${escapePrintWord(intro)}</p>\n            <ol>\n              ${asks.map((ask) => `<li>${escapePrintWord(ask)}</li>`).join('\n              ')}\n            </ol>\n          </div>`;
         })()
       : '';
+    // THE SCANNABLE DOOR (v2.470.0): on the dead-stock stage the printed
+    // page carries each row's own QR — the ONE home's share URL (the
+    // same word the Share button, the sheet and the chat speak, the
+    // store's own address riding its third word), drawn as a data URL
+    // by the qrcode house, never a re-composition here. The window is
+    // opened FIRST (the popup-blocked law keeps the gesture's tick),
+    // the doors are drawn after; if the drawing fails the paper prints
+    // without them and the toast speaks the honest word.
+    const scanAppendix = reportType === 'dead_stock' && deadStockRows.length > 0
+      ? await (async () => {
+          try {
+            const { default: drawQr } = await import('qrcode');
+            const cards = await Promise.all(deadStockRows.map(async (row) => {
+              const url = deadStockShareUrl(row, deadStockSummary?.days ?? deadStockDays, deadStockStoreContact?.phone);
+              const data = await drawQr.toDataURL(url, { margin: 1, width: 96 });
+              return `<figure class="scan-card"><img src="${data}" alt="Share ${escapePrintWord(row.name)} by chat" width="96" height="96" /><figcaption>${escapePrintWord(row.name)}</figcaption><span class="scan-sku">${escapePrintWord(row.sku)}</span></figure>`;
+            }));
+            return `\n          <div class="scan-doors">\n            <h3>Scan to share — the ledger’s scannable doors</h3>\n            <p class="scan-intro">Each card opens the row’s chat door — the same word the ledger’s Share button speaks.</p>\n            <div class="scan-grid">\n              ${cards.join('\n              ')}\n            </div>\n          </div>`;
+          } catch {
+            toast.error('The scannable doors could not be drawn — the ledger prints without them.');
+            return '';
+          }
+        })()
+      : '';
     printWindow.document.write(`
       <html>
         <head>
@@ -2442,6 +2466,14 @@ export default function ReportsTab() {
             .chorus-intro { color: #64748b; font-size: 12px; margin: 0 0 10px; }
             .chorus ol { margin: 0; padding-left: 20px; }
             .chorus li { margin-bottom: 6px; line-height: 1.5; font-size: 12px; }
+            .scan-doors { margin-top: 24px; border-top: 2px solid #e2e8f0; padding-top: 16px; page-break-inside: avoid; }
+            .scan-doors h3 { font-size: 14px; color: #0f766e; margin: 0 0 4px; }
+            .scan-intro { color: #64748b; font-size: 12px; margin: 0 0 12px; }
+            .scan-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+            .scan-card { width: 120px; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 8px; text-align: center; margin: 0; page-break-inside: avoid; }
+            .scan-card img { width: 96px; height: 96px; }
+            .scan-card figcaption { font-size: 11px; font-weight: 600; margin-top: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .scan-sku { color: #94a3b8; font-size: 10px; }
             @media print { body { padding: 0; } }
           </style>
         </head>
@@ -2452,6 +2484,7 @@ export default function ReportsTab() {
             <p style="color:#94a3b8;font-size:12px">Period: ${dateFrom} to ${dateTo}</p>
           </div>
           ${content.innerHTML}
+          ${scanAppendix}
           ${chorusAppendix}
         </body>
       </html>
