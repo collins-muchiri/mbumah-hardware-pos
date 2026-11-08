@@ -149,10 +149,14 @@ describe('v2.457.0 — the loom learns the tints: the badge family rides one hom
     expect(deskHits(portal)).toBe(0);
   });
 
-  it('the named remainders stay honest — the review chips and their idle survive hand-rolled', () => {
-    // the ledger's next rows: the review chips' dialect and the customers
-    // desk's emerald dialect are a later weave's material
-    expect(perf).toContain('const STATUS_CHIP_ACTIVE: Record<string, string> = {');
-    expect(perf).toContain("'border-border bg-transparent text-muted-foreground hover:bg-muted/60'");
+  it('the named remainders move forward — the review chips RIDES now (v2.458.0), the customers desk stays', () => {
+    // v2.458.0 re-anchor: the review chips' dialect (STATUS_CHIP_ACTIVE)
+    // was this round's named remainder — the FOURTH weave took it (sky
+    // joined the tint registry; the review row rides). The ledger's
+    // remaining hand-rolled tint dialect is the customers desk's emerald
+    // voice alone (its white/60 glassy idle + per-color count badges).
+    expect(perf).not.toContain('STATUS_CHIP_ACTIVE');
+    expect(perf).toContain("const STATUS_TONE: Record<string, string> = {");
+    expect(readRepo('src/components/filter-chip.tsx')).toMatch(/sky: 'bg-sky-100/);
   });
 });

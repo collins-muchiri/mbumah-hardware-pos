@@ -115,13 +115,18 @@ describe('console — the meter is a door (cross-link)', () => {
 
 describe('console — the reviews tab gains handles', () => {
   const page = readRepo('src/app/(shell)/hr/performance/page.tsx');
+  // v2.458.0: the review chips' wardrobe lives in the filter chip loom's
+  // TINT registry — the family pins read the loom beside the desk's words.
+  const loom = readRepo('src/components/filter-chip.tsx');
 
   it('a cycle picker and status chips with live counts', () => {
     expect(page).toContain('data-testid="review-filter-cycle"');
     expect(page).toContain('aria-label="Filter by cycle"');
     expect(page).toContain('<SelectItem value="ALL">All cycles</SelectItem>');
-    expect(page).toMatch(/data-testid=\{`review-filter-status-\$\{s\}`\}/);
-    expect(page).toMatch(/aria-pressed=\{active\}/);
+    // v2.458.0 re-anchor: the chips ride the filter chip loom — the desk
+    // passes testId/active; the loom speaks aria-pressed, family-wide.
+    expect(page).toMatch(/testId=\{`review-filter-status-\$\{s\}`\}/);
+    expect(page).toMatch(/<FilterChip/);
     expect(page).toMatch(/\{s === 'ALL' \? 'All' : s\.replace\(\/_\/g, ' '\)\.toLowerCase\(\)\}/);
   });
 
@@ -131,10 +136,17 @@ describe('console — the reviews tab gains handles', () => {
   });
 
   it('each active status wears its own badge family (same tones as the table)', () => {
-    expect(page).toContain("DRAFT: 'bg-slate-100 text-slate-800 border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-600'");
-    expect(page).toContain("SUBMITTED: 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/40 dark:text-amber-200 dark:border-amber-900'");
-    expect(page).toContain("ACKNOWLEDGED: 'bg-sky-100 text-sky-800 border-sky-300 dark:bg-sky-950/40 dark:text-sky-200 dark:border-sky-900'");
-    expect(page).toContain("CALIBRATED: 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-200 dark:border-emerald-900'");
+    // v2.458.0 re-anchor: the wardrobe moved into the filter chip loom's
+    // TINT registry (sky joined it for the ACKNOWLEDGED word) — the desk
+    // speaks the WORDS and the loom speaks the four faces once.
+    expect(page).toMatch(/STATUS_TONE[^}]*DRAFT: 'slate'/s);
+    expect(page).toMatch(/STATUS_TONE[^}]*SUBMITTED: 'amber'/s);
+    expect(page).toMatch(/STATUS_TONE[^}]*ACKNOWLEDGED: 'sky'/s);
+    expect(page).toMatch(/STATUS_TONE[^}]*CALIBRATED: 'emerald'/s);
+    expect(loom).toContain("slate: 'bg-slate-100 text-slate-800 border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-600',");
+    expect(loom).toContain("amber: 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/40 dark:text-amber-200 dark:border-amber-900',");
+    expect(loom).toContain("sky: 'bg-sky-100 text-sky-800 border-sky-300 dark:bg-sky-950/40 dark:text-sky-200 dark:border-sky-900',");
+    expect(loom).toContain("emerald: 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-200 dark:border-emerald-900',");
   });
 
   it('filtering is real: the table renders the filtered subset', () => {

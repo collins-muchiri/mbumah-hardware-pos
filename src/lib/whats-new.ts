@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.458.0',
+    title: 'The review chips ride the registry — sky joins the tints',
+    bullets: [
+      'The review-status chips on the HR performance desk carried their badge-family palette in another hand-copied registry — sky joined the loom’s tint registry for the acknowledged word, and the whole filter row rides one home now. The desk keeps its own words and counts.',
+      'The named amber ring voice stays exactly where it was: the review deep-link family’s own keyboard ring rides the desk byte-preserved, and the loom adds no competing ring — one ring colour per row, the desk’s own.',
+      'The whole performance desk speaks one chip dialect now — the goal filter row, the park-or-reopen switch and the review filter row all wear the same wardrobe; the ledger’s remaining map names the customers desk alone.',
+    ],
+  },
+  {
     version: '2.457.0',
     title: 'The loom learns the tints — the goal chips ride one registry',
     bullets: [

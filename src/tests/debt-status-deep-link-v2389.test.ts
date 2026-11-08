@@ -281,32 +281,31 @@ describe('the address-bar vocabulary — the twenty-eighth row (cross-suite pins
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.457.0 leads the feed', () => {
+describe('whats-new — v2.458.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.457.0');
-    // the lead's story hand-over (v2.457.0, the Task 111 law's
-    // sixty-third application): the head story is the hand-over's
-    // voice — the elder loom's third weave; the tint registry
-    // joined the one wardrobe — the goal chips (the HR
-    // performance desk's filter row, its park-or-reopen switch,
-    // and the self-service portal's My-goals row) had carried the
-    // badge-family palette in THREE hand-copied Record constants,
-    // and the copies had drifted — the portal's OPEN chip still
-    // wore the old sky pressed-state the console's v2.306.0
-    // one-colour law retired (the same word wore a second colour
-    // one bundle away); the loom's tint registry owns it now
-    // (amber, emerald, rose, slate — the transparent idle face
-    // tone-independent as all three desks already shared it) and
-    // the desks keep only their WORDS (the GOAL_TONE maps); the
-    // slim head joined the loom's head family and the goal chips
-    // gained the family's zinc ring. The loom's arrow exits the
-    // head this round; the tint's
-    // arrow carries the law.
-    expect(head.title).toContain('tints');
+    expect(head.version).toBe('2.458.0');
+    // the lead's story hand-over (v2.458.0, the Task 111 law's
+    // sixty-fourth application): the head story is the hand-over's
+    // voice — the elder loom's fourth weave; the review chips
+    // ride the registry — the performance desk's review-status
+    // filter row (the LAST hand-rolled speaker of the transparent
+    // tint idle in the desk) retired its STATUS_CHIP_ACTIVE
+    // Record and rides the loom's TINT registry; SKY joined the
+    // closed registry for the ACKNOWLEDGED word (the review table
+    // pill's own law aligned it family-wide — the filter row's
+    // hand-copy matched byte-for-byte, so the move is faithful),
+    // and the registry's shape is FIVE tones; the row's named
+    // AMBER RING voice rode the desk's className byte-preserved
+    // with focusRing="none" — the loom emits no competing zinc
+    // ring; the desk keeps its WORDS (STATUS_TONE) and the whole
+    // desk now speaks three FilterChip tint rows. The loom's
+    // arrow exits the head this round; the review's
+    // arrow keeps the ring.
+    expect(head.title).toContain('sky');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
     expect(head.bullets.some((b) => b.includes('one home'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('one colour law'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('zinc keyboard ring'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('amber ring'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('one chip dialect'))).toBe(true);
   });
 });
