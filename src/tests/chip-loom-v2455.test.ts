@@ -182,14 +182,17 @@ describe('v2.455.0 — the reports desk, its faces loomed', () => {
 });
 
 describe('v2.455.0 — the ledger: the carry\u2019s remaining faces, named for the next weave', () => {
+  // v2.456.0 RE-KEY (dated): the registry color dialects JOINED the loom
+  // in the second weave — the exports history's status lens and the
+  // debt-plans status lens ride CHIP_TONE_ACTIVE / CHIP_TONE_IDLE now;
+  // their sealed bytes live in chip-tones-v2456.test.ts. The ledger
+  // names the four remaining dialects.
   const LEDGER = [
     // [file, the head byte that names its dialect, the dialect's word]
     ['src/app/(shell)/tabs/inventory-tab.tsx', 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:scale-105', 'the scale dialect (no border, hover grows)'],
     ['src/app/(shell)/tabs/customers-tab.tsx', 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all border', 'the emerald dialect (with its count badge)'],
     ['src/components/pos/category-chips.tsx', 'chip-active', 'the gradient dialect (CSS class)'],
     ['src/app/(shell)/hr/performance/page.tsx', "ALL: 'bg-primary text-primary-foreground border-primary'", 'the HR goal chips (pinned by their own suite)'],
-    ['src/components/data-exports/exports-history-table.tsx', 'CHIP_ACTIVE[chip.color]', 'the registry color dialect'],
-    ['src/app/(shell)/tabs/debt-plans-tab.tsx', 'CHIP_ACTIVE_CLASSES[chip.color]', 'the registry color dialect (aria-pressed already)'],
   ] as const;
 
   it.each(LEDGER)('%s — %s', (file, byte, word) => {
@@ -197,8 +200,16 @@ describe('v2.455.0 — the ledger: the carry\u2019s remaining faces, named for t
     expect(src.includes(byte), `${file} lost ${word}`).toBe(true);
   });
 
-  it('the debt-plans desk already speaks the pressed voice (the loom\u2019s precedent)', () => {
-    expect(readRepo('src/app/(shell)/tabs/debt-plans-tab.tsx').includes('aria-pressed={isActive}')).toBe(true);
+  // v2.456.0 RE-KEY (dated): the debt-plans desk's hand-rolled pressed
+  // voice moved INTO the loom (aria-pressed={active} lives in
+  // filter-chip.tsx now; the desk rides it) — the precedent became the
+  // family's law, and the byte left the desk.
+  it('the pressed voice lives in the loom and the status lenses ride it', () => {
+    const loomSrc = readRepo('src/components/filter-chip.tsx');
+    expect(loomSrc.includes('aria-pressed={active}')).toBe(true);
+    const debt = readRepo('src/app/(shell)/tabs/debt-plans-tab.tsx');
+    expect(debt.includes('<FilterChip')).toBe(true);
+    expect(debt.includes('aria-pressed')).toBe(false);
   });
 
   it('the elder violet pin rides untouched (door-tightening\u2019s ring face)', () => {

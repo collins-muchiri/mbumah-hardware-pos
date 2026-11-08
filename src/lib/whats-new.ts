@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.456.0',
+    title: 'The loom learns the tones — every status lens rides one palette',
+    bullets: [
+      'The status lens chips on the debt-plans desk and the exports history shared the same color palette in two hand-copied registries — the loom owns the whole palette now, one home for emerald, green, rose, amber and zinc, with the count badges moved in beside it. The desks keep their own words, icons and counts.',
+      'The exports history’s status chips learn to speak their pressed state (aria-pressed) — the debt-plans desk already did — and both lenses gain the family’s zinc keyboard ring. Every lens chip in the app now answers to keyboard and screen reader alike.',
+      'One named improvement: every active tone lifts with the family’s shadow — the debt-plans desk’s active chips always carried it, and the exports desk’s join them, so a pressed lens reads the same on every desk.',
+    ],
+  },
+  {
     version: '2.455.0',
     title: 'The elder loom’s first weave — every lens chip speaks its pressed state',
     bullets: [

@@ -1,3 +1,17 @@
+## [2.456.0] The loom learns the tones — every status lens rides one palette
+
+The elder loom's second weave: the two registry-driven status lenses — the debt-plans desk's status filter and the exports history's status filter — carried the same color palette in two hand-copied Record constants; the palette lives in the loom now, and the desks speak no wardrobe byte.
+
+### Added
+- **THE TONE REGISTRY** (`src/components/filter-chip.tsx`): `CHIP_TONE_ACTIVE` / `CHIP_TONE_IDLE` — the palette (emerald, green, rose, amber, zinc) in ONE home, the `dark:` variants riding the idle faces exactly as the desks kept them; the loom's `tone` prop picks the face pair, with the family face as the closed registry's fallback.
+- **THE COUNT BADGE'S ONE HOME** (`FilterChipCount`): the two desks rendered byte-identical count badges beside their labels — the companion owns that wardrobe now.
+- **THE PRESSED VOICE COMPLETES**: the exports history's status chips gain `aria-pressed` through the loom (the debt-plans desk already spoke it) — every lens chip in the app answers to screen readers now.
+- **THE FAMILY'S RING**: both status lenses gain the zinc keyboard ring through the loom; neither desk speaks a ring byte.
+
+### Changed
+- **THE SHADOW UNIFICATION** (the weave's one named, deliberate improvement): the debt-plans desk's active face carried `shadow-sm`, the exports desk's stood flat — the family's own primary active face already lifts, so the shadow rides every tone (resolved FOR the lift, not against it).
+- **THE MASQUERADE LAW, LOOM FORM**: `CHIP_ACTIVE`/`CHIP_IDLE` (exports history) and `CHIP_ACTIVE_CLASSES`/`CHIP_IDLE_CLASSES` (debt-plans) retire — the tone faces live in exactly ONE src file. The TYPE row's slate dialect stays hand-rolled (the ledger's remaining map).
+
 ## [2.455.0] The elder loom's first weave — every lens chip speaks its pressed state
 
 The elder lens chips predate the deep-link era; the landing chips loomed in v2.394.0 while the pill filters stayed hand-rolled — the carry has stood since v2.397.0. This round weaves the first family: six faces in two desks move to ONE wardrobe component, with a ledger naming every remaining dialect for the weaves that follow.

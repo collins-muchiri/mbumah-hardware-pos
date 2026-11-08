@@ -20,10 +20,10 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 
 const TAB = 'src/app/(shell)/tabs/data-exports-tab.tsx';
-const HISTORY = 'src/components/data-exports/exports-history-table.tsx';
+// v2.456.0 RE-KEY (dated): the HISTORY file const retired — the wardrobe
+// byte it pinned moved to the loom, read directly at its one pin site.
 
 const tab = readFileSync(TAB, 'utf8');
-const history = readFileSync(HISTORY, 'utf8');
 
 const tbody = tab.slice(tab.indexOf('<tbody>'), tab.indexOf('</tbody>'));
 
@@ -49,7 +49,14 @@ describe('the status door takes its seat (v2.444.0)', () => {
 
   it('one family, three seats — the pressed wardrobe is the history chip’s own bytes', () => {
     expect(tbody).toContain("'bg-zinc-600 text-white border-zinc-600'");
-    expect(history).toContain("zinc: 'bg-zinc-600 text-white border-zinc-600',");
+    // v2.456.0 RE-KEY (dated): the history chip's color registry moved
+    // to the loom's ONE tone registry (chip-tones-v2456.test.ts pins
+    // the full weave) — the byte lives in filter-chip.tsx now, and the
+    // shadow unification gave the active face the family's lift, so
+    // the zinc row carries shadow-sm.
+    expect(readFileSync('src/components/filter-chip.tsx', 'utf8')).toContain(
+      "zinc: 'bg-zinc-600 text-white border-zinc-600 shadow-sm',"
+    );
   });
 
   it('the idle wardrobe carries the zinc palette — hover deepens, both states', () => {

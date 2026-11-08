@@ -254,10 +254,15 @@ describe('the landing chip — the face names the word it answered', () => {
   });
 
   it('the desk\u2019s own voices keep their families beside the chip (no masquerade)', () => {
-    // the filter chips' emerald/amber/rose/green are the desk's own — the
-    // chip's zinc borrows nothing from them
-    expect(desk.includes("'bg-emerald-50 text-emerald-700 border-emerald-200")).toBe(true);
+    // v2.456.0 RE-KEY (dated): the status chips' palette moved to the
+    // FILTER-chip loom's ONE tone registry (CHIP_TONE_IDLE /
+    // CHIP_TONE_ACTIVE — chip-tones-v2456.test.ts pins the weave); the
+    // desk rides `tone={chip.color}` and speaks no palette byte of its
+    // own. The landing chip's zinc family byte below is untouched.
+    expect(desk.includes('tone={chip.color}')).toBe(true);
     expect(LOOM.includes('border-zinc-200 bg-zinc-50')).toBe(true);
+    const toneLoom = readFileSync('src/components/filter-chip.tsx', 'utf8');
+    expect(toneLoom.includes('bg-emerald-50 text-emerald-700 border-emerald-200')).toBe(true);
   });
 });
 
