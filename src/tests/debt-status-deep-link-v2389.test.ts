@@ -281,32 +281,32 @@ describe('the address-bar vocabulary — the twenty-eighth row (cross-suite pins
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.464.0 leads the feed', () => {
+describe('whats-new — v2.465.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.464.0');
-    // the lead's story hand-over (v2.464.0, the Task 111 law's
-    // seventieth application): the head story is the hand-over's
-    // voice — the carrying round: THE NOTE RIDES THE FILE — the
-    // dead-stock CSV export (the client-side door, the server door
-    // never borrowed) gains a Clearance note column speaking the
-    // SAME deterministic note the Ask copies and the share door
-    // sends, composed in the ONE home row by row (never re-typed
-    // in the desk), CSV-escaped with the window that caught each
-    // row riding inside the word — one voice, three doors, the
-    // clipboard and the chat and the sheet can never drift apart;
-    // THE SHARE IS DRAWN — a thin rose bar under the number (the
-    // family's own word, never a second palette), aria-hidden
-    // because the number above IS the voice — a second label
-    // would be a stutter; and the export button speaks its file
-    // only when the dead-stock report is on stage (the
-    // conditional undefined falls back to the plain CSV face).
-    // The note copies; the share opens; the file carries the word.
-    expect(head.title).toContain('carry');
+    expect(head.version).toBe('2.465.0');
+    // the lead's story hand-over (v2.465.0, the Task 111 law's
+    // seventy-first application): the head story is the hand-over's
+    // voice — the carrying round: THE LEDGER SPEAKS IN ONE BREATH —
+    // the clearance note's FOURTH door: the dead-stock CSV grows a
+    // Share link column beside the Clearance note column, each row's
+    // wa.me word composed in the SAME ONE home the clipboard and the
+    // share door already speak (never re-typed in the desk), the cell
+    // quoted like every word — one voice, four doors, and the four
+    // can never drift apart; THE LEDGER'S CHORUS — the collective
+    // composer deadStockClearanceNotes builds the whole word in the
+    // ONE home (a header line speaking the ledger's own summary over
+    // the SAME per-row notes the Ask copies), and the ledger's header
+    // grows the Copy all handle that carries it to the clipboard at
+    // once — the compact seat, the emerald hover the family speaks,
+    // the double voice, and the honest exit: it only shows when rows
+    // exist (a button that copies nothing would be a lie).
+    // The link rides the file; the chorus rides the clipboard.
+    expect(head.title).toContain('one breath');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('file'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('share link'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('clearance note'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('clipboard'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('share door'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('copy all'))).toBe(true);
   });
 });

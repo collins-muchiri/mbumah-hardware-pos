@@ -30,7 +30,10 @@ const home = readFileSync(HOME, 'utf8');
 
 describe('the dead-stock CSV — the clearance note rides the file', () => {
   it('the header row gains the Clearance note column', () => {
-    expect(desk.includes("'Product,SKU,Category,Qty on hand,Unit cost,Capital tied,Last sold,Days idle,Clearance note\\n'")).toBe(true);
+    // v2.465.0 re-key (dated): the file's header grew a Share link column
+    // beside the note — the pin rides the grown row; the column's own
+    // bytes live in the v2465 chorus suite.
+    expect(desk.includes("'Product,SKU,Category,Qty on hand,Unit cost,Capital tied,Last sold,Days idle,Clearance note,Share link\\n'")).toBe(true);
   });
 
   it('the note is composed in the ONE home — never re-typed in the desk', () => {
@@ -42,7 +45,9 @@ describe('the dead-stock CSV — the clearance note rides the file', () => {
 
   it('the note rides CSV-escaped — inner quotes doubled, the cell quoted', () => {
     expect(desk.includes(".replaceAll('\"', '\"\"')")).toBe(true);
-    expect(desk.includes(',"${note}"\\n`')).toBe(true);
+    // v2.465.0 re-key (dated): the row grew the share cell after the
+    // note — the quoted-note pin rides the grown row tail.
+    expect(desk.includes(',"${note}","${share}"\\n`')).toBe(true);
   });
 
   it('the days that compose the note are the summary\u2019s own — the file matches the lens', () => {
@@ -105,7 +110,7 @@ describe('the export button — the file\u2019s weight, spoken when dead stock i
 describe('whats-new — the round leads the feed', () => {
   it('the head wears the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.464.0');
+    expect(head.version).toBe('2.465.0');
     expect(head.title).toContain('reach out');
     expect(head.title).toContain('carry');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
