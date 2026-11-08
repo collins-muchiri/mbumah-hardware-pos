@@ -192,8 +192,22 @@ describe('v2.455.0 — the ledger: the carry\u2019s remaining faces, named for t
     ['src/app/(shell)/tabs/inventory-tab.tsx', 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:scale-105', 'the scale dialect (no border, hover grows)'],
     ['src/app/(shell)/tabs/customers-tab.tsx', 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all border', 'the emerald dialect (with its count badge)'],
     ['src/components/pos/category-chips.tsx', 'chip-active', 'the gradient dialect (CSS class)'],
-    ['src/app/(shell)/hr/performance/page.tsx', "ALL: 'bg-primary text-primary-foreground border-primary'", 'the HR goal chips (pinned by their own suite)'],
   ] as const;
+
+  // v2.458.0 RE-KEY (dated): the ledger's fourth row — the performance
+  // desk's HR chips — has been TAKEN, two weaves over: the goal chips
+  // rode the tint registry in v2.457.0 and the review chips joined in
+  // v2.458.0 (sky's round). The byte `ALL: 'bg-primary text-primary-
+  // foreground border-primary'` left the desk with the wardrobe; the
+  // desk now speaks three FilterChip tint rows and zero hand-rolled
+  // faces. The row exits the LEDGER (the remaining dialects are the
+  // three above); the taken seat is pinned here instead.
+  it('the performance desk\'s chip rows RODE the loom (v2.457.0 + v2.458.0 — the ledger\'s taken seat)', () => {
+    const desk = readRepo('src/app/(shell)/hr/performance/page.tsx');
+    expect(desk.includes("ALL: 'bg-primary text-primary-foreground border-primary'")).toBe(false);
+    expect([...desk.matchAll(/variant="tint"/g)].length).toBe(3);
+    expect(desk.includes('<FilterChip')).toBe(true);
+  });
 
   it.each(LEDGER)('%s — %s', (file, byte, word) => {
     const src = readRepo(file);

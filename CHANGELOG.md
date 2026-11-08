@@ -1,3 +1,15 @@
+## [2.458.0] The review chips ride the registry — sky joins the tints
+
+The elder loom's fourth weave: the performance desk's review-status filter row — the last hand-rolled speaker of the transparent tint idle in the desk — retires its STATUS_CHIP_ACTIVE Record and rides the tint registry; sky joins the closed registry for the ACKNOWLEDGED word, and the whole performance desk speaks one chip dialect.
+
+### Added
+- **SKY JOINS THE TINT REGISTRY** (`src/components/filter-chip.tsx`): `CHIP_TINT_ACTIVE` grows the sky face byte-exact as the desk kept it — the closed registry's shape is FIVE tones (amber, emerald, rose, slate, sky), and the ACKNOWLEDGED word aligns with the review table pill's own law by construction.
+- **THE NAMED RING LAW, EXERCISED**: the review row's keyboard ring is the deep-link family's OWN amber voice (v2.286.0) — the row rides `focusRing="none"` and the amber byte stays on the desk's className, byte-preserved; the loom emits no competing zinc ring (the live DOM probe read amberRing: 6, zincRing: 0 before the weave — the ring was already whole).
+
+### Changed
+- **THE WARDROBE RETIRES**: `STATUS_CHIP_ACTIVE` → the `STATUS_TONE` word map (DRAFT→slate, SUBMITTED→amber, ACKNOWLEDGED→sky, CALIBRATED→emerald); the review row rides `variant="tint" slim` with the deep-link retire word intact. The desk speaks no tint wardrobe byte and no hand-rolled transparent idle.
+- **THE WHOLE DESK RIDES**: three FilterChip tint usages now speak the performance desk's chip rows (goal filter slim, goal edit compact, review filter slim); the v2.455.0 ledger's fourth row exits — the taken seat is pinned by its own dated re-key. The named remainder is the customers desk's emerald dialect alone.
+
 ## [2.457.0] The loom learns the tints — the goal chips ride one registry
 
 The elder loom's third weave: the goal chips — the HR performance desk's filter row, its park-or-reopen switch, and the self-service portal's My-goals row — carried the badge-family palette in three hand-copied Record constants, and the copies had drifted; the tints live in the loom now, and the one colour law is whole across src.

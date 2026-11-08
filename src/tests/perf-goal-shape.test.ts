@@ -164,7 +164,7 @@ describe('prior anchors hold', () => {
 
   it('v2.88.0 — the calibration meter and the review filters stay intact', () => {
     expect(page).toMatch(/data-testid=\{`cycle-meter-\$\{c\.id\}`\}/);
-    expect(page).toMatch(/data-testid=\{`review-filter-status-\$\{s\}`\}/);
+    expect(page).toMatch(/testId=\{`review-filter-status-\$\{s\}`\}/);
     expect(page).toMatch(/data-testid="review-filter-count"/);
   });
 

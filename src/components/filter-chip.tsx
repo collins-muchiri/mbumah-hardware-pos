@@ -108,11 +108,16 @@ export const CHIP_TONE_IDLE: Record<string, string> = {
 // chips' badge-family palette. Statically declared so Tailwind can find
 // every class. The tint idle face is ONE voice (the transparent idle all
 // three goal desks already shared) — tone-independent by design.
+// v2.458.0 (the fourth weave): SKY joins the closed registry — the
+// review chips' ACKNOWLEDGED word wears it (the review table pill's own
+// law already aligned: acknowledged wears sky family-wide), and the
+// performance desk's filter row rides the registry with the rest.
 export const CHIP_TINT_ACTIVE: Record<string, string> = {
   amber: 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/40 dark:text-amber-200 dark:border-amber-900',
   emerald: 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-200 dark:border-emerald-900',
   rose: 'bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/40 dark:text-rose-200 dark:border-rose-900',
   slate: 'bg-slate-100 text-slate-800 border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-600',
+  sky: 'bg-sky-100 text-sky-800 border-sky-300 dark:bg-sky-950/40 dark:text-sky-200 dark:border-sky-900',
 };
 
 export const CHIP_TINT_IDLE =

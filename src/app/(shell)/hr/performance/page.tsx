@@ -214,12 +214,17 @@ const SOURCE_CHIP: Record<string, string> = {
 // v2.88.0: review-status filter chips. Each status wears its own badge
 // family when active (same tones StatusBadge renders), so the filter row
 // and the table speak the same color language, light and dark.
-const STATUS_CHIP_ACTIVE: Record<string, string> = {
-  DRAFT: 'bg-slate-100 text-slate-800 border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-600',
-  SUBMITTED: 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/40 dark:text-amber-200 dark:border-amber-900',
-  ACKNOWLEDGED: 'bg-sky-100 text-sky-800 border-sky-300 dark:bg-sky-950/40 dark:text-sky-200 dark:border-sky-900',
-  CALIBRATED: 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-200 dark:border-emerald-900',
-  ALL: 'bg-primary text-primary-foreground border-primary',
+// v2.458.0: the WARDROBE retired — the badge-family faces live in the
+// filter chip loom's TINT registry (sky joined it this round for the
+// ACKNOWLEDGED word), and the desk keeps only the WORDS: which status
+// wears which family. The row's named AMBER RING voice (the review
+// deep-link family's own keyboard ring since v2.286.0) rides the desks'
+// className with focusRing="none" — the loom refuses a competing ring.
+const STATUS_TONE: Record<string, string> = {
+  DRAFT: 'slate',
+  SUBMITTED: 'amber',
+  ACKNOWLEDGED: 'sky',
+  CALIBRATED: 'emerald',
 };
 
 export default function PerformancePage() {
@@ -1221,21 +1226,20 @@ export default function PerformancePage() {
                       const active = filterStatus === s;
                       const count = s === 'ALL' ? (reviews ?? []).length : reviewStatusCounts[s as keyof CycleStatusCounts];
                       return (
-                        <button
+                        <FilterChip
                           key={s}
-                          type="button"
-                          aria-pressed={active}
-                          data-testid={`review-filter-status-${s}`}
+                          variant="tint"
+                          slim
+                          active={active}
+                          testId={`review-filter-status-${s}`}
                           onClick={() => { dropUrlParam('status'); setFilterStatus(s); }}
-                          className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 dark:focus-visible:ring-amber-500 ${
-                            active
-                              ? STATUS_CHIP_ACTIVE[s]
-                              : 'border-border bg-transparent text-muted-foreground hover:bg-muted/60'
-                          }`}
+                          tone={s === 'ALL' ? undefined : STATUS_TONE[s]}
+                          focusRing="none"
+                          className="inline-flex items-center gap-1 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 dark:focus-visible:ring-amber-500"
                         >
                           {s === 'ALL' ? 'All' : s.replace(/_/g, ' ').toLowerCase()}
                           <span className="tabular-nums opacity-70">{count}</span>
-                        </button>
+                        </FilterChip>
                       );
                     })}
                     {/* v2.286.0: an active review-status filter — however it
