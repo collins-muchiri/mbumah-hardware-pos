@@ -1,3 +1,14 @@
+## [2.472.0] The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, the number learns its edit door, the settings desk learns the branch’s own words, the paper carries a scannable door, the file sings the chorus whole, and the ledger answers to its own columns
+
+The dead-stock ledger learns its sort door: the Capital tied and Days idle headers answer to their own column — the two honest orders composed in the ONE home, the view a lens and never a rewrite.
+
+### Added
+- **THE SORT DOOR** (`src/lib/reports/dead-stock.ts`, `src/app/(shell)/tabs/reports-tab.tsx`): `sortDeadStockRows` composes the ledger's two honest orders in the ONE home — the capital order is the classifier's own standing word (the loudest debt first, name tiebreak), the idle order is the shelf's patience (longest idle first, the never-sold row standing at the FRONT, its null a voice and not a zero, ties breaking by the louder debt then the name). The Capital tied and Days idle headers become the door: one press speaks that column's order, the pressed column wearing `aria-sort="descending"` and the family's ArrowDown, the resting one the muted ChevronsUpDown and the hover lift. Pure and deterministic — the input is never mutated, two never-sold rows never NaN, and the desk opens exactly as it always has (the resting face is `capital`).
+
+### Changed
+- **THE VIEW/ARCHIVE LAW** (`src/app/(shell)/tabs/reports-tab.tsx`): the table's body reads the pressed order (`sortedRows`); the file (the CSV's footer and share link column), the clipboard's copy all chorus and the print door keep the canonical `rows` — the archive's word stays deterministic whatever the desk is looking at. The sort is a lens, never a rewrite.
+- **THE STAT CARDS' WHISPERS** (`src/app/(shell)/tabs/reports-tab.tsx`): the three dead-stock stat cards learn their own small icons — the coins, the empty shelf and the percent joining their labels at the family's h-3 w-3 size, aria-hidden (the words above are the voice). No palette is added: the whispers speak the muted tone the labels already wear.
+
 ## [2.471.0] The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, the number learns its edit door, the settings desk learns the branch’s own words, the paper carries a scannable door, and the file sings the chorus whole
 
 The dead-stock CSV's footer speaks the collective word — the Clearance chorus row joins the summary block — and the ledger's rows learn their own bars: the loudest debt, drawn.

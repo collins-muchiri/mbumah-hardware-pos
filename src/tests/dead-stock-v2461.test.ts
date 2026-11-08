@@ -266,7 +266,12 @@ describe('the reports desk — the ninth card and its faces', () => {
     // stands untouched.
     const section = TAB.slice(TAB.indexOf('function DeadStockSection'), TAB.indexOf('// Main Reports Tab Component'));
     expect(section).not.toContain('aria-pressed');
-    expect(section.split('aria-label=').length - 1).toBe(4);
+    // v2.472.0 re-key (dated): the section grows its FIFTH and SIXTH
+    // voices — the sort door's two headers (the Capital tied and Days
+    // idle handles, the double voice every handle wears); the census
+    // speaks the section's six handles now, and the loom's
+    // pressed-voice law stands untouched.
+    expect(section.split('aria-label=').length - 1).toBe(6);
     expect(section).toContain('aria-label={`Copy clearance note for ${r.name}`}');
   });
 

@@ -167,8 +167,13 @@ describe('the dead-stock desk — the pre-address pinned from the desk bytes', (
     expect(desk.includes('onClick={() => { setPhoneDraft(\'\'); setPhoneDialogOpen(true); }}')).toBe(true);
     // the chip speaks by its text and its one action label — the census's
     // four handles (Ask, Share, Copy all, the edit door) stay four.
+    // v2.472.0 re-key (dated): the section grows its FIFTH and SIXTH
+    // voices — the sort door's two headers (the Capital tied and Days
+    // idle handles, the double voice every handle wears); the census
+    // speaks the section's six handles now, and the chip's own face is
+    // untouched.
     const section = desk.slice(desk.indexOf('function DeadStockSection'), desk.indexOf('// Main Reports Tab Component'));
-    expect(section.split('aria-label=').length - 1).toBe(4);
+    expect(section.split('aria-label=').length - 1).toBe(6);
   });
 
   it('the display word is imported from the ONE home — the desk never re-formats the number', () => {
@@ -196,7 +201,7 @@ describe('whats-new — the pre-address leads the feed', () => {
   const head = WHATS_NEW[0];
 
   it('the head wears the round\'s own story', () => {
-    expect(head.version).toBe('2.471.0');
+    expect(head.version).toBe('2.472.0');
     expect(head.title).toContain('resting ledger');
     expect(head.title).toContain('reach out');
     expect(head.title).toContain('one breath');
