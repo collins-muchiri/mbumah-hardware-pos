@@ -38,6 +38,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { LandingChip } from '@/components/landing-chip';
+import { FilterChip } from '@/components/filter-chip';
 
 const AVATAR_GRADIENTS = [
   'from-rose-500 to-pink-600',
@@ -972,8 +973,23 @@ export default function CustomersTab() {
           { key: 'debt', label: 'With Debt', count: customersWithDebt, color: 'amber' },
           { key: 'loyalty', label: 'Loyalty Members', count: loyaltyMembers, color: 'purple' },
         ].map((chip) => (
-          <button
+          // v2.459.0: the quick chips ride the elder loom — the ledger's
+          // LAST named tint dialect. The active face unifies to the
+          // registry's emerald byte (the hand-copy's text-700/dark-900/30
+          // drift resolved FOR the family, the shadow-sm precedent); the
+          // idle keeps the desk's own glassy backdrop voice through the
+          // loom's `glass` prop; the pressed voice and the family's zinc
+          // keyboard ring ride through. The per-color count badges stay
+          // this desk's own children — a badge voice, never a lens face.
+          <FilterChip
             key={chip.key}
+            active={
+              (chip.key === 'all' && debtFilter === 'all') || (chip.key === 'debt' && debtFilter === 'outstanding')
+            }
+            variant="tint"
+            tone="emerald"
+            glass
+            className="inline-flex items-center gap-1.5"
             onClick={() => {
               // v2.330.0: the quick chips are hand-driven voices too —
               // each press retires the landing word.
@@ -982,11 +998,6 @@ export default function CustomersTab() {
               else if (chip.key === 'loyalty') chooseDebtFilter('all'); // loyalty filter not in current state
               else chooseDebtFilter('all');
             }}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
-              (chip.key === 'all' && debtFilter === 'all') || (chip.key === 'debt' && debtFilter === 'outstanding')
-                ? 'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-700'
-                : 'bg-white/60 text-muted-foreground border-border/50 hover:bg-white/80 dark:bg-white/5 dark:hover:bg-white/10'
-            }`}
           >
             {chip.label}
             <span className={`ml-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
@@ -997,7 +1008,7 @@ export default function CustomersTab() {
             }`}>
               {chip.count}
             </span>
-          </button>
+          </FilterChip>
         ))}
         <div className="flex-1" />
         <Button

@@ -67,6 +67,21 @@
  * the regular and compact faces — a desk's size is its own voice, so
  * it rides a prop, not a hand-rolled className.
  *
+ * THE GLASS IDLE (v2.459.0, the elder loom's fifth weave): the
+ * customers desk's quick chips — the ledger's LAST named tint dialect
+ * — ride the registry now. Their active face unifies to the registry's
+ * emerald byte (the desk's hand-copy had drifted: text-700 where the
+ * family speaks -800, dark 900/30 and -400/-700 where the family
+ * speaks 950/40 and -200/-900 — the same one-byte disagreement the
+ * second weave resolved FOR the family with the shadow-sm lift), and
+ * their idle keeps the desk's own backdrop voice: a GLASSY white wash
+ * for chips that sit on gradient card faces, where the transparent
+ * tint idle would show the card through. A desk's backdrop is its own
+ * voice, so it rides a prop (`glass`) beside the slim head — the
+ * badge-family tints that hang inside the chips (emerald/cyan/amber/
+ * purple count badges) stay the desk's own children, a badge voice,
+ * never a lens face.
+ *
  * THE WORD-FREE LAW: the loom speaks no address-bar token — no collision
  * ledger ever has to admit this file.
  * THE MASQUERADE LAW, LOOM FORM: a loomed desk speaks NO wardrobe byte —
@@ -123,6 +138,13 @@ export const CHIP_TINT_ACTIVE: Record<string, string> = {
 export const CHIP_TINT_IDLE =
   'border-border bg-transparent text-muted-foreground hover:bg-muted/60';
 
+// THE GLASS IDLE (v2.459.0, the fifth weave) — the customers desk's
+// historic idle voice, byte-exact as the desk kept it: a glassy wash
+// for chips sitting on gradient card faces. Rides only with
+// variant="tint", through the `glass` prop.
+export const CHIP_TINT_IDLE_GLASS =
+  'bg-white/60 text-muted-foreground border-border/50 hover:bg-white/80 dark:bg-white/5 dark:hover:bg-white/10';
+
 export interface FilterChipProps {
   /** Whether this chip is the lens's live choice (drives the face and aria-pressed). */
   active: boolean;
@@ -149,6 +171,10 @@ export interface FilterChipProps {
    * solid lens faces; `"tint"` (v2.457.0) reads the TINT REGISTRY's
    * badge-family faces with the transparent idle. */
   variant?: 'solid' | 'tint';
+  /** The glassy tint idle (v2.459.0) — the customers desk's backdrop
+   * voice, for chips on gradient card faces. Only rides with
+   * `variant="tint"`; the transparent idle stays the family default. */
+  glass?: boolean;
 }
 
 export function FilterChip({
@@ -164,12 +190,15 @@ export function FilterChip({
   disabled,
   tone,
   variant = 'solid',
+  glass = false,
 }: FilterChipProps) {
   const face =
     variant === 'tint'
       ? active
         ? (CHIP_TINT_ACTIVE[tone ?? ''] ?? CHIP_ACTIVE)
-        : CHIP_TINT_IDLE
+        : glass
+          ? CHIP_TINT_IDLE_GLASS
+          : CHIP_TINT_IDLE
       : tone
         ? active
           ? (CHIP_TONE_ACTIVE[tone] ?? CHIP_ACTIVE)

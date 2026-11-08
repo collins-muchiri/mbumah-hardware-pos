@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.459.0',
+    title: 'The customers ride the loom — the glass idle joins the tints',
+    bullets: [
+      'The customers desk’s quick chips — All, Active, With Debt, Loyalty Members — carried the ledger’s last hand-copied tint dialect; they ride the loom now, one home, and the desk keeps its own words, counts and handlers.',
+      'The chips keep their glassy idle: a white wash made for the customers card’s gradient backdrop joins the loom as its own voice — the transparent tint idle would have shown the card straight through. A desk’s backdrop is its own voice, so it rides a prop.',
+      'The active face unifies to the registry’s emerald and the pressed voice plus the family’s zinc keyboard ring arrive — the hand-copy had drifted a few shades from the family, and the copies disagreed; the family’s voice wins, and every lens chip in the app now answers to keyboard and screen reader alike.',
+    ],
+  },
+  {
     version: '2.458.0',
     title: 'The review chips ride the registry — sky joins the tints',
     bullets: [

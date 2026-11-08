@@ -82,8 +82,11 @@ describe('v2.457.0 — the loom learns the tints: the badge family rides one hom
 
   it('the tint idle is ONE transparent voice, tone-independent by design', () => {
     expect(loom).toContain("export const CHIP_TINT_IDLE =\n  'border-border bg-transparent text-muted-foreground hover:bg-muted/60';");
-    // the tint branch never consults an idle registry — one idle, no per-tone faces
-    expect(loom).toMatch(/variant === 'tint'\s*\?\s*active\s*\?\s*\(CHIP_TINT_ACTIVE\[tone \?\? ''\] \?\? CHIP_ACTIVE\)\s*:\s*CHIP_TINT_IDLE/);
+    // v2.459.0 re-anchor (dated): the fifth weave seated the GLASS idle
+    // (CHIP_TINT_IDLE_GLASS, the customers desk's backdrop voice) between
+    // the active face and the transparent idle — one idle PER VOICE, the
+    // transparent one still the family default; the prop defaults off.
+    expect(loom).toMatch(/variant === 'tint'\s*\?\s*active\s*\?\s*\(CHIP_TINT_ACTIVE\[tone \?\? ''\] \?\? CHIP_ACTIVE\)\s*:\s*glass\s*\?\s*CHIP_TINT_IDLE_GLASS\s*:\s*CHIP_TINT_IDLE/);
   });
 
   it('the tint fallback is the family face — a word outside the registry wears primary, never silence', () => {
@@ -149,12 +152,12 @@ describe('v2.457.0 — the loom learns the tints: the badge family rides one hom
     expect(deskHits(portal)).toBe(0);
   });
 
-  it('the named remainders move forward — the review chips RIDES now (v2.458.0), the customers desk stays', () => {
-    // v2.458.0 re-anchor: the review chips' dialect (STATUS_CHIP_ACTIVE)
-    // was this round's named remainder — the FOURTH weave took it (sky
-    // joined the tint registry; the review row rides). The ledger's
-    // remaining hand-rolled tint dialect is the customers desk's emerald
-    // voice alone (its white/60 glassy idle + per-color count badges).
+  it('the named remainders are ALL taken — the whole tint family rides one home', () => {
+    // v2.459.0 re-anchor: the LAST remainder — the customers desk's
+    // emerald dialect — rode the loom in the fifth weave (the glassy
+    // idle joined as CHIP_TINT_IDLE_GLASS; the drifted active face
+    // unified to the registry byte). No hand-rolled tint dialect
+    // remains anywhere in src.
     expect(perf).not.toContain('STATUS_CHIP_ACTIVE');
     expect(perf).toContain("const STATUS_TONE: Record<string, string> = {");
     expect(readRepo('src/components/filter-chip.tsx')).toMatch(/sky: 'bg-sky-100/);

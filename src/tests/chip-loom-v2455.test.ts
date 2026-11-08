@@ -190,9 +190,16 @@ describe('v2.455.0 — the ledger: the carry\u2019s remaining faces, named for t
   const LEDGER = [
     // [file, the head byte that names its dialect, the dialect's word]
     ['src/app/(shell)/tabs/inventory-tab.tsx', 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:scale-105', 'the scale dialect (no border, hover grows)'],
-    ['src/app/(shell)/tabs/customers-tab.tsx', 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all border', 'the emerald dialect (with its count badge)'],
     ['src/components/pos/category-chips.tsx', 'chip-active', 'the gradient dialect (CSS class)'],
   ] as const;
+
+  // v2.459.0 RE-KEY (dated): the ledger's emerald row — the customers
+  // desk's quick chips — has been TAKEN by the fifth weave: the chips
+  // ride FilterChip variant="tint" tone="emerald" glass now; the
+  // glassy idle joined the loom as CHIP_TINT_IDLE_GLASS and the
+  // drifted emerald active face unified to the registry byte (the
+  // shadow-sm precedent, second verse). The row exits the LEDGER; the
+  // taken seat is pinned in customer-tints-v2459.test.ts.
 
   // v2.458.0 RE-KEY (dated): the ledger's fourth row — the performance
   // desk's HR chips — has been TAKEN, two weaves over: the goal chips

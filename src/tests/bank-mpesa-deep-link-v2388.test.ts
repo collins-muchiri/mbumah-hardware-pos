@@ -275,32 +275,35 @@ describe('the address-bar vocabulary — the twenty-seventh row (cross-suite pin
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.458.0 leads the feed', () => {
+describe('whats-new — v2.459.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.458.0');
-    // the lead's story hand-over (v2.458.0, the Task 111 law's
-    // sixty-fourth application): the head story is the hand-over's
-    // voice — the elder loom's fourth weave; the review chips
-    // ride the registry — the performance desk's review-status
-    // filter row (the LAST hand-rolled speaker of the transparent
-    // tint idle in the desk) retired its STATUS_CHIP_ACTIVE
-    // Record and rides the loom's TINT registry; SKY joined the
-    // closed registry for the ACKNOWLEDGED word (the review table
-    // pill's own law aligned it family-wide — the filter row's
-    // hand-copy matched byte-for-byte, so the move is faithful),
-    // and the registry's shape is FIVE tones; the row's named
-    // AMBER RING voice rode the desk's className byte-preserved
-    // with focusRing="none" — the loom emits no competing zinc
-    // ring; the desk keeps its WORDS (STATUS_TONE) and the whole
-    // desk now speaks three FilterChip tint rows. The loom's
-    // arrow exits the head this round; the review's
-    // arrow keeps the ring.
-    expect(head.title).toContain('sky');
+    expect(head.version).toBe('2.459.0');
+    // the lead's story hand-over (v2.459.0, the Task 111 law's
+    // sixty-fifth application): the head story is the hand-over's
+    // voice — the elder loom's fifth weave; the customers desk's
+    // quick chips (All / Active / With Debt / Loyalty Members),
+    // the ledger's LAST named tint dialect, retired their
+    // hand-rolled button and ride the loom's TINT registry with
+    // the emerald tone; THE GLASS IDLE — the desk's historic
+    // glassy backdrop voice (a white wash made for the customers
+    // card's gradient face, where the transparent tint idle would
+    // show the card straight through) joined the loom byte-exact
+    // as CHIP_TINT_IDLE_GLASS through the glass prop (a desk's
+    // backdrop is its own voice — the slim-head precedent); THE
+    // NAMED UNIFICATION (the shadow-sm precedent, second verse)
+    // retired the drifted emerald for the registry byte, and the
+    // desk speaks no emerald lens byte at all; THE PRESSED VOICE
+    // AND THE FAMILY'S ZINC RING arrived (neither chip spoke
+    // aria-pressed nor wore a ring before); the four per-color
+    // count badges stay the desk's own children. The review's
+    // arrow exits the head this round; the customers'
+    // glass keeps the card.
+    expect(head.title).toContain('glass');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
     expect(head.bullets.some((b) => b.includes('one home'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('amber ring'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('one chip dialect'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('backdrop is its own voice'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('zinc keyboard ring'))).toBe(true);
   });
 });
 

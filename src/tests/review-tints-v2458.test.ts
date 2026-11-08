@@ -133,14 +133,23 @@ describe('v2.458.0 — the loom learns the tints, fourth weave: sky rides one ho
     expect(loom).toMatch(/sky: 'bg-sky-100/);
   });
 
-  it('the named remainder is the customers desk ALONE — the ledger\'s last hand-rolled tint dialect', () => {
-    expect(customers).toContain("'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-700'");
-    expect(customers).toContain("'bg-white/60 text-muted-foreground border-border/50 hover:bg-white/80 dark:bg-white/5 dark:hover:bg-white/10'");
+  it('the named remainder is TAKEN — the customers desk rides the loom (v2.459.0)', () => {
+    // v2.459.0 re-anchor: the ledger's last hand-rolled tint dialect —
+    // the customers desk's emerald voice — rode the loom in the fifth
+    // weave: the glassy idle joined as CHIP_TINT_IDLE_GLASS, the
+    // drifted active face unified to the registry byte, and the desk
+    // speaks NO wardrobe byte at all. Its sealed bytes live in
+    // customer-tints-v2459.test.ts.
+    expect(customers).not.toContain("'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-700'");
+    expect(customers).not.toContain("'bg-white/60 text-muted-foreground border-border/50 hover:bg-white/80 dark:bg-white/5 dark:hover:bg-white/10'");
+    // the loom owns both faces now — the registry's emerald and the glass
+    expect(loom).toMatch(/emerald: 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950\/40/);
+    expect(loom).toContain('CHIP_TINT_IDLE_GLASS');
     // and no OTHER src file speaks a hand-rolled badge-family active face
     // with the registry's own byte shape (the +800/-800 amber/emerald/rose/
-    // slate/sky active families live only in the loom and the customers desk)
+    // slate/sky active families live only in the loom)
     const strays = allSrc().filter((p) => {
-      if (p === 'src/components/filter-chip.tsx' || p.includes('customers-tab')) return false;
+      if (p === 'src/components/filter-chip.tsx') return false;
       return /'bg-(amber|emerald|rose|slate|sky)-100 text-\1-800 border-\1-300 dark:bg-\1-950\/40/.test(readRepo(p));
     });
     expect(strays).toEqual([]);
