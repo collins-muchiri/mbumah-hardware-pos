@@ -281,32 +281,33 @@ describe('the address-bar vocabulary — the twenty-eighth row (cross-suite pins
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.465.0 leads the feed', () => {
+describe('whats-new — v2.466.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.465.0');
-    // the lead's story hand-over (v2.465.0, the Task 111 law's
-    // seventy-first application): the head story is the hand-over's
-    // voice — the carrying round: THE LEDGER SPEAKS IN ONE BREATH —
-    // the clearance note's FOURTH door: the dead-stock CSV grows a
-    // Share link column beside the Clearance note column, each row's
-    // wa.me word composed in the SAME ONE home the clipboard and the
-    // share door already speak (never re-typed in the desk), the cell
-    // quoted like every word — one voice, four doors, and the four
-    // can never drift apart; THE LEDGER'S CHORUS — the collective
-    // composer deadStockClearanceNotes builds the whole word in the
-    // ONE home (a header line speaking the ledger's own summary over
-    // the SAME per-row notes the Ask copies), and the ledger's header
-    // grows the Copy all handle that carries it to the clipboard at
-    // once — the compact seat, the emerald hover the family speaks,
-    // the double voice, and the honest exit: it only shows when rows
-    // exist (a button that copies nothing would be a lie).
-    // The link rides the file; the chorus rides the clipboard.
-    expect(head.title).toContain('one breath');
+    expect(head.version).toBe('2.466.0');
+    // the lead's story hand-over (v2.466.0, the Task 111 law's
+    // seventy-second application): the head story is the hand-over's
+    // voice — the carrying round: THE CHORUS TAKES THE PRINT DOOR —
+    // the clearance note's FIFTH door: on the dead-stock stage the
+    // printed page closes with the clearance asks (the collective
+    // composer's OWN word, the ONE home's header line over every
+    // row's clearance note, escaped for the print window, wearing
+    // the rose family in the print window's own inline CSS — the
+    // desk's alarm word, never a second palette), and the print
+    // button wears the double voice on the dead-stock stage (the
+    // plain face everywhere else — the export button's law, the
+    // print door's turn); THE PRINT WINDOW'S HONESTY — a browser
+    // that blocks the print window no longer answers silence, the
+    // toast speaks its side (the share door's popup-blocked law,
+    // now the print door's own) — one voice, five doors, the
+    // clipboard and the chat and the sheet cell and the sheet
+    // column and the paper can never drift apart.
+    // The chorus takes the paper.
+    expect(head.title).toContain('print door');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('share link'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('clearance asks'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('clearance note'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('clipboard'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('copy all'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('print button'))).toBe(true);
   });
 });

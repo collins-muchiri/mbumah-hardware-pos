@@ -224,7 +224,7 @@ describe('the classifier\u2019s home — one file, every voice', () => {
 describe('whats-new — the round leads the feed', () => {
   it('the head wears the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.465.0');
+    expect(head.version).toBe('2.466.0');
     expect(head.title).toContain('resting ledger');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
     expect(head.bullets.some((b) => b.includes('category'))).toBe(true);
