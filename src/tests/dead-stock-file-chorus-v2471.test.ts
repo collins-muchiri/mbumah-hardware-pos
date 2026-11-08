@@ -91,7 +91,11 @@ describe('deadStockChorusHeader — the collective word, one sentence', () => {
 
 describe('the dead-stock CSV — the footer speaks the chorus whole', () => {
   it('the desk reads the word from the ONE home — the import rides the composer', () => {
-    expect(desk.includes("import { DEAD_STOCK_WINDOWS, capitalTiedByCategory, deadStockChorusHeader, deadStockClearanceNote, deadStockClearanceNotes, deadStockShareUrl, waMeDisplay, type DeadStockRow } from '@/lib/reports/dead-stock';")).toBe(true);
+    // v2.472.0 re-key (dated): the desk's ONE-home import grew the sort
+    // door's own words (sortDeadStockRows + the DeadStockSortKey type) —
+    // the composer still rides the same import line, now with the two
+    // new riders aboard.
+    expect(desk.includes("import { DEAD_STOCK_WINDOWS, capitalTiedByCategory, deadStockChorusHeader, deadStockClearanceNote, deadStockClearanceNotes, deadStockShareUrl, sortDeadStockRows, waMeDisplay, type DeadStockRow, type DeadStockSortKey } from '@/lib/reports/dead-stock';")).toBe(true);
   });
 
   it('the footer grows the Clearance chorus row — quoted, ONE-home word', () => {
@@ -152,8 +156,9 @@ describe('the ledger\u2019s rows — the loudest debt, drawn', () => {
 // 4. WHATS-NEW — the file's chorus leads the feed
 // ---------------------------------------------------------------------------
 
-describe('whats-new — the file sings the chorus whole, leads the feed', () => {
-  const head = WHATS_NEW[0];
+describe('whats-new — the file sings the chorus whole, pinned in the feed', () => {
+  const head = WHATS_NEW.find((e) => e.version === '2.471.0');
+  if (!head) throw new Error('the 2.471.0 entry is gone from the feed');
 
   it('the head wears the round\u2019s own story — the elder words and the new word', () => {
     expect(head.version).toBe('2.471.0');

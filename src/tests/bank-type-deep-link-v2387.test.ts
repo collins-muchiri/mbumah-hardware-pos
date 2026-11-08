@@ -273,24 +273,25 @@ describe('the address-bar vocabulary — the twenty-sixth row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.471.0 leads the feed', () => {
+describe('whats-new — v2.472.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.471.0');
-    // the lead's story hand-over (v2.471.0, the Task 111 law's
-    // seventy-seventh application): the head story is the hand-over's
-    // voice — the carrying round: THE FILE SINGS THE CHORUS WHOLE —
-    // the dead-stock CSV's footer speaks the collective word: the
-    // Clearance chorus row joins the summary block, the census (the
-    // count, the window, the capital at cost) composed by the ONE
-    // home deadStockChorusHeader the clipboard's copy all already
-    // sings, quoted like every word a CSV must survive; the ledger's
-    // rows learn their own bars — every Capital tied cell wears the
-    // summary bar's own dialect, the row's share of the loudest debt
-    // drawn under the figure, aria-hidden, the number still the
-    // voice; the chorus header is the byte it always was, extracted
-    // into its own ONE-home word so the five doors can never drift.
-    // The file sings the chorus whole.
+    expect(head.version).toBe('2.472.0');
+    // the lead's story hand-over (v2.472.0, the Task 111 law's
+    // seventy-eighth application): the head story is the hand-over's
+    // voice — the carrying round: THE LEDGER ANSWERS TO ITS OWN
+    // COLUMNS — the dead-stock ledger learns its sort door: the
+    // Capital tied and Days idle headers answer to their own column,
+    // one press speaking that column's honest order composed in the
+    // ONE home sortDeadStockRows — the capital order the classifier's
+    // own standing word (the loudest debt first), the idle order the
+    // shelf's patience (longest idle first, the never-sold row
+    // standing at the front, its null a voice and not a zero); the
+    // pressed column wears aria-sort and the family's ArrowDown, the
+    // resting one the muted chevrons, and the view/archive law holds
+    // — the file, the clipboard's copy all chorus and the print door
+    // keep the canonical rows, the sort is a lens never a rewrite.
+    // The ledger answers to its own columns.
     expect(head.title).toContain('edit door');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
     expect(head.bullets.some((b) => b.includes('edit door'))).toBe(true);

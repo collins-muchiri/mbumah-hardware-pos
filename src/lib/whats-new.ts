@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.472.0',
+    title: 'The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, the number learns its edit door, the settings desk learns the branch’s own words, the paper carries a scannable door, the file sings the chorus whole, and the ledger answers to its own columns',
+    bullets: [
+      'The ledger answers to its own columns: the dead-stock table’s Capital tied and Days idle headers learn the sort door — one press speaks that column’s honest order, composed in the ONE home sortDeadStockRows (the capital order is the classifier’s own standing word, the loudest debt first; the idle order is the shelf’s patience, longest idle first with the never-sold row standing at the front, its null a voice and not a zero), the pressed column wearing aria-sort and the family’s own arrow, the resting one the muted chevrons.',
+      'The view is a lens, never a rewrite: the file (the CSV’s footer and share link column), the clipboard’s copy all chorus and the print door keep the canonical order — the archive’s word stays deterministic whatever the desk is looking at — and the family keeps its seats: the pre-addressed chip still opens the store’s own chat, the chat picker still answers for the branch with no number, the edit door keeps its dialog, the Clearance chorus row and the rows’ own bars stand untouched, the print button’s double voice and the print door’s clearance asks keep their bytes, the ledger’s capital and category shape stand untouched, the scannable doors ride the share door as always, and the wa.me word stays the ONE home’s own house.',
+      'The desk wears its work: the three stat cards learn their own whispers (the coins, the empty shelf and the percent joining their labels at the family’s small size), the pressed sort header speaks in the foreground weight while the resting one waits in the muted tone, and the clearance note, the copy all word, the loudest bar and the aria-hidden bar keep their bytes — the sort door joins a chorus it never had to re-tune.',
+    ],
+  },
+  {
     version: '2.471.0',
     title: 'The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, the number learns its edit door, the settings desk learns the branch’s own words, the paper carries a scannable door, and the file sings the chorus whole',
     bullets: [

@@ -285,3 +285,60 @@ export function deadStockChorusHeader(rows: ReadonlyArray<DeadStockRow>, days: n
 export function deadStockClearanceNotes(rows: ReadonlyArray<DeadStockRow>, days: number): string {
   return [deadStockChorusHeader(rows, days), ...rows.map((r) => deadStockClearanceNote(r, days))].join('\n');
 }
+
+// ============================================================================
+// v2.472.0 THE LEDGER ANSWERS TO ITS OWN COLUMNS
+// ============================================================================
+// The ledger learns its SORT DOOR. The rows have always arrived in the
+// classifier's own standing order (capitalTied DESC, name ASC — the
+// loudest debt first); the desk's Capital tied and Days idle headers now
+// carry that order as a chosen word, so the maker can read the shelf by
+// the money it holds OR by the patience it has spent. The orders live in
+// the ONE home (pure, deterministic, suite-proven), never hand-sorted on
+// the desk.
+//
+// THE TWO HONEST ORDERS:
+//   • 'capital' — the classifier's own standing order, byte-for-byte:
+//     capitalTied DESC, name ASC. The door's resting face: pressing it
+//     (or never pressing anything) is the order the desk has always
+//     spoken.
+//   • 'idle' — the shelf's patience: longest idle first, and the
+//     never-sold row stands at the FRONT (its null daysIdle is a voice,
+//     not a zero — a fabricated 0 would read "sold today"; never sold is
+//     the deadest a shelf can be). Ties break by the louder debt, then
+//     the name — the same deterministic chain the classifier speaks.
+//
+// THE VIEW/Archive LAW: the sort is a LENS, never a rewrite. The file
+// (the CSV), the clipboard (the copy all chorus) and the print door keep
+// the canonical `rows` order — the archive's word stays deterministic
+// whatever the desk is looking at. Only the table's own body follows the
+// pressed column.
+
+export type DeadStockSortKey = 'capital' | 'idle';
+
+/** THE LEDGER'S OWN ORDERS (v2.472.0) — the two honest orders the sort
+ *  door speaks, composed HERE so the desk never hand-sorts. Returns a
+ *  NEW array (the input is never mutated — the canonical order the file,
+ *  the clipboard and the print door speak stays whole). Deterministic:
+ *  the same rows always draw the same order, no NaN anywhere (the two
+ *  never-sold rows compare by the tiebreak chain, never by an infinity
+ *  arithmetic). Pure. */
+export function sortDeadStockRows(
+  rows: ReadonlyArray<DeadStockRow>,
+  key: DeadStockSortKey,
+): DeadStockRow[] {
+  const copy = [...rows];
+  if (key === 'capital') {
+    copy.sort((a, b) => b.capitalTied - a.capitalTied || a.name.localeCompare(b.name));
+    return copy;
+  }
+  copy.sort((a, b) => {
+    const aNever = a.daysIdle == null;
+    const bNever = b.daysIdle == null;
+    if (aNever !== bNever) return aNever ? -1 : 1;
+    const byIdle = (b.daysIdle ?? 0) - (a.daysIdle ?? 0);
+    if (byIdle !== 0) return byIdle;
+    return b.capitalTied - a.capitalTied || a.name.localeCompare(b.name);
+  });
+  return copy;
+}

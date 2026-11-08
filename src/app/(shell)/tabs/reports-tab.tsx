@@ -10,6 +10,7 @@ import { BarChart3, Package, TrendingUp, TrendingDown,
   HeartPulse, RotateCcw, CreditCard, Banknote, Smartphone,
   AlertTriangle, Users, Timer, Printer, Wrench, Sparkle, Link2, ArrowRight,
   Receipt, UserCog, Hourglass, CheckCircle, MessageCircle, Share2, ClipboardList, Phone,
+  ArrowDown, ChevronsUpDown, Coins, PackageX, Percent,
 } from 'lucide-react';
 import { LandingChip } from '@/components/landing-chip';
 import {
@@ -27,7 +28,7 @@ import {
 } from '@/lib/api';
 import { handleError } from '@/lib/error-handler';
 import { parseInitialNamedMember, REP_TYPE_FILTERS } from '@/lib/tab-url';
-import { DEAD_STOCK_WINDOWS, capitalTiedByCategory, deadStockChorusHeader, deadStockClearanceNote, deadStockClearanceNotes, deadStockShareUrl, waMeDisplay, type DeadStockRow } from '@/lib/reports/dead-stock';
+import { DEAD_STOCK_WINDOWS, capitalTiedByCategory, deadStockChorusHeader, deadStockClearanceNote, deadStockClearanceNotes, deadStockShareUrl, sortDeadStockRows, waMeDisplay, type DeadStockRow, type DeadStockSortKey } from '@/lib/reports/dead-stock';
 import {
   composeSeriesVoice, composeHourlyVoice,
   composeStockHealthVoice, composeProductsVoice, composeForecastVoice,
@@ -1341,6 +1342,14 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
   const [phoneDialogOpen, setPhoneDialogOpen] = useState(false);
   const [phoneDraft, setPhoneDraft] = useState('');
   const [phoneSaving, setPhoneSaving] = useState(false);
+  // THE SORT DOOR (v2.472.0) — the ledger answers to its own columns:
+  // the resting face is 'capital' (the classifier's own standing order,
+  // so the desk opens exactly as it always has), and one press on the
+  // Days idle header speaks the shelf's patience. The orders live in
+  // the ONE home (sortDeadStockRows) — the desk never hand-sorts; the
+  // memo rides [rows, deadStockSort] and nothing else.
+  const [deadStockSort, setDeadStockSort] = useState<DeadStockSortKey>('capital');
+  const sortedRows = useMemo(() => sortDeadStockRows(rows, deadStockSort), [rows, deadStockSort]);
   // THE CAPITAL'S SHAPE — the chart's own grouping, read from the ONE
   // home (the classifier's pure voice). The rows are already on the
   // desk; zero new fetches, the lens re-answers and the shape follows.
@@ -1481,21 +1490,21 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             <Card className="border-l-4 border-l-rose-500 backdrop-blur-sm bg-card/80">
               <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">Capital Tied</p>
+                <p className="text-xs text-muted-foreground flex items-center gap-1"><Coins className="h-3 w-3" aria-hidden="true" /> Capital Tied</p>
                 <p className="text-2xl font-bold text-rose-700 dark:text-rose-400 tabular-nums" data-testid="dead-stock-capital">{formatKES(summary.totalCapitalTied)}</p>
                 <p className="text-[10px] text-muted-foreground mt-1">qty × cost price, idle {summary.days}+ days</p>
               </CardContent>
             </Card>
             <Card className="border-l-4 border-l-amber-500 backdrop-blur-sm bg-card/80">
               <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">Dead Products</p>
+                <p className="text-xs text-muted-foreground flex items-center gap-1"><PackageX className="h-3 w-3" aria-hidden="true" /> Dead Products</p>
                 <p className="text-2xl font-bold tabular-nums" data-testid="dead-stock-count">{summary.deadCount}</p>
                 <p className="text-[10px] text-muted-foreground mt-1">holding stock, no sale in the window</p>
               </CardContent>
             </Card>
             <Card className="border-l-4 border-l-primary backdrop-blur-sm bg-card/80">
               <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">Share of Stock Value</p>
+                <p className="text-xs text-muted-foreground flex items-center gap-1"><Percent className="h-3 w-3" aria-hidden="true" /> Share of Stock Value</p>
                 <p className="text-2xl font-bold tabular-nums" data-testid="dead-stock-share">{summary.deadSharePct}%</p>
                 {/* v2.464.0: the share DRAWN — a thin rose bar under the
                     number, the resting share at a glance (the family's
@@ -1638,14 +1647,56 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
                         <TableHead>Category</TableHead>
                         <TableHead className="text-right">Qty on hand</TableHead>
                         <TableHead className="text-right">Unit cost</TableHead>
-                        <TableHead className="text-right">Capital tied</TableHead>
+                        {/* THE SORT DOOR'S HEADERS (v2.472.0) — Capital
+                            tied and Days idle answer to their own column:
+                            one press speaks that column's honest order
+                            (the ONE home's sortDeadStockRows composes,
+                            the desk only presses). The pressed column
+                            wears aria-sort + the family's ArrowDown;
+                            the resting one wears ChevronsUpDown and the
+                            muted tone — the door's own face, the family's
+                            dialect, never a second palette. */}
+                        <TableHead className="text-right" aria-sort={deadStockSort === 'capital' ? 'descending' : undefined}>
+                          <button
+                            type="button"
+                            data-testid="dead-stock-sort-capital"
+                            aria-label="Sort the ledger by capital tied, the loudest debt first"
+                            title="Sort the ledger by capital tied, the loudest debt first"
+                            onClick={() => setDeadStockSort('capital')}
+                            className={`inline-flex items-center gap-1 transition-colors ${deadStockSort === 'capital' ? 'font-semibold text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                          >
+                            Capital tied
+                            {deadStockSort === 'capital'
+                              ? <ArrowDown className="h-3 w-3" aria-hidden="true" />
+                              : <ChevronsUpDown className="h-3 w-3 opacity-60" aria-hidden="true" />}
+                          </button>
+                        </TableHead>
                         <TableHead>Last sold</TableHead>
-                        <TableHead className="text-right">Days idle</TableHead>
+                        <TableHead className="text-right" aria-sort={deadStockSort === 'idle' ? 'descending' : undefined}>
+                          <button
+                            type="button"
+                            data-testid="dead-stock-sort-idle"
+                            aria-label="Sort the ledger by days idle, the never-sold first"
+                            title="Sort the ledger by days idle, the never-sold first"
+                            onClick={() => setDeadStockSort('idle')}
+                            className={`inline-flex items-center gap-1 transition-colors ${deadStockSort === 'idle' ? 'font-semibold text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                          >
+                            Days idle
+                            {deadStockSort === 'idle'
+                              ? <ArrowDown className="h-3 w-3" aria-hidden="true" />
+                              : <ChevronsUpDown className="h-3 w-3 opacity-60" aria-hidden="true" />}
+                          </button>
+                        </TableHead>
                         <TableHead className="text-right">Ask</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {rows.map((r, i) => {
+                      {/* THE SORT DOOR'S BODY (v2.472.0) — the table reads
+                          the pressed order (sortedRows); the file, the
+                          clipboard and the print door keep the canonical
+                          rows (the view/archive law — the sort is a
+                          lens, never a rewrite). */}
+                      {sortedRows.map((r, i) => {
                         // The idle voice: rose past half a year, amber
                         // below; the never-sold row already wears its
                         // badge, so its days cell keeps quiet.
