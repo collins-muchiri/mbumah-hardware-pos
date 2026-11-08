@@ -1,3 +1,15 @@
+## [2.459.0] The customers ride the loom — the glass idle joins the tints
+
+The elder loom's fifth weave: the customers desk's quick chips — the ledger's LAST named tint dialect — retire their hand-rolled button and ride the tint registry; the desk's glassy idle joins the loom as its own named voice, and the drifted emerald active face unifies to the registry byte.
+
+### Added
+- **THE GLASS IDLE** (`src/components/filter-chip.tsx`): `CHIP_TINT_IDLE_GLASS` — the customers desk's historic idle voice, byte-exact as the desk kept it (`bg-white/60 … hover:bg-white/80 dark:bg-white/5 …`), riding the new `glass` prop beside the slim head. A desk's backdrop is its own voice: the transparent tint idle would have shown the customers card's gradient straight through the chips.
+- **THE PRESSED VOICE AND THE RING ARRIVE**: the four quick chips never spoke `aria-pressed` and never wore a keyboard ring — through the loom every chip speaks its pressed state and carries the family's zinc ring; every lens chip in the app now answers to keyboard and screen reader alike.
+
+### Changed
+- **THE NAMED UNIFICATION (the shadow-sm precedent, second verse)**: the desk's active face had drifted from the registry's emerald (text-700 where the family speaks -800, dark 900/30 and -400/-700 where the family speaks 950/40 and -200/-900); the copies disagreed and the family's voice wins. The desk speaks no emerald lens byte at all now — the registry's emerald (the ACHIEVED goal chip's own face) is the only emerald lens face in src.
+- **THE LEDGER'S LAST TINT ROW EXITS**: the hand-rolled pill head (`inline-flex items-center gap-1.5 px-3 py-1.5 …`) retires — the head is the loom's CHIP_HEAD and the flex layout rides className extras; the four per-color count badges stay the desk's own children (a badge voice, never a lens face). The hand-rolled tint dialect count across src is now ZERO.
+
 ## [2.458.0] The review chips ride the registry — sky joins the tints
 
 The elder loom's fourth weave: the performance desk's review-status filter row — the last hand-rolled speaker of the transparent tint idle in the desk — retires its STATUS_CHIP_ACTIVE Record and rides the tint registry; sky joins the closed registry for the ACKNOWLEDGED word, and the whole performance desk speaks one chip dialect.
