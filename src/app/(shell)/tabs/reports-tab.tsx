@@ -403,8 +403,21 @@ function HorizontalBar({ value, maxValue, colorClass = 'bg-primary/70', height =
 
 // Conic Gradient Pie Chart Component
 
-function ConicPieChart({ segments }: {
+// THE SHAPE'S OWN PRESSES (v2.474.0) — the charts learn to answer the
+// ledger: an optional `onPress` turns each segment into a real handle
+// (the double voice every handle wears) that rides the segment's own
+// word to the caller — the dead-stock desk hands it to the search lens,
+// so the shape and the lens share one vocabulary. OPTIONAL by law: the
+// callers that pass no `onPress` get byte-for-byte the chart that has
+// always rendered (the other desks' faces never move). `pressedLabel`
+// dresses the segment whose word the lens already holds (aria-pressed,
+// the muted ground, the foreground weight) — the shape's own mirror of
+// the lens, never a second state.
+
+function ConicPieChart({ segments, onPress, pressedLabel }: {
   segments: { name: string; value: number; color: string }[];
+  onPress?: (label: string) => void;
+  pressedLabel?: string;
 }) {
   const total = segments.reduce((s, seg) => s + seg.value, 0);
   if (total === 0) return null;
@@ -429,15 +442,38 @@ function ConicPieChart({ segments }: {
         style={{ background: `conic-gradient(${gradientStops.join(', ')})` }}
       />
       <div className="space-y-1.5 min-w-0 flex-1">
-        {segments.map((seg, i) => (
-          <div key={i} className="flex items-center gap-2 text-xs">
-            <div className="w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: seg.color }} />
-            <span className="truncate font-medium">{seg.name}</span>
-            <span className="ml-auto text-muted-foreground whitespace-nowrap">
-              {formatKES(seg.value)} ({((seg.value / total) * 100).toFixed(0)}%)
-            </span>
-          </div>
-        ))}
+        {segments.map((seg, i) => {
+          const pressed = onPress != null && pressedLabel === seg.name;
+          const face = (
+            <>
+              <div className="w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: seg.color }} />
+              <span className={`truncate ${pressed ? 'font-semibold' : 'font-medium'}`}>{seg.name}</span>
+              <span className="ml-auto text-muted-foreground whitespace-nowrap">
+                {formatKES(seg.value)} ({((seg.value / total) * 100).toFixed(0)}%)
+              </span>
+            </>
+          );
+          if (!onPress) {
+            return (
+              <div key={i} className="flex items-center gap-2 text-xs">
+                {face}
+              </div>
+            );
+          }
+          return (
+            <button
+              key={i}
+              type="button"
+              onClick={() => onPress(seg.name)}
+              aria-pressed={pressed}
+              aria-label={`Lens the ledger to ${seg.name}`}
+              title={`Lens the ledger to ${seg.name} — the segment's own word rides the search lens`}
+              className={`flex items-center gap-2 text-xs w-full text-left rounded-sm px-1 py-0.5 transition-colors hover:bg-muted/60 ${pressed ? 'bg-muted' : ''}`}
+            >
+              {face}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -511,7 +547,7 @@ function getDatePresetRange(preset: DatePreset): { from: string; to: string } {
 
 // SVG Bar Chart Component
 
-function SVGBarChart({ data, height = 200, ariaLabel }: { data: { label: string; value: number; color?: string }[]; height?: number; ariaLabel?: string }) {
+function SVGBarChart({ data, height = 200, ariaLabel, onPress, pressedLabel }: { data: { label: string; value: number; color?: string }[]; height?: number; ariaLabel?: string; onPress?: (label: string) => void; pressedLabel?: string }) {
   if (data.length === 0) return null;
   const max = Math.max(...data.map(d => d.value), 1);
   const w = 320;
@@ -533,8 +569,25 @@ function SVGBarChart({ data, height = 200, ariaLabel }: { data: { label: string;
         const x = gap + i * (barWidth + gap);
         const barH = (d.value / max) * (height - 20);
         const y = height - 20 - barH;
+        // THE BAR'S OWN PRESS (v2.474.0) — when the caller hands the
+        // chart a door, each bar becomes a real handle (role="button",
+        // the double voice, keyboard-reachable): the press rides the
+        // bar's own label to the caller; the pressed bar wears the
+        // brighter face, the resting ones keep the hover lift. Without
+        // the door the bars stay byte-for-byte the graphics they were.
+        const pressProps = onPress
+          ? {
+              role: 'button' as const,
+              tabIndex: 0,
+              onClick: () => onPress(d.label),
+              onKeyDown: (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') onPress(d.label); },
+              'aria-label': `Lens the ledger to ${d.label}`,
+              'aria-pressed': pressedLabel === d.label,
+              className: 'cursor-pointer',
+            }
+          : {};
         return (
-          <g key={i}>
+          <g key={i} {...pressProps}>
             <rect
               x={x}
               y={y}
@@ -542,7 +595,7 @@ function SVGBarChart({ data, height = 200, ariaLabel }: { data: { label: string;
               height={barH}
               rx={3}
               fill={d.color || 'currentColor'}
-              className="hover:brightness-110 transition-[filter]"
+              className={`transition-[filter] ${pressedLabel === d.label ? 'brightness-125' : 'hover:brightness-110'}`}
             >
               <title>{d.label}: {formatKES(d.value)}</title>
             </rect>
@@ -1551,13 +1604,28 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
               <CardContent>
                 {chartType === 'pie' ? (
                   <div data-testid="dead-stock-chart-pie">
-                    <ConicPieChart segments={categorySegments} />
+                    {/* THE SHAPE'S PRESSES (v2.474.0) — the pie's legend
+                        rows are real handles: one press rides the
+                        segment's own word (the Uncategorised shelf's
+                        word included) into the search lens, and the
+                        segment whose word the lens already holds wears
+                        the pressed face. The shape keeps
+                        the WHOLE ledger's capital — the chart reads the
+                        canonical rows, never the lensed view; a press
+                        re-words the lens, never the picture. */}
+                    <ConicPieChart
+                      segments={categorySegments}
+                      onPress={(label) => setDeadStockSearch(label)}
+                      pressedLabel={deadStockSearch.trim()}
+                    />
                   </div>
                 ) : (
                   <div data-testid="dead-stock-chart-bar">
                     <SVGBarChart
                       data={capitalByCategory}
                       height={200}
+                      onPress={(label) => setDeadStockSearch(label)}
+                      pressedLabel={deadStockSearch.trim()}
                       ariaLabel={`Capital tied by category — ${capitalByCategory.length} categories, ${formatKES(summary?.totalCapitalTied ?? 0)} resting`}
                     />
                   </div>

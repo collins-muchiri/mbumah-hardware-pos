@@ -102,7 +102,13 @@ describe('filterDeadStockRows — the honest lens', () => {
   it('a null category never crashes and never lies — the row answers on its name and SKU', () => {
     expect(filterDeadStockRows([orphan], 'anvil').map((r) => r.productId)).toEqual(['d']);
     expect(filterDeadStockRows([orphan], 'ANV-9').map((r) => r.productId)).toEqual(['d']);
-    expect(filterDeadStockRows([orphan], 'uncategorised')).toEqual([]);
+    // v2.474.0 re-key (dated): the shape's word joined the lens — the
+    // ledger's own "Uncategorised" word (the word the capital-shape
+    // chart already calls the unnamed shelf) now ANSWERS, so a chart
+    // press that rides it can never draw an empty answer. The row still
+    // answers on its name and SKU besides.
+    expect(filterDeadStockRows([orphan], 'uncategorised').map((r) => r.productId)).toEqual(['d']);
+    expect(filterDeadStockRows([orphan], 'uncat').map((r) => r.productId)).toEqual(['d']);
   });
 
   it('the lens is pure — the input array keeps its own order, a NEW array every time', () => {
@@ -207,8 +213,9 @@ describe('the search door — the desk\u2019s own face', () => {
 // 3. THE FEED — the head wears the round's own story
 // ---------------------------------------------------------------------------
 
-describe('whats-new — the search door leads the feed', () => {
-  const head = WHATS_NEW[0];
+describe('whats-new — the search door, pinned in the feed', () => {
+  const head = WHATS_NEW.find((e) => e.version === '2.473.0');
+  if (!head) throw new Error('the 2.473.0 entry is gone from the feed');
 
   it('the head wears the round\u2019s own story — the elder words and the new word', () => {
     expect(head.version).toBe('2.473.0');

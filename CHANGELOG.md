@@ -1,3 +1,14 @@
+## [2.474.0] The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, the number learns its edit door, the settings desk learns the branch’s own words, the paper carries a scannable door, the file sings the chorus whole, the ledger answers to its own columns, the ledger answers to its own name, and the shape answers to the ledger
+
+The dead-stock capital chart learns its presses: one press on a bar or a legend row rides that category's own word into the search lens — the shape and the lens share one vocabulary, and the shape never narrows.
+
+### Added
+- **THE SHAPE'S PRESSES** (`src/app/(shell)/tabs/reports-tab.tsx`): the capital-shape charts (`ConicPieChart`, `SVGBarChart`) learn an optional `onPress`/`pressedLabel` door — the pie's legend rows become real buttons (the double voice, `aria-pressed`, the muted ground under the pressed word), the bar chart's bars become keyboard-reachable handles (`role="button"`, `tabIndex`, Enter/Space, the brighter face on the pressed bar, the cursor's honest hint). OPTIONAL by law: the callers that pass no door get byte-for-byte the chart that has always rendered. The dead-stock desk hands both charts the lens door — a press rides the segment's own word straight into the search lens.
+
+### Changed
+- **ONE VOCABULARY** (`src/lib/reports/dead-stock.ts`): the lens answers the ledger's own "Uncategorised" word — the same word the capital-shape chart already calls the unnamed shelf — so the shape's press can never draw an empty answer. A named shelf never answers to the unnamed word; the row still answers on its name and SKU besides.
+- **THE SHAPE'S OWN LAW** (`src/app/(shell)/tabs/reports-tab.tsx`): the chart keeps the WHOLE ledger's capital — the shape reads the canonical `rows` (never the lensed view); a press re-words the lens, never the picture. The view/archive law holds: the file (the CSV's footer and share link column), the clipboard's copy all chorus and the print door keep the canonical rows.
+
 ## [2.473.0] The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, the number learns its edit door, the settings desk learns the branch’s own words, the paper carries a scannable door, the file sings the chorus whole, the ledger answers to its own columns, and the ledger answers to its own name
 
 The dead-stock ledger learns its search door: a small lens above the table answers to the words a row already carries — the name, the SKU, the category — composed in the ONE home, the view a viewer and never a rewrite.
