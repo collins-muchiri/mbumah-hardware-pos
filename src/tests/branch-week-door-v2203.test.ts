@@ -240,9 +240,9 @@ describe('v2.203.0 — the round\u2019s style: the forecast line clears the grap
 
 describe('v2.203.0 — the release surfaces', () => {
   it('the version rides at 2.203.0 in all three slots', () => {
-    expect(pkg.version).toBe('2.462.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.462.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.462.0');
+    expect(pkg.version).toBe('2.463.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.463.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.463.0');
   });
 
   it('the whats-new feed leads with the release (ORDER pattern)', () => {

@@ -1,3 +1,13 @@
+## [2.463.0] The resting ledger learns to reach out — the clearance note takes the share door
+
+The clearance note's second door: every dead-stock row's Ask gains a Share sibling that opens the maker's own WhatsApp with the same deterministic note already composed — one voice, two doors, zero retyping.
+
+### Added
+- **THE SHARE'S OWN DOOR** (`src/lib/reports/dead-stock.ts` + `src/app/(shell)/tabs/reports-tab.tsx`): `deadStockShareUrl` — the wa.me word for the clearance note, composed in the classifier's ONE home THROUGH the note's own composer (one voice, two doors — the clipboard and the chat can never drift apart). The row names no supplier, so the URL carries no phone (`https://wa.me/?text=…`): WhatsApp opens with the text pre-filled and the maker picks the chat; the recipient-addressed instrument (`openWhatsApp`, api.ts) stays api.ts's own. The per-row Share handle rides the pair group beside the Ask handle — the double voice (aria-label + title), the outline face, and the emerald hover (the green the family already speaks). A browser that blocks the window speaks its side: the toast answers, the row stays whole (the popup-blocked honesty law).
+
+### Changed
+- **THE LEDGER'S LAST COLUMN WEARS ITS PAIR** (`src/app/(shell)/tabs/reports-tab.tsx`): the Ask cell's single handle became a tight two-door group (`inline-flex`, `gap-1`) — the Ask unchanged byte for byte (the clipboard keeps its door), the Share beside it. The dead-stock section now speaks TWO row-action aria-labels (the v2461 probe re-keys with the dated note), and the window.open rides `noopener,noreferrer`.
+
 ## [2.462.0] The resting ledger learns to share — the dead-stock window takes an address, the capital draws its shape, every row learns to ask
 
 The dead-stock ledger's three new faces: the idle window joins the deep-link family as its thirty-third word (the lens answers the address bar and writes itself back), the desk learns its chart (capital tied by category, the toggle's two honest faces), and every row learns to ask (the clearance note rides the clipboard).

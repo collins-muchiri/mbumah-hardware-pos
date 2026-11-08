@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.463.0',
+    title: 'The resting ledger learns to reach out — the clearance note takes the share door',
+    bullets: [
+      'Every dead-stock row’s Ask gains a sibling: the share door — a Share handle that opens WhatsApp (wa.me) with the clearance note already composed, addressed to no one because the row names no supplier, so the maker picks the chat and the supplier conversation starts with one press instead of a paste.',
+      'One voice, two doors: the note’s composer rides unchanged — the clipboard keeps its Ask, the chat opens with the same word — and the URL is composed in the classifier’s ONE home beside the note itself, so the two doors can never drift apart. The browser refusing the window is a spoken toast, never a silent nothing.',
+      'The ledger’s last column wears its pair well: the two handles sit side by side, the share handle carrying the emerald hover (the green the family already speaks) and the row action’s own double voice — and the capital’s category chart above stays exactly the shape the last round drew.',
+    ],
+  },
+  {
     version: '2.462.0',
     title: 'The resting ledger learns to share — the dead-stock window takes an address, the capital draws its shape, every row learns to ask',
     bullets: [

@@ -183,3 +183,25 @@ export function deadStockClearanceNote(row: DeadStockRow, days: number): string 
     : 'never sold (no sale on this shelf\'s record';
   return `Clearance ask — ${row.quantityInStock} ${row.unitType} × ${row.name} (${row.sku}): Ksh ${row.capitalTied.toFixed(2)} tied at cost, ${idleVoice}, caught by the ${days}-day window). Can we talk an exchange?`;
 }
+
+// ============================================================================
+// v2.463.0 THE RESTING LEDGER LEARNS TO REACH OUT
+// ============================================================================
+// The clearance note learns its own door. The Ask handle carries the note
+// to the clipboard; the share handle opens the maker's own WhatsApp with
+// the SAME note already composed — one voice, two doors, zero retyping.
+//
+// The note has no recipient (the row carries no supplier name — the
+// v2.462.0 law), so the URL speaks wa.me WITHOUT a phone: WhatsApp opens
+// with the text pre-filled and the maker picks the chat. The
+// recipient-addressed instrument (openWhatsApp, src/lib/api.ts) stays
+// api.ts's own — a phone-bearing word this row does not carry.
+
+/** THE SHARE'S OWN DOOR (v2.463.0) — the wa.me word for the clearance
+ *  note. The note's composer rides UNCHANGED (one voice, two doors — the
+ *  clipboard and the chat can never drift apart), and the URL is the
+ *  encodeURIComponent of the same deterministic word, so the chat reads
+ *  exactly what the clipboard holds. Pure. */
+export function deadStockShareUrl(row: DeadStockRow, days: number): string {
+  return `https://wa.me/?text=${encodeURIComponent(deadStockClearanceNote(row, days))}`;
+}
