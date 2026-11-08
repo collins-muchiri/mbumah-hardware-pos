@@ -108,13 +108,11 @@ describe('the styling math - the status-badge families carry their numbers', () 
 });
 
 describe('docs and release surfaces', () => {
-  it('package.json rides at 2.198.0 (all three slots) and the verify script is wired', () => {
-    expect(pkg.version).toBe('2.459.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.459.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.459.0');
-    expect(pkg.scripts['verify:v2-191-0']).toBe('node scripts/verify-v2-191-0.mjs');
-    expect(pkg.scripts['verify:v2-190-0']).toBe('node scripts/verify-v2-190-0.mjs');
-    expect(readRepo('scripts/verify-v2-191-0.mjs')).toContain('v2.191.0 verification');
+  it('package.json rides at 2.198.0 (all three slots)', () => {
+    expect(pkg.version).toBe('2.460.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.460.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.460.0');
+    expect(readRepo('scripts/release-attestations/verify-v2-191-0.mjs')).toContain('v2.191.0 verification');
   });
 
   it('the CHANGELOG heads with this release', () => {

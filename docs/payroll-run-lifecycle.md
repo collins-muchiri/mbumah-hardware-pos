@@ -160,7 +160,7 @@ of re-deciding them. Each contract names the release that set it.
 - Every Phase 4.6 and Phase 4.7 endpoint and page from the spec's
   "Create:" lists now exists on disk; `scripts/verify-spec-paths.mjs` is
   the mechanical gate that keeps it true (33 paths + the three alias
-  re-export bindings; run it standalone or via `npm run verify:v2-160-0`).
+  re-export bindings; run it standalone or via `node scripts/release-attestations/verify-v2-160-0.mjs` (run at its own release tag)).
 - The login front door gained its `<main>` landmark the same round: the
   axe best-practice "region" rule (9 flagged blocks) is closed, the
   decorative background layers are aria-hidden, and the input focus pulse

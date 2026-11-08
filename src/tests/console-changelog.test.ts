@@ -85,6 +85,7 @@ describe('ChangelogModal - the console tells the whole release story', () => {
   });
 
   it('is dark-mode complete (entries, both chip states, footer blocks)', () => {
+    // v2.460.0: the attestations come home — the data-colored chips learn the grammar: two comings-home in one round — THE MUSEUM SHELF (the verify-v2-* pin unwind, Task 27's last named follow-up): the 347 point-in-time attestation scripts took scripts/release-attestations/ byte-untouched (git-mv renames), the 310 verify:v2-* keys left package.json, the 86 living key-pins left the suites (nine emptied it() blocks retired with honor — the aggregate truth re-homes in attestation-museum-v2460.test.ts), 19 shelf-path reads and the docs line re-keyed, and the census caught two mis-aged exhibits (the file wired as 307 speaks v2.351.0 — the audit-remediation gate whose wiring key was the PR number, the bytes the release; the file wired as 351 speaks v2.352.0) and re-homed both by their true ages; THE SHELF CENSUS — verify-ancestors reads the shelf byte-wise (a museum piece is read, never run): every attestation must speak its own v2.X.Y age-word, the era-proof word both header conventions carry, decay exits 1; THE DATA-COLORED TRIBES — the ledger's last two rows taken: the POS and inventory category chips (per-row inline colors, never a named tint) learned the family's grammar — aria-pressed and the zinc ring through the EXPORTED CHIP_RING_ZINC / CHIP_ACTIVE / CHIP_IDLE constants (one home, many hands); THE MASQUERADE RETIRES — .chip-active inlined its own face (scale-105 + the oklch wash) and left globals.css (a motion utility stays; a vocabulary masquerade may not); THE SCALE DIALECT RETIRES — the inventory tags ride the family head (border, no grow) and the strip's arrows wear honest glyphs (ChevronLeft / ChevronRight) instead of a rotated ChevronDown; the LEDGER IS EMPTY — every chip in src rides the loom's bytes or the loom's constants — the cascade's seventy-first generation
     // v2.459.0: the customers ride the loom — the glass idle joins the tints: the elder loom's fifth weave — the customers desk's four quick chips (All / Active / With Debt / Loyalty Members), the ledger's LAST named tint dialect, retired their hand-rolled button and ride the loom's TINT registry with the emerald tone; THE GLASS IDLE — the desk's historic glassy backdrop voice (bg-white/60 … dark:bg-white/5, made for the customers card's gradient face where the transparent tint idle would show the card straight through) joined the loom byte-exact as CHIP_TINT_IDLE_GLASS through the glass prop (a desk's backdrop is its own voice — the slim-head precedent); THE NAMED UNIFICATION (the shadow-sm precedent, second verse) — the hand-copy's drifted emerald (text-700, dark 900/30, -400/-700) retired for the registry byte (-800, 950/40, -200/-900 — the ACHIEVED goal chip's own face), and the desk speaks no emerald lens byte at all (its voucher type-BADGE keeps its own wash — a badge voice, never a lens face); THE PRESSED VOICE AND THE FAMILY'S ZINC RING arrived — neither chip spoke aria-pressed nor wore a ring before, and the completion is family-wide; the four per-color count badges (emerald/cyan/amber/purple) stay the desk's own children, and the hand-rolled tint dialect count across src is now ZERO — the cascade's seventieth generation
     // v2.458.0: the review chips ride the registry — sky joins the tints: the elder loom's fourth weave — the performance desk's review-status filter row (the LAST hand-rolled speaker of the transparent tint idle in the desk) retired its STATUS_CHIP_ACTIVE Record and rides the loom's TINT registry; SKY joined the closed registry for the ACKNOWLEDGED word (the review table pill's own law aligned it family-wide — the filter row's hand-copy matched byte-for-byte, so the move is faithful), and the registry's shape is FIVE tones (amber, emerald, rose, slate, sky); the row's named AMBER RING voice (the review deep-link family's own keyboard ring since v2.286.0) rode the desk's className byte-preserved with focusRing="none" — the loom emits no competing zinc ring (the live DOM probe read amberRing: 6, zincRing: 0 before the weave); the desk keeps its WORDS (STATUS_TONE: DRAFT slate, SUBMITTED amber, ACKNOWLEDGED sky, CALIBRATED emerald) and the whole desk now speaks three FilterChip tint rows (goal filter slim, goal edit compact, review filter slim); the v2.455.0 ledger's fourth row exits — the taken seat is pinned by its own dated re-key, and the named remainder is the customers desk's emerald dialect alone — the cascade's sixty-ninth generation
     // v2.457.0: the loom learns the tints — the goal chips ride one registry: the elder loom's third weave — the goal chips (the HR performance desk's filter row, its park-or-reopen switch, and the self-service portal's My-goals row) had carried the badge-family palette in THREE hand-copied Record constants, and the copies had drifted (the portal's OPEN chip still wore the old sky pressed-state the console's v2.306.0 one-colour law retired — the same word wore a second colour one bundle away); the tints moved to ONE home in the loom (CHIP_TINT_ACTIVE / CHIP_TINT_IDLE — amber, emerald, rose, slate, the transparent idle face tone-independent as all three desks already shared it) and the desks keep only their WORDS (the GOAL_TONE maps — which status wears which family, never the wardrobe bytes); the slim head (px-2.5 py-0.5, transition-colors) joined the loom's head family beside the regular and compact faces; the goal chips gained the family's zinc keyboard ring (the live DOM probe read zero rings before the weave) while the pressed voice rides every loomed chip; the review chips' dialect and the customers desk's emerald dialect stay hand-rolled (the ledger's remaining map) — the cascade's sixty-eighth generation
@@ -357,7 +358,7 @@ describe('release metadata - v2.73.0', () => {
     expect(WN).toMatch(/via cmd\+K/);
   });
 
-  it('bumps package.json to at least 2.73.0 (all three slots) and registers the verify script', () => {
+  it('bumps package.json to at least 2.73.0 (all three slots)', () => {
     const PKG = JSON.parse(readRepo('package.json')) as {
       version: string;
       mbumah: { releaseVersion: string; baseVersion: string };
@@ -371,7 +372,6 @@ describe('release metadata - v2.73.0', () => {
     expect(atLeast(PKG.version, '2.73.0')).toBe(true);
     expect(atLeast(PKG.mbumah.releaseVersion, '2.73.0')).toBe(true);
     expect(atLeast(PKG.mbumah.baseVersion, '2.73.0')).toBe(true);
-    expect(PKG.scripts['verify:v2-73-0']).toBe('node scripts/verify-v2-73-0.mjs');
   });
 
   it('keeps the prior console surfaces intact (collapse, pill, shared flag)', () => {
@@ -562,10 +562,10 @@ describe('whatsNewUnreadCount - the heading counter (v2.75.0)', () => {
     // v2.402.0: the payload card hands you the file — the KRA filing trio completes (Print = the paper, Copy = the clipboard, Download = the FILE: the mapped payload's card saves the same pretty JSON the clipboard carries as a named kra-payload-<invoice>-<date>.json, the saved face riding the receipt hop's two-second law), the card's eight-row ledger alternates on a quiet zebra ground, the refund heal suite's must label widens (29 faces stand down, 431 → 402), and the entry joins the feed (+1 on every unread anchor — the DERIVED anchors re-set themselves, the cascade's thirteenth generation)
     // v2.404.0: the archive door reaches the main desk — the main shell mounts the SAME ChangelogModal (one shared archive, exactly one mount), the whats-new announcement gains its onOpenChangelog handle (jumpTo = APP_VERSION, the orange ring lands), the footer's Release notes door opens the archive from the top, the jumped entry answers with one soft landing glow, and the honest burst fixes the QA login's false positive (the entry joins the feed — +1 on every unread anchor, the cascade's fifteenth generation)
     // v2.403.0: the refund desk speaks the failure's name — the wire's typed refusal (code + the server's own line) reaches the toast and the dialog's own amber card (the code under its mono badge), four silent catches speak at last, the route's error ladder gains the stranded rung (NOT_STRANDED: 409), the two must widens land and the heal wiring's three mended names stand their guard (20 faces down, 402 → 382, the entry joins the feed — +1 on every unread anchor, the cascade's fourteenth generation)
-    expect(whatsNewUnreadCount('2.110.0')).toBe(349);
-    expect(whatsNewUnreadCount('2.109.0')).toBe(350);
-    expect(whatsNewUnreadCount('2.108.0')).toBe(351);
-    expect(whatsNewUnreadCount('2.77.0')).toBe(382);
+    expect(whatsNewUnreadCount('2.110.0')).toBe(350);
+    expect(whatsNewUnreadCount('2.109.0')).toBe(351);
+    expect(whatsNewUnreadCount('2.108.0')).toBe(352);
+    expect(whatsNewUnreadCount('2.77.0')).toBe(383);
     expect(whatsNewUnreadCount('2.70.0')).toBeGreaterThanOrEqual(10);
   });
 
@@ -646,7 +646,7 @@ describe("What's-New 2.75.0", () => {
 });
 
 describe('release metadata - v2.75.0', () => {
-  it('bumps package.json to at least 2.75.0 (all three slots) and registers the verify script', () => {
+  it('bumps package.json to at least 2.75.0 (all three slots)', () => {
     const PKG = JSON.parse(readRepo('package.json')) as {
       version: string;
       mbumah: { releaseVersion: string; baseVersion: string };
@@ -660,7 +660,6 @@ describe('release metadata - v2.75.0', () => {
     expect(atLeast(PKG.version, '2.75.0')).toBe(true);
     expect(atLeast(PKG.mbumah.releaseVersion, '2.75.0')).toBe(true);
     expect(atLeast(PKG.mbumah.baseVersion, '2.75.0')).toBe(true);
-    expect(PKG.scripts['verify:v2-75-0']).toBe('node scripts/verify-v2-75-0.mjs');
   });
 
   it('keeps every prior surface intact (jump group, modal jump, footer pill, cross-links)', () => {
@@ -746,7 +745,7 @@ describe("What's-New 2.76.0", () => {
 });
 
 describe('release metadata - v2.76.0', () => {
-  it('bumps package.json to at least 2.76.0 (all three slots) and registers the verify script', () => {
+  it('bumps package.json to at least 2.76.0 (all three slots)', () => {
     const PKG = JSON.parse(readRepo('package.json')) as {
       version: string;
       mbumah: { releaseVersion: string; baseVersion: string };
@@ -760,7 +759,6 @@ describe('release metadata - v2.76.0', () => {
     expect(atLeast(PKG.version, '2.76.0')).toBe(true);
     expect(atLeast(PKG.mbumah.releaseVersion, '2.76.0')).toBe(true);
     expect(atLeast(PKG.mbumah.baseVersion, '2.76.0')).toBe(true);
-    expect(PKG.scripts['verify:v2-76-0']).toBe('node scripts/verify-v2-76-0.mjs');
   });
 
   it('keeps every prior surface intact (release inbox, jump group, cross-links, drawers)', () => {
@@ -820,7 +818,7 @@ describe("What's-New 2.77.0", () => {
 });
 
 describe('release metadata - v2.77.0', () => {
-  it('bumps package.json to at least 2.77.0 (all three slots) and registers the verify script', () => {
+  it('bumps package.json to at least 2.77.0 (all three slots)', () => {
     const PKG = JSON.parse(readRepo('package.json')) as {
       version: string;
       mbumah: { releaseVersion: string; baseVersion: string };
@@ -834,7 +832,6 @@ describe('release metadata - v2.77.0', () => {
     expect(atLeast(PKG.version, '2.77.0')).toBe(true);
     expect(atLeast(PKG.mbumah.releaseVersion, '2.77.0')).toBe(true);
     expect(atLeast(PKG.mbumah.baseVersion, '2.77.0')).toBe(true);
-    expect(PKG.scripts['verify:v2-77-0']).toBe('node scripts/verify-v2-77-0.mjs');
   });
 
   it('keeps every prior surface intact (mark-all action, inbox, walk, hint)', () => {
@@ -971,7 +968,7 @@ describe("What's-New 2.79.0", () => {
 });
 
 describe('release metadata - v2.79.0', () => {
-  it('bumps package.json to at least 2.79.0 (all three slots) and registers the verify script', () => {
+  it('bumps package.json to at least 2.79.0 (all three slots)', () => {
     const PKG = JSON.parse(readRepo('package.json')) as {
       version: string;
       mbumah: { releaseVersion: string; baseVersion: string };
@@ -985,7 +982,6 @@ describe('release metadata - v2.79.0', () => {
     expect(atLeast(PKG.version, '2.79.0')).toBe(true);
     expect(atLeast(PKG.mbumah.releaseVersion, '2.79.0')).toBe(true);
     expect(atLeast(PKG.mbumah.baseVersion, '2.79.0')).toBe(true);
-    expect(PKG.scripts['verify:v2-79-0']).toBe('node scripts/verify-v2-79-0.mjs');
   });
 
   it('keeps every prior surface intact (palette, inbox, shortcuts sheet, walk, drawer CSVs)', () => {

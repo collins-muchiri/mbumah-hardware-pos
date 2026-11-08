@@ -61,7 +61,7 @@ const workspaceDoc = readRepo('docs/multi-store-workspaces.md');
 const changelog = readRepo('CHANGELOG.md');
 const whatsNew = readRepo('src/lib/whats-new.ts');
 const contrastScript = readRepo('scripts/contrast-math-approval-desk-v2199.mjs');
-const verifyScript = readRepo('scripts/verify-v2-199-0.mjs');
+const verifyScript = readRepo('scripts/release-attestations/verify-v2-199-0.mjs');
 const pkg = JSON.parse(readRepo('package.json'));
 
 describe('the desk math executed - the queues, the filter, the voices', () => {
@@ -317,9 +317,9 @@ describe('the contrast round - the three re-voices pinned at the source', () => 
 
 describe('the release surfaces', () => {
   it('package.json slots ride at 2.199.0', () => {
-    expect(pkg.version).toBe('2.459.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.459.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.459.0');
+    expect(pkg.version).toBe('2.460.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.460.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.460.0');
   });
 
   it('whats-new leads with the desk story', () => {

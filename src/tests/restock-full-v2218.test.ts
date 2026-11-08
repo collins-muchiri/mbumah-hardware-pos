@@ -260,13 +260,13 @@ describe('the watchlist modal discloses the cap and keeps the count law (v2.218.
 
 describe('the round of record (v2.218.0)', () => {
   it('package.json leads 2.218.0 (all three slots)', () => {
-    expect(pkg.version).toBe('2.459.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.459.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.459.0');
+    expect(pkg.version).toBe('2.460.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.460.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.460.0');
   });
 
   it('VERSION speaks the same truth', () => {
-    expect(read('VERSION').trim()).toBe('2.459.0');
+    expect(read('VERSION').trim()).toBe('2.460.0');
   });
 
   it('the changelog of record speaks the round', () => {
@@ -280,7 +280,4 @@ describe('the round of record (v2.218.0)', () => {
     expect(feed.indexOf("version: '2.218.0',")).toBeLessThan(feed.indexOf("version: '2.217.0',"));
   });
 
-  it('the verify gate is wired', () => {
-    expect(pkg.scripts['verify:v2-218-0']).toBe('node scripts/verify-v2-218-0.mjs');
-  });
 });

@@ -80,6 +80,16 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.460.0',
+    title: 'The attestations come home — the data-colored chips learn the grammar',
+    bullets: [
+      'The 347 point-in-time release-gate scripts — every release used to leave its feature gate behind — took the museum shelf, the 310 verify:v2-* wiring keys left package.json, and the living suites read the shelf at its new address. The census caught two exhibits wearing the wrong ages and re-homed them by their true rounds.',
+      'The ancestors sweep watches the shelf now with a byte census: every attestation must still speak its own v2.X.Y age-word — a museum piece is read, never run.',
+      'The POS and inventory category chips — the two data-colored tribes whose active faces are per-row colors, never named tints — learned the family’s grammar: every chip speaks aria-pressed and wears the zinc keyboard ring, and the idle faces ride the registry constants.',
+      'The .chip-active CSS class — the masquerade law’s one named rider — inlined its own face and left the stylesheet, and the inventory scale dialect (no border, hover grows) retired for the family head. The ledger is empty: every chip in the app rides the loom.',
+    ],
+  },
+  {
     version: '2.459.0',
     title: 'The customers ride the loom — the glass idle joins the tints',
     bullets: [

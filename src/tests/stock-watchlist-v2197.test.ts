@@ -44,7 +44,7 @@ const workspaceDoc = readRepo('docs/multi-store-workspaces.md');
 const changelog = readRepo('CHANGELOG.md');
 const whatsNew = readRepo('src/lib/whats-new.ts');
 const contrastScript = readRepo('scripts/contrast-math-stock-watchlist-v2197.mjs');
-const verifyScript = readRepo('scripts/verify-v2-197-0.mjs');
+const verifyScript = readRepo('scripts/release-attestations/verify-v2-197-0.mjs');
 const pkg = JSON.parse(readRepo('package.json'));
 
 describe('the watchlist math executed - the severity buckets, the deficit, the coverage', () => {
@@ -327,14 +327,11 @@ describe('the a11y surface - the REAL-chain math for the watchlist families', ()
 });
 
 describe('the release surfaces', () => {
-  it('package.json rides at 2.198.0 (all three slots) and the verify script is wired', () => {
-    expect(pkg.version).toBe('2.459.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.459.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.459.0');
-    expect(pkg.scripts['verify:v2-197-0']).toBeTruthy();
+  it('package.json rides at 2.198.0 (all three slots)', () => {
+    expect(pkg.version).toBe('2.460.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.460.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.460.0');
     // the prior surfaces stay wired
-    expect(pkg.scripts['verify:v2-196-0']).toBeTruthy();
-    expect(pkg.scripts['verify:v2-195-0']).toBeTruthy();
   });
 
   it('the changelog and the feed head the release', () => {

@@ -1,3 +1,17 @@
+## [2.460.0] The attestations come home — the data-colored chips learn the grammar
+
+Two comings-home in one round: the 347 point-in-time attestation scripts take the museum shelf (the verify-v2-* pin unwind — Task 27's last named follow-up), and the ledger's last two hand-rolled chip tribes — the data-colored POS and inventory category chips — learn the family's grammar.
+
+### Added
+- **THE MUSEUM SHELF** (`scripts/release-attestations/`): 347 `verify-v2-*.mjs` release-gate scripts, git-mv'd byte-untouched; the 310 `verify:v2-*` package.json keys retired; the 86 living key-pins removed and the nine it() blocks the removal emptied retired with honor; the shelf paths in 19 living suite reads and the docs re-keyed to the shelf address. The census's first findings, live: two exhibits wore the wrong ages — the file wired as `verify-v2-307-0.mjs` speaks v2.351.0 (the audit-remediation gate whose wiring key was the PR number, the bytes the release) and now lives at 351; the file wired as `verify-v2-351-0.mjs` speaks v2.352.0 and lives at 352.
+- **THE SHELF CENSUS** (`scripts/verify-ancestors.mjs`): part three — the sweep reads the shelf byte-wise (a museum piece is read, never run): every attestation must speak its own `v2.X.Y` age-word, the era-proof word both header conventions carry (`v2.X.Y verification` in era 1, `the v2.X.Y release gate` in era 2); decay exits 1. The spawn-era machinery stays wired for any future `verify:v2-*` entries.
+- **THE FAMILY'S GRAMMAR FOR THE DATA-COLORED TRIBES** (`src/components/filter-chip.tsx`): `CHIP_RING_ZINC`, `CHIP_ACTIVE` and `CHIP_IDLE` leave home as exports — the POS and inventory category chips (per-row inline data colors, never a named tint) import the constants: every chip speaks `aria-pressed` and wears the family's zinc keyboard ring.
+
+### Changed
+- **THE MASQUERADE RETIRES** (`src/app/globals.css`): `.chip-active` — the masquerade law's one named rider, a plain-CSS dialect invisible to the byte walks — inlines its own face (`scale-105` + `shadow-[0_4px_12px_oklch(0_0_0_/_0.12)]`) into the POS chips' active branches and the block leaves the stylesheet. `.chip-hover-lift` stays: a motion voice, never a vocabulary masquerade.
+- **THE SCALE DIALECT RETIRES** (`src/app/(shell)/tabs/inventory-tab.tsx`): the category tags' hand-rolled head (no border, `hover:scale-105`) rides the family head (border, `transition-all`, no grow); the idle faces gain the `border-border` + `hover:text-foreground` bytes they always lacked; the active data-color chip's border speaks its own color (the POS tribe's `borderColor` precedent). The POS strip's scroll arrows wear honest glyphs (`ChevronLeft` / `ChevronRight`) instead of a rotated `ChevronDown`.
+- **THE LEDGER IS EMPTY** (`src/tests/chip-loom-v2455.test.ts`): the last two rows exit with dated re-keys and class-context taken-seat probes (a line that speaks a className may not speak a retired byte — prose comments may); the idle face's string literal now lives in exactly ONE src file.
+
 ## [2.459.0] The customers ride the loom — the glass idle joins the tints
 
 The elder loom's fifth weave: the customers desk's quick chips — the ledger's LAST named tint dialect — retire their hand-rolled button and ride the tint registry; the desk's glassy idle joins the loom as its own named voice, and the drifted emerald active face unifies to the registry byte.

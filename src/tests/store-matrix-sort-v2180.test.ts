@@ -258,12 +258,11 @@ describe('docs and release surfaces', () => {
     expect(whatsNew.indexOf('2.180.0')).toBeLessThan(whatsNew.indexOf('2.179.0'));
   });
 
-  it('package.json leads 2.180.0 (all three slots) and the verify script is wired', () => {
-    expect(pkg.version).toBe('2.459.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.459.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.459.0');
-    expect(pkg.scripts['verify:v2-180-0']).toBe('node scripts/verify-v2-180-0.mjs');
-    expect(readRepo('scripts/verify-v2-180-0.mjs')).toContain('v2.180.0 verification');
+  it('package.json leads 2.180.0 (all three slots)', () => {
+    expect(pkg.version).toBe('2.460.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.460.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.460.0');
+    expect(readRepo('scripts/release-attestations/verify-v2-180-0.mjs')).toContain('v2.180.0 verification');
   });
 
   it('the prior-round suites evolved their pkg pins to 2.180.0 (the treadmill tax, paid)', () => {
@@ -275,7 +274,7 @@ describe('docs and release surfaces', () => {
       'src/tests/branches-csv-week-v2178.test.ts',
       'src/tests/store-matrix-week-v2179.test.ts',
     ]) {
-      expect(readRepo(f)).toContain("expect(pkg.version).toBe('2.459.0');");
+      expect(readRepo(f)).toContain("expect(pkg.version).toBe('2.460.0');");
     }
   });
 

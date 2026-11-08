@@ -1566,11 +1566,12 @@
   display: none;
 }
 
-/* Active category chip scale */
-.chip-active {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px oklch(0 0 0 / 0.12);
-}
+/* v2.460.0 THE MASQUERADE RETIRES: the `.chip-active` block (scale +
+   box-shadow as a plain-CSS dialect) has been inlined into the POS
+   category chips' active faces as Tailwind bytes (scale-105 +
+   shadow-[0_4px_12px_oklch(0_0_0_/_0.12)]) — a face the byte walks can
+   see. The `.chip-hover-lift` motion utility stays: a motion voice,
+   never a vocabulary masquerade. */
 
 .chip-hover-lift {
   transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;

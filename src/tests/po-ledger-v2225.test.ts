@@ -56,9 +56,9 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.225.0)', () => {
   it('package.json leads 2.225.0 (all three slots)', () => {
-    expect(version).toBe('2.459.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.459.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.459.0');
+    expect(version).toBe('2.460.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.460.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.460.0');
   });
 
   it('the changelog anchors the section ABOVE its ancestor (the structural pin — headers, never bare strings)', () => {
@@ -72,9 +72,6 @@ describe('the round of record (v2.225.0)', () => {
     expect(feed.includes("title: 'The pipeline from above',")).toBe(true);
   });
 
-  it('the verify gate is wired into package.json', () => {
-    expect(pkg.scripts['verify:v2-225-0']).toBe('node scripts/verify-v2-225-0.mjs');
-  });
 });
 
 // ── THE ORG PO WIRE (THE ROSTER) ─────────────────────────────────────────

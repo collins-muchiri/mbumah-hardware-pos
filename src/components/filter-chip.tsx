@@ -93,10 +93,18 @@ import React from 'react';
 const CHIP_HEAD = 'px-3 py-1.5 rounded-full text-xs font-medium border transition-all';
 const CHIP_HEAD_COMPACT = 'px-3 py-1 rounded-full text-xs font-medium border transition-all';
 const CHIP_HEAD_SLIM = 'px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors';
-const CHIP_RING_ZINC =
+// v2.460.0 THE RING LEAVES HOME (the export, not the byte): the
+// data-colored tribes (the POS and inventory category chips — per-row
+// inline style colors, never a named tint) cannot ride <FilterChip>,
+// but the family's keyboard ring is still ONE ring. The const is
+// exported; the tribe imports it — one home, many hands.
+export const CHIP_RING_ZINC =
   ' focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-1';
-const CHIP_ACTIVE = 'bg-primary text-primary-foreground border-primary shadow-sm';
-const CHIP_IDLE =
+// v2.460.0 THE FACES LEAVE HOME TOO (the exports, not the bytes): the
+// data-colored tribes' idle face is byte-exact CHIP_IDLE already and
+// their primary faces ride CHIP_ACTIVE — imported, never copied.
+export const CHIP_ACTIVE = 'bg-primary text-primary-foreground border-primary shadow-sm';
+export const CHIP_IDLE =
   'bg-muted/50 text-muted-foreground border-border hover:bg-muted hover:text-foreground';
 
 // The TONE REGISTRY — one home for the status lenses' color palette
