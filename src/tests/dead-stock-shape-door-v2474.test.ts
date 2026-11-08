@@ -154,7 +154,11 @@ describe('the shape\u2019s presses — the desk\u2019s own face', () => {
     expect(desk.includes('data-testid="dead-stock-chart-pie"')).toBe(true);
     expect(desk.includes('data-testid="dead-stock-chart-bar"')).toBe(true);
     const section = desk.slice(desk.indexOf('function DeadStockSection'), desk.indexOf('// Main Reports Tab Component'));
-    expect(section.split('aria-label=').length - 1).toBe(9);
+    // v2.476.0 re-key (dated): the section grows its TENTH voice — the
+    // chat door's Share all handle (the chorus's own reach-out, the
+    // double voice every handle wears); the census speaks the section's
+    // ten handles now, and the loom's pressed-voice law stands untouched.
+    expect(section.split('aria-label=').length - 1).toBe(10);
   });
 
   it('the shape\u2019s voices live OUTSIDE the section slice — the shared charts keep their own bytes', () => {

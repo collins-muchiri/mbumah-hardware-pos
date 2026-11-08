@@ -29,7 +29,7 @@ import {
 } from '@/lib/api';
 import { handleError } from '@/lib/error-handler';
 import { parseInitialNamedMember, REP_TYPE_FILTERS } from '@/lib/tab-url';
-import { DEAD_STOCK_WINDOWS, capitalTiedByCategory, deadStockChorusHeader, deadStockClearanceNote, deadStockClearanceNotes, deadStockShareUrl, deadStockViewSummary, filterDeadStockRows, sortDeadStockRows, waMeDisplay, type DeadStockRow, type DeadStockSortKey } from '@/lib/reports/dead-stock';
+import { DEAD_STOCK_WINDOWS, capitalTiedByCategory, deadStockChorusHeader, deadStockChorusShareUrl, deadStockClearanceNote, deadStockClearanceNotes, deadStockShareUrl, deadStockViewSummary, filterDeadStockRows, sortDeadStockRows, waMeDisplay, type DeadStockRow, type DeadStockSortKey } from '@/lib/reports/dead-stock';
 import {
   composeSeriesVoice, composeHourlyVoice,
   composeStockHealthVoice, composeProductsVoice, composeForecastVoice,
@@ -1496,6 +1496,22 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
       toast.error('Could not copy the clearance notes — the clipboard refused.');
     }
   }, [rows, days]);
+  // THE CHORUS'S CHAT DOOR (v2.476.0) — the collective word's own
+  // reach-out: one press opens WhatsApp with the WHOLE clearance chorus
+  // pre-filled — the SAME collective composer the Copy all handle carries
+  // to the clipboard (one voice, never a re-typed word), pre-addressed to
+  // the store's own chat when the branch keeps a phone on file (the
+  // contact's phone rides the composer's third word — the ONE home's own
+  // guard, the desk never re-implements it), the chat picker answering
+  // for the branch with none. A browser that blocks the window speaks
+  // its side: the toast answers, the ledger stays whole (the share
+  // door's popup-blocked honesty law, the row share's own word grown
+  // plural). The handle sings the CANONICAL rows — the archive's word,
+  // the same rows the Copy all handle carries (the view/archive law).
+  const shareAllClearanceNotes = useCallback(() => {
+    const win = window.open(deadStockChorusShareUrl(rows, days, storeContact?.phone), '_blank', 'noopener,noreferrer');
+    if (!win) toast.error('The browser blocked the share window — copy the notes instead.');
+  }, [rows, days, storeContact]);
   // THE EDIT DOOR'S SAVE (v2.468.0) — the picker chip's promise kept:
   // the owner-only PATCH writes the number org-scoped (a foreign store
   // is a calm 404), the toast answers with the display word, and the
@@ -1727,6 +1743,30 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
                       className="h-7 px-2.5 text-xs hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 dark:hover:bg-emerald-950/30 dark:hover:text-emerald-300 dark:hover:border-emerald-800"
                     >
                       <ClipboardList className="h-3 w-3 mr-1" /> Copy all
+                    </Button>
+                  )}
+                  {/* THE CHORUS'S CHAT DOOR (v2.476.0) — the Copy all
+                      handle's sibling: the same compact face (h-7, the
+                      row actions' smaller sibling), the share family's
+                      emerald hover (the share handle's own word — the
+                      green the copy toast speaks, never a second
+                      palette), the double voice every handle wears, and
+                      the same honesty — it only shows when rows exist
+                      (a button that shares nothing would be a lie). The
+                      census grows its tenth voice — the dated re-key
+                      holds it. */}
+                  {rows.length > 0 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      data-testid="dead-stock-share-all"
+                      aria-label={`Share all ${rows.length} clearance notes on WhatsApp`}
+                      title={`Share all ${rows.length} clearance notes on WhatsApp`}
+                      onClick={shareAllClearanceNotes}
+                      className="h-7 px-2.5 text-xs hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 dark:hover:bg-emerald-950/30 dark:hover:text-emerald-300 dark:hover:border-emerald-800"
+                    >
+                      <Share2 className="h-3 w-3 mr-1" /> Share all
                     </Button>
                   )}
                 </div>

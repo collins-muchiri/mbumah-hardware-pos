@@ -135,24 +135,24 @@ describe('main-app - the archive door on the main desk', () => {
   // ── 7. The release cascade ─────────────────────────────────────────────────
 
   it('WHATS_NEW leads with the current release — the door story rides the archive below', () => {
-    // v2.475.0 hand-over: the lead tells the view-voice story now; the
-    // census’s story lives one entry down, the toast’s two, the
-    // shortfall’s three, the receipt’s four, the row-maker’s five,
-    // the debt’s six, the shelf-door seven, the supplier-rides
-    // eight, the order-blocks nine, the supplier-lens ten, the
-    // drill-mirror eleven, the expected-day twelve, the receive
-    // thirteen, the order-handover fourteen, the order-file fifteen,
-    // the order-list sixteen, the org-desk seventeen, the
-    // census-echoes eighteen, the census-speaks nineteen, the
-    // wire-answers twenty, the desk-remembers twenty-one, the
-    // branch-voice twenty-two, the ghost-routes twenty-three, the
-    // jump-door twenty-four, the shares’ twenty-five, the
-    // archive-door story sixty-eight — all still in the feed
+    // v2.476.0 hand-over: the lead tells the chat-door story now; the
+    // view-voice’s one, the census’s two, the toast’s three, the
+    // shortfall’s four, the receipt’s five, the row-maker’s six,
+    // the debt’s seven, the shelf-door eight, the supplier-rides
+    // nine, the order-blocks ten, the supplier-lens eleven, the
+    // drill-mirror twelve, the expected-day thirteen, the receive
+    // fourteen, the order-handover fifteen, the order-file sixteen,
+    // the order-list seventeen, the org-desk eighteen, the
+    // census-echoes nineteen, the census-speaks twenty, the
+    // wire-answers twenty-one, the desk-remembers twenty-two, the
+    // branch-voice twenty-three, the ghost-routes twenty-four, the
+    // jump-door twenty-five, the shares’ twenty-six, the
+    // archive-door story sixty-nine — all still in the feed
     const lead = WHATS_NEW[0];
-    // v2.475.0 re-key (dated): the lead speaks the view-voice round —
-    // the view speaks its own word (the mirror, the slice), and the
-    // family keeps its seats.
-    expect(lead.version).toBe('2.475.0');
+    // v2.476.0 re-key (dated): the lead speaks the chat-door round —
+    // the chorus rides the chat door (the Share all handle, the
+    // collective word's own reach-out), and the family keeps its seats.
+    expect(lead.version).toBe('2.476.0');
     expect(lead.title).toContain('edit door');
     expect(lead.bullets.length).toBeGreaterThanOrEqual(3);
     expect(lead.bullets.some((b) => b.includes('edit door'))).toBe(true);
