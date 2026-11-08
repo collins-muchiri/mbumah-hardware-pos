@@ -229,14 +229,14 @@ describe('v2.202.0 — the style: the six-hue vocabulary + the voice lint', () =
 
 describe('v2.202.0 — docs and release surfaces', () => {
   it('package.json rides at 2.202.0 (all three slots) and the scripts are wired', () => {
-    expect(pkg.version).toBe('2.470.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.470.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.470.0');
+    expect(pkg.version).toBe('2.471.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.471.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.471.0');
   });
 
   it('the head-pin counters re-anchored to the new head', () => {
     const counter = readRepo('src/tests/console-changelog.test.ts');
-    expect(counter).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(360);");
+    expect(counter).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(361);");
   });
 
   it('the whats-new feed heads the release', () => {

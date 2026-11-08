@@ -262,14 +262,26 @@ export function deadStockShareUrl(row: DeadStockRow, days: number, storePhone?: 
 // can never drift from the rows it sings about. Pure.
 //
 
+/** THE CHORUS'S OWN HEADER (v2.471.0) — the collective word in one
+ *  sentence: the count, the window, the capital at cost. Extracted from
+ *  deadStockClearanceNotes (whose byte it already was) so the word can
+ *  ride MORE doors than the clipboard — the file's footer joins the
+ *  chorus without re-typing it — and so the clipboard's chorus and the
+ *  sheet's footer can never drift apart. The capital is the round2 of
+ *  the rows' own sum — the same convention the summary's
+ *  totalCapitalTied wears, so the header's number and the summary
+ *  card's number agree for the same rows. Pure. */
+export function deadStockChorusHeader(rows: ReadonlyArray<DeadStockRow>, days: number): string {
+  const capital = round2b(rows.reduce((s, r) => s + r.capitalTied, 0));
+  return `Clearance asks — ${rows.length} product${rows.length === 1 ? '' : 's'} resting past the ${days}-day window (Ksh ${capital.toFixed(2)} tied at cost):`;
+}
+
 /** THE LEDGER'S COLLECTIVE WORD (v2.465.0) — every row's clearance note
  *  joined under a header that speaks the ledger's own summary. The
- *  capital is the round2 of the rows' own sum — the same convention the
- *  summary's totalCapitalTied wears, so the header's number and the
- *  summary card's number agree for the same rows. The per-row lines are
- *  the ONE composer's own voice, never a re-typed word. Pure. */
+ *  header line is the ONE home's own chorus header (v2.471.0 — the same
+ *  word the file's footer speaks, never a re-typed twin), and the
+ *  per-row lines are the ONE composer's own voice, never a re-typed
+ *  word. Pure. */
 export function deadStockClearanceNotes(rows: ReadonlyArray<DeadStockRow>, days: number): string {
-  const capital = round2b(rows.reduce((s, r) => s + r.capitalTied, 0));
-  const header = `Clearance asks — ${rows.length} product${rows.length === 1 ? '' : 's'} resting past the ${days}-day window (Ksh ${capital.toFixed(2)} tied at cost):`;
-  return [header, ...rows.map((r) => deadStockClearanceNote(r, days))].join('\n');
+  return [deadStockChorusHeader(rows, days), ...rows.map((r) => deadStockClearanceNote(r, days))].join('\n');
 }
