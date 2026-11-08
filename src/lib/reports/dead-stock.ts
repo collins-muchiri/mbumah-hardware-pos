@@ -131,3 +131,55 @@ export function classifyDeadStock(
  *  the tab's chips read the same three words. ONE home. */
 export const DEAD_STOCK_WINDOWS = [30, 60, 90] as const;
 export type DeadStockWindow = (typeof DEAD_STOCK_WINDOWS)[number];
+
+// ============================================================================
+// v2.462.0 THE RESTING LEDGER LEARNS TO SHARE AND TO ASK
+// ============================================================================
+// Two pure voices join the classifier's home, so the desk stays thin and
+// the suite proves both without a database:
+//   • capitalTiedByCategory — the chart's own grouping: the rows' capital
+//     summed per category (the honest "Uncategorised" word when the shelf
+//     never named one), loudest rest first with the name tiebreak — the
+//     same deterministic order the rows themselves wear.
+//   • deadStockClearanceNote — the Ask button's word: a deterministic,
+//     WhatsApp-ready clearance note built ONLY from the row's own numbers
+//     and the window that caught it. No supplier name is invented (the
+//     row carries none), no date is locale-shaped (the ISO day speaks —
+//     a clipboard word must read the same on every machine), and the
+//     never-sold row says so instead of wearing a fabricated age.
+// --------------------------------------------------------------------------
+
+/** round2 — the classifier's own convention (the local twin above). */
+const round2b = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
+
+/** THE CAPITAL'S SHAPE (v2.462.0) — capital tied, summed per category.
+ *  A row whose shelf never named a category speaks "Uncategorised" (the
+ *  ledger's own word — the chart must never drop resting capital because
+ *  a label is missing). Sorted capital DESC with the name tiebreak, so
+ *  the same rows always draw the same shape. Pure. */
+export function capitalTiedByCategory(
+  rows: ReadonlyArray<DeadStockRow>,
+): { label: string; value: number }[] {
+  const map = new Map<string, number>();
+  for (const row of rows) {
+    const label = row.categoryName ?? 'Uncategorised';
+    map.set(label, (map.get(label) ?? 0) + row.capitalTied);
+  }
+  return [...map.entries()]
+    .map(([label, value]) => ({ label, value: round2b(value) }))
+    .sort((a, b) => b.value - a.value || a.label.localeCompare(b.label));
+}
+
+/** THE MAKER'S WORD (v2.462.0) — the clearance note the Ask button
+ *  carries to the clipboard. Deterministic by law: the ISO day (the
+ *  date's own first ten characters), the capital at cost with two
+ *  decimals, the base unit named (the UoM law — "40 METER" is forty
+ *  metres, never forty pieces), and the window that caught the row. The
+ *  never-sold row speaks its honest absence instead of an invented age.
+ *  Pure. */
+export function deadStockClearanceNote(row: DeadStockRow, days: number): string {
+  const idleVoice = row.lastSoldAt && row.daysIdle != null
+    ? `idle ${row.daysIdle} days (last sold ${row.lastSoldAt.slice(0, 10)}`
+    : 'never sold (no sale on this shelf\'s record';
+  return `Clearance ask — ${row.quantityInStock} ${row.unitType} × ${row.name} (${row.sku}): Ksh ${row.capitalTied.toFixed(2)} tied at cost, ${idleVoice}, caught by the ${days}-day window). Can we talk an exchange?`;
+}

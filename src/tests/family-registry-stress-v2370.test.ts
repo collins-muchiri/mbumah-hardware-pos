@@ -29,9 +29,11 @@
 //   5. the suite's version (from its filename's v23NN stamp) is
 //      version-stamped in tab-url (the home's per-word doc notes)
 //      and carried in the whats-new feed.
-// Globally it derives the title's own claim: thirty-two words over
-// twenty-six desks with thirty-two DISTINCT families, and the promise
-// roll through THIRTY-SECOND.
+// Globally it derives the title's own claim: thirty-three words over
+// twenty-six desks with thirty-three DISTINCT families, and the promise
+// roll through THIRTY-SECOND (the thirty-third word's own suite pins its
+// own stamp — the v2462 generation, the registry's first second-
+// generation row, whose stamp regex grew a storey below).
 // THE STRESS'S BOUNDARY: this is the REGISTRY's walk, not a census —
 // the per-word one-writer ledgers already live in each row's suite;
 // this suite never re-walks their ground.
@@ -71,8 +73,8 @@ function parseRegistry(): RegistryRow[] {
 const rows = parseRegistry();
 
 describe('the registry, parsed from the constitution file itself', () => {
-  it('parses THIRTY-TWO rows (the constitution\u2019s own count, derived)', () => {
-    expect(rows.length).toBe(32);
+  it('parses THIRTY-THREE rows (the constitution\u2019s own count, derived)', () => {
+    expect(rows.length).toBe(33);
   });
 
   it('the rows walk in the promise\u2019s order (the roll, derived from the parse)', () => {
@@ -84,14 +86,18 @@ describe('the registry, parsed from the constitution file itself', () => {
       'ly-type', 'et-status', 'tax-type', 'tax-period',
       'rep-type', 'bank-type', 'bank-mpesa', 'debt-status', 'debt-channel',
       'exp-status', 'exp-type', 'msg-template',
+      // v2.462.0: the lens-inside-a-shape round — the ninth report's
+      // window answers the address bar (the family GREW one storey of
+      // hue: rose at 300/100)
+      'dead-window',
     ];
     expect(rows.map((r) => r.word)).toEqual(expected);
   });
 
-  it('the parsed desks and suites are the title\u2019s own arithmetic (26 desks, 32 families — derived)', () => {
+  it('the parsed desks and suites are the title\u2019s own arithmetic (26 desks, 33 families — derived)', () => {
     expect(new Set(rows.map((r) => r.desk)).size).toBe(26);
-    expect(new Set(rows.map((r) => r.family)).size).toBe(32);
-    expect(constitution.includes('(thirty-two words, twenty-six desks)')).toBe(true);
+    expect(new Set(rows.map((r) => r.family)).size).toBe(33);
+    expect(constitution.includes('(thirty-three words, twenty-six desks)')).toBe(true);
   });
 
   it('the promise roll through THIRTY-SECOND is present (the ordinals, derived from the home’s notes)', () => {
@@ -184,7 +190,10 @@ describe.each(rows)('$word — the registry row, derived against the tree', (row
   });
 
   it('the suite\u2019s version is stamped in the home (tab-url) and carried in the feed (whats-new)', () => {
-    const stamp = row.suite.match(/v(23\d\d)/)?.[1] ?? '';
+    // the stamp regex grew a storey (v2.462.0): the registry's first
+    // second-generation row (v2462) joins the v23NN generation — the
+    // 2[34] class admits both, the derivation honest for every row
+    const stamp = row.suite.match(/v(2[34]\d\d)/)?.[1] ?? '';
     expect(stamp, row.suite).not.toBe('');
     const version = `2.${stamp.slice(1)}.0`;
     const home = readFileSync('src/lib/tab-url.ts', 'utf8');

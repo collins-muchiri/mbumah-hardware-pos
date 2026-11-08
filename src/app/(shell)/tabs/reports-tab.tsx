@@ -9,7 +9,7 @@ import { BarChart3, Package, TrendingUp, TrendingDown,
   Calendar, Clock, Eye, Play, Sparkles, PieChart,
   HeartPulse, RotateCcw, CreditCard, Banknote, Smartphone,
   AlertTriangle, Users, Timer, Printer, Wrench, Sparkle, Link2, ArrowRight,
-  Receipt, UserCog, Hourglass, CheckCircle,
+  Receipt, UserCog, Hourglass, CheckCircle, MessageCircle,
 } from 'lucide-react';
 import { LandingChip } from '@/components/landing-chip';
 import {
@@ -27,7 +27,7 @@ import {
 } from '@/lib/api';
 import { handleError } from '@/lib/error-handler';
 import { parseInitialNamedMember, REP_TYPE_FILTERS } from '@/lib/tab-url';
-import { DEAD_STOCK_WINDOWS } from '@/lib/reports/dead-stock';
+import { DEAD_STOCK_WINDOWS, capitalTiedByCategory, deadStockClearanceNote, type DeadStockRow } from '@/lib/reports/dead-stock';
 import {
   composeSeriesVoice, composeHourlyVoice,
   composeStockHealthVoice, composeProductsVoice, composeForecastVoice,
@@ -77,6 +77,51 @@ type ReportType = (typeof REP_TYPE_FILTERS)[number];
 function initialReportType(): ReportType {
   if (typeof window === 'undefined') return 'sales';
   return parseInitialNamedMember(window.location.search, 'rep-type', REP_TYPE_FILTERS, 'sales');
+}
+
+// THE DEAD WINDOW'S OWN WORD (v2.462.0 — the deep-link family's next
+// wearing): the ninth report's idle window answers the address bar. The
+// lens's daily question, "how far back does resting begin?", speaks its
+// desk-prefixed `?dead-window=30|60|90` — the window tuple's OWN spellings
+// (DEAD_STOCK_WINDOWS, the ONE home in the classifier, read as words) —
+// and wears the landing chip in the family's ELEVENTH 300-storey byte:
+// ROSE at 300/100, the hue that last spoke at the 200/50 storey (the
+// customers desk's word) speaking again through a DIFFERENT storey — a
+// family byte the 200-storey can never equal (the shade-split law's next
+// form; the registry grew one line for it). THE TWO-STOREY CENSUS WAS
+// FULL: every hue had spoken at both storeys, so the family grew rather
+// than masquerade. NO STAGE TO IMPLY: the report type IS the stage — the
+// window is the lens INSIDE the dead_stock stage, so the chip lives in
+// the section's lens row (the banking desk's sub-tab law's shape: it
+// hides with the pane and returns when the pane reopens — a hand-driven
+// REPORT change is navigation, not a lens change, and never retires it).
+// THE DEFAULT WEARS NO CHIP: a landing of ?dead-window=90 speaks the
+// shape the bare landing already answers, so the chip names only a
+// NON-default lens (the rep-type law's own reading). THE LANDING IS READ
+// ONCE ON THE SHELL: a plain useState initializer — a dismissed chip can
+// never resurrect. THE LENS WRITES BACK: a hand-driven window turn
+// replaceState's the word into the address (the transactions desk's own
+// write shape), so a turned lens is a shareable address, never a dead
+// end; a blocked write is the lens's silence, never a thrown desk.
+function initialDeadWindow(): 30 | 60 | 90 {
+  if (typeof window === 'undefined') return 90;
+  const word = parseInitialNamedMember(window.location.search, 'dead-window', DEAD_STOCK_WINDOWS.map(String), '90');
+  return Number(word) as 30 | 60 | 90;
+}
+
+// The write half — the lens's own replaceState (preserve the other
+// params: tab, rep-type and every other desk's word ride untouched).
+function writeDeadWindowWord(days: 30 | 60 | 90): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    params.set('dead-window', String(days));
+    const qs = params.toString();
+    window.history.replaceState(null, '', window.location.pathname + (qs ? `?${qs}` : ''));
+  } catch {
+    // The address never lies louder than the lens — a blocked write
+    // leaves the lens on the desk, exactly where the human pressed it.
+  }
 }
 
 interface GrowingProduct {
@@ -575,6 +620,11 @@ const TRENDS_RANGE_OPTIONS: { value: TrendsRange; label: string }[] = [
 // amber 2.15, cyan 2.43); red-500 3.76, violet-500 4.23 and pink-500 3.52
 // already cleared it and stay.
 const TREND_COLORS = ['#059669', '#d97706', '#ef4444', '#0891b2', '#8b5cf6', '#ec4899'];
+
+// v2.462.0 THE DEAD-STOCK PIE'S VOICES — the -600 family ground (the same
+// palette the valuation pie's voices speak; a desk never invents a second
+// palette). The bar face needs no palette — the bars wear their own voice.
+const DEAD_STOCK_CHART_COLORS = ['#3b82f6', '#16a34a', '#ea580c', '#a855f7', '#0d9488', '#ec4899', '#a16207', '#0891b2', '#65a30d', '#f43f5e'];
 
 function TrendsTooltipContent({ active, payload, label }: { active?: boolean; payload?: Array<{ name?: string; value?: number; color?: string }>; label?: string }) {
   if (!active || !payload || payload.length === 0) return null;
@@ -1260,12 +1310,53 @@ interface DeadStockSectionProps {
   isLoading: boolean;
   days: 30 | 60 | 90;
   onDaysChange: (days: 30 | 60 | 90) => void;
+  // v2.462.0: the chart's voice — the desk's own toggle state rides down,
+  // so the section draws the face the human picked (bar or pie; the
+  // time-series voices cannot be picked for this report).
+  chartType: 'bar' | 'line' | 'area' | 'pie';
+  // v2.462.0: the landing chip's faces — the landed word and its
+  // liveness live at the DESK (they survive the pane's unmount/remount,
+  // the banking desk's law), the section only wears them.
+  deadWindowLandingLive: boolean;
+  landedDeadWindow: 30 | 60 | 90;
+  onDismissDeadWindowLanding: () => void;
 }
 
-function DeadStockSection({ rows, summary, isLoading, days, onDaysChange }: DeadStockSectionProps) {
+function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartType, deadWindowLandingLive, landedDeadWindow, onDismissDeadWindowLanding }: DeadStockSectionProps) {
+  // THE CAPITAL'S SHAPE — the chart's own grouping, read from the ONE
+  // home (the classifier's pure voice). The rows are already on the
+  // desk; zero new fetches, the lens re-answers and the shape follows.
+  const capitalByCategory = useMemo(() => capitalTiedByCategory(rows), [rows]);
+  // THE PIE'S VOICES — the -600 family ground (the same palette the
+  // valuation pie speaks; a desk never invents a second palette).
+  const categorySegments = useMemo(
+    () => capitalByCategory.map((c, i) => ({
+      name: c.label,
+      value: c.value,
+      color: DEAD_STOCK_CHART_COLORS[i % DEAD_STOCK_CHART_COLORS.length],
+    })),
+    [capitalByCategory],
+  );
+  // THE ASK — the clipboard's own door (the inventory desk's copy-order
+  // shape): the note rides out, the toast answers; a refused clipboard
+  // speaks its side and the row stays whole.
+  const copyClearanceNote = useCallback(async (row: DeadStockRow) => {
+    try {
+      await navigator.clipboard.writeText(deadStockClearanceNote(row, days));
+      toast.success(`Clearance note copied — ${row.name}`);
+    } catch {
+      toast.error('Could not copy the clearance note — the clipboard refused.');
+    }
+  }, [days]);
   return (
     <div className="space-y-3" data-testid="dead-stock-section">
-      {/* The window lens — the loom's tint dialect, the amber word */}
+      {/* The window lens — the loom's tint dialect, the amber word.
+          v2.462.0: the lens answers the address bar, so the row also
+          wears the landing chip when the lens LANDED from a shared word
+          (the rose family byte — the shade-split law's next form). The
+          chip lives HERE because the window is a lens INSIDE the
+          dead_stock stage: it hides with the pane and returns when the
+          pane reopens, and only a hand-driven WINDOW turn retires it. */}
       <div className="flex items-center gap-2 flex-wrap">
         <Label className="text-xs font-medium">Idle window:</Label>
         {DEAD_STOCK_WINDOWS.map((d) => (
@@ -1281,6 +1372,15 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange }: Dead
             {d} days
           </FilterChip>
         ))}
+        {deadWindowLandingLive && landedDeadWindow !== 90 && (
+          <LandingChip
+            hue="rose"
+            label={`landed ?dead-window=${landedDeadWindow}`}
+            onDismiss={onDismissDeadWindowLanding}
+            title="The idle window landed with this word from the address bar — press to clear it"
+            data-testid="dead-window-landing-word"
+          />
+        )}
       </div>
 
       {isLoading ? (
@@ -1313,6 +1413,40 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange }: Dead
             </Card>
           </div>
 
+          {/* v2.462.0 THE CAPITAL'S SHAPE — the ninth report's chart face,
+              rendered from the rows already on the desk. The toggle's
+              reachable voices for this report are bar and pie (the
+              time-series words cannot be picked here); whatever the
+              state carries, the categorical capital draws one of the two
+              honest faces — a line/area state inherited from another
+              report reads as the bar, never as a time-series lie. A
+              resting shelf with nothing dead draws nothing: the empty
+              state above already spoke the good news. */}
+          {rows.length > 0 && (
+            <Card className="backdrop-blur-sm bg-card/80" data-testid="dead-stock-chart">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4" /> Capital by category
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {chartType === 'pie' ? (
+                  <div data-testid="dead-stock-chart-pie">
+                    <ConicPieChart segments={categorySegments} />
+                  </div>
+                ) : (
+                  <div data-testid="dead-stock-chart-bar">
+                    <SVGBarChart
+                      data={capitalByCategory}
+                      height={200}
+                      ariaLabel={`Capital tied by category — ${capitalByCategory.length} categories, ${formatKES(summary?.totalCapitalTied ?? 0)} resting`}
+                    />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           <Card className="backdrop-blur-sm bg-card/80">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
@@ -1343,6 +1477,7 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange }: Dead
                         <TableHead className="text-right">Capital tied</TableHead>
                         <TableHead>Last sold</TableHead>
                         <TableHead className="text-right">Days idle</TableHead>
+                        <TableHead className="text-right">Ask</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -1375,6 +1510,26 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange }: Dead
                             <TableCell className={`text-right tabular-nums text-xs ${idleTone}`}>
                               {r.daysIdle ?? '—'}
                             </TableCell>
+                            {/* THE ASK (v2.462.0) — the row's own voice to
+                                the maker: one press carries the clearance
+                                note to the clipboard. The handle wears the
+                                double voice (aria-label + title), the
+                                outline face every desk's row actions
+                                wear, and the composer lives in the ONE
+                                home — the button only presses it. */}
+                            <TableCell className="text-right">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                data-testid={`dead-stock-note-${i}`}
+                                aria-label={`Copy clearance note for ${r.name}`}
+                                title={`Copy clearance note for ${r.name}`}
+                                onClick={() => copyClearanceNote(r)}
+                              >
+                                <MessageCircle className="h-3.5 w-3.5 mr-1" /> Ask
+                              </Button>
+                            </TableCell>
                           </TableRow>
                         );
                       })}
@@ -1401,6 +1556,19 @@ export default function ReportsTab() {
   const [landedRepType] = useState<ReportType>(initialReportType);
   const [reportType, setReportType] = useState<ReportType>(initialReportType);
   const [repLandingLive, setRepLandingLive] = useState(true);
+  // THE DEAD WINDOW'S LANDING (v2.462.0): read ONCE at desk mount through
+  // the same write-once door — the capture rides the initializer, the
+  // liveness rides the door the rep-type chip speaks. A hand-driven
+  // WINDOW turn retires the chip (the lens changed — the address's word
+  // no longer names it); a hand-driven REPORT change never does (the
+  // banking desk's law — the chip hides with the pane and returns when
+  // the pane reopens, because navigation is not a lens change).
+  const [landedDeadWindow] = useState<30 | 60 | 90>(initialDeadWindow);
+  const [deadWindowLandingLive, setDeadWindowLandingLive] = useState(true);
+  // THE DEAD STOCK WIRE'S LENS STATE (v2.461.0; the address answer joined
+  // v2.462.0) — declared beside the door that turns it, so the callback's
+  // closure reads a binding the desk has already met.
+  const [deadStockDays, setDeadStockDays] = useState<30 | 60 | 90>(initialDeadWindow);
   const [chartType, setChartType] = useState<'bar' | 'line' | 'area' | 'pie'>('bar');
   const [datePreset, setDatePreset] = useState<DatePreset>('this_month');
 
@@ -1413,6 +1581,24 @@ export default function ReportsTab() {
       return value;
     });
   }, []);
+
+  // THE DEAD WINDOW'S DOOR (v2.462.0): EVERY path that turns the lens
+  // rides this one callback — the chip retires when the lens actually
+  // moved (agreement is no news), and the address writes the lens's word
+  // back so the turned lens is a shareable address. THE UPDATER STAYS
+  // PURE (React's own law — StrictMode double-invokes it): the retire
+  // and the write live OUTSIDE the setState, read from the closure's own
+  // lens. The write is a FACT ride (the lens's truth), never a gate: the
+  // desk works identically when the history API refuses.
+  const chooseDeadWindow = useCallback((value: 30 | 60 | 90) => {
+    if (deadStockDays === value) {
+      setDeadStockDays(value);
+      return;
+    }
+    setDeadStockDays(value);
+    setDeadWindowLandingLive(false);
+    writeDeadWindowWord(value);
+  }, [deadStockDays]);
 
   // Initialize from preset
   const presetRange = useMemo(() => getDatePresetRange(datePreset), [datePreset]);
@@ -1458,9 +1644,12 @@ export default function ReportsTab() {
   });
 
   // v2.461.0 THE DEAD STOCK WIRE — the ninth report's source. The window
-  // is STATE (the lens's three words), so the wire re-answers when the
-  // window turns; enabled only when the desk shows the report.
-  const [deadStockDays, setDeadStockDays] = useState<30 | 60 | 90>(90);
+  // is STATE (the lens's three words — declared beside its door above),
+  // so the wire re-answers when the window turns; enabled only when the
+  // desk shows the report.
+  // v2.462.0: the lens ANSWERS THE ADDRESS BAR — the initializer reads
+  // ?dead-window through the ONE home (the window tuple's own words), so
+  // a shared lens lands already turned.
   const { data: deadStockData, isLoading: deadStockLoading } = useQuery({
     queryKey: ['dead-stock-report', currentStoreId, deadStockDays],
     queryFn: () => reportsApi.getDeadStockReport({ storeId: currentStoreId, days: deadStockDays }),
@@ -2300,12 +2489,20 @@ export default function ReportsTab() {
             </div>
           </div>
 
-          {/* Chart Type Toggle */}
-          {(reportType === 'valuation' || reportType === 'top_products' || reportType === 'daily' || reportType === 'customer_analysis' || reportType === 'rental_performance') && (
+          {/* Chart Type Toggle — v2.462.0: the ninth report joins the row
+              with its OWN honest faces (bar and pie; line and area are
+              time-series words, and categorical capital cannot wear
+              them — the filter below is the toggle's own truth for this
+              report, never a hidden chip). */}
+          {(reportType === 'valuation' || reportType === 'top_products' || reportType === 'daily' || reportType === 'customer_analysis' || reportType === 'rental_performance' || reportType === 'dead_stock') && (
             <div className="flex items-center gap-2">
               <Label className="text-xs font-medium">Chart Type:</Label>
               <div className="flex items-center gap-1">
-                {(['bar', 'line', 'area', 'pie'] as const).map(ct => (
+                {(['bar', 'line', 'area', 'pie'] as const)
+                  // the dead-stock report speaks only its two honest
+                  // faces — a categorical capital has no time series
+                  .filter((ct) => reportType !== 'dead_stock' || ct === 'bar' || ct === 'pie')
+                  .map(ct => (
                   // the chart-type face rides the loom's COMPACT wardrobe
                   // (py-1, the face's historic size) — the pressed voice and
                   // the zinc ring join the family's first weave.
@@ -3455,7 +3652,11 @@ export default function ReportsTab() {
             summary={deadStockSummary}
             isLoading={deadStockLoading}
             days={deadStockDays}
-            onDaysChange={setDeadStockDays}
+            onDaysChange={chooseDeadWindow}
+            chartType={chartType}
+            deadWindowLandingLive={deadWindowLandingLive}
+            landedDeadWindow={landedDeadWindow}
+            onDismissDeadWindowLanding={() => setDeadWindowLandingLive(false)}
           />
         )}
       </div>
