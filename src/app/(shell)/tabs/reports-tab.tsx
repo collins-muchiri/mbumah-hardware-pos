@@ -9,7 +9,7 @@ import { BarChart3, Package, TrendingUp, TrendingDown,
   Calendar, Clock, Eye, Play, Sparkles, PieChart,
   HeartPulse, RotateCcw, CreditCard, Banknote, Smartphone,
   AlertTriangle, Users, Timer, Printer, Wrench, Sparkle, Link2, ArrowRight,
-  Receipt, UserCog, Hourglass, CheckCircle, MessageCircle, Share2,
+  Receipt, UserCog, Hourglass, CheckCircle, MessageCircle, Share2, ClipboardList,
 } from 'lucide-react';
 import { LandingChip } from '@/components/landing-chip';
 import {
@@ -27,7 +27,7 @@ import {
 } from '@/lib/api';
 import { handleError } from '@/lib/error-handler';
 import { parseInitialNamedMember, REP_TYPE_FILTERS } from '@/lib/tab-url';
-import { DEAD_STOCK_WINDOWS, capitalTiedByCategory, deadStockClearanceNote, deadStockShareUrl, type DeadStockRow } from '@/lib/reports/dead-stock';
+import { DEAD_STOCK_WINDOWS, capitalTiedByCategory, deadStockClearanceNote, deadStockClearanceNotes, deadStockShareUrl, type DeadStockRow } from '@/lib/reports/dead-stock';
 import {
   composeSeriesVoice, composeHourlyVoice,
   composeStockHealthVoice, composeProductsVoice, composeForecastVoice,
@@ -1359,6 +1359,20 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
     const win = window.open(deadStockShareUrl(row, days), '_blank', 'noopener,noreferrer');
     if (!win) toast.error('The browser blocked the share window — copy the note instead.');
   }, [days]);
+  // THE LEDGER'S CHORUS (v2.465.0) — the collective door: one press
+  // carries EVERY row's clearance note to the clipboard, composed in the
+  // ONE home (the header line speaks the ledger's own summary, the lines
+  // under it are the SAME per-row note the Ask copies — never a re-typed
+  // word). A refused clipboard speaks its side; the ledger stays whole
+  // (the Ask handle's own honesty law).
+  const copyAllClearanceNotes = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(deadStockClearanceNotes(rows, days));
+      toast.success(`All ${rows.length} clearance notes copied`);
+    } catch {
+      toast.error('Could not copy the clearance notes — the clipboard refused.');
+    }
+  }, [rows, days]);
   return (
     <div className="space-y-3" data-testid="dead-stock-section">
       {/* The window lens — the loom's tint dialect, the amber word.
@@ -1472,7 +1486,32 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
                 <CardTitle className="text-base flex items-center gap-2">
                   <Hourglass className="h-4 w-4" /> Dead Stock Ledger
                 </CardTitle>
-                <Badge variant="outline" className="text-[9px]" data-testid="dead-stock-ledger-count">{rows.length} products</Badge>
+                {/* THE CHORUS'S SEAT (v2.465.0) — the count badge and the
+                    Copy all handle read as one instrument: the ledger's
+                    size beside the ledger's collective voice. The handle
+                    wears the compact face (h-7, the row actions' smaller
+                    sibling), the emerald hover the share handle speaks
+                    (the copy toast's own green — a success promised in
+                    the family's word), and the double voice every row
+                    action wears. It only shows when rows exist — a
+                    button that copies nothing would be a lie. */}
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="text-[9px]" data-testid="dead-stock-ledger-count">{rows.length} products</Badge>
+                  {rows.length > 0 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      data-testid="dead-stock-copy-all"
+                      aria-label={`Copy all ${rows.length} clearance notes`}
+                      title={`Copy all ${rows.length} clearance notes`}
+                      onClick={copyAllClearanceNotes}
+                      className="h-7 px-2.5 text-xs hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 dark:hover:bg-emerald-950/30 dark:hover:text-emerald-300 dark:hover:border-emerald-800"
+                    >
+                      <ClipboardList className="h-3 w-3 mr-1" /> Copy all
+                    </Button>
+                  )}
+                </div>
               </div>
             </CardHeader>
             <CardContent>
@@ -2133,10 +2172,16 @@ export default function ReportsTab() {
       // and the share door sends, composed in the ONE home (never
       // re-typed here), CSV-escaped, with the window that caught each
       // row riding inside the word.
-      csvContent = 'Product,SKU,Category,Qty on hand,Unit cost,Capital tied,Last sold,Days idle,Clearance note\n';
+      // v2.465.0: the file learns the share link — a Share link column
+      // beside the note, each row's share link composed in the SAME ONE
+      // home (never re-typed here), so the sheet starts the supplier
+      // conversation too: one voice, four doors, and the four can never
+      // drift apart.
+      csvContent = 'Product,SKU,Category,Qty on hand,Unit cost,Capital tied,Last sold,Days idle,Clearance note,Share link\n';
       deadStockRows.forEach((r) => {
         const note = deadStockClearanceNote(r, deadStockSummary?.days ?? deadStockDays).replaceAll('"', '""');
-        csvContent += `"${r.name}",${r.sku},"${r.categoryName ?? 'Uncategorised'}",${r.quantityInStock},${r.costPrice},${r.capitalTied},${r.lastSoldAt ?? 'never'},${r.daysIdle ?? 'never'},"${note}"\n`;
+        const share = deadStockShareUrl(r, deadStockSummary?.days ?? deadStockDays);
+        csvContent += `"${r.name}",${r.sku},"${r.categoryName ?? 'Uncategorised'}",${r.quantityInStock},${r.costPrice},${r.capitalTied},${r.lastSoldAt ?? 'never'},${r.daysIdle ?? 'never'},"${note}","${share}"\n`;
       });
       csvContent += `\nDays window,${deadStockSummary?.days ?? deadStockDays}\n`;
       csvContent += `Dead products,${deadStockSummary?.deadCount ?? deadStockRows.length}\n`;

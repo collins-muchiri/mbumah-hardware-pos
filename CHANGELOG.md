@@ -1,3 +1,14 @@
+## [2.465.0] The resting ledger learns to reach out and to carry in one breath — the file rides the share link and the ledger speaks its chorus
+
+The clearance note's fourth door and the ledger's collective voice: the CSV carries each row's wa.me word beside its note, and the ledger's header grows a Copy all handle that speaks every row's note in one breath.
+
+### Added
+- **THE FILE'S SHARE LINK** (`src/app/(shell)/tabs/reports-tab.tsx`): the dead-stock CSV export grows a `Share link` column beside `Clearance note` — `deadStockShareUrl(r, deadStockSummary?.days ?? deadStockDays)` per row, composed in the ONE home (never re-typed in the desk), the cell quoted like every word. One voice, four doors — the clipboard, the chat, the sheet's note cell, and now the sheet's own door to the conversation.
+- **THE LEDGER'S CHORUS** (`src/lib/reports/dead-stock.ts`, `src/app/(shell)/tabs/reports-tab.tsx`): `deadStockClearanceNotes(rows, days)` — the collective composer, a header line speaking the ledger's own summary (the count, the window, the capital at cost — the round2 convention the summary card wears) over the SAME per-row notes the Ask copies; the ledger's header grows the Copy all handle that carries the whole word to the clipboard at once, the toast answers with the count, and a refused clipboard speaks its side.
+
+### Changed
+- **THE CHORUS'S SEAT** (`src/app/(shell)/tabs/reports-tab.tsx`): the ledger header's right side wears the count badge and the Copy all handle as one instrument (`gap-2` group) — the handle compact (`h-7 px-2.5 text-xs`), the emerald hover the share handle speaks, the double voice (`aria-label` + `title` "Copy all N clearance notes"), and it only shows when rows exist (a button that copies nothing would be a lie).
+
 ## [2.464.0] The resting ledger learns to reach out and to carry — the clearance note rides the file
 
 The clearance note's third door: the dead-stock CSV carries the same deterministic word the Ask copies and the share door sends — the whole resting ledger rides to the supplier conversation as one file.

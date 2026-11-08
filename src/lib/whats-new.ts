@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.465.0',
+    title: 'The resting ledger learns to reach out and to carry in one breath — the file rides the share link and the ledger speaks its chorus',
+    bullets: [
+      'The file learns the share link: the dead-stock CSV grows a Share link column beside the clearance note — each row’s wa.me word composed in the ONE home the clipboard and the share door already speak, quoted like every word in the file, so the sheet starts the supplier conversation too and the four doors can never drift apart.',
+      'The ledger speaks in one breath: the new Copy all handle carries every row’s clearance note to the clipboard at once — the collective composer opens with the ledger’s own summary (the count, the window, the capital at cost) and calls the same per-row composer for every line, so the whole note column rides out in one press and the chorus is never a re-typed word.',
+      'The copy all face wears the family’s green: the emerald hover the share handle already speaks, a compact seat beside the products badge, the double voice every row action wears — and it only shows when the ledger has rows, because a button that copies nothing would be a lie; the capital’s category shape above stays exactly as the last rounds drew it.',
+    ],
+  },
+  {
     version: '2.464.0',
     title: 'The resting ledger learns to reach out and to carry — the clearance note rides the file',
     bullets: [

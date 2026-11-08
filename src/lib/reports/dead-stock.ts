@@ -205,3 +205,29 @@ export function deadStockClearanceNote(row: DeadStockRow, days: number): string 
 export function deadStockShareUrl(row: DeadStockRow, days: number): string {
   return `https://wa.me/?text=${encodeURIComponent(deadStockClearanceNote(row, days))}`;
 }
+
+// ============================================================================
+// v2.465.0 THE LEDGER SPEAKS IN ONE BREATH
+// ============================================================================
+// The clearance note learns its COLLECTIVE voice. The Copy all handle in
+// the ledger's header carries every row's note to the clipboard at once —
+// and the collective word is composed HERE, in the ONE home, never in the
+// desk: the header line speaks the ledger's own summary (the count, the
+// window, the capital at cost), and every line under it is the SAME
+// deadStockClearanceNote the Ask copies and the share door sends. One
+// voice, four doors — the clipboard's Ask, the chat's share, the sheet's
+// note cell, and now the whole note column in one breath — and the chorus
+// can never drift from the rows it sings about. Pure.
+//
+
+/** THE LEDGER'S COLLECTIVE WORD (v2.465.0) — every row's clearance note
+ *  joined under a header that speaks the ledger's own summary. The
+ *  capital is the round2 of the rows' own sum — the same convention the
+ *  summary's totalCapitalTied wears, so the header's number and the
+ *  summary card's number agree for the same rows. The per-row lines are
+ *  the ONE composer's own voice, never a re-typed word. Pure. */
+export function deadStockClearanceNotes(rows: ReadonlyArray<DeadStockRow>, days: number): string {
+  const capital = round2b(rows.reduce((s, r) => s + r.capitalTied, 0));
+  const header = `Clearance asks — ${rows.length} product${rows.length === 1 ? '' : 's'} resting past the ${days}-day window (Ksh ${capital.toFixed(2)} tied at cost):`;
+  return [header, ...rows.map((r) => deadStockClearanceNote(r, days))].join('\n');
+}

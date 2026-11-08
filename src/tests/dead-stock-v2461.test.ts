@@ -255,9 +255,13 @@ describe('the reports desk — the ninth card and its faces', () => {
     // handles (the Ask and the share), each with its own double voice —
     // the handle law, not a lens face; the loom's pressed-voice law is
     // untouched, and the TWO aria-labels are the two handles' own.
+    // v2.465.0 re-key (dated): the section grows its THIRD voice — the
+    // Copy all handle in the ledger's header (the chorus's own double
+    // voice); the census speaks the section's three handles now, and the
+    // loom's pressed-voice law stands untouched.
     const section = TAB.slice(TAB.indexOf('function DeadStockSection'), TAB.indexOf('// Main Reports Tab Component'));
     expect(section).not.toContain('aria-pressed');
-    expect(section.split('aria-label=').length - 1).toBe(2);
+    expect(section.split('aria-label=').length - 1).toBe(3);
     expect(section).toContain('aria-label={`Copy clearance note for ${r.name}`}');
   });
 
@@ -284,7 +288,10 @@ describe('the reports desk — the ninth card and its faces', () => {
     // column (the word rides the file — one voice, three doors); the
     // header byte below speaks the grown file, the note's composer still
     // lives in the ONE home.
-    expect(TAB).toContain("'Product,SKU,Category,Qty on hand,Unit cost,Capital tied,Last sold,Days idle,Clearance note\\n'");
+    // v2.465.0 re-key (dated): the header grew the Share link column
+    // beside the note (the file rides the share link — one voice, four
+    // doors); the column's own bytes live in the v2465 chorus suite.
+    expect(TAB).toContain("'Product,SKU,Category,Qty on hand,Unit cost,Capital tied,Last sold,Days idle,Clearance note,Share link\\n'");
     expect(TAB).toContain("r.lastSoldAt ?? 'never'");
     expect(TAB).toContain("r.daysIdle ?? 'never'");
     expect(TAB).toContain('Dead share of stock value');
