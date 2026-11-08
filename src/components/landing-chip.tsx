@@ -30,6 +30,10 @@
 import type { ButtonHTMLAttributes } from 'react';
 import { Link2, X } from 'lucide-react';
 
+// v2.462.0: rose joins the 300 storey — the dead-stock window's word. The
+// shade-split law's next form: rose already spoke at the 200/50 storey
+// (the customers desk's word), and a hue may speak twice only through a
+// DIFFERENT storey — a family byte the 200-storey can never equal.
 export const LANDING_CHIP_HUES = [
   'sky',
   'purple',
@@ -41,6 +45,7 @@ export const LANDING_CHIP_HUES = [
   'teal',
   'lime',
   'yellow',
+  'rose',
 ] as const;
 
 export type LandingChipHue = (typeof LANDING_CHIP_HUES)[number];
@@ -56,6 +61,7 @@ export const LANDING_CHIP_WARDROBES: Record<LandingChipHue, string> = {
   teal: 'border-teal-300 bg-teal-100 text-teal-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-teal-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 dark:border-teal-500/30 dark:bg-teal-500/10 dark:text-teal-300 dark:hover:bg-teal-500/20',
   lime: 'border-lime-300 bg-lime-100 text-lime-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-lime-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime-400 dark:border-lime-500/30 dark:bg-lime-500/10 dark:text-lime-300 dark:hover:bg-lime-500/20',
   yellow: 'border-yellow-300 bg-yellow-100 text-yellow-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-yellow-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 dark:border-yellow-500/30 dark:bg-yellow-500/10 dark:text-yellow-300 dark:hover:bg-yellow-500/20',
+  rose: 'border-rose-300 bg-rose-100 text-rose-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-rose-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300 dark:hover:bg-rose-500/20',
 };
 
 // THE ELDER STOREY (v2.397.0): the 200/50 registry — the census's 22

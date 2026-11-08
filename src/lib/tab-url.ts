@@ -822,6 +822,37 @@ export function parseInitialNamedMemberWithAlias<V extends string>(
 }
 
 /**
+ * v2.462.0 — THE PROMISE KEPT, THE THIRTY-THIRD WORD: the reports desk's
+ * ninth report answers with its LENS. The Dead Stock report's idle
+ * window — the desk's daily question, "how far back does resting
+ * begin?" — speaks its desk-prefixed `dead-window` (collision-checked at
+ * round start: the byte appeared NOWHERE before this word). The lens's
+ * words are the WINDOW TUPLE'S OWN spellings — `30 | 60 | 90`, read as
+ * words through the generic parser from DEAD_STOCK_WINDOWS, the ONE home
+ * the classifier keeps (a made-up window — `45`, `030`, `thirty` — is an
+ * unknown word, not a clever match; the default is `90`, the tuple's own
+ * tail). THE FAMILY'S FIRST LENS-INSIDE-A-SHAPE: the window lives inside
+ * the dead_stock stage, so the landing chip wears the ROSE byte at
+ * 300/100 and lives in the SECTION — the banking desk's sub-tab law's
+ * shape (it hides with the pane and returns when the pane reopens) — and
+ * the DEFAULT WEARS NO CHIP (a landing of the default speaks the shape
+ * the bare landing already answers — the rep-type law's own reading).
+ * THE SHADE-SPLIT LAW'S NEXT FORM: the two-storey census was FULL —
+ * every hue in the loom's registry had spoken at both storeys — so the
+ * family GREW one line (rose joins the 300 registry) rather than
+ * masquerade; rose last spoke at the 200/50 storey (the customers
+ * desk's word), and a hue may speak twice only through a DIFFERENT
+ * storey — a family byte the 200-storey can never equal. THE LENS
+ * WRITES BACK: a hand-driven window turn replaceState's the word into
+ * the address (the transactions desk's own write shape, the preserve
+ * law — every other param rides untouched), so a turned lens is a
+ * shareable address, never a dead end. THE LANDING IS READ ONCE ON THE
+ * SHELL: a plain useState initializer — a dismissed chip can never
+ * resurrect, and only a hand-driven WINDOW turn retires it (a
+ * hand-driven REPORT change is navigation, never a lens change).
+ */
+
+/**
  * v2.383.0 — THE PROMISE KEPT, THE TWENTY-FOURTH WORD: the tax desk's
  * filings ledger answers BY THE MONTH. Its desk-prefixed `tax-period`
  * lens — the desk's other daily question, "which month's returns am I

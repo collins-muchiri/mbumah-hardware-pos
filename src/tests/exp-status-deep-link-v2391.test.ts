@@ -306,7 +306,7 @@ describe('the address-bar vocabulary — the thirtieth row (cross-suite pins)', 
   const constitution = readFileSync(CONSTITUTION, 'utf8');
 
   it('the constitution walks THIRTY words over TWENTY-FIVE desks (the export desk joins)', () => {
-    expect(constitution.includes('(thirty-two words, twenty-six desks)')).toBe(true);
+    expect(constitution.includes('(thirty-three words, twenty-six desks)')).toBe(true);
     expect(constitution.includes("{ word: 'exp-status', desk: 'src/app/(shell)/tabs/data-exports-tab.tsx', family: 'border-indigo-300', suite: 'src/tests/exp-status-deep-link-v2391.test.ts' }")).toBe(true);
     expect(constitution.includes("'THIRTIETH'")).toBe(true);
   });
@@ -316,36 +316,41 @@ describe('the address-bar vocabulary — the thirtieth row (cross-suite pins)', 
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.461.0 leads the feed', () => {
+describe('whats-new — v2.462.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.461.0');
-    // the lead's story hand-over (v2.461.0, the Task 111 law's
-    // sixty-seventh application): the head story is the hand-over's
-    // voice — the dead stock round: THE NINTH REPORT — the reports
-    // desk learns what rests: a product is dead stock when it HOLDS
-    // stock and its last sale is older than the idle window (30 | 60
-    // | 90, the lens's own tuple — a made-up window is a 400) or it
-    // never sold; the MEANING lives in one home (the pure classifier
-    // the suite proves without a database: an empty shelf is NOT dead
-    // stock, no capital rests in it; a null last-sold speaks never,
-    // never a fabricated zero; rows sort capital-tied DESC, the
-    // honest share guards the zero total); THE WIRE gathers the
-    // facts with the fast-moving sale vocabulary and the payload
-    // rides rows — the naming-as-contract law honored again; THE
-    // GRID COMPLETES ITS THREE-BY-THREE (the ninth card, the
-    // Hourglass), the window lens rides the loom (the amber tint
-    // word — pressed voice and zinc ring with the family), the
-    // ledger speaks the never-sold badge and the aged idle colours,
-    // the CSV carries the section's own rows (the server export
-    // door is never borrowed), and ?rep-type=dead_stock lands the
-    // report through the ONE home (the vocabulary speaks nine). The
-    // square completes; the stock speaks.
-    expect(head.title).toContain('dead stock');
+    expect(head.version).toBe('2.462.0');
+    // the lead's story hand-over (v2.462.0, the Task 111 law's
+    // sixty-eighth application): the head story is the hand-over's
+    // voice — the resting-ledger round: THE LENS TAKES AN ADDRESS —
+    // the ninth report's idle window joins the deep-link family as
+    // its thirty-third word: the words are the window tuple's OWN
+    // spellings read through the generic parser from the ONE home
+    // the classifier keeps (a made-up window is an unknown word,
+    // the default is 90), the lens WRITES BACK — a hand-driven turn
+    // replaceState's the word into the address (the preserve law),
+    // so a turned lens is a shareable address; the landing chip
+    // wears the ROSE byte at 300/100 — the two-storey census was
+    // FULL, so the family grew one line rather than masquerade;
+    // the chip lives in the SECTION (the lens is inside the dead
+    // stock stage — the sub-tab law's shape), the default wears no
+    // chip, and navigation is never a lens change; THE CAPITAL
+    // DRAWS ITS SHAPE — the Chart Type row covers the ninth report
+    // with the two honest faces (bar and pie of capital tied by
+    // category, grouped in the classifier's one home; line and
+    // area are time-series words categorical capital cannot wear;
+    // zero new fetches; the chart draws only when rows rest); AND
+    // EVERY ROW LEARNS TO ASK — the Ask button carries a
+    // deterministic WhatsApp-ready clearance note to the clipboard
+    // (units and base unit, capital at cost, the ISO day, the
+    // never-sold row's honest absence; no supplier name invented).
+    // The lens shares; the capital draws; the clipboard is the door.
+    expect(head.title).toContain('resting ledger');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('three-by-three'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('idle window'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('loom'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('never sold'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('thirty-third word'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('rose byte'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('category'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('clearance note'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('clipboard'))).toBe(true);
   });
 });

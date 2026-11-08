@@ -206,7 +206,7 @@ describe('the landing chip — the face names the word it answered', () => {
 // 4. THE CONSTITUTION — the whole vocabulary's invariants, walked from bytes
 // ---------------------------------------------------------------------------
 
-describe('the address-bar vocabulary — THE CONSTITUTION (thirty-two words, twenty-six desks)', () => {
+describe('the address-bar vocabulary — THE CONSTITUTION (thirty-three words, twenty-six desks)', () => {
   const WORDS = [
     { word: 'po-status', desk: 'src/app/(shell)/tabs/purchase-orders-tab.tsx', family: 'border-indigo-200', suite: 'src/tests/proxy-gate-layering-v2328.test.ts' },
     { word: 'inv-stock', desk: 'src/app/(shell)/tabs/inventory-tab.tsx', family: 'border-amber-200', suite: 'src/tests/inv-stock-deep-link-v2329.test.ts' },
@@ -321,6 +321,18 @@ describe('the address-bar vocabulary — THE CONSTITUTION (thirty-two words, twe
     // and the pane's Use-Template hand is the lens's second retirement
     // voice (the family's first card-grid voice)
     { word: 'msg-template', desk: 'src/app/(shell)/tabs/messaging-tab.tsx', family: 'border-yellow-300', suite: 'src/tests/msg-template-deep-link-v2393.test.ts' },
+    // the lens-inside-a-shape round: the reports desk's ninth report
+    // answers with its LENS — the dead-stock idle window (the window
+    // tuple's OWN words, read through the generic parser from the ONE
+    // home the classifier keeps). The two-storey census was FULL, so the
+    // family GREW one line: rose joins the 300 registry — the shade-split
+    // law's next form (rose last spoke at the 200/50 storey, the
+    // customers desk's word; a hue may speak twice only through a
+    // DIFFERENT storey). The chip lives in the SECTION (the lens is
+    // inside the dead_stock stage — the sub-tab law's shape), the
+    // default wears no chip, and the lens WRITES BACK: a hand-driven
+    // turn replaceState's the word into the address (the preserve law).
+    { word: 'dead-window', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-rose-300', suite: 'src/tests/dead-window-deep-link-v2462.test.ts' },
   ] as const;
 
   it('every word is desk-prefixed and owns its FILTERS const in exactly its desk', () => {
@@ -424,6 +436,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/cr-type-deep-link-v2361.test.ts',
       'src/tests/cust-debt-deep-link-v2330.test.ts',
       'src/tests/cv-type-deep-link-v2363.test.ts',
+      // the thirty-third word's own ledger — admitted (the constitution's
+      // thirty-third row names this file as its suite; an admission line
+      // carries the word it admits)
+      'src/tests/dead-window-deep-link-v2462.test.ts',
       // the twenty-ninth word's own ledger — admitted (its rides-beside truth speaks this word)
       'src/tests/debt-channel-deep-link-v2390.test.ts',
       // the twenty-eighth word's own ledger — admitted (its collision

@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.462.0',
+    title: 'The resting ledger learns to share — the dead-stock window takes an address, the capital draws its shape, every row learns to ask',
+    bullets: [
+      'The dead-stock idle window joins the deep-link family as its thirty-third word: ?dead-window=30|60|90 lands the lens already turned from the address bar, and the lens writes its word back as it turns — a turned lens is a shareable address, never a dead end. The landing chip wears the rose byte at 300/100: the two-storey census was full, so the family grew one line rather than masquerade, and the default window wears no chip at all.',
+      'The dead-stock desk learns its chart: the Chart Type row covers the ninth report with the two honest faces — a bar and a pie of capital tied by category, grouped in the classifier\u2019s one home from the rows already on the desk, zero new fetches. Line and area are time-series words, and categorical capital cannot wear them; a resting shelf with nothing dead draws nothing.',
+      'Every ledger row learns to ask: an Ask button copies a deterministic, WhatsApp-ready clearance note for the product — its units and base unit, its capital tied at cost, its idle days (or the honest never-sold word) and the window that caught it — so the resting report becomes the first step of the supplier conversation. No supplier name is invented, no date is locale-shaped; the clipboard is the door.',
+    ],
+  },
+  {
     version: '2.461.0',
     title: 'The dead stock speaks — the reports desk counts what rests',
     bullets: [
