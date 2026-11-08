@@ -142,8 +142,16 @@ describe('the download route speaks the cancelled face (v2.439.0)', () => {
 describe('the desk wears the withdrawn face (v2.439.0)', () => {
   it('the chip row grows the zinc voice — Cancelled rides last, the withdrawn wardrobe', () => {
     expect(table).toContain("{ key: 'cancelled', label: 'Cancelled', color: 'zinc' },");
-    expect(table).toContain("zinc: 'bg-zinc-600 text-white border-zinc-600',");
-    expect(table).toContain(
+    // v2.456.0 RE-KEY (dated): the chip colour registries moved to the
+    // loom's ONE tone registry (CHIP_TONE_ACTIVE / CHIP_TONE_IDLE —
+    // chip-tones-v2456.test.ts pins the weave); the desk rides
+    // `tone={chip.color}` and speaks no wardrobe byte. The active zinc
+    // row gained the family's shadow in the unification; the idle zinc
+    // row kept its exact historic bytes — in the loom now.
+    expect(table).toContain('tone={chip.color}');
+    const loomWardrobe = readFileSync('src/components/filter-chip.tsx', 'utf8');
+    expect(loomWardrobe).toContain("zinc: 'bg-zinc-600 text-white border-zinc-600 shadow-sm',");
+    expect(loomWardrobe).toContain(
       "zinc: 'bg-zinc-100 text-zinc-600 border-zinc-200 dark:bg-zinc-900/40 dark:text-zinc-300 dark:border-zinc-700',",
     );
     // the lens word is a member of the table's own FilterKey union

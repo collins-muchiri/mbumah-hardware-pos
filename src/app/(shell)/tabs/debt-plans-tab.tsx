@@ -25,6 +25,7 @@ import { handleError } from '@/lib/error-handler';
 
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { FilterChip, FilterChipCount } from '@/components/filter-chip';
 
 import { PlansStatsCards } from '@/components/debt-plans/plans-stats-cards';
 import { PaymentPlanCard } from '@/components/debt-plans/payment-plan-card';
@@ -80,20 +81,11 @@ const FILTER_CHIPS: FilterChip[] = [
   { key: 'completed', label: 'Completed', icon: CheckCircle2, color: 'green' },
 ];
 
-// Chip colour classes (statically declared so Tailwind can find them).
-const CHIP_ACTIVE_CLASSES: Record<string, string> = {
-  emerald: 'bg-emerald-700 text-white border-emerald-700 shadow-sm',
-  amber: 'bg-amber-500 text-white border-amber-600 shadow-sm',
-  rose: 'bg-rose-500 text-white border-rose-600 shadow-sm',
-  green: 'bg-green-500 text-white border-green-600 shadow-sm',
-};
-
-const CHIP_IDLE_CLASSES: Record<string, string> = {
-  emerald: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-300 dark:border-emerald-900',
-  amber: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-900',
-  rose: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/30 dark:text-rose-300 dark:border-rose-900',
-  green: 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/30 dark:text-green-300 dark:border-green-900',
-};
+// v2.456.0 THE SECOND WEAVE: the chip colour classes moved to the loom's
+// ONE registry (src/components/filter-chip.tsx, CHIP_TONE_ACTIVE /
+// CHIP_TONE_IDLE) — the masquerade law, loom form: this desk speaks no
+// wardrobe byte; the FilterChip companion picks the face pair from the
+// `tone` word each chip already carried.
 
 export function DebtPlansTab() {
   const { currentStoreId } = useAppStore();
@@ -281,29 +273,17 @@ export function DebtPlansTab() {
           const isActive = filter === chip.key;
           const count = filterCounts[chip.key] ?? 0;
           return (
-            <button
+            <FilterChip
               key={chip.key}
-              type="button"
+              active={isActive}
               onClick={() => chooseDpStatus(chip.key)}
-              aria-pressed={isActive}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                isActive
-                  ? CHIP_ACTIVE_CLASSES[chip.color]
-                  : CHIP_IDLE_CLASSES[chip.color]
-              }`}
+              tone={chip.color}
+              className="inline-flex items-center gap-1.5"
             >
               <chip.icon className="h-3.5 w-3.5" />
               {chip.label}
-              <span
-                className={`ml-1 inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full text-[10px] font-semibold ${
-                  isActive
-                    ? 'bg-white/20 text-white'
-                    : 'bg-background text-muted-foreground'
-                }`}
-              >
-                {count}
-              </span>
-            </button>
+              <FilterChipCount active={isActive}>{count}</FilterChipCount>
+            </FilterChip>
           );
         })}
       </div>

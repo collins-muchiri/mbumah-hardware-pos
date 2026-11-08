@@ -49,6 +49,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import { FilterChip, FilterChipCount } from '@/components/filter-chip';
 import {
   Tooltip,
   TooltipContent,
@@ -127,21 +128,16 @@ const FILTER_CHIPS: Array<{ key: FilterKey; label: string; color: string }> = [
   { key: 'cancelled', label: 'Cancelled', color: 'zinc' },
 ];
 
-const CHIP_ACTIVE: Record<string, string> = {
-  emerald: 'bg-emerald-700 text-white border-emerald-700',
-  green: 'bg-green-500 text-white border-green-600',
-  rose: 'bg-rose-500 text-white border-rose-600',
-  amber: 'bg-amber-500 text-white border-amber-600',
-  zinc: 'bg-zinc-600 text-white border-zinc-600',
-};
-
-const CHIP_IDLE: Record<string, string> = {
-  emerald: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-300 dark:border-emerald-900',
-  green: 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/30 dark:text-green-300 dark:border-green-900',
-  rose: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/30 dark:text-rose-300 dark:border-rose-900',
-  amber: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-900',
-  zinc: 'bg-zinc-100 text-zinc-600 border-zinc-200 dark:bg-zinc-900/40 dark:text-zinc-300 dark:border-zinc-700',
-};
+// v2.456.0 THE SECOND WEAVE: the status lens's color palette moved to
+// the loom's ONE registry (src/components/filter-chip.tsx,
+// CHIP_TONE_ACTIVE / CHIP_TONE_IDLE) — the masquerade law, loom form.
+// The named change this weave: the registry's active face speaks the
+// shadowed voice family-wide (the debt-plans desk's historic face), so
+// this desk's active chips lift where they stood flat before — and the
+// status chips gain the pressed voice (aria-pressed) and the family's
+// zinc keyboard ring through the loom. The TYPE row below stays
+// hand-rolled: its slate wardrobe is the ledger's own dialect, a later
+// weave's material.
 
 const TYPE_META: Record<string, { title: string; color: string }> =
   EXPORT_TYPES.reduce(
@@ -503,9 +499,11 @@ export function ExportsHistoryTable({
             const isActive = effectiveFilter === chip.key;
             const count = filterCounts[chip.key] ?? 0;
             return (
-              <button
+              <FilterChip
                 key={chip.key}
-                type="button"
+                active={isActive}
+                tone={chip.color}
+                className="inline-flex items-center gap-1.5"
                 onClick={() => {
                   // v2.391.0 THE CONTROLLED HAND: the desk owns the
                   // state (the landing chip's second retirement voice
@@ -514,21 +512,10 @@ export function ExportsHistoryTable({
                   if (controlled) onFilterChange(chip.key);
                   else setFilter(chip.key);
                 }}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                  isActive ? CHIP_ACTIVE[chip.color] : CHIP_IDLE[chip.color]
-                }`}
               >
                 {chip.label}
-                <span
-                  className={`ml-1 inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full text-[10px] font-semibold ${
-                    isActive
-                      ? 'bg-white/20 text-white'
-                      : 'bg-background text-muted-foreground'
-                  }`}
-                >
-                  {count}
-                </span>
-              </button>
+                <FilterChipCount active={isActive}>{count}</FilterChipCount>
+              </FilterChip>
             );
           })}
         </div>

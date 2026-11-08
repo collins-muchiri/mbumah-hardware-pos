@@ -270,29 +270,31 @@ describe('the address-bar vocabulary — the twenty-ninth row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.455.0 leads the feed', () => {
+describe('whats-new — v2.456.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.455.0');
-    // the lead's story hand-over (v2.455.0, the Task 111 law's
-    // sixty-first application): the head story is the hand-over's
-    // voice — the elder loom's first weave; the carry that stood
-    // since v2.397.0 took its first family — the ELDER lens chips
-    // (the pill filters that predate the deep-link era) met ONE
-    // wardrobe component: the muted/50 head, the primary active
-    // face, the idle face, the compact py-1 face, the pressed voice
-    // (aria-pressed — debt-plans' own precedent) and the family's
-    // zinc keyboard ring, while the payment chips kept their
-    // signature v2.333 violet through the loom's opt-out; SIX faces
-    // in TWO desks migrated and the desks speak no wardrobe byte
-    // (the masquerade law, loom form); the LEDGER names the
-    // remaining dialects for the next weaves. The voices' arrow
-    // exits the head this round; the loom's
+    expect(head.version).toBe('2.456.0');
+    // the lead's story hand-over (v2.456.0, the Task 111 law's
+    // sixty-second application): the head story is the hand-over's
+    // voice — the elder loom's second weave; the registry color
+    // dialects joined the one wardrobe — the debt-plans status
+    // lens and the exports history's status lens had carried the
+    // SAME palette in TWO hand-copied Record constants, and the
+    // loom's tone registry owns it now (emerald, green, rose,
+    // amber, zinc — the dark: variants riding the idle faces
+    // exactly as the desks kept them); the shadow unification
+    // was the weave's one named improvement (the debt-plans face
+    // lifted, the exports face stood flat, the family's primary
+    // face already lifts — the shadow rides every tone); the
+    // exports history's status chips GAINED the pressed voice and
+    // both lenses gained the family's zinc ring, while the count
+    // badges moved into the FilterChipCount companion. The loom's
+    // arrow exits the head this round; the registry's
     // arrow carries the eye.
-    expect(head.title).toContain('loom');
+    expect(head.title).toContain('tones');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('aria-pressed'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('zinc ring'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('ledger'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('one home'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('pressed state'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('shadow'))).toBe(true);
   });
 });
