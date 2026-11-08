@@ -443,7 +443,7 @@ describe('release metadata - v2.69.0', () => {
     expect(WN).toMatch(/Most-visited|most-visited/i);
   });
 
-  it('bumps package.json to at least 2.69.0 (all three slots) and registers the verify script', () => {
+  it('bumps package.json to at least 2.69.0 (all three slots)', () => {
     const PKG = JSON.parse(readRepo('package.json')) as {
       version: string;
       mbumah: { releaseVersion: string; baseVersion: string };
@@ -458,7 +458,6 @@ describe('release metadata - v2.69.0', () => {
     expect(atLeast(PKG.version, '2.69.0')).toBe(true);
     expect(atLeast(PKG.mbumah.releaseVersion, '2.69.0')).toBe(true);
     expect(atLeast(PKG.mbumah.baseVersion, '2.69.0')).toBe(true);
-    expect(PKG.scripts['verify:v2-69-0']).toBe('node scripts/verify-v2-69-0.mjs');
   });
 
   it('keeps the morning-note surfaces intact (strip, bell, panel)', () => {
@@ -846,7 +845,7 @@ describe('release metadata - v2.71.0', () => {
     expect(WN).toMatch(/print:hidden|never reaches paper/i);
   });
 
-  it('bumps package.json to at least 2.71.0 (all three slots) and registers the verify script', () => {
+  it('bumps package.json to at least 2.71.0 (all three slots)', () => {
     const PKG = JSON.parse(readRepo('package.json')) as {
       version: string;
       mbumah: { releaseVersion: string; baseVersion: string };
@@ -860,7 +859,6 @@ describe('release metadata - v2.71.0', () => {
     expect(atLeast(PKG.version, '2.71.0')).toBe(true);
     expect(atLeast(PKG.mbumah.releaseVersion, '2.71.0')).toBe(true);
     expect(atLeast(PKG.mbumah.baseVersion, '2.71.0')).toBe(true);
-    expect(PKG.scripts['verify:v2-71-0']).toBe('node scripts/verify-v2-71-0.mjs');
   });
 
   it('keeps the prior report surfaces intact (CSV voice, panel door, print)', () => {
@@ -1003,7 +1001,7 @@ describe('release metadata - v2.72.0', () => {
     expect(WN).toMatch(/never reaches paper/i);
   });
 
-  it('bumps package.json to at least 2.72.0 (all three slots) and registers the verify script', () => {
+  it('bumps package.json to at least 2.72.0 (all three slots)', () => {
     const PKG = JSON.parse(readRepo('package.json')) as {
       version: string;
       mbumah: { releaseVersion: string; baseVersion: string };
@@ -1017,7 +1015,6 @@ describe('release metadata - v2.72.0', () => {
     expect(atLeast(PKG.version, '2.72.0')).toBe(true);
     expect(atLeast(PKG.mbumah.releaseVersion, '2.72.0')).toBe(true);
     expect(atLeast(PKG.mbumah.baseVersion, '2.72.0')).toBe(true);
-    expect(PKG.scripts['verify:v2-72-0']).toBe('node scripts/verify-v2-72-0.mjs');
   });
 
   it('keeps the prior report surfaces intact (reviewer drawer, CSV voice, panel door)', () => {
@@ -1234,7 +1231,7 @@ describe('release metadata - v2.74.0', () => {
     expect(WN).toMatch(/a door is only promised where one exists/i);
   });
 
-  it('bumps package.json to at least 2.74.0 (all three slots) and registers the verify script', () => {
+  it('bumps package.json to at least 2.74.0 (all three slots)', () => {
     const PKG = JSON.parse(readRepo('package.json')) as {
       version: string;
       mbumah: { releaseVersion: string; baseVersion: string };
@@ -1248,7 +1245,6 @@ describe('release metadata - v2.74.0', () => {
     expect(atLeast(PKG.version, '2.74.0')).toBe(true);
     expect(atLeast(PKG.mbumah.releaseVersion, '2.74.0')).toBe(true);
     expect(atLeast(PKG.mbumah.baseVersion, '2.74.0')).toBe(true);
-    expect(PKG.scripts['verify:v2-74-0']).toBe('node scripts/verify-v2-74-0.mjs');
   });
 
   it('keeps every prior surface intact (both drawer families, CSV, print, palette jump)', () => {
@@ -1333,7 +1329,7 @@ describe('DeskReportView - the keyboard walks the doors (v2.76.0)', () => {
 });
 
 describe('release metadata - v2.76.0', () => {
-  it('bumps package.json to at least 2.76.0 (all three slots) and registers the verify script', () => {
+  it('bumps package.json to at least 2.76.0 (all three slots)', () => {
     const PKG = JSON.parse(readRepo('package.json')) as {
       version: string;
       mbumah: { releaseVersion: string; baseVersion: string };
@@ -1347,7 +1343,6 @@ describe('release metadata - v2.76.0', () => {
     expect(atLeast(PKG.version, '2.76.0')).toBe(true);
     expect(atLeast(PKG.mbumah.releaseVersion, '2.76.0')).toBe(true);
     expect(atLeast(PKG.mbumah.baseVersion, '2.76.0')).toBe(true);
-    expect(PKG.scripts['verify:v2-76-0']).toBe('node scripts/verify-v2-76-0.mjs');
   });
 
   it('keeps every prior surface intact (both families, CSV, print, cross-links, palette inbox)', () => {
@@ -1421,7 +1416,7 @@ describe('DeskReportView - the walk can be followed (v2.77.0)', () => {
 });
 
 describe('release metadata - v2.77.0', () => {
-  it('bumps package.json to at least 2.77.0 (all three slots) and registers the verify script', () => {
+  it('bumps package.json to at least 2.77.0 (all three slots)', () => {
     const PKG = JSON.parse(readRepo('package.json')) as {
       version: string;
       mbumah: { releaseVersion: string; baseVersion: string };
@@ -1435,7 +1430,6 @@ describe('release metadata - v2.77.0', () => {
     expect(atLeast(PKG.version, '2.77.0')).toBe(true);
     expect(atLeast(PKG.mbumah.releaseVersion, '2.77.0')).toBe(true);
     expect(atLeast(PKG.mbumah.baseVersion, '2.77.0')).toBe(true);
-    expect(PKG.scripts['verify:v2-77-0']).toBe('node scripts/verify-v2-77-0.mjs');
   });
 
   it('keeps every prior surface intact (walk, doors, announcer predecessor, shortcuts rows)', () => {
@@ -1575,7 +1569,7 @@ describe('v2.78.0 - the view: the chips answer the arrows', () => {
 });
 
 describe('release metadata - v2.78.0', () => {
-  it('bumps package.json to at least 2.78.0 (all three slots) and registers the verify script', () => {
+  it('bumps package.json to at least 2.78.0 (all three slots)', () => {
     const PKG = JSON.parse(readRepo('package.json')) as {
       version: string;
       mbumah: { releaseVersion: string; baseVersion: string };
@@ -1589,7 +1583,6 @@ describe('release metadata - v2.78.0', () => {
     expect(atLeast(PKG.version, '2.78.0')).toBe(true);
     expect(atLeast(PKG.mbumah.releaseVersion, '2.78.0')).toBe(true);
     expect(atLeast(PKG.mbumah.baseVersion, '2.78.0')).toBe(true);
-    expect(PKG.scripts['verify:v2-78-0']).toBe('node scripts/verify-v2-78-0.mjs');
   });
 
   it('whats-new 2.78.0 leads the feed with the scope-keyboard story', () => {
@@ -1765,7 +1758,7 @@ describe('the drawer CSV buttons in the view (v2.79.0)', () => {
 });
 
 describe('release metadata - v2.79.0', () => {
-  it('bumps package.json to at least 2.79.0 (all three slots) and registers the verify script', () => {
+  it('bumps package.json to at least 2.79.0 (all three slots)', () => {
     const PKG = JSON.parse(readRepo('package.json')) as {
       version: string;
       mbumah: { releaseVersion: string; baseVersion: string };
@@ -1779,7 +1772,6 @@ describe('release metadata - v2.79.0', () => {
     expect(atLeast(PKG.version, '2.79.0')).toBe(true);
     expect(atLeast(PKG.mbumah.releaseVersion, '2.79.0')).toBe(true);
     expect(atLeast(PKG.mbumah.baseVersion, '2.79.0')).toBe(true);
-    expect(PKG.scripts['verify:v2-79-0']).toBe('node scripts/verify-v2-79-0.mjs');
   });
 
   it('whats-new 2.79.0 leads the feed with the drawers-file story', () => {
@@ -2064,7 +2056,7 @@ describe('deskReportArrival - everything a link can ask for (v2.81.0)', () => {
 });
 
 describe('release metadata - v2.81.0', () => {
-  it('bumps package.json to at least 2.81.0 (all three slots) and registers the verify script', () => {
+  it('bumps package.json to at least 2.81.0 (all three slots)', () => {
     const PKG = JSON.parse(readRepo('package.json')) as {
       version: string;
       mbumah: { releaseVersion: string; baseVersion: string };
@@ -2078,7 +2070,6 @@ describe('release metadata - v2.81.0', () => {
     expect(atLeast(PKG.version, '2.81.0')).toBe(true);
     expect(atLeast(PKG.mbumah.releaseVersion, '2.81.0')).toBe(true);
     expect(atLeast(PKG.mbumah.baseVersion, '2.81.0')).toBe(true);
-    expect(PKG.scripts['verify:v2-81-0']).toBe('node scripts/verify-v2-81-0.mjs');
   });
 
   it('whats-new 2.81.0 leads the feed with the whole-scope story', () => {
@@ -2263,7 +2254,7 @@ describe('the File-all button in the view (v2.82.0)', () => {
 });
 
 describe('release metadata - v2.82.0', () => {
-  it('bumps package.json to at least 2.82.0 (all three slots) and registers the verify script', () => {
+  it('bumps package.json to at least 2.82.0 (all three slots)', () => {
     const PKG = JSON.parse(readRepo('package.json')) as {
       version: string;
       mbumah: { releaseVersion: string; baseVersion: string };
@@ -2277,7 +2268,6 @@ describe('release metadata - v2.82.0', () => {
     expect(atLeast(PKG.version, '2.82.0')).toBe(true);
     expect(atLeast(PKG.mbumah.releaseVersion, '2.82.0')).toBe(true);
     expect(atLeast(PKG.mbumah.baseVersion, '2.82.0')).toBe(true);
-    expect(PKG.scripts['verify:v2-82-0']).toBe('node scripts/verify-v2-82-0.mjs');
   });
 
   it('whats-new 2.82.0 leads the feed with the files-everything story', () => {

@@ -315,9 +315,9 @@ describe('v2.206.0 — the recommendations call is SEEDED (the guaranteed-400 is
 
 describe('v2.206.0 — the release scaffolding', () => {
   it('package.json rides 2.206.0 (version + releaseVersion + baseVersion)', () => {
-    expect(PKG.version).toBe('2.459.0');
-    expect(PKG.mbumah.releaseVersion).toBe('2.459.0');
-    expect(PKG.mbumah.baseVersion).toBe('2.459.0');
+    expect(PKG.version).toBe('2.460.0');
+    expect(PKG.mbumah.releaseVersion).toBe('2.460.0');
+    expect(PKG.mbumah.baseVersion).toBe('2.460.0');
   });
 
   it('whats-new heads the 2.206.0 entry with the round title', () => {
@@ -327,7 +327,7 @@ describe('v2.206.0 — the release scaffolding', () => {
   });
 
   it('the verify script exists and gates the round', () => {
-    const verify = read('scripts/verify-v2-206-0.mjs');
+    const verify = read('scripts/release-attestations/verify-v2-206-0.mjs');
     expect(verify).toContain('2.206.0');
     expect(verify).toContain('fastMovers');
   });

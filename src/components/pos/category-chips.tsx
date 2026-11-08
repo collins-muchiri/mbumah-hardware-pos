@@ -3,10 +3,25 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { getCategoryImage, safeMap } from '@/lib/app-config';
 import {
-  ChevronDown, Package, Wrench, HardHat, Zap, Paintbrush, Hammer,
+  ChevronLeft, ChevronRight, Package, Wrench, HardHat, Zap, Paintbrush, Hammer,
   Boxes, Layers, Trees, Layers3, Tag, ShoppingBasket,
 } from 'lucide-react';
+import { CHIP_IDLE, CHIP_RING_ZINC } from '@/components/filter-chip';
 import type { CategoryItem } from '@/lib/api';
+
+// v2.460.0 THE DATA-COLORED TRIBE LEARNS THE FAMILY'S GRAMMAR (the sixth
+// weave's first face): the POS category chips' active face is a PER-ROW
+// data color (the category's own) — never a named tint, so the tribe
+// cannot ride <FilterChip> — but the family's grammar is not the tint's
+// property alone. Through this weave every chip speaks aria-pressed,
+// wears the family's zinc keyboard ring (CHIP_RING_ZINC, imported — one
+// home, many hands), and its idle face rides CHIP_IDLE byte-exact (it
+// always was the registry's byte — now it is the registry's CONSTANT).
+// THE MASQUERADE RETIRES: the `.chip-active` CSS class — the masquerade
+// law's one named rider, a plain-CSS dialect invisible to the byte
+// walks — inlines its own face (scale-105 + the 0 4px 12px oklch wash)
+// and the block leaves globals.css. The scroll arrows wear honest
+// glyphs (ChevronLeft / ChevronRight) instead of a rotated ChevronDown.
 
 /**
  * Map category names (lowercased substring match) to Lucide icons.
@@ -95,7 +110,7 @@ export function CategoryChips({
           className="shrink-0 h-7 w-7 rounded-full border bg-background shadow-sm flex items-center justify-center hover:bg-muted transition-colors z-20 btn-press"
           aria-label="Scroll categories left"
         >
-          <ChevronDown className="h-3 w-3 rotate-90" />
+          <ChevronLeft className="h-3 w-3" />
         </button>
       )}
 
@@ -107,10 +122,11 @@ export function CategoryChips({
         {/* "All" chip - special styling with gradient background when active */}
         <button
           onClick={() => onSelect('all')}
-          className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-all whitespace-nowrap flex items-center gap-1.5 min-w-fit chip-hover-lift ${
+          aria-pressed={selected === 'all'}
+          className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-all whitespace-nowrap flex items-center gap-1.5 min-w-fit chip-hover-lift${CHIP_RING_ZINC} ${
             selected === 'all'
-              ? 'bg-gradient-to-r from-primary to-primary/80 text-primary-foreground border-transparent shadow-sm chip-active'
-              : 'bg-muted/50 text-muted-foreground border-border hover:bg-muted hover:text-foreground'
+              ? 'bg-gradient-to-r from-primary to-primary/80 text-primary-foreground border-transparent scale-105 shadow-[0_4px_12px_oklch(0_0_0_/_0.12)]'
+              : CHIP_IDLE
           }`}
         >
           <Tag className="h-3 w-3" />
@@ -134,10 +150,11 @@ export function CategoryChips({
             <button
               key={cat.id}
               onClick={() => onSelect(cat.id)}
-              className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-all whitespace-nowrap flex items-center gap-1.5 min-w-fit chip-hover-lift ${
+              aria-pressed={isActive}
+              className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-all whitespace-nowrap flex items-center gap-1.5 min-w-fit chip-hover-lift${CHIP_RING_ZINC} ${
                 isActive
-                  ? 'text-white border-transparent shadow-sm chip-active'
-                  : 'bg-muted/50 text-muted-foreground border-border hover:bg-muted hover:text-foreground'
+                  ? 'text-white border-transparent scale-105 shadow-[0_4px_12px_oklch(0_0_0_/_0.12)]'
+                  : CHIP_IDLE
               }`}
               style={isActive ? {
                 backgroundColor: catColor,
@@ -172,7 +189,7 @@ export function CategoryChips({
           className="shrink-0 h-7 w-7 rounded-full border bg-background shadow-sm flex items-center justify-center hover:bg-muted transition-colors z-20 btn-press"
           aria-label="Scroll categories right"
         >
-          <ChevronDown className="h-3 w-3 -rotate-90" />
+          <ChevronRight className="h-3 w-3" />
         </button>
       )}
     </div>

@@ -109,13 +109,15 @@ describe('v2.455.0 — the loom component, one wardrobe', () => {
         }
       });
     expect(homes(ACTIVE), homes(ACTIVE).join(',')).toEqual(['src/components/filter-chip.tsx']);
-    // the IDLE face has ONE named rider until the POS weave joins: the
-    // gradient chips' inactive face reuses the muted/50 string. The ledger
-    // names the rider so the next weave's census expects it.
-    expect(homes(IDLE).sort(), homes(IDLE).join(',')).toEqual([
-      'src/components/filter-chip.tsx',
-      'src/components/pos/category-chips.tsx',
-    ]);
+    // v2.460.0 RE-KEY (dated): the IDLE face's one named rider has JOINED
+    // the loom through the imports — the POS tribe's inactive face rides
+    // CHIP_IDLE (the constant), so the string literal lives in exactly
+    // ONE src file now, the same census answer as the active face. The
+    // rider's seat is proven by its import line, not its copy.
+    expect(homes(IDLE), homes(IDLE).join(',')).toEqual(['src/components/filter-chip.tsx']);
+    expect(readFileSync('src/components/pos/category-chips.tsx', 'utf8')).toContain(
+      "import { CHIP_IDLE, CHIP_RING_ZINC } from '@/components/filter-chip';",
+    );
   });
 });
 
@@ -187,10 +189,20 @@ describe('v2.455.0 — the ledger: the carry\u2019s remaining faces, named for t
   // debt-plans status lens ride CHIP_TONE_ACTIVE / CHIP_TONE_IDLE now;
   // their sealed bytes live in chip-tones-v2456.test.ts. The ledger
   // names the four remaining dialects.
+  //
+  // v2.460.0 RE-KEY (dated): the ledger's LAST TWO rows — the
+  // data-colored tribes — have been TAKEN by the sixth weave. The
+  // inventory category tags rode the family head (border,
+  // transition-all, no grow) + the pressed voice + the zinc ring + the
+  // registry CONSTANTS (CHIP_ACTIVE / CHIP_IDLE); the POS category
+  // chips gained the same grammar and the `.chip-active` CSS class —
+  // the masquerade law's one named rider — inlined its own face and
+  // left globals.css. The LEDGER is now EMPTY: every chip in src rides
+  // the loom's bytes or the loom's exported constants. The taken seats
+  // are pinned HERE (the class-context probes — prose comments may
+  // name a retired byte; a className may not).
   const LEDGER = [
     // [file, the head byte that names its dialect, the dialect's word]
-    ['src/app/(shell)/tabs/inventory-tab.tsx', 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:scale-105', 'the scale dialect (no border, hover grows)'],
-    ['src/components/pos/category-chips.tsx', 'chip-active', 'the gradient dialect (CSS class)'],
   ] as const;
 
   // v2.459.0 RE-KEY (dated): the ledger's emerald row — the customers
@@ -219,6 +231,31 @@ describe('v2.455.0 — the ledger: the carry\u2019s remaining faces, named for t
   it.each(LEDGER)('%s — %s', (file, byte, word) => {
     const src = readRepo(file);
     expect(src.includes(byte), `${file} lost ${word}`).toBe(true);
+  });
+
+  // v2.460.0 THE LEDGER'S TAKEN SEATS (the sixth weave): the two
+  // data-colored tribes ride the family grammar; their dialect bytes
+  // are gone from every className. The probes are CLASS-CONTEXT (a
+  // line that speaks a className may not speak the retired byte) —
+  // the dated comments above name the bytes in prose and that is
+  // honest; the faces themselves may not wear them.
+  it('the scale dialect’s seat is TAKEN — the inventory tags ride the family head (v2.460.0)', () => {
+    const desk = readRepo('src/app/(shell)/tabs/inventory-tab.tsx');
+    const classLines = desk.split('\n').filter((l) => l.includes('className='));
+    expect(classLines.some((l) => l.includes('hover:scale-105'))).toBe(false);
+    expect(desk.includes("import { CHIP_ACTIVE, CHIP_IDLE, CHIP_RING_ZINC } from '@/components/filter-chip';")).toBe(true);
+    expect(desk.includes('aria-pressed={selectedCategory')).toBe(true);
+  });
+
+  it('the gradient dialect’s seat is TAKEN — the POS chips ride the family grammar (v2.460.0)', () => {
+    const pos = readRepo('src/components/pos/category-chips.tsx');
+    const css = readRepo('src/app/globals.css');
+    const classLines = pos.split('\n').filter((l) => l.includes('className='));
+    expect(classLines.some((l) => l.includes('chip-active'))).toBe(false);
+    expect(css.includes('.chip-active {')).toBe(false);
+    expect(pos.includes("import { CHIP_IDLE, CHIP_RING_ZINC } from '@/components/filter-chip';")).toBe(true);
+    expect(pos.includes('aria-pressed={selected === \'all\'}')).toBe(true);
+    expect(pos.includes('aria-pressed={isActive}')).toBe(true);
   });
 
   // v2.456.0 RE-KEY (dated): the debt-plans desk's hand-rolled pressed

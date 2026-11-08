@@ -322,12 +322,11 @@ describe('the docs speak the fourth section', () => {
 });
 
 describe('release surfaces', () => {
-  it('package.json leads the current version in all three slots (re-anchored for 2.181.0) and the verify script is wired', () => {
+  it('package.json leads the current version in all three slots (re-anchored for 2.181.0)', () => {
     const pkg = JSON.parse(readRepo('package.json'));
-    expect(pkg.version).toBe('2.459.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.459.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.459.0');
-    expect(pkg.scripts['verify:v2-178-0']).toBe('node scripts/verify-v2-178-0.mjs');
+    expect(pkg.version).toBe('2.460.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.460.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.460.0');
   });
 
   it('the CHANGELOG heads with this release', () => {
@@ -341,6 +340,6 @@ describe('release surfaces', () => {
   });
 
   it('the verify script exists on disk', () => {
-    expect(readRepo('scripts/verify-v2-178-0.mjs')).toContain('v2.178.0 verification');
+    expect(readRepo('scripts/release-attestations/verify-v2-178-0.mjs')).toContain('v2.178.0 verification');
   });
 });

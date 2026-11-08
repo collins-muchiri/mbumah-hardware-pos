@@ -223,7 +223,7 @@ describe('What\'s-New 2.67.0 - the morning-note story', () => {
 // ── 5. Release metadata + prior surfaces untouched ──────────────────────────
 
 describe('Release metadata - v2.67.0', () => {
-  it('bumps package.json version + mbumah metadata and registers the verify script', () => {
+  it('bumps package.json version + mbumah metadata', () => {
     const PKG = JSON.parse(readRepo('package.json')) as {
       version: string;
       mbumah: { releaseVersion: string; baseVersion: string };
@@ -239,7 +239,6 @@ describe('Release metadata - v2.67.0', () => {
     expect(atLeast(PKG.version, '2.67.0')).toBe(true);
     expect(atLeast(PKG.mbumah.releaseVersion, '2.67.0')).toBe(true);
     expect(atLeast(PKG.mbumah.baseVersion, '2.67.0')).toBe(true);
-    expect(PKG.scripts['verify:v2-67-0']).toBe('node scripts/verify-v2-67-0.mjs');
   });
 
   it('keeps the prior desk surfaces intact (drill-down, chips, rows, tiles)', () => {

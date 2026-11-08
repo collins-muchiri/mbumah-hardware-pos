@@ -281,34 +281,33 @@ describe('the address-bar vocabulary — the twenty-eighth row (cross-suite pins
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.459.0 leads the feed', () => {
+describe('whats-new — v2.460.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.459.0');
-    // the lead's story hand-over (v2.459.0, the Task 111 law's
-    // sixty-fifth application): the head story is the hand-over's
-    // voice — the elder loom's fifth weave; the customers desk's
-    // quick chips (All / Active / With Debt / Loyalty Members),
-    // the ledger's LAST named tint dialect, retired their
-    // hand-rolled button and ride the loom's TINT registry with
-    // the emerald tone; THE GLASS IDLE — the desk's historic
-    // glassy backdrop voice (a white wash made for the customers
-    // card's gradient face, where the transparent tint idle would
-    // show the card straight through) joined the loom byte-exact
-    // as CHIP_TINT_IDLE_GLASS through the glass prop (a desk's
-    // backdrop is its own voice — the slim-head precedent); THE
-    // NAMED UNIFICATION (the shadow-sm precedent, second verse)
-    // retired the drifted emerald for the registry byte, and the
-    // desk speaks no emerald lens byte at all; THE PRESSED VOICE
-    // AND THE FAMILY'S ZINC RING arrived (neither chip spoke
-    // aria-pressed nor wore a ring before); the four per-color
-    // count badges stay the desk's own children. The review's
-    // arrow exits the head this round; the customers'
-    // glass keeps the card.
-    expect(head.title).toContain('glass');
+    expect(head.version).toBe('2.460.0');
+    // the lead's story hand-over (v2.460.0, the Task 111 law's
+    // sixty-sixth application): the head story is the hand-over's
+    // voice — the homecoming round: THE MUSEUM SHELF (the
+    // verify-v2-* pin unwind, Task 27's last named follow-up):
+    // the 347 point-in-time attestation scripts took
+    // scripts/release-attestations/ byte-untouched, the 310
+    // verify:v2-* keys left package.json, the 86 living key-pins
+    // left the suites (nine emptied it() blocks retired with
+    // honor), and the census caught two mis-aged exhibits and
+    // re-homed them by their true ages; THE SHELF CENSUS — the
+    // ancestors sweep reads the shelf byte-wise: every
+    // attestation must speak its own v2.X.Y age-word; THE
+    // DATA-COLORED TRIBES — the ledger's last two rows taken:
+    // the POS and inventory category chips learned the family's
+    // grammar (aria-pressed and the zinc ring through the
+    // exported constants); THE MASQUERADE RETIRES — .chip-active
+    // inlined its own face and left the stylesheet. The glass
+    // keeps the card; the ledger rests empty.
+    expect(head.title).toContain('attestations');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
-    expect(head.bullets.some((b) => b.includes('one home'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('backdrop is its own voice'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('zinc keyboard ring'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('museum shelf'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('age-word'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('aria-pressed'))).toBe(true);
+    expect(head.bullets.some((b) => b.includes('masquerade law'))).toBe(true);
   });
 });

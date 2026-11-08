@@ -4,6 +4,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Package, Search, Plus, AlertTriangle, AlertCircle, DollarSign, MoreVertical, Edit, Trash2, Loader2, CheckCircle, Copy, ArrowUpDown, Minus, BarChart3, ChevronUp, ChevronDown, ChevronsUpDown, Download, History, RotateCcw, X, Filter, ChevronRight, Tag, Palette, Zap, ShoppingCart, Info, MessageCircle, RefreshCw, Pencil, Settings2, Check, Clock, PackagePlus, Send, Truck } from 'lucide-react';
+import { CHIP_ACTIVE, CHIP_IDLE, CHIP_RING_ZINC } from '@/components/filter-chip';
 
 import { useAppStore, useAuthStore } from '@/lib/stores';
 import { canFeature } from '@/hooks/use-permissions';
@@ -1518,15 +1519,25 @@ export default function InventoryTab() {
           </DialogContent>
         </Dialog>
 
-      {/* Category Tags Row */}
+      {/* Category Tags Row — v2.460.0 THE SCALE DIALECT RETIRES (the sixth
+          weave's second face): the hand-rolled head (no border,
+          hover:scale-105) rode the family head (border, transition-all,
+          no grow), the pressed voice and the zinc ring arrived, and the
+          faces ride the registry CONSTANTS (CHIP_ACTIVE / CHIP_IDLE —
+          the idle face gains the border-border + hover:text-foreground
+          bytes it always lacked). The per-category DATA COLOR stays the
+          active face's own voice: inline style, never a named tint —
+          the active chip's border speaks its color too (the POS
+          tribe's borderColor precedent). */}
       {categories.length > 0 && (
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setSelectedCategory('all')}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:scale-105 ${
+            aria-pressed={selectedCategory === 'all'}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all${CHIP_RING_ZINC} ${
               selectedCategory === 'all'
-                ? 'bg-primary text-primary-foreground shadow-sm'
-                : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                ? CHIP_ACTIVE
+                : CHIP_IDLE
             }`}
           >
             All
@@ -1572,12 +1583,13 @@ export default function InventoryTab() {
               <button
                 key={c.id}
                 onClick={() => setSelectedCategory(c.id === selectedCategory ? 'all' : c.id)}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:scale-105 ${
+                aria-pressed={selectedCategory === c.id}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all${CHIP_RING_ZINC} ${
                   selectedCategory === c.id
                     ? 'text-white shadow-sm'
-                    : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                    : CHIP_IDLE
                 }`}
-                style={selectedCategory === c.id ? { backgroundColor: color } : {}}
+                style={selectedCategory === c.id ? { backgroundColor: color, borderColor: color } : {}}
               >
                 <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
                 {c.name}

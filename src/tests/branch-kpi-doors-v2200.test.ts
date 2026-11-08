@@ -315,14 +315,11 @@ describe('v2.200.0 — the house laws', () => {
 
 describe('v2.200.0 — the release face', () => {
   it('the package speaks 2.200.0 in all three slots', () => {
-    expect(pkg.version).toBe('2.459.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.459.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.459.0');
+    expect(pkg.version).toBe('2.460.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.460.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.460.0');
   });
 
-  it('the verify script for the round is registered', () => {
-    expect(pkg.scripts['verify:v2-200-0']).toBe('node scripts/verify-v2-200-0.mjs');
-  });
 
   it('whats-new leads with the round and tells the branch story', () => {
     const i200 = whatsNew.indexOf("version: '2.200.0'");

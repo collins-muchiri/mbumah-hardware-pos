@@ -49,7 +49,7 @@ const tab = readRepo('src/app/(shell)/tabs/dashboard-tab.tsx');
 const apiRoute = readRepo('src/app/api/dashboard/route.ts');
 const contrast = readRepo('scripts/contrast-math-week-doors-v2203.mjs');
 const probe = readRepo('scripts/probe-week-doors-v2203.mjs');
-const verify = readRepo('scripts/verify-v2-203-0.mjs');
+const verify = readRepo('scripts/release-attestations/verify-v2-203-0.mjs');
 const pkg = JSON.parse(readRepo('package.json')) as {
   version: string;
   mbumah: { releaseVersion: string; baseVersion: string };
@@ -239,11 +239,10 @@ describe('v2.203.0 — the round\u2019s style: the forecast line clears the grap
 });
 
 describe('v2.203.0 — the release surfaces', () => {
-  it('the version rides at 2.203.0 in all three slots and the verify script is wired', () => {
-    expect(pkg.version).toBe('2.459.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.459.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.459.0');
-    expect(pkg.scripts['verify:v2-203-0']).toBe('node scripts/verify-v2-203-0.mjs');
+  it('the version rides at 2.203.0 in all three slots', () => {
+    expect(pkg.version).toBe('2.460.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.460.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.460.0');
   });
 
   it('the whats-new feed leads with the release (ORDER pattern)', () => {
