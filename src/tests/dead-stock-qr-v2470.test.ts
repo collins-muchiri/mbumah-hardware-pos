@@ -131,8 +131,9 @@ describe('the print button — the double voice stands', () => {
 // 4. WHATS-NEW — the scannable door leads the feed
 // ---------------------------------------------------------------------------
 
-describe('whats-new — the scannable door leads the feed', () => {
-  const head = WHATS_NEW[0];
+describe('whats-new — the scannable door, pinned in the feed', () => {
+  const head = WHATS_NEW.find((e) => e.version === '2.470.0');
+  if (!head) throw new Error('the 2.470.0 entry is gone from the feed');
 
   it('the head wears the round\u2019s own story — the elder words and the new word', () => {
     expect(head.version).toBe('2.470.0');

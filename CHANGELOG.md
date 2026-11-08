@@ -1,3 +1,14 @@
+## [2.471.0] The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, the number learns its edit door, the settings desk learns the branch’s own words, the paper carries a scannable door, and the file sings the chorus whole
+
+The dead-stock CSV's footer speaks the collective word — the Clearance chorus row joins the summary block — and the ledger's rows learn their own bars: the loudest debt, drawn.
+
+### Added
+- **THE FILE'S FOOTER SPEAKS THE CHORUS** (`src/app/(shell)/tabs/reports-tab.tsx`, `src/lib/reports/dead-stock.ts`): the dead-stock CSV grows the `Clearance chorus` row after the summary block — the collective census (the count, the window, the capital at cost) composed by the ONE home the clipboard's Copy all already sings, quoted like every word a CSV must survive. The sheet, the clipboard, the chat and the paper all sing the same word; the five doors can never drift apart.
+- **THE ROWS' OWN BARS** (`src/app/(shell)/tabs/reports-tab.tsx`): every Capital tied cell in the dead-stock ledger wears the summary bar's own dialect — a slim muted track with a rose-500 fill showing each row's share of the loudest row's capital, drawn under the figure, aria-hidden (the number above IS the voice), clamped by the same honest word the summary bar speaks.
+
+### Changed
+- **THE CHORUS'S OWN HEADER** (`src/lib/reports/dead-stock.ts`): the collective census is extracted into `deadStockChorusHeader` — the byte it already was — and `deadStockClearanceNotes` rides it, so the header lives in exactly ONE home and the file's footer can join the chorus without re-typing it. The clearance notes' bytes are untouched (the extraction is byte-identical, the suites prove it).
+
 ## [2.470.0] The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, the number learns its edit door, the settings desk learns the branch’s own words, and the printed ledger learns the scannable door
 
 The dead-stock print page learns the scannable door: every printed row carries its own QR — the ONE home's share URL drawn as a data URL, the window opened first, the chorus keeping the closing word.

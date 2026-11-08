@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.471.0',
+    title: 'The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, the number learns its edit door, the settings desk learns the branch’s own words, the paper carries a scannable door, and the file sings the chorus whole',
+    bullets: [
+      'The file speaks the chorus whole: the dead-stock CSV’s footer grows the Clearance chorus row — the collective census (the count, the window, the capital at cost) composed by the ONE home the clipboard’s copy all already sings, quoted like every word a CSV must survive — and the sheet, the clipboard, the chat and the pre-addressed share door all sing the same word, the print button’s double voice and the print door’s clearance asks keeping their bytes.',
+      'The ledger’s rows learn their own bars: every Capital tied cell wears the summary bar’s own dialect — a slim rose fill showing each row’s share of the loudest debt, drawn under the figure and aria-hidden, the number still the only voice.',
+      'The family keeps its seats: the clearance note and the clipboard’s Ask keep their bytes, the chat picker still answers for the branch with no number, the edit door keeps its dialog, the scannable doors and the file’s share link column ride the share door, and the ledger’s capital and category shape stand untouched — the chorus header is the same word it always was, the wa.me word stays the ONE home’s own house.',
+    ],
+  },
+  {
     version: '2.470.0',
     title: 'The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, the number learns its edit door, the settings desk learns the branch’s own words, and the printed ledger learns the scannable door',
     bullets: [

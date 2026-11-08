@@ -27,7 +27,7 @@ import {
 } from '@/lib/api';
 import { handleError } from '@/lib/error-handler';
 import { parseInitialNamedMember, REP_TYPE_FILTERS } from '@/lib/tab-url';
-import { DEAD_STOCK_WINDOWS, capitalTiedByCategory, deadStockClearanceNote, deadStockClearanceNotes, deadStockShareUrl, waMeDisplay, type DeadStockRow } from '@/lib/reports/dead-stock';
+import { DEAD_STOCK_WINDOWS, capitalTiedByCategory, deadStockChorusHeader, deadStockClearanceNote, deadStockClearanceNotes, deadStockShareUrl, waMeDisplay, type DeadStockRow } from '@/lib/reports/dead-stock';
 import {
   composeSeriesVoice, composeHourlyVoice,
   composeStockHealthVoice, composeProductsVoice, composeForecastVoice,
@@ -1345,6 +1345,15 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
   // home (the classifier's pure voice). The rows are already on the
   // desk; zero new fetches, the lens re-answers and the shape follows.
   const capitalByCategory = useMemo(() => capitalTiedByCategory(rows), [rows]);
+  // THE ROWS' OWN BARS (v2.471.0) — the loudest debt's own yardstick:
+  // the largest single row's capital, from the rows already on the
+  // desk (never a second wire). The bar under each capital figure
+  // speaks the row's share OF THE LOUDEST row — the same deterministic
+  // order the table already wears (capital DESC), drawn.
+  const maxCapitalTied = useMemo(
+    () => (rows.length > 0 ? Math.max(...rows.map((r) => r.capitalTied)) : 0),
+    [rows],
+  );
   // THE PIE'S VOICES — the -600 family ground (the same palette the
   // valuation pie speaks; a desk never invents a second palette).
   const categorySegments = useMemo(
@@ -1654,7 +1663,20 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
                             <TableCell className="text-xs text-muted-foreground">{r.categoryName ?? 'Uncategorised'}</TableCell>
                             <TableCell className="text-right tabular-nums">{r.quantityInStock}</TableCell>
                             <TableCell className="text-right tabular-nums">{formatKES(r.costPrice)}</TableCell>
-                            <TableCell className="text-right tabular-nums font-semibold">{formatKES(r.capitalTied)}</TableCell>
+                            <TableCell className="text-right tabular-nums font-semibold">
+                              {formatKES(r.capitalTied)}
+                              {/* THE ROWS' OWN BARS (v2.471.0) — the capital
+                                  cell wears the summary bar's own dialect
+                                  (the bg-muted track, the rose-500 fill —
+                                  the family's word, never a second palette):
+                                  the row's share of the loudest row, drawn
+                                  under the figure. Purely visual — the
+                                  number above IS the voice — so the bar
+                                  stays aria-hidden. */}
+                              <div aria-hidden="true" className="mt-1 h-1 rounded-full bg-muted overflow-hidden" data-testid={`dead-stock-capital-bar-${i}`}>
+                                <div className="h-full rounded-full bg-rose-500 transition-all" style={{ width: `${Math.min(100, Math.max(0, maxCapitalTied > 0 ? (r.capitalTied / maxCapitalTied) * 100 : 0))}%` }} />
+                              </div>
+                            </TableCell>
                             <TableCell>
                               {r.lastSoldAt ? (
                                 <span className="text-xs tabular-nums">{new Date(r.lastSoldAt).toLocaleDateString()}</span>
@@ -2355,6 +2377,12 @@ export default function ReportsTab() {
       csvContent += `Total capital tied,${deadStockSummary?.totalCapitalTied ?? 0}\n`;
       csvContent += `Total inventory value,${deadStockSummary?.totalStockValue ?? 0}\n`;
       csvContent += `Dead share of stock value,${deadStockSummary?.deadSharePct ?? 0}%\n`;
+      // v2.471.0: the file's footer speaks the collective word — the
+      // chorus's own header line, read from the ONE home (never a
+      // re-typed twin), so the sheet, the clipboard, the chat and the
+      // paper all sing the same census. Quoted like the note cells:
+      // a CSV word must survive whatever reads it.
+      csvContent += `Clearance chorus,"${deadStockChorusHeader(deadStockRows, deadStockSummary?.days ?? deadStockDays)}"\n`;
     } else {
       csvContent = 'No data available for export\n';
     }

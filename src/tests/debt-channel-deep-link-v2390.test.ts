@@ -270,24 +270,24 @@ describe('the address-bar vocabulary — the twenty-ninth row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.470.0 leads the feed', () => {
+describe('whats-new — v2.471.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.470.0');
-    // the lead's story hand-over (v2.470.0, the Task 111 law's
-    // seventy-sixth application): the head story is the hand-over's
-    // voice — the carrying round: THE PRINTED LEDGER LEARNS THE
-    // SCANNABLE DOOR — the dead-stock print page carries each row's
-    // own QR: the ONE home's share URL (the same word the Share
-    // button, the sheet and the chat speak, the store's address
-    // riding its third word) drawn as a 96px data URL by the qrcode
-    // house behind a dynamic import; the print window opens FIRST
-    // (the popup-blocked law keeps the gesture's tick) and the doors
-    // are drawn after; the scan to share appendix sits between the
-    // ledger and the chorus — the clearance asks still close the
-    // printed page — and a failed draw prints the paper without the
-    // cards while the toast speaks the honest word.
-    // The paper carries a scannable door.
+    expect(head.version).toBe('2.471.0');
+    // the lead's story hand-over (v2.471.0, the Task 111 law's
+    // seventy-seventh application): the head story is the hand-over's
+    // voice — the carrying round: THE FILE SINGS THE CHORUS WHOLE —
+    // the dead-stock CSV's footer speaks the collective word: the
+    // Clearance chorus row joins the summary block, the census (the
+    // count, the window, the capital at cost) composed by the ONE
+    // home deadStockChorusHeader the clipboard's copy all already
+    // sings, quoted like every word a CSV must survive; the ledger's
+    // rows learn their own bars — every Capital tied cell wears the
+    // summary bar's own dialect, the row's share of the loudest debt
+    // drawn under the figure, aria-hidden, the number still the
+    // voice; the chorus header is the byte it always was, extracted
+    // into its own ONE-home word so the five doors can never drift.
+    // The file sings the chorus whole.
     expect(head.title).toContain('edit door');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
     expect(head.bullets.some((b) => b.includes('edit door'))).toBe(true);
