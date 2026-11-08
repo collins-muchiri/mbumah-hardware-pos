@@ -98,7 +98,11 @@ describe('the dead-stock desk — the share handle pinned from the desk\u2019s b
   });
 
   it('the door opens safe — noopener, noreferrer, and the blocked window speaks', () => {
-    expect(desk.includes("window.open(deadStockShareUrl(row, days), '_blank', 'noopener,noreferrer')")).toBe(true);
+    // v2.467.0 re-key (dated): the door learns the store's own number —
+    // the store contact's phone rides the composer's third word; the
+    // noopener/noreferrer pair and the blocked-window toast ride
+    // unchanged.
+    expect(desk.includes("window.open(deadStockShareUrl(row, days, storeContact?.phone), '_blank', 'noopener,noreferrer')")).toBe(true);
     expect(desk.includes("if (!win) toast.error('The browser blocked the share window — copy the note instead.');")).toBe(true);
   });
 
@@ -144,7 +148,7 @@ describe('the classifier\u2019s home — the share rides beside the note', () =>
 describe('whats-new — the round leads the feed', () => {
   it('the head wears the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.466.0');
+    expect(head.version).toBe('2.467.0');
     expect(head.title).toContain('reach out');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
     expect(head.bullets.some((b) => b.includes('share door'))).toBe(true);

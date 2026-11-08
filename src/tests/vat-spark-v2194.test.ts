@@ -186,9 +186,9 @@ describe('the dark voice fixed - the house pattern over the dialog ground', () =
 
 describe('docs and release surfaces', () => {
   it('package.json rides at 2.198.0 (all three slots)', () => {
-    expect(pkg.version).toBe('2.466.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.466.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.466.0');
+    expect(pkg.version).toBe('2.467.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.467.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.467.0');
     expect(readRepo('scripts/release-attestations/verify-v2-194-0.mjs')).toContain('v2.194.0 verification');
   });
 
@@ -205,8 +205,8 @@ describe('docs and release surfaces', () => {
 
   it('the head-pin counters re-anchored to the new head', () => {
     const counter = readRepo('src/tests/console-changelog.test.ts');
-    expect(counter).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(356);");
+    expect(counter).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(357);");
     const a11yShell = readRepo('src/tests/a11y-shell-v2148.test.ts');
-    expect(a11yShell).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(356);");
+    expect(a11yShell).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(357);");
   });
 });

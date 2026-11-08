@@ -9,7 +9,7 @@ import { BarChart3, Package, TrendingUp, TrendingDown,
   Calendar, Clock, Eye, Play, Sparkles, PieChart,
   HeartPulse, RotateCcw, CreditCard, Banknote, Smartphone,
   AlertTriangle, Users, Timer, Printer, Wrench, Sparkle, Link2, ArrowRight,
-  Receipt, UserCog, Hourglass, CheckCircle, MessageCircle, Share2, ClipboardList,
+  Receipt, UserCog, Hourglass, CheckCircle, MessageCircle, Share2, ClipboardList, Phone,
 } from 'lucide-react';
 import { LandingChip } from '@/components/landing-chip';
 import {
@@ -27,7 +27,7 @@ import {
 } from '@/lib/api';
 import { handleError } from '@/lib/error-handler';
 import { parseInitialNamedMember, REP_TYPE_FILTERS } from '@/lib/tab-url';
-import { DEAD_STOCK_WINDOWS, capitalTiedByCategory, deadStockClearanceNote, deadStockClearanceNotes, deadStockShareUrl, type DeadStockRow } from '@/lib/reports/dead-stock';
+import { DEAD_STOCK_WINDOWS, capitalTiedByCategory, deadStockClearanceNote, deadStockClearanceNotes, deadStockShareUrl, waMeDisplay, type DeadStockRow } from '@/lib/reports/dead-stock';
 import {
   composeSeriesVoice, composeHourlyVoice,
   composeStockHealthVoice, composeProductsVoice, composeForecastVoice,
@@ -1320,9 +1320,14 @@ interface DeadStockSectionProps {
   deadWindowLandingLive: boolean;
   landedDeadWindow: 30 | 60 | 90;
   onDismissDeadWindowLanding: () => void;
+  // v2.467.0: the share door's pre-address — the store's own contact
+  // (name + phone on file), fetched once at the desk and handed down.
+  // null keeps the picker door: a store without a phone speaks no
+  // address, and the chip says so (silence is the honest no-address).
+  storeContact: { name: string; phone: string } | null;
 }
 
-function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartType, deadWindowLandingLive, landedDeadWindow, onDismissDeadWindowLanding }: DeadStockSectionProps) {
+function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartType, deadWindowLandingLive, landedDeadWindow, onDismissDeadWindowLanding, storeContact }: DeadStockSectionProps) {
   // THE CAPITAL'S SHAPE — the chart's own grouping, read from the ONE
   // home (the classifier's pure voice). The rows are already on the
   // desk; zero new fetches, the lens re-answers and the shape follows.
@@ -1355,10 +1360,15 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
   // with the text pre-filled and the maker picks the chat. A browser
   // that blocks the window speaks its side: the toast answers, the row
   // stays whole (the vouchers desk's popup-blocked honesty law).
+  // v2.467.0: the door learns the store's own number — the store
+  // contact's phone rides the SAME composer's third word, so the door
+  // pre-addresses to the store's own chat when the branch keeps a
+  // phone on file; without one the composer keeps the picker door (the
+  // ONE home's own guard — the desk never re-implements it).
   const shareClearanceNote = useCallback((row: DeadStockRow) => {
-    const win = window.open(deadStockShareUrl(row, days), '_blank', 'noopener,noreferrer');
+    const win = window.open(deadStockShareUrl(row, days, storeContact?.phone), '_blank', 'noopener,noreferrer');
     if (!win) toast.error('The browser blocked the share window — copy the note instead.');
-  }, [days]);
+  }, [days, storeContact]);
   // THE LEDGER'S CHORUS (v2.465.0) — the collective door: one press
   // carries EVERY row's clearance note to the clipboard, composed in the
   // ONE home (the header line speaks the ledger's own summary, the lines
@@ -1483,9 +1493,38 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
           <Card className="backdrop-blur-sm bg-card/80">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Hourglass className="h-4 w-4" /> Dead Stock Ledger
-                </CardTitle>
+                <div>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Hourglass className="h-4 w-4" /> Dead Stock Ledger
+                  </CardTitle>
+                  {/* THE DOOR'S STATE, SPOKEN (v2.467.0) — the share door's
+                      address is a fact of the branch, so the ledger header
+                      says which door answers: a store with a phone on file
+                      wears the pre-addressed face (the emerald chip, the
+                      Phone icon the store's own word — the family's green,
+                      never a second palette), and a store without one wears
+                      the quiet picker face. A status word, not a handle:
+                      the chip carries a title (the hover voice) and NO
+                      aria-label — its text IS the voice, and the census's
+                      three handles stay three. */}
+                  {storeContact ? (
+                    <span
+                      className="mt-1 inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-300"
+                      title={`Share opens WhatsApp pre-addressed to ${storeContact.name} (${waMeDisplay(storeContact.phone)})`}
+                      data-testid="dead-stock-share-addressed"
+                    >
+                      <Phone className="h-2.5 w-2.5" /> Shares pre-addressed to {storeContact.name} · {waMeDisplay(storeContact.phone)}
+                    </span>
+                  ) : (
+                    <span
+                      className="mt-1 inline-flex items-center gap-1 text-[10px] text-muted-foreground"
+                      title="Add the store's phone to pre-address the share door — WhatsApp opens with the chat picker"
+                      data-testid="dead-stock-share-unaddressed"
+                    >
+                      <Share2 className="h-2.5 w-2.5" /> Shares open with the chat picker
+                    </span>
+                  )}
+                </div>
                 {/* THE CHORUS'S SEAT (v2.465.0) — the count badge and the
                     Copy all handle read as one instrument: the ledger's
                     size beside the ledger's collective voice. The handle
@@ -1746,6 +1785,27 @@ export default function ReportsTab() {
     [deadStockWire],
   );
   const deadStockSummary = deadStockWire?.summary ?? null;
+
+  // v2.467.0 THE SHARE DOOR'S PRE-ADDRESS — the store's own contact.
+  // The /api/stores wire is session-validated and already exposes the
+  // Store model's phone column; the desk picks ITS OWN store's row and
+  // hands the contact down (the DeadStockSection wears the chip, the
+  // share door and the CSV column all ride the SAME word). A store
+  // without a phone answers null — the picker door, honestly kept.
+  // enabled only on the dead-stock stage: the ninth report's wire, the
+  // desk adds no fetches for the eight reports that never read it.
+  const { data: deadStockStoreContact } = useQuery({
+    queryKey: ['dead-stock-store-contact', currentStoreId],
+    queryFn: async (): Promise<{ name: string; phone: string } | null> => {
+      const res = await fetch('/api/stores', { credentials: 'same-origin', headers: sessionAuthHeaders() });
+      if (!res.ok) return null;
+      const json = await res.json() as { data?: Array<{ id: string; name: string; phone: string | null }> };
+      const store = (json.data ?? []).find((s) => s.id === currentStoreId);
+      return store?.phone ? { name: store.name, phone: store.phone } : null;
+    },
+    enabled: reportType === 'dead_stock',
+    staleTime: 5 * 60_000,
+  });
 
   // Customer data for customer analysis report
   const { data: customersData, isLoading: customersLoading } = useQuery({
@@ -2177,10 +2237,14 @@ export default function ReportsTab() {
       // home (never re-typed here), so the sheet starts the supplier
       // conversation too: one voice, four doors, and the four can never
       // drift apart.
+      // v2.467.0: the file's share column rides the SAME pre-addressed
+      // door the chat rides — the store contact's phone as the composer's
+      // third word — so the sheet's link and the desk's chat can never
+      // name two different doors.
       csvContent = 'Product,SKU,Category,Qty on hand,Unit cost,Capital tied,Last sold,Days idle,Clearance note,Share link\n';
       deadStockRows.forEach((r) => {
         const note = deadStockClearanceNote(r, deadStockSummary?.days ?? deadStockDays).replaceAll('"', '""');
-        const share = deadStockShareUrl(r, deadStockSummary?.days ?? deadStockDays);
+        const share = deadStockShareUrl(r, deadStockSummary?.days ?? deadStockDays, deadStockStoreContact?.phone);
         csvContent += `"${r.name}",${r.sku},"${r.categoryName ?? 'Uncategorised'}",${r.quantityInStock},${r.costPrice},${r.capitalTied},${r.lastSoldAt ?? 'never'},${r.daysIdle ?? 'never'},"${note}","${share}"\n`;
       });
       csvContent += `\nDays window,${deadStockSummary?.days ?? deadStockDays}\n`;
@@ -2202,7 +2266,7 @@ export default function ReportsTab() {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
     toast.success('CSV exported successfully');
-  }, [reportType, salesReport, inventorySummary, categoryBreakdown, topProducts, customerAnalysis, rentalPerformance, dateFrom, dateTo, deadStockRows, deadStockSummary, deadStockDays]);
+  }, [reportType, salesReport, inventorySummary, categoryBreakdown, topProducts, customerAnalysis, rentalPerformance, dateFrom, dateTo, deadStockRows, deadStockSummary, deadStockDays, deadStockStoreContact?.phone]);
 
   const handleExport = async () => {
     // v2.461.0: dead stock exports CLIENT-SIDE — the server export door
@@ -3785,6 +3849,7 @@ export default function ReportsTab() {
             deadWindowLandingLive={deadWindowLandingLive}
             landedDeadWindow={landedDeadWindow}
             onDismissDeadWindowLanding={() => setDeadWindowLandingLive(false)}
+            storeContact={deadStockStoreContact ?? null}
           />
         )}
       </div>
