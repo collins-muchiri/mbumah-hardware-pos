@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.475.0',
+    title: 'The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, the number learns its edit door, the settings desk learns the branch’s own words, the paper carries a scannable door, the file sings the chorus whole, the ledger answers to its own columns, the ledger answers to its own name, the shape answers to the ledger, and the view speaks its own word',
+    bullets: [
+      'The view speaks its own word: the pressed lens learns its own mirror — a footer under the ledger speaks the honest fraction (“2 of 6 products in view”), the view’s own capital tied in view (the family’s rose word), and the view’s slice of the ledger’s rest drawn as a slim rose bar in the share-bar’s own dialect; the window lens’s amber ground dresses the strip, aria-live speaks the answer as the lens changes, and the word only sounds while the lens is pressed and rows answer — a resting lens keeps the summary cards as the only voice, and a lens that answers nothing already wears its own empty face.',
+      'One home composes the word: deadStockViewSummary joins the ONE home — the view’s count, the view’s capital (the round2 of the rows’ own sum, the summary’s own convention) and the slice in one decimal (the honest-share law the summary has always worn: a zero ledger shares ZERO, never NaN), pure and deterministic, the desk never hand-sums; the view/archive law holds — the file (the CSV’s footer and share link column), the clipboard’s copy all chorus and the print door keep the canonical rows; the footer is the VIEW’s own word, a spoken voice and never a handle, so the census keeps its nine.',
+      'The family keeps its seats: the sort door still answers its columns, the search lens still answers the ledger’s own name, the shape’s presses still ride each category’s own word into the lens (the chart keeps the WHOLE ledger’s capital), the pre-addressed chip still opens the store’s own chat (the wa.me word stays the ONE home’s own house), the chat picker still answers for the branch with no number, the edit door keeps its dialog, and the clearance note’s Ask, the copy all word, the print button’s double voice, the print door’s clearance asks and the share door keep their bytes — the view’s word joins a chorus it never had to re-tune.',
+    ],
+  },
+  {
     version: '2.474.0',
     title: 'The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, the number learns its edit door, the settings desk learns the branch’s own words, the paper carries a scannable door, the file sings the chorus whole, the ledger answers to its own columns, the ledger answers to its own name, and the shape answers to the ledger',
     bullets: [

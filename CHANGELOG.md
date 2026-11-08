@@ -1,3 +1,14 @@
+## [2.475.0] The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, the number learns its edit door, the settings desk learns the branch’s own words, the paper carries a scannable door, the file sings the chorus whole, the ledger answers to its own columns, the ledger answers to its own name, the shape answers to the ledger, and the view speaks its own word
+
+The dead-stock ledger's pressed lens learns its own mirror: a footer under the table speaks the view's count, the view's own capital and the view's slice of the ledger's rest — the view/archive law untouched.
+
+### Added
+- **THE VIEW'S OWN WORD** (`src/lib/reports/dead-stock.ts`, `src/app/(shell)/tabs/reports-tab.tsx`): `deadStockViewSummary` composes the pressed lens's mirror in the ONE home — the view's row count, the view's own capital at cost (the round2 of the rows' own sum, the summary's own convention) and the view's slice of the ledger's whole rest (one decimal, the honest-share law the summary has always worn: a zero ledger shares ZERO, never NaN). Pure and deterministic — neither array is ever mutated, a fresh object every call, the desk never hand-sums.
+- **THE FOOTER'S OWN FACE** (`src/app/(shell)/tabs/reports-tab.tsx`): under the table, while the lens is pressed AND rows answer, an amber-ground strip (the window lens's own tone) speaks the honest fraction ("2 of 6 products in view"), the view's capital tied in view (the family's rose word), and the view's slice drawn as a slim rose bar in the share-bar's own dialect (aria-hidden — the numbers above ARE the voice). `aria-live="polite"` speaks the answer as the lens changes. A spoken word, never a handle — the census keeps its nine. A resting lens keeps the summary cards as the only voice; a lens that answers nothing already wears its own empty face.
+
+### Changed
+- **THE VIEW/ARCHIVE LAW, UNTOUCHED** (`src/app/(shell)/tabs/reports-tab.tsx`): the file (the CSV's footer and share link column), the clipboard's copy all chorus and the print door keep the canonical `rows` — the footer is the VIEW's own word, spoken about what the desk is looking at; the archive's word stays the whole ledger.
+
 ## [2.474.0] The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, the number learns its edit door, the settings desk learns the branch’s own words, the paper carries a scannable door, the file sings the chorus whole, the ledger answers to its own columns, the ledger answers to its own name, and the shape answers to the ledger
 
 The dead-stock capital chart learns its presses: one press on a bar or a legend row rides that category's own word into the search lens — the shape and the lens share one vocabulary, and the shape never narrows.

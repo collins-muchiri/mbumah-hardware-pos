@@ -275,27 +275,27 @@ describe('the address-bar vocabulary — the twenty-seventh row (cross-suite pin
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.474.0 leads the feed', () => {
+describe('whats-new — v2.475.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.474.0');
-    // the lead's story hand-over (v2.474.0, the Task 111 law's
-    // eightieth application): the head story is the hand-over's
-    // voice — the carrying round: THE SHAPE ANSWERS TO THE
-    // LEDGER — the dead-stock capital chart learns its presses:
-    // the pie's legend rows and the bar chart's bars become real
-    // handles through the charts' own optional onPress door (the
-    // double voice, aria-pressed, the keyboard's Enter and Space,
-    // the pressed segment's own face), one press riding the
-    // segment's own word into the search lens; the ONE home's lens
-    // answers the ledger's own Uncategorised word now (the word
-    // the shape already calls the unnamed shelf, so a press can
-    // never draw an empty answer), and the shape keeps the WHOLE
-    // ledger's capital — the chart reads the canonical rows, a
-    // press re-words the lens never the picture, and the file, the
+    expect(head.version).toBe('2.475.0');
+    // the lead's story hand-over (v2.475.0, the Task 111 law's
+    // eighty-first application): the head story is the hand-over's
+    // voice — the carrying round: THE VIEW SPEAKS ITS OWN
+    // WORD — the dead-stock ledger's pressed lens learns its own
+    // mirror: a footer under the table wearing the window lens's
+    // amber ground speaks the honest fraction (the badge's own
+    // shape), the view's own capital at cost (the family's rose
+    // word) and the view's slice of the ledger's rest drawn in the
+    // share-bar's own dialect; the word composed in the ONE home
+    // deadStockViewSummary (the honest-share law worn — a zero
+    // ledger shares ZERO, never NaN), the desk never hand-sums;
+    // the word only sounds while the lens is pressed AND rows
+    // answer, a spoken voice and never a handle (the census keeps
+    // its nine), and the view/archive law holds — the file, the
     // clipboard's copy all chorus and the print door keep the
     // canonical rows.
-    // The shape answers to the ledger.
+    // The view speaks its own word.
     expect(head.title).toContain('edit door');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
     expect(head.bullets.some((b) => b.includes('edit door'))).toBe(true);
