@@ -1,3 +1,14 @@
+## [2.468.0] The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, and the number learns its edit door
+
+The picker chip's promise kept on the desk where the promise lives: the quiet "Shares open with the chat picker" face grew its press — one button, one dialog, one owner-only write, and the share door pre-addresses live.
+
+### Added
+- **THE EDIT DOOR'S WRITE** (`src/app/api/stores/phone/route.ts`): `PATCH /api/stores/phone` — SUPER_ADMIN or STORE_OWNER only (the vat rate's own law), the body zod-guarded (`storeId` required, the phone 7–24 characters), the write shaped org-scoped (`updateMany` cannot address a store outside the session's organization; a count of zero answers a calm 404 that never leaks the id), the number stored exactly as typed (the ONE home normalizes at composition time), and the log carries the store id with the number masked to its last three digits.
+- **THE EDIT DOOR'S PRESS** (`src/app/(shell)/tabs/reports-tab.tsx`): the ledger header's unaddressed face is now a real button — the double voice every handle wears (`aria-label` "Add the store's share phone", the title carrying the promise, the text speaking the state), the dashed border the pressable hint. One press opens the ResponsiveDialog ("The store's share phone"): one Input (Enter saves, `inputMode="tel"`, the door's own normalize spoken as the helper word), Cancel, and a Save that refuses a short draft locally before the wire ever moves.
+
+### Changed
+- **THE LIVE FLIP** (`src/app/(shell)/tabs/reports-tab.tsx`): the save writes the owner-only PATCH and invalidates the desk's own wire (`['dead-stock-store-contact', storeId]`) — the chip flips to the pre-addressed face in place, no other tab, no re-load; the toast answers with the display word. The section rides the store id as a prop (the dialog's write address). The census grows its fourth voice — the edit door's own handle — and the v2461 dated re-key holds it.
+
 ## [2.467.0] The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus
 
 The wa.me door grows its honest second face: a store with a phone on file answers its own door — the share handle and the file's share link column pre-address to the store's own chat, the clearance note byte-for-byte the one the clipboard holds — and the ledger header speaks which door answers.

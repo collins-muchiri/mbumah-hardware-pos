@@ -259,9 +259,14 @@ describe('the reports desk — the ninth card and its faces', () => {
     // Copy all handle in the ledger's header (the chorus's own double
     // voice); the census speaks the section's three handles now, and the
     // loom's pressed-voice law stands untouched.
+    // v2.468.0 re-key (dated): the section grows its FOURTH voice — the
+    // picker chip's edit door (the unaddressed face learned its press,
+    // the double voice every handle wears); the census speaks the
+    // section's four handles now, and the loom's pressed-voice law
+    // stands untouched.
     const section = TAB.slice(TAB.indexOf('function DeadStockSection'), TAB.indexOf('// Main Reports Tab Component'));
     expect(section).not.toContain('aria-pressed');
-    expect(section.split('aria-label=').length - 1).toBe(3);
+    expect(section.split('aria-label=').length - 1).toBe(4);
     expect(section).toContain('aria-label={`Copy clearance note for ${r.name}`}');
   });
 

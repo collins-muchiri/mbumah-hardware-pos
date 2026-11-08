@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.468.0',
+    title: 'The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, and the number learns its edit door',
+    bullets: [
+      'The store’s share phone learns its edit door: on the dead-stock desk the quiet picker chip is now a real button — one press opens the edit dialog, the number saves to the branch on file, and the share door opens pre-addressed LIVE, no other tab, no re-load; the clearance note inside the chat stays byte-for-byte the one the clipboard’s Ask copies.',
+      'The write is guarded and honest: the branch phone rides an owner-only PATCH scoped to the organization (a foreign store is a calm 404), the save invalidates the desk’s own wire so the chip flips in place, and the picker face keeps its promise — the chat picker answers until a number exists; the copy all chorus, the print button’s double voice and the print door’s clearance asks keep their seats.',
+      'One home still owns the word: the digits normalize in the ONE home — the wa.me word’s own house — the display word dresses the chip and the toast, and the file’s share link column rides the SAME address, so the sheet, the chat and the capital’s category shape above all keep their seats.',
+    ],
+  },
+  {
     version: '2.467.0',
     title: 'The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus',
     bullets: [
