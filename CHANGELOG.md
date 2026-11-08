@@ -1,3 +1,14 @@
+## [2.466.0] The resting ledger learns to reach out and to carry in one breath onto paper — the chorus takes the print door
+
+The clearance note's fifth door: the dead-stock PDF closes with the clearance asks — the collective composer's own word printed beside the summary's four numbers — and the print door learns to refuse honestly.
+
+### Added
+- **THE PRINT'S CHORUS APPENDIX** (`src/app/(shell)/tabs/reports-tab.tsx`): on the dead-stock stage the printed page closes with a Clearance asks section — `deadStockClearanceNotes(deadStockRows, deadStockSummary?.days ?? deadStockDays)` (the ONE home's collective composer, never re-typed in the desk), its header line spoken as the intro, every row's clearance note as a list item, each word HTML-escaped for the print window. The appendix wears the rose family in the print window's own inline CSS (`#be123c` heading over a `#fecdd3` rule) — the desk's alarm word, never a second palette.
+- **THE PRINT BUTTON SPEAKS ITS PAGE** (`src/app/(shell)/tabs/reports-tab.tsx`): when the dead-stock report is on stage the PDF button wears the double voice — `title` "Prints the ledger rows with the clearance asks attached" and `aria-label` "Print PDF with clearance asks"; other reports keep the plain face (the conditional `undefined` falls back to the button's own text).
+
+### Changed
+- **THE PRINT WINDOW'S HONESTY** (`src/app/(shell)/tabs/reports-tab.tsx`): a browser that blocks the print window no longer answers silence — the toast speaks its side ("The browser blocked the print window — export CSV instead."); the share door's popup-blocked law is now the print door's own.
+
 ## [2.465.0] The resting ledger learns to reach out and to carry in one breath — the file rides the share link and the ledger speaks its chorus
 
 The clearance note's fourth door and the ledger's collective voice: the CSV carries each row's wa.me word beside its note, and the ledger's header grows a Copy all handle that speaks every row's note in one breath.

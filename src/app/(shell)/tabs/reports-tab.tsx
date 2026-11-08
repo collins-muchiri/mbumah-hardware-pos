@@ -2231,7 +2231,31 @@ export default function ReportsTab() {
     const content = document.getElementById('report-print-area');
     if (!content) return;
     const printWindow = window.open('', '_blank', 'width=800,height=600');
-    if (!printWindow) return;
+    // THE PRINT WINDOW'S HONESTY (v2.466.0): a browser that blocks the
+    // print window no longer answers silence — the toast speaks its side
+    // (the share door's popup-blocked law, now the print door's own).
+    if (!printWindow) {
+      toast.error('The browser blocked the print window — export CSV instead.');
+      return;
+    }
+    // THE CHORUS TAKES THE PRINT DOOR (v2.466.0): on the dead-stock stage
+    // the printed page closes with the clearance asks — the collective
+    // composer's OWN word (the ONE home's header line over every row's
+    // note), escaped for the print window, never re-typed here. The
+    // paper carries the same word the clipboard, the chat, and the
+    // sheet already speak — one voice, five doors.
+    const escapePrintWord = (word: string) => word
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;');
+    const chorusAppendix = reportType === 'dead_stock' && deadStockRows.length > 0
+      ? (() => {
+          const word = deadStockClearanceNotes(deadStockRows, deadStockSummary?.days ?? deadStockDays);
+          const [intro, ...asks] = word.split('\n');
+          return `\n          <div class="chorus">\n            <h3>Clearance asks — the ledger’s chorus</h3>\n            <p class="chorus-intro">${escapePrintWord(intro)}</p>\n            <ol>\n              ${asks.map((ask) => `<li>${escapePrintWord(ask)}</li>`).join('\n              ')}\n            </ol>\n          </div>`;
+        })()
+      : '';
     printWindow.document.write(`
       <html>
         <head>
@@ -2246,6 +2270,11 @@ export default function ReportsTab() {
             td { padding: 8px 12px; border-bottom: 1px solid #f1f5f9; }
             .right { text-align: right; }
             .bold { font-weight: 700; }
+            .chorus { margin-top: 28px; border-top: 2px solid #fecdd3; padding-top: 16px; }
+            .chorus h3 { font-size: 14px; color: #be123c; margin: 0 0 4px; }
+            .chorus-intro { color: #64748b; font-size: 12px; margin: 0 0 10px; }
+            .chorus ol { margin: 0; padding-left: 20px; }
+            .chorus li { margin-bottom: 6px; line-height: 1.5; font-size: 12px; }
             @media print { body { padding: 0; } }
           </style>
         </head>
@@ -2256,6 +2285,7 @@ export default function ReportsTab() {
             <p style="color:#94a3b8;font-size:12px">Period: ${dateFrom} to ${dateTo}</p>
           </div>
           ${content.innerHTML}
+          ${chorusAppendix}
         </body>
       </html>
     `);
@@ -2428,7 +2458,10 @@ export default function ReportsTab() {
               <CardDescription className="text-xs mt-1">{dateRangeDisplay}</CardDescription>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={handlePDFExport} className="h-8">
+              <Button variant="outline" size="sm" onClick={handlePDFExport} className="h-8"
+                title={reportType === 'dead_stock' ? 'Prints the ledger rows with the clearance asks attached' : undefined}
+                aria-label={reportType === 'dead_stock' ? 'Print PDF with clearance asks' : undefined}
+              >
                 <Printer className="h-3.5 w-3.5 mr-1.5" /> PDF
               </Button>
               <Button variant="outline" size="sm" onClick={handleExport} className="h-8"

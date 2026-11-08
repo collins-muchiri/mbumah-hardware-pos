@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.466.0',
+    title: 'The resting ledger learns to reach out and to carry in one breath onto paper — the chorus takes the print door',
+    bullets: [
+      'The chorus takes the print door: the dead-stock PDF now closes with the clearance asks — the collective composer’s own word, the ledger’s summary header over every row’s clearance note, printed beside the summary’s four numbers, so the paper carries the same word the clipboard, the chat, and the sheet already speak.',
+      'The print door learns to speak and to refuse honestly: on the dead-stock stage the print button wears the double voice (it names the clearance asks it carries), and a browser that blocks the print window no longer answers silence — the toast speaks, the row stays whole (the vouchers desk’s popup-blocked law, now the print door’s own).',
+      'One voice, five doors: the clipboard’s Ask, the chat’s share door (the wa.me word), the file’s note cell and its share link column, the copy all handle’s one-breath chorus — and now the printed page; all five compose from the ONE home and can never drift apart, and the capital’s category shape above stays exactly as the last rounds drew it.',
+    ],
+  },
+  {
     version: '2.465.0',
     title: 'The resting ledger learns to reach out and to carry in one breath — the file rides the share link and the ledger speaks its chorus',
     bullets: [
