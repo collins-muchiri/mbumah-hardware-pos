@@ -95,7 +95,11 @@ describe('the dead-stock CSV — the footer speaks the chorus whole', () => {
     // door's own words (sortDeadStockRows + the DeadStockSortKey type) —
     // the composer still rides the same import line, now with the two
     // new riders aboard.
-    expect(desk.includes("import { DEAD_STOCK_WINDOWS, capitalTiedByCategory, deadStockChorusHeader, deadStockClearanceNote, deadStockClearanceNotes, deadStockShareUrl, sortDeadStockRows, waMeDisplay, type DeadStockRow, type DeadStockSortKey } from '@/lib/reports/dead-stock';")).toBe(true);
+    // v2.473.0 re-key (dated): the import grew the search door's own
+    // word (filterDeadStockRows rides the same line, between the share
+    // URL and the sort door) — the composer still rides the same import
+    // line, now with the lens aboard.
+    expect(desk.includes("import { DEAD_STOCK_WINDOWS, capitalTiedByCategory, deadStockChorusHeader, deadStockClearanceNote, deadStockClearanceNotes, deadStockShareUrl, filterDeadStockRows, sortDeadStockRows, waMeDisplay, type DeadStockRow, type DeadStockSortKey } from '@/lib/reports/dead-stock';")).toBe(true);
   });
 
   it('the footer grows the Clearance chorus row — quoted, ONE-home word', () => {

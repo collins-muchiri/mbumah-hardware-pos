@@ -117,7 +117,11 @@ describe('sortDeadStockRows — the two honest orders', () => {
 
 describe('the sort door — the desk\u2019s own face', () => {
   it('the orders live in the ONE home — the desk imports, never hand-sorts', () => {
-    expect(desk.includes('sortDeadStockRows, waMeDisplay')).toBe(true);
+    // v2.473.0 re-key (dated): the desk's ONE-home import grew the search
+    // door's own word (filterDeadStockRows rides the same line, between
+    // the share URL and the sort door) — the composer still rides the
+    // same import line, now with the lens aboard.
+    expect(desk.includes('filterDeadStockRows, sortDeadStockRows, waMeDisplay')).toBe(true);
     expect(desk.includes('type DeadStockSortKey')).toBe(true);
     expect(home.includes('export function sortDeadStockRows(')).toBe(true);
     expect(home.includes("export type DeadStockSortKey = 'capital' | 'idle';")).toBe(true);
@@ -125,8 +129,15 @@ describe('the sort door — the desk\u2019s own face', () => {
 
   it('the resting face is capital — the desk opens exactly as it always has', () => {
     expect(desk.includes("useState<DeadStockSortKey>('capital')")).toBe(true);
-    expect(desk.includes('sortDeadStockRows(rows, deadStockSort)')).toBe(true);
-    expect(desk.includes('[rows, deadStockSort]')).toBe(true);
+    // v2.473.0 re-key (dated): the memo composes the two lenses now —
+    // the search door's filter first, then the sort door's order (the
+    // ONE home composes both; the desk never hand-filters either) — and
+    // the memo rides [rows, deadStockSearch, deadStockSort] and nothing
+    // else. The resting faces are unchanged: the lens rests empty and
+    // the sort rests capital, so the desk opens byte-for-byte as it
+    // always has.
+    expect(desk.includes('sortDeadStockRows(filterDeadStockRows(rows, deadStockSearch), deadStockSort)')).toBe(true);
+    expect(desk.includes('[rows, deadStockSearch, deadStockSort]')).toBe(true);
   });
 
   it('the two headers carry the double voice — aria-label and title', () => {
@@ -184,8 +195,9 @@ describe('the sort door — the desk\u2019s own face', () => {
 // 3. THE FEED — the head wears the round's own story
 // ---------------------------------------------------------------------------
 
-describe('whats-new — the sort door leads the feed', () => {
-  const head = WHATS_NEW[0];
+describe('whats-new — the sort door, pinned in the feed', () => {
+  const head = WHATS_NEW.find((e) => e.version === '2.472.0');
+  if (!head) throw new Error('the 2.472.0 entry is gone from the feed');
 
   it('the head wears the round\u2019s own story — the elder words and the new word', () => {
     expect(head.version).toBe('2.472.0');

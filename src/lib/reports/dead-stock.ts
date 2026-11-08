@@ -342,3 +342,54 @@ export function sortDeadStockRows(
   });
   return copy;
 }
+
+// ============================================================================
+// v2.473.0 THE LEDGER ANSWERS TO ITS OWN NAME
+// ============================================================================
+// The ledger learns its SEARCH DOOR. The rows already carry the words a
+// maker reaches for — the name, the SKU, the category — and the desk now
+// answers to them as they type: a small lens above the table, composed
+// HERE in the ONE home (the desk never hand-filters, the same law the
+// sort door speaks), so the lens and the door can never drift apart.
+//
+// THE HONEST LENS:
+//   • The trimmed word is the honest word — "  cement  " asks for
+//     `cement`, never for the padding around it.
+//   • The case never matters — the shelf's own casing is the shelf's
+//     business (`CEM-01`, `cem-01` and `Cem-01` are one question).
+//   • An empty (or whitespace-only) lens RESTS: the whole ledger comes
+//     back in its arrival order — a resting lens is the desk opening
+//     exactly as it always has.
+//   • A row whose shelf never named a category still answers on its name
+//     and SKU — the null is a voice (the Uncategorised word), never a
+//     crash, and never a silent "no match".
+//
+// THE VIEW/ARCHIVE LAW (the sort door's own law, grown one lens): the
+// search is a VIEWER, never a rewrite. The file (the CSV), the clipboard
+// (the copy all chorus) and the print door keep the canonical `rows` —
+// the archive's word stays the WHOLE ledger whatever the lens is looking
+// at. The lens composes with the sort door: the filtered rows are what
+// the pressed order leads, never the other way round (filter first, then
+// sort — a narrower shelf wearing the same honest order).
+
+/** THE LEDGER'S OWN LENS (v2.473.0) — the rows that answer to the query,
+ *  matched case-insensitively on the words a row already carries: the
+ *  name, the SKU, the category (a null category speaks as the empty
+ *  word — the row still answers on its name and SKU). The trimmed query
+ *  is the honest word; an empty or whitespace-only lens RESTS and the
+ *  whole ledger comes back in its arrival order. Returns a NEW array —
+ *  the input is never mutated (the canonical order the file, the
+ *  clipboard and the print door speak stays whole). Deterministic: the
+ *  same rows and the same word always draw the same answer. Pure. */
+export function filterDeadStockRows(
+  rows: ReadonlyArray<DeadStockRow>,
+  query: string,
+): DeadStockRow[] {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return [...rows];
+  return rows.filter((r) =>
+    r.name.toLowerCase().includes(needle) ||
+    r.sku.toLowerCase().includes(needle) ||
+    (r.categoryName ?? '').toLowerCase().includes(needle),
+  );
+}
