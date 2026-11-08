@@ -1,3 +1,14 @@
+## [2.476.0] The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, the number learns its edit door, the settings desk learns the branch’s own words, the paper carries a scannable door, the file sings the chorus whole, the ledger answers to its own columns, the ledger answers to its own name, the shape answers to the ledger, the view speaks its own word, and the chorus rides the chat door
+
+The dead-stock ledger's collective word learns its own reach-out: the Share all handle opens WhatsApp with the whole clearance chorus pre-filled — one voice, every door.
+
+### Added
+- **THE CHORUS'S CHAT DOOR** (`src/lib/reports/dead-stock.ts`): `deadStockChorusShareUrl(rows, days, storePhone?)` — the collective word's own chat URL, composed in the ONE home: the FULL `deadStockClearanceNotes` bytes the clipboard's Copy all handle carries as the text word, the store's digits after the normalize answering as the pre-addressed door, no phone (or an empty word, or one that normalizes to nothing) keeping the picker door byte-for-byte — the per-row share's own two faces, grown collective. Pure.
+- **THE SHARE ALL HANDLE** (`src/app/(shell)/tabs/reports-tab.tsx`): the ledger header grows the Share all handle beside the Copy all handle — the same compact face (h-7, the row actions' smaller sibling), the share family's emerald hover, the double voice every handle wears (`aria-label` + `title` "Share all N clearance notes on WhatsApp"), `data-testid="dead-stock-share-all"`, and the same honesty: it only shows when rows exist. The press opens the chat with the whole chorus pre-filled; a blocked window speaks its side (the share door's popup-blocked honesty law, grown plural).
+
+### Changed
+- **THE VIEW/ARCHIVE LAW, UNTOUCHED** (`src/app/(shell)/tabs/reports-tab.tsx`): the Share all handle sings the CANONICAL `rows` — the archive's word, the whole ledger, the same rows the Copy all handle carries — never the pressed lens's view; the file (the CSV's footer and share link column), the clipboard's copy all chorus and the print door keep their bytes. The census grows its tenth voice — the dated re-key holds it.
+
 ## [2.475.0] The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, the number learns its edit door, the settings desk learns the branch’s own words, the paper carries a scannable door, the file sings the chorus whole, the ledger answers to its own columns, the ledger answers to its own name, the shape answers to the ledger, and the view speaks its own word
 
 The dead-stock ledger's pressed lens learns its own mirror: a footer under the table speaks the view's count, the view's own capital and the view's slice of the ledger's rest — the view/archive law untouched.

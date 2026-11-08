@@ -161,9 +161,13 @@ describe('the view\u2019s own word — the desk\u2019s own face', () => {
     expect((desk.match(/capitalTiedByCategory\(sortedRows\)/g) ?? []).length).toBe(0);
   });
 
-  it('a spoken word, never a handle — the census keeps its nine', () => {
+  it('a spoken word, never a handle — the census speaks its ten', () => {
     const section = desk.slice(desk.indexOf('function DeadStockSection'), desk.indexOf('// Main Reports Tab Component'));
-    expect(section.split('aria-label=').length - 1).toBe(9);
+    // v2.476.0 re-key (dated): the section grows its TENTH voice — the
+    // chat door's Share all handle (the chorus's own reach-out, the
+    // double voice every handle wears); the census speaks the section's
+    // ten handles now, and the loom's pressed-voice law stands untouched.
+    expect(section.split('aria-label=').length - 1).toBe(10);
     expect(section).not.toContain('aria-pressed');
     expect(section.includes('data-testid="dead-stock-view-voice"')).toBe(true);
   });
@@ -190,7 +194,7 @@ describe('whats-new — the view leads the feed', () => {
   const head = WHATS_NEW[0];
 
   it('the head wears the round\u2019s own story — the elder words and the new word', () => {
-    expect(head.version).toBe('2.475.0');
+    expect(head.version).toBe('2.476.0');
     expect(head.title).toContain('resting ledger');
     expect(head.title).toContain('one breath');
     expect(head.title).toContain('the paper carries a scannable door');

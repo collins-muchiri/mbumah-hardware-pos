@@ -453,3 +453,40 @@ export function deadStockViewSummary(
     : 0;
   return { count: viewRows.length, capital, sharePct };
 }
+
+// ============================================================================
+// v2.476.0 THE CHORUS RIDES THE CHAT DOOR
+// ============================================================================
+// The collective word learns its own reach-out. The chorus has ridden the
+// clipboard (the Copy all handle, v2.465.0), the file (the CSV's Clearance
+// chorus footer, v2.471.0) and the paper (the print door's closing
+// appendix, v2.466.0) — but the CHAT door only ever spoke one row at a
+// time. The ledger header grows the Share all handle beside the Copy all
+// handle: one press opens WhatsApp with the WHOLE clearance chorus
+// pre-filled — the SAME deadStockClearanceNotes bytes the clipboard
+// carries, never a re-typed word — pre-addressed to the store's own chat
+// when the branch keeps a phone on file, the picker door otherwise (the
+// per-row share's own two faces, the v2.467.0 law grown collective).
+//
+// ONE VOICE, EVERY DOOR: the clipboard's copy all, the chat's share all,
+// the sheet's note cells and chorus footer, the paper's appendix and its
+// scannable doors — all of them speak the ONE home's own words, and none
+// of them can drift. The view/archive law stands: the Share all handle
+// sings the CANONICAL rows (the archive's word, the whole ledger — the
+// same rows the Copy all handle carries), never the pressed lens's view.
+
+/** THE CHORUS'S CHAT DOOR (v2.476.0) — the collective word's own wa.me
+ *  URL: the FULL clearance chorus (the ONE home's own collective
+ *  composer — the exact bytes the clipboard's Copy all handle carries)
+ *  as the ?text= word; the store's digits after the normalize answer as
+ *  the pre-addressed door (`https://wa.me/<digits>?text=...`), no phone,
+ *  an empty word, or one that normalizes to nothing keeps the picker
+ *  door byte-for-byte — the SAME two faces the per-row share speaks
+ *  (v2.463.0/v2.467.0), now singing the whole ledger. The host word and
+ *  the normalization live HERE, in the ONE home — the desk never spells
+ *  either. Pure. */
+export function deadStockChorusShareUrl(rows: ReadonlyArray<DeadStockRow>, days: number, storePhone?: string | null): string {
+  const digits = storePhone ? waMeDigits(storePhone) : '';
+  const base = digits ? `https://wa.me/${digits}` : 'https://wa.me/';
+  return `${base}?text=${encodeURIComponent(deadStockClearanceNotes(rows, days))}`;
+}

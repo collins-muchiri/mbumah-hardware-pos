@@ -313,24 +313,28 @@ describe('the address-bar vocabulary — the thirty-second row (cross-suite pins
 describe('whats-new — v2.475.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.475.0');
-    // the lead's story hand-over (v2.475.0, the Task 111 law's
-    // eighty-first application): the head story is the hand-over's
-    // voice — the carrying round: THE VIEW SPEAKS ITS OWN
-    // WORD — the dead-stock ledger's pressed lens learns its own
-    // mirror: a footer under the table wearing the window lens's
-    // amber ground speaks the honest fraction (the badge's own
-    // shape), the view's own capital at cost (the family's rose
-    // word) and the view's slice of the ledger's rest drawn in the
-    // share-bar's own dialect; the word composed in the ONE home
-    // deadStockViewSummary (the honest-share law worn — a zero
-    // ledger shares ZERO, never NaN), the desk never hand-sums;
-    // the word only sounds while the lens is pressed AND rows
-    // answer, a spoken voice and never a handle (the census keeps
-    // its nine), and the view/archive law holds — the file, the
-    // clipboard's copy all chorus and the print door keep the
-    // canonical rows.
-    // The view speaks its own word.
+    expect(head.version).toBe('2.476.0');
+    // the lead's story hand-over (v2.476.0, the Task 111 law's
+    // eighty-second application): the head story is the hand-over's
+    // voice — the carrying round: THE CHORUS RIDES THE CHAT
+    // DOOR — the dead-stock ledger's collective word learns its
+    // own reach-out: the ledger header grows the Share all handle
+    // beside the Copy all handle, one press opening WhatsApp with
+    // the WHOLE clearance chorus pre-filled — the SAME
+    // deadStockClearanceNotes bytes the clipboard carries, never a
+    // re-typed word — pre-addressed to the store's own chat when
+    // the branch keeps a phone on file (the contact's phone rides
+    // the composer's third word, the ONE home's own guard), the
+    // chat picker answering for the branch with none; the composer
+    // deadStockChorusShareUrl lives in the ONE home (the desk
+    // never spells the host's word), the handle wears the compact
+    // face and the share family's emerald hover, the double voice
+    // every handle wears, the honesty law holds — it only shows
+    // when rows exist, a blocked window speaks its side — the
+    // census grows its tenth voice (the dated re-key holds it),
+    // and the view/archive law stands: the file, the clipboard's
+    // copy all chorus and the print door keep the canonical rows.
+    // The chorus rides the chat door.
     expect(head.title).toContain('edit door');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
     expect(head.bullets.some((b) => b.includes('edit door'))).toBe(true);

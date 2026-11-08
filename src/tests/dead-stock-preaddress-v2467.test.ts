@@ -178,7 +178,11 @@ describe('the dead-stock desk — the pre-address pinned from the desk bytes', (
     // voice every handle wears); the census speaks the section's nine
     // handles now, and the chip's own face is untouched.
     const section = desk.slice(desk.indexOf('function DeadStockSection'), desk.indexOf('// Main Reports Tab Component'));
-    expect(section.split('aria-label=').length - 1).toBe(9);
+    // v2.476.0 re-key (dated): the section grows its TENTH voice — the
+    // chat door's Share all handle (the chorus's own reach-out, the
+    // double voice every handle wears); the census speaks the section's
+    // ten handles now, and the loom's pressed-voice law stands untouched.
+    expect(section.split('aria-label=').length - 1).toBe(10);
   });
 
   it('the display word is imported from the ONE home — the desk never re-formats the number', () => {
@@ -206,7 +210,7 @@ describe('whats-new — the pre-address leads the feed', () => {
   const head = WHATS_NEW[0];
 
   it('the head wears the round\'s own story', () => {
-    expect(head.version).toBe('2.475.0');
+    expect(head.version).toBe('2.476.0');
     expect(head.title).toContain('resting ledger');
     expect(head.title).toContain('reach out');
     expect(head.title).toContain('one breath');

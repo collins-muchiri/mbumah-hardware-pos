@@ -276,7 +276,11 @@ describe('the reports desk — the ninth card and its faces', () => {
     // the clear × and the empty lens's own clear handle, the double
     // voice every handle wears); the census speaks the section's nine
     // handles now, and the loom's pressed-voice law stands untouched.
-    expect(section.split('aria-label=').length - 1).toBe(9);
+    // v2.476.0 re-key (dated): the section grows its TENTH voice — the
+    // chat door's Share all handle (the chorus's own reach-out, the
+    // double voice every handle wears); the census speaks the section's
+    // ten handles now, and the loom's pressed-voice law stands untouched.
+    expect(section.split('aria-label=').length - 1).toBe(10);
     expect(section).toContain('aria-label={`Copy clearance note for ${r.name}`}');
   });
 
