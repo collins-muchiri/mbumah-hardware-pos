@@ -93,14 +93,19 @@ describe('THE DOOR-SHAPE REGISTRY — the census is derived, not remembered', ()
     // (src/app/api/reports/dead-stock/route.ts): the ninth report's
     // source. A route added or deleted must move this number HERE —
     // that is the registry working.
-    expect(routeFiles.length).toBe(383);
+    // 384 at v2.468.0 — the store's share phone write joined
+    // (src/app/api/stores/phone/route.ts): the picker chip's promise
+    // kept, the owner-only org-scoped PATCH.
+    expect(routeFiles.length).toBe(384);
   });
 
   it('every hard-door call carries its explicit generic (the v2.344 tombstone, tree-wide)', () => {
     const src = allSrc();
     // v2.396.0: +1 — the banking transactions route's PATCH status write
     // (the M-Pesa statuses' own body door).
-    expect(count(/\breadJsonBody\s*</g, src)).toBe(117);
+    // v2.468.0: +1 — the share phone door (the picker chip's promise
+    // kept, the owner-only org-scoped PATCH speaks its own generic).
+    expect(count(/\breadJsonBody\s*</g, src)).toBe(118);
     // THE TOMBSTONE, LIVE: a bare call — the generic-less form — matches ZERO files.
     expect(count(/\breadJsonBody\s*\(/g, src)).toBe(0);
   });

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useCallback } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { BarChart3, Package, TrendingUp, TrendingDown,
   ArrowUpRight, ArrowDownRight, FileText, Boxes,
@@ -1324,10 +1324,23 @@ interface DeadStockSectionProps {
   // (name + phone on file), fetched once at the desk and handed down.
   // null keeps the picker door: a store without a phone speaks no
   // address, and the chip says so (silence is the honest no-address).
+  // v2.468.0: the picker chip's promise grew a door — the section also
+  // rides the store id, so its edit dialog can WRITE the number (the
+  // owner-only PATCH) and invalidate this very wire: the chip flips
+  // live, no other tab, no re-load.
   storeContact: { name: string; phone: string } | null;
+  // v2.468.0: the desk's own store — the edit dialog's write address.
+  storeId: string;
 }
 
-function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartType, deadWindowLandingLive, landedDeadWindow, onDismissDeadWindowLanding, storeContact }: DeadStockSectionProps) {
+function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartType, deadWindowLandingLive, landedDeadWindow, onDismissDeadWindowLanding, storeContact, storeId }: DeadStockSectionProps) {
+  // THE EDIT DOOR'S STATE (v2.468.0) — the dialog's own words: open,
+  // draft, saving. The draft starts empty every open — a dialog that
+  // shows a stale number would be a lie when the wire refetches.
+  const queryClient = useQueryClient();
+  const [phoneDialogOpen, setPhoneDialogOpen] = useState(false);
+  const [phoneDraft, setPhoneDraft] = useState('');
+  const [phoneSaving, setPhoneSaving] = useState(false);
   // THE CAPITAL'S SHAPE — the chart's own grouping, read from the ONE
   // home (the classifier's pure voice). The rows are already on the
   // desk; zero new fetches, the lens re-answers and the shape follows.
@@ -1383,6 +1396,38 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
       toast.error('Could not copy the clearance notes — the clipboard refused.');
     }
   }, [rows, days]);
+  // THE EDIT DOOR'S SAVE (v2.468.0) — the picker chip's promise kept:
+  // the owner-only PATCH writes the number org-scoped (a foreign store
+  // is a calm 404), the toast answers with the display word, and the
+  // desk's OWN wire invalidates — the chip flips live, no other tab, no
+  // re-load. A short draft refuses locally before the wire ever moves.
+  const saveStorePhone = useCallback(async () => {
+    const trimmed = phoneDraft.trim();
+    if (trimmed.length < 7) {
+      toast.error('The phone needs at least 7 digits — the door cannot address a shorter word.');
+      return;
+    }
+    setPhoneSaving(true);
+    try {
+      const res = await fetch('/api/stores/phone', {
+        method: 'PATCH',
+        credentials: 'same-origin',
+        headers: { ...sessionAuthHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ storeId, phone: trimmed }),
+      });
+      if (!res.ok) {
+        toast.error('Could not save the store phone — the write was refused.');
+        return;
+      }
+      toast.success(`Store phone saved — shares open pre-addressed (${waMeDisplay(trimmed)})`);
+      setPhoneDialogOpen(false);
+      await queryClient.invalidateQueries({ queryKey: ['dead-stock-store-contact', storeId] });
+    } catch {
+      toast.error('Could not save the store phone — the wire refused.');
+    } finally {
+      setPhoneSaving(false);
+    }
+  }, [phoneDraft, storeId, queryClient]);
   return (
     <div className="space-y-3" data-testid="dead-stock-section">
       {/* The window lens — the loom's tint dialect, the amber word.
@@ -1516,13 +1561,26 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
                       <Phone className="h-2.5 w-2.5" /> Shares pre-addressed to {storeContact.name} · {waMeDisplay(storeContact.phone)}
                     </span>
                   ) : (
-                    <span
-                      className="mt-1 inline-flex items-center gap-1 text-[10px] text-muted-foreground"
-                      title="Add the store's phone to pre-address the share door — WhatsApp opens with the chat picker"
+                    /* THE EDIT DOOR (v2.468.0) — the picker face grew its
+                       press: the quiet status chip is now a real button,
+                       the double voice every handle wears (aria-label
+                       names the ACTION, title carries the promise, the
+                       text speaks the state), the dashed border the
+                       pressable hint. One press opens the dialog; a
+                       save flips this very face live. The census grows
+                       its fourth voice — the dated re-key holds it. */
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="mt-1 h-6 -ml-2 px-2 text-[10px] text-muted-foreground hover:text-foreground border border-dashed border-border/60"
+                      aria-label="Add the store's share phone"
+                      title="Add the store's phone to pre-address the share door — press to add it"
+                      onClick={() => { setPhoneDraft(''); setPhoneDialogOpen(true); }}
                       data-testid="dead-stock-share-unaddressed"
                     >
                       <Share2 className="h-2.5 w-2.5" /> Shares open with the chat picker
-                    </span>
+                    </Button>
                   )}
                 </div>
                 {/* THE CHORUS'S SEAT (v2.465.0) — the count badge and the
@@ -1658,6 +1716,51 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
               )}
             </CardContent>
           </Card>
+
+          {/* THE EDIT DOOR'S DIALOG (v2.468.0) — the picker chip's promise
+              kept on the desk where the promise lives: one Input for the
+              number, the door's own normalize spoken as the helper word
+              (never the host's name in the desk's bytes — the v2463 census
+              law), Enter saves, the save invalidates the desk's own wire
+              and the chip flips in place. The write is the owner-only
+              PATCH — the dialog only ever opens the conversation. */}
+          <ResponsiveDialog
+            open={phoneDialogOpen}
+            onOpenChange={setPhoneDialogOpen}
+            title="The store's share phone"
+            description="The number the share door pre-addresses — WhatsApp opens the store's own chat."
+            size="sm"
+            footer={
+              <div className="flex items-center justify-end gap-2">
+                <Button variant="outline" size="sm" onClick={() => setPhoneDialogOpen(false)} disabled={phoneSaving}>Cancel</Button>
+                <Button
+                  size="sm"
+                  onClick={saveStorePhone}
+                  disabled={phoneSaving}
+                  data-testid="dead-stock-phone-save"
+                  title="Save the store's share phone"
+                >
+                  {phoneSaving ? 'Saving…' : 'Save phone'}
+                </Button>
+              </div>
+            }
+          >
+            <div className="space-y-2 py-1">
+              <Label htmlFor="store-share-phone" className="text-xs font-medium">Phone number</Label>
+              <Input
+                id="store-share-phone"
+                value={phoneDraft}
+                onChange={(e) => setPhoneDraft(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter' && !phoneSaving) saveStorePhone(); }}
+                placeholder="07… or +254…"
+                autoComplete="tel"
+                inputMode="tel"
+                disabled={phoneSaving}
+                data-testid="dead-stock-phone-input"
+              />
+              <p className="text-[10px] text-muted-foreground">Spaces and dashes ride out; a leading 0 grows to 254 — the same normalize the URL itself speaks.</p>
+            </div>
+          </ResponsiveDialog>
         </>
       ) : null}
     </div>
@@ -3850,6 +3953,7 @@ export default function ReportsTab() {
             landedDeadWindow={landedDeadWindow}
             onDismissDeadWindowLanding={() => setDeadWindowLandingLive(false)}
             storeContact={deadStockStoreContact ?? null}
+            storeId={currentStoreId}
           />
         )}
       </div>

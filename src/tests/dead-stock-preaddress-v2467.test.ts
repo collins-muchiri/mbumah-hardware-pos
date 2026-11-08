@@ -154,14 +154,21 @@ describe('the dead-stock desk — the pre-address pinned from the desk bytes', (
     expect(desk.includes('<Phone className="h-2.5 w-2.5" /> Shares pre-addressed to {storeContact.name} · {waMeDisplay(storeContact.phone)}')).toBe(true);
   });
 
-  it('the picker chip is the quiet honest face — and the chip is a status word, never a handle', () => {
+  it('the picker chip is the honest face — and now it grew its press (the edit door)', () => {
+    // v2.468.0 re-key (dated): the picker face learned its press — the
+    // quiet status chip is a real button (the double voice: aria-label
+    // names the action, title carries the promise, the text speaks the
+    // state), the dashed border the pressable hint; the census grows to
+    // four (the edit door's own handle).
     expect(desk.includes('data-testid="dead-stock-share-unaddressed"')).toBe(true);
     expect(desk.includes('Shares open with the chat picker')).toBe(true);
-    expect(desk.includes('title="Add the store\'s phone to pre-address the share door — WhatsApp opens with the chat picker"')).toBe(true);
-    // the chip speaks by its text — NO aria-label: the census's three
-    // handles (Ask, Share, Copy all) stay three.
+    expect(desk.includes('aria-label="Add the store\'s share phone"')).toBe(true);
+    expect(desk.includes('title="Add the store\'s phone to pre-address the share door — press to add it"')).toBe(true);
+    expect(desk.includes('onClick={() => { setPhoneDraft(\'\'); setPhoneDialogOpen(true); }}')).toBe(true);
+    // the chip speaks by its text and its one action label — the census's
+    // four handles (Ask, Share, Copy all, the edit door) stay four.
     const section = desk.slice(desk.indexOf('function DeadStockSection'), desk.indexOf('// Main Reports Tab Component'));
-    expect(section.split('aria-label=').length - 1).toBe(3);
+    expect(section.split('aria-label=').length - 1).toBe(4);
   });
 
   it('the display word is imported from the ONE home — the desk never re-formats the number', () => {
@@ -189,7 +196,7 @@ describe('whats-new — the pre-address leads the feed', () => {
   const head = WHATS_NEW[0];
 
   it('the head wears the round\'s own story', () => {
-    expect(head.version).toBe('2.467.0');
+    expect(head.version).toBe('2.468.0');
     expect(head.title).toContain('resting ledger');
     expect(head.title).toContain('reach out');
     expect(head.title).toContain('one breath');

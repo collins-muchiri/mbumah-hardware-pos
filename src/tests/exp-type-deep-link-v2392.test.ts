@@ -361,33 +361,32 @@ describe('the address-bar vocabulary — the thirty-first row (cross-suite pins)
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.467.0 leads the feed', () => {
+describe('whats-new — v2.468.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.467.0');
-    // the lead's story hand-over (v2.467.0, the Task 111 law's
-    // seventy-third application): the head story is the hand-over's
-    // voice — the carrying round: THE SHARE DOOR LEARNS THE STORE'S
-    // OWN NUMBER — the wa.me door grows its honest second face: a
-    // store with a phone on file answers its own door (the
-    // composer's optional third word: the digits normalize pure in
-    // the ONE home, and the URL pre-addresses with the SAME encoded
-    // note the clipboard holds — no phone, null, or a word that
-    // normalizes to nothing keeps the picker door byte-for-byte),
-    // and the ledger header speaks which door answers (the emerald
-    // pre-addressed chip names the branch and its number, the quiet
-    // picker face says the chat picker answers — a status word,
-    // never a handle, the census's three handles stay three); ONE
-    // DOOR EVERYWHERE — the share handle and the sheet's share link
-    // column ride the SAME pre-addressed composer, the chat and the
-    // sheet can never name two different doors — one voice, five
-    // doors, and now the door knows where home is.
-    // The door knows its store.
-    expect(head.title).toContain('share door learns the store');
+    expect(head.version).toBe('2.468.0');
+    // the lead's story hand-over (v2.468.0, the Task 111 law's
+    // seventy-fourth application): the head story is the hand-over's
+    // voice — the carrying round: THE NUMBER LEARNS ITS EDIT DOOR —
+    // the picker chip's promise kept on the desk where the promise
+    // lives: the quiet picker face grew its press (a real button, the
+    // double voice every handle wears, the dashed border the pressable
+    // hint), one press opens the edit dialog (one Input, Enter saves,
+    // the door's own normalize spoken as the helper word), and the
+    // save rides the owner-only PATCH (SUPER_ADMIN or STORE_OWNER,
+    // the write shaped org-scoped — a foreign store is a calm 404 —
+    // the number stored exactly as typed, the ONE home normalizes at
+    // composition time, the log masked to the last three digits); THE
+    // LIVE FLIP — the save invalidates the desk's own wire and the
+    // chip flips to the pre-addressed face in place, no other tab, no
+    // re-load; the census grows its fourth voice — the edit door's
+    // own handle.
+    // The number learns its edit door.
+    expect(head.title).toContain('edit door');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
+    expect(head.bullets.some((b) => b.includes('edit door'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('pre-addressed'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('clearance note'))).toBe(true);
-    expect(head.bullets.some((b) => b.includes('share door'))).toBe(true);
     expect(head.bullets.some((b) => b.includes('chat picker'))).toBe(true);
   });
 });
