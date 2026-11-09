@@ -1126,6 +1126,18 @@ export function parseInitialNamedPeriod(search: string, param: string, fallback:
 }
 
 /**
+ * v2.488.0 — THE FAMILY'S ONE READING (the landing chip's retirement):
+ * the hand's turn retires the word. A landing chip speaks the ADDRESS
+ * BAR's landing — the queue's lens (`sh-dlq`) and the scheduling desk's
+ * week (`shift-week`) retire their chips the moment the hand TURNS the
+ * member, through a guarded door: no turn, no write — a re-press of the
+ * standing member is not a turn. The bank-type law's own reading won
+ * over the window's persist shape, and the reading is the WHOLE
+ * family's: the fin/rep window desks wear the same retirement when
+ * their own turn-guard lands.
+ */
+
+/**
  * v2.487.0 — THE FAMILY'S FORTY-FIFTH WORD: the scheduling desk's week
  * answers the bar. The shift-scheduling tab's week navigation — the
  * desk's daily question, "which week am I planning?" — speaks its

@@ -481,7 +481,14 @@ export default function SystemHealthTab() {
   const [dlqFilterLandingLive, setDlqFilterLandingLive] = useState(true);
   const [dlqFilter, setDlqFilter] = useState<string>(initialDlqFilter);
   const chooseDlqFilter = (filter: string) => {
+    // THE FAMILY'S ONE READING (v2.488.0 — the guarded door): no turn,
+    // no write — a re-press of the standing member is not a turn. And
+    // the hand's turn retires the landing word: the chip speaks the
+    // ADDRESS BAR's landing, never the human's next choice (the
+    // eldest member-word's own reading, now the whole family's).
+    if (filter === dlqFilter) return;
     setDlqFilter(filter);
+    if (filter !== landedDlq) setDlqFilterLandingLive(false);
     writeShDlqWord(filter);
   };
   // THE SUB-TAB LAW'S THIRD APPLICATION (v2.486.0, the banking desk's
@@ -1233,9 +1240,11 @@ export default function SystemHealthTab() {
                                   red family's own tint (the chip's colours, the desk's
                                   own byte order — never the loom's wardrobe copy), so
                                   the pressed member and its landing chip speak one
-                                  voice. */
-                              ? 'text-[10px] h-7 px-2 bg-red-100 border-red-300 text-red-700 hover:bg-red-200 dark:bg-red-500/10 dark:border-red-500/30 dark:text-red-300'
-                              : 'text-[10px] h-7 px-2'}
+                                  voice. v2.488.0: the presses ease — the tint's
+                                  arrival and departure ride transition-colors, the
+                                  family's own motion (no new hue, the census holds). */
+                              ? 'text-[10px] h-7 px-2 transition-colors bg-red-100 border-red-300 text-red-700 hover:bg-red-200 dark:bg-red-500/10 dark:border-red-500/30 dark:text-red-300'
+                              : 'text-[10px] h-7 px-2 transition-colors'}
                             aria-pressed={dlqFilter === filter}
                             data-testid={`sh-dlq-filter-${filter.toLowerCase()}`}
                             onClick={() => chooseDlqFilter(filter)}

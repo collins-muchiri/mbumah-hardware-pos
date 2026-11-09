@@ -106,6 +106,12 @@ describe('the queue\u2019s word — the health desk\u2019s DLQ lens answers the 
     expect(desk.includes('onClick={() => chooseDlqFilter(filter)}')).toBe(true);
     // the chip's dismissal retires through the same door
     expect(desk.includes('setDlqFilterLandingLive(false); chooseDlqFilter(\'all\')')).toBe(true);
+    // THE FAMILY'S ONE READING (v2.488.0 — the dated pin): the guarded
+    // door — no turn, no write — and the hand's turn retires the word
+    // (the chip speaks the ADDRESS BAR's landing, never the human's
+    // next choice).
+    expect(desk.includes('if (filter === dlqFilter) return;')).toBe(true);
+    expect(desk.includes('if (filter !== landedDlq) setDlqFilterLandingLive(false);')).toBe(true);
   });
 });
 
@@ -200,7 +206,7 @@ describe('the seventeenth byte — red, the health desk\u2019s own alert tone', 
 
 describe('the queue gets its own dress — the styling verse', () => {
   it('the active member wears the word\u2019s own hue (the pressed member speaks one voice with its chip)', () => {
-    expect(desk.includes("'text-[10px] h-7 px-2 bg-red-100 border-red-300 text-red-700 hover:bg-red-200 dark:bg-red-500/10 dark:border-red-500/30 dark:text-red-300'")).toBe(true);
+    expect(desk.includes("'text-[10px] h-7 px-2 transition-colors bg-red-100 border-red-300 text-red-700 hover:bg-red-200 dark:bg-red-500/10 dark:border-red-500/30 dark:text-red-300'")).toBe(true);
   });
 
   it('the six members speak their own handles (the double voice, aria-pressed)', () => {
@@ -299,7 +305,7 @@ describe('whats-new — the round leads the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.487.0');
+    expect(pkg.version).toBe('2.488.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.486.0]')).toBeGreaterThan(-1);
