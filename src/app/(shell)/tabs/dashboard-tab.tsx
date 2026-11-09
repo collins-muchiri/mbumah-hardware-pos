@@ -55,6 +55,8 @@ import type {
   DashboardAlert, StoreHealthSummary, RevenueTrend7d,
 } from '@/lib/types';
 import { hasFeaturePermission } from '@/lib/permissions';
+import { parseInitialNamedMember, DASH_VIEW_MEMBERS } from '@/lib/tab-url';
+import { LandingChip } from '@/components/landing-chip';
 import { STORE_LIST } from '@/lib/store-info';
 import { timeAgo } from '@/lib/time-ago';
 import { LockedCard } from '@/components/rbac/locked-card';
@@ -1522,8 +1524,53 @@ function severityTone(severity: string | null | undefined): string {
   return 'bg-slate-400';
 }
 
+// THE DASHBOARD'S OWN WORD (v2.489.0) — the Recent activity card's view
+// answers the bar. `?dash-view=<member>` — the card's OWN spellings (the
+// ONE home's DASH_VIEW_MEMBERS — the toggle's two members, lowercase,
+// read through the generic named-member parser; a made-up member or a
+// wrong case is an unknown word, not a clever match). THE DEFAULT WEARS
+// NO WORD: the resting view is `sales` — the address's silence, the key
+// strips when the card rests. THE LANDING IS READ ONCE ON THE SHELL: a
+// plain useState initializer — a dismissed chip can never resurrect
+// (the FIFTH shell-tab desk).
+function initialDashView(): string {
+  if (typeof window === 'undefined') return 'sales';
+  return parseInitialNamedMember(window.location.search, 'dash-view', [...DASH_VIEW_MEMBERS], 'sales');
+}
+
+// The write half — the view's own replaceState (preserve the other
+// params: the shell's tab word and every other desk's word ride
+// along). THE DEFAULT WEARS NO WORD: sales strips its key — the
+// address never carries the resting face's word.
+function writeDashViewWord(view: string): void {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (view === 'sales') params.delete('dash-view');
+    else params.set('dash-view', view);
+    const qs = params.toString();
+    window.history.replaceState(null, '', window.location.pathname + (qs ? `?${qs}` : ''));
+  } catch {
+    // The address never lies louder than the view
+  }
+}
+
 function RecentActivityCard({ data }: { data: DashboardData | null }) {
-  const [view, setView] = useState<'sales' | 'system'>('sales');
+  // THE VIEW'S OWN LANDING (v2.489.0) — the word reads once on the
+  // shell (the landing law's shape): the address's member lands into
+  // the toggle, a dismissed chip can never resurrect.
+  const [landedDashView] = useState<string>(initialDashView);
+  const [dashViewLandingLive, setDashViewLandingLive] = useState(true);
+  const [view, setView] = useState<string>(initialDashView);
+  // THE ONE DOOR (v2.489.0, born guarded — the family's ONE reading):
+  // no turn, no write — a re-press of the standing member is not a
+  // turn. And the hand's turn retires the landing word: the chip
+  // speaks the ADDRESS BAR's landing, never the human's next choice.
+  const chooseDashView = (member: string) => {
+    if (member === view) return;
+    setView(member);
+    if (member !== landedDashView) setDashViewLandingLive(false);
+    writeDashViewWord(member);
+  };
   const sales = Array.isArray(data?.recentTransactions) ? data?.recentTransactions ?? [] : [];
   const activities = Array.isArray(data?.recentActivities) ? data?.recentActivities ?? [] : [];
 
@@ -1532,6 +1579,15 @@ function RecentActivityCard({ data }: { data: DashboardData | null }) {
       <CardHeader className="pb-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <CardTitle className="text-sm font-semibold text-slate-900">Recent activity</CardTitle>
+          {dashViewLandingLive && landedDashView && landedDashView !== 'sales' && (
+            <LandingChip
+              hue="slate"
+              label={`landed ?dash-view=${landedDashView}`}
+              onDismiss={() => { setDashViewLandingLive(false); chooseDashView('sales'); }}
+              title="The view landed with this word from the address bar — dismiss to rest the card's own view"
+              data-testid="dash-view-landing-word"
+            />
+          )}
           <div className="flex rounded-full bg-slate-100 p-0.5" role="tablist" aria-label="Activity view">
             {(['sales', 'system'] as const).map((v) => (
               <button
@@ -1539,7 +1595,8 @@ function RecentActivityCard({ data }: { data: DashboardData | null }) {
                 type="button"
                 role="tab"
                 aria-selected={view === v}
-                onClick={() => setView(v)}
+                data-testid={`dash-view-member-${v}`}
+                onClick={() => chooseDashView(v)}
                 className={`rounded-full px-2.5 py-1 text-[10px] font-semibold transition-colors ${
                   view === v ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
                 }`}

@@ -229,13 +229,19 @@ describe('the seats — the round moves the week\u2019s word, the desk\u2019s el
 describe('the constitution — forty-five words, thirty desks', () => {
   it('the shift week\u2019s row joined (the scheduling desk\u2019s slate serves it)', () => {
     expect(registry.includes("{ word: 'shift-week', desk: 'src/app/(shell)/tabs/shift-scheduling-tab.tsx', family: 'border-slate-300', suite: 'src/tests/shift-week-address-v2487.test.ts' }")).toBe(true);
-    expect(registry.includes('(forty-five words, thirty desks)')).toBe(true);
+    expect(registry.includes('(forty-six words, thirty-one desks)')).toBe(true);
   });
 
   it('the stress walks the roll and the derived counts (44 \u2192 45, desks 29 \u2192 30, families 39 \u2192 40 — slate-300 joined, no shared family)', () => {
     expect(stress.includes("'shift-week',")).toBe(true);
-    expect(stress.includes('toBe(45)')).toBe(true);
-    expect(stress.includes('expect(new Set(rows.map((r) => r.desk)).size).toBe(30);')).toBe(true);
+    // v2.489.0 (dated): the living stress-pin rolls — the stress's
+    // row count grew to forty-six (the dashboard's round); the
+    // contains-pin rides the bytes that ARE.
+    expect(stress.includes('toBe(46)')).toBe(true);
+    // v2.489.0 (dated): the living desks-pin rolls — thirty-one
+    // desks (the FIFTH shell-tab desk joined); the contains-pin
+    // rides the bytes that ARE.
+    expect(stress.includes('expect(new Set(rows.map((r) => r.desk)).size).toBe(31);')).toBe(true);
     expect(stress.includes('expect(new Set(rows.map((r) => r.family)).size).toBe(40);')).toBe(true);
   });
 });
@@ -273,7 +279,7 @@ describe('whats-new — the round leads the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.488.0');
+    expect(pkg.version).toBe('2.489.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.487.0]')).toBeGreaterThan(-1);
