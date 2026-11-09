@@ -147,8 +147,12 @@ describe('main-app - the archive door on the main desk', () => {
     // wire-answers twenty-one, the desk-remembers twenty-two, the
     // branch-voice twenty-three, the ghost-routes twenty-four, the
     // jump-door twenty-five, the shares’ twenty-six, the
-    // archive-door story seventy-four — all still in the feed
+    // archive-door story seventy-five — all still in the feed
     const lead = WHATS_NEW[0];
+    // v2.482.0 re-key (dated): the lead speaks the range-address round —
+    // the range's word rides the address (the violet chip names the
+    // landed range, the custom face stays the desk's own scratch), and
+    // the family keeps its seats.
     // v2.481.0 re-key (dated): the lead speaks the sort-address round —
     // the sort's word rides the address (the emerald chip names the
     // landed order, the registry proper ties the storeys), and the
@@ -157,7 +161,7 @@ describe('main-app - the archive door on the main desk', () => {
     // the lens's word rides the address (the search lens answers the
     // bar, the amber chip names the landed word), and the family keeps
     // its seats.
-    expect(lead.version).toBe('2.481.0');
+    expect(lead.version).toBe('2.482.0');
     expect(lead.title).toContain('edit door');
     expect(lead.bullets.length).toBeGreaterThanOrEqual(3);
     expect(lead.bullets.some((b) => b.includes('edit door'))).toBe(true);

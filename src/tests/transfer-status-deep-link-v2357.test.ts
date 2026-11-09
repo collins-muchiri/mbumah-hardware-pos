@@ -206,7 +206,7 @@ describe('the landing chip — the face names the word it answered', () => {
 // 4. THE CONSTITUTION — the whole vocabulary's invariants, walked from bytes
 // ---------------------------------------------------------------------------
 
-describe('the address-bar vocabulary — THE CONSTITUTION (thirty-five words, twenty-six desks)', () => {
+describe('the address-bar vocabulary — THE CONSTITUTION (thirty-six words, twenty-six desks)', () => {
   const WORDS = [
     { word: 'po-status', desk: 'src/app/(shell)/tabs/purchase-orders-tab.tsx', family: 'border-indigo-200', suite: 'src/tests/proxy-gate-layering-v2328.test.ts' },
     { word: 'inv-stock', desk: 'src/app/(shell)/tabs/inventory-tab.tsx', family: 'border-amber-200', suite: 'src/tests/inv-stock-deep-link-v2329.test.ts' },
@@ -361,6 +361,22 @@ describe('the address-bar vocabulary — THE CONSTITUTION (thirty-five words, tw
     // the order WRITES BACK: every hand-driven turn replaceState's its
     // word (a pressed order is a shareable address, never a dead end).
     { word: 'dead-sort', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-emerald-300', suite: 'src/tests/dead-stock-sort-address-v2481.test.ts' },
+    // the range's own word (v2.482.0): the reports desk's time lens
+    // answers the address bar — the desk's daily question, "which days
+    // am I reading?" — through the SIX NAMED presets' OWN spellings (the
+    // tuple the desk keeps; a made-up range is an unknown word). THE
+    // CUSTOM'S HONEST ABSENCE: custom is not a word the address can
+    // carry — a custom landing without its dates would speak an unknown
+    // range — the custom face stays the desk's own scratch. The family
+    // GREW one line: violet joins the 300 registry — the transactions
+    // payment lens's hue, a storey it never spoke (the shade-split law's
+    // next form; the exact violet 300-trio census was machine-kept). The
+    // chip lives in the DESK's own preset row (never inside a section),
+    // THE DEFAULT WEARS NO WORD (the key strips when the desk rests),
+    // the landing is read once on the shell, and the range WRITES BACK:
+    // every hand-driven turn replaceState's its word (a turned range is
+    // a shareable address, never a dead end).
+    { word: 'rep-range', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-violet-300', suite: 'src/tests/rep-range-address-v2482.test.ts' },
   ] as const;
 
   it('every word is desk-prefixed and owns its FILTERS const in exactly its desk', () => {
@@ -510,6 +526,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/pr-status-deep-link-v2362.test.ts',
       'src/tests/proxy-gate-layering-v2328.test.ts',
       'src/tests/rent-status-deep-link-v2355.test.ts',
+      // the thirty-sixth word's own ledger — admitted (its registry
+      // section reads this file's rows; an admission line carries the
+      // word it admits)
+      'src/tests/rep-range-address-v2482.test.ts',
       'src/tests/sec-type-deep-link-v2367.test.ts',
       'src/tests/sup-po-deep-link-v2332.test.ts',
       'src/tests/sup-status-deep-link-v2331.test.ts',

@@ -356,7 +356,7 @@ describe('the address-bar vocabulary — the twenty-fourth row (cross-suite pins
   const constitution = readFileSync('src/tests/transfer-status-deep-link-v2357.test.ts', 'utf8');
 
   it('the constitution walks TWENTY-FOUR words over TWENTY-ONE desks', () => {
-    expect(constitution.includes('(thirty-five words, twenty-six desks)')).toBe(true);
+    expect(constitution.includes('(thirty-six words, twenty-six desks)')).toBe(true);
     expect(constitution.includes("{ word: 'tax-period', desk: 'src/app/(shell)/tabs/tax-tab.tsx', family: 'border-teal-300', suite: 'src/tests/tax-period-deep-link-v2383.test.ts' }")).toBe(true);
     expect(constitution.includes("'TWENTY-FOURTH'")).toBe(true);
   });
