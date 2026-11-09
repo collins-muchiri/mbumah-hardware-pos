@@ -310,28 +310,28 @@ describe('the address-bar vocabulary — the thirty-second row (cross-suite pins
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.477.0 leads the feed', () => {
+describe('whats-new — v2.478.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.477.0');
-    // the lead's story hand-over (v2.477.0, the Task 111 law's
-    // eighty-third application): the head story is the hand-over's
-    // voice — the carrying round: THE CHORUS LEARNS THE PAPER'S
-    // SCANNABLE DOOR — the print appendix's scan grid grows the
-    // LEAD card: one QR drawn by the qrcode house encoding the ONE
-    // home's deadStockChorusShareUrl (the exact bytes the Share all
-    // handle opens, the store's own number riding its third word
-    // when the branch keeps one on file), captioned "The ledger's
-    // chorus" with the honest count note, the teal dress marking
-    // the collective door beside the rows' own cards; the paper
-    // wears its own dress (the rose markers on the numbered asks,
-    // the note in the teal word — new CSS lines, the standing
-    // bytes untouched), the gate stays the dead-stock stage with
-    // rows, the window still opens first, a failed draw prints
-    // the paper without the cards, the census keeps its ten
-    // voices (a drawn image, never a handle), and the desk never
-    // spells the host's word.
-    // The chorus learns the paper's scannable door.
+    expect(head.version).toBe('2.478.0');
+    // the lead's story hand-over (v2.478.0, the Task 111 law's
+    // eighty-fourth application): the head story is the hand-over's
+    // voice — the carrying round: THE FILE CARRIES THE CHORUS'S
+    // OWN DOOR — the CSV's summary block grows the "Chorus share
+    // link" row beside the Clearance chorus: the ONE home's
+    // deadStockChorusShareUrl (the exact word the Share all handle
+    // opens and the paper's lead card encodes, the store's own
+    // number riding its third word when the branch keeps one on
+    // file), quoted like every word a CSV must survive, the
+    // canonical rows only — the view/archive law holds (the file is
+    // the archive's word); the desk's cards answer the hand (the
+    // three summary cards learn the hover lift, the dead-stock
+    // trio only), and the paper wears its second dress (the rose
+    // rule under the chorus heading, the italic intro — new CSS
+    // lines, the standing bytes untouched); the census keeps its
+    // ten voices (a word in the file, never a handle), and the
+    // desk never spells the host's word.
+    // The file carries the chorus's own door.
     expect(head.title).toContain('edit door');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
     expect(head.bullets.some((b) => b.includes('edit door'))).toBe(true);
