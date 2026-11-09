@@ -12,6 +12,8 @@ import { useAuthStore, useCartStore, useAppStore } from '@/lib/stores';
 import { useVatRate } from '@/hooks/use-vat-rate';
 import { safeMap } from '@/lib/app-config';
 import { STORE_LIST } from '@/lib/store-info';
+import { POS_VIEW_MEMBERS, parseInitialNamedMember } from '@/lib/tab-url';
+import { LandingChip } from '@/components/landing-chip';
 import { ConfettiOverlay } from '@/components/confetti-overlay';
 import { ProductImage } from '@/components/product-image';
 import {
@@ -136,6 +138,36 @@ function CartItemUomSubline({ item }: { item: CartItem }) {
   );
 }
 
+// THE COUNTER'S OWN WORD (v2.490.0) — the products pane's view answers
+// the bar. `?pos-view=<member>` — the toggle's OWN spellings (the ONE
+// home's POS_VIEW_MEMBERS — the two members, lowercase, read through
+// the generic named-member parser; a made-up member or a wrong case is
+// an unknown word, not a clever match). THE DEFAULT WEARS NO WORD: the
+// resting view is `grid` — the address's silence, the key strips when
+// the desk rests. THE LANDING IS READ ONCE ON THE SHELL: a plain
+// useState initializer — a dismissed chip can never resurrect (the
+// SIXTH shell-tab desk).
+function initialPosView(): 'grid' | 'list' {
+  if (typeof window === 'undefined') return 'grid';
+  return parseInitialNamedMember(window.location.search, 'pos-view', [...POS_VIEW_MEMBERS], 'grid');
+}
+
+// The write half — the view's own replaceState (preserve the other
+// params: the shell's tab word and every other desk's word ride
+// along). THE DEFAULT WEARS NO WORD: grid strips its key — the
+// address never carries the resting face's word.
+function writePosViewWord(view: 'grid' | 'list'): void {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (view === 'grid') params.delete('pos-view');
+    else params.set('pos-view', view);
+    const qs = params.toString();
+    window.history.replaceState(null, '', window.location.pathname + (qs ? `?${qs}` : ''));
+  } catch {
+    // The address never lies louder than the view
+  }
+}
+
 export default function POSTab() {
   // AUDIT FIX (Task 3-e): search input value is decoupled from the query that
   // drives the products fetch/grid. searchInput updates instantly (keeps typing
@@ -198,9 +230,24 @@ export default function POSTab() {
   const [giftCardPayCode, setGiftCardPayCode] = useState('');
 
   // View mode & sorting
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  // THE VIEW'S OWN LANDING (v2.490.0) — the word reads once on the
+  // shell (the landing law's shape): the address's member lands into
+  // the toggle, a dismissed chip can never resurrect.
+  const [landedPosView] = useState<'grid' | 'list'>(initialPosView);
+  const [posViewLandingLive, setPosViewLandingLive] = useState(true);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>(initialPosView);
   const [sortField, setSortField] = useState<'name' | 'price' | 'stock' | 'category'>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  // THE ONE DOOR (v2.490.0, born guarded — the family's ONE reading):
+  // no turn, no write — a re-press of the standing member is not a
+  // turn. And the hand's turn retires the landing word: the chip
+  // speaks the ADDRESS BAR's landing, never the human's next choice.
+  const chooseViewMode = (mode: 'grid' | 'list') => {
+    if (mode === viewMode) return;
+    setViewMode(mode);
+    if (mode !== landedPosView) setPosViewLandingLive(false);
+    writePosViewWord(mode);
+  };
 
   // Cart item notes
   const [cartNotes, setCartNotes] = useState<Record<string, string>>({});
@@ -1632,6 +1679,17 @@ export default function POSTab() {
 
         {/* Search, View Toggle, and Category Chips */}
         <div className="space-y-3">
+          {posViewLandingLive && landedPosView && landedPosView !== 'grid' && (
+            <div className="flex items-center">
+              <LandingChip
+                hue="slate"
+                label={`landed ?pos-view=${landedPosView}`}
+                onDismiss={() => { setPosViewLandingLive(false); chooseViewMode('grid'); }}
+                title="The view landed with this word from the address bar — dismiss to rest the counter's own view"
+                data-testid="pos-view-landing-word"
+              />
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <div className="relative flex-1 animate-pulse-search rounded-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -1644,21 +1702,36 @@ export default function POSTab() {
                 aria-label="Product search or barcode scanner input"
               />
             </div>
-            {/* View Mode Toggle */}
-            <div className="flex items-center border rounded-md overflow-hidden shrink-0">
+            {/* View Mode Toggle — THE DRESS (v2.490.0): while a
+                non-default view rides, the toggle wears the slate
+                family's quiet ground — the pressed face and its landing
+                chip speak one voice (the desk's own byte order, never
+                the loom's wardrobe copy); the members speak their own
+                handles, the keyboard face rings. */}
+            <div
+              className={`flex items-center border rounded-md overflow-hidden shrink-0 transition-colors ${viewMode !== 'grid' ? 'bg-slate-100' : 'bg-background'}`}
+              role="tablist"
+              aria-label="Product view mode"
+            >
               <button
                 type="button"
-                onClick={() => setViewMode('grid')}
-                className={`p-1.5 transition-colors ${viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'bg-background hover:bg-muted'}`}
+                role="tab"
+                aria-selected={viewMode === 'grid'}
+                onClick={() => chooseViewMode('grid')}
+                className={`p-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 ${viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'bg-background hover:bg-muted'}`}
                 title="Grid view"
+                data-testid="pos-view-member-grid"
               >
                 <LayoutGrid className="h-4 w-4" />
               </button>
               <button
                 type="button"
-                onClick={() => setViewMode('list')}
-                className={`p-1.5 transition-colors ${viewMode === 'list' ? 'bg-primary text-primary-foreground' : 'bg-background hover:bg-muted'}`}
+                role="tab"
+                aria-selected={viewMode === 'list'}
+                onClick={() => chooseViewMode('list')}
+                className={`p-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 ${viewMode === 'list' ? 'bg-primary text-primary-foreground' : 'bg-background hover:bg-muted'}`}
                 title="List view"
+                data-testid="pos-view-member-list"
               >
                 <List className="h-4 w-4" />
               </button>

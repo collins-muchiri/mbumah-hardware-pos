@@ -206,7 +206,7 @@ describe('the landing chip — the face names the word it answered', () => {
 // 4. THE CONSTITUTION — the whole vocabulary's invariants, walked from bytes
 // ---------------------------------------------------------------------------
 
-describe('the address-bar vocabulary — THE CONSTITUTION (forty-six words, thirty-one desks)', () => {
+describe('the address-bar vocabulary — THE CONSTITUTION (forty-seven words, thirty-two desks)', () => {
   const WORDS = [
     { word: 'po-status', desk: 'src/app/(shell)/tabs/purchase-orders-tab.tsx', family: 'border-indigo-200', suite: 'src/tests/proxy-gate-layering-v2328.test.ts' },
     { word: 'inv-stock', desk: 'src/app/(shell)/tabs/inventory-tab.tsx', family: 'border-amber-200', suite: 'src/tests/inv-stock-deep-link-v2329.test.ts' },
@@ -457,6 +457,18 @@ describe('the address-bar vocabulary — THE CONSTITUTION (forty-six words, thir
     // (the shade-split law's next form; slate LEFT the stranger list).
     { word: 'shift-week', desk: 'src/app/(shell)/tabs/shift-scheduling-tab.tsx', family: 'border-slate-300', suite: 'src/tests/shift-week-address-v2487.test.ts' },
     { word: 'dash-view', desk: 'src/app/(shell)/tabs/dashboard-tab.tsx', family: 'border-slate-300', suite: 'src/tests/dash-view-address-v2489.test.ts' },
+    // the counter's own word (v2.490.0): the view — the forty-seventh
+    // word — rides the POS desk's products pane (?pos-view=<grid|list>),
+    // the SIXTH shell-tab desk (src/app/(shell)/tabs/pos-tab.tsx — the
+    // desk's first daily question now speaks its address). BORN GUARDED:
+    // the family's ONE reading from birth — no turn, no write, and the
+    // hand's turn retires the word. THE DEFAULT WEARS NO WORD: grid is
+    // the address's silence — the key strips when the desk rests, and a
+    // landed word that names the resting view wears no chip. The census
+    // holds: the counter's word wears the family's shared slate (the
+    // slate serves three words — the week's, the dashboard's, the
+    // counter's own).
+    { word: 'pos-view', desk: 'src/app/(shell)/tabs/pos-tab.tsx', family: 'border-slate-300', suite: 'src/tests/pos-view-address-v2490.test.ts' },
   ] as const;
 
   it('every word is desk-prefixed and owns its FILTERS const in exactly its desk', () => {
@@ -466,7 +478,10 @@ describe('the address-bar vocabulary — THE CONSTITUTION (forty-six words, thir
     }
   });
 
-  it('every word wears a DISTINCT family — thirty-eight families, the shared families excepted', () => {
+  // v2.490.0 (dated): the STALE-TITLE honest catch — the title read
+  // "thirty-eight families" rounds stale (the census is forty); the
+  // roll rides the bytes that ARE.
+  it('every word wears a DISTINCT family — forty families, the shared families excepted', () => {
     const families = WORDS.map((w) => w.family);
     // v2.483.0 (dated): the FIRST SHARED FAMILY — the pair rides the
     // range's violet (two words, one chip), so the distinct count is
@@ -478,7 +493,10 @@ describe('the address-bar vocabulary — THE CONSTITUTION (forty-six words, thir
     // words.
     // v2.489.0 (dated): the FOURTH SHARED FAMILY — the view rides the
     // week's slate (two words, one chip, again): one more shared word.
-    const SHARED_WORDS = 6;
+    // v2.490.0 (dated): the counter's view rides the family's shared
+    // slate — the slate serves three words now (the week's, the
+    // dashboard's, the counter's own): one more shared word.
+    const SHARED_WORDS = 7;
     expect(new Set(families).size + SHARED_WORDS).toBe(WORDS.length);
     const loom = readFileSync('src/components/landing-chip.tsx', 'utf8');
     for (const { word, desk: deskPath, family } of WORDS) {
@@ -630,6 +648,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // LISTS this file's path — the third-order ripple: a ledger line
       // carries every word its paths speak)
       'src/tests/msg-template-deep-link-v2393.test.ts',
+      // the counter's own ledger — admitted (its registry section reads
+      // this file's rows; an admission line carries the word it admits;
+      // sorted place: msg- < pos- < pr-)
+      'src/tests/pos-view-address-v2490.test.ts',
       'src/tests/pr-status-deep-link-v2362.test.ts',
       'src/tests/proxy-gate-layering-v2328.test.ts',
       'src/tests/rent-status-deep-link-v2355.test.ts',

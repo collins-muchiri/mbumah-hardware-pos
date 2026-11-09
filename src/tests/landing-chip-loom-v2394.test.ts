@@ -121,7 +121,10 @@ describe('the loom — one component, eighteen hues, zero words', () => {
     expect(loom.includes("from 'lucide-react'")).toBe(true);
   });
 
-  it('THE WORD-FREE LAW — the loom speaks none of the constitution\u2019s 45 words', () => {
+  // v2.490.0 (dated): the STALE-TITLE honest catch — the title read
+  // "45 words" two rounds stale (the pins moved, the prose lagged);
+  // the roll rides the bytes that ARE.
+  it('THE WORD-FREE LAW — the loom speaks none of the constitution\u2019s 47 words', () => {
     // v2.487.0 (dated): the shift week joins the constitution; the
     // loom grew its slate line and stays word-free (the shift's word
     // is the chip's own — the desk never spells the bytes bare).
@@ -142,7 +145,10 @@ describe('the loom — one component, eighteen hues, zero words', () => {
     // the loom grew its emerald line and stays word-free.
     // v2.480.0 (dated): the thirty-fourth word joins the constitution;
     // the loom grew its amber line and stays word-free.
-    expect(rows.length).toBe(46);
+    // v2.490.0 (dated): the counter's word joins the constitution;
+    // the loom grew NO line and stays word-free (the view's word is
+    // the chip's own — the desk never spells the bytes bare).
+    expect(rows.length).toBe(47);
     for (const row of rows) {
       expect(loom.includes(row.word), row.word).toBe(false);
     }
@@ -516,7 +522,9 @@ describe('the constitution under the loom', () => {
     // word rides the address; the counts roll with the constitution.
     // v2.480.0 (dated): the thirty-fourth word — the search lens's own
     // word rides the address; the counts roll with the constitution.
-    expect(rows.length).toBe(46);
+    // v2.490.0 (dated): the forty-seventh word — the counter's view
+    // rides the address; the counts roll with the constitution.
+    expect(rows.length).toBe(47);
     // v2.484.0 (dated): twenty-seven desks — the family's FIRST
     // non-tab desk joined with the window's word.
     // v2.485.0 (dated): twenty-eight desks — the SECOND shell-tab
@@ -527,7 +535,9 @@ describe('the constitution under the loom', () => {
     // desk joined with the shift's week.
     // v2.489.0 (dated): thirty-one desks — the FIFTH shell-tab
     // desk joined with the dashboard's view.
-    expect(new Set(rows.map((r) => r.desk)).size).toBe(31);
+    // v2.490.0 (dated): thirty-two desks — the SIXTH shell-tab
+    // desk joined with the counter's view.
+    expect(new Set(rows.map((r) => r.desk)).size).toBe(32);
     // v2.484.0 (dated): blue-300 joined with the window's word — the
     // families grew one (37) while the words grew two (the SECOND
     // shared family: two words, one chip).
@@ -543,6 +553,9 @@ describe('the constitution under the loom', () => {
     // v2.489.0 (dated): the families stayed forty — the dashboard's
     // word wears the week's slate (the family's next shared family:
     // the slate serves two words now).
+    // v2.490.0 (dated): the families stay forty — the counter's word
+    // wears the family's shared slate (the slate serves three words:
+    // the week's, the dashboard's, the counter's own).
     expect(new Set(rows.map((r) => r.family)).size).toBe(40);
   });
 
