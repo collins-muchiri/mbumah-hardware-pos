@@ -18,6 +18,8 @@ import {
   formatKES, formatDate,
   type JournalEntryItem, type AccountItem, type ExpenseItem,
 } from '@/lib/api';
+import { LandingChip } from '@/components/landing-chip';
+import { parseInitialNamedMember, parseInitialCustomRange } from '@/lib/tab-url';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -308,12 +310,110 @@ function toNum(value: unknown): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+// THE LEDGER'S PERIOD RIDES THE ADDRESS (v2.485.0 — the deep-link
+// family's sixteenth byte, the SECOND shell-tab desk): the financial
+// desk's FIRST daily question, "which days am I reading?", answers the
+// bar. The desk's period presets speak their desk-prefixed
+// `?fin-range=<preset>` — the desk's OWN spellings (the tuple below,
+// read through the generic named-member parser; a made-up range is an
+// unknown word, not a clever match) — and the custom face speaks WHOLE
+// or not at all: the custom landing carries its OWN dates
+// (`fin-from` / `fin-to`, the desk-prefixed pair), so a bare custom
+// stays the honest absence (the default's silence — the unknown-word
+// law's own reading; the collision check ran at round start: both
+// bytes appeared NOWHERE before this word). THE DEFAULT WEARS NO
+// WORD: the resting period is `month` — the address's silence, the
+// key strips when the desk rests. THE LANDING IS READ ONCE ON THE
+// SHELL: a plain useState initializer — a dismissed chip can never
+// resurrect (the shell tolerates the default-first render — the
+// v2.484 lesson's own exception: a shell tab reads on the shell).
+// THE PERIOD WRITES BACK: every preset turn replaceState's its word
+// (the window's own write shape), so a turned period is a shareable
+// address, never a dead end; a blocked write is the period's silence,
+// never a thrown desk. The landed word wears the GREEN landing chip —
+// the family's sixteenth 300-storey byte (the loyalty desk's hue one
+// storey deeper; the shade-split law's next form).
+const FIN_RANGE_WORDS: readonly string[] = ['today', 'week', 'month', 'quarter', 'year'];
+
+function initialFinRange(): string {
+  if (typeof window === 'undefined') return 'month';
+  // THE CUSTOM'S HONEST SHARE: custom lands only with BOTH its dates
+  // riding — the pair read through the ONE home's own validator; a
+  // bare custom stays the honest absence (the default's silence — the
+  // unknown-word law's own reading).
+  if (parseInitialCustomRange(window.location.search, 'fin-range', 'custom', 'fin-from', 'fin-to')) return 'custom';
+  return parseInitialNamedMember(window.location.search, 'fin-range', [...FIN_RANGE_WORDS], 'month');
+}
+
+// The custom's own dates: the pair rides beside the custom's word —
+// `?fin-range=custom&fin-from=YYYY-MM-DD&fin-to=YYYY-MM-DD` — read
+// once on the shell, the desk's dates ARE the address's word.
+function initialFinRangeDates(): { from: string; to: string } | null {
+  if (typeof window === 'undefined') return null;
+  return parseInitialCustomRange(window.location.search, 'fin-range', 'custom', 'fin-from', 'fin-to');
+}
+
+// The write half — the period's own replaceState (preserve the other
+// params: the shell's tab word and every other desk's word ride
+// untouched); the DEFAULT strips its key — the address never carries
+// the resting face's word, and a custom word without its dates is
+// never a word at all (the honest share speaks WHOLE — the pair rides
+// beside it).
+function writeFinRangeWord(preset: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (preset === 'month') params.delete('fin-range');
+    else params.set('fin-range', preset);
+    // THE DATES RETIRE WITH THE CUSTOM'S WORD: a named preset's turn
+    // replaces the custom's whole address — the pair's bytes never
+    // linger behind another period's word.
+    if (preset !== 'custom') {
+      params.delete('fin-from');
+      params.delete('fin-to');
+    }
+    const qs = params.toString();
+    window.history.replaceState(null, '', window.location.pathname + (qs ? `?${qs}` : ''));
+  } catch {
+    // The address never lies louder than the period — a blocked write
+    // leaves the period on the desk, exactly where the human pressed it.
+  }
+}
+
+// The dates' own write — the pair rides beside the custom's word (the
+// window's own write shape); a blocked write is the dates' silence,
+// never a thrown desk.
+function writeFinRangeDates(from: string, to: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    params.set('fin-range', 'custom');
+    params.set('fin-from', from);
+    params.set('fin-to', to);
+    const qs = params.toString();
+    window.history.replaceState(null, '', window.location.pathname + (qs ? `?${qs}` : ''));
+  } catch {
+    // The address never lies louder than the dates — a blocked write
+    // leaves the dates on the desk, exactly where the human scratched them.
+  }
+}
+
 export default function FinancialTab() {
   const currentStoreId = useAppStore((s) => s.currentStoreId);
   const authUser = useAuthStore((s) => s.user);
   const queryClient = useQueryClient();
-  const [datePreset, setDatePreset] = useState<string>('month');
-  const [dateRange, setDateRange] = useState(() => getDatePreset('month'));
+  // THE PERIOD'S OWN LANDING (v2.485.0) — the word and the pair read
+  // once on the shell (the landing law's shape): the address's word
+  // lands into the presets, the address's pair lands into the two day
+  // inputs, a dismissed chip can never resurrect.
+  const [landedFinRange] = useState<string>(initialFinRange);
+  const [finRangeLandingLive, setFinRangeLandingLive] = useState(true);
+  const [datePreset, setDatePreset] = useState<string>(initialFinRange);
+  const [dateRange, setDateRange] = useState<{ from: string; to: string }>(() => {
+    const landed = initialFinRangeDates();
+    if (landed) return landed;
+    return getDatePreset(datePreset === 'custom' ? 'month' : datePreset);
+  });
   const [expandedJournals, setExpandedJournals] = useState<Set<string>>(new Set());
   const [expandedAccountGroups, setExpandedAccountGroups] = useState<Set<string>>(new Set(['ASSET', 'REVENUE']));
   const [drilldownDialog, setDrilldownDialog] = useState<'revenue' | 'debt' | 'ledger' | null>(null);
@@ -399,9 +499,29 @@ export default function FinancialTab() {
     });
   };
 
+  // THE PERIOD'S OWN DOOR (v2.485.0): EVERY path that turns the period
+  // rides these one callbacks — the chip retires when the period
+  // actually moved (THE AGREEMENT IS NO NEWS), and the address writes
+  // the word (or the pair) back so the turned period is a shareable
+  // address, never a dead end. The writes are FACT rides (the period's
+  // truth), never gates: the desk works identically when the history
+  // API refuses.
   const handlePreset = (preset: string) => {
+    if (preset !== datePreset) {
+      setFinRangeLandingLive(false);
+      writeFinRangeWord(preset);
+    }
     setDatePreset(preset);
     setDateRange(getDatePreset(preset));
+  };
+
+  const chooseFinDate = (which: 'from' | 'to', value: string) => {
+    if (value === (which === 'from' ? dateRange.from : dateRange.to)) return; // THE AGREEMENT IS NO NEWS
+    const next = { ...dateRange, [which]: value };
+    setDatePreset('custom');
+    setDateRange(next);
+    setFinRangeLandingLive(false);
+    writeFinRangeDates(next.from, next.to);
   };
 
   const { data: dashboardData, isLoading: _dashboardLoading } = useQuery({
@@ -1223,30 +1343,65 @@ export default function FinancialTab() {
                   size="sm"
                   variant={datePreset === p.key ? 'default' : 'outline'}
                   onClick={() => handlePreset(p.key)}
-                  className="h-7 text-xs"
+                  className={datePreset === p.key
+                    /* THE ACTIVE PRESET WEARS THE WORD'S OWN HUE (v2.485.0
+                        — the styling verse): the desk's buttons answer the
+                        green family's own tint (the chip's colours, the
+                        desk's own byte order — never the loom's wardrobe
+                        copy), so the pressed period and its landing chip
+                        speak one voice. */
+                    ? 'h-7 text-xs bg-green-100 border-green-300 text-green-700 hover:bg-green-200 dark:bg-green-500/10 dark:border-green-500/30 dark:text-green-300'
+                    : 'h-7 text-xs'}
                 >
                   {p.label}
                 </Button>
               ))}
+              {/* THE PERIOD'S LANDING CHIP (v2.485.0) — the word's own chip
+                  in the row the presets wear: the SIXTEENTH 300-storey
+                  byte, green — the ledger's own hue. It only speaks when
+                  the shell LANDED with a NON-default period (the default
+                  wears no chip — the chip names a word, never a
+                  silence), and a press retires the name, never the
+                  period (the window's own dismissal shape). */}
+              {finRangeLandingLive && landedFinRange !== 'month' && (
+                <LandingChip
+                  hue="green"
+                  label={landedFinRange === 'custom' ? 'landed ?fin-range=custom&fin-from&fin-to' : `landed ?fin-range=${landedFinRange}`}
+                  onDismiss={() => setFinRangeLandingLive(false)}
+                  title="The period landed with this word from the address bar — press to clear it"
+                  data-testid="fin-range-landing-word"
+                />
+              )}
             </div>
             <div className="flex items-center gap-2 ml-auto">
               <Input
                 type="date"
+                data-testid="fin-from-input"
                 value={dateRange.from}
-                onChange={(e) => { setDatePreset('custom'); setDateRange({ ...dateRange, from: e.target.value }); }}
-                className="w-32 text-xs h-8"
+                onChange={(e) => { chooseFinDate('from', e.target.value); }}
+                className="w-32 text-xs h-8 tabular-nums dark:[color-scheme:dark]"
               />
               <span className="text-xs text-muted-foreground">to</span>
               <Input
                 type="date"
+                data-testid="fin-to-input"
                 value={dateRange.to}
-                onChange={(e) => { setDatePreset('custom'); setDateRange({ ...dateRange, to: e.target.value }); }}
-                className="w-32 text-xs h-8"
+                onChange={(e) => { chooseFinDate('to', e.target.value); }}
+                className="w-32 text-xs h-8 tabular-nums dark:[color-scheme:dark]"
               />
             </div>
           </div>
           <p className="text-xs text-muted-foreground mt-2">
-            Showing data for: <span className="font-medium">{formatRangeLabel(dateRange.from, dateRange.to)}</span>
+            Showing data for:{' '}
+            {/* THE RANGE'S OWN STRIP (v2.485.0 — the styling verse): the
+                label wears a quiet ground and tabular figures, so the
+                period's answer reads as one steady word. */}
+            <span
+              data-testid="fin-range-label"
+              className="font-medium tabular-nums rounded-md bg-muted/30 px-2 py-0.5 inline-block"
+            >
+              {formatRangeLabel(dateRange.from, dateRange.to)}
+            </span>
           </p>
         </CardContent>
       </Card>

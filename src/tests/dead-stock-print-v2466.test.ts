@@ -124,7 +124,7 @@ describe('the blocked print window — the toast speaks its side', () => {
 describe('whats-new — the round leads the feed', () => {
   it('the head wears the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.484.0');
+    expect(head.version).toBe('2.485.0');
     expect(head.title).toContain('print door');
     expect(head.title).toContain('one breath');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);

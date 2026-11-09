@@ -223,6 +223,34 @@ export function parseInitialPage(search: string, fallback = 1): number {
  * WRITE BACK: every scratched day replaceState's the pair (the
  * window's own write shape), so the custom face is a shareable
  * address, never a dead end.
+ *
+ * v2.485.0 — THE FAMILY'S FORTY-FIRST WORD (the ledger's period): the
+ * financial desk's window answers the bar. The desk's FIRST daily
+ * question, "which days am I reading?" — spoken through the period
+ * presets and the two day scratches since the desk's birth — now
+ * rides its desk-prefixed word `fin-range` (`?fin-range=<preset>` on
+ * the wire): the desk's OWN
+ * spellings (`today` / `week` / `month` / `quarter` / `year` — the
+ * tuple the desk keeps, read through the named-member parser; a
+ * made-up range is an unknown word, not a clever match), and the
+ * custom face speaks WHOLE or not at all: `fin-range=custom` rides
+ * with the desk-prefixed day pair `fin-from` / `fin-to` through THIS
+ * parser (the pair's own law — custom lands ONLY when both its days
+ * ride, a bare custom stays the honest absence, the default's
+ * silence). THE COLLISION CHECK ran at round start: both bytes
+ * appeared NOWHERE before this word (the desk's DOM ids say
+ * `rep-from`/`rep-to` on another desk — another namespace, another
+ * route, never the address bar). THE FAMILY'S SIXTEENTH 300-STOREY
+ * BYTE: the landing chip wears the GREEN byte — the loyalty desk's
+ * hue at the 200/50 storey (the ly-type chip's own family) speaking
+ * through a storey it never spoke — the shade-split law's next form;
+ * green LEFT the stranger list (the exact green 300-trio census was
+ * machine-kept). THE SECOND SHELL-TAB DESK: the landing is read once
+ * on the shell (the useState initializer law — the shell tolerates
+ * the default-first render, the v2.484 lesson's own exception). THE
+ * PERIOD WRITES BACK: every preset turn replaceState's its word, the
+ * default strips its key, and every scratched day replaceState's the
+ * pair — a turned period is a shareable address, never a dead end.
  */
 export function parseInitialCustomRange(
   search: string,

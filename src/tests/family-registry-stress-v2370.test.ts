@@ -73,7 +73,7 @@ function parseRegistry(): RegistryRow[] {
 const rows = parseRegistry();
 
 describe('the registry, parsed from the constitution file itself', () => {
-  it('parses FORTY rows (the constitution\u2019s own count, derived)', () => {
+  it('parses FORTY-THREE rows (the constitution\u2019s own count, derived)', () => {
     // v2.484.0 (dated): the window — the people desk's period rides the
     // address; the constitution grew its rows and this parse grew with
     // it (the family's FIRST non-tab desk joined).
@@ -89,7 +89,7 @@ describe('the registry, parsed from the constitution file itself', () => {
     // v2.480.0 (dated): the thirty-fourth word — the search lens's own
     // word rides the address; the constitution grew its row and this
     // parse grew with it.
-    expect(rows.length).toBe(40);
+    expect(rows.length).toBe(43);
   });
 
   it('the rows walk in the promise\u2019s order (the roll, derived from the parse)', () => {
@@ -128,11 +128,18 @@ describe('the registry, parsed from the constitution file itself', () => {
       // family's FIRST non-tab desk)
       'hr-from',
       'hr-to',
+      // v2.485.0 (dated): the ledger's period — the financial desk's
+      // window rides the address (the constitution's THIRD shared
+      // family: three words, one chip — the period's green serves all
+      // three rows; the SECOND shell-tab desk)
+      'fin-range',
+      'fin-from',
+      'fin-to',
     ];
     expect(rows.map((r) => r.word)).toEqual(expected);
   });
 
-  it('the parsed desks and suites are the title\u2019s own arithmetic (27 desks, 37 families — derived)', () => {
+  it('the parsed desks and suites are the title\u2019s own arithmetic (28 desks, 38 families — derived)', () => {
     // v2.484.0 (dated): the SECOND SHARED FAMILY — the window rides the
     // people's blue, so the words grew two while the families grew ONE
     // (blue-300 is new; two words, one chip, again — and the family's
@@ -144,12 +151,17 @@ describe('the registry, parsed from the constitution file itself', () => {
     // v2.481.0 (dated): the emerald family joined with the sort door.
     // v2.484.0 (dated): twenty-seven desks — the family's FIRST
     // non-tab desk joined with the window's word.
-    expect(new Set(rows.map((r) => r.desk)).size).toBe(27);
+    // v2.485.0 (dated): twenty-eight desks — the SECOND shell-tab
+    // desk joined with the period's word.
+    expect(new Set(rows.map((r) => r.desk)).size).toBe(28);
     // v2.484.0 (dated): blue-300 joined with the window's word — the
     // families grew one (37) while the words grew two (the SECOND
     // shared family: two words, one chip).
-    expect(new Set(rows.map((r) => r.family)).size).toBe(37);
-    expect(constitution.includes('(forty words, twenty-seven desks)')).toBe(true);
+    // v2.485.0 (dated): green-300 joined with the period's word —
+    // the families grew one (38) while the words grew three (the
+    // THIRD shared family: three words, one chip).
+    expect(new Set(rows.map((r) => r.family)).size).toBe(38);
+    expect(constitution.includes('(forty-three words, twenty-eight desks)')).toBe(true);
   });
 
   it('the promise roll through THIRTY-SECOND is present (the ordinals, derived from the home’s notes)', () => {
@@ -227,7 +239,10 @@ describe.each(rows)('$word — the registry row, derived against the tree', (row
     // v2.484.0 (dated): the window's rows join the shared reading —
     // the window's landing handle is its OWN compound name (the chip
     // names the window, not one side).
-    const sharedOwner: Record<string, string> = { 'rep-from': 'rep-range', 'rep-to': 'rep-range', 'hr-from': 'hr-window', 'hr-to': 'hr-window' };
+    // v2.485.0 (dated): the period's pair joins the shared reading —
+    // the pair's landing handle is the period's own chip (one chip
+    // names all three bytes); the owner's handle serves the pair.
+    const sharedOwner: Record<string, string> = { 'rep-from': 'rep-range', 'rep-to': 'rep-range', 'hr-from': 'hr-window', 'hr-to': 'hr-window', 'fin-from': 'fin-range', 'fin-to': 'fin-range' };
     const stems = sharedOwner[row.word] ? chipStemOf(sharedOwner[row.word]) : chipStemOf(row.word);
     const handles = stems.map((s) => `data-testid="${s}-landing-word"`);
     expect(
