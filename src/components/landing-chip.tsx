@@ -39,6 +39,12 @@ import { Link2, X } from 'lucide-react';
 // tint word, the view voice's ground) speaking through a hue that never
 // spoke at this storey — the family grew one line rather than masquerade
 // (the exact 300-trio census was kept: no src file wore the amber trio).
+// v2.481.0: emerald joins the 300 storey — the sort door's word (the
+// ledger's own order). The ledger's own green (the suppliers' hue at the
+// 200/50 storey, the branch ledger's copy family) speaking through a
+// storey it never spoke — the shade-split law's next form, the family
+// grew one line rather than masquerade (the exact emerald 300-trio
+// census was machine-kept: no src file wore the trio before this line).
 export const LANDING_CHIP_HUES = [
   'sky',
   'purple',
@@ -52,6 +58,7 @@ export const LANDING_CHIP_HUES = [
   'yellow',
   'rose',
   'amber',
+  'emerald',
 ] as const;
 
 export type LandingChipHue = (typeof LANDING_CHIP_HUES)[number];
@@ -71,6 +78,9 @@ export const LANDING_CHIP_WARDROBES: Record<LandingChipHue, string> = {
   // v2.480.0: amber's line — the search lens's word (the SINGLE-LINE law:
   // one entry, one line, the grep finds the whole wardrobe).
   amber: 'border-amber-300 bg-amber-100 text-amber-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-amber-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300 dark:hover:bg-amber-500/20',
+  // v2.481.0: emerald's line — the sort door's word (the SINGLE-LINE law:
+  // one entry, one line, the grep finds the whole wardrobe).
+  emerald: 'border-emerald-300 bg-emerald-100 text-emerald-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300 dark:hover:bg-emerald-500/20',
 };
 
 // THE ELDER STOREY (v2.397.0): the 200/50 registry — the census's 22
@@ -130,6 +140,70 @@ export const LANDING_CHIP_WARDROBES_200: Record<LandingChipHue200, string> = {
   fuchsia: 'border-fuchsia-200 bg-fuchsia-50 text-fuchsia-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-fuchsia-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400 dark:border-fuchsia-500/30 dark:bg-fuchsia-500/10 dark:text-fuchsia-300 dark:hover:bg-fuchsia-500/20',
   pink: 'border-pink-200 bg-pink-50 text-pink-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-pink-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 dark:border-pink-500/30 dark:bg-pink-500/10 dark:text-pink-300 dark:hover:bg-pink-500/20',
 };
+
+// THE (HUE, STOREY) REGISTRY, PROPER (v2.481.0 — the seventh weave): the
+// two wardrobes were always ONE parametric formula — the 300 storey
+// speaks border-300/bg-100/hover-200, the 200 storey speaks
+// border-200/bg-50/hover-100, and both share the text-700, the ring-400
+// and the dark 500/30 + 500/10 + 300 + 500/20 tail. The weave names the
+// formula, ties the two hue arrays into ONE registry, and ENFORCES the
+// storey line: a hue that never spoke at a storey throws honestly (the
+// amber lesson — the family grows a line rather than masquerade — now a
+// guard, not just a greppable habit). The literal single-line registries
+// above stay the constitution (the loom suite's byte-fidelity pins read
+// them); the formula is PROVEN against every line they speak, byte for
+// byte, in the round's own suite.
+export const LANDING_CHIP_STOREYS = [300, 200] as const;
+
+export type LandingChipStorey = (typeof LANDING_CHIP_STOREYS)[number];
+
+// THE REGISTRY — one table, two storeys: every (hue, storey) voice the
+// loom can wear, read from the two arrays above (one source of truth;
+// the arrays stay the spelling, the record stays the door).
+export const LANDING_CHIP_REGISTRY: Record<
+  LandingChipStorey,
+  readonly string[]
+> = {
+  300: LANDING_CHIP_HUES,
+  200: LANDING_CHIP_HUES_200,
+};
+
+// THE STOREY'S OWN STEPS — the shade arithmetic each storey speaks (the
+// formula's only free variables; everything else is the shared tail).
+const LANDING_CHIP_STEPS: Record<
+  LandingChipStorey,
+  { border: number; bg: number; hover: number }
+> = {
+  300: { border: 300, bg: 100, hover: 200 },
+  200: { border: 200, bg: 50, hover: 100 },
+};
+
+// THE STOREY LINE'S PREDICATE — does this hue speak at this storey? The
+// registry's honest door: the 200-only hues answer false at the 300
+// storey, and every hue that ever grew a line answers true at both of
+// its own.
+export function landingChipSpeaksAt(
+  hue: string,
+  storey: LandingChipStorey,
+): boolean {
+  return LANDING_CHIP_REGISTRY[storey].includes(hue);
+}
+
+// THE FORMULA — the tail both wardrobes speak, composed from the steps.
+// Byte-fidelity is the suite's law: this function must reproduce every
+// literal line above, byte for byte, for every hue that speaks at the
+// storey — and THROW for a hue that never spoke there (the registry's
+// own guard: no undefined wardrobe, no masquerade).
+export function landingChipWardrobe(
+  hue: LandingChipHue | LandingChipHue200,
+  storey: LandingChipStorey,
+): string {
+  if (!landingChipSpeaksAt(hue, storey)) {
+    throw new Error(`the ${hue} hue never spoke at the ${storey} storey`);
+  }
+  const steps = LANDING_CHIP_STEPS[storey];
+  return `border-${hue}-${steps.border} bg-${hue}-${steps.bg} text-${hue}-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-${hue}-${steps.hover} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-${hue}-400 dark:border-${hue}-500/30 dark:bg-${hue}-500/10 dark:text-${hue}-300 dark:hover:bg-${hue}-500/20`;
+}
 
 // THE THREE HEADS — every historic chip opened with exactly these bytes
 // (the full string is HEAD + WARDROBE, byte for byte):

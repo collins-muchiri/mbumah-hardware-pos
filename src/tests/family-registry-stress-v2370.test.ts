@@ -73,11 +73,14 @@ function parseRegistry(): RegistryRow[] {
 const rows = parseRegistry();
 
 describe('the registry, parsed from the constitution file itself', () => {
-  it('parses THIRTY-FOUR rows (the constitution\u2019s own count, derived)', () => {
+  it('parses THIRTY-FIVE rows (the constitution\u2019s own count, derived)', () => {
+    // v2.481.0 (dated): the thirty-fifth word — the sort door's own
+    // word rides the address; the constitution grew its row and this
+    // parse grew with it.
     // v2.480.0 (dated): the thirty-fourth word — the search lens's own
     // word rides the address; the constitution grew its row and this
     // parse grew with it.
-    expect(rows.length).toBe(34);
+    expect(rows.length).toBe(35);
   });
 
   it('the rows walk in the promise\u2019s order (the roll, derived from the parse)', () => {
@@ -97,14 +100,19 @@ describe('the registry, parsed from the constitution file itself', () => {
       // answers the address bar (the family GREW one line: amber at
       // 300/100)
       'dead-q',
+      // v2.481.0 (dated): the sort door's own word — the ledger's order
+      // answers the address bar (the family GREW one line: emerald at
+      // 300/100)
+      'dead-sort',
     ];
     expect(rows.map((r) => r.word)).toEqual(expected);
   });
 
-  it('the parsed desks and suites are the title\u2019s own arithmetic (26 desks, 34 families — derived)', () => {
+  it('the parsed desks and suites are the title\u2019s own arithmetic (26 desks, 35 families — derived)', () => {
+    // v2.481.0 (dated): the emerald family joined with the sort door.
     expect(new Set(rows.map((r) => r.desk)).size).toBe(26);
-    expect(new Set(rows.map((r) => r.family)).size).toBe(34);
-    expect(constitution.includes('(thirty-four words, twenty-six desks)')).toBe(true);
+    expect(new Set(rows.map((r) => r.family)).size).toBe(35);
+    expect(constitution.includes('(thirty-five words, twenty-six desks)')).toBe(true);
   });
 
   it('the promise roll through THIRTY-SECOND is present (the ordinals, derived from the home’s notes)', () => {

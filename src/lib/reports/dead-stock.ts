@@ -316,6 +316,13 @@ export function deadStockClearanceNotes(rows: ReadonlyArray<DeadStockRow>, days:
 
 export type DeadStockSortKey = 'capital' | 'idle';
 
+/** THE ORDERS AS WORDS (v2.481.0) — the sort door's address vocabulary:
+ *  the two honest orders read as WORDS through the generic parser (the
+ *  window tuple's own law — a made-up order, `asc`, `desc`, `name`, is
+ *  an unknown word, not a clever match). The ONE home keeps the tuple;
+ *  the desk only reads it. */
+export const DEAD_STOCK_SORTS: readonly DeadStockSortKey[] = ['capital', 'idle'];
+
 /** THE LEDGER'S OWN ORDERS (v2.472.0) — the two honest orders the sort
  *  door speaks, composed HERE so the desk never hand-sorts. Returns a
  *  NEW array (the input is never mutated — the canonical order the file,

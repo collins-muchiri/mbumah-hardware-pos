@@ -128,7 +128,12 @@ describe('the sort door — the desk\u2019s own face', () => {
   });
 
   it('the resting face is capital — the desk opens exactly as it always has', () => {
-    expect(desk.includes("useState<DeadStockSortKey>('capital')")).toBe(true);
+    // v2.481.0 re-key (dated): the sort's state lifted beside the
+    // window's and the lens's own (the landing law's shape) — the
+    // initializer rides the shell's read-once word (the resting face is
+    // STILL capital: the address's silence reads capital), and the
+    // section keeps the view through the setter-shaped prop.
+    expect(desk.includes('useState<DeadStockSortKey>(initialDeadSort)')).toBe(true);
     // v2.473.0 re-key (dated): the memo composes the two lenses now —
     // the search door's filter first, then the sort door's order (the
     // ONE home composes both; the desk never hand-filters either) — and
