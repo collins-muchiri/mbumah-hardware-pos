@@ -119,7 +119,14 @@ export function ShiftSchedulingTab() {
   // own shape: every week turn speaks this one door, the address's
   // word and the desk's week never drift apart).
   const chooseShiftWeek = (iso: string) => {
+    // THE FAMILY'S ONE READING (v2.488.0 — the guarded door): no turn,
+    // no write — a re-press of the standing week is not a turn. And the
+    // hand's turn retires the landing word: the chip speaks the ADDRESS
+    // BAR's landing, never the human's next choice (the family's ONE
+    // reading — the window's persist shape retires with it).
+    if (iso === weekStartStr) return;
     setWeekStartStr(iso);
+    if (iso !== landedShiftWeek) setShiftWeekLandingLive(false);
     writeShiftWeekWord(iso);
   };
 
@@ -273,18 +280,18 @@ export function ShiftSchedulingTab() {
       {/* Week navigation */}
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-card/50 px-3 py-2">
         <div className="flex items-center gap-1.5">
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handlePrevWeek} aria-label="Previous week">
+          <Button variant="ghost" size="icon" className="h-7 w-7 transition-colors" onClick={handlePrevWeek} aria-label="Previous week">
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={handleToday}
-            className="h-7"
+            className="h-7 transition-colors"
           >
             Today
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleNextWeek} aria-label="Next week">
+          <Button variant="ghost" size="icon" className="h-7 w-7 transition-colors" onClick={handleNextWeek} aria-label="Next week">
             <ChevronRight className="h-4 w-4" />
           </Button>
           {/* THE WEEK'S OWN STRIP (v2.487.0 — the styling verse): the

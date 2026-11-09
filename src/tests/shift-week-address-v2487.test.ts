@@ -95,6 +95,12 @@ describe('the shift\u2019s week — the scheduling desk\u2019s week answers the 
 
   it('THE ONE DOOR — the turn and the write ride together (a fact ride, never a gate)', () => {
     expect(desk.includes('const chooseShiftWeek = (iso: string) => {')).toBe(true);
+    // THE FAMILY'S ONE READING (v2.488.0 — the dated pin): the guarded
+    // door — no turn, no write — and the hand's turn retires the word
+    // (the chip speaks the ADDRESS BAR's landing, never the human's
+    // next choice — the window's persist shape retires with it).
+    expect(desk.includes('if (iso === weekStartStr) return;')).toBe(true);
+    expect(desk.includes('if (iso !== landedShiftWeek) setShiftWeekLandingLive(false);')).toBe(true);
     expect(desk.includes('setWeekStartStr(iso);')).toBe(true);
     expect(desk.includes('writeShiftWeekWord(iso);')).toBe(true);
     // the week nav's presses all speak the one door
@@ -240,7 +246,11 @@ describe('the constitution — forty-five words, thirty desks', () => {
 
 describe('whats-new — the round leads the feed', () => {
   it('the head wears the round\u2019s own story — the honoured probe and the new word', () => {
-    const head = WHATS_NEW[0];
+    // THE MUSEUM RE-KEY (the v2470 treatment, carried once at v2.488.0):
+    // the round's own entry is found in the living feed — the head
+    // survives every future bump (the find + the guard come together).
+    const head = WHATS_NEW.find((e) => e.version === '2.487.0');
+    if (!head) throw new Error('the 2.487.0 entry is gone from the feed');
     expect(head.version).toBe('2.487.0');
     expect(head.title).toContain('the queue\u2019s own word rides the address');
     expect(head.title).toContain('the shift\u2019s week rides the address');
@@ -263,7 +273,7 @@ describe('whats-new — the round leads the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.487.0');
+    expect(pkg.version).toBe('2.488.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.487.0]')).toBeGreaterThan(-1);
