@@ -207,9 +207,10 @@ describe('the family keeps its seats — the round is additive', () => {
 // 4. THE FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — the round leads the feed', () => {
+describe('whats-new — the round, pinned in the feed', () => {
   it('the head wears the round\u2019s own story', () => {
-    const head = WHATS_NEW[0];
+    const head = WHATS_NEW.find((e) => e.version === '2.476.0');
+    if (!head) throw new Error('the 2.476.0 entry is gone from the feed');
     expect(head.version).toBe('2.476.0');
     expect(head.title).toContain('the chorus rides the chat door');
     expect(head.title).toContain('one breath');
@@ -229,7 +230,7 @@ describe('whats-new — the round leads the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.476.0');
+    expect(pkg.version).toBe(WHATS_NEW[0].version);
     expect(WHATS_NEW[0].version).toBe(pkg.version);
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.476.0]')).toBeGreaterThan(-1);

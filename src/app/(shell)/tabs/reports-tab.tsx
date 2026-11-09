@@ -2759,12 +2759,18 @@ export default function ReportsTab() {
       ? await (async () => {
           try {
             const { default: drawQr } = await import('qrcode');
+            // THE CHORUS'S SCANNABLE DOOR (v2.477.0): the grid's LEAD card
+            // encodes the WHOLE chorus's chat URL — the ONE home's
+            // collective composer, the exact word the Share all handle
+            // opens — so one scan on the paper carries every ask at once,
+            // pre-addressed when the store keeps its number on file.
+            const chorusData = await drawQr.toDataURL(deadStockChorusShareUrl(deadStockRows, deadStockSummary?.days ?? deadStockDays, deadStockStoreContact?.phone), { margin: 1, width: 96 });
             const cards = await Promise.all(deadStockRows.map(async (row) => {
               const url = deadStockShareUrl(row, deadStockSummary?.days ?? deadStockDays, deadStockStoreContact?.phone);
               const data = await drawQr.toDataURL(url, { margin: 1, width: 96 });
               return `<figure class="scan-card"><img src="${data}" alt="Share ${escapePrintWord(row.name)} by chat" width="96" height="96" /><figcaption>${escapePrintWord(row.name)}</figcaption><span class="scan-sku">${escapePrintWord(row.sku)}</span></figure>`;
             }));
-            return `\n          <div class="scan-doors">\n            <h3>Scan to share — the ledger’s scannable doors</h3>\n            <p class="scan-intro">Each card opens the row’s chat door — the same word the ledger’s Share button speaks.</p>\n            <div class="scan-grid">\n              ${cards.join('\n              ')}\n            </div>\n          </div>`;
+            return `\n          <div class="scan-doors">\n            <h3>Scan to share — the ledger’s scannable doors</h3>\n            <p class="scan-intro">Each card opens the row’s chat door — the same word the ledger’s Share button speaks.</p>\n            <div class="scan-grid">\n              <figure class="scan-card scan-chorus"><img src="${chorusData}" alt="Share the ledger’s whole chorus by chat" width="96" height="96" /><figcaption>The ledger’s chorus</figcaption><span class="scan-chorus-note">All ${deadStockRows.length} asks in one chat</span></figure>\n              ${cards.join('\n              ')}\n            </div>\n          </div>`;
           } catch {
             toast.error('The scannable doors could not be drawn — the ledger prints without them.');
             return '';
@@ -2798,6 +2804,9 @@ export default function ReportsTab() {
             .scan-card img { width: 96px; height: 96px; }
             .scan-card figcaption { font-size: 11px; font-weight: 600; margin-top: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
             .scan-sku { color: #94a3b8; font-size: 10px; }
+            .scan-card.scan-chorus { width: 132px; border: 2px solid #0f766e; background: #f0fdfa; }
+            .scan-chorus-note { display: block; font-size: 10px; color: #0f766e; margin-top: 4px; }
+            .chorus li::marker { color: #be123c; font-weight: 600; }
             @media print { body { padding: 0; } }
           </style>
         </head>

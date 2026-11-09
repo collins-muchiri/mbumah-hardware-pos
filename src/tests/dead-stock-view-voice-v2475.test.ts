@@ -190,11 +190,12 @@ describe('the view\u2019s own word — the desk\u2019s own face', () => {
 // 3. THE FEED — the head wears the round's own story
 // ---------------------------------------------------------------------------
 
-describe('whats-new — the view leads the feed', () => {
-  const head = WHATS_NEW[0];
+describe('whats-new — the view, pinned in the feed', () => {
+  const head = WHATS_NEW.find((e) => e.version === '2.475.0');
+  if (!head) throw new Error('the 2.475.0 entry is gone from the feed');
 
   it('the head wears the round\u2019s own story — the elder words and the new word', () => {
-    expect(head.version).toBe('2.476.0');
+    expect(head.version).toBe('2.475.0');
     expect(head.title).toContain('resting ledger');
     expect(head.title).toContain('one breath');
     expect(head.title).toContain('the paper carries a scannable door');
