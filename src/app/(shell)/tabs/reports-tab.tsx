@@ -126,6 +126,56 @@ function writeDeadWindowWord(days: 30 | 60 | 90): void {
   }
 }
 
+// THE SEARCH LENS'S OWN WORD (v2.480.0 — the deep-link family's next
+// wearing): the ledger's name lens answers the address bar. The lens's
+// daily question, "which products am I looking at?", speaks its
+// desk-prefixed `?dead-q=<word>` — the maker's OWN word, free text read
+// as typed (trimmed, capped at eighty characters for address hygiene,
+// never case-gamed — the ONE home's filter lowercases its own side) —
+// and wears the landing chip in the family's TWELFTH 300-storey byte:
+// AMBER at 300/100, the lens family's own tone (the window chips' tint
+// word, the view voice's ground) speaking through a hue that never
+// spoke at this storey — a family byte the 200-storey's amber line can
+// never equal (the shade-split law's next form; the registry grew one
+// line rather than masquerade). NO STAGE TO IMPLY: the report type IS
+// the stage — the word is a lens INSIDE the dead_stock stage, so the
+// chip lives in the section's lens row beside the window's own (the
+// sub-tab law's shape: it hides with the pane and returns when the
+// pane reopens — a hand-driven REPORT change is navigation, not a lens
+// change, and never retires it). THE EMPTY WEARS NO CHIP: a landing of
+// ?dead-q= (or none at all) speaks the shape the bare landing already
+// answers — the chip names a word, never a silence. THE LANDING IS READ
+// ONCE ON THE SHELL: a plain useState initializer — a dismissed chip
+// can never resurrect. THE LENS WRITES BACK: every hand-driven lens
+// change replaceState's the word into the address (the window's own
+// write shape), so a pressed lens is a shareable address, never a dead
+// end; an EMPTIED lens strips its word (a stale word that outlives the
+// lens it named is a lie the next refresh would resurrect); a blocked
+// write is the lens's silence, never a thrown desk.
+function initialDeadQuery(): string {
+  if (typeof window === 'undefined') return '';
+  return (new URLSearchParams(window.location.search).get('dead-q') ?? '').trim().slice(0, 80);
+}
+
+// The write half — the lens's own replaceState (preserve the other
+// params: tab, rep-type, the window's word and every other desk's word
+// ride untouched); an empty word DELETES its key — the address never
+// carries a silence.
+function writeDeadQueryWord(word: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const trimmed = word.trim().slice(0, 80);
+    if (trimmed) params.set('dead-q', trimmed);
+    else params.delete('dead-q');
+    const qs = params.toString();
+    window.history.replaceState(null, '', window.location.pathname + (qs ? `?${qs}` : ''));
+  } catch {
+    // The address never lies louder than the lens — a blocked write
+    // leaves the lens on the desk, exactly where the human pressed it.
+  }
+}
+
 interface GrowingProduct {
   productId: string;
   name: string;
@@ -1375,6 +1425,17 @@ interface DeadStockSectionProps {
   deadWindowLandingLive: boolean;
   landedDeadWindow: 30 | 60 | 90;
   onDismissDeadWindowLanding: () => void;
+  // v2.480.0: the search lens's own faces — the word and its one door
+  // live at the DESK (the landing law's shape: read once on the shell,
+  // the word survives the pane's unmount/remount), the section only
+  // wears them. The setter-shaped prop IS the one door: the presses,
+  // the clears and the maker's typing all ride it, and the address
+  // writes beside the set (the write-back law).
+  deadStockSearch: string;
+  setDeadStockSearch: (value: string) => void;
+  deadQueryLandingLive: boolean;
+  landedDeadQuery: string;
+  onDismissDeadQueryLanding: () => void;
   // v2.467.0: the share door's pre-address — the store's own contact
   // (name + phone on file), fetched once at the desk and handed down.
   // null keeps the picker door: a store without a phone speaks no
@@ -1388,7 +1449,7 @@ interface DeadStockSectionProps {
   storeId: string;
 }
 
-function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartType, deadWindowLandingLive, landedDeadWindow, onDismissDeadWindowLanding, storeContact, storeId }: DeadStockSectionProps) {
+function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartType, deadWindowLandingLive, landedDeadWindow, onDismissDeadWindowLanding, deadStockSearch, setDeadStockSearch, deadQueryLandingLive, landedDeadQuery, onDismissDeadQueryLanding, storeContact, storeId }: DeadStockSectionProps) {
   // THE EDIT DOOR'S STATE (v2.468.0) — the dialog's own words: open,
   // draft, saving. The draft starts empty every open — a dialog that
   // shows a stale number would be a lie when the wire refetches.
@@ -1411,7 +1472,10 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
   // view/archive law holds — the file, the clipboard and the print door
   // keep the canonical rows (the lens is a viewer, never a rewrite).
   const [deadStockSort, setDeadStockSort] = useState<DeadStockSortKey>('capital');
-  const [deadStockSearch, setDeadStockSearch] = useState('');
+  // v2.480.0: the lens's word arrives from the desk (the landing law's
+  // shape — read once on the shell, the word survives the pane); the
+  // setter-shaped prop is the one door, so the memo, the presses and
+  // the clears keep their exact elder bytes.
   const sortedRows = useMemo(
     () => sortDeadStockRows(filterDeadStockRows(rows, deadStockSearch), deadStockSort),
     [rows, deadStockSearch, deadStockSort],
@@ -1443,6 +1507,17 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
   // order the table already wears (capital DESC), drawn.
   const maxCapitalTied = useMemo(
     () => (rows.length > 0 ? Math.max(...rows.map((r) => r.capitalTied)) : 0),
+    [rows],
+  );
+  // THE PATIENCE'S OWN YARDSTICK (v2.480.0) — the longest wait's own
+  // mirror: the largest days idle on the desk (the never-sold rows
+  // keep quiet — a null is a voice, not a number). A dead row's idle
+  // is ALWAYS past the window that named it dead, so the window can
+  // never be the yardstick (every bar would read full — a lie); the
+  // bar speaks the row's share OF THE SHELF'S LONGEST WAIT instead —
+  // the capital bar's own mirror, drawn for the patience.
+  const maxDaysIdle = useMemo(
+    () => rows.reduce((m, r) => (r.daysIdle != null && r.daysIdle > m ? r.daysIdle : m), 0),
     [rows],
   );
   // THE PIE'S VOICES — the -600 family ground (the same palette the
@@ -1575,6 +1650,22 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
             onDismiss={onDismissDeadWindowLanding}
             title="The idle window landed with this word from the address bar — press to clear it"
             data-testid="dead-window-landing-word"
+          />
+        )}
+        {/* THE SEARCH LENS'S LANDING CHIP (v2.480.0) — the word's own
+            chip beside the window's own (one lens row, the family's
+            faces): the TWELFTH 300-storey byte, amber — the lens
+            family's own tone. It only speaks when the shell LANDED
+            with a word (the empty wears no chip — the chip names a
+            word, never a silence), and a press retires the name, never
+            the lens (the window's own dismissal shape). */}
+        {deadQueryLandingLive && landedDeadQuery !== '' && (
+          <LandingChip
+            hue="amber"
+            label={`landed ?dead-q=${landedDeadQuery}`}
+            onDismiss={onDismissDeadQueryLanding}
+            title="The ledger's lens landed with this word from the address bar — press to clear it"
+            data-testid="dead-q-landing-word"
           />
         )}
       </div>
@@ -1951,6 +2042,28 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
                             </TableCell>
                             <TableCell className={`text-right tabular-nums text-xs ${idleTone}`}>
                               {r.daysIdle ?? '—'}
+                              {/* THE PATIENCE'S OWN BAR (v2.480.0) — the
+                                  idle cell wears the capital bar's own
+                                  dialect: the row's share of the shelf's
+                                  longest wait, drawn under the number
+                                  (the bg-muted track, the fill wearing
+                                  the number's own word — the amber
+                                  below half a year, the rose past it,
+                                  the same split the figure speaks; the
+                                  window can never be the yardstick — a
+                                  dead row's idle is always past it, so
+                                  the longest wait's own mirror speaks
+                                  instead). A never-sold row keeps its
+                                  cell quiet — its badge already speaks,
+                                  a bar under a dash would be a stutter.
+                                  Purely visual — the number above IS
+                                  the voice — so the bar stays
+                                  aria-hidden. */}
+                              {r.daysIdle != null && (
+                                <div aria-hidden="true" className="mt-1 h-1 rounded-full bg-muted overflow-hidden" data-testid={`dead-stock-idle-bar-${i}`}>
+                                  <div className={`h-full rounded-full transition-all ${r.daysIdle >= 180 ? 'bg-rose-500' : 'bg-amber-500'}`} style={{ width: `${Math.min(100, Math.max(0, maxDaysIdle > 0 ? (r.daysIdle / maxDaysIdle) * 100 : 0))}%` }} />
+                                </div>
+                              )}
                             </TableCell>
                             {/* THE ASK (v2.462.0) — the row's own voice to
                                 the maker: one press carries the clearance
@@ -2109,6 +2222,34 @@ export default function ReportsTab() {
   // v2.462.0) — declared beside the door that turns it, so the callback's
   // closure reads a binding the desk has already met.
   const [deadStockDays, setDeadStockDays] = useState<30 | 60 | 90>(initialDeadWindow);
+  // THE SEARCH LENS'S OWN STATE (v2.480.0) — lifted beside the window's
+  // own state (the same architecture, the landing law's shape): the
+  // landing is read once on the shell, the word rides the desk-level
+  // state so it survives a pane switch (navigation is not a lens change
+  // — the window's word already survives it, and the ledger's word now
+  // keeps the same honesty), and EVERY hand-driven change rides this one
+  // door — the set and the address write live together, the write a FACT
+  // ride (the lens's truth), never a gate: the desk works identically
+  // when the history API refuses. The section keeps the VIEW (the memo,
+  // the badge, the empty face) and speaks the word through its props —
+  // the setter-shaped prop keeps every elder byte in the desk (the memo
+  // composes, the presses press, the clears clear — same words).
+  const [landedDeadQuery] = useState<string>(initialDeadQuery);
+  const [deadQueryLandingLive, setDeadQueryLandingLive] = useState(true);
+  const [deadStockSearch, setDeadStockSearch] = useState<string>(initialDeadQuery);
+  const chooseDeadQuery = useCallback((value: string) => {
+    // THE AGREEMENT IS NO NEWS (the window's own law): a hand-driven
+    // change that moves the lens retires the landing chip — the
+    // address's word no longer names the landing once the human has
+    // spoken; a no-op change writes nothing.
+    if (deadStockSearch === value) {
+      setDeadStockSearch(value);
+      return;
+    }
+    setDeadStockSearch(value);
+    setDeadQueryLandingLive(false);
+    writeDeadQueryWord(value);
+  }, [deadStockSearch]);
   const [chartType, setChartType] = useState<'bar' | 'line' | 'area' | 'pie'>('bar');
   const [datePreset, setDatePreset] = useState<DatePreset>('this_month');
 
@@ -4328,6 +4469,11 @@ export default function ReportsTab() {
             deadWindowLandingLive={deadWindowLandingLive}
             landedDeadWindow={landedDeadWindow}
             onDismissDeadWindowLanding={() => setDeadWindowLandingLive(false)}
+            deadStockSearch={deadStockSearch}
+            setDeadStockSearch={chooseDeadQuery}
+            deadQueryLandingLive={deadQueryLandingLive}
+            landedDeadQuery={landedDeadQuery}
+            onDismissDeadQueryLanding={() => setDeadQueryLandingLive(false)}
             storeContact={deadStockStoreContact ?? null}
             storeId={currentStoreId}
           />
