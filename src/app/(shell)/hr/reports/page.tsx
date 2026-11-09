@@ -8,6 +8,7 @@
 // only. The Privacy tab governs erasure requests (decision + legal basis).
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { LandingChip } from '@/components/landing-chip';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -18,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { parseInitialNamedDateRange } from '@/lib/tab-url';
 import { Textarea } from '@/components/ui/textarea';
 import {
   AlertTriangle,
@@ -487,8 +489,41 @@ const Stat = ({ label, value, hint, tone }: { label: string; value: string; hint
 export default function HrReportsPage() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  // THE PEOPLE WINDOW'S OWN WORD (v2.484.0 — the deep-link family's next
+  // wearing): the desk's period answers the address bar — the two sides
+  // ride their desk-prefixed pair `?hr-from=` / `?hr-to=` (the ONE
+  // home's own validator: each side INDEPENDENTLY proves a real
+  // calendar day — a real from with a garbage to keeps the from, drops
+  // only the to; a made-up date is an unknown word). THE LANDING IS
+  // READ ONCE ON THE MOUNT — the page's own v2.21.0 convention (client-
+  // only, no Suspense boundary required): the address's bytes seed the
+  // scratch after hydration, a dismissed chip can never resurrect, and
+  // a landing without the bytes reads the desk's own defaults (the
+  // year's first day and today — THE DEFAULT WEARS NO WORD). The
+  // mount-effect shape is the desk's OWN law: a useState initializer
+  // would read window during SSR and tear the tree (the hydration
+  // lesson the faces burst caught).
+  const [landedHrWindow, setLandedHrWindow] = useState<{ from: string; to: string }>({ from: '', to: '' });
+  const [hrWindowLandingLive, setHrWindowLandingLive] = useState(true);
   const [from, setFrom] = useState(() => new Date(Date.UTC(new Date().getUTCFullYear(), 0, 1)).toISOString().slice(0, 10));
   const [to, setTo] = useState(() => new Date().toISOString().slice(0, 10));
+  useEffect(() => {
+    // THE LANDING IS READ ONCE ON THE MOUNT — DEFERRED via
+    // requestAnimationFrame (the redeem-dialog's own dodge: the
+    // set-state-in-effect family never grows on this desk — the
+    // v2.206.0 shed round's law), so hydration paints the desk's own
+    // defaults first and the landing lands a beat later — never a
+    // tear, never a cascading render.
+    const raf = requestAnimationFrame(() => {
+      const landed = parseInitialNamedDateRange(window.location.search, 'hr-from', 'hr-to');
+      if (landed.from || landed.to) {
+        setLandedHrWindow(landed);
+        if (landed.from) setFrom(landed.from);
+        if (landed.to) setTo(landed.to);
+      }
+    });
+    return () => cancelAnimationFrame(raf);
+  }, []);
   const [p10Year, setP10Year] = useState(String(new Date().getUTCFullYear()));
   // v2.21.0: deep-linkable tabs (?tab=cost from the org console tiles). Read
   // window.location on mount (client-only, no Suspense boundary required)
@@ -563,6 +598,33 @@ export default function HrReportsPage() {
     if (next) url.searchParams.set('storeId', next);
     else url.searchParams.delete('storeId');
     window.history.replaceState(null, '', url.toString());
+  };
+
+  // THE WINDOW WRITES BACK (v2.484.0): the pair's own replaceState —
+  // every scratched side rides its byte into the address (the window's
+  // own write shape), so a turned window is a shareable address, never
+  // a dead end; a blocked write is the window's silence, never a
+  // thrown desk. THE ONE DOOR: the set, the retire and the write ride
+  // together (the agreement is no news — a no-op change writes
+  // nothing); the write is a FACT ride (the window's truth), never a
+  // gate.
+  const writeHrWindowWord = (side: 'from' | 'to', value: string) => {
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set(side === 'from' ? 'hr-from' : 'hr-to', value);
+      window.history.replaceState(null, '', url.toString());
+    } catch {
+      // The address never lies louder than the window — a blocked write
+      // leaves the dates on the desk, exactly where the human scratched them.
+    }
+  };
+  const chooseHrDate = (side: 'from' | 'to', value: string) => {
+    const current = side === 'from' ? from : to;
+    if (value === current) return; // THE AGREEMENT IS NO NEWS
+    if (side === 'from') setFrom(value);
+    else setTo(value);
+    setHrWindowLandingLive(false);
+    writeHrWindowWord(side, value);
   };
 
   const [headcount, setHeadcount] = useState<HeadcountDto | null>(null);
@@ -1440,17 +1502,34 @@ export default function HrReportsPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-end gap-2">
-          <div className="space-y-1">
-            <Label htmlFor="rep-from" className="text-xs">From</Label>
-            <Input id="rep-from" type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="h-8 w-40" />
+          {/* THE PEOPLE WINDOW'S OWN GROUND (v2.484.0) — the period's two
+              sides wear the family's joined card (the quiet ground, never
+              a second palette), the dark picker's dress, and the landing
+              chip beside them names the address's word (the window's own
+              dismissal shape — a press retires the name, never the
+              window). */}
+          <div className="flex flex-wrap items-end gap-2 rounded-lg border bg-muted/30 px-3 py-2">
+            <div className="space-y-1">
+              <Label htmlFor="rep-from" className="text-xs">From</Label>
+              <Input id="rep-from" type="date" data-testid="hr-from-input" value={from} onChange={(e) => chooseHrDate('from', e.target.value)} className="h-8 w-40 tabular-nums dark:[color-scheme:dark]" />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="rep-to" className="text-xs">To</Label>
+              <Input id="rep-to" type="date" data-testid="hr-to-input" value={to} onChange={(e) => chooseHrDate('to', e.target.value)} className="h-8 w-40 tabular-nums dark:[color-scheme:dark]" />
+            </div>
+            <Button size="sm" onClick={() => void load()} disabled={busy}>
+              Apply period
+            </Button>
           </div>
-          <div className="space-y-1">
-            <Label htmlFor="rep-to" className="text-xs">To</Label>
-            <Input id="rep-to" type="date" value={to} onChange={(e) => setTo(e.target.value)} className="h-8 w-40" />
-          </div>
-          <Button size="sm" onClick={() => void load()} disabled={busy}>
-            Apply period
-          </Button>
+          {hrWindowLandingLive && (landedHrWindow.from || landedHrWindow.to) && (
+            <LandingChip
+              hue="blue"
+              label="landed ?hr-from&hr-to"
+              onDismiss={() => setHrWindowLandingLive(false)}
+              title="The period window landed with these dates from the address bar — press to clear it"
+              data-testid="hr-window-landing-word"
+            />
+          )}
           {DIGEST_EXPORT_KEYS[tab] ? (
             <Button
               size="sm"

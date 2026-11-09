@@ -244,6 +244,46 @@ export function parseInitialCustomRange(
 }
 
 /**
+ * v2.484.0 — THE FAMILY'S THIRTY-NINTH WORD (the window): the people
+ * desk's period answers the bar. The HR reports desk's date window —
+ * the desk's FIRST daily question, "which days am I reading?" — has
+ * spoken its own scratch since v2.20.0 and never its address word;
+ * the window's two sides now ride their desk-prefixed pair
+ * `hr-from` / `hr-to` (the wire's own YYYY-MM-DD class, REAL calendar
+ * days only — honestDayKey's round-trip proof; a made-up date is an
+ * unknown word, not a clever match). THE WINDOW'S OWN LAW (the
+ * v2.317 never-strand reading, grown to a named pair): each side
+ * validates INDEPENDENTLY — a real from with a garbage to keeps the
+ * from and drops only the to (a window is two sides, not one word's
+ * other half — the rep pair's WHOLE law is the pair's own, the
+ * window's is this). THE COLLISION CHECK ran at round start: the byte
+ * appeared NOWHERE before this word (the desk's DOM ids say
+ * `rep-from`/`rep-to` — another namespace, another route, never the
+ * address bar). THE FAMILY'S FIFTEENTH 300-STOREY BYTE: the landing
+ * chip wears the BLUE byte — the transfers desk's hue at the 200/50
+ * storey (the transfer-status chip's own family) speaking through a
+ * storey it never spoke — the shade-split law's next form; blue LEFT
+ * the stranger list (the exact blue 300-trio census was machine-kept).
+ * THE CHIP LIVES ON THE DESK'S OWN TOOLBAR ROW (beside the window it
+ * names, never inside a section) and the landing is read once on the
+ * shell (the useState initializer law). THE WINDOW WRITES BACK: every
+ * scratched side replaceState's its byte (the window's own write
+ * shape), so a turned window is a shareable address, never a dead
+ * end; a blocked write is the window's silence, never a thrown desk.
+ * THE DEFAULT WEARS NO WORD: a landing without the bytes reads the
+ * desk's own defaults (the year's first day and today) — the
+ * address's silence, never a stranded filter.
+ */
+export function parseInitialNamedDateRange(search: string, fromKey: string, toKey: string): { from: string; to: string } {
+  try {
+    const params = toParams(search);
+    return { from: honestDayKey(params.get(fromKey)), to: honestDayKey(params.get(toKey)) };
+  } catch {
+    return { from: '', to: '' };
+  }
+}
+
+/**
  * v2.324.0 — THE ROSTER'S OWN WORD: the same never-strand shape law,
  * param-NAMEd. The deep-link collision analysis (Task 44) showed two
  * desks reading the SAME `?page=` word leak across client-side tab

@@ -397,7 +397,7 @@ describe('the address-bar vocabulary — the boundary holds (cross-suite pins)',
   const constitution = readFileSync('src/tests/transfer-status-deep-link-v2357.test.ts', 'utf8');
 
   it('the registry stays TWENTY-ONE words (the island words are siblings, not rows)', () => {
-    expect(constitution.includes('(thirty-eight words, twenty-six desks)')).toBe(true);
+    expect(constitution.includes('(forty words, twenty-seven desks)')).toBe(true);
     expect(constitution.includes("{ word: 'ly-type', desk: 'src/app/(shell)/tabs/loyalty-tab.tsx', family: 'border-green-200', suite: 'src/tests/ly-type-deep-link-v2368.test.ts' }")).toBe(true);
     expect(constitution.includes('ly-view')).toBe(false);
     expect(constitution.includes('ly-page')).toBe(false);

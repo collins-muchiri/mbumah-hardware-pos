@@ -203,16 +203,18 @@ describe('the constitution — thirty-eight words, the first shared family', () 
   it('the pair\u2019s rows joined (the range\u2019s own violet serves both)', () => {
     expect(registry.includes("{ word: 'rep-from', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-violet-300', suite: 'src/tests/custom-range-address-v2483.test.ts' }")).toBe(true);
     expect(registry.includes("{ word: 'rep-to', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-violet-300', suite: 'src/tests/custom-range-address-v2483.test.ts' }")).toBe(true);
-    expect(registry.includes('(thirty-eight words, twenty-six desks)')).toBe(true);
+    expect(registry.includes('(forty words, twenty-seven desks)')).toBe(true);
   });
 
-  it('the stress walks the roll and the derived counts (36 \u2192 38, families stay 36 — the first shared family)', () => {
+  it('the stress walks the roll and the derived counts (36 \u2192 38, the living pins roll)', () => {
+    // v2.484.0 (dated): the window's round rolled the living pins — the
+    // stress's counts grew (40 rows, 37 families) and this suite's
+    // contains-pins ride the bytes that ARE (the museum's own-entry
+    // story stays; the registry's living counts roll).
     expect(stress.includes("'rep-from',")).toBe(true);
     expect(stress.includes("'rep-to',")).toBe(true);
-    expect(stress.includes('toBe(38)')).toBe(true);
-    // the families stay thirty-six: two words, one chip — the shared
-    // family's own honest count
-    expect(stress.includes('expect(new Set(rows.map((r) => r.family)).size).toBe(36);')).toBe(true);
+    expect(stress.includes('toBe(40)')).toBe(true);
+    expect(stress.includes('expect(new Set(rows.map((r) => r.family)).size).toBe(37);')).toBe(true);
   });
 });
 
@@ -220,9 +222,14 @@ describe('the constitution — thirty-eight words, the first shared family', () 
 // 6. THE FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — the round leads the feed', () => {
+describe('whats-new — the round, pinned in the feed', () => {
   it('the head wears the round\u2019s own story — the honoured probe and the new word', () => {
-    const head = WHATS_NEW[0];
+    // v2.484.0 THE MUSEUM RE-KEY (the v2470 treatment): the round's own
+    // entry is FOUND, not assumed to lead — the feed rides the living
+    // head, the museum keeps the round's own word; the guard comes with
+    // the find.
+    const head = WHATS_NEW.find((e) => e.version === '2.483.0');
+    if (!head) throw new Error('the 2.483.0 entry is gone from the feed');
     expect(head.version).toBe('2.483.0');
     expect(head.title).toContain('the range\u2019s word rides the address');
     expect(head.title).toContain('the range\u2019s dates ride the address');
@@ -246,7 +253,7 @@ describe('whats-new — the round leads the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.483.0');
+    expect(pkg.version).toBe('2.484.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.483.0]')).toBeGreaterThan(-1);

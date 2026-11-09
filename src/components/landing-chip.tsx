@@ -51,6 +51,11 @@ import { Link2, X } from 'lucide-react';
 // shade-split law's next form, the family grew one line rather than
 // masquerade (the exact violet 300-trio census was machine-kept: no src
 // file wore the trio before this line).
+// v2.484.0: blue joins the 300 storey — the people window's word (the
+// HR desk's period). The transfers ledger's chip hue at the 200/50
+// storey speaking through a storey it never spoke — the shade-split
+// law's next form; blue LEFT the stranger list (the family grew, the
+// guard stays honest).
 export const LANDING_CHIP_HUES = [
   'sky',
   'purple',
@@ -66,6 +71,10 @@ export const LANDING_CHIP_HUES = [
   'amber',
   'emerald',
   'violet',
+  // v2.484.0: blue's promotion — the people window's word (the HR
+  // desk's period); the transfers desk's 200-storey hue one storey
+  // deeper (the shade-split law's next form).
+  'blue',
 ] as const;
 
 export type LandingChipHue = (typeof LANDING_CHIP_HUES)[number];
@@ -91,6 +100,9 @@ export const LANDING_CHIP_WARDROBES: Record<LandingChipHue, string> = {
   // v2.482.0: violet's line — the range's own word (the SINGLE-LINE law:
   // one entry, one line, the grep finds the whole wardrobe).
   violet: 'border-violet-300 bg-violet-100 text-violet-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-violet-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 dark:border-violet-500/30 dark:bg-violet-500/10 dark:text-violet-300 dark:hover:bg-violet-500/20',
+  // v2.484.0: blue's line — the people window's word (the SINGLE-LINE
+  // law: one entry, one line, the grep finds the whole wardrobe).
+  blue: 'border-blue-300 bg-blue-100 text-blue-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-blue-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-300 dark:hover:bg-blue-500/20',
 };
 
 // THE ELDER STOREY (v2.397.0): the 200/50 registry — the census's 22

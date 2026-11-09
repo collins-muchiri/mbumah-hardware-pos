@@ -130,13 +130,16 @@ describe('the thirteenth byte — emerald, the ledger\u2019s own green', () => {
     // v2.482.0 (dated): the thirty-sixth word — the range's own word
     // rides the address; the count rolls with the constitution.
     expect(registry.includes("{ word: 'dead-sort', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-emerald-300', suite: 'src/tests/dead-stock-sort-address-v2481.test.ts' }")).toBe(true);
-    expect(registry.includes('(thirty-eight words, twenty-six desks)')).toBe(true);
+    expect(registry.includes('(forty words, twenty-seven desks)')).toBe(true);
   });
 
   it('the stress walks the roll and the derived counts (36 \u2192 38)', () => {
     // v2.483.0 (dated): the pair — the roll and the counts grew again.
     // v2.482.0 (dated): the roll and the counts grew with the registry.
-    expect(stress.includes('toBe(36)')).toBe(true);
+    // v2.484.0 (dated): the living stress-pin rolls — the stress's
+    // row count grew to forty (the window's round); the contains-pin
+    // rides the bytes that ARE.
+    expect(stress.includes('toBe(40)')).toBe(true);
     expect(stress.includes("      'dead-sort',")).toBe(true);
   });
 
@@ -177,12 +180,16 @@ describe('the registry proper — the (hue, storey) weave', () => {
     expect(LANDING_CHIP_REGISTRY[200]).toEqual(LANDING_CHIP_HUES_200);
   });
 
-  it('THE FORMULA IS THE 300 WARDROBE — all fourteen lines, byte for byte', () => {
+  it('THE FORMULA IS THE 300 WARDROBE — all fifteen lines, byte for byte', () => {
+    // v2.484.0 (dated): fifteen hues — blue joined with the people
+    // window's word; the formula reproduces every literal line.
     // v2.482.0 (dated): fourteen hues — violet joined with the range's
     // own word; the formula reproduces every literal line.
     // v2.481.0 (dated): thirteen hues — emerald joined with the sort
     // door's word; the formula reproduces every literal line.
-    expect(LANDING_CHIP_HUES.length).toBe(14);
+    // v2.484.0 (dated): the living registry pin rolls (the museum's own
+    // ENTRY pins stay 2.481.0 forever — the v2470 law).
+    expect(LANDING_CHIP_HUES.length).toBe(15);
     for (const hue of LANDING_CHIP_HUES) {
       expect(landingChipWardrobe(hue, 300), hue).toBe(LANDING_CHIP_WARDROBES[hue]);
     }
@@ -199,10 +206,13 @@ describe('the registry proper — the (hue, storey) weave', () => {
     // the 200-only hues answer false at the 300 storey — the wardrobe
     // throws honestly instead of dressing a stranger (no undefined
     // wardrobe, no masquerade)
+    // v2.484.0 (dated): blue LEFT the stranger list — the people
+    // window's word brought it to the 300 storey; the family grew, the
+    // guard stays honest.
     // v2.482.0 (dated): violet LEFT the stranger list — the range's own
     // word brought it to the 300 storey; the family grew, the guard
     // stays honest.
-    for (const hue of ['neutral', 'slate', 'zinc', 'gray', 'red', 'green', 'stone', 'blue'] as const) {
+    for (const hue of ['neutral', 'slate', 'zinc', 'gray', 'red', 'green', 'stone'] as const) {
       expect(landingChipSpeaksAt(hue, 300), hue).toBe(false);
       expect(() => landingChipWardrobe(hue, 300)).toThrow(`the ${hue} hue never spoke at the 300 storey`);
       expect(landingChipSpeaksAt(hue, 200), hue).toBe(true);
@@ -324,7 +334,7 @@ describe('whats-new — the round, pinned in the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.483.0');
+    expect(pkg.version).toBe('2.484.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.481.0]')).toBeGreaterThan(-1);

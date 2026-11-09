@@ -206,7 +206,7 @@ describe('the landing chip — the face names the word it answered', () => {
 // 4. THE CONSTITUTION — the whole vocabulary's invariants, walked from bytes
 // ---------------------------------------------------------------------------
 
-describe('the address-bar vocabulary — THE CONSTITUTION (thirty-eight words, twenty-six desks)', () => {
+describe('the address-bar vocabulary — THE CONSTITUTION (forty words, twenty-seven desks)', () => {
   const WORDS = [
     { word: 'po-status', desk: 'src/app/(shell)/tabs/purchase-orders-tab.tsx', family: 'border-indigo-200', suite: 'src/tests/proxy-gate-layering-v2328.test.ts' },
     { word: 'inv-stock', desk: 'src/app/(shell)/tabs/inventory-tab.tsx', family: 'border-amber-200', suite: 'src/tests/inv-stock-deep-link-v2329.test.ts' },
@@ -390,6 +390,21 @@ describe('the address-bar vocabulary — THE CONSTITUTION (thirty-eight words, t
     // constitution's FIRST shared family (two words, one chip).
     { word: 'rep-from', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-violet-300', suite: 'src/tests/custom-range-address-v2483.test.ts' },
     { word: 'rep-to', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-violet-300', suite: 'src/tests/custom-range-address-v2483.test.ts' },
+    // the people's own window (v2.484.0): the pair — the thirty-ninth
+    // and fortieth words — rides the HR desk's period (?hr-from= /
+    // ?hr-to=), the family's FIRST non-tab desk (src/app/(shell)/hr/
+    // reports/page.tsx — the desk's own scratch since v2.20.0 now
+    // speaks its address). THE WINDOW'S OWN LAW: each side validates
+    // INDEPENDENTLY (a real from with a garbage to keeps the from,
+    // drops only the to — the v2.317 never-strand reading; the rep
+    // pair's WHOLE law is the pair's own, the window's is this). The
+    // family GREW one line: blue joins the 300 registry — the
+    // transfers desk's hue at the 200/50 storey (the transfer-status
+    // chip's own family) one storey deeper (the shade-split law's next
+    // form; blue LEFT the stranger list). THE SECOND SHARED FAMILY:
+    // two words, one chip (the window's blue serves both rows).
+    { word: 'hr-from', desk: 'src/app/(shell)/hr/reports/page.tsx', family: 'border-blue-300', suite: 'src/tests/hr-period-address-v2484.test.ts' },
+    { word: 'hr-to', desk: 'src/app/(shell)/hr/reports/page.tsx', family: 'border-blue-300', suite: 'src/tests/hr-period-address-v2484.test.ts' },
   ] as const;
 
   it('every word is desk-prefixed and owns its FILTERS const in exactly its desk', () => {
@@ -404,7 +419,9 @@ describe('the address-bar vocabulary — THE CONSTITUTION (thirty-eight words, t
     // v2.483.0 (dated): the FIRST SHARED FAMILY — the pair rides the
     // range's violet (two words, one chip), so the distinct count is
     // two short of the words' own (the pair's two words, one family).
-    const SHARED_WORDS = 2;
+    // v2.484.0 (dated): the SECOND SHARED FAMILY — the window rides the
+    // people's blue (two words, one chip, again): one more shared word.
+    const SHARED_WORDS = 3;
     expect(new Set(families).size + SHARED_WORDS).toBe(WORDS.length);
     const loom = readFileSync('src/components/landing-chip.tsx', 'utf8');
     for (const { word, desk: deskPath, family } of WORDS) {
@@ -531,6 +548,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/exp-type-deep-link-v2392.test.ts',
       'src/tests/family-registry-stress-v2370.test.ts',
       'src/tests/gc-status-deep-link-v2358.test.ts',
+      // the window's own ledger — admitted (its registry section reads
+      // this file's rows; an admission line carries the words it admits;
+      // sorted place: gc- < hr- < inv-)
+      'src/tests/hr-period-address-v2484.test.ts',
       'src/tests/inv-status-deep-link-v2356.test.ts',
       'src/tests/inv-stock-deep-link-v2329.test.ts',
       // the po-status word's ledger lives beside the proxy-gate suite
