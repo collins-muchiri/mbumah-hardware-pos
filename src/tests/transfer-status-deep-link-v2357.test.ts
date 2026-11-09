@@ -206,7 +206,7 @@ describe('the landing chip — the face names the word it answered', () => {
 // 4. THE CONSTITUTION — the whole vocabulary's invariants, walked from bytes
 // ---------------------------------------------------------------------------
 
-describe('the address-bar vocabulary — THE CONSTITUTION (forty-four words, twenty-nine desks)', () => {
+describe('the address-bar vocabulary — THE CONSTITUTION (forty-five words, thirty desks)', () => {
   const WORDS = [
     { word: 'po-status', desk: 'src/app/(shell)/tabs/purchase-orders-tab.tsx', family: 'border-indigo-200', suite: 'src/tests/proxy-gate-layering-v2328.test.ts' },
     { word: 'inv-stock', desk: 'src/app/(shell)/tabs/inventory-tab.tsx', family: 'border-amber-200', suite: 'src/tests/inv-stock-deep-link-v2329.test.ts' },
@@ -440,6 +440,22 @@ describe('the address-bar vocabulary — THE CONSTITUTION (forty-four words, twe
     // deeper (the shade-split law's next form; red LEFT the stranger
     // list).
     { word: 'sh-dlq', desk: 'src/app/(shell)/tabs/system-health-tab.tsx', family: 'border-red-300', suite: 'src/tests/sh-dlq-address-v2486.test.ts' },
+    // the shift's own word (v2.487.0): the week — the
+    // forty-fifth word — rides the scheduling desk's week
+    // navigation (?shift-week=<YYYY-MM-DD>), the FOURTH shell-tab desk
+    // (src/app/(shell)/tabs/shift-scheduling-tab.tsx — the desk's first
+    // daily question now speaks its address). THE SHIFT'S OWN LAW:
+    // the word is a SHAPE word — the wire's own day-key class (the
+    // date input's own bytes), the day REAL through the ONE home's
+    // honest-day validator (a wrong shape, a bare month, an impossible
+    // 2026-02-30 is an unknown word, not a clever match). THE DEFAULT
+    // WEARS NO WORD: this week is the address's silence — the key
+    // strips when the desk rests, and a landed word that names the
+    // resting week wears no chip. The family GREW one line: slate
+    // joins the 300 registry — the conversations desk's hue at the
+    // 200/50 storey (the cv-type row's own family) one storey deeper
+    // (the shade-split law's next form; slate LEFT the stranger list).
+    { word: 'shift-week', desk: 'src/app/(shell)/tabs/shift-scheduling-tab.tsx', family: 'border-slate-300', suite: 'src/tests/shift-week-address-v2487.test.ts' },
   ] as const;
 
   it('every word is desk-prefixed and owns its FILTERS const in exactly its desk', () => {
@@ -619,6 +635,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // this file's rows; an admission line carries the word it admits;
       // sorted place: sec- < sh- < sup-)
       'src/tests/sh-dlq-address-v2486.test.ts',
+      // the shift week's own ledger — admitted (its registry section
+      // reads this file's rows; an admission line carries the word it
+      // admits; sorted place: sh- < shift- < sup-)
+      'src/tests/shift-week-address-v2487.test.ts',
       'src/tests/sup-po-deep-link-v2332.test.ts',
       'src/tests/sup-status-deep-link-v2331.test.ts',
       // and this file joins its own ledger (an admission line carries the

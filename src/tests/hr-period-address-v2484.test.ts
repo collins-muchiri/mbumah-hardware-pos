@@ -110,7 +110,9 @@ describe('the fifteenth byte — blue, the people window\u2019s tone', () => {
     // hue count grew to sixteen (the period's green).
     // v2.486.0 (dated): the living registry pin rolls — the loom's
     // hue count grew to seventeen (the queue's red).
-    expect(LANDING_CHIP_HUES.length).toBe(17);
+    // v2.487.0 (dated): the living registry pin rolls — the loom's
+    // hue count grew to eighteen (the shift's slate).
+    expect(LANDING_CHIP_HUES.length).toBe(18);
     expect(LANDING_CHIP_WARDROBES.blue).toContain('hover:bg-blue-200');
   });
 
@@ -209,7 +211,7 @@ describe('the constitution — forty words, twenty-seven desks, the second share
   it('the window\u2019s rows joined (the people\u2019s blue serves both)', () => {
     expect(registry.includes("{ word: 'hr-from', desk: 'src/app/(shell)/hr/reports/page.tsx', family: 'border-blue-300', suite: 'src/tests/hr-period-address-v2484.test.ts' }")).toBe(true);
     expect(registry.includes("{ word: 'hr-to', desk: 'src/app/(shell)/hr/reports/page.tsx', family: 'border-blue-300', suite: 'src/tests/hr-period-address-v2484.test.ts' }")).toBe(true);
-    expect(registry.includes('(forty-four words, twenty-nine desks)')).toBe(true);
+    expect(registry.includes('(forty-five words, thirty desks)')).toBe(true);
   });
 
   it('the stress walks the roll and the derived counts (38 \u2192 40, families 36 \u2192 37 — the SECOND shared family)', () => {
@@ -221,7 +223,10 @@ describe('the constitution — forty words, twenty-seven desks, the second share
     // v2.486.0 (dated): the living stress-pin rolls — the stress's
     // row count grew to forty-four (the queue's round); the
     // contains-pin rides the bytes that ARE.
-    expect(stress.includes('toBe(44)')).toBe(true);
+    // v2.487.0 (dated): the living stress-pin rolls — the stress's
+    // row count grew to forty-five (the shift's round); the
+    // contains-pin rides the bytes that ARE.
+    expect(stress.includes('toBe(45)')).toBe(true);
     // the families grew ONE (blue-300 is new) while the words grew two:
     // the window rides its own blue — two words, one chip, again
     // v2.485.0 (dated): the living family-pin rolls — the families
@@ -230,7 +235,10 @@ describe('the constitution — forty words, twenty-seven desks, the second share
     // v2.486.0 (dated): the living family-pin rolls — the families
     // grew to thirty-nine (red-300 joined); the contains-pin rides
     // the bytes that ARE.
-    expect(stress.includes('expect(new Set(rows.map((r) => r.family)).size).toBe(39);')).toBe(true);
+    // v2.487.0 (dated): the living family-pin rolls — the families
+    // grew to forty (slate-300 joined); the contains-pin rides
+    // the bytes that ARE.
+    expect(stress.includes('expect(new Set(rows.map((r) => r.family)).size).toBe(40);')).toBe(true);
   });
 });
 
@@ -269,7 +277,7 @@ describe('whats-new — the round leads the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.486.0');
+    expect(pkg.version).toBe('2.487.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.484.0]')).toBeGreaterThan(-1);

@@ -271,7 +271,7 @@ describe('the address-bar vocabulary — the twenty-eighth row (cross-suite pins
   const constitution = readFileSync('src/tests/transfer-status-deep-link-v2357.test.ts', 'utf8');
 
   it('the constitution walks TWENTY-EIGHT words over TWENTY-FOUR desks (a new desk speaks)', () => {
-    expect(constitution.includes('(forty-four words, twenty-nine desks)')).toBe(true);
+    expect(constitution.includes('(forty-five words, thirty desks)')).toBe(true);
     expect(constitution.includes("{ word: 'debt-status', desk: 'src/app/(shell)/tabs/debt-management-tab.tsx', family: 'border-cyan-300', suite: 'src/tests/debt-status-deep-link-v2389.test.ts' }")).toBe(true);
     expect(constitution.includes("'TWENTY-EIGHTH'")).toBe(true);
   });
@@ -284,7 +284,7 @@ describe('the address-bar vocabulary — the twenty-eighth row (cross-suite pins
 describe('whats-new — v2.480.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.486.0');
+    expect(head.version).toBe('2.487.0');
     // the lead's story hand-over (v2.480.0, the Task 111 law's
     // eighty-sixth application): the head story is the hand-over's
     // voice — the carrying round: THE LENS'S WORD RIDES THE

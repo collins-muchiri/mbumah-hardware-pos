@@ -73,7 +73,7 @@ function parseRegistry(): RegistryRow[] {
 const rows = parseRegistry();
 
 describe('the registry, parsed from the constitution file itself', () => {
-  it('parses FORTY-FOUR rows (the constitution\u2019s own count, derived)', () => {
+  it('parses FORTY-FIVE rows (the constitution\u2019s own count, derived)', () => {
     // v2.484.0 (dated): the window — the people desk's period rides the
     // address; the constitution grew its rows and this parse grew with
     // it (the family's FIRST non-tab desk joined).
@@ -89,7 +89,7 @@ describe('the registry, parsed from the constitution file itself', () => {
     // v2.480.0 (dated): the thirty-fourth word — the search lens's own
     // word rides the address; the constitution grew its row and this
     // parse grew with it.
-    expect(rows.length).toBe(44);
+    expect(rows.length).toBe(45);
   });
 
   it('the rows walk in the promise\u2019s order (the roll, derived from the parse)', () => {
@@ -140,11 +140,16 @@ describe('the registry, parsed from the constitution file itself', () => {
       // APPLICATION: a landing that carries the word raises the
       // desk's own dlq sub-tab; the THIRD shell-tab desk)
       'sh-dlq',
+      // v2.487.0 (dated): the shift's own word — the scheduling desk's
+      // week rides the address (a SHAPE word — the wire's own day-key
+      // class, the day REAL through the honest-day validator; the
+      // FOURTH shell-tab desk)
+      'shift-week',
     ];
     expect(rows.map((r) => r.word)).toEqual(expected);
   });
 
-  it('the parsed desks and suites are the title\u2019s own arithmetic (29 desks, 39 families — derived)', () => {
+  it('the parsed desks and suites are the title\u2019s own arithmetic (30 desks, 40 families — derived)', () => {
     // v2.484.0 (dated): the SECOND SHARED FAMILY — the window rides the
     // people's blue, so the words grew two while the families grew ONE
     // (blue-300 is new; two words, one chip, again — and the family's
@@ -160,7 +165,9 @@ describe('the registry, parsed from the constitution file itself', () => {
     // desk joined with the period's word.
     // v2.486.0 (dated): twenty-nine desks — the THIRD shell-tab
     // desk joined with the queue's word.
-    expect(new Set(rows.map((r) => r.desk)).size).toBe(29);
+    // v2.487.0 (dated): thirty desks — the FOURTH shell-tab
+    // desk joined with the shift's week.
+    expect(new Set(rows.map((r) => r.desk)).size).toBe(30);
     // v2.484.0 (dated): blue-300 joined with the window's word — the
     // families grew one (37) while the words grew two (the SECOND
     // shared family: two words, one chip).
@@ -170,8 +177,11 @@ describe('the registry, parsed from the constitution file itself', () => {
     // v2.486.0 (dated): red-300 joined with the queue's word —
     // the families grew one (39) with the word's own (the shade-split
     // law's next form; no shared family — the red serves one word).
-    expect(new Set(rows.map((r) => r.family)).size).toBe(39);
-    expect(constitution.includes('(forty-four words, twenty-nine desks)')).toBe(true);
+    // v2.487.0 (dated): slate-300 joined with the shift's week —
+    // the families grew one (40) with the word's own (the shade-split
+    // law's next form; no shared family — the slate serves one word).
+    expect(new Set(rows.map((r) => r.family)).size).toBe(40);
+    expect(constitution.includes('(forty-five words, thirty desks)')).toBe(true);
   });
 
   it('the promise roll through THIRTY-SECOND is present (the ordinals, derived from the home’s notes)', () => {
