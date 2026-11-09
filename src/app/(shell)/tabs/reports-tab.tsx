@@ -28,7 +28,7 @@ import {
   type DeadStockReportData,
 } from '@/lib/api';
 import { handleError } from '@/lib/error-handler';
-import { parseInitialNamedMember, REP_TYPE_FILTERS } from '@/lib/tab-url';
+import { parseInitialCustomRange, parseInitialNamedMember, REP_TYPE_FILTERS } from '@/lib/tab-url';
 import { DEAD_STOCK_SORTS, DEAD_STOCK_WINDOWS, capitalTiedByCategory, deadStockChorusHeader, deadStockChorusShareUrl, deadStockClearanceNote, deadStockClearanceNotes, deadStockShareUrl, deadStockViewSummary, filterDeadStockRows, sortDeadStockRows, waMeDisplay, type DeadStockRow, type DeadStockSortKey } from '@/lib/reports/dead-stock';
 import {
   composeSeriesVoice, composeHourlyVoice,
@@ -233,12 +233,15 @@ function writeDeadSortWord(key: DeadStockSortKey): void {
 // spoke — a family byte the 200-storey's violet line can never equal
 // (the shade-split law's next form; the registry grew one line rather
 // than masquerade; the exact violet 300-trio census was machine-kept).
-// THE CUSTOM'S HONEST ABSENCE: `custom` is not a word the address can
-// carry — a custom landing without its dates would speak an unknown
-// range — so the custom face stays the desk's own scratch (its honest
-// share needs its dates: the family's next verse). THE DEFAULT WEARS NO
-// WORD: the resting range is the address's silence — the key strips when
-// the desk rests. THE LANDING IS READ ONCE ON THE SHELL: a plain
+// THE CUSTOM'S HONEST ABSENCE, NOW THE HONEST SHARE (v2.483.0):
+// `custom` speaks WHOLE or not at all — the custom landing carries its
+// OWN dates (`rep-from` / `rep-to`, the desk-prefixed pair), so a
+// custom landing without its dates still speaks an unknown range and
+// the custom face stays the desk's own scratch (the honest absence
+// holds); with its dates riding, the custom face IS a shareable
+// address (the family's next verse, taken). THE DEFAULT WEARS NO
+// WORD: the resting range is the address's silence — the key strips
+// when the desk rests. THE LANDING IS READ ONCE ON THE SHELL: a plain
 // useState initializer — a dismissed chip can never resurrect. THE
 // RANGE WRITES BACK: every hand-driven range turn replaceState's its
 // word into the address (the window's own write shape), so a turned
@@ -248,25 +251,71 @@ const REP_RANGE_WORDS: readonly DatePreset[] = ['today', 'this_week', 'this_mont
 
 function initialRepRange(): DatePreset {
   if (typeof window === 'undefined') return 'this_month';
+  // THE CUSTOM'S HONEST SHARE (v2.483.0): custom lands only with BOTH
+  // its dates riding — the pair read through the ONE home's own
+  // validator; a bare custom stays the honest absence (the default's
+  // silence — the unknown-word law's own reading).
+  if (parseInitialCustomRange(window.location.search, 'rep-range', 'custom', 'rep-from', 'rep-to')) return 'custom';
   return parseInitialNamedMember(window.location.search, 'rep-range', [...REP_RANGE_WORDS], 'this_month') as DatePreset;
+}
+
+// THE CUSTOM'S OWN DATES (v2.483.0 — the honest share the absence
+// promised): the custom face's two day-bytes ride BESIDE the custom's
+// word — `?rep-range=custom&rep-from=YYYY-MM-DD&rep-to=YYYY-MM-DD`,
+// the desk-prefixed pair (collision-checked at round start: the bare
+// `from`/`to` already speak the loyalty ledger's legacy window — the
+// family's desk-prefix law caught the opening map's bare shape; the
+// words wear the desk's own prefix). THE PAIR IS THE WORD'S OTHER
+// HALF: custom lands ONLY when both its days ride, and every day the
+// human scratches writes its byte back, so the custom face is a
+// shareable address, never a dead end.
+function initialCustomRange(): { from: string; to: string } | null {
+  if (typeof window === 'undefined') return null;
+  return parseInitialCustomRange(window.location.search, 'rep-range', 'custom', 'rep-from', 'rep-to');
 }
 
 // The write half — the range's own replaceState (preserve the other
 // params: tab, rep-type, the dead-stock stage's three words and every
 // other desk's word ride untouched); the DEFAULT strips its key — the
-// address never carries the resting face's word, and `custom` is never
-// a word at all (the honest absence).
+// address never carries the resting face's word, and a custom word
+// without its dates is never a word at all (the honest share speaks
+// WHOLE — the pair rides beside it).
 function writeRepRangeWord(preset: DatePreset): void {
   if (typeof window === 'undefined') return;
   try {
     const params = new URLSearchParams(window.location.search);
     if (preset === 'this_month') params.delete('rep-range');
     else params.set('rep-range', preset);
+    // THE DATES RETIRE WITH THE CUSTOM'S WORD (v2.483.0): a named
+    // preset's turn replaces the custom's whole address — the pair's
+    // bytes never linger behind another range's word.
+    if (preset !== 'custom') {
+      params.delete('rep-from');
+      params.delete('rep-to');
+    }
     const qs = params.toString();
     window.history.replaceState(null, '', window.location.pathname + (qs ? `?${qs}` : ''));
   } catch {
     // The address never lies louder than the range — a blocked write
     // leaves the range on the desk, exactly where the human pressed it.
+  }
+}
+
+// The dates' own write — the pair rides beside the custom's word (the
+// window's own write shape); a blocked write is the dates' silence,
+// never a thrown desk.
+function writeCustomRangeWord(from: string, to: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    params.set('rep-range', 'custom');
+    params.set('rep-from', from);
+    params.set('rep-to', to);
+    const qs = params.toString();
+    window.history.replaceState(null, '', window.location.pathname + (qs ? `?${qs}` : ''));
+  } catch {
+    // The address never lies louder than the dates — a blocked write
+    // leaves the dates on the desk, exactly where the human scratched them.
   }
 }
 
@@ -2416,10 +2465,31 @@ export default function ReportsTab() {
   // hand-driven turn rides this one door — the set and the address write
   // live together, the write a FACT ride (the range's truth), never a
   // gate. The preset chips press through the door; the custom inputs
-  // scratch the dates beside it (the custom face is no word at all).
+  // scratch the dates beside it (the pair writes its own bytes back —
+  // the dates' own door below).
   const [landedRepRange] = useState<DatePreset>(initialRepRange);
   const [repRangeLandingLive, setRepRangeLandingLive] = useState(true);
   const [datePreset, setDatePresetState] = useState<DatePreset>(initialRepRange);
+  // THE CUSTOM'S OWN LANDING (v2.483.0) — the pair read once on the
+  // shell (the landing law's shape): the address's dates land into the
+  // two inputs below, a dismissed chip can never resurrect.
+  const [landedCustomRange] = useState<{ from: string; to: string } | null>(initialCustomRange);
+  // THE RANGE'S OWN STATE (v2.482.0) — the desk's time lens lifted beside
+  // the dead-stock stage's three words (the landing law's shape): the
+  // landing is read once on the shell, the range rides the desk-level
+  // state (it always did — the desk owns the presets), and EVERY
+  // hand-driven turn rides this one door — the set and the address write
+  // live together, the write a FACT ride (the range's truth), never a
+  // gate. The preset chips press through the door; the custom inputs
+  // scratch the dates beside it (the pair writes its own bytes back —
+  // the dates' own door below). The date state stands ABOVE the door
+  // (v2.483.0's lift): choosing the custom face writes the dates the
+  // desk already holds, so the door needs them in hand.
+  // Initialize from preset — a custom LANDING seeds the inputs from
+  // the address's own pair (the desk's dates ARE the address's word).
+  const presetRange = useMemo(() => getDatePresetRange(datePreset), [datePreset]);
+  const [dateFrom, setDateFrom] = useState(landedCustomRange?.from ?? presetRange.from);
+  const [dateTo, setDateTo] = useState(landedCustomRange?.to ?? presetRange.to);
   const chooseRepRange = useCallback((value: DatePreset) => {
     // THE AGREEMENT IS NO NEWS (the window's own law): a hand-driven
     // change that moves the range retires the landing chip — the
@@ -2432,7 +2502,26 @@ export default function ReportsTab() {
     setDatePresetState(value);
     setRepRangeLandingLive(false);
     writeRepRangeWord(value);
-  }, [datePreset]);
+    // THE CUSTOM'S WHOLE WORD (v2.483.0): choosing the custom face
+    // writes the dates the desk already holds — the address speaks the
+    // pair from the first press (the honest share, no dead end).
+    if (value === 'custom') writeCustomRangeWord(dateFrom, dateTo);
+  }, [datePreset, dateFrom, dateTo]);
+
+  // THE DATES' OWN DOOR (v2.483.0): EVERY path that scratches a custom
+  // day rides this one callback — the chip retires when the pair
+  // actually moved (agreement is no news), and the address writes the
+  // pair back so the scratched date is a shareable address. The write
+  // is a FACT ride (the dates' truth), never a gate: the desk works
+  // identically when the history API refuses.
+  const chooseCustomDate = useCallback((which: 'from' | 'to', value: string) => {
+    const current = which === 'from' ? dateFrom : dateTo;
+    if (value === current) return; // THE AGREEMENT IS NO NEWS
+    if (which === 'from') setDateFrom(value);
+    else setDateTo(value);
+    setRepRangeLandingLive(false);
+    writeCustomRangeWord(which === 'from' ? value : dateFrom, which === 'from' ? dateTo : value);
+  }, [dateFrom, dateTo]);
 
   // a hand-driven shape change retires the landing word — the chip
   // speaks the ADDRESS BAR's landing, never the human's next choice.
@@ -2462,12 +2551,8 @@ export default function ReportsTab() {
     writeDeadWindowWord(value);
   }, [deadStockDays]);
 
-  // Initialize from preset
-  const presetRange = useMemo(() => getDatePresetRange(datePreset), [datePreset]);
-  const [dateFrom, setDateFrom] = useState(presetRange.from);
-  const [dateTo, setDateTo] = useState(presetRange.to);
-
-  // Sync dates when preset changes
+  // Sync dates when preset changes (the custom face keeps its own —
+  // the landed pair and the scratched dates are the custom's truth)
   React.useEffect(() => {
     if (datePreset !== 'custom') {
       const range = getDatePresetRange(datePreset);
@@ -3391,12 +3476,29 @@ export default function ReportsTab() {
               )}
             </div>
             {datePreset === 'custom' && (
-              <div className="flex items-center gap-2 ml-6">
+              /* THE CUSTOM'S OWN GROUND (v2.483.0) — the scratch wears a
+                  joined card now: the pair's two day-inputs speak their
+                  handles (the round's own probes), the dark picker's
+                  dress (the native icon answers the dark wardrobe), and
+                  the range's own dress's From/To labels stand alone (the
+                  stray separator retired — one label per end). */
+              <div className="flex flex-wrap items-center gap-2 ml-6 rounded-lg border bg-muted/30 px-3 py-1.5">
                 <span className="text-[10px] text-muted-foreground">From</span>
-                <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="h-8 text-xs w-36 tabular-nums" />
-                <span className="text-xs text-muted-foreground">to</span>
+                <Input
+                  type="date"
+                  data-testid="rep-from-input"
+                  value={dateFrom}
+                  onChange={(e) => chooseCustomDate('from', e.target.value)}
+                  className="h-8 text-xs w-36 tabular-nums dark:[color-scheme:dark]"
+                />
                 <span className="text-[10px] text-muted-foreground">To</span>
-                <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="h-8 text-xs w-36 tabular-nums" />
+                <Input
+                  type="date"
+                  data-testid="rep-to-input"
+                  value={dateTo}
+                  onChange={(e) => chooseCustomDate('to', e.target.value)}
+                  className="h-8 text-xs w-36 tabular-nums dark:[color-scheme:dark]"
+                />
               </div>
             )}
           </div>
