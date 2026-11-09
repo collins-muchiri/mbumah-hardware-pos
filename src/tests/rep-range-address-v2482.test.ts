@@ -107,7 +107,7 @@ describe('the fourteenth byte — violet, the time lens\u2019s tone', () => {
 
   it('the constitution grew its thirty-sixth row and its own count', () => {
     expect(registry.includes("{ word: 'rep-range', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-violet-300', suite: 'src/tests/rep-range-address-v2482.test.ts' }")).toBe(true);
-    expect(registry.includes('(forty-three words, twenty-eight desks)')).toBe(true);
+    expect(registry.includes('(forty-four words, twenty-nine desks)')).toBe(true);
   });
 
   it('the stress walks the roll and the derived counts (35 \u2192 36)', () => {
@@ -117,7 +117,10 @@ describe('the fourteenth byte — violet, the time lens\u2019s tone', () => {
     // v2.485.0 (dated): the living stress-pin rolls — the stress's
     // row count grew to forty-three (the period's round); the
     // contains-pin rides the bytes that ARE.
-    expect(stress.includes('toBe(43)')).toBe(true);
+    // v2.486.0 (dated): the living stress-pin rolls — the stress's
+    // row count grew to forty-four (the queue's round); the
+    // contains-pin rides the bytes that ARE.
+    expect(stress.includes('toBe(44)')).toBe(true);
     expect(stress.includes("      'rep-range',")).toBe(true);
   });
 
@@ -146,7 +149,9 @@ describe('the fourteenth byte — violet, the time lens\u2019s tone', () => {
     // ENTRY pins stay 2.482.0 forever — the v2470 law).
     // v2.485.0 (dated): the living registry pin rolls — the loom's
     // hue count grew to sixteen (the period's green).
-    expect(LANDING_CHIP_HUES.length).toBe(16);
+    // v2.486.0 (dated): the living registry pin rolls — the loom's
+    // hue count grew to seventeen (the queue's red).
+    expect(LANDING_CHIP_HUES.length).toBe(17);
     for (const hue of LANDING_CHIP_HUES) {
       expect(loom.includes(`  ${hue}: 'border-${hue}-300`), hue).toBe(true);
     }
@@ -239,7 +244,7 @@ describe('whats-new — the round, pinned in the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.485.0');
+    expect(pkg.version).toBe('2.486.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.482.0]')).toBeGreaterThan(-1);

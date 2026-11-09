@@ -602,6 +602,39 @@ export const REP_TYPE_FILTERS = [
   'dead_stock',
 ] as const;
 
+/**
+ * v2.486.0 — THE FAMILY'S FORTY-FOURTH WORD (the queue): the health
+ * desk's DLQ lens answers the bar. The system-health desk's dead-letter
+ * filter — the operator's daily question, "what's waiting or failing in
+ * the queue?" — spoken through the status toggle since the desk's birth
+ * — now rides its desk-prefixed word `sh-dlq` (`?sh-dlq=<member>` on
+ * the wire): the desk's OWN spellings (SH_DLQ_FILTERS below the parser —
+ * the six members of the toggle, the five UPPERCASE status words plus
+ * the lowercase neutral, read through the named-member parser; a
+ * made-up member or a wrong case is an unknown word, not a clever
+ * match). THE COLLISION CHECK ran at round start: the byte appeared
+ * NOWHERE before this word. THE FAMILY'S SEVENTEENTH 300-STOREY BYTE:
+ * the landing chip wears the RED byte — the health desk's own alert
+ * hue (the etims ledger's chip hue at the 200/50 storey, the et-status
+ * row's own family) speaking through a storey it never spoke — the
+ * shade-split law's next form; red LEFT the stranger list (the exact
+ * red 300-trio census was machine-kept). THE SUB-TAB LAW'S THIRD
+ * APPLICATION (the default-sub-tab amendment, after the banking desk's
+ * two): the lens lives inside the desk's `dlq` sub-tab, so a landing
+ * that carries the word RAISES THE SUB-TAB IT LANDS INTO — the pane's
+ * seed reads the same landed word, and the chip is visible on landing
+ * (the always-visible-face law's intent holds behind the desk's own
+ * inner navigation). Switching sub-tabs afterwards is the human's own
+ * navigation, not a lens change: the chip hides with the pane and
+ * returns when it reopens — the same honest remount semantics every
+ * desk already speaks across tab switches. THE LANDING IS READ ONCE ON
+ * THE SHELL: a plain useState initializer — a dismissed chip can never
+ * resurrect. THE DEFAULT WEARS NO WORD: the resting lens is `all` —
+ * the address's silence, the key strips when the desk rests. THE LENS
+ * WRITES BACK: every filter turn replaceState's its word (the window's
+ * own write shape), so a turned lens is a shareable address, never a
+ * dead end; a blocked write is the lens's silence, never a thrown desk.
+ */
 export function parseInitialNamedMember<V extends string>(
   search: string,
   param: string,
@@ -890,6 +923,27 @@ export const MSG_TEMPLATE_FILTERS = [
 ] as const;
 
 export type MsgTemplateFilter = (typeof MSG_TEMPLATE_FILTERS)[number];
+
+/**
+ * The system-health desk's DLQ vocabulary (v2.486.0) — the queue lens's
+ * OWN spellings, the six members of the dlqFilter toggle plus the
+ * lowercase neutral: the five UPPERCASE status words (PENDING / RETRYING
+ * / DEAD / COMPLETED / CANCELLED — the wire's own voice, the payment
+ * word's ancestor) and the lowercase `all` exactly the toggle's own.
+ * Lives here (the ONE home) so the desk, its deep-link word and the
+ * test suite speak one array — the same home BANK_TYPE_FILTERS keeps
+ * for the banking desk's shape word.
+ */
+export const SH_DLQ_FILTERS = [
+  'all',
+  'PENDING',
+  'RETRYING',
+  'DEAD',
+  'COMPLETED',
+  'CANCELLED',
+] as const;
+
+export type ShDlqFilter = (typeof SH_DLQ_FILTERS)[number];
 
 /**
  * v2.368.0 — THE LEGACY-WORD SUNSET LAW, the alias parser. The family's

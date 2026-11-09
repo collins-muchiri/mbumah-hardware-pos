@@ -246,6 +246,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/landing-chip-loom-v2394.test.ts',
       'src/tests/msg-template-deep-link-v2393.test.ts',
       'src/tests/proxy-gate-layering-v2328.test.ts',
+      // the forty-fourth word's own ledger — admitted (its
+      // foreign-prefix probe names the desk-prefix law's own shape; a
+      // citation in prose is still a speaker)
+      'src/tests/sh-dlq-address-v2486.test.ts',
       // the reports ledger's story pins moved ON to the twenty-seventh
       // word (the v2.388.0 hand-over) — the file no longer speaks this
       // word, and the honest census releases it
@@ -263,7 +267,7 @@ describe('the address-bar vocabulary — the twenty-sixth row (cross-suite pins)
   const constitution = readFileSync('src/tests/transfer-status-deep-link-v2357.test.ts', 'utf8');
 
   it('the constitution walks TWENTY-SIX words over TWENTY-THREE desks', () => {
-    expect(constitution.includes('(forty-three words, twenty-eight desks)')).toBe(true);
+    expect(constitution.includes('(forty-four words, twenty-nine desks)')).toBe(true);
     expect(constitution.includes("{ word: 'bank-type', desk: 'src/app/(shell)/tabs/banking-tab.tsx', family: 'border-sky-300', suite: 'src/tests/bank-type-deep-link-v2387.test.ts' }")).toBe(true);
     expect(constitution.includes("'TWENTY-SIXTH'")).toBe(true);
   });
@@ -276,7 +280,7 @@ describe('the address-bar vocabulary — the twenty-sixth row (cross-suite pins)
 describe('whats-new — v2.480.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.485.0');
+    expect(head.version).toBe('2.486.0');
     // the lead's story hand-over (v2.480.0, the Task 111 law's
     // eighty-sixth application): the head story is the hand-over's
     // voice — the carrying round: THE LENS'S WORD RIDES THE
