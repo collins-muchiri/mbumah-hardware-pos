@@ -222,6 +222,54 @@ function writeDeadSortWord(key: DeadStockSortKey): void {
   }
 }
 
+// THE RANGE'S OWN WORD (v2.482.0 — the deep-link family's next wearing):
+// the reports desk's time lens answers the address bar. The desk's daily
+// question, "which days am I reading?", speaks its desk-prefixed
+// `?rep-range=<preset>` — the SIX NAMED presets' OWN spellings (the tuple
+// the desk keeps, read as words through the generic parser; a made-up
+// range is an unknown word, not a clever match) — and wears the landing
+// chip in the family's FOURTEENTH 300-storey byte: VIOLET at 300/100,
+// the transactions payment lens's hue speaking through a storey it never
+// spoke — a family byte the 200-storey's violet line can never equal
+// (the shade-split law's next form; the registry grew one line rather
+// than masquerade; the exact violet 300-trio census was machine-kept).
+// THE CUSTOM'S HONEST ABSENCE: `custom` is not a word the address can
+// carry — a custom landing without its dates would speak an unknown
+// range — so the custom face stays the desk's own scratch (its honest
+// share needs its dates: the family's next verse). THE DEFAULT WEARS NO
+// WORD: the resting range is the address's silence — the key strips when
+// the desk rests. THE LANDING IS READ ONCE ON THE SHELL: a plain
+// useState initializer — a dismissed chip can never resurrect. THE
+// RANGE WRITES BACK: every hand-driven range turn replaceState's its
+// word into the address (the window's own write shape), so a turned
+// range is a shareable address, never a dead end; a blocked write is
+// the range's silence, never a thrown desk.
+const REP_RANGE_WORDS: readonly DatePreset[] = ['today', 'this_week', 'this_month', 'this_quarter', 'this_year', 'last_month'];
+
+function initialRepRange(): DatePreset {
+  if (typeof window === 'undefined') return 'this_month';
+  return parseInitialNamedMember(window.location.search, 'rep-range', [...REP_RANGE_WORDS], 'this_month') as DatePreset;
+}
+
+// The write half — the range's own replaceState (preserve the other
+// params: tab, rep-type, the dead-stock stage's three words and every
+// other desk's word ride untouched); the DEFAULT strips its key — the
+// address never carries the resting face's word, and `custom` is never
+// a word at all (the honest absence).
+function writeRepRangeWord(preset: DatePreset): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (preset === 'this_month') params.delete('rep-range');
+    else params.set('rep-range', preset);
+    const qs = params.toString();
+    window.history.replaceState(null, '', window.location.pathname + (qs ? `?${qs}` : ''));
+  } catch {
+    // The address never lies louder than the range — a blocked write
+    // leaves the range on the desk, exactly where the human pressed it.
+  }
+}
+
 interface GrowingProduct {
   productId: string;
   name: string;
@@ -2361,7 +2409,30 @@ export default function ReportsTab() {
     writeDeadSortWord(value);
   }, [deadStockSort]);
   const [chartType, setChartType] = useState<'bar' | 'line' | 'area' | 'pie'>('bar');
-  const [datePreset, setDatePreset] = useState<DatePreset>('this_month');
+  // THE RANGE'S OWN STATE (v2.482.0) — the desk's time lens lifted beside
+  // the dead-stock stage's three words (the landing law's shape): the
+  // landing is read once on the shell, the range rides the desk-level
+  // state (it always did — the desk owns the presets), and EVERY
+  // hand-driven turn rides this one door — the set and the address write
+  // live together, the write a FACT ride (the range's truth), never a
+  // gate. The preset chips press through the door; the custom inputs
+  // scratch the dates beside it (the custom face is no word at all).
+  const [landedRepRange] = useState<DatePreset>(initialRepRange);
+  const [repRangeLandingLive, setRepRangeLandingLive] = useState(true);
+  const [datePreset, setDatePresetState] = useState<DatePreset>(initialRepRange);
+  const chooseRepRange = useCallback((value: DatePreset) => {
+    // THE AGREEMENT IS NO NEWS (the window's own law): a hand-driven
+    // change that moves the range retires the landing chip — the
+    // address's word no longer names the landing once the human has
+    // spoken; a no-op change writes nothing.
+    if (datePreset === value) {
+      setDatePresetState(value);
+      return;
+    }
+    setDatePresetState(value);
+    setRepRangeLandingLive(false);
+    writeRepRangeWord(value);
+  }, [datePreset]);
 
   // a hand-driven shape change retires the landing word — the chip
   // speaks the ADDRESS BAR's landing, never the human's next choice.
@@ -3249,7 +3320,15 @@ export default function ReportsTab() {
               <CardTitle className="text-base flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-primary" /> Report Generation Dashboard
               </CardTitle>
-              <CardDescription className="text-xs mt-1">{dateRangeDisplay}</CardDescription>
+              {/* THE RANGE'S OWN WHISPER GROWS ITS FACE (v2.482.0 — the
+                  styling verse): the paper's Period line has spoken the
+                  dates since v2.469.0; the screen's whisper wears the
+                  family's glyph and the tabular figures now — the same
+                  word, dressed for the desk. */}
+              <CardDescription className="text-xs mt-1 flex items-center gap-1">
+                <Calendar className="h-3 w-3 shrink-0" aria-hidden="true" />
+                <span className="tabular-nums">{dateRangeDisplay}</span>
+              </CardDescription>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" onClick={handlePDFExport} className="h-8"
@@ -3288,17 +3367,36 @@ export default function ReportsTab() {
                 <FilterChip
                   key={preset.id}
                   active={datePreset === preset.id}
-                  onClick={() => setDatePreset(preset.id)}
+                  onClick={() => chooseRepRange(preset.id)}
                 >
                   {preset.label}
                 </FilterChip>
               ))}
+              {/* THE RANGE'S LANDING CHIP (v2.482.0) — the word's own chip
+                  in the row the presets wear (the desk's own lens row):
+                  the FOURTEENTH 300-storey byte, violet — the time lens's
+                  tone. It only speaks when the shell LANDED with a
+                  NON-default range (the default wears no chip — the chip
+                  names a word, never a silence), and a press retires the
+                  name, never the range (the window's own dismissal
+                  shape). */}
+              {repRangeLandingLive && landedRepRange !== 'this_month' && (
+                <LandingChip
+                  hue="violet"
+                  label={`landed ?rep-range=${landedRepRange}`}
+                  onDismiss={() => setRepRangeLandingLive(false)}
+                  title="The date range landed with this word from the address bar — press to clear it"
+                  data-testid="rep-range-landing-word"
+                />
+              )}
             </div>
             {datePreset === 'custom' && (
               <div className="flex items-center gap-2 ml-6">
-                <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="h-8 text-xs w-36" />
+                <span className="text-[10px] text-muted-foreground">From</span>
+                <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="h-8 text-xs w-36 tabular-nums" />
                 <span className="text-xs text-muted-foreground">to</span>
-                <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="h-8 text-xs w-36" />
+                <span className="text-[10px] text-muted-foreground">To</span>
+                <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="h-8 text-xs w-36 tabular-nums" />
               </div>
             )}
           </div>

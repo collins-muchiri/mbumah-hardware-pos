@@ -902,6 +902,33 @@ export function parseInitialNamedMemberWithAlias<V extends string>(
  */
 
 /**
+ * v2.482.0 — THE FAMILY'S THIRTY-SIXTH WORD: the reports desk's time
+ * lens answers the bar. The date range preset — the desk's daily
+ * question, "which days am I reading?" — speaks its desk-prefixed
+ * `rep-range` (collision-checked at round start: the byte appeared
+ * NOWHERE before this word). The range's words are the SIX NAMED
+ * presets' OWN spellings — `today | this_week | this_month |
+ * this_quarter | this_year | last_month`, read as words through the
+ * generic parser from the tuple the desk keeps (a made-up range is an
+ * unknown word, not a clever match; the default is `this_month`, the
+ * resting face). THE CUSTOM'S HONEST ABSENCE: `custom` is not a word
+ * the address can carry — a custom landing without its dates would
+ * speak an unknown range — so the custom face stays the desk's own
+ * scratch (its honest share needs its dates: the family's next verse).
+ * THE FAMILY'S FOURTEENTH 300-STOREY BYTE: the landing chip wears the
+ * VIOLET byte — the transactions payment lens's hue speaking through a
+ * storey it never spoke (the exact violet 300-trio census was
+ * machine-kept: no src file wore the trio before the loom's line). The
+ * chip lives in the DESK's own preset row (the lens is beside the
+ * stage's own picker, never inside a section) and the landing is read
+ * once on the shell. THE DEFAULT WEARS NO WORD: the resting range is
+ * the address's silence — the key strips when the desk rests. THE RANGE
+ * WRITES BACK: every hand-driven range turn replaceState's its word
+ * into the address (the window's own write shape), so a turned range is
+ * a shareable address, never a dead end.
+ */
+
+/**
  * v2.383.0 — THE PROMISE KEPT, THE TWENTY-FOURTH WORD: the tax desk's
  * filings ledger answers BY THE MONTH. Its desk-prefixed `tax-period`
  * lens — the desk's other daily question, "which month's returns am I

@@ -106,16 +106,19 @@ describe('the twelfth byte — amber, the lens family\u2019s own tone', () => {
     expect(section.includes("deadQueryLandingLive && landedDeadQuery !== ''")).toBe(true);
   });
 
-  it('the constitution grew its thirty-fifth row and its own count', () => {
+  it('the constitution grew its thirty-sixth row and its own count', () => {
+    // v2.482.0 (dated): the thirty-sixth word — the range's own word
+    // rides the address; the count rolls with the constitution.
     // v2.481.0 (dated): the thirty-fifth word — the sort door's own word
     // rides the address; the count rolls with the constitution.
     expect(registry.includes("{ word: 'dead-q', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-amber-300', suite: 'src/tests/dead-stock-lens-address-v2480.test.ts' }")).toBe(true);
-    expect(registry.includes('(thirty-five words, twenty-six desks)')).toBe(true);
+    expect(registry.includes('(thirty-six words, twenty-six desks)')).toBe(true);
   });
 
-  it('the stress walks the roll and the derived counts (34 \u2192 35)', () => {
+  it('the stress walks the roll and the derived counts (35 \u2192 36)', () => {
+    // v2.482.0 (dated): the roll and the counts grew again.
     // v2.481.0 (dated): the roll and the counts grew with the registry.
-    expect(stress.includes('toBe(35)')).toBe(true);
+    expect(stress.includes('toBe(36)')).toBe(true);
     expect(stress.includes("      'dead-q',")).toBe(true);
   });
 
@@ -229,7 +232,7 @@ describe('whats-new — the round, pinned in the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.481.0');
+    expect(pkg.version).toBe('2.482.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.480.0]')).toBeGreaterThan(-1);

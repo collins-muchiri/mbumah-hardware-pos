@@ -233,7 +233,7 @@ describe('the address-bar vocabulary — the constitution\u2019s eleventh row', 
   });
 
   it('the constitution\u2019s title counts twelve words over ten desk files', () => {
-    expect(registry.includes('(thirty-five words, twenty-six desks)')).toBe(true);
+    expect(registry.includes('(thirty-six words, twenty-six desks)')).toBe(true);
   });
 
   it('the home\u2019s promise roll carries the ELEVENTH alongside its elders', () => {

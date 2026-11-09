@@ -124,13 +124,16 @@ describe('the thirteenth byte — emerald, the ledger\u2019s own green', () => {
     expect(section.includes("deadSortLandingLive && landedDeadSort !== 'capital'")).toBe(true);
   });
 
-  it('the constitution grew its thirty-fifth row and its own count', () => {
+  it('the constitution grew its thirty-sixth row and its own count', () => {
+    // v2.482.0 (dated): the thirty-sixth word — the range's own word
+    // rides the address; the count rolls with the constitution.
     expect(registry.includes("{ word: 'dead-sort', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-emerald-300', suite: 'src/tests/dead-stock-sort-address-v2481.test.ts' }")).toBe(true);
-    expect(registry.includes('(thirty-five words, twenty-six desks)')).toBe(true);
+    expect(registry.includes('(thirty-six words, twenty-six desks)')).toBe(true);
   });
 
-  it('the stress walks the roll and the derived counts (34 \u2192 35)', () => {
-    expect(stress.includes('toBe(35)')).toBe(true);
+  it('the stress walks the roll and the derived counts (35 \u2192 36)', () => {
+    // v2.482.0 (dated): the roll and the counts grew with the registry.
+    expect(stress.includes('toBe(36)')).toBe(true);
     expect(stress.includes("      'dead-sort',")).toBe(true);
   });
 
@@ -171,10 +174,12 @@ describe('the registry proper — the (hue, storey) weave', () => {
     expect(LANDING_CHIP_REGISTRY[200]).toEqual(LANDING_CHIP_HUES_200);
   });
 
-  it('THE FORMULA IS THE 300 WARDROBE — all thirteen lines, byte for byte', () => {
+  it('THE FORMULA IS THE 300 WARDROBE — all fourteen lines, byte for byte', () => {
+    // v2.482.0 (dated): fourteen hues — violet joined with the range's
+    // own word; the formula reproduces every literal line.
     // v2.481.0 (dated): thirteen hues — emerald joined with the sort
     // door's word; the formula reproduces every literal line.
-    expect(LANDING_CHIP_HUES.length).toBe(13);
+    expect(LANDING_CHIP_HUES.length).toBe(14);
     for (const hue of LANDING_CHIP_HUES) {
       expect(landingChipWardrobe(hue, 300), hue).toBe(LANDING_CHIP_WARDROBES[hue]);
     }
@@ -191,7 +196,10 @@ describe('the registry proper — the (hue, storey) weave', () => {
     // the 200-only hues answer false at the 300 storey — the wardrobe
     // throws honestly instead of dressing a stranger (no undefined
     // wardrobe, no masquerade)
-    for (const hue of ['neutral', 'slate', 'zinc', 'gray', 'red', 'green', 'stone', 'blue', 'violet'] as const) {
+    // v2.482.0 (dated): violet LEFT the stranger list — the range's own
+    // word brought it to the 300 storey; the family grew, the guard
+    // stays honest.
+    for (const hue of ['neutral', 'slate', 'zinc', 'gray', 'red', 'green', 'stone', 'blue'] as const) {
       expect(landingChipSpeaksAt(hue, 300), hue).toBe(false);
       expect(() => landingChipWardrobe(hue, 300)).toThrow(`the ${hue} hue never spoke at the 300 storey`);
       expect(landingChipSpeaksAt(hue, 200), hue).toBe(true);
@@ -284,9 +292,14 @@ describe('the seats — the round moves the order, the elder bytes hold', () => 
 // 6. THE FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — the round leads the feed', () => {
+describe('whats-new — the round, pinned in the feed', () => {
   it('the head wears the round\u2019s own story — the honoured probe and the new word', () => {
-    const head = WHATS_NEW[0];
+    // v2.482.0 THE MUSEUM RE-KEY (the v2470 treatment): the round's own
+    // entry is FOUND, not assumed to lead — the feed rides the living
+    // head, the museum keeps the round's own word; the guard comes with
+    // the find.
+    const head = WHATS_NEW.find((e) => e.version === '2.481.0');
+    if (!head) throw new Error('the 2.481.0 entry is gone from the feed');
     expect(head.version).toBe('2.481.0');
     expect(head.title).toContain('the lens\u2019s word rides the address');
     expect(head.title).toContain('the sort\u2019s word rides the address');
@@ -308,7 +321,7 @@ describe('whats-new — the round leads the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.481.0');
+    expect(pkg.version).toBe('2.482.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.481.0]')).toBeGreaterThan(-1);
