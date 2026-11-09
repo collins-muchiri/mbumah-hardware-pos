@@ -206,7 +206,7 @@ describe('the landing chip — the face names the word it answered', () => {
 // 4. THE CONSTITUTION — the whole vocabulary's invariants, walked from bytes
 // ---------------------------------------------------------------------------
 
-describe('the address-bar vocabulary — THE CONSTITUTION (thirty-four words, twenty-six desks)', () => {
+describe('the address-bar vocabulary — THE CONSTITUTION (thirty-five words, twenty-six desks)', () => {
   const WORDS = [
     { word: 'po-status', desk: 'src/app/(shell)/tabs/purchase-orders-tab.tsx', family: 'border-indigo-200', suite: 'src/tests/proxy-gate-layering-v2328.test.ts' },
     { word: 'inv-stock', desk: 'src/app/(shell)/tabs/inventory-tab.tsx', family: 'border-amber-200', suite: 'src/tests/inv-stock-deep-link-v2329.test.ts' },
@@ -346,6 +346,21 @@ describe('the address-bar vocabulary — THE CONSTITUTION (thirty-four words, tw
     // emptied lens strips its key — the address never carries a
     // silence).
     { word: 'dead-q', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-amber-300', suite: 'src/tests/dead-stock-lens-address-v2480.test.ts' },
+    // the order's own word (v2.481.0): the ledger's sort door answers
+    // the address bar — the desk's other daily question, "which honesty
+    // am I reading, the loudest debt or the shelf's patience?" — through
+    // the ONE home's OWN orders (DEAD_STOCK_SORTS, read as words; a
+    // made-up order is an unknown word, not a clever match). The family
+    // GREW one line: emerald joins the 300 registry — the ledger's own
+    // green (the suppliers' hue at the 200/50 storey), a storey it never
+    // spoke (the shade-split law's next form; the exact emerald 300-trio
+    // census was machine-kept). The chip lives in the SECTION beside the
+    // window's and the lens's own (one lens row), THE DEFAULT WEARS NO
+    // WORD (the address carries only a non-default lens — the key strips
+    // when the desk rests), the landing is read once on the shell, and
+    // the order WRITES BACK: every hand-driven turn replaceState's its
+    // word (a pressed order is a shareable address, never a dead end).
+    { word: 'dead-sort', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-emerald-300', suite: 'src/tests/dead-stock-sort-address-v2481.test.ts' },
   ] as const;
 
   it('every word is desk-prefixed and owns its FILTERS const in exactly its desk', () => {
@@ -453,6 +468,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // section reads this file's rows; an admission line carries the
       // word it admits)
       'src/tests/dead-stock-lens-address-v2480.test.ts',
+      // the thirty-fifth word's own ledger — admitted (its registry
+      // section reads this file's rows; an admission line carries the
+      // word it admits)
+      'src/tests/dead-stock-sort-address-v2481.test.ts',
       // the thirty-third word's own ledger — admitted (the constitution's
       // thirty-third row names this file as its suite; an admission line
       // carries the word it admits)

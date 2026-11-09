@@ -29,7 +29,7 @@ import {
 } from '@/lib/api';
 import { handleError } from '@/lib/error-handler';
 import { parseInitialNamedMember, REP_TYPE_FILTERS } from '@/lib/tab-url';
-import { DEAD_STOCK_WINDOWS, capitalTiedByCategory, deadStockChorusHeader, deadStockChorusShareUrl, deadStockClearanceNote, deadStockClearanceNotes, deadStockShareUrl, deadStockViewSummary, filterDeadStockRows, sortDeadStockRows, waMeDisplay, type DeadStockRow, type DeadStockSortKey } from '@/lib/reports/dead-stock';
+import { DEAD_STOCK_SORTS, DEAD_STOCK_WINDOWS, capitalTiedByCategory, deadStockChorusHeader, deadStockChorusShareUrl, deadStockClearanceNote, deadStockClearanceNotes, deadStockShareUrl, deadStockViewSummary, filterDeadStockRows, sortDeadStockRows, waMeDisplay, type DeadStockRow, type DeadStockSortKey } from '@/lib/reports/dead-stock';
 import {
   composeSeriesVoice, composeHourlyVoice,
   composeStockHealthVoice, composeProductsVoice, composeForecastVoice,
@@ -173,6 +173,52 @@ function writeDeadQueryWord(word: string): void {
   } catch {
     // The address never lies louder than the lens — a blocked write
     // leaves the lens on the desk, exactly where the human pressed it.
+  }
+}
+
+// THE SORT DOOR'S OWN WORD (v2.481.0 — the deep-link family's next
+// wearing): the ledger's order answers the address bar. The ledger's
+// daily question, "which honesty am I reading — the loudest debt or the
+// shelf's patience?", speaks its desk-prefixed `?dead-sort=capital|idle`
+// — the ONE home's OWN orders (DeadStockSortKey, read as words through
+// the generic parser from DEAD_STOCK_SORTS, the tuple the ONE home
+// keeps; a made-up order — `asc`, `desc`, `name` — is an unknown word,
+// not a clever match) — and wears the landing chip in the family's
+// THIRTEENTH 300-storey byte: EMERALD at 300/100, the ledger's own
+// green (the suppliers' hue at the 200/50 storey, the branch ledger's
+// copy family) speaking through a storey it never spoke — a family byte
+// the 200-storey's emerald line can never equal (the shade-split law's
+// next form; the registry grew one line rather than masquerade; the
+// exact emerald 300-trio census was machine-kept). THE DEFAULT WEARS NO
+// WORD: the resting order is the address's silence — the address
+// carries only a NON-default lens, so the key strips when the desk
+// rests (the empty-wears-no-chip law's own reading, grown to the write
+// half). THE LANDING IS READ ONCE ON THE SHELL: a plain useState
+// initializer — a dismissed chip can never resurrect. THE ORDER WRITES
+// BACK: every hand-driven sort turn replaceState's its word into the
+// address (the window's own write shape), so a pressed order is a
+// shareable address, never a dead end; a blocked write is the order's
+// silence, never a thrown desk.
+function initialDeadSort(): DeadStockSortKey {
+  if (typeof window === 'undefined') return 'capital';
+  return parseInitialNamedMember(window.location.search, 'dead-sort', [...DEAD_STOCK_SORTS], 'capital') as DeadStockSortKey;
+}
+
+// The write half — the order's own replaceState (preserve the other
+// params: tab, rep-type, the window's word, the lens's word and every
+// other desk's word ride untouched); the DEFAULT strips its key — the
+// address never carries the resting face's word.
+function writeDeadSortWord(key: DeadStockSortKey): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (key === 'capital') params.delete('dead-sort');
+    else params.set('dead-sort', key);
+    const qs = params.toString();
+    window.history.replaceState(null, '', window.location.pathname + (qs ? `?${qs}` : ''));
+  } catch {
+    // The address never lies louder than the order — a blocked write
+    // leaves the order on the desk, exactly where the human pressed it.
   }
 }
 
@@ -1436,6 +1482,17 @@ interface DeadStockSectionProps {
   deadQueryLandingLive: boolean;
   landedDeadQuery: string;
   onDismissDeadQueryLanding: () => void;
+  // v2.481.0: the sort door's own faces — the order and its one door
+  // live at the DESK (the landing law's shape: read once on the shell,
+  // the order survives the pane's unmount/remount), the section only
+  // wears them. The setter-shaped prop IS the one door: the header
+  // presses all ride it, and the address write rides beside the set
+  // (the write-back law; the default strips its key).
+  deadStockSort: DeadStockSortKey;
+  setDeadStockSort: (value: DeadStockSortKey) => void;
+  deadSortLandingLive: boolean;
+  landedDeadSort: DeadStockSortKey;
+  onDismissDeadSortLanding: () => void;
   // v2.467.0: the share door's pre-address — the store's own contact
   // (name + phone on file), fetched once at the desk and handed down.
   // null keeps the picker door: a store without a phone speaks no
@@ -1449,7 +1506,7 @@ interface DeadStockSectionProps {
   storeId: string;
 }
 
-function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartType, deadWindowLandingLive, landedDeadWindow, onDismissDeadWindowLanding, deadStockSearch, setDeadStockSearch, deadQueryLandingLive, landedDeadQuery, onDismissDeadQueryLanding, storeContact, storeId }: DeadStockSectionProps) {
+function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartType, deadWindowLandingLive, landedDeadWindow, onDismissDeadWindowLanding, deadStockSearch, setDeadStockSearch, deadQueryLandingLive, landedDeadQuery, onDismissDeadQueryLanding, deadStockSort, setDeadStockSort, deadSortLandingLive, landedDeadSort, onDismissDeadSortLanding, storeContact, storeId }: DeadStockSectionProps) {
   // THE EDIT DOOR'S STATE (v2.468.0) — the dialog's own words: open,
   // draft, saving. The draft starts empty every open — a dialog that
   // shows a stale number would be a lie when the wire refetches.
@@ -1471,11 +1528,10 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
   // [rows, deadStockSearch, deadStockSort] and nothing else, and the
   // view/archive law holds — the file, the clipboard and the print door
   // keep the canonical rows (the lens is a viewer, never a rewrite).
-  const [deadStockSort, setDeadStockSort] = useState<DeadStockSortKey>('capital');
-  // v2.480.0: the lens's word arrives from the desk (the landing law's
-  // shape — read once on the shell, the word survives the pane); the
-  // setter-shaped prop is the one door, so the memo, the presses and
-  // the clears keep their exact elder bytes.
+  // v2.481.0: the sort's word arrives from the desk too (the landing
+  // law's shape — read once on the shell, the order survives the pane);
+  // the setter-shaped prop is the one door, so the memo, the aria-sort
+  // and the arrows keep their exact elder bytes.
   const sortedRows = useMemo(
     () => sortDeadStockRows(filterDeadStockRows(rows, deadStockSearch), deadStockSort),
     [rows, deadStockSearch, deadStockSort],
@@ -1666,6 +1722,23 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
             onDismiss={onDismissDeadQueryLanding}
             title="The ledger's lens landed with this word from the address bar — press to clear it"
             data-testid="dead-q-landing-word"
+          />
+        )}
+        {/* THE SORT DOOR'S LANDING CHIP (v2.481.0) — the order's own
+            chip beside the window's and the lens's own (one lens row,
+            the family's faces): the THIRTEENTH 300-storey byte,
+            emerald — the ledger's own green. It only speaks when the
+            shell LANDED with a NON-default order (the default wears no
+            chip — the dead-window law's own reading), and a press
+            retires the name, never the order (the window's own
+            dismissal shape). */}
+        {deadSortLandingLive && landedDeadSort !== 'capital' && (
+          <LandingChip
+            hue="emerald"
+            label={`landed ?dead-sort=${landedDeadSort}`}
+            onDismiss={onDismissDeadSortLanding}
+            title="The ledger's order landed with this word from the address bar — press to clear it"
+            data-testid="dead-sort-landing-word"
           />
         )}
       </div>
@@ -1929,7 +2002,16 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
                             the resting one wears ChevronsUpDown and the
                             muted tone — the door's own face, the family's
                             dialect, never a second palette. */}
-                        <TableHead className="text-right" aria-sort={deadStockSort === 'capital' ? 'descending' : undefined}>
+                        {/* THE PRESSED COLUMN'S OWN LIGHT (v2.481.0 — the
+                            styling verse): the pressed head also wears a
+                            muted ground — the sort is a lens, and
+                            the lens lights its column, findable at a
+                            glance down the whole ledger; the ground is
+                            the family's own (the shared muted token),
+                            never a second palette, and the move rides
+                            transition-colors so the light follows the
+                            hand gently. */}
+                        <TableHead className={`text-right transition-colors ${deadStockSort === 'capital' ? 'bg-muted/50' : ''}`} aria-sort={deadStockSort === 'capital' ? 'descending' : undefined}>
                           <button
                             type="button"
                             data-testid="dead-stock-sort-capital"
@@ -1945,7 +2027,7 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
                           </button>
                         </TableHead>
                         <TableHead>Last sold</TableHead>
-                        <TableHead className="text-right" aria-sort={deadStockSort === 'idle' ? 'descending' : undefined}>
+                        <TableHead className={`text-right transition-colors ${deadStockSort === 'idle' ? 'bg-muted/50' : ''}`} aria-sort={deadStockSort === 'idle' ? 'descending' : undefined}>
                           <button
                             type="button"
                             data-testid="dead-stock-sort-idle"
@@ -2250,6 +2332,34 @@ export default function ReportsTab() {
     setDeadQueryLandingLive(false);
     writeDeadQueryWord(value);
   }, [deadStockSearch]);
+  // THE SORT DOOR'S OWN STATE (v2.481.0) — lifted beside the window's
+  // and the lens's own (the same architecture, the landing law's
+  // shape): the landing is read once on the shell, the order rides the
+  // desk-level state so it survives a pane switch (navigation is not a
+  // lens change — the window's and the lens's words already survive
+  // it, and the order keeps the same honesty), and EVERY hand-driven
+  // turn rides this one door — the set and the address write live
+  // together, the write a FACT ride (the order's truth), never a gate:
+  // the desk works identically when the history API refuses. The
+  // section keeps the VIEW (the memo, the aria-sort, the arrows) and
+  // speaks the order through its props — the setter-shaped prop keeps
+  // every elder byte in the section byte-for-byte.
+  const [landedDeadSort] = useState<DeadStockSortKey>(initialDeadSort);
+  const [deadSortLandingLive, setDeadSortLandingLive] = useState(true);
+  const [deadStockSort, setDeadStockSortState] = useState<DeadStockSortKey>(initialDeadSort);
+  const chooseDeadSort = useCallback((value: DeadStockSortKey) => {
+    // THE AGREEMENT IS NO NEWS (the window's own law): a hand-driven
+    // change that moves the order retires the landing chip — the
+    // address's word no longer names the landing once the human has
+    // spoken; a no-op change writes nothing.
+    if (deadStockSort === value) {
+      setDeadStockSortState(value);
+      return;
+    }
+    setDeadStockSortState(value);
+    setDeadSortLandingLive(false);
+    writeDeadSortWord(value);
+  }, [deadStockSort]);
   const [chartType, setChartType] = useState<'bar' | 'line' | 'area' | 'pie'>('bar');
   const [datePreset, setDatePreset] = useState<DatePreset>('this_month');
 
@@ -4474,6 +4584,11 @@ export default function ReportsTab() {
             deadQueryLandingLive={deadQueryLandingLive}
             landedDeadQuery={landedDeadQuery}
             onDismissDeadQueryLanding={() => setDeadQueryLandingLive(false)}
+            deadStockSort={deadStockSort}
+            setDeadStockSort={chooseDeadSort}
+            deadSortLandingLive={deadSortLandingLive}
+            landedDeadSort={landedDeadSort}
+            onDismissDeadSortLanding={() => setDeadSortLandingLive(false)}
             storeContact={deadStockStoreContact ?? null}
             storeId={currentStoreId}
           />

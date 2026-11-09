@@ -876,6 +876,32 @@ export function parseInitialNamedMemberWithAlias<V extends string>(
  */
 
 /**
+ * v2.481.0 — THE FAMILY'S THIRTY-FIFTH WORD: the ledger's own order
+ * answers the bar. The Dead Stock report's sort door — the desk's other
+ * daily question, "which honesty am I reading, the loudest debt or the
+ * shelf's patience?" — speaks its desk-prefixed `dead-sort` (collision-
+ * checked at round start: the byte appeared NOWHERE before this word).
+ * The order's words are the ONE home's OWN spellings — `capital | idle`,
+ * read as words through the generic parser from DEAD_STOCK_SORTS, the
+ * tuple the ONE home keeps (a made-up order — `asc`, `desc`, `name` — is
+ * an unknown word, not a clever match; the default is `capital`, the
+ * classifier's own standing order). THE FAMILY'S THIRTEENTH 300-STOREY
+ * BYTE: the landing chip wears the EMERALD byte — the ledger's own
+ * green (the suppliers' hue at the 200/50 storey, the branch ledger's
+ * copy family) — a storey it never spoke (the exact emerald 300-trio
+ * census was machine-kept: no src file wore the trio before the loom's
+ * line). The chip lives in the SECTION beside the window's and the
+ * lens's own (one lens row, the sub-tab law's shape) and the landing is
+ * read once on the shell. THE DEFAULT WEARS NO WORD: the resting order
+ * is the address's silence — the address carries only a NON-default
+ * lens, so the key strips when the desk rests (the empty-wears-no-chip
+ * law's own reading, grown to the write half). THE ORDER WRITES BACK:
+ * every hand-driven sort turn replaceState's its word into the address
+ * (the window's own write shape), so a pressed order is a shareable
+ * address, never a dead end.
+ */
+
+/**
  * v2.383.0 — THE PROMISE KEPT, THE TWENTY-FOURTH WORD: the tax desk's
  * filings ledger answers BY THE MONTH. Its desk-prefixed `tax-period`
  * lens — the desk's other daily question, "which month's returns am I

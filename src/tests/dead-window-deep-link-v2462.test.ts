@@ -211,23 +211,27 @@ describe('the address-bar vocabulary — the thirty-third row (cross-suite pins)
     // v2.480.0 (dated): the constitution grew its thirty-fourth row (the
     // lens's own word rides the address) — the title's count rolls with
     // it; the rose row keeps its exact bytes.
-    expect(constitution.includes("(thirty-four words, twenty-six desks)")).toBe(true);
+    expect(constitution.includes("(thirty-five words, twenty-six desks)")).toBe(true);
     expect(constitution.includes("{ word: 'dead-window', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-rose-300', suite: 'src/tests/dead-window-deep-link-v2462.test.ts' }")).toBe(true);
   });
 
-  it('the stress walk grew with the registry (34 rows, the stamp\u2019s second storey)', () => {
-    expect(stress.includes('toBe(34)')).toBe(true);
+  it('the stress walk grew with the registry (35 rows, the stamp\u2019s second storey)', () => {
+    // v2.481.0 (dated): the thirty-fifth word — the count's roll grew
+    // with the constitution (34 → 35).
+    expect(stress.includes('toBe(35)')).toBe(true);
     expect(stress.includes("'dead-window',")).toBe(true);
     // the version stamp reads the v24NN generation too (the suite's own
     // stamp — v2462 — is the stress's first second-generation row)
     expect(stress.includes('v(2[34]\\d\\d)')).toBe(true);
   });
 
-  it('the loom\u2019s word-free law grew with the registry (34 words, none spoken)', () => {
+  it('the loom\u2019s word-free law grew with the registry (35 words, none spoken)', () => {
     const loomSuite = readFileSync('src/tests/landing-chip-loom-v2394.test.ts', 'utf8');
+    // v2.481.0 (dated): the thirty-fifth word — the roll grew again
+    // with the constitution (34 → 35).
     // v2.480.0 (dated): the thirty-fourth word — the count's roll grew
     // with the constitution (33 → 34).
-    expect(loomSuite.includes('toBe(34)')).toBe(true);
+    expect(loomSuite.includes('toBe(35)')).toBe(true);
   });
 });
 
@@ -280,7 +284,7 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
 describe('whats-new — v2.480.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.480.0');
+    expect(head.version).toBe('2.481.0');
     // the lead's story hand-over (v2.480.0, the Task 111 law's
     // eighty-sixth application): the head story is the hand-over's
     // voice — the carrying round: THE LENS'S WORD RIDES THE

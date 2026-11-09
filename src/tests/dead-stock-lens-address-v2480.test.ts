@@ -106,13 +106,16 @@ describe('the twelfth byte — amber, the lens family\u2019s own tone', () => {
     expect(section.includes("deadQueryLandingLive && landedDeadQuery !== ''")).toBe(true);
   });
 
-  it('the constitution grew its thirty-fourth row and its own count', () => {
+  it('the constitution grew its thirty-fifth row and its own count', () => {
+    // v2.481.0 (dated): the thirty-fifth word — the sort door's own word
+    // rides the address; the count rolls with the constitution.
     expect(registry.includes("{ word: 'dead-q', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-amber-300', suite: 'src/tests/dead-stock-lens-address-v2480.test.ts' }")).toBe(true);
-    expect(registry.includes('(thirty-four words, twenty-six desks)')).toBe(true);
+    expect(registry.includes('(thirty-five words, twenty-six desks)')).toBe(true);
   });
 
-  it('the stress walks the roll and the derived counts (33 \u2192 34)', () => {
-    expect(stress.includes('toBe(34)')).toBe(true);
+  it('the stress walks the roll and the derived counts (34 \u2192 35)', () => {
+    // v2.481.0 (dated): the roll and the counts grew with the registry.
+    expect(stress.includes('toBe(35)')).toBe(true);
     expect(stress.includes("      'dead-q',")).toBe(true);
   });
 
@@ -196,9 +199,14 @@ describe('the seats — the round moves the word, the elder bytes hold', () => {
 // 5. THE FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — the round leads the feed', () => {
+describe('whats-new — the round, pinned in the feed', () => {
   it('the head wears the round\u2019s own story — the honoured probe and the new word', () => {
-    const head = WHATS_NEW[0];
+    // v2.481.0 THE MUSEUM RE-KEY (the v2470 treatment): the round's own
+    // entry is FOUND, not assumed to lead — the feed rides the living
+    // head, the museum keeps the round's own word; the guard comes with
+    // the find.
+    const head = WHATS_NEW.find((e) => e.version === '2.480.0');
+    if (!head) throw new Error('the 2.480.0 entry is gone from the feed');
     expect(head.version).toBe('2.480.0');
     expect(head.title).toContain('the paper speaks the window\u2019s word');
     expect(head.title).toContain('the lens\u2019s word rides the address');
@@ -221,7 +229,7 @@ describe('whats-new — the round leads the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.480.0');
+    expect(pkg.version).toBe('2.481.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.480.0]')).toBeGreaterThan(-1);
