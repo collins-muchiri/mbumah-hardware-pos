@@ -10,6 +10,12 @@ import {
   FileText, Banknote, RefreshCw, Eye, Minus, Flag, RotateCcw,
 } from 'lucide-react';
 import { LandingChip } from '@/components/landing-chip';
+// v2.479.0 THE CENSUS PILLS LEARN THE FAMILY'S RING (the styling verse):
+// the M-Pesa census chips speak aria-pressed — they join every lens in
+// the app wearing the zinc keyboard ring (CHIP_RING_ZINC, imported —
+// one home, many hands), and their idle faces gain the dark wardrobe
+// the elder ledger named (dark 950/40 washes, the -300 words).
+import { CHIP_RING_ZINC } from '@/components/filter-chip';
 
 import { useAppStore } from '@/lib/stores';
 import {
@@ -1025,10 +1031,10 @@ export default function BankingTab() {
         <TabsContent value="mpesa" className="mt-4 space-y-4">
           <div className="flex flex-wrap items-center gap-1.5" data-testid="mpesa-census" role="group" aria-label="M-Pesa status census">
             {([
-              ['MATCHED', mpesaCensus.MATCHED, 'bg-emerald-100 text-emerald-700', 'bg-emerald-600 text-white', 'Matched'],
-              ['PENDING', mpesaCensus.PENDING, 'bg-amber-100 text-amber-700', 'bg-amber-600 text-white', 'Pending'],
-              ['UNMATCHED', mpesaCensus.UNMATCHED, 'bg-red-100 text-red-700', 'bg-red-600 text-white', 'Unmatched'],
-              ['DISPUTED', mpesaCensus.DISPUTED, 'bg-orange-100 text-orange-700', 'bg-orange-600 text-white', 'Disputed'],
+              ['MATCHED', mpesaCensus.MATCHED, 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300', 'bg-emerald-600 text-white', 'Matched'],
+              ['PENDING', mpesaCensus.PENDING, 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300', 'bg-amber-600 text-white', 'Pending'],
+              ['UNMATCHED', mpesaCensus.UNMATCHED, 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300', 'bg-red-600 text-white', 'Unmatched'],
+              ['DISPUTED', mpesaCensus.DISPUTED, 'bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-300', 'bg-orange-600 text-white', 'Disputed'],
             ] as const).map(([word, count, idleCls, activeCls, label]) => (
               <button
                 key={word}
@@ -1036,7 +1042,7 @@ export default function BankingTab() {
                 data-testid={`mpesa-census-${word.toLowerCase()}`}
                 aria-pressed={mpesaFilterStatus === word}
                 title={`${label}: ${count} — press to wear the word, press again to return to all`}
-                className={`rounded-full border border-transparent px-2 py-0.5 text-[10px] font-medium tabular-nums transition-colors ${
+                className={`rounded-full border border-transparent px-2 py-0.5 text-[10px] font-medium tabular-nums transition-colors${CHIP_RING_ZINC} ${
                   mpesaFilterStatus === word ? activeCls : `${idleCls} hover:opacity-80`
                 }`}
                 onClick={() => chooseMpesaStatus(mpesaFilterStatus === word ? 'all' : word)}

@@ -4,7 +4,12 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Package, Search, Plus, AlertTriangle, AlertCircle, DollarSign, MoreVertical, Edit, Trash2, Loader2, CheckCircle, Copy, ArrowUpDown, Minus, BarChart3, ChevronUp, ChevronDown, ChevronsUpDown, Download, History, RotateCcw, X, Filter, ChevronRight, Tag, Palette, Zap, ShoppingCart, Info, MessageCircle, RefreshCw, Pencil, Settings2, Check, Clock, PackagePlus, Send, Truck } from 'lucide-react';
-import { CHIP_ACTIVE, CHIP_IDLE, CHIP_RING_ZINC } from '@/components/filter-chip';
+// v2.479.0 THE HEAD LEAVES HOME (the loom's sixth weave): the All chip
+// rides <FilterChip> proper — the loom picks the active/idle faces, the
+// desk's CHIP_ACTIVE hand import retires — and the data-colored category
+// chips' head rides the CHIP_HEAD import (one head, many hands; the
+// wardrobe in exactly ONE src file).
+import { FilterChip, CHIP_HEAD, CHIP_IDLE, CHIP_RING_ZINC } from '@/components/filter-chip';
 
 import { useAppStore, useAuthStore } from '@/lib/stores';
 import { canFeature } from '@/hooks/use-permissions';
@@ -1531,18 +1536,14 @@ export default function InventoryTab() {
           tribe's borderColor precedent). */}
       {categories.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          <button
+          <FilterChip
+            active={selectedCategory === 'all'}
             onClick={() => setSelectedCategory('all')}
-            aria-pressed={selectedCategory === 'all'}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all${CHIP_RING_ZINC} ${
-              selectedCategory === 'all'
-                ? CHIP_ACTIVE
-                : CHIP_IDLE
-            }`}
+            className="inline-flex items-center gap-1.5"
           >
             All
             <span className="ml-0.5 bg-white/20 dark:bg-black/20 rounded-full px-1.5 py-0.5 text-[10px]">{allProducts.length}</span>
-          </button>
+          </FilterChip>
           {categories.map((c) => {
             const count = categoryProductCounts[c.id] || 0;
             const color = c.color || getCategoryColor(c.name);
@@ -1584,7 +1585,7 @@ export default function InventoryTab() {
                 key={c.id}
                 onClick={() => setSelectedCategory(c.id === selectedCategory ? 'all' : c.id)}
                 aria-pressed={selectedCategory === c.id}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all${CHIP_RING_ZINC} ${
+                className={`inline-flex items-center gap-1.5 ${CHIP_HEAD}${CHIP_RING_ZINC} ${
                   selectedCategory === c.id
                     ? 'text-white shadow-sm'
                     : CHIP_IDLE

@@ -275,28 +275,34 @@ describe('the address-bar vocabulary — the twenty-seventh row (cross-suite pin
 // 5. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.478.0 leads the feed', () => {
+describe('whats-new — v2.479.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.478.0');
-    // the lead's story hand-over (v2.478.0, the Task 111 law's
-    // eighty-fourth application): the head story is the hand-over's
-    // voice — the carrying round: THE FILE CARRIES THE CHORUS'S
-    // OWN DOOR — the CSV's summary block grows the "Chorus share
-    // link" row beside the Clearance chorus: the ONE home's
-    // deadStockChorusShareUrl (the exact word the Share all handle
-    // opens and the paper's lead card encodes, the store's own
-    // number riding its third word when the branch keeps one on
-    // file), quoted like every word a CSV must survive, the
-    // canonical rows only — the view/archive law holds (the file is
-    // the archive's word); the desk's cards answer the hand (the
-    // three summary cards learn the hover lift, the dead-stock
-    // trio only), and the paper wears its second dress (the rose
-    // rule under the chorus heading, the italic intro — new CSS
-    // lines, the standing bytes untouched); the census keeps its
-    // ten voices (a word in the file, never a handle), and the
-    // desk never spells the host's word.
-    // The file carries the chorus's own door.
+    expect(head.version).toBe('2.479.0');
+    // the lead's story hand-over (v2.479.0, the Task 111 law's
+    // eighty-fifth application): the head story is the hand-over's
+    // voice — the carrying round: THE PAPER SPEAKS THE WINDOW'S
+    // WORD — the dead-stock print header's Period line grows the
+    // idle window beside the dates (" · Idle window: N days", the
+    // ONE home's days expression — the same word the CSV's Days
+    // window row carries, the window IS the lens: 30, 60 or 90
+    // changes the ledger's meaning), the other stages keeping the
+    // bare Period line; the loom's sixth weave takes the head home
+    // — CHIP_HEAD leaves the family file as an export (the ring
+    // and the faces left home in v2.460.0), the inventory ledger's
+    // All chip rides <FilterChip> proper (the loom picks the faces,
+    // the desk's hand face import retires) and the data-colored
+    // tribe's last two head hand-copies (the inventory category
+    // chips, the POS scroll row) ride the import — one head, many
+    // hands, the wardrobe in exactly ONE src file; the census pills
+    // learn the family's voices (the M-Pesa census's four idle
+    // faces gain the dark wardrobe the elder ledger named, the
+    // M-Pesa census and the security desk's time-window pills wear
+    // the zinc keyboard ring, the amber pressed face learning its
+    // dark word); the census keeps its ten voices (a word in the
+    // header, never a handle), and the desk never spells the
+    // host's word.
+    // The paper speaks the window's word.
     expect(head.title).toContain('edit door');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
     expect(head.bullets.some((b) => b.includes('edit door'))).toBe(true);

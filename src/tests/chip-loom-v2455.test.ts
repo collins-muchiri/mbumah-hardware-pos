@@ -116,7 +116,10 @@ describe('v2.455.0 — the loom component, one wardrobe', () => {
     // rider's seat is proven by its import line, not its copy.
     expect(homes(IDLE), homes(IDLE).join(',')).toEqual(['src/components/filter-chip.tsx']);
     expect(readFileSync('src/components/pos/category-chips.tsx', 'utf8')).toContain(
-      "import { CHIP_IDLE, CHIP_RING_ZINC } from '@/components/filter-chip';",
+      // v2.479.0 RE-KEY (dated): the head left home — the tribe's import
+      // grows CHIP_HEAD beside the idle face and the ring (one head, many
+      // hands; the wardrobe in exactly ONE src file).
+      "import { CHIP_HEAD, CHIP_IDLE, CHIP_RING_ZINC } from '@/components/filter-chip';",
     );
   });
 });
@@ -243,7 +246,11 @@ describe('v2.455.0 — the ledger: the carry\u2019s remaining faces, named for t
     const desk = readRepo('src/app/(shell)/tabs/inventory-tab.tsx');
     const classLines = desk.split('\n').filter((l) => l.includes('className='));
     expect(classLines.some((l) => l.includes('hover:scale-105'))).toBe(false);
-    expect(desk.includes("import { CHIP_ACTIVE, CHIP_IDLE, CHIP_RING_ZINC } from '@/components/filter-chip';")).toBe(true);
+    // v2.479.0 RE-KEY (dated): the head left home — the desk's import grows
+    // FilterChip and CHIP_HEAD; the All chip rides <FilterChip> proper (the
+    // loom picks the faces, the hand face import retires), the data-colored
+    // category chips ride the head import.
+    expect(desk.includes("import { FilterChip, CHIP_HEAD, CHIP_IDLE, CHIP_RING_ZINC } from '@/components/filter-chip';")).toBe(true);
     expect(desk.includes('aria-pressed={selectedCategory')).toBe(true);
   });
 
@@ -253,7 +260,9 @@ describe('v2.455.0 — the ledger: the carry\u2019s remaining faces, named for t
     const classLines = pos.split('\n').filter((l) => l.includes('className='));
     expect(classLines.some((l) => l.includes('chip-active'))).toBe(false);
     expect(css.includes('.chip-active {')).toBe(false);
-    expect(pos.includes("import { CHIP_IDLE, CHIP_RING_ZINC } from '@/components/filter-chip';")).toBe(true);
+    // v2.479.0 RE-KEY (dated): the head left home — the tribe's import
+    // grows CHIP_HEAD beside the idle face and the ring.
+    expect(pos.includes("import { CHIP_HEAD, CHIP_IDLE, CHIP_RING_ZINC } from '@/components/filter-chip';")).toBe(true);
     expect(pos.includes('aria-pressed={selected === \'all\'}')).toBe(true);
     expect(pos.includes('aria-pressed={isActive}')).toBe(true);
   });

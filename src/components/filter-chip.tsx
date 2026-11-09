@@ -90,7 +90,12 @@
 
 import React from 'react';
 
-const CHIP_HEAD = 'px-3 py-1.5 rounded-full text-xs font-medium border transition-all';
+// v2.479.0 THE HEAD LEAVES HOME (the export, not the byte — the loom's
+// sixth weave completing the v2.460.0 arc): the ring and the faces left
+// home in v2.460.0; the head — the pill every lens chip speaks — joins
+// them now. The data-colored tribes and the compact/slim faces' desks
+// import it — one head, many hands, the wardrobe in exactly ONE src file.
+export const CHIP_HEAD = 'px-3 py-1.5 rounded-full text-xs font-medium border transition-all';
 const CHIP_HEAD_COMPACT = 'px-3 py-1 rounded-full text-xs font-medium border transition-all';
 const CHIP_HEAD_SLIM = 'px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors';
 // v2.460.0 THE RING LEAVES HOME (the export, not the byte): the

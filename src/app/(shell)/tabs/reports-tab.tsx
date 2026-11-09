@@ -2823,7 +2823,8 @@ export default function ReportsTab() {
           <div class="header">
             <h1>MBUMAH HARDWARE</h1>
             <h2>${reportType === 'sales' ? 'Sales' : reportType === 'inventory' ? 'Inventory' : reportType === 'valuation' ? 'Inventory Valuation' : reportType === 'daily' ? 'Daily Sales Summary' : reportType === 'top_products' ? 'Top Products' : reportType === 'customer_analysis' ? 'Customer Analysis' : reportType === 'dead_stock' ? 'Dead Stock' : 'Rental Performance'} Report</h2>
-            <p style="color:#94a3b8;font-size:12px">Period: ${dateFrom} to ${dateTo}</p>
+            <!-- v2.479.0 THE PAPER SPEAKS THE WINDOW'S WORD: the dead-stock stage's lens is the idle window (30/60/90 changes the ledger's meaning), so the header speaks it beside the dates — the ONE home's days expression, the same word the CSV's Days window row carries. The other stages keep the bare Period line. -->
+            <p style="color:#94a3b8;font-size:12px">Period: ${dateFrom} to ${dateTo}${reportType === 'dead_stock' ? ` · Idle window: ${deadStockSummary?.days ?? deadStockDays} days` : ''}</p>
           </div>
           ${content.innerHTML}
           ${scanAppendix}

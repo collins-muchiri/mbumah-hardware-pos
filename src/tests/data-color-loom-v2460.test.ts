@@ -67,7 +67,9 @@ describe('v2.460.0 — the data-colored tribes ride the family grammar', () => {
   });
 
   it('the POS chips wear the family\u2019s zinc ring through the IMPORT (one home, many hands)', () => {
-    expect(pos).toContain("import { CHIP_IDLE, CHIP_RING_ZINC } from '@/components/filter-chip';");
+    // v2.479.0 RE-KEY (dated): the head left home — the tribe's import
+    // grows CHIP_HEAD beside the idle face and the ring.
+    expect(pos).toContain("import { CHIP_HEAD, CHIP_IDLE, CHIP_RING_ZINC } from '@/components/filter-chip';");
     expect([...pos.matchAll(/chip-hover-lift\$\{CHIP_RING_ZINC\}/g)].length).toBe(2);
   });
 
@@ -103,16 +105,26 @@ describe('v2.460.0 — the data-colored tribes ride the family grammar', () => {
   });
 
   it('the inventory tags speak the pressed voice and wear the family head (border, no grow)', () => {
-    expect(inv).toContain('aria-pressed={selectedCategory === \'all\'}');
+    // v2.479.0 RE-KEY (dated): the head left home — the All chip rides
+    // <FilterChip> proper (the component renders the pressed voice and
+    // the family head), and the data-colored category chips ride the
+    // CHIP_HEAD import (one head, many hands).
+    expect(inv).toContain('<FilterChip');
+    expect(inv).toContain('active={selectedCategory === \'all\'}');
     expect(inv).toContain('aria-pressed={selectedCategory === c.id}');
     const classLines = inv.split('\n').filter((l) => l.includes('className='));
     expect(classLines.some((l) => l.includes('hover:scale-105'))).toBe(false);
-    expect([...inv.matchAll(/inline-flex items-center gap-1\.5 px-3 py-1\.5 rounded-full text-xs font-medium border transition-all\$\{CHIP_RING_ZINC\}/g)].length).toBe(2);
+    expect([...inv.matchAll(/\$\{CHIP_HEAD\}\$\{CHIP_RING_ZINC\}/g)].length).toBe(1);
   });
 
   it('the inventory faces ride the registry CONSTANTS (the idle face gains the bytes it always lacked)', () => {
-    expect(inv).toContain("import { CHIP_ACTIVE, CHIP_IDLE, CHIP_RING_ZINC } from '@/components/filter-chip';");
-    expect(inv).toContain('? CHIP_ACTIVE\n                : CHIP_IDLE');
+    // v2.479.0 RE-KEY (dated): the head left home — the All chip's faces
+    // are the LOOM's now (the component picks them; the hand face import
+    // retires), and the data-colored category chips keep the tribe's own
+    // active voice beside the registry's idle constant.
+    expect(inv).toContain("import { FilterChip, CHIP_HEAD, CHIP_IDLE, CHIP_RING_ZINC } from '@/components/filter-chip';");
+    expect(inv).toContain("? 'text-white shadow-sm'");
+    expect(inv).toContain(': CHIP_IDLE');
     expect(inv).toContain("style={selectedCategory === c.id ? { backgroundColor: color, borderColor: color } : {}}");
     expect(inv).not.toContain("'bg-muted/50 text-muted-foreground hover:bg-muted'");
   });
