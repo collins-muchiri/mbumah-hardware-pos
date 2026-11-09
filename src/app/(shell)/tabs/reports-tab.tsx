@@ -1586,21 +1586,21 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
       ) : summary ? (
         <>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            <Card className="border-l-4 border-l-rose-500 backdrop-blur-sm bg-card/80">
+            <Card className="border-l-4 border-l-rose-500 backdrop-blur-sm bg-card/80 transition-shadow hover:shadow-md">
               <CardContent className="p-4">
                 <p className="text-xs text-muted-foreground flex items-center gap-1"><Coins className="h-3 w-3" aria-hidden="true" /> Capital Tied</p>
                 <p className="text-2xl font-bold text-rose-700 dark:text-rose-400 tabular-nums" data-testid="dead-stock-capital">{formatKES(summary.totalCapitalTied)}</p>
                 <p className="text-[10px] text-muted-foreground mt-1">qty × cost price, idle {summary.days}+ days</p>
               </CardContent>
             </Card>
-            <Card className="border-l-4 border-l-amber-500 backdrop-blur-sm bg-card/80">
+            <Card className="border-l-4 border-l-amber-500 backdrop-blur-sm bg-card/80 transition-shadow hover:shadow-md">
               <CardContent className="p-4">
                 <p className="text-xs text-muted-foreground flex items-center gap-1"><PackageX className="h-3 w-3" aria-hidden="true" /> Dead Products</p>
                 <p className="text-2xl font-bold tabular-nums" data-testid="dead-stock-count">{summary.deadCount}</p>
                 <p className="text-[10px] text-muted-foreground mt-1">holding stock, no sale in the window</p>
               </CardContent>
             </Card>
-            <Card className="border-l-4 border-l-primary backdrop-blur-sm bg-card/80">
+            <Card className="border-l-4 border-l-primary backdrop-blur-sm bg-card/80 transition-shadow hover:shadow-md">
               <CardContent className="p-4">
                 <p className="text-xs text-muted-foreground flex items-center gap-1"><Percent className="h-3 w-3" aria-hidden="true" /> Share of Stock Value</p>
                 <p className="text-2xl font-bold tabular-nums" data-testid="dead-stock-share">{summary.deadSharePct}%</p>
@@ -2679,6 +2679,13 @@ export default function ReportsTab() {
       // paper all sing the same census. Quoted like the note cells:
       // a CSV word must survive whatever reads it.
       csvContent += `Clearance chorus,"${deadStockChorusHeader(deadStockRows, deadStockSummary?.days ?? deadStockDays)}"\n`;
+      // THE FILE'S OWN CHORUS DOOR (v2.478.0) — the sheet hands the maker
+      // the whole ledger's ask in one open: the ONE home's collective
+      // composer (the exact word the Share all handle opens and the
+      // paper's lead card encodes) as the footer's own link, quoted like
+      // every word a CSV must survive. The canonical rows only — the
+      // view/archive law holds (the file is the archive's word).
+      csvContent += `Chorus share link,"${deadStockChorusShareUrl(deadStockRows, deadStockSummary?.days ?? deadStockDays, deadStockStoreContact?.phone)}"\n`;
     } else {
       csvContent = 'No data available for export\n';
     }
@@ -2807,6 +2814,8 @@ export default function ReportsTab() {
             .scan-card.scan-chorus { width: 132px; border: 2px solid #0f766e; background: #f0fdfa; }
             .scan-chorus-note { display: block; font-size: 10px; color: #0f766e; margin-top: 4px; }
             .chorus li::marker { color: #be123c; font-weight: 600; }
+            .chorus h3::after { content: ''; display: block; width: 32px; border-bottom: 2px solid #fecdd3; margin-top: 6px; }
+            .scan-intro { font-style: italic; }
             @media print { body { padding: 0; } }
           </style>
         </head>

@@ -1,3 +1,15 @@
+## [2.478.0] The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, the number learns its edit door, the settings desk learns the branch’s own words, the paper carries a scannable door, the file sings the chorus whole, the ledger answers to its own columns, the ledger answers to its own name, the shape answers to the ledger, the view speaks its own word, the chorus rides the chat door, the chorus learns the paper’s scannable door, and the file carries the chorus’s own door
+
+The file carries the chorus's own door: the CSV's summary block grows the "Chorus share link" row — the whole ledger's ask in one open, the file included in the one-voice arc.
+
+### Added
+- **THE FILE'S OWN CHORUS DOOR** (`src/app/(shell)/tabs/reports-tab.tsx`): the dead-stock CSV's summary block grows the `Chorus share link` row beside the Clearance chorus — `deadStockChorusShareUrl(deadStockRows, days, deadStockStoreContact?.phone)`, the ONE home's collective composer and the exact word the Share all handle opens and the paper's lead card encodes — quoted like every word a CSV must survive. The canonical `rows` only (the view/archive law holds — the file is the archive's word); the desk never spells the host's word.
+- **THE CARDS ANSWER THE HAND** (`src/app/(shell)/tabs/reports-tab.tsx`): the three summary cards (Capital Tied, Dead Products, Share of Stock Value) learn the hover lift — `transition-shadow hover:shadow-md`, the family's own quiet motion, the dead-stock trio only (no other desk's card moves).
+- **THE PAPER'S SECOND DRESS** (`src/app/(shell)/tabs/reports-tab.tsx`): two new print-CSS lines — `.chorus h3::after` (the small rose rule under the chorus heading) and `.scan-intro { font-style: italic; }`. New lines only — the standing bytes untouched.
+
+### Changed
+- **THE CENSUS AND THE SEATS, UNTOUCHED** (`src/app/(shell)/tabs/reports-tab.tsx`): the footer's link is a word in the file, never a handle — the census keeps its ten voices; the per-row cells, the chorus footer row, the share link column and the standing print CSS lines keep their bytes.
+
 ## [2.477.0] The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, the number learns its edit door, the settings desk learns the branch’s own words, the paper carries a scannable door, the file sings the chorus whole, the ledger answers to its own columns, the ledger answers to its own name, the shape answers to the ledger, the view speaks its own word, the chorus rides the chat door, and the chorus learns the paper’s scannable door
 
 The chorus learns the paper's scannable door: the print appendix's scan grid grows the LEAD card — one QR encoding the whole chorus's chat URL, the exact bytes the Share all handle opens.

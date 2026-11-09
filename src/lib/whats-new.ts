@@ -80,6 +80,15 @@ export function whatsNewMarkAllTarget(): string | null {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '2.478.0',
+    title: 'The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, the number learns its edit door, the settings desk learns the branch’s own words, the paper carries a scannable door, the file sings the chorus whole, the ledger answers to its own columns, the ledger answers to its own name, the shape answers to the ledger, the view speaks its own word, the chorus rides the chat door, the chorus learns the paper’s scannable door, and the file carries the chorus’s own door',
+    bullets: [
+      'The file carries the chorus’s own door: the CSV’s summary block grows the "Chorus share link" row beside the Clearance chorus — the ONE home’s deadStockChorusShareUrl (the exact word the Share all handle opens and the paper’s lead card encodes, the store’s own number riding its third word when the branch keeps one on file), quoted like every word a CSV must survive; the sheet now hands the maker the whole ledger’s ask in one open — one voice, every door, the file included, and the canonical rows only (the view/archive law holds — the file is the archive’s word).',
+      'The desk’s cards answer the hand: the three summary cards (Capital Tied, Dead Products, Share of Stock Value) learn the hover lift — the shadow rising as the maker’s hand passes, the family’s own quiet motion; the paper wears its second dress: the chorus heading grows the small rose rule under its word and the scan intro learns the italic — new lines in the print CSS, the standing bytes untouched.',
+      'The family keeps its seats: the sort door still answers its columns, the search lens still answers the ledger’s own name and category, the shape’s presses still ride each category’s own word into the lens, the pre-addressed chip still opens the store’s own chat, the chat picker answering for the branch with none, the edit door keeps its dialog, the view still speaks its own word under the table, the print button still closes the paper with the clearance asks, the file still sings the chorus whole with its share link column, the census keeps its ten voices (the footer’s link is a word in the file, never a handle), and the clearance note’s Ask, the copy all word to the clipboard, the share door and the wa.me word keep their bytes — one voice, every door, and now the file opens it too.',
+    ],
+  },
+  {
     version: '2.477.0',
     title: 'The resting ledger learns to reach out and to carry in one breath onto paper — the share door learns the store’s own number, the print door keeps its chorus, the number learns its edit door, the settings desk learns the branch’s own words, the paper carries a scannable door, the file sings the chorus whole, the ledger answers to its own columns, the ledger answers to its own name, the shape answers to the ledger, the view speaks its own word, the chorus rides the chat door, and the chorus learns the paper’s scannable door',
     bullets: [
