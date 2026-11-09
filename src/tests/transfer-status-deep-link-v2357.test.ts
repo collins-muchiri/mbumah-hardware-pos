@@ -206,7 +206,7 @@ describe('the landing chip — the face names the word it answered', () => {
 // 4. THE CONSTITUTION — the whole vocabulary's invariants, walked from bytes
 // ---------------------------------------------------------------------------
 
-describe('the address-bar vocabulary — THE CONSTITUTION (thirty-three words, twenty-six desks)', () => {
+describe('the address-bar vocabulary — THE CONSTITUTION (thirty-four words, twenty-six desks)', () => {
   const WORDS = [
     { word: 'po-status', desk: 'src/app/(shell)/tabs/purchase-orders-tab.tsx', family: 'border-indigo-200', suite: 'src/tests/proxy-gate-layering-v2328.test.ts' },
     { word: 'inv-stock', desk: 'src/app/(shell)/tabs/inventory-tab.tsx', family: 'border-amber-200', suite: 'src/tests/inv-stock-deep-link-v2329.test.ts' },
@@ -333,6 +333,19 @@ describe('the address-bar vocabulary — THE CONSTITUTION (thirty-three words, t
     // default wears no chip, and the lens WRITES BACK: a hand-driven
     // turn replaceState's the word into the address (the preserve law).
     { word: 'dead-window', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-rose-300', suite: 'src/tests/dead-window-deep-link-v2462.test.ts' },
+    // the lens's own word (v2.480.0): the ledger's name lens answers the
+    // address bar — the maker's OWN word, free text read as typed (the
+    // ONE home's filter lowercases its own side). The family GREW one
+    // line: amber joins the 300 registry — the lens family's own tone
+    // (the window chips' tint word, the view voice's ground), a hue that
+    // never spoke at this storey (the shade-split law's next form; the
+    // exact amber 300-trio census was kept). The chip lives in the
+    // SECTION beside the window's own (one lens row), the empty word
+    // wears no chip, the landing is read once on the shell, and the lens
+    // WRITES BACK: every hand-driven change replaceState's its word (an
+    // emptied lens strips its key — the address never carries a
+    // silence).
+    { word: 'dead-q', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-amber-300', suite: 'src/tests/dead-stock-lens-address-v2480.test.ts' },
   ] as const;
 
   it('every word is desk-prefixed and owns its FILTERS const in exactly its desk', () => {
@@ -436,6 +449,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/cr-type-deep-link-v2361.test.ts',
       'src/tests/cust-debt-deep-link-v2330.test.ts',
       'src/tests/cv-type-deep-link-v2363.test.ts',
+      // the thirty-fourth word's own ledger — admitted (its registry
+      // section reads this file's rows; an admission line carries the
+      // word it admits)
+      'src/tests/dead-stock-lens-address-v2480.test.ts',
       // the thirty-third word's own ledger — admitted (the constitution's
       // thirty-third row names this file as its suite; an admission line
       // carries the word it admits)

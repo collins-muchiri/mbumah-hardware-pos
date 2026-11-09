@@ -853,6 +853,29 @@ export function parseInitialNamedMemberWithAlias<V extends string>(
  */
 
 /**
+ * v2.480.0 — THE FAMILY'S THIRTY-FOURTH WORD: the ledger's own name lens
+ * answers the bar. The Dead Stock report's search lens — the desk's
+ * other daily question, "which products am I looking at?" — speaks its
+ * desk-prefixed `dead-q` (collision-checked at round start: the byte
+ * appeared NOWHERE before this word). The lens's word is the MAKER'S
+ * OWN — free text read as typed (trimmed, capped at eighty characters
+ * for address hygiene, never case-gamed: the ONE home's filter
+ * lowercases its own side; any string is a word, and the neutral is
+ * ABSENCE — an empty word wears no chip and strips its key). THE
+ * FAMILY'S TWELFTH 300-STOREY BYTE: the landing chip wears the AMBER
+ * byte — the lens family's own tone (the window chips' tint word, the
+ * view voice's ground) — a hue that never spoke at this storey (the
+ * exact amber 300-trio census was kept: no src file wore the trio
+ * before the loom's line). The chip lives in the SECTION beside the
+ * window's own (the sub-tab law's shape) and the landing is read once
+ * on the shell. THE LENS WRITES BACK: every hand-driven lens change
+ * replaceState's its word into the address (the window's own write
+ * shape), so a pressed lens is a shareable address, never a dead end;
+ * an EMPTIED lens strips its key — a stale word that outlives the lens
+ * it named is a lie the next refresh would resurrect.
+ */
+
+/**
  * v2.383.0 — THE PROMISE KEPT, THE TWENTY-FOURTH WORD: the tax desk's
  * filings ledger answers BY THE MONTH. Its desk-prefixed `tax-period`
  * lens — the desk's other daily question, "which month's returns am I

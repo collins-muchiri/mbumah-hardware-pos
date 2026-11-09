@@ -208,21 +208,26 @@ describe('the address-bar vocabulary — the thirty-third row (cross-suite pins)
   const stress = readFileSync(STRESS, 'utf8');
 
   it('the constitution walks the row (the rose byte, the census-full growth)', () => {
-    expect(constitution.includes("(thirty-three words, twenty-six desks)")).toBe(true);
+    // v2.480.0 (dated): the constitution grew its thirty-fourth row (the
+    // lens's own word rides the address) — the title's count rolls with
+    // it; the rose row keeps its exact bytes.
+    expect(constitution.includes("(thirty-four words, twenty-six desks)")).toBe(true);
     expect(constitution.includes("{ word: 'dead-window', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-rose-300', suite: 'src/tests/dead-window-deep-link-v2462.test.ts' }")).toBe(true);
   });
 
-  it('the stress walk grew with the registry (33 rows, the stamp\u2019s second storey)', () => {
-    expect(stress.includes('toBe(33)')).toBe(true);
+  it('the stress walk grew with the registry (34 rows, the stamp\u2019s second storey)', () => {
+    expect(stress.includes('toBe(34)')).toBe(true);
     expect(stress.includes("'dead-window',")).toBe(true);
     // the version stamp reads the v24NN generation too (the suite's own
     // stamp — v2462 — is the stress's first second-generation row)
     expect(stress.includes('v(2[34]\\d\\d)')).toBe(true);
   });
 
-  it('the loom\u2019s word-free law grew with the registry (33 words, none spoken)', () => {
+  it('the loom\u2019s word-free law grew with the registry (34 words, none spoken)', () => {
     const loomSuite = readFileSync('src/tests/landing-chip-loom-v2394.test.ts', 'utf8');
-    expect(loomSuite.includes('toBe(33)')).toBe(true);
+    // v2.480.0 (dated): the thirty-fourth word — the count's roll grew
+    // with the constitution (33 → 34).
+    expect(loomSuite.includes('toBe(34)')).toBe(true);
   });
 });
 
@@ -272,34 +277,33 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
 // 7. THE WHAT'S NEW FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — v2.479.0 leads the feed', () => {
+describe('whats-new — v2.480.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.479.0');
-    // the lead's story hand-over (v2.479.0, the Task 111 law's
-    // eighty-fifth application): the head story is the hand-over's
-    // voice — the carrying round: THE PAPER SPEAKS THE WINDOW'S
-    // WORD — the dead-stock print header's Period line grows the
-    // idle window beside the dates (" · Idle window: N days", the
-    // ONE home's days expression — the same word the CSV's Days
-    // window row carries, the window IS the lens: 30, 60 or 90
-    // changes the ledger's meaning), the other stages keeping the
-    // bare Period line; the loom's sixth weave takes the head home
-    // — CHIP_HEAD leaves the family file as an export (the ring
-    // and the faces left home in v2.460.0), the inventory ledger's
-    // All chip rides <FilterChip> proper (the loom picks the faces,
-    // the desk's hand face import retires) and the data-colored
-    // tribe's last two head hand-copies (the inventory category
-    // chips, the POS scroll row) ride the import — one head, many
-    // hands, the wardrobe in exactly ONE src file; the census pills
-    // learn the family's voices (the M-Pesa census's four idle
-    // faces gain the dark wardrobe the elder ledger named, the
-    // M-Pesa census and the security desk's time-window pills wear
-    // the zinc keyboard ring, the amber pressed face learning its
-    // dark word); the census keeps its ten voices (a word in the
-    // header, never a handle), and the desk never spells the
+    expect(head.version).toBe('2.480.0');
+    // the lead's story hand-over (v2.480.0, the Task 111 law's
+    // eighty-sixth application): the head story is the hand-over's
+    // voice — the carrying round: THE LENS'S WORD RIDES THE
+    // ADDRESS — the dead-stock search lens answers the address
+    // bar (the maker's own word rides ?dead-q into the URL, read as
+    // typed — trimmed and capped, never case-gamed, the ONE
+    // home's filter lowercases its own side; the landing read once
+    // on the shell, a dismissed chip can never resurrect; every
+    // hand-driven lens change replaceState's its word back — a
+    // pressed lens is a shareable address, never a dead end — and
+    // an emptied lens strips its key, the address never carries a
+    // silence), the landed word wearing the amber landing chip
+    // beside the window's own — amber joins the 300 registry (the
+    // shade-split law's next form, the lens family's own tone, the
+    // constitution's thirty-fourth word); and the patience draws its
+    // own bar (the Days idle cell wears the capital bar's own
+    // dialect — the muted track, the fill in the number's own
+    // word: amber below half a year, rose past it — the
+    // never-sold row's cell keeping quiet, its badge already
+    // speaks); the census keeps its ten voices (a chip and a bar
+    // never carry a handle's voice), and the desk never spells the
     // host's word.
-    // The paper speaks the window's word.
+    // The lens's word rides the address.
     expect(head.title).toContain('edit door');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);
     expect(head.bullets.some((b) => b.includes('edit door'))).toBe(true);

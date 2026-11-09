@@ -112,7 +112,7 @@ const THE_TEN = [
 // 1. THE LOOM EXISTS AND STAYS WORD-FREE
 // ---------------------------------------------------------------------------
 
-describe('the loom — one component, eleven hues, zero words', () => {
+describe('the loom — one component, twelve hues, zero words', () => {
   it('the loom file exists, is a client component, exports the registry', () => {
     expect(loom.includes("'use client';")).toBe(true);
     expect(loom.includes('export const LANDING_CHIP_HUES')).toBe(true);
@@ -121,8 +121,10 @@ describe('the loom — one component, eleven hues, zero words', () => {
     expect(loom.includes("from 'lucide-react'")).toBe(true);
   });
 
-  it('THE WORD-FREE LAW — the loom speaks none of the constitution\u2019s 33 words', () => {
-    expect(rows.length).toBe(33);
+  it('THE WORD-FREE LAW — the loom speaks none of the constitution\u2019s 34 words', () => {
+    // v2.480.0 (dated): the thirty-fourth word joins the constitution;
+    // the loom grew its amber line and stays word-free.
+    expect(rows.length).toBe(34);
     for (const row of rows) {
       expect(loom.includes(row.word), row.word).toBe(false);
     }
@@ -484,10 +486,12 @@ describe.each(THE_ELDER)('$word — the elder loomed desk, derived against the t
 // ---------------------------------------------------------------------------
 
 describe('the constitution under the loom', () => {
-  it('the 33 rows still parse; 26 desks; 33 distinct families (nothing moved)', () => {
-    expect(rows.length).toBe(33);
+  it('the 34 rows still parse; 26 desks; 34 distinct families (nothing moved)', () => {
+    // v2.480.0 (dated): the thirty-fourth word — the search lens's own
+    // word rides the address; the counts roll with the constitution.
+    expect(rows.length).toBe(34);
     expect(new Set(rows.map((r) => r.desk)).size).toBe(26);
-    expect(new Set(rows.map((r) => r.family)).size).toBe(33);
+    expect(new Set(rows.map((r) => r.family)).size).toBe(34);
   });
 
   it('the stress grew its LOOM FACE (the derivation admits the hue+registry path)', () => {
