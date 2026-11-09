@@ -43,13 +43,13 @@ const version = String(pkg.version);
 
 describe('the round of record (v2.238.0)', () => {
   it('package.json leads 2.238.0 (all three slots)', () => {
-    expect(version).toBe('2.486.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.486.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.486.0');
+    expect(version).toBe('2.487.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.487.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.487.0');
   });
 
   it('VERSION speaks 2.238.0', () => {
-    expect(read('VERSION').trim()).toBe('2.486.0');
+    expect(read('VERSION').trim()).toBe('2.487.0');
   });
 
   it('the whats-new feed leads the door\u2019s-census entry (order pin: header-anchored, never a bare version string)', () => {

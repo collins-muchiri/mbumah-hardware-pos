@@ -112,7 +112,7 @@ const THE_TEN = [
 // 1. THE LOOM EXISTS AND STAYS WORD-FREE
 // ---------------------------------------------------------------------------
 
-describe('the loom — one component, seventeen hues, zero words', () => {
+describe('the loom — one component, eighteen hues, zero words', () => {
   it('the loom file exists, is a client component, exports the registry', () => {
     expect(loom.includes("'use client';")).toBe(true);
     expect(loom.includes('export const LANDING_CHIP_HUES')).toBe(true);
@@ -121,7 +121,10 @@ describe('the loom — one component, seventeen hues, zero words', () => {
     expect(loom.includes("from 'lucide-react'")).toBe(true);
   });
 
-  it('THE WORD-FREE LAW — the loom speaks none of the constitution\u2019s 44 words', () => {
+  it('THE WORD-FREE LAW — the loom speaks none of the constitution\u2019s 45 words', () => {
+    // v2.487.0 (dated): the shift week joins the constitution; the
+    // loom grew its slate line and stays word-free (the shift's word
+    // is the chip's own — the desk never spells the bytes bare).
     // v2.486.0 (dated): the queue joins the constitution; the loom
     // grew its red line and stays word-free (the queue's word is
     // the chip's own — the desk never spells the bytes bare).
@@ -139,7 +142,7 @@ describe('the loom — one component, seventeen hues, zero words', () => {
     // the loom grew its emerald line and stays word-free.
     // v2.480.0 (dated): the thirty-fourth word joins the constitution;
     // the loom grew its amber line and stays word-free.
-    expect(rows.length).toBe(44);
+    expect(rows.length).toBe(45);
     for (const row of rows) {
       expect(loom.includes(row.word), row.word).toBe(false);
     }
@@ -513,14 +516,16 @@ describe('the constitution under the loom', () => {
     // word rides the address; the counts roll with the constitution.
     // v2.480.0 (dated): the thirty-fourth word — the search lens's own
     // word rides the address; the counts roll with the constitution.
-    expect(rows.length).toBe(44);
+    expect(rows.length).toBe(45);
     // v2.484.0 (dated): twenty-seven desks — the family's FIRST
     // non-tab desk joined with the window's word.
     // v2.485.0 (dated): twenty-eight desks — the SECOND shell-tab
     // desk joined with the period's word.
     // v2.486.0 (dated): twenty-nine desks — the THIRD shell-tab
     // desk joined with the queue's word.
-    expect(new Set(rows.map((r) => r.desk)).size).toBe(29);
+    // v2.487.0 (dated): thirty desks — the FOURTH shell-tab
+    // desk joined with the shift's week.
+    expect(new Set(rows.map((r) => r.desk)).size).toBe(30);
     // v2.484.0 (dated): blue-300 joined with the window's word — the
     // families grew one (37) while the words grew two (the SECOND
     // shared family: two words, one chip).
@@ -530,7 +535,10 @@ describe('the constitution under the loom', () => {
     // v2.486.0 (dated): red-300 joined with the queue's word —
     // the families grew one (39) with the word's own (the shade-split
     // law's next form; no shared family — the red serves one word).
-    expect(new Set(rows.map((r) => r.family)).size).toBe(39);
+    // v2.487.0 (dated): slate-300 joined with the shift's week —
+    // the families grew one (40) with the word's own (the shade-split
+    // law's next form; no shared family — the slate serves one word).
+    expect(new Set(rows.map((r) => r.family)).size).toBe(40);
   });
 
   it('the stress grew its LOOM FACE (the derivation admits the hue+registry path)', () => {

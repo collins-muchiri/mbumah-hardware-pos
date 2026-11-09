@@ -69,6 +69,13 @@ import { Link2, X } from 'lucide-react';
 // stranger list (the family grew, the guard stays honest; the exact
 // red 300-trio census was machine-kept: no src file wore the trio
 // before this line).
+// v2.487.0: slate joins the 300 storey — the shift week's word (the
+// scheduling desk's roster hue). The conversations desk's chip hue at
+// the 200/50 storey (the conversations desk's own family at that
+// storey) speaking through a storey it never spoke — the shade-split
+// law's next form; slate LEFT the stranger list (the family grew, the
+// guard stays honest; the exact slate 300-trio census was machine-
+// kept: no src file wore the trio before this line).
 export const LANDING_CHIP_HUES = [
   'sky',
   'purple',
@@ -96,6 +103,10 @@ export const LANDING_CHIP_HUES = [
   // DLQ lens); the etims desk's 200-storey hue one storey deeper (the
   // shade-split law's next form).
   'red',
+  // v2.487.0: slate's promotion — the shift week's word (the
+  // scheduling desk's roster hue); the conversations desk's 200-storey
+  // hue one storey deeper (the shade-split law's next form).
+  'slate',
 ] as const;
 
 export type LandingChipHue = (typeof LANDING_CHIP_HUES)[number];
@@ -130,6 +141,9 @@ export const LANDING_CHIP_WARDROBES: Record<LandingChipHue, string> = {
   // v2.486.0: red's line — the queue's word (the SINGLE-LINE law: one
   // entry, one line, the grep finds the whole wardrobe).
   red: 'border-red-300 bg-red-100 text-red-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-red-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300 dark:hover:bg-red-500/20',
+  // v2.487.0: slate's line — the shift week's word (the SINGLE-LINE
+  // law: one entry, one line, the grep finds the whole wardrobe).
+  slate: 'border-slate-300 bg-slate-100 text-slate-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 dark:border-slate-500/30 dark:bg-slate-500/10 dark:text-slate-300 dark:hover:bg-slate-500/20',
 };
 
 // THE ELDER STOREY (v2.397.0): the 200/50 registry — the census's 22

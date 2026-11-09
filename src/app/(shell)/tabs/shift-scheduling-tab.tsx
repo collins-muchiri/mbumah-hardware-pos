@@ -29,6 +29,7 @@ import {
   shiftSchedulesApi,
   type ShiftScheduleItem,
 } from '@/lib/api';
+import { parseInitialNamedDay } from '@/lib/tab-url';
 import { handleError } from '@/lib/error-handler';
 import {
   COLOR_PALETTE,
@@ -39,6 +40,7 @@ import {
 
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { LandingChip } from '@/components/landing-chip';
 
 import { WeeklyCalendar } from '@/components/shift-scheduling/weekly-calendar';
 import { ScheduleStatsCards } from '@/components/shift-scheduling/schedule-stats-cards';
@@ -50,28 +52,92 @@ function todayWeekStart(): string {
   return dateToDateInputValue(getWeekStart(new Date()));
 }
 
+// THE SHIFT'S WEEK RIDES THE ADDRESS (v2.487.0 — the deep-link family's
+// forty-fifth word, the FOURTH shell-tab desk): the scheduling desk's
+// FIRST daily question, "which week am I planning?", answers the bar.
+// The desk's week speaks its desk-prefixed `?shift-week=<YYYY-MM-DD>` —
+// a SHAPE word (the wire's own day-key class, the date input's own
+// bytes, read through the ONE home's honest-day validator: the day must
+// be REAL, proven by round-trip — a made-up date is an unknown word,
+// not a clever match; the collision check ran at round start: the byte
+// appeared NOWHERE before this word). THE DEFAULT WEARS NO WORD: the
+// resting week is THIS week — the address's silence, the key strips
+// when the desk rests, and a landed word that names the resting week
+// wears no chip (the rep-type law's own reading — a landing of the
+// default speaks the shape the bare landing already answers). THE
+// LANDING IS READ ONCE ON THE SHELL: a plain useState initializer — a
+// dismissed chip can never resurrect (the shell tolerates the
+// default-first render — the v2.484 lesson's own exception: a shell
+// tab reads on the shell). THE WEEK WRITES BACK: every hand-driven
+// week turn replaceState's its word (the window's own write shape; the
+// resting week stripping its key), so a turned week is a shareable
+// address, never a dead end; a blocked write is the week's silence,
+// never a thrown desk. The landed word wears the SLATE landing chip —
+// the family's eighteenth 300-storey byte (the conversations desk's
+// hue one storey deeper; the shade-split law's next form; slate LEFT
+// the stranger list). The chip lives in the desk's own week-nav strip,
+// beside the range label it names.
+
+// The landed word, read once on the shell: the address's word is the
+// desk's week, or silence (an unknown word is never a clever match).
+function landedShiftWeekWord(): string {
+  if (typeof window === 'undefined') return '';
+  return parseInitialNamedDay(window.location.search, 'shift-week');
+}
+
+// The write half — the week's own replaceState (preserve the other
+// params: the shell's tab word and every other desk's word ride
+// untouched); the RESTING week strips its key — the address never
+// carries the resting face's word.
+function writeShiftWeekWord(iso: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (iso === todayWeekStart()) params.delete('shift-week');
+    else params.set('shift-week', iso);
+    const qs = params.toString();
+    window.history.replaceState(null, '', window.location.pathname + (qs ? `?${qs}` : ''));
+  } catch {
+    // The address never lies louder than the week — a blocked write
+    // leaves the week on the desk, exactly where the human pressed it.
+  }
+}
+
 export function ShiftSchedulingTab() {
   const { currentStoreId } = useAppStore();
-  const [weekStartStr, setWeekStartStr] = useState<string>(todayWeekStart());
+  // THE WEEK'S OWN LANDING (v2.487.0) — the word reads once on the
+  // shell (the landing law's shape): the address's word lands into the
+  // week navigation, a dismissed chip can never resurrect.
+  const [landedShiftWeek] = useState<string>(landedShiftWeekWord);
+  const [shiftWeekLandingLive, setShiftWeekLandingLive] = useState(true);
+  const [weekStartStr, setWeekStartStr] = useState<string>(() => landedShiftWeekWord() || todayWeekStart());
   const [createOpen, setCreateOpen] = useState(false);
   const [presetDate, setPresetDate] = useState<string | null>(null);
   const [editSchedule, setEditSchedule] = useState<ShiftScheduleItem | null>(null);
+
+  // THE ONE DOOR — the turn and the write ride together (the family's
+  // own shape: every week turn speaks this one door, the address's
+  // word and the desk's week never drift apart).
+  const chooseShiftWeek = (iso: string) => {
+    setWeekStartStr(iso);
+    writeShiftWeekWord(iso);
+  };
 
   // Week navigation
   const handlePrevWeek = () => {
     const d = new Date(weekStartStr);
     d.setDate(d.getDate() - 7);
-    setWeekStartStr(dateToDateInputValue(d));
+    chooseShiftWeek(dateToDateInputValue(d));
   };
 
   const handleNextWeek = () => {
     const d = new Date(weekStartStr);
     d.setDate(d.getDate() + 7);
-    setWeekStartStr(dateToDateInputValue(d));
+    chooseShiftWeek(dateToDateInputValue(d));
   };
 
   const handleToday = () => {
-    setWeekStartStr(todayWeekStart());
+    chooseShiftWeek(todayWeekStart());
   };
 
   const weekRangeLabel = useMemo(() => {
@@ -221,9 +287,45 @@ export function ShiftSchedulingTab() {
           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleNextWeek} aria-label="Next week">
             <ChevronRight className="h-4 w-4" />
           </Button>
-          <span className="text-sm font-semibold ml-2">{weekRangeLabel}</span>
+          {/* THE WEEK'S OWN STRIP (v2.487.0 — the styling verse): the
+              range label wears the slate family's quiet ground and
+              tabular figures while a NON-default week rides (the
+              word's own tint, the pressed week and its landing chip
+              speaking one voice — the desk's own byte order, never the
+              loom's wardrobe copy), the resting week's label plain. */}
+          <span
+            data-testid="shift-week-range-label"
+            className={weekStartStr !== todayWeekStart()
+              ? 'text-sm font-semibold ml-2 px-2 py-0.5 rounded-md bg-slate-100 border border-slate-300 text-slate-700 tabular-nums dark:bg-slate-500/10 dark:border-slate-500/30 dark:text-slate-300'
+              : 'text-sm font-semibold ml-2 tabular-nums'}
+          >
+            {weekRangeLabel}
+          </span>
+          {/* THE WEEK'S LANDING CHIP (v2.487.0) — the word's own chip
+              in the strip the week nav wears: the EIGHTEENTH 300-storey
+              byte, slate — the scheduling desk's roster hue. It only
+              speaks when the shell LANDED with a NON-default week (the
+              default wears no chip — the chip names a word, never a
+              silence), and a press retires the name, never the week
+              (the window's own dismissal shape — the dismissal returns
+              the desk to the resting week through the one door). */}
+          {shiftWeekLandingLive && landedShiftWeek && landedShiftWeek !== todayWeekStart() && (
+            <LandingChip
+              hue="slate"
+              label={`landed ?shift-week=${landedShiftWeek}`}
+              onDismiss={() => { setShiftWeekLandingLive(false); chooseShiftWeek(todayWeekStart()); }}
+              title="The week landed with this word from the address bar — press to return to this week"
+              data-testid="shift-week-landing-word"
+            />
+          )}
         </div>
-        <div className="text-xs text-muted-foreground">
+        {/* THE COUNT'S OWN STRIP (v2.487.0 — the styling verse): the
+            scheduled counter wears a quiet ground and tabular figures,
+            so the week's answer reads as one steady word. */}
+        <div
+          data-testid="shift-week-scheduled-count"
+          className="text-xs text-muted-foreground px-2 py-0.5 rounded-md bg-muted/30 tabular-nums"
+        >
           {totalShifts} shift{totalShifts === 1 ? '' : 's'} scheduled
         </div>
       </div>

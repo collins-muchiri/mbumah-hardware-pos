@@ -324,9 +324,9 @@ describe('the docs speak the fourth section', () => {
 describe('release surfaces', () => {
   it('package.json leads the current version in all three slots (re-anchored for 2.181.0)', () => {
     const pkg = JSON.parse(readRepo('package.json'));
-    expect(pkg.version).toBe('2.486.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.486.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.486.0');
+    expect(pkg.version).toBe('2.487.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.487.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.487.0');
   });
 
   it('the CHANGELOG heads with this release', () => {

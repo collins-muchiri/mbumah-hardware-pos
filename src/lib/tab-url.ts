@@ -1126,6 +1126,41 @@ export function parseInitialNamedPeriod(search: string, param: string, fallback:
 }
 
 /**
+ * v2.487.0 — THE FAMILY'S FORTY-FIFTH WORD: the scheduling desk's week
+ * answers the bar. The shift-scheduling tab's week navigation — the
+ * desk's daily question, "which week am I planning?" — speaks its
+ * desk-prefixed `shift-week` (collision-checked at round start: the
+ * byte appeared NOWHERE before this word). The week's word is a SHAPE
+ * word — the wire's own YYYY-MM-DD class (the date input's own bytes,
+ * the ledger's day-key law), the day REAL (the honest-day validator's
+ * own round-trip: V8's lenient ISO parse must re-format to the exact
+ * bytes it came from, so `2026-02-30` and `2026-13-01` are unknown
+ * words, not clever matches). The neutral is ABSENCE (the empty
+ * string), not a word: no landed week, no lens, never a stranded
+ * filter — the resting week is THIS week (the desk's own default), and
+ * a landed word that names it wears no chip (the rep-type law's own
+ * reading: a landing of the default speaks the shape the bare landing
+ * already answers). THE LANDING IS READ ONCE ON THE SHELL: a plain
+ * useState initializer — a dismissed chip can never resurrect (the
+ * FOURTH shell-tab desk — the v2.485 lesson's own exception: a shell
+ * tab reads on the shell). THE WEEK WRITES BACK: every hand-driven
+ * week turn replaceState's its word (the window's own write shape; the
+ * resting week strips its key — the address never carries the resting
+ * face's word), so a turned week is a shareable address, never a dead
+ * end. The chip wears the SHADE-SPLIT's next form — slate one storey
+ * deeper at 300/100: a hue may speak twice only through a DIFFERENT
+ * storey (the conversations desk's word wears slate at the 200/50
+ * storey on its own desk), and the pair bytes can never collide.
+ */
+export function parseInitialNamedDay(search: string, param: string): string {
+  try {
+    return honestDayKey(toParams(search).get(param));
+  } catch {
+    return '';
+  }
+}
+
+/**
  * v2.368.0 — THE TWO-ADDRESS DESIGN (the innerTab landing law). One
  * word, two addresses: the loyalty ledger's type lens lives in a
  * NON-DEFAULT sub-tab ('transactions' under a 'tiers' default), so a
