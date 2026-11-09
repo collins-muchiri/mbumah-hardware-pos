@@ -946,6 +946,17 @@ export const SH_DLQ_FILTERS = [
 export type ShDlqFilter = (typeof SH_DLQ_FILTERS)[number];
 
 /**
+ * DASH_VIEW_MEMBERS (v2.489.0) — the dashboard desk's view members: the
+ * Recent activity card's OWN union ('sales' | 'system'), lowercase, the
+ * toggle's own spellings. Lives here (the ONE home) so the desk, its
+ * deep-link word and the test suite speak one array — the same home
+ * SH_DLQ_FILTERS keeps for the queue's lens.
+ */
+export const DASH_VIEW_MEMBERS = ['sales', 'system'] as const;
+
+export type DashViewMember = (typeof DASH_VIEW_MEMBERS)[number];
+
+/**
  * v2.368.0 — THE LEGACY-WORD SUNSET LAW, the alias parser. The family's
  * naming constitution (Task 44's collision analysis, worn by every word
  * since `?po-status=`) requires a DESK-PREFIXED param — but one desk
@@ -1124,6 +1135,28 @@ export function parseInitialNamedPeriod(search: string, param: string, fallback:
     return fallback;
   }
 }
+
+/**
+ * v2.489.0 — THE FAMILY'S FORTY-SIXTH WORD: the dashboard's view rides
+ * the address. The dashboard desk's Recent activity card — the desk's
+ * first daily question, "what just moved?" — speaks its desk-prefixed
+ * `dash-view` (collision-checked at round start: the byte appeared
+ * NOWHERE before this word), the card's OWN spellings (`sales` and
+ * `system`, the toggle's two members, read through the generic
+ * named-member parser; a made-up member or a wrong case is an unknown
+ * word, not a clever match). THE DEFAULT WEARS NO WORD: sales is the
+ * address's silence — the key strips when the card rests, and a landed
+ * word that names the default wears no chip. THE LANDING IS READ ONCE
+ * ON THE SHELL: a plain useState initializer — a dismissed chip can
+ * never resurrect (the FIFTH shell-tab desk). THE VIEW WRITES BACK
+ * THROUGH THE FAMILY'S ONE READING: the guarded door from birth — no
+ * turn, no write, and the hand's turn retires the word (the chip
+ * speaks the ADDRESS BAR's landing, never the human's next choice —
+ * the reading the v2.488.0 verse named for the whole family). The chip
+ * wears the desk's own voice — slate, the toggle's own family, now
+ * serving two words (the family's next shared family at the 300
+ * storey, the violet precedent's own form).
+ */
 
 /**
  * v2.488.0 — THE FAMILY'S ONE READING (the landing chip's retirement):

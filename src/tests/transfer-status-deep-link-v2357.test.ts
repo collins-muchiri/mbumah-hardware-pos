@@ -206,7 +206,7 @@ describe('the landing chip — the face names the word it answered', () => {
 // 4. THE CONSTITUTION — the whole vocabulary's invariants, walked from bytes
 // ---------------------------------------------------------------------------
 
-describe('the address-bar vocabulary — THE CONSTITUTION (forty-five words, thirty desks)', () => {
+describe('the address-bar vocabulary — THE CONSTITUTION (forty-six words, thirty-one desks)', () => {
   const WORDS = [
     { word: 'po-status', desk: 'src/app/(shell)/tabs/purchase-orders-tab.tsx', family: 'border-indigo-200', suite: 'src/tests/proxy-gate-layering-v2328.test.ts' },
     { word: 'inv-stock', desk: 'src/app/(shell)/tabs/inventory-tab.tsx', family: 'border-amber-200', suite: 'src/tests/inv-stock-deep-link-v2329.test.ts' },
@@ -456,6 +456,7 @@ describe('the address-bar vocabulary — THE CONSTITUTION (forty-five words, thi
     // 200/50 storey (the cv-type row's own family) one storey deeper
     // (the shade-split law's next form; slate LEFT the stranger list).
     { word: 'shift-week', desk: 'src/app/(shell)/tabs/shift-scheduling-tab.tsx', family: 'border-slate-300', suite: 'src/tests/shift-week-address-v2487.test.ts' },
+    { word: 'dash-view', desk: 'src/app/(shell)/tabs/dashboard-tab.tsx', family: 'border-slate-300', suite: 'src/tests/dash-view-address-v2489.test.ts' },
   ] as const;
 
   it('every word is desk-prefixed and owns its FILTERS const in exactly its desk', () => {
@@ -475,7 +476,9 @@ describe('the address-bar vocabulary — THE CONSTITUTION (forty-five words, thi
     // v2.485.0 (dated): the THIRD SHARED FAMILY — the pair rides the
     // period's green (three words, one chip, again): two more shared
     // words.
-    const SHARED_WORDS = 5;
+    // v2.489.0 (dated): the FOURTH SHARED FAMILY — the view rides the
+    // week's slate (two words, one chip, again): one more shared word.
+    const SHARED_WORDS = 6;
     expect(new Set(families).size + SHARED_WORDS).toBe(WORDS.length);
     const loom = readFileSync('src/components/landing-chip.tsx', 'utf8');
     for (const { word, desk: deskPath, family } of WORDS) {
@@ -572,6 +575,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // sorted place: cr- < custom- < cv-)
       'src/tests/custom-range-address-v2483.test.ts',
       'src/tests/cv-type-deep-link-v2363.test.ts',
+      // the dashboard's own ledger — admitted (its registry section
+      // reads this file's rows; an admission line carries the word it
+      // admits; sorted place: cv- < dash- < dead-)
+      'src/tests/dash-view-address-v2489.test.ts',
       // the thirty-fourth word's own ledger — admitted (its registry
       // section reads this file's rows; an admission line carries the
       // word it admits)

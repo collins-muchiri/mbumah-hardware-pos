@@ -142,7 +142,7 @@ describe('the loom — one component, eighteen hues, zero words', () => {
     // the loom grew its emerald line and stays word-free.
     // v2.480.0 (dated): the thirty-fourth word joins the constitution;
     // the loom grew its amber line and stays word-free.
-    expect(rows.length).toBe(45);
+    expect(rows.length).toBe(46);
     for (const row of rows) {
       expect(loom.includes(row.word), row.word).toBe(false);
     }
@@ -516,7 +516,7 @@ describe('the constitution under the loom', () => {
     // word rides the address; the counts roll with the constitution.
     // v2.480.0 (dated): the thirty-fourth word — the search lens's own
     // word rides the address; the counts roll with the constitution.
-    expect(rows.length).toBe(45);
+    expect(rows.length).toBe(46);
     // v2.484.0 (dated): twenty-seven desks — the family's FIRST
     // non-tab desk joined with the window's word.
     // v2.485.0 (dated): twenty-eight desks — the SECOND shell-tab
@@ -525,7 +525,9 @@ describe('the constitution under the loom', () => {
     // desk joined with the queue's word.
     // v2.487.0 (dated): thirty desks — the FOURTH shell-tab
     // desk joined with the shift's week.
-    expect(new Set(rows.map((r) => r.desk)).size).toBe(30);
+    // v2.489.0 (dated): thirty-one desks — the FIFTH shell-tab
+    // desk joined with the dashboard's view.
+    expect(new Set(rows.map((r) => r.desk)).size).toBe(31);
     // v2.484.0 (dated): blue-300 joined with the window's word — the
     // families grew one (37) while the words grew two (the SECOND
     // shared family: two words, one chip).
@@ -538,6 +540,9 @@ describe('the constitution under the loom', () => {
     // v2.487.0 (dated): slate-300 joined with the shift's week —
     // the families grew one (40) with the word's own (the shade-split
     // law's next form; no shared family — the slate serves one word).
+    // v2.489.0 (dated): the families stayed forty — the dashboard's
+    // word wears the week's slate (the family's next shared family:
+    // the slate serves two words now).
     expect(new Set(rows.map((r) => r.family)).size).toBe(40);
   });
 

@@ -89,7 +89,10 @@ describe('the registry, parsed from the constitution file itself', () => {
     // v2.480.0 (dated): the thirty-fourth word — the search lens's own
     // word rides the address; the constitution grew its row and this
     // parse grew with it.
-    expect(rows.length).toBe(45);
+    // v2.489.0 (dated): the forty-sixth word — the dashboard's view
+    // rides the address; the constitution grew its row and this parse
+    // grew with it (the FIFTH shell-tab desk).
+    expect(rows.length).toBe(46);
   });
 
   it('the rows walk in the promise\u2019s order (the roll, derived from the parse)', () => {
@@ -145,6 +148,11 @@ describe('the registry, parsed from the constitution file itself', () => {
       // class, the day REAL through the honest-day validator; the
       // FOURTH shell-tab desk)
       'shift-week',
+      // v2.489.0 (dated): the dashboard's own word — the Recent
+      // activity card's view rides the address (the FIFTH shell-tab
+      // desk; the family's FOURTH shared family — the week's slate
+      // serves two words now)
+      'dash-view',
     ];
     expect(rows.map((r) => r.word)).toEqual(expected);
   });
@@ -167,7 +175,9 @@ describe('the registry, parsed from the constitution file itself', () => {
     // desk joined with the queue's word.
     // v2.487.0 (dated): thirty desks — the FOURTH shell-tab
     // desk joined with the shift's week.
-    expect(new Set(rows.map((r) => r.desk)).size).toBe(30);
+    // v2.489.0 (dated): thirty-one desks — the FIFTH shell-tab
+    // desk joined with the dashboard's view.
+    expect(new Set(rows.map((r) => r.desk)).size).toBe(31);
     // v2.484.0 (dated): blue-300 joined with the window's word — the
     // families grew one (37) while the words grew two (the SECOND
     // shared family: two words, one chip).
@@ -180,8 +190,12 @@ describe('the registry, parsed from the constitution file itself', () => {
     // v2.487.0 (dated): slate-300 joined with the shift's week —
     // the families grew one (40) with the word's own (the shade-split
     // law's next form; no shared family — the slate serves one word).
+    // v2.489.0 (dated): the families stay forty — the dashboard's
+    // word wears the desk's own slate (the family's next shared
+    // family at the 300 storey: the slate serves two words now, the
+    // violet precedent's own form).
     expect(new Set(rows.map((r) => r.family)).size).toBe(40);
-    expect(constitution.includes('(forty-five words, thirty desks)')).toBe(true);
+    expect(constitution.includes('(forty-six words, thirty-one desks)')).toBe(true);
   });
 
   it('the promise roll through THIRTY-SECOND is present (the ordinals, derived from the home’s notes)', () => {

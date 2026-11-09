@@ -315,7 +315,7 @@ describe('the address-bar vocabulary — the twenty-first row (cross-suite pins)
   const constitution = readFileSync('src/tests/transfer-status-deep-link-v2357.test.ts', 'utf8');
 
   it('the constitution walks TWENTY-ONE words over NINETEEN desks', () => {
-    expect(constitution.includes('(forty-five words, thirty desks)')).toBe(true);
+    expect(constitution.includes('(forty-six words, thirty-one desks)')).toBe(true);
     expect(constitution.includes("{ word: 'ly-type', desk: 'src/app/(shell)/tabs/loyalty-tab.tsx', family: 'border-green-200', suite: 'src/tests/ly-type-deep-link-v2368.test.ts' }")).toBe(true);
     expect(constitution.includes("'TWENTY-FIRST'")).toBe(true);
   });
