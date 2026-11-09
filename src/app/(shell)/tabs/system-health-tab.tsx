@@ -40,6 +40,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { LandingChip } from '@/components/landing-chip';
+import { parseInitialNamedMember, SH_DLQ_FILTERS } from '@/lib/tab-url';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter,
@@ -425,6 +427,39 @@ function EnvRow({ row }: { row: EnvCheckRow }) {
   );
 }
 
+// THE QUEUE'S OWN WORD (v2.486.0) — the desk's DLQ lens answers the
+// bar. `?sh-dlq=<member>` — the desk's OWN spellings (the ONE home's
+// SH_DLQ_FILTERS — the toggle's six members, the five UPPERCASE status
+// words plus the lowercase neutral, read through the generic
+// named-member parser; a made-up member or a wrong case is an unknown
+// word, not a clever match). THE DEFAULT WEARS NO WORD: the resting
+// lens is `all` — the address's silence, the key strips when the desk
+// rests. THE LANDING IS READ ONCE ON THE SHELL: a plain useState
+// initializer — a dismissed chip can never resurrect.
+function initialDlqFilter(): string {
+  if (typeof window === 'undefined') return 'all';
+  return parseInitialNamedMember(window.location.search, 'sh-dlq', [...SH_DLQ_FILTERS], 'all');
+}
+
+// The write half — the lens's own replaceState (preserve the other
+// params: the shell's tab word and every other desk's word ride
+// untouched); the DEFAULT strips its key — the address never carries
+// the resting face's word. A blocked write is the lens's silence,
+// never a thrown desk.
+function writeShDlqWord(filter: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (filter === 'all') params.delete('sh-dlq');
+    else params.set('sh-dlq', filter);
+    const qs = params.toString();
+    window.history.replaceState(null, '', window.location.pathname + (qs ? `?${qs}` : ''));
+  } catch {
+    // The address never lies louder than the lens — a blocked write
+    // leaves the lens on the desk, exactly where the human pressed it.
+  }
+}
+
 // Main Component
 
 export default function SystemHealthTab() {
@@ -437,7 +472,27 @@ export default function SystemHealthTab() {
   // restriction where they would have been.
   const canOperateQueue = useAuthStore((s) => s.user?.role) === 'SUPER_ADMIN';
   const [selectedBreaker, setSelectedBreaker] = useState<string | null>(null);
-  const [dlqFilter, setDlqFilter] = useState<string>('all');
+  // THE QUEUE'S OWN LANDING (v2.486.0) — the word reads once on the
+  // shell (the landing law's shape): the address's member lands into
+  // the toggle, a dismissed chip can never resurrect. THE ONE DOOR:
+  // every filter turn goes through chooseDlqFilter — set, write, the
+  // fact rides never gates.
+  const [landedDlq] = useState<string>(initialDlqFilter);
+  const [dlqFilterLandingLive, setDlqFilterLandingLive] = useState(true);
+  const [dlqFilter, setDlqFilter] = useState<string>(initialDlqFilter);
+  const chooseDlqFilter = (filter: string) => {
+    setDlqFilter(filter);
+    writeShDlqWord(filter);
+  };
+  // THE SUB-TAB LAW'S THIRD APPLICATION (v2.486.0, the banking desk's
+  // own amendment): the lens lives inside the desk's `dlq` sub-tab, so
+  // a landing that carries the word RAISES THE SUB-TAB IT LANDS INTO —
+  // the pane's seed reads the same landed word, and the chip is visible
+  // on landing (the always-visible-face law's intent holds behind the
+  // desk's own inner navigation). Switching sub-tabs afterwards is the
+  // human's own navigation, not a lens change: the chip hides with the
+  // pane and returns when it reopens.
+  const [healthTab, setHealthTab] = useState<string>(() => (initialDlqFilter() !== 'all' ? 'dlq' : 'overview'));
 
   // Fetch system status
   const {
@@ -669,7 +724,7 @@ export default function SystemHealthTab() {
           </div>
 
           {/* ── Detailed Tabs ─────────────────────────────────────────── */}
-          <Tabs defaultValue="overview" className="space-y-4">
+          <Tabs value={healthTab} onValueChange={setHealthTab} className="space-y-4">
             <TabsList className="grid grid-cols-2 md:grid-cols-5 lg:w-auto lg:inline-grid lg:grid-cols-5">
               <TabsTrigger value="overview" className="gap-1.5 text-xs">
                 <BarChart3 className="h-3.5 w-3.5" />
@@ -1157,14 +1212,33 @@ export default function SystemHealthTab() {
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-base">DLQ Items</CardTitle>
                     <div className="flex items-center gap-2">
+                      {dlqFilterLandingLive && landedDlq !== 'all' && (
+                        <LandingChip
+                          hue="red"
+                          label={`landed ?sh-dlq=${landedDlq}`}
+                          onDismiss={() => { setDlqFilterLandingLive(false); chooseDlqFilter('all'); }}
+                          title="The queue's own word rode in from the address bar — dismiss to rest the lens"
+                          data-testid="sh-dlq-landing-word"
+                        />
+                      )}
                       <div className="flex items-center gap-1 bg-muted rounded-md p-0.5">
                         {['all', 'PENDING', 'RETRYING', 'DEAD', 'COMPLETED', 'CANCELLED'].map((filter) => (
                           <Button
                             key={filter}
                             variant={dlqFilter === filter ? 'default' : 'ghost'}
                             size="sm"
-                            className="text-[10px] h-7 px-2"
-                            onClick={() => setDlqFilter(filter)}
+                            className={dlqFilter === filter
+                              /* THE ACTIVE MEMBER WEARS THE WORD'S OWN HUE (v2.486.0
+                                  — the styling verse): the queue's buttons answer the
+                                  red family's own tint (the chip's colours, the desk's
+                                  own byte order — never the loom's wardrobe copy), so
+                                  the pressed member and its landing chip speak one
+                                  voice. */
+                              ? 'text-[10px] h-7 px-2 bg-red-100 border-red-300 text-red-700 hover:bg-red-200 dark:bg-red-500/10 dark:border-red-500/30 dark:text-red-300'
+                              : 'text-[10px] h-7 px-2'}
+                            aria-pressed={dlqFilter === filter}
+                            data-testid={`sh-dlq-filter-${filter.toLowerCase()}`}
+                            onClick={() => chooseDlqFilter(filter)}
                           >
                             {filter === 'all' ? 'All' : filter.charAt(0) + filter.slice(1).toLowerCase()}
                           </Button>

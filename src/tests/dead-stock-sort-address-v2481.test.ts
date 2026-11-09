@@ -130,7 +130,7 @@ describe('the thirteenth byte — emerald, the ledger\u2019s own green', () => {
     // v2.482.0 (dated): the thirty-sixth word — the range's own word
     // rides the address; the count rolls with the constitution.
     expect(registry.includes("{ word: 'dead-sort', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-emerald-300', suite: 'src/tests/dead-stock-sort-address-v2481.test.ts' }")).toBe(true);
-    expect(registry.includes('(forty-three words, twenty-eight desks)')).toBe(true);
+    expect(registry.includes('(forty-four words, twenty-nine desks)')).toBe(true);
   });
 
   it('the stress walks the roll and the derived counts (36 \u2192 38)', () => {
@@ -142,7 +142,10 @@ describe('the thirteenth byte — emerald, the ledger\u2019s own green', () => {
     // v2.485.0 (dated): the living stress-pin rolls — the stress's
     // row count grew to forty-three (the period's round); the
     // contains-pin rides the bytes that ARE.
-    expect(stress.includes('toBe(43)')).toBe(true);
+    // v2.486.0 (dated): the living stress-pin rolls — the stress's
+    // row count grew to forty-four (the queue's round); the
+    // contains-pin rides the bytes that ARE.
+    expect(stress.includes('toBe(44)')).toBe(true);
     expect(stress.includes("      'dead-sort',")).toBe(true);
   });
 
@@ -195,7 +198,10 @@ describe('the registry proper — the (hue, storey) weave', () => {
     // v2.485.0 (dated): the living registry pin rolls — the loom's
     // hue count grew to sixteen (the period's green); the pin rides
     // the bytes that ARE.
-    expect(LANDING_CHIP_HUES.length).toBe(16);
+    // v2.486.0 (dated): the living registry pin rolls — the loom's
+    // hue count grew to seventeen (the queue's red); the pin rides
+    // the bytes that ARE.
+    expect(LANDING_CHIP_HUES.length).toBe(17);
     for (const hue of LANDING_CHIP_HUES) {
       expect(landingChipWardrobe(hue, 300), hue).toBe(LANDING_CHIP_WARDROBES[hue]);
     }
@@ -221,7 +227,10 @@ describe('the registry proper — the (hue, storey) weave', () => {
     // v2.485.0 (dated): green LEFT the stranger list — the ledger's
     // period brought it to the 300 storey; the family grew, the guard
     // stays honest.
-    for (const hue of ['neutral', 'slate', 'zinc', 'gray', 'red', 'stone'] as const) {
+    // v2.486.0 (dated): red LEFT the stranger list — the queue's
+    // own word brought it to the 300 storey; the family grew, the
+    // guard stays honest.
+    for (const hue of ['neutral', 'slate', 'zinc', 'gray', 'stone'] as const) {
       expect(landingChipSpeaksAt(hue, 300), hue).toBe(false);
       expect(() => landingChipWardrobe(hue, 300)).toThrow(`the ${hue} hue never spoke at the 300 storey`);
       expect(landingChipSpeaksAt(hue, 200), hue).toBe(true);
@@ -343,7 +352,7 @@ describe('whats-new — the round, pinned in the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.485.0');
+    expect(pkg.version).toBe('2.486.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.481.0]')).toBeGreaterThan(-1);

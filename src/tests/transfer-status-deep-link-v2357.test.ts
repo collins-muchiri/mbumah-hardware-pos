@@ -206,7 +206,7 @@ describe('the landing chip — the face names the word it answered', () => {
 // 4. THE CONSTITUTION — the whole vocabulary's invariants, walked from bytes
 // ---------------------------------------------------------------------------
 
-describe('the address-bar vocabulary — THE CONSTITUTION (forty-three words, twenty-eight desks)', () => {
+describe('the address-bar vocabulary — THE CONSTITUTION (forty-four words, twenty-nine desks)', () => {
   const WORDS = [
     { word: 'po-status', desk: 'src/app/(shell)/tabs/purchase-orders-tab.tsx', family: 'border-indigo-200', suite: 'src/tests/proxy-gate-layering-v2328.test.ts' },
     { word: 'inv-stock', desk: 'src/app/(shell)/tabs/inventory-tab.tsx', family: 'border-amber-200', suite: 'src/tests/inv-stock-deep-link-v2329.test.ts' },
@@ -424,6 +424,22 @@ describe('the address-bar vocabulary — THE CONSTITUTION (forty-three words, tw
     { word: 'fin-range', desk: 'src/app/(shell)/tabs/financial-tab.tsx', family: 'border-green-300', suite: 'src/tests/fin-period-address-v2485.test.ts' },
     { word: 'fin-from', desk: 'src/app/(shell)/tabs/financial-tab.tsx', family: 'border-green-300', suite: 'src/tests/fin-period-address-v2485.test.ts' },
     { word: 'fin-to', desk: 'src/app/(shell)/tabs/financial-tab.tsx', family: 'border-green-300', suite: 'src/tests/fin-period-address-v2485.test.ts' },
+    // the queue's own word (v2.486.0): the DLQ lens — the
+    // forty-fourth word — rides the system-health desk's dead-letter
+    // filter (?sh-dlq=<member>), the THIRD shell-tab desk
+    // (src/app/(shell)/tabs/system-health-tab.tsx — the desk's first
+    // daily question now speaks its address). THE QUEUE'S OWN LAW:
+    // the members speak their OWN spellings (all, PENDING, RETRYING,
+    // DEAD, COMPLETED, CANCELLED — the ONE home's tuple, read through
+    // the named-member parser; a made-up member or a wrong case is an
+    // unknown word). THE SUB-TAB LAW'S THIRD APPLICATION: a landing
+    // that carries the word raises the desk's own dlq sub-tab — the
+    // pane's seed reads the same landed word. The family GREW one
+    // line: red joins the 300 registry — the etims ledger's hue at
+    // the 200/50 storey (the et-status row's own family) one storey
+    // deeper (the shade-split law's next form; red LEFT the stranger
+    // list).
+    { word: 'sh-dlq', desk: 'src/app/(shell)/tabs/system-health-tab.tsx', family: 'border-red-300', suite: 'src/tests/sh-dlq-address-v2486.test.ts' },
   ] as const;
 
   it('every word is desk-prefixed and owns its FILTERS const in exactly its desk', () => {
@@ -599,6 +615,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // word it admits)
       'src/tests/rep-range-address-v2482.test.ts',
       'src/tests/sec-type-deep-link-v2367.test.ts',
+      // the queue's own ledger — admitted (its registry section reads
+      // this file's rows; an admission line carries the word it admits;
+      // sorted place: sec- < sh- < sup-)
+      'src/tests/sh-dlq-address-v2486.test.ts',
       'src/tests/sup-po-deep-link-v2332.test.ts',
       'src/tests/sup-status-deep-link-v2331.test.ts',
       // and this file joins its own ledger (an admission line carries the
