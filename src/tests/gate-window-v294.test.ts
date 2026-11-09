@@ -137,7 +137,9 @@ describe('the range lens wiring (byte net)', () => {
     expect(tab).toContain("value: '7d', label: '7 days'");
     expect(tab).toContain('aria-pressed={pressed}');
     expect(tab).toContain('aria-label="Denied gates time window"');
-    expect(tab).toContain("'bg-amber-500/10 text-amber-700 border-amber-500/30 font-medium'");
+    // v2.479.0 RE-KEY (dated): the amber pressed face learns its dark word
+    // (the census pills' dark wardrobe — the elder ledger's named debt).
+    expect(tab).toContain("'bg-amber-500/10 text-amber-700 border-amber-500/30 font-medium dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/40'");
     expect(tab).toContain('transition-colors');
   });
 

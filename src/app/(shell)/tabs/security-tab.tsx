@@ -1,6 +1,12 @@
 'use client';
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
+// v2.479.0 THE CENSUS PILLS LEARN THE FAMILY'S RING (the styling verse):
+// the denied-gates time-window pills speak aria-pressed — they wear the
+// zinc keyboard ring (CHIP_RING_ZINC, imported — one home, many hands),
+// and their amber pressed face gains the dark wardrobe the elder ledger
+// named (the /20 wash, the -300 word, the /40 border on dark).
+import { CHIP_RING_ZINC } from '@/components/filter-chip';
 import { useQuery } from '@tanstack/react-query';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
@@ -1143,9 +1149,9 @@ export default function SecurityTab() {
                     type="button"
                     aria-pressed={pressed}
                     onClick={() => setGateRange(r.value)}
-                    className={`rounded-full border px-2.5 py-0.5 text-xs transition-colors ${
+                    className={`rounded-full border px-2.5 py-0.5 text-xs transition-colors${CHIP_RING_ZINC} ${
                       pressed
-                        ? 'bg-amber-500/10 text-amber-700 border-amber-500/30 font-medium'
+                        ? 'bg-amber-500/10 text-amber-700 border-amber-500/30 font-medium dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/40'
                         : 'bg-transparent text-muted-foreground border-border hover:bg-muted/60'
                     }`}
                   >

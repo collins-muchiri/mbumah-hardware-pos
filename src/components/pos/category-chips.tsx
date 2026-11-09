@@ -6,7 +6,11 @@ import {
   ChevronLeft, ChevronRight, Package, Wrench, HardHat, Zap, Paintbrush, Hammer,
   Boxes, Layers, Trees, Layers3, Tag, ShoppingBasket,
 } from 'lucide-react';
-import { CHIP_IDLE, CHIP_RING_ZINC } from '@/components/filter-chip';
+// v2.479.0 THE HEAD LEAVES HOME (the sixth weave's tribe face): the
+// scroll row's two head hand-copies retire — the pill head rides the
+// CHIP_HEAD import beside the ring and the idle face (one home, many
+// hands; the wardrobe in exactly ONE src file).
+import { CHIP_HEAD, CHIP_IDLE, CHIP_RING_ZINC } from '@/components/filter-chip';
 import type { CategoryItem } from '@/lib/api';
 
 // v2.460.0 THE DATA-COLORED TRIBE LEARNS THE FAMILY'S GRAMMAR (the sixth
@@ -123,7 +127,7 @@ export function CategoryChips({
         <button
           onClick={() => onSelect('all')}
           aria-pressed={selected === 'all'}
-          className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-all whitespace-nowrap flex items-center gap-1.5 min-w-fit chip-hover-lift${CHIP_RING_ZINC} ${
+          className={`shrink-0 ${CHIP_HEAD} whitespace-nowrap flex items-center gap-1.5 min-w-fit chip-hover-lift${CHIP_RING_ZINC} ${
             selected === 'all'
               ? 'bg-gradient-to-r from-primary to-primary/80 text-primary-foreground border-transparent scale-105 shadow-[0_4px_12px_oklch(0_0_0_/_0.12)]'
               : CHIP_IDLE
@@ -151,7 +155,7 @@ export function CategoryChips({
               key={cat.id}
               onClick={() => onSelect(cat.id)}
               aria-pressed={isActive}
-              className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-all whitespace-nowrap flex items-center gap-1.5 min-w-fit chip-hover-lift${CHIP_RING_ZINC} ${
+              className={`shrink-0 ${CHIP_HEAD} whitespace-nowrap flex items-center gap-1.5 min-w-fit chip-hover-lift${CHIP_RING_ZINC} ${
                 isActive
                   ? 'text-white border-transparent scale-105 shadow-[0_4px_12px_oklch(0_0_0_/_0.12)]'
                   : CHIP_IDLE
