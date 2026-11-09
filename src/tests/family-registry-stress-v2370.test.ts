@@ -73,7 +73,10 @@ function parseRegistry(): RegistryRow[] {
 const rows = parseRegistry();
 
 describe('the registry, parsed from the constitution file itself', () => {
-  it('parses THIRTY-SIX rows (the constitution\u2019s own count, derived)', () => {
+  it('parses THIRTY-EIGHT rows (the constitution\u2019s own count, derived)', () => {
+    // v2.483.0 (dated): the pair — the custom's dates ride beside the
+    // custom's word; the constitution grew its rows and this parse grew
+    // with it.
     // v2.482.0 (dated): the thirty-sixth word — the range's own word
     // rides the address; the constitution grew its row and this parse
     // grew with it.
@@ -83,7 +86,7 @@ describe('the registry, parsed from the constitution file itself', () => {
     // v2.480.0 (dated): the thirty-fourth word — the search lens's own
     // word rides the address; the constitution grew its row and this
     // parse grew with it.
-    expect(rows.length).toBe(36);
+    expect(rows.length).toBe(38);
   });
 
   it('the rows walk in the promise\u2019s order (the roll, derived from the parse)', () => {
@@ -111,16 +114,24 @@ describe('the registry, parsed from the constitution file itself', () => {
       // lens answers the address bar (the family GREW one line: violet
       // at 300/100; the custom face is no word at all)
       'rep-range',
+      // v2.483.0 (dated): the pair — the custom's own dates ride beside
+      // the custom's word (the constitution's FIRST shared family: two
+      // words, one chip — the range's violet serves all three bytes)
+      'rep-from',
+      'rep-to',
     ];
     expect(rows.map((r) => r.word)).toEqual(expected);
   });
 
   it('the parsed desks and suites are the title\u2019s own arithmetic (26 desks, 36 families — derived)', () => {
+    // v2.483.0 (dated): the FIRST SHARED FAMILY — the pair rides the
+    // range's violet, so the words grew two while the families stayed
+    // thirty-six (the honest count of two words, one chip).
     // v2.482.0 (dated): the violet family joined with the range's word.
     // v2.481.0 (dated): the emerald family joined with the sort door.
     expect(new Set(rows.map((r) => r.desk)).size).toBe(26);
     expect(new Set(rows.map((r) => r.family)).size).toBe(36);
-    expect(constitution.includes('(thirty-six words, twenty-six desks)')).toBe(true);
+    expect(constitution.includes('(thirty-eight words, twenty-six desks)')).toBe(true);
   });
 
   it('the promise roll through THIRTY-SECOND is present (the ordinals, derived from the home’s notes)', () => {
@@ -192,7 +203,11 @@ describe.each(rows)('$word — the registry row, derived against the tree', (row
   });
 
   it('the desk carries a landing-word handle whose stem is the word or its first segment', () => {
-    const stems = chipStemOf(row.word);
+    // v2.483.0 (dated): the FIRST SHARED FAMILY — the pair's landing
+    // handle is the range's own chip (one chip names all three bytes);
+    // the owner's handle serves the pair.
+    const sharedOwner: Record<string, string> = { 'rep-from': 'rep-range', 'rep-to': 'rep-range' };
+    const stems = sharedOwner[row.word] ? chipStemOf(sharedOwner[row.word]) : chipStemOf(row.word);
     const handles = stems.map((s) => `data-testid="${s}-landing-word"`);
     expect(
       handles.some((h) => deskBytes.includes(h)),

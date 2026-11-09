@@ -397,7 +397,7 @@ describe('the address-bar vocabulary — the boundary holds (cross-suite pins)',
   const constitution = readFileSync('src/tests/transfer-status-deep-link-v2357.test.ts', 'utf8');
 
   it('the registry stays TWENTY-ONE words (the island words are siblings, not rows)', () => {
-    expect(constitution.includes('(thirty-six words, twenty-six desks)')).toBe(true);
+    expect(constitution.includes('(thirty-eight words, twenty-six desks)')).toBe(true);
     expect(constitution.includes("{ word: 'ly-type', desk: 'src/app/(shell)/tabs/loyalty-tab.tsx', family: 'border-green-200', suite: 'src/tests/ly-type-deep-link-v2368.test.ts' }")).toBe(true);
     expect(constitution.includes('ly-view')).toBe(false);
     expect(constitution.includes('ly-page')).toBe(false);
@@ -448,6 +448,10 @@ describe('the island words stay one-writer-per-word', () => {
       'src/components/workspace/org-console.tsx',
       'src/lib/tab-url.ts',
       'src/lib/whats-new.ts',
+      // v2.483.0 (dated): the pair's suite joins the LEDGER-CITATION
+      // RIPPLE — its refusal proof cites the ly words (a ledger is an
+      // honest speaker of every word it lists)
+      'src/tests/custom-range-address-v2483.test.ts',
       'src/tests/expiry-day-window-v2317.test.ts',
       'src/tests/expiry-window-dismiss-v2318.test.ts',
       'src/tests/ledger-page-size-v2321.test.ts',

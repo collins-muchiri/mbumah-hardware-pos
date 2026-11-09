@@ -202,6 +202,48 @@ export function parseInitialPage(search: string, fallback = 1): number {
 }
 
 /**
+ * v2.483.0 — THE FAMILY'S THIRTY-SEVENTH WORD (the pair): the custom
+ * range's own dates answer the bar. The reports desk's custom face —
+ * the scratch the v2.482 verse left honest ("its honest share needs
+ * its dates") — now speaks its WHOLE word: `?rep-range=custom` rides
+ * with the desk-prefixed day pair `rep-from` / `rep-to` (the wire's
+ * own YYYY-MM-DD class, REAL calendar days only — honestDayKey's
+ * round-trip proof; a made-up date is an unknown word, not a clever
+ * match). THE COLLISION LESSON, TOLD BY THE CHECK: the bare `from` /
+ * `to` were TAKEN — the loyalty ledger's legacy window aliases (the
+ * v2.369 sunset law) and the v2.317 ledger window read them — so the
+ * pair wears the desk's own prefix, the family's oldest law. THE PAIR
+ * IS THE WORD'S OTHER HALF: custom lands ONLY when both its days ride
+ * (a bare custom stays the honest absence — the default's silence,
+ * the unknown-word law's own reading), each side validates
+ * INDEPENDENTLY through the ONE home's own validator (a real from
+ * with a garbage to keeps nothing — the pair speaks WHOLE or not at
+ * all), and the landed pair wears the range's own violet chip — the
+ * constitution's FIRST shared family (two words, one chip). THE DATES
+ * WRITE BACK: every scratched day replaceState's the pair (the
+ * window's own write shape), so the custom face is a shareable
+ * address, never a dead end.
+ */
+export function parseInitialCustomRange(
+  search: string,
+  rangeKey: string,
+  rangeValue: string,
+  fromKey: string,
+  toKey: string,
+): { from: string; to: string } | null {
+  try {
+    const params = toParams(search);
+    if (params.get(rangeKey) !== rangeValue) return null;
+    const from = honestDayKey(params.get(fromKey));
+    const to = honestDayKey(params.get(toKey));
+    if (!from || !to) return null;
+    return { from, to };
+  } catch {
+    return null;
+  }
+}
+
+/**
  * v2.324.0 — THE ROSTER'S OWN WORD: the same never-strand shape law,
  * param-NAMEd. The deep-link collision analysis (Task 44) showed two
  * desks reading the SAME `?page=` word leak across client-side tab

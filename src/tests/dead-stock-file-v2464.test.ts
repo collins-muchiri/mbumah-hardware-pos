@@ -110,7 +110,7 @@ describe('the export button — the file\u2019s weight, spoken when dead stock i
 describe('whats-new — the round leads the feed', () => {
   it('the head wears the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.482.0');
+    expect(head.version).toBe('2.483.0');
     expect(head.title).toContain('reach out');
     expect(head.title).toContain('carry');
     expect(head.bullets.length).toBeGreaterThanOrEqual(3);

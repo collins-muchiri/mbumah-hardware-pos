@@ -107,7 +107,7 @@ describe('the fourteenth byte — violet, the time lens\u2019s tone', () => {
 
   it('the constitution grew its thirty-sixth row and its own count', () => {
     expect(registry.includes("{ word: 'rep-range', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-violet-300', suite: 'src/tests/rep-range-address-v2482.test.ts' }")).toBe(true);
-    expect(registry.includes('(thirty-six words, twenty-six desks)')).toBe(true);
+    expect(registry.includes('(thirty-eight words, twenty-six desks)')).toBe(true);
   });
 
   it('the stress walks the roll and the derived counts (35 \u2192 36)', () => {
@@ -158,7 +158,10 @@ describe('the range\u2019s own dress — the whisper and the inputs', () => {
   it('the custom inputs wear the From/To labels and the tabular figures', () => {
     expect(desk.includes('<span className="text-[10px] text-muted-foreground">From</span>')).toBe(true);
     expect(desk.includes('<span className="text-[10px] text-muted-foreground">To</span>')).toBe(true);
-    expect((desk.match(/className="h-8 text-xs w-36 tabular-nums"/g) ?? []).length).toBe(2);
+    // v2.483.0 (dated): the dark picker's dress joined the className —
+    // the round's own ground verse (the pair's honest share) rolled the
+    // byte.
+    expect((desk.match(/className="h-8 text-xs w-36 tabular-nums dark:\[color-scheme:dark\]"/g) ?? []).length).toBe(2);
   });
 });
 
@@ -198,9 +201,14 @@ describe('the seats — the round moves the range, the elder bytes hold', () => 
 // 5. THE FEED — the round announces itself
 // ---------------------------------------------------------------------------
 
-describe('whats-new — the round leads the feed', () => {
+describe('whats-new — the round, pinned in the feed', () => {
   it('the head wears the round\u2019s own story — the honoured probe and the new word', () => {
-    const head = WHATS_NEW[0];
+    // v2.483.0 THE MUSEUM RE-KEY (the v2470 treatment): the round's own
+    // entry is FOUND, not assumed to lead — the feed rides the living
+    // head, the museum keeps the round's own word; the guard comes with
+    // the find.
+    const head = WHATS_NEW.find((e) => e.version === '2.482.0');
+    if (!head) throw new Error('the 2.482.0 entry is gone from the feed');
     expect(head.version).toBe('2.482.0');
     expect(head.title).toContain('the sort\u2019s word rides the address');
     expect(head.title).toContain('the range\u2019s word rides the address');
@@ -221,7 +229,7 @@ describe('whats-new — the round leads the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.482.0');
+    expect(pkg.version).toBe('2.483.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.482.0]')).toBeGreaterThan(-1);

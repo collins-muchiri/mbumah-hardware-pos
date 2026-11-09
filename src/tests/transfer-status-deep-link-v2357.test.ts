@@ -206,7 +206,7 @@ describe('the landing chip — the face names the word it answered', () => {
 // 4. THE CONSTITUTION — the whole vocabulary's invariants, walked from bytes
 // ---------------------------------------------------------------------------
 
-describe('the address-bar vocabulary — THE CONSTITUTION (thirty-six words, twenty-six desks)', () => {
+describe('the address-bar vocabulary — THE CONSTITUTION (thirty-eight words, twenty-six desks)', () => {
   const WORDS = [
     { word: 'po-status', desk: 'src/app/(shell)/tabs/purchase-orders-tab.tsx', family: 'border-indigo-200', suite: 'src/tests/proxy-gate-layering-v2328.test.ts' },
     { word: 'inv-stock', desk: 'src/app/(shell)/tabs/inventory-tab.tsx', family: 'border-amber-200', suite: 'src/tests/inv-stock-deep-link-v2329.test.ts' },
@@ -377,6 +377,19 @@ describe('the address-bar vocabulary — THE CONSTITUTION (thirty-six words, twe
     // every hand-driven turn replaceState's its word (a turned range is
     // a shareable address, never a dead end).
     { word: 'rep-range', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-violet-300', suite: 'src/tests/rep-range-address-v2482.test.ts' },
+    // the custom's own dates (v2.483.0): the pair — the thirty-seventh
+    // and thirty-eighth words — rides BESIDE the custom's word
+    // (?rep-from= / ?rep-to= beside ?rep-range=custom), the
+    // desk-prefixed day pair the collision check proved virgin (the
+    // bare from/to already speak the loyalty ledger's legacy window —
+    // the family's oldest law caught the opening map's bare shape).
+    // THE CUSTOM'S HONEST SHARE: custom lands ONLY with both its days
+    // riding (a bare custom stays the honest absence), each day
+    // honestDayKey proves real (a made-up date is an unknown word),
+    // and the pair wears the range's own violet chip — the
+    // constitution's FIRST shared family (two words, one chip).
+    { word: 'rep-from', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-violet-300', suite: 'src/tests/custom-range-address-v2483.test.ts' },
+    { word: 'rep-to', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-violet-300', suite: 'src/tests/custom-range-address-v2483.test.ts' },
   ] as const;
 
   it('every word is desk-prefixed and owns its FILTERS const in exactly its desk', () => {
@@ -386,9 +399,13 @@ describe('the address-bar vocabulary — THE CONSTITUTION (thirty-six words, twe
     }
   });
 
-  it('every word wears a DISTINCT family — thirty-one families, no two alike', () => {
+  it('every word wears a DISTINCT family — thirty-six families, the first shared family excepted', () => {
     const families = WORDS.map((w) => w.family);
-    expect(new Set(families).size).toBe(WORDS.length);
+    // v2.483.0 (dated): the FIRST SHARED FAMILY — the pair rides the
+    // range's violet (two words, one chip), so the distinct count is
+    // two short of the words' own (the pair's two words, one family).
+    const SHARED_WORDS = 2;
+    expect(new Set(families).size + SHARED_WORDS).toBe(WORDS.length);
     const loom = readFileSync('src/components/landing-chip.tsx', 'utf8');
     for (const { word, desk: deskPath, family } of WORDS) {
       const desk = readFileSync(deskPath, 'utf8');
@@ -479,6 +496,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/cat-stock-deep-link-v2364.test.ts',
       'src/tests/cr-type-deep-link-v2361.test.ts',
       'src/tests/cust-debt-deep-link-v2330.test.ts',
+      // the pair's own ledger — admitted (its registry section reads
+      // this file's rows; an admission line carries the words it admits;
+      // sorted place: cr- < custom- < cv-)
+      'src/tests/custom-range-address-v2483.test.ts',
       'src/tests/cv-type-deep-link-v2363.test.ts',
       // the thirty-fourth word's own ledger — admitted (its registry
       // section reads this file's rows; an admission line carries the

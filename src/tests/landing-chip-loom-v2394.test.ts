@@ -121,14 +121,16 @@ describe('the loom — one component, fourteen hues, zero words', () => {
     expect(loom.includes("from 'lucide-react'")).toBe(true);
   });
 
-  it('THE WORD-FREE LAW — the loom speaks none of the constitution\u2019s 36 words', () => {
+  it('THE WORD-FREE LAW — the loom speaks none of the constitution\u2019s 38 words', () => {
+    // v2.483.0 (dated): the pair joins the constitution; the loom grew
+    // NO line and stays word-free (the pair rides the range's violet).
     // v2.482.0 (dated): the thirty-sixth word joins the constitution;
     // the loom grew its violet line and stays word-free.
     // v2.481.0 (dated): the thirty-fifth word joins the constitution;
     // the loom grew its emerald line and stays word-free.
     // v2.480.0 (dated): the thirty-fourth word joins the constitution;
     // the loom grew its amber line and stays word-free.
-    expect(rows.length).toBe(36);
+    expect(rows.length).toBe(38);
     for (const row of rows) {
       expect(loom.includes(row.word), row.word).toBe(false);
     }
@@ -490,14 +492,16 @@ describe.each(THE_ELDER)('$word — the elder loomed desk, derived against the t
 // ---------------------------------------------------------------------------
 
 describe('the constitution under the loom', () => {
-  it('the 36 rows still parse; 26 desks; 36 distinct families (nothing moved)', () => {
+  it('the 38 rows still parse; 26 desks; 36 distinct families (the first shared family — the pair rides the range\u2019s violet)', () => {
+    // v2.483.0 (dated): the pair — the words grew two, the families
+    // stayed thirty-six (two words, one chip).
     // v2.482.0 (dated): the thirty-sixth word — the range's own word
     // rides the address; the counts roll with the constitution.
     // v2.481.0 (dated): the thirty-fifth word — the sort door's own
     // word rides the address; the counts roll with the constitution.
     // v2.480.0 (dated): the thirty-fourth word — the search lens's own
     // word rides the address; the counts roll with the constitution.
-    expect(rows.length).toBe(36);
+    expect(rows.length).toBe(38);
     expect(new Set(rows.map((r) => r.desk)).size).toBe(26);
     expect(new Set(rows.map((r) => r.family)).size).toBe(36);
   });
