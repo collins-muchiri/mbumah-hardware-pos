@@ -206,7 +206,7 @@ describe('the landing chip — the face names the word it answered', () => {
 // 4. THE CONSTITUTION — the whole vocabulary's invariants, walked from bytes
 // ---------------------------------------------------------------------------
 
-describe('the address-bar vocabulary — THE CONSTITUTION (forty words, twenty-seven desks)', () => {
+describe('the address-bar vocabulary — THE CONSTITUTION (forty-three words, twenty-eight desks)', () => {
   const WORDS = [
     { word: 'po-status', desk: 'src/app/(shell)/tabs/purchase-orders-tab.tsx', family: 'border-indigo-200', suite: 'src/tests/proxy-gate-layering-v2328.test.ts' },
     { word: 'inv-stock', desk: 'src/app/(shell)/tabs/inventory-tab.tsx', family: 'border-amber-200', suite: 'src/tests/inv-stock-deep-link-v2329.test.ts' },
@@ -405,6 +405,25 @@ describe('the address-bar vocabulary — THE CONSTITUTION (forty words, twenty-s
     // two words, one chip (the window's blue serves both rows).
     { word: 'hr-from', desk: 'src/app/(shell)/hr/reports/page.tsx', family: 'border-blue-300', suite: 'src/tests/hr-period-address-v2484.test.ts' },
     { word: 'hr-to', desk: 'src/app/(shell)/hr/reports/page.tsx', family: 'border-blue-300', suite: 'src/tests/hr-period-address-v2484.test.ts' },
+    // the ledger's own period (v2.485.0): the window — the
+    // forty-first through forty-third words — rides the financial
+    // desk's period (?fin-range=<preset> and the custom's pair
+    // fin-from / fin-to), the SECOND shell-tab desk
+    // (src/app/(shell)/tabs/financial-tab.tsx — the desk's first
+    // daily question now speaks its address). THE LEDGER'S OWN LAW:
+    // the presets speak their OWN spellings (today, week, month,
+    // quarter, year — the desk's tuple, read through the named-member
+    // parser; a made-up range is an unknown word), the custom speaks
+    // WHOLE or not at all (the pair's own law — a bare custom stays
+    // the honest absence). The family GREW one line: green joins the
+    // 300 registry — the loyalty desk's hue at the 200/50 storey (the
+    // ly-type chip's own family) one storey deeper (the shade-split
+    // law's next form; green LEFT the stranger list). THE THIRD
+    // SHARED FAMILY: three words, one chip (the period's green serves
+    // all three rows).
+    { word: 'fin-range', desk: 'src/app/(shell)/tabs/financial-tab.tsx', family: 'border-green-300', suite: 'src/tests/fin-period-address-v2485.test.ts' },
+    { word: 'fin-from', desk: 'src/app/(shell)/tabs/financial-tab.tsx', family: 'border-green-300', suite: 'src/tests/fin-period-address-v2485.test.ts' },
+    { word: 'fin-to', desk: 'src/app/(shell)/tabs/financial-tab.tsx', family: 'border-green-300', suite: 'src/tests/fin-period-address-v2485.test.ts' },
   ] as const;
 
   it('every word is desk-prefixed and owns its FILTERS const in exactly its desk', () => {
@@ -414,14 +433,17 @@ describe('the address-bar vocabulary — THE CONSTITUTION (forty words, twenty-s
     }
   });
 
-  it('every word wears a DISTINCT family — thirty-six families, the first shared family excepted', () => {
+  it('every word wears a DISTINCT family — thirty-eight families, the shared families excepted', () => {
     const families = WORDS.map((w) => w.family);
     // v2.483.0 (dated): the FIRST SHARED FAMILY — the pair rides the
     // range's violet (two words, one chip), so the distinct count is
     // two short of the words' own (the pair's two words, one family).
     // v2.484.0 (dated): the SECOND SHARED FAMILY — the window rides the
     // people's blue (two words, one chip, again): one more shared word.
-    const SHARED_WORDS = 3;
+    // v2.485.0 (dated): the THIRD SHARED FAMILY — the pair rides the
+    // period's green (three words, one chip, again): two more shared
+    // words.
+    const SHARED_WORDS = 5;
     expect(new Set(families).size + SHARED_WORDS).toBe(WORDS.length);
     const loom = readFileSync('src/components/landing-chip.tsx', 'utf8');
     for (const { word, desk: deskPath, family } of WORDS) {
@@ -547,6 +569,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // carries every word its paths speak)
       'src/tests/exp-type-deep-link-v2392.test.ts',
       'src/tests/family-registry-stress-v2370.test.ts',
+      // the period's own ledger — admitted (its registry section reads
+      // this file's rows; an admission line carries the words it admits;
+      // sorted place: family- < fin- < gc-)
+      'src/tests/fin-period-address-v2485.test.ts',
       'src/tests/gc-status-deep-link-v2358.test.ts',
       // the window's own ledger — admitted (its registry section reads
       // this file's rows; an admission line carries the words it admits;

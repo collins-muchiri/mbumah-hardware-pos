@@ -106,7 +106,9 @@ describe('the fifteenth byte — blue, the people window\u2019s tone', () => {
   it('the storey line is ENFORCED — blue speaks at both its storeys now', () => {
     expect(landingChipSpeaksAt('blue', 300)).toBe(true);
     expect(landingChipSpeaksAt('blue', 200)).toBe(true);
-    expect(LANDING_CHIP_HUES.length).toBe(15);
+    // v2.485.0 (dated): the living registry pin rolls — the loom's
+    // hue count grew to sixteen (the period's green).
+    expect(LANDING_CHIP_HUES.length).toBe(16);
     expect(LANDING_CHIP_WARDROBES.blue).toContain('hover:bg-blue-200');
   });
 
@@ -205,16 +207,22 @@ describe('the constitution — forty words, twenty-seven desks, the second share
   it('the window\u2019s rows joined (the people\u2019s blue serves both)', () => {
     expect(registry.includes("{ word: 'hr-from', desk: 'src/app/(shell)/hr/reports/page.tsx', family: 'border-blue-300', suite: 'src/tests/hr-period-address-v2484.test.ts' }")).toBe(true);
     expect(registry.includes("{ word: 'hr-to', desk: 'src/app/(shell)/hr/reports/page.tsx', family: 'border-blue-300', suite: 'src/tests/hr-period-address-v2484.test.ts' }")).toBe(true);
-    expect(registry.includes('(forty words, twenty-seven desks)')).toBe(true);
+    expect(registry.includes('(forty-three words, twenty-eight desks)')).toBe(true);
   });
 
   it('the stress walks the roll and the derived counts (38 \u2192 40, families 36 \u2192 37 — the SECOND shared family)', () => {
     expect(stress.includes("'hr-from',")).toBe(true);
     expect(stress.includes("'hr-to',")).toBe(true);
-    expect(stress.includes('toBe(40)')).toBe(true);
+    // v2.485.0 (dated): the living stress-pin rolls — the stress's
+    // row count grew to forty-three (the period's round); the
+    // contains-pin rides the bytes that ARE.
+    expect(stress.includes('toBe(43)')).toBe(true);
     // the families grew ONE (blue-300 is new) while the words grew two:
     // the window rides its own blue — two words, one chip, again
-    expect(stress.includes('expect(new Set(rows.map((r) => r.family)).size).toBe(37);')).toBe(true);
+    // v2.485.0 (dated): the living family-pin rolls — the families
+    // grew to thirty-eight (green-300 joined); the contains-pin rides
+    // the bytes that ARE.
+    expect(stress.includes('expect(new Set(rows.map((r) => r.family)).size).toBe(38);')).toBe(true);
   });
 });
 
@@ -224,7 +232,12 @@ describe('the constitution — forty words, twenty-seven desks, the second share
 
 describe('whats-new — the round leads the feed', () => {
   it('the head wears the round\u2019s own story — the honoured probe and the new word', () => {
-    const head = WHATS_NEW[0];
+    // v2.485.0 THE MUSEUM RE-KEY (the v2470 treatment): the round's own
+    // entry is FOUND, not assumed to lead — the feed rides the living
+    // head, the museum keeps the round's own word; the guard comes with
+    // the find.
+    const head = WHATS_NEW.find((e) => e.version === '2.484.0');
+    if (!head) throw new Error('the 2.484.0 entry is gone from the feed');
     expect(head.version).toBe('2.484.0');
     expect(head.title).toContain('the range\u2019s dates ride the address');
     expect(head.title).toContain('the people\u2019s window rides the address');
@@ -248,7 +261,7 @@ describe('whats-new — the round leads the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.484.0');
+    expect(pkg.version).toBe('2.485.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.484.0]')).toBeGreaterThan(-1);
