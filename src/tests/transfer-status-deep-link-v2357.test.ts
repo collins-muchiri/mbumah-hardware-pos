@@ -206,7 +206,7 @@ describe('the landing chip — the face names the word it answered', () => {
 // 4. THE CONSTITUTION — the whole vocabulary's invariants, walked from bytes
 // ---------------------------------------------------------------------------
 
-describe('the address-bar vocabulary — THE CONSTITUTION (fifty-one words, thirty-three desks)', () => {
+describe('the address-bar vocabulary — THE CONSTITUTION (fifty-two words, thirty-three desks)', () => {
   const WORDS = [
     { word: 'po-status', desk: 'src/app/(shell)/tabs/purchase-orders-tab.tsx', family: 'border-indigo-200', suite: 'src/tests/proxy-gate-layering-v2328.test.ts' },
     { word: 'inv-stock', desk: 'src/app/(shell)/tabs/inventory-tab.tsx', family: 'border-amber-200', suite: 'src/tests/inv-stock-deep-link-v2329.test.ts' },
@@ -526,6 +526,22 @@ describe('the address-bar vocabulary — THE CONSTITUTION (fifty-one words, thir
     // analytics' own, the catalog's category, and the counter's
     // category).
     { word: 'pos-category', desk: 'src/app/(shell)/tabs/pos-tab.tsx', family: 'border-slate-300', suite: 'src/tests/pos-category-address-v2494.test.ts' },
+    // the inventory's category word (v2.495.0): the shelves — the
+    // fifty-second word — ride the inventory desk's category lens
+    // (?inv-category=<slug>), the desk's SECOND word (a desk may own
+    // many — the SLUG-SHAPE LAW's THIRD dynamic wearer: the store's
+    // own rows named by their derived slugs — a made-up slug is an
+    // unknown word, silence, never a clever match; the slug is NEVER
+    // case-gamed). BORN GUARDED: the family's ONE reading from birth —
+    // no turn, no write, and the hand's turn retires the word; the
+    // Select, the All chip, the tribe's chips, the honest clear-all
+    // and the delete reset ride the one door. THE DEFAULT WEARS NO
+    // WORD: 'all' is the address's silence. The census holds: the
+    // inventory's category wears the family's shared slate (the slate
+    // serves eight words — the week's, the dashboard's, the counter's
+    // view, the catalog's view, the analytics' own, the catalog's
+    // category, the counter's category, and the inventory's category).
+    { word: 'inv-category', desk: 'src/app/(shell)/tabs/inventory-tab.tsx', family: 'border-slate-300', suite: 'src/tests/inv-category-address-v2495.test.ts' },
   ] as const;
 
   it('every word is desk-prefixed and owns its FILTERS const in exactly its desk', () => {
@@ -570,7 +586,12 @@ describe('the address-bar vocabulary — THE CONSTITUTION (fifty-one words, thir
     // dashboard's, the counter's view, the catalog's view, the
     // analytics' own, the catalog's category, and the counter's
     // category): one more shared word.
-    const SHARED_WORDS = 11;
+    // v2.495.0 (dated): the inventory's category rides the family's
+    // shared slate — the slate serves eight words now (the week's, the
+    // dashboard's, the counter's view, the catalog's view, the
+    // analytics' own, the catalog's category, the counter's category,
+    // and the inventory's category): one more shared word.
+    const SHARED_WORDS = 12;
     expect(new Set(families).size + SHARED_WORDS).toBe(WORDS.length);
     const loom = readFileSync('src/components/landing-chip.tsx', 'utf8');
     for (const { word, desk: deskPath, family } of WORDS) {
@@ -722,6 +743,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // this file's rows; an admission line carries the words it admits;
       // sorted place: gc- < hr- < inv-)
       'src/tests/hr-period-address-v2484.test.ts',
+      // the inventory's category word's own ledger — admitted (its registry
+      // section reads this file's rows; an admission line carries the word
+      // it admits; sorted place: hr- < inv-category < inv-status)
+      'src/tests/inv-category-address-v2495.test.ts',
       'src/tests/inv-status-deep-link-v2356.test.ts',
       'src/tests/inv-stock-deep-link-v2329.test.ts',
       // the po-status word's ledger lives beside the proxy-gate suite

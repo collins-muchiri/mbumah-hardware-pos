@@ -211,7 +211,7 @@ describe('the constitution — forty words, twenty-seven desks, the second share
   it('the window\u2019s rows joined (the people\u2019s blue serves both)', () => {
     expect(registry.includes("{ word: 'hr-from', desk: 'src/app/(shell)/hr/reports/page.tsx', family: 'border-blue-300', suite: 'src/tests/hr-period-address-v2484.test.ts' }")).toBe(true);
     expect(registry.includes("{ word: 'hr-to', desk: 'src/app/(shell)/hr/reports/page.tsx', family: 'border-blue-300', suite: 'src/tests/hr-period-address-v2484.test.ts' }")).toBe(true);
-    expect(registry.includes('(fifty-one words, thirty-three desks)')).toBe(true);
+    expect(registry.includes('(fifty-two words, thirty-three desks)')).toBe(true);
   });
 
   it('the stress walks the roll and the derived counts (38 \u2192 40, families 36 \u2192 37 — the SECOND shared family)', () => {
@@ -244,7 +244,10 @@ describe('the constitution — forty words, twenty-seven desks, the second share
     // v2.494.0 (dated): the living stress-pin rolls — the stress's
     // row count grew to fifty-one (the counter's category round); the
     // contains-pin rides the bytes that ARE.
-    expect(stress.includes('toBe(51)')).toBe(true);
+    // v2.495.0 (dated): the living stress-pin rolls — the stress's
+    // row count grew to fifty-two (the inventory's category round); the
+    // contains-pin rides the bytes that ARE.
+    expect(stress.includes('toBe(52)')).toBe(true);
     // the families grew ONE (blue-300 is new) while the words grew two:
     // the window rides its own blue — two words, one chip, again
     // v2.485.0 (dated): the living family-pin rolls — the families
@@ -295,7 +298,7 @@ describe('whats-new — the round leads the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.494.0');
+    expect(pkg.version).toBe('2.495.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.484.0]')).toBeGreaterThan(-1);

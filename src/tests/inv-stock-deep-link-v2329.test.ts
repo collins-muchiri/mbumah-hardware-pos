@@ -71,7 +71,11 @@ describe('the inventory desk — ?inv-stock= lands as visible state', () => {
   const home = readFileSync('src/lib/tab-url.ts', 'utf8');
 
   it('the seed reads the word through the ONE home (never a local parser)', () => {
-    expect(desk.includes("import { parseInitialNamedMember } from '@/lib/tab-url';")).toBe(true);
+    // v2.495.0 (dated): the desk's SECOND word arrived — the import grew
+    // the SLUG-SHAPE LAW's slug pair beside the membership parser (the
+    // ONE home still owns both readings; the membership leg keeps its
+    // bytes below).
+    expect(desk.includes("import { categorySlug, parseInitialNamedMember, parseInitialNamedSlug } from '@/lib/tab-url';")).toBe(true);
     expect(
       desk.includes("parseInitialNamedMember(window.location.search, 'inv-stock', INV_STOCK_FILTERS, 'all')")
     ).toBe(true);
@@ -137,8 +141,11 @@ describe('the landing chip — the face names the word it answered', () => {
   });
 
   it('voice 4 — the honest clear-all retires the chip too', () => {
+    // v2.495.0 (dated): the category leg of the clear-all rides the
+    // desk's ONE door now (chooseInvCategory — the lens's own honesty);
+    // the stock leg keeps its bytes.
     expect(
-      desk.includes("onClick={() => { setSearchQuery(''); setStockFilter('all'); setSelectedCategory('all'); setLandingLive(false); }}")
+      desk.includes("onClick={() => { setSearchQuery(''); setStockFilter('all'); chooseInvCategory('all'); setLandingLive(false); }}")
     ).toBe(true);
   });
 
@@ -195,6 +202,11 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/et-status-deep-link-v2381.test.ts',
       'src/tests/family-registry-stress-v2370.test.ts',
       'src/tests/gc-status-deep-link-v2358.test.ts',
+      // the inventory's category word's own ledger — admitted (its honest
+      // slug-reader probe names this word as the desk's OTHER prefix; an
+      // admission line carries the word it admits; sorted place:
+      // gc- < inv-category < inv-status)
+      'src/tests/inv-category-address-v2495.test.ts',
       'src/tests/inv-status-deep-link-v2356.test.ts',
       'src/tests/inv-stock-deep-link-v2329.test.ts',
       // the loom's own suite — admitted (v2.397.0: the elder loom pins

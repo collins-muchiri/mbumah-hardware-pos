@@ -107,7 +107,7 @@ describe('the fourteenth byte — violet, the time lens\u2019s tone', () => {
 
   it('the constitution grew its thirty-sixth row and its own count', () => {
     expect(registry.includes("{ word: 'rep-range', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-violet-300', suite: 'src/tests/rep-range-address-v2482.test.ts' }")).toBe(true);
-    expect(registry.includes('(fifty-one words, thirty-three desks)')).toBe(true);
+    expect(registry.includes('(fifty-two words, thirty-three desks)')).toBe(true);
   });
 
   it('the stress walks the roll and the derived counts (35 \u2192 36)', () => {
@@ -141,7 +141,10 @@ describe('the fourteenth byte — violet, the time lens\u2019s tone', () => {
     // v2.494.0 (dated): the living stress-pin rolls — the stress's
     // row count grew to fifty-one (the counter's category round); the
     // contains-pin rides the bytes that ARE.
-    expect(stress.includes('toBe(51)')).toBe(true);
+    // v2.495.0 (dated): the living stress-pin rolls — the stress's
+    // row count grew to fifty-two (the inventory's category round); the
+    // contains-pin rides the bytes that ARE.
+    expect(stress.includes('toBe(52)')).toBe(true);
     expect(stress.includes("      'rep-range',")).toBe(true);
   });
 
@@ -267,7 +270,7 @@ describe('whats-new — the round, pinned in the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.494.0');
+    expect(pkg.version).toBe('2.495.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.482.0]')).toBeGreaterThan(-1);
