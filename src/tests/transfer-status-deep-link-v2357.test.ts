@@ -703,6 +703,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // the twenty-eighth word's own ledger — admitted (its collision
       // ledger and its constitution section name this file)
       'src/tests/bank-type-deep-link-v2387.test.ts',
+      // the shelf's own ledger — admitted (its census section reads this
+      // file's rows; an admission line carries the word it admits;
+      // sorted place: bank- < bin- < cat-)
+      'src/tests/bin-location-v2497.test.ts',
       // the catalog's newest ledger — admitted (its registry section
       // reads this file's rows; an admission line carries the word it
       // admits; its sorted-place pin names this word as the ledger's

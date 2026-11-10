@@ -157,9 +157,9 @@ describe('whats-new — the round leads the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.496.0');
+    expect(pkg.version).toBe('2.497.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
-    expect(readFileSync('VERSION', 'utf8').trim()).toBe('2.496.0');
+    expect(readFileSync('VERSION', 'utf8').trim()).toBe('2.497.0');
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.492.0]')).toBeGreaterThan(-1);
     expect(changelog.indexOf('[2.492.0]')).toBeLessThan(changelog.indexOf('[2.491.0]'));

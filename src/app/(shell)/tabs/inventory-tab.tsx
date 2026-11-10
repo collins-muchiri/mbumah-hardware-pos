@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Package, Search, Plus, AlertTriangle, AlertCircle, DollarSign, MoreVertical, Edit, Trash2, Loader2, CheckCircle, Copy, ArrowUpDown, Minus, BarChart3, ChevronUp, ChevronDown, ChevronsUpDown, Download, History, RotateCcw, X, Filter, ChevronRight, Tag, Palette, Zap, ShoppingCart, Info, MessageCircle, RefreshCw, Pencil, Settings2, Check, Clock, PackagePlus, Send, Truck } from 'lucide-react';
+import { Package, Search, Plus, AlertTriangle, AlertCircle, DollarSign, MoreVertical, Edit, Trash2, Loader2, CheckCircle, Copy, ArrowUpDown, Minus, BarChart3, ChevronUp, ChevronDown, ChevronsUpDown, Download, History, RotateCcw, X, Filter, ChevronRight, Tag, Palette, Zap, ShoppingCart, Info, MessageCircle, RefreshCw, Pencil, Settings2, Check, Clock, PackagePlus, Send, Truck, MapPin } from 'lucide-react';
 // v2.479.0 THE HEAD LEAVES HOME (the loom's sixth weave): the All chip
 // rides <FilterChip> proper — the loom picks the active/idle faces, the
 // desk's CHIP_ACTIVE hand import retires — and the data-colored category
@@ -14,13 +14,18 @@ import { FilterChip, CHIP_HEAD, CHIP_IDLE, CHIP_RING_ZINC } from '@/components/f
 import { useAppStore, useAuthStore } from '@/lib/stores';
 import { canFeature } from '@/hooks/use-permissions';
 import {
-  productsApi, categoriesApi, stockMovementsApi, whatsappApi, suppliersApi,
+  productsApi, categoriesApi, stockMovementsApi, whatsappApi, suppliersApi, binLocationsApi,
   formatKES, formatDate, formatDateTime,
   type ProductListItem,
   type StockMovementItem,
   type CreateProductPayload,
   type SupplierItem,
+  type BinLocationItem,
 } from '@/lib/api';
+// v2.497.0 THE SHELF'S OWN ADDRESS: the bin door reads ONE home for the
+// address words — the composition, the validation and the census line are
+// never re-typed on the desk (the same one-voice law every desk wears).
+import { composeBinLocationCode, validateBinLocationInput, binShelfSummary } from '@/lib/bin-location';
 // THE ARC'S FIRST WORD (v2.420.0): the supplier lens reads ONE home for
 // its grouping arithmetic — the strip, the row sub-lines and the tests
 // all answer through buildSupplierGroups (never a second copy).
@@ -461,6 +466,24 @@ export default function InventoryTab() {
   // Product detail modal
   const [detailProduct, setDetailProduct] = useState<ProductListItem | null>(null);
 
+  // v2.497.0 THE SHELF'S OWN ADDRESS — the bin door's own state. The chip
+  // on the row opens the product's shelf address door; the door lists the
+  // bins, adds, edits and removes. The add form composes its preview
+  // through the ONE home (the parts join aisle → shelf → bin); an explicit
+  // address the maker typed whole wins over the parts (the door's own
+  // reading, named in the ONE home).
+  const [binDoorProduct, setBinDoorProduct] = useState<ProductListItem | null>(null);
+  const [binParts, setBinParts] = useState<{ aisle: string; shelf: string; bin: string; locationCode: string; quantity: string }>({
+    aisle: '', shelf: '', bin: '', locationCode: '', quantity: '',
+  });
+  const [binEditingId, setBinEditingId] = useState<string | null>(null);
+  const [binEditParts, setBinEditParts] = useState<{ aisle: string; shelf: string; bin: string; locationCode: string; quantity: string }>({
+    aisle: '', shelf: '', bin: '', locationCode: '', quantity: '',
+  });
+  // The door's captured id — the mutations never name a product through a
+  // non-null guess; the door answers only when the id stands.
+  const binDoorId = binDoorProduct?.id ?? null;
+
   // Stock movement filters
   const [movementTypeFilter, setMovementTypeFilter] = useState<string>('all');
   const [movementDateFrom, setMovementDateFrom] = useState('');
@@ -585,6 +608,86 @@ export default function InventoryTab() {
   const { data: suppliersData } = useQuery({
     queryKey: ['suppliers', currentStoreId],
     queryFn: () => suppliersApi.list({ storeId: currentStoreId, limit: 200 }),
+  });
+
+  // v2.497.0 THE SHELF'S OWN ADDRESS: the shelf map — ONE read for the
+  // desk's rows (productId → the standing address, the first active bin,
+  // oldest first). A row with no bin speaks nothing (per-row silence is
+  // the strip's law — a per-row "no bin" would be noise).
+  const { data: binMapData } = useQuery({
+    queryKey: ['bin-locations', currentStoreId],
+    queryFn: () => binLocationsApi.list(currentStoreId),
+  });
+  const binByProduct = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const row of binMapData ?? []) {
+      if (!map.has(row.productId)) map.set(row.productId, row.locationCode);
+    }
+    return map;
+  }, [binMapData]);
+
+  // The door's own reads and writes — the list answers only while the door
+  // stands open (a closed door never fetches); every write invalidates the
+  // map AND the door's list so the chip and the rows stay one truth.
+  const { data: doorBinsData, isLoading: doorBinsLoading } = useQuery({
+    queryKey: ['product-bins', binDoorId],
+    queryFn: () => (binDoorId ? binLocationsApi.forProduct(binDoorId) : Promise.resolve([] as BinLocationItem[])),
+    enabled: !!binDoorId,
+  });
+  const doorBins: BinLocationItem[] = useMemo(() => doorBinsData ?? [], [doorBinsData]);
+
+  const refreshBinWires = () => {
+    queryClient.invalidateQueries({ queryKey: ['bin-locations'] });
+    queryClient.invalidateQueries({ queryKey: ['product-bins', binDoorProduct?.id] });
+  };
+
+  const binAddMutation = useMutation({
+    mutationFn: (productId: string) =>
+      binLocationsApi.add(productId, {
+        aisle: binParts.aisle || undefined,
+        shelf: binParts.shelf || undefined,
+        bin: binParts.bin || undefined,
+        ...(binParts.locationCode.trim() ? { locationCode: binParts.locationCode } : {}),
+        ...(binParts.quantity.trim() !== '' ? { quantity: Number(binParts.quantity) } : {}),
+      }),
+    onSuccess: () => {
+      toast.success('Bin location added — the shelf keeps its address.');
+      setBinParts({ aisle: '', shelf: '', bin: '', locationCode: '', quantity: '' });
+      refreshBinWires();
+    },
+    onError: (err: unknown) => {
+      toast.error(handleError(err, 'Add bin location'));
+    },
+  });
+
+  const binUpdateMutation = useMutation({
+    mutationFn: (args: { productId: string; binId: string; parts: typeof binEditParts }) =>
+      binLocationsApi.update(args.productId, args.binId, {
+        aisle: args.parts.aisle || undefined,
+        shelf: args.parts.shelf || undefined,
+        bin: args.parts.bin || undefined,
+        ...(args.parts.locationCode.trim() ? { locationCode: args.parts.locationCode } : {}),
+        ...(args.parts.quantity.trim() !== '' ? { quantity: Number(args.parts.quantity) } : {}),
+      }),
+    onSuccess: () => {
+      toast.success('Bin location updated.');
+      setBinEditingId(null);
+      refreshBinWires();
+    },
+    onError: (err: unknown) => {
+      toast.error(handleError(err, 'Update bin location'));
+    },
+  });
+
+  const binRemoveMutation = useMutation({
+    mutationFn: (args: { productId: string; binId: string }) => binLocationsApi.remove(args.productId, args.binId),
+    onSuccess: () => {
+      toast.success('Bin location removed — the shelf forgets the address.');
+      refreshBinWires();
+    },
+    onError: (err: unknown) => {
+      toast.error(handleError(err, 'Remove bin location'));
+    },
   });
 
   // Stock movements query for history section with filters
@@ -1927,6 +2030,26 @@ export default function InventoryTab() {
                                     via {product.supplier.name}
                                   </p>
                                 )}
+                                {/* v2.497.0 THE SHELF'S OWN ADDRESS: the row
+                                    names its shelf (a quiet muted chip, the
+                                    census holding — no new hue). The chip
+                                    OPENS the door; a row with no bin speaks
+                                    nothing here (per-row silence is the
+                                    strip's law). The count rides tabular
+                                    — digits read as one voice. */}
+                                {binByProduct.get(product.id) && (
+                                  <button
+                                    type="button"
+                                    data-testid="inv-row-bin"
+                                    onClick={(e) => { e.stopPropagation(); setBinDoorProduct(product); }}
+                                    className="mt-1 inline-flex max-w-full items-center gap-1 rounded-md border border-border/60 bg-muted/40 px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                    aria-label={`Bin location for ${product.name}: ${binByProduct.get(product.id)} — open the shelf address door`}
+                                    title="Shelf address — click to manage the bins"
+                                  >
+                                    <MapPin className="h-2.5 w-2.5 shrink-0" aria-hidden="true" />
+                                    <span className="truncate">{binByProduct.get(product.id)}</span>
+                                  </button>
+                                )}
                                 <div className="flex gap-1 mt-0.5">
                                   {product.isRental && <Badge variant="outline" className="text-[9px] h-4 px-1">RENTAL</Badge>}
                                   {product.isBundle && <Badge variant="outline" className="text-[9px] h-4 px-1">BUNDLE</Badge>}
@@ -2703,6 +2826,232 @@ export default function InventoryTab() {
             >
               {stockAdjustMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowUpDown className="mr-2 h-4 w-4" />}
               Apply Adjustment
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* v2.497.0 THE SHELF'S OWN ADDRESS — THE BIN DOOR: the product's
+          shelf addresses listed, added, edited and removed through the
+          ONE home's words (the parts compose aisle → shelf → bin; an
+          explicit address wins; the census line names the shelf's truth).
+          The door opens from the row's chip; a closed door never fetches. */}
+      <Dialog
+        open={!!binDoorProduct}
+        onOpenChange={(open) => {
+          if (!open) {
+            setBinDoorProduct(null);
+            setBinEditingId(null);
+            setBinParts({ aisle: '', shelf: '', bin: '', locationCode: '', quantity: '' });
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-muted-foreground" />
+              Shelf addresses — {binDoorProduct?.name}
+            </DialogTitle>
+            <DialogDescription data-testid="bin-door-summary">
+              {binShelfSummary(doorBins)}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* THE SHELF'S LIST — active first (the wire sorts), the quiet
+                rows wearing the shared ground; the edit door swaps the row
+                into the same part words the add form speaks. */}
+            <div className="space-y-2" data-testid="bin-door-list">
+              {doorBinsLoading && (
+                <p className="text-xs text-muted-foreground">Reading the shelf…</p>
+              )}
+              {!doorBinsLoading && doorBins.length === 0 && (
+                <div className="flex items-center gap-2 rounded-md border border-dashed border-border bg-muted/30 px-3 py-3">
+                  <MapPin className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+                  <p className="text-xs text-muted-foreground" data-testid="bin-door-empty">
+                    No bin on file — the shelf keeps its address here.
+                  </p>
+                </div>
+              )}
+              {doorBins.map((row) =>
+                binEditingId === row.id ? (
+                  <div key={row.id} className="rounded-md border border-border bg-muted/20 p-3 space-y-2">
+                    <div className="grid grid-cols-3 gap-2">
+                      <Input
+                        aria-label="Edit aisle"
+                        placeholder="Aisle"
+                        value={binEditParts.aisle}
+                        onChange={(e) => setBinEditParts({ ...binEditParts, aisle: e.target.value })}
+                        className="h-8 text-xs"
+                      />
+                      <Input
+                        aria-label="Edit shelf"
+                        placeholder="Shelf"
+                        value={binEditParts.shelf}
+                        onChange={(e) => setBinEditParts({ ...binEditParts, shelf: e.target.value })}
+                        className="h-8 text-xs"
+                      />
+                      <Input
+                        aria-label="Edit bin"
+                        placeholder="Bin"
+                        value={binEditParts.bin}
+                        onChange={(e) => setBinEditParts({ ...binEditParts, bin: e.target.value })}
+                        className="h-8 text-xs"
+                      />
+                    </div>
+                    <Input
+                      aria-label="Edit whole address"
+                      placeholder="Whole address (optional — wins over the parts)"
+                      value={binEditParts.locationCode}
+                      onChange={(e) => setBinEditParts({ ...binEditParts, locationCode: e.target.value })}
+                      className="h-8 text-xs"
+                    />
+                    <div className="flex items-center gap-2">
+                      <Input
+                        aria-label="Edit bin quantity"
+                        type="number"
+                        min="0"
+                        placeholder="Quantity (optional)"
+                        value={binEditParts.quantity}
+                        onChange={(e) => setBinEditParts({ ...binEditParts, quantity: e.target.value })}
+                        className="h-8 text-xs tabular-nums"
+                      />
+                      <Button
+                        size="sm"
+                        className="h-8 text-xs"
+                        disabled={binUpdateMutation.isPending || !validateBinLocationInput({
+                          aisle: binEditParts.aisle, shelf: binEditParts.shelf, bin: binEditParts.bin,
+                          ...(binEditParts.locationCode.trim() ? { locationCode: binEditParts.locationCode } : {}),
+                        }).ok}
+                        onClick={() => { if (binDoorId) binUpdateMutation.mutate({ productId: binDoorId, binId: row.id, parts: binEditParts }); }}
+                      >
+                        {binUpdateMutation.isPending ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : <Check className="mr-1 h-3 w-3" />}
+                        Save
+                      </Button>
+                      <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => setBinEditingId(null)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div key={row.id} className="group flex items-center justify-between rounded-md border border-border bg-background px-3 py-2 transition-colors hover:bg-muted/40">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium tabular-nums">{row.locationCode}</p>
+                        <p className="text-[10px] text-muted-foreground tabular-nums">
+                          {Number(row.quantity) > 0 ? `${row.quantity} units at this bin` : 'no units named'}
+                          {!row.isActive && ' · retired from the shelf'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-1">
+                      <Button
+                        variant="ghost" size="sm" className="h-7 px-2 text-xs"
+                        aria-label={`Edit bin ${row.locationCode}`}
+                        onClick={() => {
+                          setBinEditingId(row.id);
+                          setBinEditParts({
+                            aisle: row.aisle ?? '', shelf: row.shelf ?? '', bin: row.bin ?? '',
+                            locationCode: '', quantity: String(row.quantity ?? ''),
+                          });
+                        }}
+                      >
+                        <Pencil className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost" size="sm" className="h-7 px-2 text-xs text-destructive hover:text-destructive"
+                        aria-label={`Remove bin ${row.locationCode}`}
+                        disabled={binRemoveMutation.isPending}
+                        onClick={() => { if (binDoorId) binRemoveMutation.mutate({ productId: binDoorId, binId: row.id }); }}
+                      >
+                        {binRemoveMutation.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
+                      </Button>
+                    </div>
+                  </div>
+                ),
+              )}
+            </div>
+
+            {/* THE ADD FORM — the parts compose the preview live; an
+                explicit address typed whole wins over the parts (the ONE
+                home's own reading). The wire answers the truth; the desk's
+                door only pre-checks the words (a doomed POST is a rude
+                door). */}
+            <div className="rounded-md border border-border bg-muted/20 p-3 space-y-2">
+              <p className="text-xs font-medium">Add a bin</p>
+              <div className="grid grid-cols-3 gap-2">
+                <Input
+                  aria-label="Aisle"
+                  placeholder="Aisle A"
+                  value={binParts.aisle}
+                  onChange={(e) => setBinParts({ ...binParts, aisle: e.target.value })}
+                  className="h-8 text-xs"
+                />
+                <Input
+                  aria-label="Shelf"
+                  placeholder="Shelf 3"
+                  value={binParts.shelf}
+                  onChange={(e) => setBinParts({ ...binParts, shelf: e.target.value })}
+                  className="h-8 text-xs"
+                />
+                <Input
+                  aria-label="Bin"
+                  placeholder="Bin 12"
+                  value={binParts.bin}
+                  onChange={(e) => setBinParts({ ...binParts, bin: e.target.value })}
+                  className="h-8 text-xs"
+                />
+              </div>
+              <Input
+                aria-label="Whole address"
+                placeholder="Whole address (optional — wins over the parts)"
+                value={binParts.locationCode}
+                onChange={(e) => setBinParts({ ...binParts, locationCode: e.target.value })}
+                className="h-8 text-xs"
+              />
+              {/* THE PREVIEW — the address the wire will store, composed
+                  through the ONE home; the dotted ground keeps the strip
+                  honest (a placeholder, never a promise). */}
+              <div
+                data-testid="bin-address-preview"
+                className="rounded-md border border-dashed border-border bg-background px-3 py-2 text-xs tabular-nums text-muted-foreground"
+                aria-live="polite"
+              >
+                {composeBinLocationCode(binParts) ?? binParts.locationCode.trim()
+                  ? `The shelf address: ${binParts.locationCode.trim() || composeBinLocationCode(binParts)}`
+                  : 'The parts stay empty — the address composes itself here.'}
+              </div>
+              <div className="flex items-center gap-2">
+                <Input
+                  aria-label="Bin quantity"
+                  type="number"
+                  min="0"
+                  placeholder="Quantity (optional)"
+                  value={binParts.quantity}
+                  onChange={(e) => setBinParts({ ...binParts, quantity: e.target.value })}
+                  className="h-8 text-xs tabular-nums"
+                />
+                <Button
+                  size="sm"
+                  className="h-8 text-xs"
+                  data-testid="bin-add-submit"
+                  disabled={binAddMutation.isPending || !validateBinLocationInput({
+                    aisle: binParts.aisle, shelf: binParts.shelf, bin: binParts.bin,
+                    ...(binParts.locationCode.trim() ? { locationCode: binParts.locationCode } : {}),
+                  }).ok}
+                  onClick={() => { if (binDoorId) binAddMutation.mutate(binDoorId); }}
+                >
+                  {binAddMutation.isPending ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : <Plus className="mr-1 h-3 w-3" />}
+                  Add bin
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setBinDoorProduct(null); setBinEditingId(null); }}>
+              Done
             </Button>
           </DialogFooter>
         </DialogContent>
