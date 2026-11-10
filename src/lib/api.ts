@@ -3104,6 +3104,58 @@ export interface PurchaseOrderItemDetail {
   product?: { id: string; name: string; sku: string; unitType: string; quantityInStock?: number; costPrice?: number };
 }
 
+// v2.497.0 THE SHELF'S OWN ADDRESS — the bin location's client. The map
+// answers the desk's chip (one read, never a per-row fan-out); the door's
+// list/add/edit/remove answer the product. The storeId never rides a
+// write body — the wire derives it from the product's own row.
+export interface BinLocationMapRow {
+  productId: string;
+  locationCode: string;
+  quantity: number;
+}
+
+export interface BinLocationItem {
+  id: string;
+  locationCode: string;
+  aisle: string | null;
+  shelf: string | null;
+  bin: string | null;
+  quantity: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const binLocationsApi = {
+  list: async (storeId: string) => {
+    return request<BinLocationMapRow[]>(`/bin-locations?storeId=${encodeURIComponent(storeId)}`);
+  },
+
+  forProduct: async (productId: string) => {
+    return request<BinLocationItem[]>(`/products/${productId}/bins`);
+  },
+
+  add: async (productId: string, data: { aisle?: string; shelf?: string; bin?: string; locationCode?: string; quantity?: number; isActive?: boolean }) => {
+    return request<BinLocationItem>(`/products/${productId}/bins`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  update: async (productId: string, binId: string, data: { aisle?: string; shelf?: string; bin?: string; locationCode?: string; quantity?: number; isActive?: boolean }) => {
+    return request<BinLocationItem>(`/products/${productId}/bins/${binId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  },
+
+  remove: async (productId: string, binId: string) => {
+    return request<{ message: string }>(`/products/${productId}/bins/${binId}`, {
+      method: 'DELETE',
+    });
+  },
+};
+
 export const suppliersApi = {
   list: async (params?: { storeId?: string; search?: string; isActive?: string; page?: number; limit?: number; sortBy?: string; sortOrder?: string }) => {
     const query = new URLSearchParams();
