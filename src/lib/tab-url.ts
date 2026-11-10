@@ -1073,6 +1073,35 @@ export function parseInitialNamedSlug(search: string, key: string): string | nul
  */
 
 /**
+ * v2.496.0 — THE FAMILY'S FIFTY-THIRD WORD: the ledger's order rides
+ * the address. The transactions desk's sort — the ledger's daily
+ * question, "in which order am I reading the rows?" — speaks its
+ * desk-prefixed `txn-sort` (collision-checked at round start: the byte
+ * appeared NOWHERE before this word — the desk's census testids say
+ * `txn-type-*`, the payment word says `txn-pay`, another string,
+ * another lens, never the address bar), the desk's OWN orders read as
+ * words through the generic parser from TXN_SORTS (the tuple the desk
+ * file keeps and exports — the desk's THIRD word after the payment
+ * lens's v2.333 word and the type lens's v2.354 word; a made-up order
+ * is an unknown word, not a clever match). THE DEFAULT WEARS NO WORD:
+ * 'newest' is the wire's own standing order — the address's silence;
+ * the key strips when the desk rests, and a landed word that names the
+ * default wears no chip. THE LANDING IS READ ONCE ON THE SHELL: a
+ * plain useState initializer — a dismissed chip can never resurrect.
+ * THE ORDER WRITES BACK THROUGH THE FAMILY'S ONE READING: the guarded
+ * door from birth — no turn, no write, and the hand's turn retires the
+ * word (the chip speaks the ADDRESS BAR's landing, never the human's
+ * next choice — the reading the v2.488.0 verse named for the whole
+ * family); the Date head, the Total head and the chip's own dismissal
+ * ride the one door. The chip wears the family's TWENTY-THIRD
+ * 300-storey byte: ZINC at 300/100 — the debt desk's chip hue at the
+ * 200/50 storey (the repayment plan's own family) speaking through a
+ * storey it never spoke — the shade-split law's next form; zinc LEFT
+ * the stranger list (the exact zinc 300-trio census was machine-kept:
+ * no src file wore the trio before the registry grew the line).
+ */
+
+/**
  * v2.494.0 — THE FAMILY'S FIFTY-FIRST WORD: the counter's category
  * rides the address. The POS desk's category chips — the counter's
  * daily question, "which shelves do I sell from?" — speak their

@@ -247,6 +247,11 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/tax-type-deep-link-v2382.test.ts',
       'src/tests/transfer-status-deep-link-v2357.test.ts',
       'src/tests/txn-pay-deep-link-v2333.test.ts',
+      // the ledger's order word's own ledger — admitted (its truth
+      // table probes the sibling words' prefixes; an admission line
+      // carries the words it admits; sorted place: txn-pay < txn-sort
+      // < txn-type)
+      'src/tests/txn-sort-address-v2496.test.ts',
       'src/tests/txn-type-deep-link-v2354.test.ts',
       // v2.378.0: the settlement-kind suite's neighbor compound carries
       // this word's literal (?txn-type=settlement&txn-pay=CASH) — an

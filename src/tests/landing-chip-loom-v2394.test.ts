@@ -136,7 +136,9 @@ describe('the loom — one component, eighteen hues, zero words', () => {
   // bytes that ARE (fifty-one words).
   // v2.495.0 (dated): the honest title roll — the count rides the
   // bytes that ARE (fifty-two words).
-  it('THE WORD-FREE LAW — the loom speaks none of the constitution\u2019s 52 words', () => {
+  // v2.496.0 (dated): the honest title roll — the count rides the
+  // bytes that ARE (fifty-three words).
+  it('THE WORD-FREE LAW — the loom speaks none of the constitution\u2019s 53 words', () => {
     // v2.487.0 (dated): the shift week joins the constitution; the
     // loom grew its slate line and stays word-free (the shift's word
     // is the chip's own — the desk never spells the bytes bare).
@@ -175,7 +177,11 @@ describe('the loom — one component, eighteen hues, zero words', () => {
     // v2.495.0 (dated): the inventory's category joins the constitution;
     // the loom grew NO line and stays word-free (the shelves' word is
     // the chip's own — the desk never spells the bytes bare).
-    expect(rows.length).toBe(52);
+    // v2.496.0 (dated): the ledger's order joins the constitution; the
+    // loom grew ONE line (zinc's promotion — the order's word) and
+    // stays word-free (the order's word is the chip's own — the desk
+    // never spells the bytes bare).
+    expect(rows.length).toBe(53);
     for (const row of rows) {
       expect(loom.includes(row.word), row.word).toBe(false);
     }
@@ -561,7 +567,9 @@ describe('the constitution under the loom', () => {
     // rides the address; the counts roll with the constitution.
     // v2.495.0 (dated): the fifty-second word — the inventory's category
     // rides the address; the counts roll with the constitution.
-    expect(rows.length).toBe(52);
+    // v2.496.0 (dated): the fifty-third word — the ledger's order rides
+    // the address; the counts roll with the constitution.
+    expect(rows.length).toBe(53);
     // v2.484.0 (dated): twenty-seven desks — the family's FIRST
     // non-tab desk joined with the window's word.
     // v2.485.0 (dated): twenty-eight desks — the SECOND shell-tab
@@ -584,6 +592,8 @@ describe('the constitution under the loom', () => {
     // is the counter desk's SECOND word.
     // v2.495.0 (dated): thirty-three desks HOLD — the FIFTY-SECOND word
     // is the inventory desk's SECOND word.
+    // v2.496.0 (dated): thirty-three desks HOLD — the FIFTY-THIRD word
+    // is the transactions desk's THIRD word.
     expect(new Set(rows.map((r) => r.desk)).size).toBe(33);
     // v2.484.0 (dated): blue-300 joined with the window's word — the
     // families grew one (37) while the words grew two (the SECOND
@@ -624,7 +634,10 @@ describe('the constitution under the loom', () => {
     // words: the week's, the dashboard's, the counter's view, the
     // catalog's view, the analytics' own, the catalog's category, the
     // counter's category, and the inventory's category).
-    expect(new Set(rows.map((r) => r.family)).size).toBe(40);
+    // v2.496.0 (dated): the families grow to forty-one — the ledger's
+    // order wears its OWN family byte, zinc at the 300 storey (the debt
+    // desk's 200-storey hue one storey deeper).
+    expect(new Set(rows.map((r) => r.family)).size).toBe(41);
   });
 
   it('the stress grew its LOOM FACE (the derivation admits the hue+registry path)', () => {

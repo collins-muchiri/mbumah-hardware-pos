@@ -134,7 +134,9 @@ describe('the eighteenth byte — slate, the scheduling desk\u2019s roster hue',
   it('the storey line is ENFORCED — slate speaks at both its storeys now', () => {
     expect(landingChipSpeaksAt('slate', 300)).toBe(true);
     expect(landingChipSpeaksAt('slate', 200)).toBe(true);
-    expect(LANDING_CHIP_HUES.length).toBe(18);
+    // v2.496.0 (dated): the living registry pin rolls — the loom's
+    // hue count grew to nineteen (the ledger's zinc).
+    expect(LANDING_CHIP_HUES.length).toBe(19);
     expect(LANDING_CHIP_WARDROBES.slate).toContain('hover:bg-slate-200');
   });
 
@@ -229,7 +231,7 @@ describe('the seats — the round moves the week\u2019s word, the desk\u2019s el
 describe('the constitution — forty-five words, thirty desks', () => {
   it('the shift week\u2019s row joined (the scheduling desk\u2019s slate serves it)', () => {
     expect(registry.includes("{ word: 'shift-week', desk: 'src/app/(shell)/tabs/shift-scheduling-tab.tsx', family: 'border-slate-300', suite: 'src/tests/shift-week-address-v2487.test.ts' }")).toBe(true);
-    expect(registry.includes('(fifty-two words, thirty-three desks)')).toBe(true);
+    expect(registry.includes('(fifty-three words, thirty-three desks)')).toBe(true);
   });
 
   it('the stress walks the roll and the derived counts (44 \u2192 45, desks 29 \u2192 30, families 39 \u2192 40 — slate-300 joined, no shared family)', () => {
@@ -255,7 +257,10 @@ describe('the constitution — forty-five words, thirty desks', () => {
     // v2.495.0 (dated): the living stress-pin rolls — the stress's
     // row count grew to fifty-two (the inventory's category round); the
     // contains-pin rides the bytes that ARE.
-    expect(stress.includes('toBe(52)')).toBe(true);
+    // v2.496.0 (dated): the living stress-pin rolls — the stress's
+    // row count grew to fifty-three (the ledger's order round); the
+    // contains-pin rides the bytes that ARE.
+    expect(stress.includes('toBe(53)')).toBe(true);
     // v2.489.0 (dated): the living desks-pin rolls — thirty-one
     // desks (the FIFTH shell-tab desk joined); the contains-pin
     // rides the bytes that ARE.
@@ -267,7 +272,10 @@ describe('the constitution — forty-five words, thirty desks', () => {
     // the family's FIRST component desk); the contains-pin rides
     // the bytes that ARE.
     expect(stress.includes('expect(new Set(rows.map((r) => r.desk)).size).toBe(33);')).toBe(true);
-    expect(stress.includes('expect(new Set(rows.map((r) => r.family)).size).toBe(40);')).toBe(true);
+    // v2.496.0 (dated): the living family-pin rolls — the families
+    // grew to forty-one (zinc-300 joined); the contains-pin rides
+    // the bytes that ARE.
+    expect(stress.includes('expect(new Set(rows.map((r) => r.family)).size).toBe(41);')).toBe(true);
   });
 });
 
@@ -304,7 +312,7 @@ describe('whats-new — the round leads the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.495.0');
+    expect(pkg.version).toBe('2.496.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.487.0]')).toBeGreaterThan(-1);

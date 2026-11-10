@@ -168,7 +168,7 @@ describe('the landed category wears the slate landing chip and the lens wears it
 describe('the constitution walks the fifty-second word', () => {
   it('the row is the registry\u2019s own (the self-reference, read from the constitution file)', () => {
     expect(constitution.includes("{ word: 'inv-category', desk: 'src/app/(shell)/tabs/inventory-tab.tsx', family: 'border-slate-300', suite: 'src/tests/inv-category-address-v2495.test.ts' }")).toBe(true);
-    expect(constitution.includes('(fifty-two words, thirty-three desks)')).toBe(true);
+    expect(constitution.includes('(fifty-three words, thirty-three desks)')).toBe(true);
     // the admission line carries the word it admits (the ledger's own order)
     expect(constitution.includes("the inventory's category word's own ledger — admitted")).toBe(true);
   });
@@ -198,9 +198,9 @@ describe('whats-new — the round leads the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.495.0');
+    expect(pkg.version).toBe('2.496.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
-    expect(readFileSync('VERSION', 'utf8').trim()).toBe('2.495.0');
+    expect(readFileSync('VERSION', 'utf8').trim()).toBe('2.496.0');
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.495.0]')).toBeGreaterThan(-1);
     expect(changelog.indexOf('[2.495.0]')).toBeLessThan(changelog.indexOf('[2.494.0]'));

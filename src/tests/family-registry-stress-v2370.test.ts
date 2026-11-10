@@ -73,7 +73,7 @@ function parseRegistry(): RegistryRow[] {
 const rows = parseRegistry();
 
 describe('the registry, parsed from the constitution file itself', () => {
-  it('parses FIFTY-TWO rows (the constitution\u2019s own count, derived)', () => {
+  it('parses FIFTY-THREE rows (the constitution\u2019s own count, derived)', () => {
     // v2.484.0 (dated): the window — the people desk's period rides the
     // address; the constitution grew its rows and this parse grew with
     // it (the family's FIRST non-tab desk joined).
@@ -113,7 +113,10 @@ describe('the registry, parsed from the constitution file itself', () => {
     // v2.495.0 (dated): the fifty-second word — the inventory's category
     // rides the address; the constitution grew its row and this parse
     // grew with it (the SLUG-SHAPE LAW's THIRD wearer).
-    expect(rows.length).toBe(52);
+    // v2.496.0 (dated): the fifty-third word — the ledger's order rides
+    // the address; the constitution grew its row and this parse grew
+    // with it (the desk's THIRD word).
+    expect(rows.length).toBe(53);
   });
 
   it('the rows walk in the promise\u2019s order (the roll, derived from the parse)', () => {
@@ -203,6 +206,10 @@ describe('the registry, parsed from the constitution file itself', () => {
       // desk's SECOND word; born guarded — the family's ONE reading
       // from birth)
       'inv-category',
+      // v2.496.0 (dated): the ledger's order word — the transactions
+      // desk's rows ride the address IN ORDER (the desk's THIRD word;
+      // born guarded — the family's ONE reading from birth)
+      'txn-sort',
     ];
     expect(rows.map((r) => r.word)).toEqual(expected);
   });
@@ -250,6 +257,10 @@ describe('the registry, parsed from the constitution file itself', () => {
     // is the inventory desk's SECOND word (the transactions, suppliers,
     // catalog, counter and inventory precedents; the census keeps its
     // desks).
+    // v2.496.0 (dated): thirty-three desks HOLD — the FIFTY-THIRD word
+    // is the transactions desk's THIRD word (the transactions, suppliers,
+    // catalog, counter and inventory precedents; the census keeps its
+    // desks).
     expect(new Set(rows.map((r) => r.desk)).size).toBe(33);
     // v2.484.0 (dated): blue-300 joined with the window's word — the
     // families grew one (37) while the words grew two (the SECOND
@@ -291,8 +302,13 @@ describe('the registry, parsed from the constitution file itself', () => {
     // words: the week's, the dashboard's, the counter's view, the
     // catalog's view, the analytics' own, the catalog's category, the
     // counter's category, and the inventory's category).
-    expect(new Set(rows.map((r) => r.family)).size).toBe(40);
-    expect(constitution.includes('(fifty-two words, thirty-three desks)')).toBe(true);
+    // v2.496.0 (dated): the families grow to forty-one — the ledger's
+    // order wears its OWN family byte, zinc at the 300 storey (the debt
+    // desk's 200-storey hue one storey deeper — the shade-split law's
+    // next form; zinc LEFT the stranger list, the exact zinc 300-trio
+    // census machine-kept).
+    expect(new Set(rows.map((r) => r.family)).size).toBe(41);
+    expect(constitution.includes('(fifty-three words, thirty-three desks)')).toBe(true);
   });
 
   it('the promise roll through THIRTY-SECOND is present (the ordinals, derived from the home’s notes)', () => {

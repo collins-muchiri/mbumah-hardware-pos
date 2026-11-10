@@ -206,7 +206,7 @@ describe('the landing chip — the face names the word it answered', () => {
 // 4. THE CONSTITUTION — the whole vocabulary's invariants, walked from bytes
 // ---------------------------------------------------------------------------
 
-describe('the address-bar vocabulary — THE CONSTITUTION (fifty-two words, thirty-three desks)', () => {
+describe('the address-bar vocabulary — THE CONSTITUTION (fifty-three words, thirty-three desks)', () => {
   const WORDS = [
     { word: 'po-status', desk: 'src/app/(shell)/tabs/purchase-orders-tab.tsx', family: 'border-indigo-200', suite: 'src/tests/proxy-gate-layering-v2328.test.ts' },
     { word: 'inv-stock', desk: 'src/app/(shell)/tabs/inventory-tab.tsx', family: 'border-amber-200', suite: 'src/tests/inv-stock-deep-link-v2329.test.ts' },
@@ -542,6 +542,20 @@ describe('the address-bar vocabulary — THE CONSTITUTION (fifty-two words, thir
     // view, the catalog's view, the analytics' own, the catalog's
     // category, the counter's category, and the inventory's category).
     { word: 'inv-category', desk: 'src/app/(shell)/tabs/inventory-tab.tsx', family: 'border-slate-300', suite: 'src/tests/inv-category-address-v2495.test.ts' },
+    // the ledger's order word (v2.496.0): the transactions desk's rows
+    // ride the address IN ORDER (the desk's THIRD word — the desk may
+    // own many: the payment lens's v2.333 word, the type lens's v2.354
+    // word, and now the sort). BORN GUARDED: the family's ONE reading
+    // from birth — no turn, no write, and the hand's turn retires the
+    // word; the Date head, the Total head and the chip's own dismissal
+    // ride the one door. THE DEFAULT WEARS NO WORD: 'newest' is the
+    // wire's own standing order — the address's silence. The census
+    // grows a family: the ledger's order wears the family's twenty-third
+    // 300-storey byte — ZINC at 300/100, the debt desk's chip hue at
+    // the 200/50 storey speaking through a storey it never spoke (the
+    // shade-split law's next form; zinc LEFT the stranger list — the
+    // exact zinc 300-trio census was machine-kept).
+    { word: 'txn-sort', desk: 'src/app/(shell)/tabs/transactions-tab.tsx', family: 'border-zinc-300', suite: 'src/tests/txn-sort-address-v2496.test.ts' },
   ] as const;
 
   it('every word is desk-prefixed and owns its FILTERS const in exactly its desk', () => {
@@ -591,6 +605,11 @@ describe('the address-bar vocabulary — THE CONSTITUTION (fifty-two words, thir
     // dashboard's, the counter's view, the catalog's view, the
     // analytics' own, the catalog's category, the counter's category,
     // and the inventory's category): one more shared word.
+    // v2.496.0 (dated): the ledger's order wears its OWN family byte —
+    // zinc at the 300 storey (the debt desk's 200-storey hue one storey
+    // deeper) — so the shared count HOLDS at twelve while the families
+    // grow to forty-one (12 + 41 = fifty-three, the constitution's own
+    // arithmetic; zinc LEFT the stranger list).
     const SHARED_WORDS = 12;
     expect(new Set(families).size + SHARED_WORDS).toBe(WORDS.length);
     const loom = readFileSync('src/components/landing-chip.tsx', 'utf8');
@@ -792,6 +811,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/tax-type-deep-link-v2382.test.ts',
       'src/tests/transfer-status-deep-link-v2357.test.ts',
       'src/tests/txn-pay-deep-link-v2333.test.ts',
+      // the ledger's order word's own ledger — admitted (its registry
+      // section reads this file's rows; an admission line carries the
+      // word it admits; sorted place: txn-pay < txn-sort < txn-type)
+      'src/tests/txn-sort-address-v2496.test.ts',
       'src/tests/txn-type-deep-link-v2354.test.ts',
       'src/tests/vc-status-deep-link-v2360.test.ts',
       // v2.351.0's wrapper suite pinned this desk's filter testid, whose

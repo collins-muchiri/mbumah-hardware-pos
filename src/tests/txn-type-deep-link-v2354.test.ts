@@ -262,6 +262,11 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // rows come home) — the ledger is the honest speaker here
       'src/tests/txn-kind-v2371.test.ts',
       'src/tests/txn-pay-deep-link-v2333.test.ts',
+      // the ledger's order word's own ledger — admitted (its truth
+      // table probes the sibling words' prefixes; an admission line
+      // carries the words it admits; sorted place: txn-pay < txn-sort
+      // < txn-type)
+      'src/tests/txn-sort-address-v2496.test.ts',
       'src/tests/txn-type-deep-link-v2354.test.ts',
       // v2.378.0: the settlement-kind suite pins the lens's new VALUE and
       // the repair note — an admission line carries the word it admits

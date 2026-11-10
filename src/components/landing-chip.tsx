@@ -107,6 +107,10 @@ export const LANDING_CHIP_HUES = [
   // scheduling desk's roster hue); the conversations desk's 200-storey
   // hue one storey deeper (the shade-split law's next form).
   'slate',
+  // v2.496.0: zinc's promotion — the ledger order's word (the
+  // transactions desk's sort); the debt desk's 200-storey hue one
+  // storey deeper (the shade-split law's next form).
+  'zinc',
 ] as const;
 
 export type LandingChipHue = (typeof LANDING_CHIP_HUES)[number];
@@ -144,6 +148,9 @@ export const LANDING_CHIP_WARDROBES: Record<LandingChipHue, string> = {
   // v2.487.0: slate's line — the shift week's word (the SINGLE-LINE
   // law: one entry, one line, the grep finds the whole wardrobe).
   slate: 'border-slate-300 bg-slate-100 text-slate-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 dark:border-slate-500/30 dark:bg-slate-500/10 dark:text-slate-300 dark:hover:bg-slate-500/20',
+  // v2.496.0: zinc's line — the ledger order's word (the SINGLE-LINE
+  // law: one entry, one line, the grep finds the whole wardrobe).
+  zinc: 'border-zinc-300 bg-zinc-100 text-zinc-700 text-xs font-medium whitespace-nowrap transition-colors hover:bg-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 dark:border-zinc-500/30 dark:bg-zinc-500/10 dark:text-zinc-300 dark:hover:bg-zinc-500/20',
 };
 
 // THE ELDER STOREY (v2.397.0): the 200/50 registry — the census's 22
