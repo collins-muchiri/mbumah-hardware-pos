@@ -177,6 +177,20 @@ describe('the shelf\u2019s wires — one truth, guarded doors', () => {
     expect(doorWire.includes('!Number.isFinite(parsed) || parsed < 0')).toBe(true);
     expect(rowWire.includes('!Number.isFinite(parsed) || parsed < 0')).toBe(true);
   });
+
+  it('the doors read the standing arg shape (v2.497.1: the rest seam\u2019s own order)', () => {
+    // requireStoreAccess hands (request, session, ...rest) — a dynamic
+    // route's context is the THIRD word, never the second (the args[1]
+    // guess broke every door press into a 500 — Cannot destructure 'id'
+    // of undefined; the correction names the shape where the wrapper
+    // actually hands it)
+    expect(doorWire.includes('(request: NextRequest, _session: AuthSession, context: RouteContext)')).toBe(true);
+    expect(doorWire.includes('_request: NextRequest, _session: AuthSession, context: RouteContext')).toBe(true);
+    expect(rowWire.includes('(request: NextRequest, _session: AuthSession, context: RouteContext)')).toBe(true);
+    expect(rowWire.includes('_request: NextRequest, _session: AuthSession, context: RouteContext')).toBe(true);
+    expect(doorWire.includes('args[1]')).toBe(false);
+    expect(rowWire.includes('args[1]')).toBe(false);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -290,14 +304,14 @@ describe('the release surfaces speak with one voice', () => {
       version: string;
       mbumah: { releaseVersion: string; baseVersion: string };
     };
-    expect(pkg.version).toBe('2.497.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.497.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.497.0');
+    expect(pkg.version).toBe('2.497.1');
+    expect(pkg.mbumah.releaseVersion).toBe('2.497.1');
+    expect(pkg.mbumah.baseVersion).toBe('2.497.1');
   });
 
   it('VERSION + the feed\u2019s lead ride the same round', () => {
-    expect(readFileSync('VERSION', 'utf8').trim()).toBe('2.497.0');
-    expect(WHATS_NEW[0].version).toBe('2.497.0');
+    expect(readFileSync('VERSION', 'utf8').trim()).toBe('2.497.1');
+    expect(WHATS_NEW[0].version).toBe('2.497.1');
   });
 
   it('changelog anchors the section above its ancestor', () => {

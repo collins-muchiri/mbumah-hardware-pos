@@ -19,7 +19,7 @@
 import { type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { systemLog, withErrorBoundary } from '@/lib/logger';
-import { requireStoreAccess, MANAGER_PLUS_ROLES } from '@/lib/auth';
+import { requireStoreAccess, MANAGER_PLUS_ROLES, type AuthSession } from '@/lib/auth';
 import { readJsonBody, bodyDoorRejected } from '@/lib/request-body';
 import { LogSeverity, LogComponent } from '@/lib/types';
 import { validateBinLocationInput } from '@/lib/bin-location';
@@ -48,9 +48,7 @@ async function resolveBin(productId: string, binId: string) {
   return db.binLocation.findFirst({ where: { id: binId, productId } });
 }
 
-async function updateBinHandler(...args: unknown[]): Promise<Response> {
-  const request = args[0] as NextRequest;
-  const context = args[1] as RouteContext;
+async function updateBinHandler(request: NextRequest, _session: AuthSession, context: RouteContext): Promise<Response> {
   const { id, binId } = await context.params;
 
   const existing = await resolveBin(id, binId);
@@ -112,9 +110,7 @@ async function updateBinHandler(...args: unknown[]): Promise<Response> {
   return Response.json({ success: true, data: updated, message: 'Bin location updated.' });
 }
 
-async function deleteBinHandler(...args: unknown[]): Promise<Response> {
-  const _request = args[0] as NextRequest;
-  const context = args[1] as RouteContext;
+async function deleteBinHandler(_request: NextRequest, _session: AuthSession, context: RouteContext): Promise<Response> {
   const { id, binId } = await context.params;
 
   const existing = await resolveBin(id, binId);

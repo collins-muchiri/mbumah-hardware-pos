@@ -44,9 +44,7 @@ interface BinBody {
   isActive?: unknown;
 }
 
-async function listProductBinsHandler(...args: unknown[]): Promise<Response> {
-  const _request = args[0] as NextRequest;
-  const context = args[1] as RouteContext;
+async function listProductBinsHandler(_request: NextRequest, _session: AuthSession, context: RouteContext): Promise<Response> {
   const { id } = await context.params;
 
   const bins = await db.binLocation.findMany({
@@ -72,10 +70,7 @@ async function listProductBinsHandler(...args: unknown[]): Promise<Response> {
 // the shelf's address is a catalog edit, never a cashier's.
 const BIN_EDIT_ROLES: readonly string[] = [...MANAGER_PLUS_ROLES, 'INVENTORY_MANAGER'];
 
-async function addProductBinHandler(...args: unknown[]): Promise<Response> {
-  const request = args[0] as NextRequest;
-  const context = args[1] as RouteContext;
-  const _session = args[2] as AuthSession;
+async function addProductBinHandler(request: NextRequest, _session: AuthSession, context: RouteContext): Promise<Response> {
   const { id } = await context.params;
 
   // The product's own row carries the store — the bin never names a store
