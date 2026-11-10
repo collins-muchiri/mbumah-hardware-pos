@@ -229,7 +229,7 @@ describe('the seats — the round moves the week\u2019s word, the desk\u2019s el
 describe('the constitution — forty-five words, thirty desks', () => {
   it('the shift week\u2019s row joined (the scheduling desk\u2019s slate serves it)', () => {
     expect(registry.includes("{ word: 'shift-week', desk: 'src/app/(shell)/tabs/shift-scheduling-tab.tsx', family: 'border-slate-300', suite: 'src/tests/shift-week-address-v2487.test.ts' }")).toBe(true);
-    expect(registry.includes('(forty-seven words, thirty-two desks)')).toBe(true);
+    expect(registry.includes('(forty-eight words, thirty-two desks)')).toBe(true);
   });
 
   it('the stress walks the roll and the derived counts (44 \u2192 45, desks 29 \u2192 30, families 39 \u2192 40 — slate-300 joined, no shared family)', () => {
@@ -240,7 +240,10 @@ describe('the constitution — forty-five words, thirty desks', () => {
     // v2.490.0 (dated): the living stress-pin rolls — the stress's
     // row count grew to forty-seven (the counter's round); the
     // contains-pin rides the bytes that ARE.
-    expect(stress.includes('toBe(47)')).toBe(true);
+    // v2.491.0 (dated): the living stress-pin rolls — the stress's
+    // row count grew to forty-eight (the catalog's round); the
+    // contains-pin rides the bytes that ARE.
+    expect(stress.includes('toBe(48)')).toBe(true);
     // v2.489.0 (dated): the living desks-pin rolls — thirty-one
     // desks (the FIFTH shell-tab desk joined); the contains-pin
     // rides the bytes that ARE.
@@ -285,7 +288,7 @@ describe('whats-new — the round leads the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.490.0');
+    expect(pkg.version).toBe('2.491.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.487.0]')).toBeGreaterThan(-1);

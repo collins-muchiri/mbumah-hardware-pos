@@ -206,7 +206,7 @@ describe('the landing chip — the face names the word it answered', () => {
 // 4. THE CONSTITUTION — the whole vocabulary's invariants, walked from bytes
 // ---------------------------------------------------------------------------
 
-describe('the address-bar vocabulary — THE CONSTITUTION (forty-seven words, thirty-two desks)', () => {
+describe('the address-bar vocabulary — THE CONSTITUTION (forty-eight words, thirty-two desks)', () => {
   const WORDS = [
     { word: 'po-status', desk: 'src/app/(shell)/tabs/purchase-orders-tab.tsx', family: 'border-indigo-200', suite: 'src/tests/proxy-gate-layering-v2328.test.ts' },
     { word: 'inv-stock', desk: 'src/app/(shell)/tabs/inventory-tab.tsx', family: 'border-amber-200', suite: 'src/tests/inv-stock-deep-link-v2329.test.ts' },
@@ -469,6 +469,18 @@ describe('the address-bar vocabulary — THE CONSTITUTION (forty-seven words, th
     // slate serves three words — the week's, the dashboard's, the
     // counter's own).
     { word: 'pos-view', desk: 'src/app/(shell)/tabs/pos-tab.tsx', family: 'border-slate-300', suite: 'src/tests/pos-view-address-v2490.test.ts' },
+    // the catalog's own word (v2.491.0): the view — the forty-eighth
+    // word — rides the catalog desk's shop floor (?cat-view=<grid|list>),
+    // the SEVENTH shell-tab desk, the desk's SECOND word (src/app/(shell)/tabs/catalog-tab.tsx —
+    // the shop floor's daily question now speaks its address). BORN
+    // GUARDED: the family's ONE reading from birth — no turn, no write,
+    // and the hand's turn retires the word. THE DEFAULT WEARS NO WORD:
+    // grid is the address's silence — the key strips when the desk
+    // rests, and a landed word that names the resting view wears no
+    // chip. The census holds: the catalog's word wears the family's
+    // shared slate (the slate serves four words — the week's, the
+    // dashboard's, the counter's, the catalog's own).
+    { word: 'cat-view', desk: 'src/app/(shell)/tabs/catalog-tab.tsx', family: 'border-slate-300', suite: 'src/tests/cat-view-address-v2491.test.ts' },
   ] as const;
 
   it('every word is desk-prefixed and owns its FILTERS const in exactly its desk', () => {
@@ -496,7 +508,11 @@ describe('the address-bar vocabulary — THE CONSTITUTION (forty-seven words, th
     // v2.490.0 (dated): the counter's view rides the family's shared
     // slate — the slate serves three words now (the week's, the
     // dashboard's, the counter's own): one more shared word.
-    const SHARED_WORDS = 7;
+    // v2.491.0 (dated): the catalog's view rides the family's shared
+    // slate — the slate serves four words now (the week's, the
+    // dashboard's, the counter's, the catalog's own): one more shared
+    // word.
+    const SHARED_WORDS = 8;
     expect(new Set(families).size + SHARED_WORDS).toBe(WORDS.length);
     const loom = readFileSync('src/components/landing-chip.tsx', 'utf8');
     for (const { word, desk: deskPath, family } of WORDS) {
@@ -586,6 +602,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // ledger and its constitution section name this file)
       'src/tests/bank-type-deep-link-v2387.test.ts',
       'src/tests/cat-stock-deep-link-v2364.test.ts',
+      // the catalog's own ledger — admitted (its registry section reads
+      // this file's rows; an admission line carries the word it admits;
+      // sorted place: cat-stock < cat-view < cr-type)
+      'src/tests/cat-view-address-v2491.test.ts',
       'src/tests/cr-type-deep-link-v2361.test.ts',
       'src/tests/cust-debt-deep-link-v2330.test.ts',
       // the pair's own ledger — admitted (its registry section reads

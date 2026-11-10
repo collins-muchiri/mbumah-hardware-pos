@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Package, Search, LayoutGrid, List, ShoppingCart, Plus, Minus, Tag, X, SlidersHorizontal, Pencil, Trash2, MessageCircle, AlertTriangle, MoreVertical, Loader2, Copy, Smartphone } from 'lucide-react';
-import { parseInitialNamedMember } from '@/lib/tab-url';
+import { CAT_VIEW_MEMBERS, parseInitialNamedMember } from '@/lib/tab-url';
 import { useCartStore, useAppStore } from '@/lib/stores';
 import {
   productsApi, categoriesApi, whatsappApi, formatKES,
@@ -43,6 +43,36 @@ import { LandingChip } from '@/components/landing-chip';
 
 type SortKey = 'name' | 'price_asc' | 'price_desc' | 'stock';
 type ViewMode = 'grid' | 'list';
+
+// THE CATALOG'S OWN WORD (v2.491.0) — the shop floor's view answers
+// the bar. `?cat-view=<member>` — the toggle's OWN spellings (the ONE
+// home's CAT_VIEW_MEMBERS — the two members, lowercase, read through
+// the generic named-member parser; a made-up member or a wrong case is
+// an unknown word, not a clever match). THE DEFAULT WEARS NO WORD: the
+// resting view is `grid` — the address's silence, the key strips when
+// the desk rests. THE LANDING IS READ ONCE ON THE SHELL: a plain
+// useState initializer — a dismissed chip can never resurrect (the
+// SEVENTH shell-tab desk, the desk's SECOND word).
+function initialCatView(): ViewMode {
+  if (typeof window === 'undefined') return 'grid';
+  return parseInitialNamedMember(window.location.search, 'cat-view', [...CAT_VIEW_MEMBERS], 'grid');
+}
+
+// The write half — the view's own replaceState (preserve the other
+// params: the shell's tab word and every other desk's word ride
+// along). THE DEFAULT WEARS NO WORD: grid strips its key — the
+// address never carries the resting face's word.
+function writeCatViewWord(view: ViewMode): void {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (view === 'grid') params.delete('cat-view');
+    else params.set('cat-view', view);
+    const qs = params.toString();
+    window.history.replaceState(null, '', window.location.pathname + (qs ? `?${qs}` : ''));
+  } catch {
+    // The address never lies louder than the view
+  }
+}
 
 // v2.364.0 — THE CATALOG DESK'S OWN WORD: the shop floor's shelves answer
 // the address bar. `?cat-stock=low_stock` lands the catalog pre-filtered to
@@ -207,7 +237,22 @@ export default function CatalogTab() {
   const [priceMin, setPriceMin] = useState('');
   const [priceMax, setPriceMax] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('name');
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  // v2.491.0 THE LANDING WORD — the shop floor's seed reads `?cat-view=`
+  // through the ONE home, the landed word read once on the shell (a
+  // dismissed chip can never resurrect — the family's ONE reading).
+  const [landedCatView] = useState<ViewMode>(initialCatView);
+  const [catViewLandingLive, setCatViewLandingLive] = useState(true);
+  const [viewMode, setViewMode] = useState<ViewMode>(initialCatView);
+  // v2.491.0 THE GUARDED DOOR — the family's ONE reading from birth:
+  // no turn, no write (a re-press of the standing member is not a
+  // turn), and the hand's turn retires the word — the chip speaks the
+  // ADDRESS BAR's landing, never the human's next choice.
+  const chooseViewMode = (mode: ViewMode) => {
+    if (mode === viewMode) return;
+    if (mode !== landedCatView) setCatViewLandingLive(false);
+    setViewMode(mode);
+    writeCatViewWord(mode);
+  };
   // v2.364.0 THE COLLAPSIBLE-FACE AMENDMENT: a landing that carries the
   // word RAISES the filters panel it lands into, so the chip is visible on
   // landing; the panel's seed reads the same landed word. A panel the
@@ -878,6 +923,21 @@ export default function CatalogTab() {
 
   return (
     <div className="flex flex-col h-full gap-4">
+      {/* v2.491.0 THE LANDING CHIP — the landed view wears the family's
+          shared slate above the desk's own search row; the chip speaks
+          the ADDRESS BAR's landing (the triple condition — THE DEFAULT
+          WEARS NO WORD), the dismissal retires through the one door. */}
+      {catViewLandingLive && landedCatView && landedCatView !== 'grid' && (
+        <div className="flex items-center">
+          <LandingChip
+            hue="slate"
+            label={`landed ?cat-view=${landedCatView}`}
+            onDismiss={() => { setCatViewLandingLive(false); chooseViewMode('grid'); }}
+            title="The view landed with this word from the address bar — dismiss to rest the catalog's own view"
+            data-testid="cat-view-landing-word"
+          />
+        </div>
+      )}
       {/* ---- Header bar ---- */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="relative flex-1 w-full">
@@ -934,26 +994,41 @@ export default function CatalogTab() {
               </Badge>
             )}
           </Button>
-          {/* View toggle */}
-          <div className="flex border rounded-lg overflow-hidden">
-            <Button
-              variant={viewMode === 'grid' ? 'default' : 'ghost'}
-              size="icon"
-              className="h-8 w-8 rounded-none"
-              onClick={() => setViewMode('grid')}
+          {/* View toggle — THE DRESS (v2.491.0): while a non-default
+              view rides, the toggle wears the slate family's quiet
+              ground — the pressed face and its landing chip speak one
+              voice (the desk's own byte order, never the loom's
+              wardrobe copy); the members speak their own handles, the
+              tab shape rings, the keyboard face rings. */}
+          <div
+            className={`flex border rounded-lg overflow-hidden transition-colors ${viewMode !== 'grid' ? 'bg-slate-100' : 'bg-background'}`}
+            role="tablist"
+            aria-label="Catalog view mode"
+          >
+            <button
+              type="button"
+              role="tab"
+              aria-selected={viewMode === 'grid'}
+              onClick={() => chooseViewMode('grid')}
+              className={`h-8 w-8 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 ${viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'bg-background hover:bg-muted'}`}
+              title="Grid view"
               aria-label="Grid view"
+              data-testid="cat-view-member-grid"
             >
               <LayoutGrid className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={viewMode === 'list' ? 'default' : 'ghost'}
-              size="icon"
-              className="h-8 w-8 rounded-none"
-              onClick={() => setViewMode('list')}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={viewMode === 'list'}
+              onClick={() => chooseViewMode('list')}
+              className={`h-8 w-8 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 ${viewMode === 'list' ? 'bg-primary text-primary-foreground' : 'bg-background hover:bg-muted'}`}
+              title="List view"
               aria-label="List view"
+              data-testid="cat-view-member-list"
             >
               <List className="h-4 w-4" />
-            </Button>
+            </button>
           </div>
         </div>
       </div>
