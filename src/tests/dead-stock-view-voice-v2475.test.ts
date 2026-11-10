@@ -148,7 +148,10 @@ describe('the view\u2019s own word — the desk\u2019s own face', () => {
   });
 
   it('the ONE home composes — the desk imports, never hand-sums', () => {
-    expect(desk.includes('deadStockViewSummary, filterDeadStockRows')).toBe(true);
+    // v2.498.0 re-key (dated): the import grew the action arc's words —
+    // the adjacency rides the new line (deadStockWriteOffReason stands
+    // between the view's word and the lens).
+    expect(desk.includes('deadStockViewSummary, deadStockWriteOffReason, filterDeadStockRows')).toBe(true);
     expect(desk.includes('() => deadStockViewSummary(sortedRows, rows),')).toBe(true);
     expect(desk.includes('[sortedRows, rows],')).toBe(true);
     expect((desk.match(/reduce\(\(s, r\) => s \+ r\.capitalTied/g) ?? []).length).toBe(0);
@@ -167,7 +170,12 @@ describe('the view\u2019s own word — the desk\u2019s own face', () => {
     // chat door's Share all handle (the chorus's own reach-out, the
     // double voice every handle wears); the census speaks the section's
     // ten handles now, and the loom's pressed-voice law stands untouched.
-    expect(section.split('aria-label=').length - 1).toBe(10);
+        // v2.498.0 re-key (dated): the section grows its ELEVENTH and
+    // TWELFTH voices — the action arc's two row doors (the Clear handle
+    // and the Write off handle, the double voice every handle wears);
+    // the census speaks the section's twelve handles now, and the
+    // elder bytes this suite pins stand untouched.
+    expect(section.split('aria-label=').length - 1).toBe(12);
     expect(section).not.toContain('aria-pressed');
     expect(section.includes('data-testid="dead-stock-view-voice"')).toBe(true);
   });

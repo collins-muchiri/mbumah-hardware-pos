@@ -304,14 +304,14 @@ describe('the release surfaces speak with one voice', () => {
       version: string;
       mbumah: { releaseVersion: string; baseVersion: string };
     };
-    expect(pkg.version).toBe('2.497.1');
-    expect(pkg.mbumah.releaseVersion).toBe('2.497.1');
-    expect(pkg.mbumah.baseVersion).toBe('2.497.1');
+    expect(pkg.version).toBe('2.498.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.498.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.498.0');
   });
 
   it('VERSION + the feed\u2019s lead ride the same round', () => {
-    expect(readFileSync('VERSION', 'utf8').trim()).toBe('2.497.1');
-    expect(WHATS_NEW[0].version).toBe('2.497.1');
+    expect(readFileSync('VERSION', 'utf8').trim()).toBe('2.498.0');
+    expect(WHATS_NEW[0].version).toBe('2.498.0');
   });
 
   it('changelog anchors the section above its ancestor', () => {

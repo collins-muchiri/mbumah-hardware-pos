@@ -111,7 +111,7 @@ describe('the dead-stock CSV — the footer speaks the chorus whole', () => {
     // (deadStockChorusShareUrl rides the same line, after the chorus
     // header) — the composer still rides the same import line, now with
     // the collective reach-out aboard.
-    expect(desk.includes("import { DEAD_STOCK_SORTS, DEAD_STOCK_WINDOWS, capitalTiedByCategory, deadStockChorusHeader, deadStockChorusShareUrl, deadStockClearanceNote, deadStockClearanceNotes, deadStockShareUrl, deadStockViewSummary, filterDeadStockRows, sortDeadStockRows, waMeDisplay, type DeadStockRow, type DeadStockSortKey } from '@/lib/reports/dead-stock';")).toBe(true);
+    expect(desk.includes("import { DEAD_STOCK_SORTS, DEAD_STOCK_WINDOWS, DEAD_STOCK_WRITE_OFF_CATEGORIES, capitalTiedByCategory, deadStockChorusHeader, deadStockChorusShareUrl, deadStockClearanceNote, deadStockClearanceNotes, deadStockClearanceSuggestion, deadStockMarginVoice, deadStockShareUrl, deadStockViewSummary, deadStockWriteOffReason, filterDeadStockRows, sortDeadStockRows, waMeDisplay, type DeadStockRow, type DeadStockSortKey, type DeadStockWriteOffCategory } from '@/lib/reports/dead-stock';")).toBe(true);
   });
 
   it('the footer grows the Clearance chorus row — quoted, ONE-home word', () => {
