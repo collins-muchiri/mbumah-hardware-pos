@@ -130,7 +130,7 @@ describe('the thirteenth byte — emerald, the ledger\u2019s own green', () => {
     // v2.482.0 (dated): the thirty-sixth word — the range's own word
     // rides the address; the count rolls with the constitution.
     expect(registry.includes("{ word: 'dead-sort', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-emerald-300', suite: 'src/tests/dead-stock-sort-address-v2481.test.ts' }")).toBe(true);
-    expect(registry.includes('(fifty words, thirty-three desks)')).toBe(true);
+    expect(registry.includes('(fifty-one words, thirty-three desks)')).toBe(true);
   });
 
   it('the stress walks the roll and the derived counts (36 \u2192 38)', () => {
@@ -163,7 +163,10 @@ describe('the thirteenth byte — emerald, the ledger\u2019s own green', () => {
     // v2.493.0 (dated): the living stress-pin rolls — the stress's
     // row count grew to fifty (the catalog's category round); the
     // contains-pin rides the bytes that ARE.
-    expect(stress.includes('toBe(50)')).toBe(true);
+    // v2.494.0 (dated): the living stress-pin rolls — the stress's
+    // row count grew to fifty-one (the counter's category round); the
+    // contains-pin rides the bytes that ARE.
+    expect(stress.includes('toBe(51)')).toBe(true);
     expect(stress.includes("      'dead-sort',")).toBe(true);
   });
 
@@ -376,7 +379,7 @@ describe('whats-new — the round, pinned in the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.493.0');
+    expect(pkg.version).toBe('2.494.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.481.0]')).toBeGreaterThan(-1);

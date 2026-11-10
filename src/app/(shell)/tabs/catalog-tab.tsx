@@ -284,12 +284,6 @@ export default function CatalogTab() {
     setViewMode(mode);
     writeCatViewWord(mode);
   };
-  // v2.364.0 THE COLLAPSIBLE-FACE AMENDMENT: a landing that carries the
-  // word RAISES the filters panel it lands into, so the chip is visible on
-  // landing; the panel's seed reads the same landed word. A panel the
-  // human closes afterwards is navigation, not a lens change.
-  const [showFilters, setShowFilters] = useState<boolean>(() => landedCatStock !== 'all');
-
   // Quantity tracking per product for +/- buttons
   const [quantities, setQuantities] = useState<Record<string, number>>({});
 
@@ -453,6 +447,19 @@ export default function CatalogTab() {
   const [landedCatCategory, setLandedCatCategory] = useState<string | null>(initialCatCategory);
   const [catCategoryLandingLive, setCatCategoryLandingLive] = useState(true);
   const [landedCatCategoryId, setLandedCatCategoryId] = useState<string | null>(null);
+  // v2.364.0 THE COLLAPSIBLE-FACE AMENDMENT: a landing that carries the
+  // word RAISES the filters panel it lands into, so the chip is visible on
+  // landing; the panel's seed reads the same landed word. A panel the
+  // human closes afterwards is navigation, not a lens change.
+  // v2.494.0 THE PANEL-RAISE AMENDMENT'S SECOND WORD: the seed reads the
+  // category's landed word too — a ?cat-category landing raises the
+  // filters panel so the RESOLVED LENS is visible on landing (the dress
+  // face's own home), not just the chip above the search row. The seed
+  // moved beside the landing states (the initializer reads the raw
+  // landing, before the resolve below).
+  const [showFilters, setShowFilters] = useState<boolean>(
+    () => landedCatStock !== 'all' || landedCatCategory !== null,
+  );
   // v2.493.0 THE GUARDED DOOR — the family's ONE reading from birth:
   // no turn, no write (a re-press of the standing member is not a
   // turn), and the hand's turn retires the word — the chip speaks the

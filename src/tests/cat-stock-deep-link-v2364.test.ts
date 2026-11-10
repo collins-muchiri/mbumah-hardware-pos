@@ -170,9 +170,14 @@ describe('the catalog desk — ?cat-stock= lands as visible state', () => {
     expect(desk.includes('<TabsContent')).toBe(false);
     // the panel's seed reads the SAME landed word: a landing that carries
     // the word opens the panel, so the chip is visible on landing
-    expect(desk.includes("const [showFilters, setShowFilters] = useState<boolean>(() => landedCatStock !== 'all');")).toBe(true);
+    // v2.494.0 (dated): the seed rides beside the category landing
+    // states now (the panel-raise amendment's second word) and reads
+    // BOTH landed words — the stock's and the category's; the stock
+    // reading keeps its bytes.
+    expect(desk.includes("() => landedCatStock !== 'all' || landedCatCategory !== null,")).toBe(true);
     // the face is DOCUMENTED at the word, not just practiced
     expect(desk.includes('THE COLLAPSIBLE-FACE AMENDMENT')).toBe(true);
+    expect(desk.includes("THE PANEL-RAISE AMENDMENT'S SECOND WORD")).toBe(true);
   });
 
   it('the word filters the LIST, not just the Select\u2019s face (the client-side read)', () => {
@@ -268,7 +273,7 @@ describe('the address-bar vocabulary — the seventeenth row (cross-suite pins)'
   const constitution = readFileSync('src/tests/transfer-status-deep-link-v2357.test.ts', 'utf8');
 
   it('the constitution walks SEVENTEEN words over FIFTEEN desks', () => {
-    expect(constitution.includes('(fifty words, thirty-three desks)')).toBe(true);
+    expect(constitution.includes('(fifty-one words, thirty-three desks)')).toBe(true);
     expect(constitution.includes("{ word: 'cat-stock', desk: 'src/app/(shell)/tabs/catalog-tab.tsx', family: 'border-purple-200', suite: 'src/tests/cat-stock-deep-link-v2364.test.ts' }")).toBe(true);
     expect(constitution.includes("'SEVENTEENTH'")).toBe(true);
   });

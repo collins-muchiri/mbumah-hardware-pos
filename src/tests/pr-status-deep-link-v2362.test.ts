@@ -252,7 +252,7 @@ describe('the address-bar vocabulary — the fifteenth row (cross-suite pins)', 
   const constitution = readFileSync('src/tests/transfer-status-deep-link-v2357.test.ts', 'utf8');
 
   it('the constitution walks FIFTEEN words over THIRTEEN desks', () => {
-    expect(constitution.includes('(fifty words, thirty-three desks)')).toBe(true);
+    expect(constitution.includes('(fifty-one words, thirty-three desks)')).toBe(true);
     expect(constitution.includes("{ word: 'pr-status', desk: 'src/app/(shell)/tabs/payroll-tab.tsx', family: 'border-stone-200', suite: 'src/tests/pr-status-deep-link-v2362.test.ts' }")).toBe(true);
     expect(constitution.includes("'FIFTEENTH'")).toBe(true);
   });
