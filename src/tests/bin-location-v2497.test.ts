@@ -205,8 +205,11 @@ describe('the shelf on the desk — the chip and the door', () => {
   });
 
   it('the door lists through its own query and stands closed by default', () => {
-    expect(desk.includes("queryKey: ['product-bins', binDoorProduct?.id]")).toBe(true);
-    expect(desk.includes('enabled: !!binDoorProduct')).toBe(true);
+    expect(desk.includes("queryKey: ['product-bins', binDoorId]")).toBe(true);
+    expect(desk.includes('enabled: !!binDoorId')).toBe(true);
+    // the captured id — the mutations never name a product through a
+    // non-null guess (the lint baseline's own law)
+    expect(desk.includes('const binDoorId = binDoorProduct?.id ?? null;')).toBe(true);
   });
 
   it('the door\u2019s census line, empty state, preview and handles carry their own names', () => {

@@ -99,7 +99,11 @@ describe('THE DOOR-SHAPE REGISTRY — the census is derived, not remembered', ()
     // 385 at v2.469.0 — the store's details write joined
     // (src/app/api/stores/settings/route.ts): the admin desk's mock
     // retired, the branch's name and location reaching the Store model.
-    expect(routeFiles.length).toBe(385);
+    // 388 at v2.497.0 — the shelf's own address joined: the map wire
+    // (src/app/api/bin-locations/route.ts), the door wire
+    // (src/app/api/products/[id]/bins/route.ts) and the row wire
+    // (src/app/api/products/[id]/bins/[binId]/route.ts).
+    expect(routeFiles.length).toBe(388);
   });
 
   it('every hard-door call carries its explicit generic (the v2.344 tombstone, tree-wide)', () => {
@@ -110,7 +114,10 @@ describe('THE DOOR-SHAPE REGISTRY — the census is derived, not remembered', ()
     // kept, the owner-only org-scoped PATCH speaks its own generic).
     // v2.469.0: +1 — the store's details door (the mock retired, the
     // name/location write speaks its own generic).
-    expect(count(/\breadJsonBody\s*</g, src)).toBe(119);
+    // v2.497.0: +2 — the shelf's own doors (the bin add and the bin row
+    // edit speak BinBody and BinRowBody — the explicit shapes, the loose
+    // widening never born here).
+    expect(count(/\breadJsonBody\s*</g, src)).toBe(121);
     // THE TOMBSTONE, LIVE: a bare call — the generic-less form — matches ZERO files.
     expect(count(/\breadJsonBody\s*\(/g, src)).toBe(0);
   });

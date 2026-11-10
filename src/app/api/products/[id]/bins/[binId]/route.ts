@@ -33,6 +33,17 @@ interface RouteContext {
   params: Promise<{ id: string; binId: string }>;
 }
 
+// THE EXPLICIT SHAPE (the v2.339/v2.344 tombstones — the loose Record
+// widening stays dead, tree-wide): every field the door reads, named.
+interface BinRowBody {
+  aisle?: unknown;
+  shelf?: unknown;
+  bin?: unknown;
+  locationCode?: unknown;
+  quantity?: unknown;
+  isActive?: unknown;
+}
+
 async function resolveBin(productId: string, binId: string) {
   return db.binLocation.findFirst({ where: { id: binId, productId } });
 }
@@ -47,7 +58,7 @@ async function updateBinHandler(...args: unknown[]): Promise<Response> {
     return Response.json({ success: false, error: 'Bin location not found.' }, { status: 404 });
   }
 
-  const door = await readJsonBody<Record<string, unknown>>(request);
+  const door = await readJsonBody<BinRowBody>(request);
   if (!door.ok) {
     return bodyDoorRejected();
   }
