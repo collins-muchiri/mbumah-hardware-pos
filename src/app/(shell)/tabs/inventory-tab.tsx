@@ -620,7 +620,7 @@ export default function InventoryTab() {
   });
   const binByProduct = useMemo(() => {
     const map = new Map<string, string>();
-    for (const row of binMapData ?? []) {
+    for (const row of binMapData?.data ?? []) {
       if (!map.has(row.productId)) map.set(row.productId, row.locationCode);
     }
     return map;
@@ -631,10 +631,10 @@ export default function InventoryTab() {
   // map AND the door's list so the chip and the rows stay one truth.
   const { data: doorBinsData, isLoading: doorBinsLoading } = useQuery({
     queryKey: ['product-bins', binDoorId],
-    queryFn: () => (binDoorId ? binLocationsApi.forProduct(binDoorId) : Promise.resolve([] as BinLocationItem[])),
+    queryFn: () => binLocationsApi.forProduct(binDoorId as string),
     enabled: !!binDoorId,
   });
-  const doorBins: BinLocationItem[] = useMemo(() => doorBinsData ?? [], [doorBinsData]);
+  const doorBins: BinLocationItem[] = useMemo(() => doorBinsData?.data ?? [], [doorBinsData]);
 
   const refreshBinWires = () => {
     queryClient.invalidateQueries({ queryKey: ['bin-locations'] });

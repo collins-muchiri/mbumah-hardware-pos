@@ -128,12 +128,13 @@ async function addProductBinHandler(...args: unknown[]): Promise<Response> {
     select: { id: true, locationCode: true },
   });
 
-  systemLog(
-    LogSeverity.INFO,
-    LogComponent.INVENTORY,
-    `bin location added: ${created.locationCode} (product ${product.id})`,
-    { storeId: product.storeId },
-  );
+  systemLog({
+    action: 'bin-location-added',
+    component: LogComponent.INVENTORY,
+    severity: LogSeverity.INFO,
+    message: `bin location added: ${created.locationCode} (product ${product.id})`,
+    storeId: product.storeId,
+  });
 
   return Response.json(
     { success: true, data: created, message: 'Bin location added.' },

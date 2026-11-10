@@ -101,12 +101,13 @@ async function updateBinHandler(...args: unknown[]): Promise<Response> {
     select: { id: true, locationCode: true, isActive: true },
   });
 
-  systemLog(
-    LogSeverity.INFO,
-    LogComponent.INVENTORY,
-    `bin location updated: ${updated.locationCode} (product ${id})`,
-    { storeId: existing.storeId },
-  );
+  systemLog({
+    action: 'bin-location-updated',
+    component: LogComponent.INVENTORY,
+    severity: LogSeverity.INFO,
+    message: `bin location updated: ${updated.locationCode} (product ${id})`,
+    storeId: existing.storeId,
+  });
 
   return Response.json({ success: true, data: updated, message: 'Bin location updated.' });
 }
@@ -123,12 +124,13 @@ async function deleteBinHandler(...args: unknown[]): Promise<Response> {
 
   await db.binLocation.delete({ where: { id: existing.id } });
 
-  systemLog(
-    LogSeverity.INFO,
-    LogComponent.INVENTORY,
-    `bin location removed: ${existing.locationCode} (product ${id})`,
-    { storeId: existing.storeId },
-  );
+  systemLog({
+    action: 'bin-location-removed',
+    component: LogComponent.INVENTORY,
+    severity: LogSeverity.INFO,
+    message: `bin location removed: ${existing.locationCode} (product ${id})`,
+    storeId: existing.storeId,
+  });
 
   return Response.json({ success: true, message: 'Bin location removed.' });
 }
