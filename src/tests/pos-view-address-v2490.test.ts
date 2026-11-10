@@ -131,7 +131,7 @@ describe('the landed view wears the slate landing chip and the toggle wears its 
 describe('the constitution walks the forty-seventh word', () => {
   it('the row is the registry\u2019s own (the self-reference, read from the constitution file)', () => {
     expect(constitution.includes("{ word: 'pos-view', desk: 'src/app/(shell)/tabs/pos-tab.tsx', family: 'border-slate-300', suite: 'src/tests/pos-view-address-v2490.test.ts' }")).toBe(true);
-    expect(constitution.includes('(forty-eight words, thirty-two desks)')).toBe(true);
+    expect(constitution.includes('(forty-nine words, thirty-three desks)')).toBe(true);
     // the admission line carries the word it admits (the sorted place)
     expect(constitution.includes('msg- < pos- < pr-')).toBe(true);
   });
@@ -160,7 +160,7 @@ describe('whats-new — the round leads the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.491.0');
+    expect(pkg.version).toBe('2.492.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.490.0]')).toBeGreaterThan(-1);

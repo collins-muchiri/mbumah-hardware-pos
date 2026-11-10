@@ -324,7 +324,7 @@ describe('the address-bar vocabulary — the nineteenth row (cross-suite pins)',
   const constitution = readFileSync('src/tests/transfer-status-deep-link-v2357.test.ts', 'utf8');
 
   it('the constitution walks NINETEEN words over SEVENTEEN desks', () => {
-    expect(constitution.includes('(forty-eight words, thirty-two desks)')).toBe(true);
+    expect(constitution.includes('(forty-nine words, thirty-three desks)')).toBe(true);
     expect(constitution.includes("{ word: 'ad-severity', desk: 'src/app/(shell)/tabs/admin-tab.tsx', family: 'border-neutral-200', suite: 'src/tests/ad-severity-deep-link-v2366.test.ts' }")).toBe(true);
     expect(constitution.includes("'NINETEENTH'")).toBe(true);
   });
@@ -360,6 +360,15 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // admission line carries the word it admits (the LEDGER-CITATION
       // RIPPLE: a ledger is an honest speaker of every word it lists)
       'src/tests/ad-severity-deep-link-v2366.test.ts',
+      // the analytics' own ledger — admitted (its sorted-place pin names
+      // this word as the ledger's elder neighbor; an admission line
+      // carries the word it admits; sorted place: ad-severity < an-period < bank-mpesa)
+      'src/tests/an-period-address-v2492.test.ts',
+      // the younger neighbor's own ledger — admitted (its admission line
+      // for the analytics' suite cites this ledger's sorted place, and
+      // an admission line carries the word it admits — the LEDGER-CITATION
+      // RIPPLE's own law)
+      'src/tests/bank-mpesa-deep-link-v2388.test.ts',
       'src/tests/cat-stock-deep-link-v2364.test.ts',
       'src/tests/cr-type-deep-link-v2361.test.ts',
       'src/tests/cust-debt-deep-link-v2330.test.ts',

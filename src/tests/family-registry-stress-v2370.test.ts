@@ -73,7 +73,7 @@ function parseRegistry(): RegistryRow[] {
 const rows = parseRegistry();
 
 describe('the registry, parsed from the constitution file itself', () => {
-  it('parses FORTY-EIGHT rows (the constitution\u2019s own count, derived)', () => {
+  it('parses FORTY-NINE rows (the constitution\u2019s own count, derived)', () => {
     // v2.484.0 (dated): the window — the people desk's period rides the
     // address; the constitution grew its rows and this parse grew with
     // it (the family's FIRST non-tab desk joined).
@@ -101,7 +101,10 @@ describe('the registry, parsed from the constitution file itself', () => {
     // rides the address; the constitution grew its row and this parse
     // grew with it (the SEVENTH shell-tab desk, the desk's SECOND
     // word).
-    expect(rows.length).toBe(48);
+    // v2.492.0 (dated): the forty-ninth word — the analytics' period
+    // rides the address; the constitution grew its row and this parse
+    // grew with it (the family's FIRST component desk).
+    expect(rows.length).toBe(49);
   });
 
   it('the rows walk in the promise\u2019s order (the roll, derived from the parse)', () => {
@@ -171,6 +174,11 @@ describe('the registry, parsed from the constitution file itself', () => {
       // desk, the desk's SECOND word; born guarded — the family's ONE
       // reading from birth)
       'cat-view',
+      // v2.492.0 (dated): the analytics' own word — the dashboard's
+      // period lens rides the address (the family's FIRST component
+      // desk, the word living where the state lives; born guarded —
+      // the family's ONE reading from birth)
+      'an-period',
     ];
     expect(rows.map((r) => r.word)).toEqual(expected);
   });
@@ -203,7 +211,11 @@ describe('the registry, parsed from the constitution file itself', () => {
     // v2.491.0 (dated): thirty-two desks HOLD — the SEVENTH shell-tab
     // desk is the catalog's own SECOND word (a desk may own two — the
     // transactions and suppliers precedent; the census keeps its desks).
-    expect(new Set(rows.map((r) => r.desk)).size).toBe(32);
+    // v2.492.0 (dated): thirty-three desks — the analytics dashboard
+    // joins as the family's FIRST component desk (the word lives where
+    // the state lives; the registry now walks a component beside the
+    // shell tabs).
+    expect(new Set(rows.map((r) => r.desk)).size).toBe(33);
     // v2.484.0 (dated): blue-300 joined with the window's word — the
     // families grew one (37) while the words grew two (the SECOND
     // shared family: two words, one chip).
@@ -226,8 +238,12 @@ describe('the registry, parsed from the constitution file itself', () => {
     // v2.491.0 (dated): the families stay forty — the catalog's word
     // wears the family's shared slate (the slate serves four words:
     // the week's, the dashboard's, the counter's, the catalog's own).
+    // v2.492.0 (dated): the families stay forty — the analytics' word
+    // wears the family's shared slate (the slate serves five words:
+    // the week's, the dashboard's, the counter's, the catalog's, the
+    // analytics' own).
     expect(new Set(rows.map((r) => r.family)).size).toBe(40);
-    expect(constitution.includes('(forty-eight words, thirty-two desks)')).toBe(true);
+    expect(constitution.includes('(forty-nine words, thirty-three desks)')).toBe(true);
   });
 
   it('the promise roll through THIRTY-SECOND is present (the ordinals, derived from the home’s notes)', () => {

@@ -211,7 +211,7 @@ describe('the address-bar vocabulary — the thirty-third row (cross-suite pins)
     // v2.480.0 (dated): the constitution grew its thirty-fourth row (the
     // lens's own word rides the address) — the title's count rolls with
     // it; the rose row keeps its exact bytes.
-    expect(constitution.includes("(forty-eight words, thirty-two desks)")).toBe(true);
+    expect(constitution.includes("(forty-nine words, thirty-three desks)")).toBe(true);
     expect(constitution.includes("{ word: 'dead-window', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-rose-300', suite: 'src/tests/dead-window-deep-link-v2462.test.ts' }")).toBe(true);
   });
 
@@ -245,7 +245,10 @@ describe('the address-bar vocabulary — the thirty-third row (cross-suite pins)
     // v2.491.0 (dated): the living stress-pin rolls — the stress's
     // row count grew to forty-eight (the catalog's round); the
     // contains-pin rides the bytes that ARE.
-    expect(stress.includes('toBe(48)')).toBe(true);
+    // v2.492.0 (dated): the living stress-pin rolls — the stress's
+    // row count grew to forty-nine (the analytics' round); the
+    // contains-pin rides the bytes that ARE.
+    expect(stress.includes('toBe(49)')).toBe(true);
     expect(stress.includes("'dead-window',")).toBe(true);
     // the version stamp reads the v24NN generation too (the suite's own
     // stamp — v2462 — is the stress's first second-generation row)
@@ -281,7 +284,10 @@ describe('the address-bar vocabulary — the thirty-third row (cross-suite pins)
     // v2.491.0 (dated): the living loom-pin rolls — the loom's row
     // count grew to forty-eight (the catalog's round); the contains-pin
     // rides the bytes that ARE.
-    expect(loomSuite.includes('toBe(48)')).toBe(true);
+    // v2.492.0 (dated): the living loom-pin rolls — the loom's row
+    // count grew to forty-nine (the analytics' round); the contains-pin
+    // rides the bytes that ARE.
+    expect(loomSuite.includes('toBe(49)')).toBe(true);
   });
 });
 
@@ -334,7 +340,7 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
 describe('whats-new — v2.480.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.491.0');
+    expect(head.version).toBe('2.492.0');
     // the lead's story hand-over (v2.480.0, the Task 111 law's
     // eighty-sixth application): the head story is the hand-over's
     // voice — the carrying round: THE LENS'S WORD RIDES THE

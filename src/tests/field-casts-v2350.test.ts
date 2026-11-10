@@ -332,6 +332,6 @@ describe('v2.350.0 — the field-level casts census, phase 2: the wider class di
   });
 
   it('THE RELEASE SLOT IS HONEST: 2.350.0 shipped, 2.349.0 reserved for the gated audit PR', () => {
-    expect(read('VERSION').trim()).toBe('2.491.0');
+    expect(read('VERSION').trim()).toBe('2.492.0');
   });
 });

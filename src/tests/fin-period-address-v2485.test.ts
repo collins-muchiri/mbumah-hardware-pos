@@ -244,7 +244,7 @@ describe('the constitution — forty-three words, twenty-eight desks, the third 
     expect(registry.includes("{ word: 'fin-range', desk: 'src/app/(shell)/tabs/financial-tab.tsx', family: 'border-green-300', suite: 'src/tests/fin-period-address-v2485.test.ts' }")).toBe(true);
     expect(registry.includes("{ word: 'fin-from', desk: 'src/app/(shell)/tabs/financial-tab.tsx', family: 'border-green-300', suite: 'src/tests/fin-period-address-v2485.test.ts' }")).toBe(true);
     expect(registry.includes("{ word: 'fin-to', desk: 'src/app/(shell)/tabs/financial-tab.tsx', family: 'border-green-300', suite: 'src/tests/fin-period-address-v2485.test.ts' }")).toBe(true);
-    expect(registry.includes('(forty-eight words, thirty-two desks)')).toBe(true);
+    expect(registry.includes('(forty-nine words, thirty-three desks)')).toBe(true);
   });
 
   it('the stress walks the roll and the derived counts (40 \u2192 43, desks 27 \u2192 28, families 37 \u2192 38 — the THIRD shared family)', () => {
@@ -266,7 +266,10 @@ describe('the constitution — forty-three words, twenty-eight desks, the third 
     // v2.491.0 (dated): the living stress-pin rolls — the stress's
     // row count grew to forty-eight (the catalog's round); the
     // contains-pin rides the bytes that ARE.
-    expect(stress.includes('toBe(48)')).toBe(true);
+    // v2.492.0 (dated): the living stress-pin rolls — the stress's
+    // row count grew to forty-nine (the analytics' round); the
+    // contains-pin rides the bytes that ARE.
+    expect(stress.includes('toBe(49)')).toBe(true);
     // v2.486.0 (dated): the living desks-pin rolls — the desks grew
     // to twenty-nine (the THIRD shell-tab desk); the contains-pin
     // rides the bytes that ARE.
@@ -279,7 +282,11 @@ describe('the constitution — forty-three words, twenty-eight desks, the third 
     // v2.490.0 (dated): the living desks-pin rolls — the desks grew
     // to thirty-two (the SIXTH shell-tab desk); the contains-pin rides
     // the bytes that ARE.
-    expect(stress.includes('expect(new Set(rows.map((r) => r.desk)).size).toBe(32);')).toBe(true);
+    // v2.492.0 (dated): the living desk-pin rolls — the stress's desk
+    // census grew to thirty-three (the analytics dashboard joins as
+    // the family's FIRST component desk); the contains-pin rides
+    // the bytes that ARE.
+    expect(stress.includes('expect(new Set(rows.map((r) => r.desk)).size).toBe(33);')).toBe(true);
     // v2.486.0 (dated): the living family-pin rolls — the families
     // grew to thirty-nine (red-300 joined); the contains-pin rides
     // the bytes that ARE.
@@ -330,7 +337,7 @@ describe('whats-new — the round leads the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.491.0');
+    expect(pkg.version).toBe('2.492.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.485.0]')).toBeGreaterThan(-1);

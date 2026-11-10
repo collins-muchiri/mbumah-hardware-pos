@@ -114,7 +114,7 @@ describe('the twelfth byte — amber, the lens family\u2019s own tone', () => {
     // v2.481.0 (dated): the thirty-fifth word — the sort door's own word
     // rides the address; the count rolls with the constitution.
     expect(registry.includes("{ word: 'dead-q', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-amber-300', suite: 'src/tests/dead-stock-lens-address-v2480.test.ts' }")).toBe(true);
-    expect(registry.includes('(forty-eight words, thirty-two desks)')).toBe(true);
+    expect(registry.includes('(forty-nine words, thirty-three desks)')).toBe(true);
   });
 
   it('the stress walks the roll and the derived counts (36 \u2192 38)', () => {
@@ -142,7 +142,10 @@ describe('the twelfth byte — amber, the lens family\u2019s own tone', () => {
     // v2.491.0 (dated): the living stress-pin rolls — the stress's
     // row count grew to forty-eight (the catalog's round); the
     // contains-pin rides the bytes that ARE.
-    expect(stress.includes('toBe(48)')).toBe(true);
+    // v2.492.0 (dated): the living stress-pin rolls — the stress's
+    // row count grew to forty-nine (the analytics' round); the
+    // contains-pin rides the bytes that ARE.
+    expect(stress.includes('toBe(49)')).toBe(true);
     expect(stress.includes("      'dead-q',")).toBe(true);
   });
 
@@ -256,7 +259,7 @@ describe('whats-new — the round, pinned in the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.491.0');
+    expect(pkg.version).toBe('2.492.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.480.0]')).toBeGreaterThan(-1);

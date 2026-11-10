@@ -980,6 +980,43 @@ export const CAT_VIEW_MEMBERS = ['grid', 'list'] as const;
 export type CatViewMember = (typeof CAT_VIEW_MEMBERS)[number];
 
 /**
+ * AN_PERIOD_MEMBERS (v2.492.0) — the analytics desk's period members:
+ * the lens's OWN union ('today' | 'week' | 'month' | 'year'), lowercase,
+ * the period Select's own spellings (the AnalyticsPeriod type's own
+ * members, re-spoken as the ONE home's tuple). Lives here (the ONE
+ * home) so the desk, its deep-link word and the test suite speak one
+ * array — the same home CAT_VIEW_MEMBERS keeps for the catalog's view
+ * (the analytics desk reads the four words its lens has always spoken,
+ * through its OWN desk-prefixed key).
+ */
+export const AN_PERIOD_MEMBERS = ['today', 'week', 'month', 'year'] as const;
+
+export type AnPeriodMember = (typeof AN_PERIOD_MEMBERS)[number];
+
+/**
+ * v2.492.0 — THE FAMILY'S FORTY-NINTH WORD: the analytics' period rides
+ * the address. The analytics dashboard's period lens — the desk's first
+ * daily question, "how far does the ledger see?" — speaks its
+ * desk-prefixed `an-period` (collision-checked at round start: the byte
+ * appeared NOWHERE before this word), the lens's OWN spellings (`today`,
+ * `week`, `month` and `year`, read through the generic named-member
+ * parser; a made-up member or a wrong case is an unknown word, not a
+ * clever match). THE DEFAULT WEARS NO WORD: week is the address's
+ * silence — the key strips when the desk rests, and a landed word that
+ * names the default wears no chip. THE LANDING IS READ ONCE ON THE
+ * SHELL: a plain useState initializer — a dismissed chip can never
+ * resurrect (the family's FIRST component desk — the word lives where
+ * the state lives, in the dashboard the analytics tab wraps). THE LENS
+ * WRITES BACK THROUGH THE FAMILY'S ONE READING: the guarded door from
+ * birth — no turn, no write, and the hand's turn retires the word (the
+ * chip speaks the ADDRESS BAR's landing, never the human's next choice
+ * — the reading the v2.488.0 verse named for the whole family). The
+ * chip wears the family's shared slate — the slate now serves five
+ * words (the week's word, the dashboard's word, the counter's own, the
+ * catalog's own, and the analytics' own), the census holds.
+ */
+
+/**
  * v2.491.0 — THE FAMILY'S FORTY-EIGHTH WORD: the catalog's view rides
  * the address. The catalog desk's view toggle — the shop floor's daily
  * question, "how do I read the shelves?" — speaks its desk-prefixed
