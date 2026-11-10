@@ -1022,8 +1022,10 @@ export type AnPeriodMember = (typeof AN_PERIOD_MEMBERS)[number];
  * shape's SECOND wearer: `?pos-category=<slug>` (v2.494.0 — the
  * family's fifty-first word, the counter desk's SECOND word — the
  * counter's chip-row presses ride the same law, the door's shape
- * proven). The inventory's own category wire wears this same law when
- * its round comes.
+ * proven). The shape's THIRD wearer: `?inv-category=<slug>` (v2.495.0
+ * — the family's fifty-second word, the inventory desk's SECOND word
+ * — the stock rows' lens rides the same law, the law's shape held
+ * three desks deep).
  */
 export function categorySlug(name: string): string {
   return name
@@ -1045,6 +1047,30 @@ export function parseInitialNamedSlug(search: string, key: string): string | nul
     return null;
   }
 }
+
+/**
+ * v2.495.0 — THE FAMILY'S FIFTY-SECOND WORD: the inventory's category
+ * rides the address. The inventory desk's category lens — the stock
+ * rows' daily question, "which shelves do I count?" — speaks its
+ * desk-prefixed `inv-category` (collision-checked at round start: the
+ * byte appeared NOWHERE before this word), the lens's OWN rows read
+ * through the SLUG-SHAPE LAW (a made-up slug is an unknown word —
+ * silence, not a clever match). THE DEFAULT WEARS NO WORD: 'all' is
+ * the address's silence — the key strips when the desk rests, and a
+ * landed word that names the default wears no chip. THE LANDING IS
+ * READ ONCE ON THE SHELL: a plain useState initializer — a dismissed
+ * chip can never resurrect (the inventory desk's SECOND word — a desk
+ * may own many; the stock lens's v2.329 word is the desk's first).
+ * THE LENS WRITES BACK THROUGH THE FAMILY'S ONE READING: the guarded
+ * door from birth — no turn, no write, and the hand's turn retires
+ * the word (the chip speaks the ADDRESS BAR's landing, never the
+ * human's next choice — the reading the v2.488.0 verse named for the
+ * whole family). The chip wears the family's shared slate — the slate
+ * now serves eight words (the week's word, the dashboard's word, the
+ * counter's view, the catalog's view, the analytics' own, the
+ * catalog's category, the counter's category, and the inventory's
+ * category), the census holds.
+ */
 
 /**
  * v2.494.0 — THE FAMILY'S FIFTY-FIRST WORD: the counter's category

@@ -39,7 +39,7 @@ import { buildOrderHandoff, orderBlockSendWord, orderHandoffSupplier, orderSuppl
 import { STORE_LIST } from '@/lib/store-info';
 import { useSendPrompt } from '@/components/send-prompt-dialog';
 import { unitLabel } from '@/lib/units';
-import { parseInitialNamedMember } from '@/lib/tab-url';
+import { categorySlug, parseInitialNamedMember, parseInitialNamedSlug } from '@/lib/tab-url';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -262,6 +262,38 @@ function initialStockLens(): string {
   return parseInitialNamedMember(window.location.search, 'inv-stock', INV_STOCK_FILTERS, 'all');
 }
 
+// v2.495.0 THE INVENTORY'S CATEGORY WORD — the shelves answer the bar
+// by NAME. `?inv-category=<slug>` — the lens's OWN rows read through
+// the SLUG-SHAPE LAW (the ONE home's categorySlug + parseInitialNamedSlug;
+// the slug is derived from the ledger's name, never stored; a made-up
+// slug is an unknown word — silence, not a clever match; the slug is
+// NEVER case-gamed — the family's slugs are born lowercase). THE
+// DEFAULT WEARS NO WORD: 'all' is the address's silence. THE LANDING
+// IS READ ONCE ON THE SHELL: a plain useState initializer — a
+// dismissed chip can never resurrect (the inventory desk's SECOND
+// word, the SLUG-SHAPE LAW's third wearer — the catalog's wire led
+// the law, the counter's followed).
+function initialInvCategory(): string | null {
+  if (typeof window === 'undefined') return null;
+  return parseInitialNamedSlug(window.location.search, 'inv-category');
+}
+
+// The write half — the category's own replaceState (preserve the other
+// params: the shell's tab word and every other desk's word ride
+// along). THE DEFAULT WEARS NO WORD: 'all' strips its key. The slug is
+// resolved by the door before the write (the row's own name speaks).
+function writeInvCategorySlug(slug: string | null): void {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (!slug) params.delete('inv-category');
+    else params.set('inv-category', slug);
+    const qs = params.toString();
+    window.history.replaceState(null, '', window.location.pathname + (qs ? `?${qs}` : ''));
+  } catch {
+    // The address never lies louder than the stock rows
+  }
+}
+
 // THE ORDER LIST'S DOWNLOAD FACE (v2.415.0) — the copy face's sibling, the
 // support-file family's pattern (the health desk's DownloadDiagnostics
 // button): the same order bytes leave as a NAMED text file — the branch's
@@ -374,6 +406,11 @@ export default function InventoryTab() {
   const { ask: askRecipient, dialog: sendPromptDialog } = useSendPrompt();
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  // v2.495.0 THE INVENTORY'S CATEGORY WORD — the landing states (the raw
+  // slug until the rows land; the chip's own life; the resolved row id).
+  const [landedInvCategory, setLandedInvCategory] = useState<string | null>(initialInvCategory);
+  const [invCategoryLandingLive, setInvCategoryLandingLive] = useState(true);
+  const [landedInvCategoryId, setLandedInvCategoryId] = useState<string | null>(null);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // v2.6.0 PERF: scroll container for the virtualized products table.
   const productsScrollRef = useRef<HTMLDivElement | null>(null);
@@ -537,7 +574,7 @@ export default function InventoryTab() {
     }),
   });
 
-  const { data: categoriesData } = useQuery({
+  const { data: categoriesData, isLoading: categoriesLoading } = useQuery({
     queryKey: ['categories', currentStoreId],
     queryFn: () => categoriesApi.list(currentStoreId),
   });
@@ -662,7 +699,9 @@ export default function InventoryTab() {
     mutationFn: (id: string) => categoriesApi.remove(id),
     onSuccess: () => {
       toast.success('Category deleted');
-      setSelectedCategory('all');
+      // v2.495.0: the reset rides the one door — the deleted row's word
+      // strips from the address (the lens's own honesty).
+      chooseInvCategory('all');
       queryClient.invalidateQueries({ queryKey: ['categories', currentStoreId] });
     },
     onError: (err: unknown) => {
@@ -803,6 +842,34 @@ export default function InventoryTab() {
   }, [allProducts, stockFilter, sortField, sortDirection, supplierFilter]);
 
   const categories = Array.isArray(categoriesData?.data) ? categoriesData.data : [];
+  // v2.495.0 THE GUARDED DOOR — the family's ONE reading from birth:
+  // no turn, no write (a re-press of the standing member is not a
+  // turn), and the hand's turn retires the word — the chip speaks the
+  // ADDRESS BAR's landing, never the human's next choice. The Select,
+  // the All chip, the tribe's chips, the honest clear-all and the
+  // delete reset all ride this one door.
+  const chooseInvCategory = (next: string) => {
+    if (next === selectedCategory) return;
+    if (next !== landedInvCategoryId) setInvCategoryLandingLive(false);
+    setSelectedCategory(next);
+    const hit = next === 'all' ? undefined : categories.find((c) => c.id === next);
+    writeInvCategorySlug(hit ? categorySlug(hit.name) : null);
+  };
+  // v2.495.0 THE LANDING'S RESOLVE — the rows land from the ledger and
+  // the slug finds its row: a hit seeds the filter (the seed IS the
+  // address's landing, never a hand turn — no write, no retire), an
+  // unknown slug is silence (the landing retires, no chip). The resolve
+  // rides the render-adjust shape (the React law: a guarded derivation
+  // seeding state during render — no effect, no cascade).
+  if (landedInvCategory && !landedInvCategoryId && !categoriesLoading && categories.length > 0) {
+    const hit = categories.find((c) => categorySlug(c.name) === landedInvCategory);
+    if (hit) {
+      setLandedInvCategoryId(hit.id);
+      setSelectedCategory(hit.id);
+    } else {
+      setLandedInvCategory(null);
+    }
+  }
   const stockMovements = Array.isArray(stockMovementsData?.data) ? stockMovementsData.data : [];
   const productMovements = Array.isArray(productMovementsData?.data) ? productMovementsData.data : [];
 
@@ -1263,8 +1330,12 @@ export default function InventoryTab() {
             </button>
           )}
         </div>
-        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-          <SelectTrigger className="w-full sm:w-48"><SelectValue placeholder="All Categories" /></SelectTrigger>
+        {/* v2.495.0 THE LENS WRITES BACK — the Select rides the one door,
+            and the trigger wears the slate family's quiet ground while a
+            non-default shelf rides (the catalog lens's own dress law — the
+            resolved lens visible, easing as it arrives). */}
+        <Select value={selectedCategory} onValueChange={chooseInvCategory}>
+          <SelectTrigger className={`w-full sm:w-48 transition-colors ${selectedCategory !== 'all' ? 'bg-slate-100' : 'bg-background'}`}><SelectValue placeholder="All Categories" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
             {categories.map((c) => (
@@ -1357,6 +1428,20 @@ export default function InventoryTab() {
               setStockFilter('all');
               setLandingLive(false);
             }}
+          />
+        )}
+        {/* v2.495.0 THE CATEGORY'S LANDING CHIP — the landed category wears
+            the family's shared slate beside the stock lens's own amber (the
+            chip speaks the ADDRESS BAR's landing — resolved slugs only: THE
+            DEFAULT WEARS NO WORD, an unknown slug is silence), the dismissal
+            retires through the one door. */}
+        {invCategoryLandingLive && landedInvCategory && landedInvCategoryId && (
+          <LandingChip
+            hue="slate"
+            label={`landed ?inv-category=${landedInvCategory}`}
+            onDismiss={() => { setInvCategoryLandingLive(false); chooseInvCategory('all'); }}
+            title="The category landed with this word from the address bar — dismiss to rest the inventory's own shelves"
+            data-testid="inv-category-landing-word"
           />
         )}
         <Button
@@ -1535,10 +1620,12 @@ export default function InventoryTab() {
           the active chip's border speaks its color too (the POS
           tribe's borderColor precedent). */}
       {categories.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <div className={`flex flex-wrap gap-2 px-1 py-0.5 rounded-lg transition-colors ${
+          selectedCategory !== 'all' ? 'bg-slate-100' : 'bg-background'
+        }`}>
           <FilterChip
             active={selectedCategory === 'all'}
-            onClick={() => setSelectedCategory('all')}
+            onClick={() => chooseInvCategory('all')}
             className="inline-flex items-center gap-1.5"
           >
             All
@@ -1583,7 +1670,7 @@ export default function InventoryTab() {
             return (
               <button
                 key={c.id}
-                onClick={() => setSelectedCategory(c.id === selectedCategory ? 'all' : c.id)}
+                onClick={() => chooseInvCategory(c.id === selectedCategory ? 'all' : c.id)}
                 aria-pressed={selectedCategory === c.id}
                 className={`inline-flex items-center gap-1.5 ${CHIP_HEAD}${CHIP_RING_ZINC} ${
                   selectedCategory === c.id
@@ -1775,7 +1862,7 @@ export default function InventoryTab() {
                             </p>
                           </div>
                           {(searchQuery || stockFilter !== 'all' || selectedCategory !== 'all') ? (
-                            <Button variant="outline" size="sm" className="text-xs mt-1" onClick={() => { setSearchQuery(''); setStockFilter('all'); setSelectedCategory('all'); setLandingLive(false); }}>
+                            <Button variant="outline" size="sm" className="text-xs mt-1" onClick={() => { setSearchQuery(''); setStockFilter('all'); chooseInvCategory('all'); setLandingLive(false); }}>
                               Clear Filters
                             </Button>
                           ) : (

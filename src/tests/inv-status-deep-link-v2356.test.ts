@@ -242,6 +242,11 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/tests/et-status-deep-link-v2381.test.ts',
       'src/tests/family-registry-stress-v2370.test.ts',
       'src/tests/gc-status-deep-link-v2358.test.ts',
+      // the inventory's category word's own ledger — admitted (its header
+      // names the word's own sorted place beside this ledger's stem; an
+      // admission line carries the word it admits; sorted place:
+      // gc- < inv-category < inv-status)
+      'src/tests/inv-category-address-v2495.test.ts',
       'src/tests/inv-status-deep-link-v2356.test.ts',
       'src/tests/inv-stock-deep-link-v2329.test.ts',
       // the loom's own suite — admitted (v2.397.0: the elder loom pins
