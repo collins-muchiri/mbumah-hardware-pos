@@ -17,12 +17,44 @@ import {
 import { cn } from '@/lib/utils';
 import { formatKES } from '@/lib/api';
 import type { AnalyticsPeriod } from '@/lib/analytics-utils';
-
+import { AN_PERIOD_MEMBERS, parseInitialNamedMember } from '@/lib/tab-url';
+import { LandingChip } from '@/components/landing-chip';
 import { KpiGrid } from './kpi-grid';
 import { SalesTrendChart, type SalesTrendData } from './sales-trend-chart';
 import { TopProductsChart, type TopProductsData } from './top-products-chart';
 import { PaymentDonut, type PaymentBreakdownData } from './payment-donut';
 import { HourlyHeatmap, type HourlyHeatmapData } from './hourly-heatmap';
+
+// THE ANALYTICS DESK'S OWN WORD (v2.492.0) — the lens's period answers
+// the bar. `?an-period=<member>` — the period Select's OWN spellings
+// (the ONE home's AN_PERIOD_MEMBERS — the four members, lowercase, read
+// through the generic named-member parser; a made-up member or a wrong
+// case is an unknown word, not a clever match). THE DEFAULT WEARS NO
+// WORD: the resting period is `week` — the address's silence, the key
+// strips when the desk rests. THE LANDING IS READ ONCE ON THE SHELL: a
+// plain useState initializer — a dismissed chip can never resurrect
+// (the family's FIRST component desk — the word lives where the state
+// lives).
+function initialAnPeriod(): AnalyticsPeriod {
+  if (typeof window === 'undefined') return 'week';
+  return parseInitialNamedMember(window.location.search, 'an-period', [...AN_PERIOD_MEMBERS], 'week');
+}
+
+// The write half — the period's own replaceState (preserve the other
+// params: the shell's tab word and every other desk's word ride
+// along). THE DEFAULT WEARS NO WORD: week strips its key — the
+// address never carries the resting face's word.
+function writeAnPeriodWord(next: AnalyticsPeriod): void {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (next === 'week') params.delete('an-period');
+    else params.set('an-period', next);
+    const qs = params.toString();
+    window.history.replaceState(null, '', window.location.pathname + (qs ? `?${qs}` : ''));
+  } catch {
+    // The address never lies louder than the lens
+  }
+}
 
 // Authenticated fetch helper
 // Same pattern as dashboard-tab.tsx - pulls the JWT from localStorage and
@@ -87,9 +119,23 @@ interface AnalyticsDashboardProps {
 }
 
 export function AnalyticsDashboard({ storeId, className }: AnalyticsDashboardProps) {
-  const [period, setPeriod] = useState<AnalyticsPeriod>('week');
+  const [landedAnPeriod] = useState<AnalyticsPeriod>(initialAnPeriod);
+  const [anPeriodLandingLive, setAnPeriodLandingLive] = useState(true);
+  const [period, setPeriod] = useState<AnalyticsPeriod>(initialAnPeriod);
   const queryClient = useQueryClient();
   const [isRefreshing, setIsRefreshing] = useState(false);
+  // v2.492.0 THE GUARDED DOOR — the family's ONE reading from birth:
+  // no turn, no write (a re-press of the standing member is not a
+  // turn), and the hand's turn retires the word — the chip speaks the
+  // ADDRESS BAR's landing, never the human's next choice. The drill
+  // down's own period tabs ride this door too — one door, no side
+  // windows.
+  const choosePeriod = (next: AnalyticsPeriod) => {
+    if (next === period) return;
+    if (next !== landedAnPeriod) setAnPeriodLandingLive(false);
+    setPeriod(next);
+    writeAnPeriodWord(next);
+  };
 
   // KPIs (refreshable)
   const kpisQuery = useQuery({
@@ -193,6 +239,21 @@ export function AnalyticsDashboard({ storeId, className }: AnalyticsDashboardPro
 
   return (
     <div className={cn('space-y-4 sm:space-y-6', className)}>
+      {/* v2.492.0 THE LANDING CHIP — the landed period wears the family's
+          shared slate above the desk's own header row; the chip speaks
+          the ADDRESS BAR's landing (the triple condition — THE DEFAULT
+          WEARS NO WORD), the dismissal retires through the one door. */}
+      {anPeriodLandingLive && landedAnPeriod && landedAnPeriod !== 'week' && (
+        <div className="flex items-center">
+          <LandingChip
+            hue="slate"
+            label={`landed ?an-period=${landedAnPeriod}`}
+            onDismiss={() => { setAnPeriodLandingLive(false); choosePeriod('week'); }}
+            title="The period landed with this word from the address bar — dismiss to rest the analytics desk's own lens"
+            data-testid="an-period-landing-word"
+          />
+        </div>
+      )}
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -6 }}
@@ -220,8 +281,13 @@ export function AnalyticsDashboard({ storeId, className }: AnalyticsDashboardPro
             <Calendar className="h-3.5 w-3.5" />
             <span>Period:</span>
           </div>
-          <Select value={period} onValueChange={(v) => setPeriod(v as AnalyticsPeriod)}>
-            <SelectTrigger className="h-8 w-[140px] text-xs">
+          <Select value={period} onValueChange={(v) => choosePeriod(v as AnalyticsPeriod)}>
+            <SelectTrigger
+              className={cn(
+                'h-8 w-[140px] text-xs transition-colors',
+                period !== 'week' ? 'bg-slate-100' : 'bg-background',
+              )}
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -267,7 +333,7 @@ export function AnalyticsDashboard({ storeId, className }: AnalyticsDashboardPro
           data={trendQuery.data ?? null}
           loading={trendQuery.isLoading}
           period={period}
-          onPeriodChange={setPeriod}
+          onPeriodChange={choosePeriod}
           className="xl:col-span-2"
         />
         <PaymentDonut

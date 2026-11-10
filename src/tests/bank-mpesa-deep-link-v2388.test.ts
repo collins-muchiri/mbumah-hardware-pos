@@ -210,6 +210,15 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       'src/app/(shell)/tabs/banking-tab.tsx',
       'src/lib/tab-url.ts',
       'src/lib/whats-new.ts',
+      // the elder neighbor's own ledger — admitted (its admission line
+      // for the analytics' suite cites this ledger's sorted place, and
+      // an admission line carries the word it admits — the LEDGER-CITATION
+      // RIPPLE's own law)
+      'src/tests/ad-severity-deep-link-v2366.test.ts',
+      // the analytics' own ledger — admitted (its sorted-place pin names
+      // this word as the ledger's younger neighbor; an admission line
+      // carries the word it admits; sorted place: ad-severity < an-period < bank-mpesa)
+      'src/tests/an-period-address-v2492.test.ts',
       // this suite (the word's own ledger — an honest speaker)
       'src/tests/bank-mpesa-deep-link-v2388.test.ts',
       // the desk's FIRST word's ledger admits this suite (this suite
@@ -265,7 +274,7 @@ describe('the address-bar vocabulary — the twenty-seventh row (cross-suite pin
   const constitution = readFileSync('src/tests/transfer-status-deep-link-v2357.test.ts', 'utf8');
 
   it('the constitution walks TWENTY-EIGHT words over TWENTY-FOUR desks (a new desk speaks)', () => {
-    expect(constitution.includes('(forty-eight words, thirty-two desks)')).toBe(true);
+    expect(constitution.includes('(forty-nine words, thirty-three desks)')).toBe(true);
     expect(constitution.includes("{ word: 'bank-mpesa', desk: 'src/app/(shell)/tabs/banking-tab.tsx', family: 'border-purple-300', suite: 'src/tests/bank-mpesa-deep-link-v2388.test.ts' }")).toBe(true);
     expect(constitution.includes("'TWENTY-SEVENTH'")).toBe(true);
   });
@@ -278,7 +287,7 @@ describe('the address-bar vocabulary — the twenty-seventh row (cross-suite pin
 describe('whats-new — v2.480.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.491.0');
+    expect(head.version).toBe('2.492.0');
     // the lead's story hand-over (v2.480.0, the Task 111 law's
     // eighty-sixth application): the head story is the hand-over's
     // voice — the carrying round: THE LENS'S WORD RIDES THE

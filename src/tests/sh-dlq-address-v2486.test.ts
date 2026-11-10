@@ -251,7 +251,7 @@ describe('the seats — the round moves the queue\u2019s word, the desk\u2019s e
 describe('the constitution — forty-four words, twenty-nine desks', () => {
   it('the queue\u2019s row joined (the health desk\u2019s red serves it)', () => {
     expect(registry.includes("{ word: 'sh-dlq', desk: 'src/app/(shell)/tabs/system-health-tab.tsx', family: 'border-red-300', suite: 'src/tests/sh-dlq-address-v2486.test.ts' }")).toBe(true);
-    expect(registry.includes('(forty-eight words, thirty-two desks)')).toBe(true);
+    expect(registry.includes('(forty-nine words, thirty-three desks)')).toBe(true);
   });
 
   it('the stress walks the roll and the derived counts (43 \u2192 44, desks 28 \u2192 29, families 38 \u2192 39 — red-300 joined, no shared family)', () => {
@@ -268,7 +268,10 @@ describe('the constitution — forty-four words, twenty-nine desks', () => {
     // v2.491.0 (dated): the living stress-pin rolls — the stress's
     // row count grew to forty-eight (the catalog's round); the
     // contains-pin rides the bytes that ARE.
-    expect(stress.includes('toBe(48)')).toBe(true);
+    // v2.492.0 (dated): the living stress-pin rolls — the stress's
+    // row count grew to forty-nine (the analytics' round); the
+    // contains-pin rides the bytes that ARE.
+    expect(stress.includes('toBe(49)')).toBe(true);
     // v2.487.0 (dated): the living desks-pin rolls — the desks grew
     // to thirty (the FOURTH shell-tab desk); the contains-pin rides
     // the bytes that ARE.
@@ -278,7 +281,11 @@ describe('the constitution — forty-four words, twenty-nine desks', () => {
     // v2.490.0 (dated): the living desks-pin rolls — the desks grew
     // to thirty-two (the SIXTH shell-tab desk); the contains-pin rides
     // the bytes that ARE.
-    expect(stress.includes('expect(new Set(rows.map((r) => r.desk)).size).toBe(32);')).toBe(true);
+    // v2.492.0 (dated): the living desk-pin rolls — the stress's desk
+    // census grew to thirty-three (the analytics dashboard joins as
+    // the family's FIRST component desk); the contains-pin rides
+    // the bytes that ARE.
+    expect(stress.includes('expect(new Set(rows.map((r) => r.desk)).size).toBe(33);')).toBe(true);
     // v2.487.0 (dated): the living family-pin rolls — the families
     // grew to forty (slate-300 joined); the contains-pin rides
     // the bytes that ARE.
@@ -320,7 +327,7 @@ describe('whats-new — the round leads the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.491.0');
+    expect(pkg.version).toBe('2.492.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.486.0]')).toBeGreaterThan(-1);
