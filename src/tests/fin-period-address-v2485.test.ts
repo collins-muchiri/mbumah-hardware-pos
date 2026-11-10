@@ -139,7 +139,9 @@ describe('the sixteenth byte — green, the ledger\u2019s own tone', () => {
     // hue count grew to seventeen (the queue's red).
     // v2.487.0 (dated): the living registry pin rolls — the loom's
     // hue count grew to eighteen (the shift's slate).
-    expect(LANDING_CHIP_HUES.length).toBe(18);
+    // v2.496.0 (dated): the living registry pin rolls — the loom's
+    // hue count grew to nineteen (the ledger's zinc).
+    expect(LANDING_CHIP_HUES.length).toBe(19);
     expect(LANDING_CHIP_WARDROBES.green).toContain('hover:bg-green-200');
   });
 
@@ -244,7 +246,7 @@ describe('the constitution — forty-three words, twenty-eight desks, the third 
     expect(registry.includes("{ word: 'fin-range', desk: 'src/app/(shell)/tabs/financial-tab.tsx', family: 'border-green-300', suite: 'src/tests/fin-period-address-v2485.test.ts' }")).toBe(true);
     expect(registry.includes("{ word: 'fin-from', desk: 'src/app/(shell)/tabs/financial-tab.tsx', family: 'border-green-300', suite: 'src/tests/fin-period-address-v2485.test.ts' }")).toBe(true);
     expect(registry.includes("{ word: 'fin-to', desk: 'src/app/(shell)/tabs/financial-tab.tsx', family: 'border-green-300', suite: 'src/tests/fin-period-address-v2485.test.ts' }")).toBe(true);
-    expect(registry.includes('(fifty-two words, thirty-three desks)')).toBe(true);
+    expect(registry.includes('(fifty-three words, thirty-three desks)')).toBe(true);
   });
 
   it('the stress walks the roll and the derived counts (40 \u2192 43, desks 27 \u2192 28, families 37 \u2192 38 — the THIRD shared family)', () => {
@@ -278,7 +280,10 @@ describe('the constitution — forty-three words, twenty-eight desks, the third 
     // v2.495.0 (dated): the living stress-pin rolls — the stress's
     // row count grew to fifty-two (the inventory's category round); the
     // contains-pin rides the bytes that ARE.
-    expect(stress.includes('toBe(52)')).toBe(true);
+    // v2.496.0 (dated): the living stress-pin rolls — the stress's
+    // row count grew to fifty-three (the ledger's order round); the
+    // contains-pin rides the bytes that ARE.
+    expect(stress.includes('toBe(53)')).toBe(true);
     // v2.486.0 (dated): the living desks-pin rolls — the desks grew
     // to twenty-nine (the THIRD shell-tab desk); the contains-pin
     // rides the bytes that ARE.
@@ -302,7 +307,10 @@ describe('the constitution — forty-three words, twenty-eight desks, the third 
     // v2.487.0 (dated): the living family-pin rolls — the families
     // grew to forty (slate-300 joined); the contains-pin rides
     // the bytes that ARE.
-    expect(stress.includes('expect(new Set(rows.map((r) => r.family)).size).toBe(40);')).toBe(true);
+    // v2.496.0 (dated): the living family-pin rolls — the families
+    // grew to forty-one (zinc-300 joined); the contains-pin rides
+    // the bytes that ARE.
+    expect(stress.includes('expect(new Set(rows.map((r) => r.family)).size).toBe(41);')).toBe(true);
     // the THIRD shared family: the pair rides the period's green —
     // three words, one chip
     expect(stress.includes("'fin-from': 'fin-range'")).toBe(true);
@@ -346,7 +354,7 @@ describe('whats-new — the round leads the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.495.0');
+    expect(pkg.version).toBe('2.496.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.485.0]')).toBeGreaterThan(-1);

@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { ShoppingBag, Search, Download, ChevronDown, ChevronUp, CalendarDays, TrendingUp, Hash, CreditCard, Smartphone, Banknote, Wallet, Filter, FileText, RotateCcw, Ban, Eye, Printer, AlertTriangle, Receipt, X, MessageCircle, Mail, Send, Loader2, MessageSquare, PackageOpen, ShieldAlert, CheckCircle2, Sparkles, HandCoins } from 'lucide-react';
+import { ArrowDown, ArrowUp, ChevronsUpDown, ShoppingBag, Search, Download, ChevronDown, ChevronUp, CalendarDays, TrendingUp, Hash, CreditCard, Smartphone, Banknote, Wallet, Filter, FileText, RotateCcw, Ban, Eye, Printer, AlertTriangle, Receipt, X, MessageCircle, Mail, Send, Loader2, MessageSquare, PackageOpen, ShieldAlert, CheckCircle2, Sparkles, HandCoins } from 'lucide-react';
 
 import { transactionsApi, whatsappApi, formatKES, formatDateTime, type ApiResponse, type TransactionItem, type SaleItemDetail, type ReceiptDistributionResult, type RefundableLine, type RefundableLinesResult, type RefundResult, type RefundRowState } from '@/lib/api';
 import { composeDailyRevenueVoice } from '@/lib/report-voices';
@@ -1585,6 +1585,53 @@ function initialTxnType(): (typeof TXN_TYPE_FILTERS)[number] {
   return parseInitialNamedMember(window.location.search, 'txn-type', TXN_TYPE_FILTERS, 'all');
 }
 
+// v2.496.0 THE SORT'S OWN WORD — the transactions desk's THIRD word: the
+// ledger's order answers the address bar. The desk's daily question, "in
+// which order am I reading the rows?", speaks its desk-prefixed
+// `?txn-sort=newest|oldest|total-desc|total-asc` — the ONE home's OWN
+// orders (the tuple this file keeps and exports; read as words through
+// the generic parser — a made-up order is an unknown word, not a clever
+// match). THE DEFAULT WEARS NO WORD: 'newest' is the wire's own standing
+// order — the address's silence; the key strips when the desk rests. THE
+// LANDING IS READ ONCE ON THE SHELL: a plain useState initializer — a
+// dismissed chip can never resurrect (the desk's THIRD word after the
+// payment lens's v2.333 word and the type lens's v2.354 word). THE ORDER
+// WRITES BACK THROUGH THE FAMILY'S ONE READING: the guarded door from
+// birth — no turn, no write, and the hand's turn retires the word (the
+// chip speaks the ADDRESS BAR's landing, never the human's next choice
+// — the reading the v2.488.0 verse named for the whole family). The
+// Date head, the Total head and the chip's own dismissal ride the one
+// door. Collision-checked at round start: the `txn-sort` byte appeared
+// NOWHERE in src/ before this word (the desk's census testids say
+// `txn-type-*`, the payment word says `txn-pay` — another string,
+// another lens, never the address bar).
+export const TXN_SORTS = ['newest', 'oldest', 'total-desc', 'total-asc'] as const;
+
+export type TxnSort = (typeof TXN_SORTS)[number];
+
+function initialTxnSort(): TxnSort {
+  if (typeof window === 'undefined') return 'newest';
+  return parseInitialNamedMember(window.location.search, 'txn-sort', TXN_SORTS, 'newest');
+}
+
+// The write half — the order's own replaceState (preserve the other
+// params: the shell's tab word, txn-pay, txn-type and every other
+// desk's word ride untouched). THE DEFAULT WEARS NO WORD: 'newest'
+// strips its key — the address never carries the wire's standing
+// order. A blocked write is the order's silence, never a thrown desk.
+function writeTxnSortWord(value: TxnSort): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (value === 'newest') params.delete('txn-sort');
+    else params.set('txn-sort', value);
+    const qs = params.toString();
+    window.history.replaceState(null, '', window.location.pathname + (qs ? `?${qs}` : ''));
+  } catch {
+    // The address never lies louder than the rows' order
+  }
+}
+
 export default function TransactionsTab() {
   const currentStoreId = useAppStore((s) => s.currentStoreId);
   const [searchQuery, setSearchQuery] = useState('');
@@ -1624,6 +1671,27 @@ export default function TransactionsTab() {
   const chooseTxnType = (value: 'all' | TransactionType) => {
     setTypeFilter(value);
     setTxnTypeLandingLive(false);
+  };
+
+  // v2.496.0 THE SORT'S WORD — the ledger's order rides the address.
+  // The landing is read once on the shell (the useState initializer
+  // law); a hand-driven head turn afterwards is the human's truth.
+  const [txnSort, setTxnSort] = useState<TxnSort>(initialTxnSort);
+  const [landedTxnSort] = useState<TxnSort>(initialTxnSort);
+  const [txnSortLandingLive, setTxnSortLandingLive] = useState(true);
+  // v2.496.0 THE GUARDED DOOR — the family's ONE reading from birth:
+  // no turn, no write (a re-press of the standing order is not a turn),
+  // and the hand's turn retires the word — the chip speaks the ADDRESS
+  // BAR's landing, never the human's next choice. The Date head's own
+  // cycle rests a foreign order onto the date lens's default face
+  // first (from a total order the Date press lands 'newest', the wire's
+  // standing order, and the second press flips to 'oldest' — a press
+  // never straddles two columns at once).
+  const chooseTxnSort = (next: TxnSort) => {
+    if (next === txnSort) return;
+    if (next !== landedTxnSort) setTxnSortLandingLive(false);
+    setTxnSort(next);
+    writeTxnSortWord(next);
   };
   const [amountFilterMin, setAmountFilterMin] = useState('');
   const [amountFilterMax, setAmountFilterMax] = useState('');
@@ -1891,8 +1959,25 @@ export default function TransactionsTab() {
     if (amountFilterMax) {
       result = result.filter((t) => t.totalAmount <= Number(amountFilterMax));
     }
+    // v2.496.0 THE SORT'S WIRES: 'newest' is the wire's own standing
+    // order (no re-ordering work — the default wears no word and does
+    // no work); the three non-default orders sort the lensed rows
+    // honestly (oldest by the row's own timestamp, the totals by the
+    // row's own figure — never a display-string compare, the
+    // lexico-numeric bait the invoice fixtures set stays honest).
+    if (txnSort !== 'newest') {
+      const rows = [...result];
+      if (txnSort === 'oldest') {
+        rows.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+      } else if (txnSort === 'total-desc') {
+        rows.sort((a, b) => b.totalAmount - a.totalAmount);
+      } else {
+        rows.sort((a, b) => a.totalAmount - b.totalAmount);
+      }
+      result = rows;
+    }
     return result;
-  }, [lensedRows, transactions, debouncedSearch, typeFilter, amountFilterMin, amountFilterMax]);
+  }, [lensedRows, transactions, debouncedSearch, typeFilter, amountFilterMin, amountFilterMax, txnSort]);
 
   // Summary stats
   const summaryStats = useMemo(() => {
@@ -2336,6 +2421,36 @@ export default function TransactionsTab() {
             </FilterChip>
           </div>
 
+          {/* v2.496.0 THE SORT'S OWN ROW — the landing word chip (a link
+              that landed the ledger pre-ordered wears a chip naming the
+              word it answered, ?txn-sort=…), styled in the family's
+              twenty-third 300-storey byte: ZINC at 300/100 — the debt
+              desk's chip hue at the 200/50 storey (the repayment plan's
+              own family) speaking through a storey it never spoke — the
+              shade-split law's next form; zinc LEFT the stranger list
+              (the exact zinc 300-trio census was machine-kept: no src
+              file wore the trio before the registry grew the line).
+              THE DEFAULT WEARS NO WORD: the wire's standing order lands
+              no chip (the empty-wears-no-chip law's own reading). The
+              chip retires through the one door — a hand-driven head turn
+              or the chip's own dismissal (which rests the order through
+              the same door, stripping the key from the address). */}
+          {txnSortLandingLive && landedTxnSort !== 'newest' && txnSort === landedTxnSort && (
+            <div className="flex flex-wrap items-center gap-2">
+              <ChevronsUpDown className="h-4 w-4 text-muted-foreground shrink-0" aria-hidden="true" />
+              <LandingChip
+                hue="zinc"
+                data-testid="txn-sort-landing-word"
+                title="The ledger landed with this order from the address bar — press to rest it"
+                label={`landed ?txn-sort=${landedTxnSort}`}
+                onDismiss={() => {
+                  setTxnSortLandingLive(false);
+                  chooseTxnSort('newest');
+                }}
+              />
+            </div>
+          )}
+
           {/* Amount range filter */}
           {showAmountFilter && (
             <div className="flex items-center gap-2 pl-6">
@@ -2422,10 +2537,56 @@ export default function TransactionsTab() {
                   <TableRow>
                     <TableHead className="text-xs">Receipt #</TableHead>
                     <TableHead className="text-xs">Type</TableHead>
-                    <TableHead className="text-xs">Date</TableHead>
+                    {/* v2.496.0 THE SORT'S DATE FACE — the head is the
+                        hand: a press turns the date order (newest↔oldest;
+                        from a total order the press rests onto the date
+                        lens's default face first), the active order
+                        lights its column (the dead-sort head's own
+                        dress — the shared muted token, never a second
+                        palette, the move riding transition-colors), and
+                        the honest aria-sort names the reading. */}
+                    <TableHead className={`text-xs transition-colors ${txnSort === 'newest' || txnSort === 'oldest' ? 'bg-muted/50' : ''}`} aria-sort={txnSort === 'newest' ? 'descending' : txnSort === 'oldest' ? 'ascending' : undefined}>
+                      <button
+                        type="button"
+                        data-testid="txn-sort-date"
+                        aria-label="Sort the ledger by date, newest first — press again for oldest first"
+                        title="Sort the ledger by date, newest first — press again for oldest first"
+                        onClick={() => chooseTxnSort(txnSort === 'newest' ? 'oldest' : 'newest')}
+                        className={`inline-flex items-center gap-1 transition-colors ${txnSort === 'newest' || txnSort === 'oldest' ? 'font-semibold text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                      >
+                        Date
+                        {txnSort === 'newest'
+                          ? <ArrowDown className="h-3 w-3" aria-hidden="true" />
+                          : txnSort === 'oldest'
+                            ? <ArrowUp className="h-3 w-3" aria-hidden="true" />
+                            : <ChevronsUpDown className="h-3 w-3 opacity-60" aria-hidden="true" />}
+                      </button>
+                    </TableHead>
                     <TableHead className="text-xs">Customer</TableHead>
                     <TableHead className="text-xs text-center">Items</TableHead>
-                    <TableHead className="text-xs text-right">Total</TableHead>
+                    {/* v2.496.0 THE SORT'S TOTAL FACE — the second hand:
+                        a press turns the totals order (biggest↔smallest;
+                        from a date order the press rests onto the totals
+                        lens's default face first), the dress and the
+                        honest aria-sort ride the same shape as the Date
+                        head — two hands, one door. */}
+                    <TableHead className={`text-xs text-right transition-colors ${txnSort === 'total-desc' || txnSort === 'total-asc' ? 'bg-muted/50' : ''}`} aria-sort={txnSort === 'total-desc' ? 'descending' : txnSort === 'total-asc' ? 'ascending' : undefined}>
+                      <button
+                        type="button"
+                        data-testid="txn-sort-total"
+                        aria-label="Sort the ledger by total, the loudest figure first — press again for the smallest first"
+                        title="Sort the ledger by total, the loudest figure first — press again for the smallest first"
+                        onClick={() => chooseTxnSort(txnSort === 'total-desc' ? 'total-asc' : 'total-desc')}
+                        className={`inline-flex items-center gap-1 transition-colors ${txnSort === 'total-desc' || txnSort === 'total-asc' ? 'font-semibold text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                      >
+                        Total
+                        {txnSort === 'total-desc'
+                          ? <ArrowDown className="h-3 w-3" aria-hidden="true" />
+                          : txnSort === 'total-asc'
+                            ? <ArrowUp className="h-3 w-3" aria-hidden="true" />
+                            : <ChevronsUpDown className="h-3 w-3 opacity-60" aria-hidden="true" />}
+                      </button>
+                    </TableHead>
                     <TableHead className="text-xs">Payment</TableHead>
                     <TableHead className="text-xs">Status</TableHead>
                   </TableRow>
