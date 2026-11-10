@@ -251,7 +251,7 @@ describe('the seats — the round moves the queue\u2019s word, the desk\u2019s e
 describe('the constitution — forty-four words, twenty-nine desks', () => {
   it('the queue\u2019s row joined (the health desk\u2019s red serves it)', () => {
     expect(registry.includes("{ word: 'sh-dlq', desk: 'src/app/(shell)/tabs/system-health-tab.tsx', family: 'border-red-300', suite: 'src/tests/sh-dlq-address-v2486.test.ts' }")).toBe(true);
-    expect(registry.includes('(fifty words, thirty-three desks)')).toBe(true);
+    expect(registry.includes('(fifty-one words, thirty-three desks)')).toBe(true);
   });
 
   it('the stress walks the roll and the derived counts (43 \u2192 44, desks 28 \u2192 29, families 38 \u2192 39 — red-300 joined, no shared family)', () => {
@@ -274,7 +274,10 @@ describe('the constitution — forty-four words, twenty-nine desks', () => {
     // v2.493.0 (dated): the living stress-pin rolls — the stress's
     // row count grew to fifty (the catalog's category round); the
     // contains-pin rides the bytes that ARE.
-    expect(stress.includes('toBe(50)')).toBe(true);
+    // v2.494.0 (dated): the living stress-pin rolls — the stress's
+    // row count grew to fifty-one (the counter's category round); the
+    // contains-pin rides the bytes that ARE.
+    expect(stress.includes('toBe(51)')).toBe(true);
     // v2.487.0 (dated): the living desks-pin rolls — the desks grew
     // to thirty (the FOURTH shell-tab desk); the contains-pin rides
     // the bytes that ARE.
@@ -330,7 +333,7 @@ describe('whats-new — the round leads the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.493.0');
+    expect(pkg.version).toBe('2.494.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.486.0]')).toBeGreaterThan(-1);

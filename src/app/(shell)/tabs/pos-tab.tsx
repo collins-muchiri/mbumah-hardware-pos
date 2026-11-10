@@ -12,7 +12,7 @@ import { useAuthStore, useCartStore, useAppStore } from '@/lib/stores';
 import { useVatRate } from '@/hooks/use-vat-rate';
 import { safeMap } from '@/lib/app-config';
 import { STORE_LIST } from '@/lib/store-info';
-import { POS_VIEW_MEMBERS, parseInitialNamedMember } from '@/lib/tab-url';
+import { POS_VIEW_MEMBERS, parseInitialNamedMember, categorySlug, parseInitialNamedSlug } from '@/lib/tab-url';
 import { LandingChip } from '@/components/landing-chip';
 import { ConfettiOverlay } from '@/components/confetti-overlay';
 import { ProductImage } from '@/components/product-image';
@@ -168,6 +168,37 @@ function writePosViewWord(view: 'grid' | 'list'): void {
   }
 }
 
+// THE COUNTER'S CATEGORY WORD (v2.494.0) — the shelves answer the bar
+// by NAME. `?pos-category=<slug>` — the lens's OWN rows read through
+// the SLUG-SHAPE LAW (the ONE home's categorySlug + parseInitialNamedSlug;
+// the slug is derived from the ledger's name, never stored; a made-up
+// slug is an unknown word — silence, not a clever match; the slug is
+// NEVER case-gamed — the family's slugs are born lowercase). THE
+// DEFAULT WEARS NO WORD: 'all' is the address's silence. THE LANDING
+// IS READ ONCE ON THE SHELL: a plain useState initializer — a
+// dismissed chip can never resurrect (the counter desk's SECOND word,
+// the SLUG-SHAPE LAW's second wearer — the catalog's wire led the law).
+function initialPosCategory(): string | null {
+  if (typeof window === 'undefined') return null;
+  return parseInitialNamedSlug(window.location.search, 'pos-category');
+}
+
+// The write half — the category's own replaceState (preserve the other
+// params: the shell's tab word and every other desk's word ride
+// along). THE DEFAULT WEARS NO WORD: 'all' strips its key. The slug is
+// resolved by the door before the write (the row's own name speaks).
+function writePosCategorySlug(slug: string | null): void {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (!slug) params.delete('pos-category');
+    else params.set('pos-category', slug);
+    const qs = params.toString();
+    window.history.replaceState(null, '', window.location.pathname + (qs ? `?${qs}` : ''));
+  } catch {
+    // The address never lies louder than the shelves
+  }
+}
+
 export default function POSTab() {
   // AUDIT FIX (Task 3-e): search input value is decoupled from the query that
   // drives the products fetch/grid. searchInput updates instantly (keeps typing
@@ -177,6 +208,11 @@ export default function POSTab() {
   const [searchQuery, setSearchQuery] = useState('');
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  // v2.494.0 THE COUNTER'S CATEGORY WORD — the landing states (the raw
+  // slug until the rows land; the chip's own life; the resolved row id).
+  const [landedPosCategory, setLandedPosCategory] = useState<string | null>(initialPosCategory);
+  const [posCategoryLandingLive, setPosCategoryLandingLive] = useState(true);
+  const [landedPosCategoryId, setLandedPosCategoryId] = useState<string | null>(null);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [mpesaPhone, setMpesaPhone] = useState('');
   const [mpesaStatus, setMpesaStatus] = useState<'idle' | 'processing' | 'success' | 'failed'>('idle');
@@ -473,7 +509,7 @@ export default function POSTab() {
     },
   });
 
-  const { data: categoriesData } = useQuery({
+  const { data: categoriesData, isLoading: categoriesLoading } = useQuery({
     queryKey: ['categories', currentStoreId],
     queryFn: async () => {
       const res = await categoriesApi.list(currentStoreId);
@@ -1005,6 +1041,33 @@ export default function POSTab() {
 
   const products = Array.isArray(productsData?.data) ? productsData.data : [];
   const categories = Array.isArray(categoriesData?.data) ? categoriesData.data : [];
+  // v2.494.0 THE GUARDED DOOR — the family's ONE reading from birth:
+  // no turn, no write (a re-press of the standing shelf is not a
+  // turn), and the hand's turn retires the word — the chip speaks the
+  // ADDRESS BAR's landing, never the human's next choice. The chip
+  // row's presses and the landing chip's dismissal ride this one door.
+  const choosePosCategory = (next: string) => {
+    if (next === selectedCategory) return;
+    if (next !== landedPosCategoryId) setPosCategoryLandingLive(false);
+    setSelectedCategory(next);
+    const hit = next === 'all' ? undefined : categories.find((c) => c.id === next);
+    writePosCategorySlug(hit ? categorySlug(hit.name) : null);
+  };
+  // v2.494.0 THE LANDING'S RESOLVE — the rows land from the ledger and
+  // the slug finds its row: a hit seeds the filter (the seed IS the
+  // address's landing, never a hand turn — no write, no retire), an
+  // unknown slug is silence (the landing retires, no chip). The resolve
+  // rides the render-adjust shape (the React law: a guarded derivation
+  // seeding state during render — no effect, no cascade).
+  if (landedPosCategory && !landedPosCategoryId && !categoriesLoading && categories.length > 0) {
+    const hit = categories.find((c) => categorySlug(c.name) === landedPosCategory);
+    if (hit) {
+      setLandedPosCategoryId(hit.id);
+      setSelectedCategory(hit.id);
+    } else {
+      setLandedPosCategory(null);
+    }
+  }
   const customers = Array.isArray(customersData?.data) ? customersData.data : [];
   const customerGiftCards: GiftCardItem[] = Array.isArray(customerGiftCardsData?.data) ? customerGiftCardsData.data : [];
   const customerVouchers: VoucherItem[] = Array.isArray(customerVouchersData?.data) ? customerVouchersData.data : [];
@@ -1690,6 +1753,22 @@ export default function POSTab() {
               />
             </div>
           )}
+          {/* v2.494.0 THE LANDING CHIP — the landed category wears the family's
+              shared slate beside the view's own (the chip speaks the ADDRESS
+              BAR's landing — resolved slugs only: THE DEFAULT WEARS NO WORD,
+              an unknown slug is silence), the dismissal retires through the
+              one door. */}
+          {posCategoryLandingLive && landedPosCategory && landedPosCategoryId && (
+            <div className="flex items-center">
+              <LandingChip
+                hue="slate"
+                label={`landed ?pos-category=${landedPosCategory}`}
+                onDismiss={() => { setPosCategoryLandingLive(false); choosePosCategory('all'); }}
+                title="The category landed with this word from the address bar — dismiss to rest the counter's own shelves"
+                data-testid="pos-category-landing-word"
+              />
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <div className="relative flex-1 animate-pulse-search rounded-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -1763,7 +1842,7 @@ export default function POSTab() {
           <CategoryChips
             categories={categories}
             selected={selectedCategory}
-            onSelect={setSelectedCategory}
+            onSelect={choosePosCategory}
             productCounts={categoryProductCounts}
             totalCount={products.length}
           />

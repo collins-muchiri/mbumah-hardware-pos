@@ -104,9 +104,13 @@ export function CategoryChips({
 
   return (
     <div className="relative flex items-center gap-1">
+      {/* v2.494.0 THE DRESS — the lens row wears the slate family's quiet
+          ground while a non-default shelf rides (the family's shared voice,
+          the same law the catalog's and the analytics' lenses wear); the
+          fade gradients follow the ground so the edges stay one voice. */}
       {/* Scroll indicators: arrow buttons + fade gradients on edges */}
-      <div className={`absolute left-0 top-0 bottom-0 w-6 pointer-events-none z-10 bg-gradient-to-r from-background to-transparent transition-opacity ${canScrollLeft ? 'opacity-100' : 'opacity-0'}`} aria-hidden />
-      <div className={`absolute right-0 top-0 bottom-0 w-6 pointer-events-none z-10 bg-gradient-to-l from-background to-transparent transition-opacity ${canScrollRight ? 'opacity-100' : 'opacity-0'}`} aria-hidden />
+      <div className={`absolute left-0 top-0 bottom-0 w-6 pointer-events-none z-10 bg-gradient-to-r ${selected !== 'all' ? 'from-slate-100' : 'from-background'} to-transparent transition-opacity ${canScrollLeft ? 'opacity-100' : 'opacity-0'}`} aria-hidden />
+      <div className={`absolute right-0 top-0 bottom-0 w-6 pointer-events-none z-10 bg-gradient-to-l ${selected !== 'all' ? 'from-slate-100' : 'from-background'} to-transparent transition-opacity ${canScrollRight ? 'opacity-100' : 'opacity-0'}`} aria-hidden />
 
       {canScrollLeft && (
         <button
@@ -120,7 +124,9 @@ export function CategoryChips({
 
       <div
         ref={scrollRef}
-        className="flex gap-2 overflow-x-auto scrollbar-thin py-0.5 flex-1 px-1 scroll-snap-x"
+        className={`flex gap-2 overflow-x-auto scrollbar-thin py-0.5 flex-1 px-1 scroll-snap-x transition-colors rounded-lg ${
+          selected !== 'all' ? 'bg-slate-100' : 'bg-background'
+        }`}
         style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}
       >
         {/* "All" chip - special styling with gradient background when active */}
