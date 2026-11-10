@@ -11,7 +11,7 @@ import { BarChart3, Package, TrendingUp, TrendingDown,
   AlertTriangle, Users, Timer, Printer, Wrench, Sparkle, Link2, ArrowRight,
   Receipt, UserCog, Hourglass, CheckCircle, MessageCircle, Share2, ClipboardList, Phone,
   ArrowDown, ChevronsUpDown, Coins, PackageX, Percent,
-  Search, X, PackageSearch,
+  Search, X, PackageSearch, Tag, ArchiveX,
 } from 'lucide-react';
 import { LandingChip } from '@/components/landing-chip';
 import {
@@ -29,7 +29,7 @@ import {
 } from '@/lib/api';
 import { handleError } from '@/lib/error-handler';
 import { parseInitialCustomRange, parseInitialNamedMember, REP_TYPE_FILTERS } from '@/lib/tab-url';
-import { DEAD_STOCK_SORTS, DEAD_STOCK_WINDOWS, capitalTiedByCategory, deadStockChorusHeader, deadStockChorusShareUrl, deadStockClearanceNote, deadStockClearanceNotes, deadStockShareUrl, deadStockViewSummary, filterDeadStockRows, sortDeadStockRows, waMeDisplay, type DeadStockRow, type DeadStockSortKey } from '@/lib/reports/dead-stock';
+import { DEAD_STOCK_SORTS, DEAD_STOCK_WINDOWS, DEAD_STOCK_WRITE_OFF_CATEGORIES, capitalTiedByCategory, deadStockChorusHeader, deadStockChorusShareUrl, deadStockClearanceNote, deadStockClearanceNotes, deadStockClearanceSuggestion, deadStockMarginVoice, deadStockShareUrl, deadStockViewSummary, deadStockWriteOffReason, filterDeadStockRows, sortDeadStockRows, waMeDisplay, type DeadStockRow, type DeadStockSortKey, type DeadStockWriteOffCategory } from '@/lib/reports/dead-stock';
 import {
   composeSeriesVoice, composeHourlyVoice,
   composeStockHealthVoice, composeProductsVoice, composeForecastVoice,
@@ -1772,6 +1772,125 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
       setPhoneSaving(false);
     }
   }, [phoneDraft, storeId, queryClient]);
+  // THE ACTION ARC (v2.498.0) — the ledger learns to ACT. Two row doors
+  // join the Ask pair, each riding a wire the house already runs (the
+  // product PUT's own posture for the clearance price, the
+  // stock-movements wire's own governance shape for the write-off), the
+  // words composed in the ONE home (the suggestion, the margin's voice,
+  // the write-off's reason — the desk never hand-composes a write).
+  const [clearRow, setClearRow] = useState<DeadStockRow | null>(null);
+  const [clearDraft, setClearDraft] = useState('');
+  const [clearSaving, setClearSaving] = useState(false);
+  const [writeOffRow, setWriteOffRow] = useState<DeadStockRow | null>(null);
+  const [writeOffQty, setWriteOffQty] = useState('');
+  const [writeOffCategory, setWriteOffCategory] = useState<DeadStockWriteOffCategory>('DAMAGED');
+  const [writeOffSaving, setWriteOffSaving] = useState(false);
+  // THE CLEARANCE DOOR'S OPENING — the draft starts at the ONE home's own
+  // suggestion (the cost floor), never a stale number: a dialog that
+  // shows the last row's draft would be a lie (the edit door's own law).
+  const openClearanceDoor = useCallback((row: DeadStockRow) => {
+    setClearDraft(String(deadStockClearanceSuggestion(row)));
+    setClearRow(row);
+  }, []);
+  // THE CLEARANCE DOOR'S SAVE — the product PUT wire's own posture
+  // (manager-plus + INVENTORY_MANAGER; the wire's own price guard speaks
+  // where it always spoke). A non-positive or non-numeric draft refuses
+  // LOCALLY before the wire ever moves; the refusals speak their side
+  // and the row stays whole (the edit door's honesty law). The save
+  // invalidates the desk's OWN wire — the row's numbers re-answer live.
+  const saveClearancePrice = useCallback(async () => {
+    if (!clearRow) return;
+    const parsed = Number(clearDraft);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      toast.error('The clearance price needs a number above zero — the shelf cannot ask a made-up word.');
+      return;
+    }
+    setClearSaving(true);
+    try {
+      const res = await fetch(`/api/products/${clearRow.productId}`, {
+        method: 'PUT',
+        credentials: 'same-origin',
+        headers: { ...sessionAuthHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pricePerUnit: parsed }),
+      });
+      if (res.status === 403) {
+        toast.error('The price write was refused — the shelf’s key does not open this door.');
+        return;
+      }
+      if (!res.ok) {
+        toast.error('Could not save the clearance price — the write was refused.');
+        return;
+      }
+      toast.success(`Clearance price saved — ${clearRow.name} now asks Ksh ${parsed.toFixed(2)}`);
+      setClearRow(null);
+      await queryClient.invalidateQueries({ queryKey: ['dead-stock-report', storeId] });
+    } catch {
+      toast.error('Could not save the clearance price — the wire refused.');
+    } finally {
+      setClearSaving(false);
+    }
+  }, [clearRow, clearDraft, storeId, queryClient]);
+  // THE WRITE-OFF DOOR'S OPENING — the draft starts at the WHOLE rest
+  // (the row's own quantity) and the wire's first classification word: a
+  // door that pre-fills a made-up quantity would be a lie.
+  const openWriteOffDoor = useCallback((row: DeadStockRow) => {
+    setWriteOffQty(String(row.quantityInStock));
+    setWriteOffCategory('DAMAGED');
+    setWriteOffRow(row);
+  }, []);
+  // THE WRITE-OFF DOOR'S SAVE — the stock-movements wire's own
+  // governance shape (a negative ADJUSTMENT, the reason composed in the
+  // ONE home, the classification riding the wire's own vocabulary). The
+  // quantity is capped at the row's own rest locally; the wire's atomic
+  // claim answers the race honestly (409 → the desk's wire invalidates,
+  // the ledger re-answers from the shelf's truth).
+  const saveWriteOff = useCallback(async () => {
+    if (!writeOffRow) return;
+    const qty = Number(writeOffQty);
+    if (!Number.isFinite(qty) || qty <= 0) {
+      toast.error('The write-off needs a quantity above zero — nothing left the shelf otherwise.');
+      return;
+    }
+    if (qty > writeOffRow.quantityInStock) {
+      toast.error(`Only ${writeOffRow.quantityInStock} rest on the shelf — the write-off cannot take more than rests.`);
+      return;
+    }
+    setWriteOffSaving(true);
+    try {
+      const res = await fetch('/api/stock-movements', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { ...sessionAuthHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productId: writeOffRow.productId,
+          type: 'ADJUSTMENT',
+          quantity: -qty,
+          reason: deadStockWriteOffReason(writeOffRow, writeOffCategory, qty, days),
+          category: writeOffCategory,
+        }),
+      });
+      if (res.status === 403) {
+        toast.error('The write-off was refused — a manager’s word is needed for stock writes.');
+        return;
+      }
+      if (res.status === 409) {
+        toast.error('The shelf moved under this door — that stock is no longer there. The ledger refreshes.');
+        await queryClient.invalidateQueries({ queryKey: ['dead-stock-report', storeId] });
+        return;
+      }
+      if (!res.ok) {
+        toast.error('Could not write the stock off — the wire refused.');
+        return;
+      }
+      toast.success(`Written off — ${qty} ${writeOffRow.unitType} of ${writeOffRow.name} left the shelf`);
+      setWriteOffRow(null);
+      await queryClient.invalidateQueries({ queryKey: ['dead-stock-report', storeId] });
+    } catch {
+      toast.error('Could not write the stock off — the wire refused.');
+    } finally {
+      setWriteOffSaving(false);
+    }
+  }, [writeOffRow, writeOffQty, writeOffCategory, days, storeId, queryClient]);
   return (
     <div className="space-y-3" data-testid="dead-stock-section">
       {/* The window lens — the loom's tint dialect, the amber word.
@@ -2140,6 +2259,11 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
                           </button>
                         </TableHead>
                         <TableHead className="text-right">Ask</TableHead>
+                        {/* THE ACT (v2.498.0) — the row's write column: the
+                            two doors that move STOCK and PRICE, beside the
+                            Ask pair's two doors that move words. One
+                            honest face where the writes stand. */}
+                        <TableHead className="text-right">Act</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -2159,7 +2283,7 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
                           stand. */}
                       {sortedRows.length === 0 ? (
                         <TableRow data-testid="dead-stock-lens-empty">
-                          <TableCell colSpan={8} className="py-10">
+                          <TableCell colSpan={9} className="py-10">
                             <div className="flex flex-col items-center justify-center gap-2 text-center">
                               <PackageSearch className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
                               <p className="text-sm font-medium">No product answers to “{deadStockSearch.trim()}”</p>
@@ -2286,6 +2410,45 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
                                 </Button>
                               </div>
                             </TableCell>
+                            {/* THE ACT'S DOORS (v2.498.0) — the pair's
+                                write siblings: the Clear handle opens the
+                                clearance price's dialog (the ONE home's
+                                suggestion pre-filled), the Write off
+                                handle opens the stock's own door (the
+                                whole rest pre-filled). The amber hover is
+                                the lens family's own tone (the markdown's
+                                word); the rose hover is the ledger's own
+                                loss word — the palette the desk already
+                                speaks, never a second one. The double
+                                voice every handle wears. */}
+                            <TableCell className="text-right">
+                              <div className="inline-flex items-center justify-end gap-1">
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  data-testid={`dead-stock-clear-${i}`}
+                                  aria-label={`Set a clearance price for ${r.name}`}
+                                  title={`Set a clearance price for ${r.name}`}
+                                  onClick={() => openClearanceDoor(r)}
+                                  className="hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300 dark:hover:bg-amber-950/30 dark:hover:text-amber-300 dark:hover:border-amber-800"
+                                >
+                                  <Tag className="h-3.5 w-3.5 mr-1" /> Clear
+                                </Button>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  data-testid={`dead-stock-writeoff-${i}`}
+                                  aria-label={`Write off the resting stock of ${r.name}`}
+                                  title={`Write off the resting stock of ${r.name}`}
+                                  onClick={() => openWriteOffDoor(r)}
+                                  className="hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 dark:hover:bg-rose-950/30 dark:hover:text-rose-300 dark:hover:border-rose-800"
+                                >
+                                  <ArchiveX className="h-3.5 w-3.5" /> Write off
+                                </Button>
+                              </div>
+                            </TableCell>
                           </TableRow>
                         );
                       })
@@ -2370,6 +2533,132 @@ function DeadStockSection({ rows, summary, isLoading, days, onDaysChange, chartT
               />
               <p className="text-[10px] text-muted-foreground">Spaces and dashes ride out; a leading 0 grows to 254 — the same normalize the URL itself speaks.</p>
             </div>
+          </ResponsiveDialog>
+          {/* THE CLEARANCE DOOR'S DIALOG (v2.498.0) — the Clear handle's
+              promise kept: the row's own numbers on the desk (the price
+              now, the cost, the ONE home's suggestion pre-filled in the
+              draft), the margin's own word spoken live (aria-live) as the
+              draft moves, and the save riding the product PUT wire's own
+              posture. Enter saves, the honest refusals speak their side. */}
+          <ResponsiveDialog
+            open={!!clearRow}
+            onOpenChange={(o) => { if (!o) setClearRow(null); }}
+            title="Clearance price"
+            description={clearRow ? `${clearRow.name} (${clearRow.sku}) — the resting shelf asks a moving word.` : ''}
+            size="sm"
+            footer={
+              <div className="flex items-center justify-end gap-2">
+                <Button variant="outline" size="sm" onClick={() => setClearRow(null)} disabled={clearSaving}>Cancel</Button>
+                <Button
+                  size="sm"
+                  onClick={saveClearancePrice}
+                  disabled={clearSaving}
+                  data-testid="dead-stock-clear-save"
+                  title="Save the clearance price"
+                >
+                  {clearSaving ? 'Saving…' : 'Save price'}
+                </Button>
+              </div>
+            }
+          >
+            {clearRow && (
+              <div className="space-y-2 py-1">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">Asks now</span>
+                  <span className="tabular-nums font-medium" data-testid="dead-stock-clear-now">{formatKES(clearRow.pricePerUnit)}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">Unit cost</span>
+                  <span className="tabular-nums">{formatKES(clearRow.costPrice)}</span>
+                </div>
+                <Label htmlFor="dead-stock-clear-price" className="text-xs font-medium">Clearance price</Label>
+                <Input
+                  id="dead-stock-clear-price"
+                  value={clearDraft}
+                  onChange={(e) => setClearDraft(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' && !clearSaving) saveClearancePrice(); }}
+                  placeholder="0.00"
+                  inputMode="decimal"
+                  disabled={clearSaving}
+                  data-testid="dead-stock-clear-input"
+                />
+                <p
+                  className="text-[11px] tabular-nums text-muted-foreground"
+                  aria-live="polite"
+                  data-testid="dead-stock-clear-margin"
+                >
+                  {deadStockMarginVoice(Number(clearDraft), clearRow) || 'The word the shelf will ask once the price saves.'}
+                </p>
+                <p className="text-[10px] text-muted-foreground">The suggestion is the cost floor — the capital back, the margin forgiven. The wire’s own price guard still speaks.</p>
+              </div>
+            )}
+          </ResponsiveDialog>
+          {/* THE WRITE-OFF DOOR'S DIALOG (v2.498.0) — the Write off
+              handle's promise kept: the quantity pre-filled with the
+              WHOLE rest, the wire's own three classification words as
+              chips (the loom's rose pair — the loss word's own tint), the
+              ONE home's reason composed live (aria-live — the record the
+              movement's notes will carry, the capital named inside it),
+              and the save riding the stock-movements wire's own
+              governance shape (the GL leg stays the wire's own — this
+              desk adds words, never books). */}
+          <ResponsiveDialog
+            open={!!writeOffRow}
+            onOpenChange={(o) => { if (!o) setWriteOffRow(null); }}
+            title="Write off resting stock"
+            description={writeOffRow ? `${writeOffRow.name} (${writeOffRow.sku}) — carry the rest out of the books.` : ''}
+            size="sm"
+            footer={
+              <div className="flex items-center justify-end gap-2">
+                <Button variant="outline" size="sm" onClick={() => setWriteOffRow(null)} disabled={writeOffSaving}>Cancel</Button>
+                <Button
+                  size="sm"
+                  onClick={saveWriteOff}
+                  disabled={writeOffSaving}
+                  data-testid="dead-stock-writeoff-save"
+                  title="Write the resting stock off"
+                >
+                  {writeOffSaving ? 'Writing…' : 'Write off'}
+                </Button>
+              </div>
+            }
+          >
+            {writeOffRow && (
+              <div className="space-y-3 py-1">
+                <div className="space-y-2">
+                  <Label htmlFor="dead-stock-writeoff-qty" className="text-xs font-medium">Quantity (of {writeOffRow.quantityInStock} on the shelf)</Label>
+                  <Input
+                    id="dead-stock-writeoff-qty"
+                    value={writeOffQty}
+                    onChange={(e) => setWriteOffQty(e.target.value)}
+                    inputMode="decimal"
+                    disabled={writeOffSaving}
+                    data-testid="dead-stock-writeoff-qty"
+                  />
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {DEAD_STOCK_WRITE_OFF_CATEGORIES.map((c) => (
+                      <FilterChip
+                        key={c}
+                        active={writeOffCategory === c}
+                        onClick={() => setWriteOffCategory(c)}
+                        testId={`dead-stock-writeoff-cat-${c}`}
+                        ariaLabel={`Classify the write-off of ${writeOffRow.name} as ${c.toLowerCase()}`}
+                        tone="rose"
+                        variant="tint"
+                      >
+                        {c}
+                      </FilterChip>
+                    ))}
+                  </div>
+                </div>
+                <div className="rounded-md border border-rose-200/70 bg-rose-50/60 px-3 py-2 dark:border-rose-900/60 dark:bg-rose-950/20">
+                  <p className="text-[11px] text-rose-800 dark:text-rose-300 tabular-nums" aria-live="polite" data-testid="dead-stock-writeoff-reason">
+                    {deadStockWriteOffReason(writeOffRow, writeOffCategory, Number(writeOffQty) > 0 ? Number(writeOffQty) : 0, days)}
+                  </p>
+                </div>
+                <p className="text-[10px] text-muted-foreground">The movement rides the stock wire’s own governance — the reason is mandatory, the classification persists, the loss journals at cost.</p>
+              </div>
+            )}
           </ResponsiveDialog>
         </>
       ) : null}

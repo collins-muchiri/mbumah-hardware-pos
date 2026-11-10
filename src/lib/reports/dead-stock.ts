@@ -497,3 +497,110 @@ export function deadStockChorusShareUrl(rows: ReadonlyArray<DeadStockRow>, days:
   const base = digits ? `https://wa.me/${digits}` : 'https://wa.me/';
   return `${base}?text=${encodeURIComponent(deadStockClearanceNotes(rows, days))}`;
 }
+
+// ============================================================================
+// v2.498.0 THE RESTING LEDGER LEARNS TO ACT
+// ============================================================================
+// The ledger has always been able to ASK — the clearance note rides the
+// clipboard, the chat, the paper and the file — but every door moved
+// WORDS, never STOCK. The action arc is the ledger's second posture: the
+// row learns two WRITES, each riding a wire the house already runs, so
+// the desk stays thin and no new wire is born:
+//
+//   • THE CLEARANCE PRICE — the maker marks the resting product down
+//     through the product PUT wire (PATCH's own posture: manager-plus +
+//     INVENTORY_MANAGER; the wire's own price guard speaks where it
+//     always spoke). The suggestion lives HERE: the COST floor — the
+//     capital back, the margin forgiven — composed from the row's own
+//     numbers, never invented on the desk.
+//   • THE WRITE-OFF — the maker carries the resting stock OUT through
+//     the stock-movements wire's own governance shape (a negative
+//     ADJUSTMENT whose mandatory reason is composed HERE from the row's
+//     own facts, the classification riding the wire's own vocabulary —
+//     DAMAGED/STOLEN/EXPIRED — which the wire validates and the desk
+//     only offers). The write-off's GL leg (the COGS/Inventory journal
+//     at WAC) stays the wire's own — this desk adds words, never books.
+//
+// THE ONE HOME'S LAWS: every word is PURE and DETERMINISTIC — the same
+// row, the same category, the same quantity always draw the same bytes
+// (a movement's notes must read the same on every machine, the clearance
+// note's own law grown a write half). The desk never hand-composes a
+// write's word, never hand-rounds a margin, never invents a category —
+// it presses the ONE home's composers, the same way the Ask handle only
+// ever pressed the note's.
+// --------------------------------------------------------------------------
+
+/** THE WIRE'S OWN VOCABULARY (v2.498.0) — the write-off classifications
+ *  the stock-movements wire accepts and persists ([WRITE_OFF: X] in the
+ *  movement's notes). The tuple lives HERE because the desk's category
+ *  chips must speak the WIRE's words, never a desk-made twin that would
+ *  drift from what the wire actually stores; the wire keeps its own
+ *  validator (a made-up category is refused there — the desk never
+ *  offers one). Ordered as the wire speaks them. */
+export const DEAD_STOCK_WRITE_OFF_CATEGORIES = ['DAMAGED', 'STOLEN', 'EXPIRED'] as const;
+export type DeadStockWriteOffCategory = (typeof DEAD_STOCK_WRITE_OFF_CATEGORIES)[number];
+
+/** THE CLEARANCE FLOOR (v2.498.0) — the suggested clearance price: the
+ *  COST, rounded to the money's own two decimals. The honest resting
+ *  word — recover the capital the shelf holds, forgive the margin the
+ *  window has proven dead — composed from the row's own costPrice, never
+ *  a percentage invented on the desk. A cost that never stood (absent or
+ *  non-finite) suggests nothing: 0 is the honest no-suggestion, and the
+ *  desk's own guard refuses a non-positive save before the wire ever
+ *  moves. Pure. */
+export function deadStockClearanceSuggestion(row: DeadStockRow): number {
+  const cost = Number(row.costPrice);
+  if (!Number.isFinite(cost)) return 0;
+  return round2b(cost);
+}
+
+/** THE MARGIN'S OWN WORD (v2.498.0) — the clearance price's honest
+ *  mirror, spoken against the row's cost: BELOW cost names the loss per
+ *  unit, AT cost speaks the floor's own word, OVER cost names the margin
+ *  and its percent (one decimal — the share law's own convention). A
+ *  non-finite draft answers empty (the desk shows nothing until a number
+ *  stands); a cost that never stood says so instead of dividing by zero
+ *  (the null-is-a-voice law — a fabricated 0% would read "free money").
+ *  Pure. */
+export function deadStockMarginVoice(newPrice: number, row: DeadStockRow): string {
+  const price = Number(newPrice);
+  const cost = Number(row.costPrice);
+  if (!Number.isFinite(price) || price <= 0) return '';
+  if (!Number.isFinite(cost) || cost <= 0) {
+    return 'No cost on file — the margin\u2019s word rests.';
+  }
+  const diff = round2b(price - cost);
+  if (diff < 0) {
+    return `Ksh ${Math.abs(diff).toFixed(2)} below cost (Ksh ${Math.abs(diff).toFixed(2)} loss per unit).`;
+  }
+  if (diff === 0) {
+    return 'At cost — the capital back, the margin forgiven.';
+  }
+  const pct = Math.round((price / cost - 1) * 1000) / 10;
+  return `Ksh ${diff.toFixed(2)} over cost (${pct}% margin).`;
+}
+
+/** THE WRITE-OFF'S OWN REASON (v2.498.0) — the mandatory word the
+ *  stock-movements wire demands for every negative movement (min 3
+ *  chars), composed HERE from the row's own facts and never re-typed on
+ *  the desk: the classification's word, the quantity in the row's own
+ *  unit, the name and SKU, the idle voice (the never-sold row speaks its
+ *  honest absence — the clearance note's own law), the window that
+ *  caught it, and the capital the write releases (qty × cost, the
+ *  round2 convention — the same number the wire journals at WAC, spoken
+ *  to two decimals). A reason that long is a RECORD, not a shrug — the
+ *  movement's notes field carries the whole story to the audit. Pure. */
+export function deadStockWriteOffReason(
+  row: DeadStockRow,
+  category: DeadStockWriteOffCategory,
+  qty: number,
+  days: number,
+): string {
+  const units = Number(qty);
+  const cost = Number.isFinite(Number(row.costPrice)) ? Number(row.costPrice) : 0;
+  const capital = round2b(Math.abs(units) * cost);
+  const idleVoice = row.lastSoldAt && row.daysIdle != null
+    ? `idle ${row.daysIdle} days`
+    : 'never sold';
+  return `Dead-stock write-off (${category}): ${units} ${row.unitType} × ${row.name} (${row.sku}), ${idleVoice}, caught by the ${days}-day window — Ksh ${capital.toFixed(2)} at cost written off.`;
+}

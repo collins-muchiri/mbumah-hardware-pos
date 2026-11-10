@@ -184,7 +184,9 @@ describe('the search door — the desk\u2019s own face', () => {
     expect(desk.includes('data-testid="dead-stock-lens-clear"')).toBe(true);
     expect(desk.includes('aria-label="Clear the ledger search and see every resting product"')).toBe(true);
     expect(desk.includes('<PackageSearch className="h-5 w-5 text-muted-foreground" aria-hidden="true" />')).toBe(true);
-    expect(desk.includes('<TableCell colSpan={8} className="py-10">')).toBe(true);
+    // v2.498.0 re-key (dated): the Act column joins the ledger — the
+    // honest face spans the ledger's nine columns now.
+    expect(desk.includes('<TableCell colSpan={9} className="py-10">')).toBe(true);
   });
 
   it('THE COUNT ANSWERS THE LENS — the honest fraction, the whole size at rest', () => {

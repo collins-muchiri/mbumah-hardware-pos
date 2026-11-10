@@ -126,7 +126,12 @@ describe('the dead-stock desk — the edit door pinned from the desk bytes', () 
     // chat door's Share all handle (the chorus's own reach-out, the
     // double voice every handle wears); the census speaks the section's
     // ten handles now, and the loom's pressed-voice law stands untouched.
-    expect(section.split('aria-label=').length - 1).toBe(10);
+    // v2.498.0 re-key (dated): the section grows its ELEVENTH and
+    // TWELFTH voices — the action arc's two row doors (the Clear handle
+    // and the Write off handle, the double voice every handle wears);
+    // the census speaks the section's twelve handles now, and the edit
+    // door's own handle stands untouched.
+    expect(section.split('aria-label=').length - 1).toBe(12);
   });
 
   it('the display word dresses the toast — the ONE home\'s reading, never a re-format', () => {
@@ -143,7 +148,7 @@ describe('whats-new — the edit door leads the feed', () => {
   const head = WHATS_NEW[0];
 
   it('the head wears the round\'s own story', () => {
-    expect(head.version).toBe('2.497.1');
+    expect(head.version).toBe('2.498.0');
     expect(head.title).toContain('resting ledger');
     expect(head.title).toContain('reach out');
     expect(head.title).toContain('one breath');

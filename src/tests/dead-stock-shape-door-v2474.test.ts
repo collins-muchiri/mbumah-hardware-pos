@@ -158,7 +158,12 @@ describe('the shape\u2019s presses — the desk\u2019s own face', () => {
     // chat door's Share all handle (the chorus's own reach-out, the
     // double voice every handle wears); the census speaks the section's
     // ten handles now, and the loom's pressed-voice law stands untouched.
-    expect(section.split('aria-label=').length - 1).toBe(10);
+        // v2.498.0 re-key (dated): the section grows its ELEVENTH and
+    // TWELFTH voices — the action arc's two row doors (the Clear handle
+    // and the Write off handle, the double voice every handle wears);
+    // the census speaks the section's twelve handles now, and the
+    // elder bytes this suite pins stand untouched.
+    expect(section.split('aria-label=').length - 1).toBe(12);
   });
 
   it('the shape\u2019s voices live OUTSIDE the section slice — the shared charts keep their own bytes', () => {

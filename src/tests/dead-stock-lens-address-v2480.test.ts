@@ -233,7 +233,12 @@ describe('the seats — the round moves the word, the elder bytes hold', () => {
   });
 
   it('the census keeps its ten voices — a chip and a bar never carry a handle', () => {
-    expect(section.split('aria-label=').length - 1).toBe(10);
+        // v2.498.0 re-key (dated): the section grows its ELEVENTH and
+    // TWELFTH voices — the action arc's two row doors (the Clear handle
+    // and the Write off handle, the double voice every handle wears);
+    // the census speaks the section's twelve handles now, and the
+    // elder bytes this suite pins stand untouched.
+    expect(section.split('aria-label=').length - 1).toBe(12);
   });
 });
 
@@ -271,7 +276,7 @@ describe('whats-new — the round, pinned in the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.497.1');
+    expect(pkg.version).toBe('2.498.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.480.0]')).toBeGreaterThan(-1);
