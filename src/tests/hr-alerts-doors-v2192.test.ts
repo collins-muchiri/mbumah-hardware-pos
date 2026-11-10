@@ -162,9 +162,9 @@ describe('the styling math - the digest families carry their numbers', () => {
 
 describe('docs and release surfaces', () => {
   it('package.json rides at 2.198.0 (all three slots)', () => {
-    expect(pkg.version).toBe('2.490.0');
-    expect(pkg.mbumah.releaseVersion).toBe('2.490.0');
-    expect(pkg.mbumah.baseVersion).toBe('2.490.0');
+    expect(pkg.version).toBe('2.491.0');
+    expect(pkg.mbumah.releaseVersion).toBe('2.491.0');
+    expect(pkg.mbumah.baseVersion).toBe('2.491.0');
     expect(readRepo('scripts/release-attestations/verify-v2-192-0.mjs')).toContain('v2.192.0 verification');
   });
 
@@ -185,8 +185,8 @@ describe('docs and release surfaces', () => {
 
   it('the head-pin counters re-anchored to the new head', () => {
     const counter = readRepo('src/tests/console-changelog.test.ts');
-    expect(counter).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(380);");
+    expect(counter).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(381);");
     const a11yShell = readRepo('src/tests/a11y-shell-v2148.test.ts');
-    expect(a11yShell).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(380);");
+    expect(a11yShell).toContain("expect(whatsNewUnreadCount('2.110.0')).toBe(381);");
   });
 });

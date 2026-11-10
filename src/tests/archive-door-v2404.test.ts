@@ -169,7 +169,7 @@ describe('main-app - the archive door on the main desk', () => {
     // the lens's word rides the address (the search lens answers the
     // bar, the amber chip names the landed word), and the family keeps
     // its seats.
-    expect(lead.version).toBe('2.490.0');
+    expect(lead.version).toBe('2.491.0');
     expect(lead.title).toContain('edit door');
     expect(lead.bullets.length).toBeGreaterThanOrEqual(3);
     expect(lead.bullets.some((b) => b.includes('edit door'))).toBe(true);

@@ -968,6 +968,40 @@ export const POS_VIEW_MEMBERS = ['grid', 'list'] as const;
 export type PosViewMember = (typeof POS_VIEW_MEMBERS)[number];
 
 /**
+ * CAT_VIEW_MEMBERS (v2.491.0) — the catalog desk's view members: the
+ * shop floor's OWN union ('grid' | 'list'), lowercase, the view
+ * toggle's own spellings. Lives here (the ONE home) so the desk, its
+ * deep-link word and the test suite speak one array — the same home
+ * POS_VIEW_MEMBERS keeps for the counter's view (the two desks read
+ * the same two words, each through its OWN desk-prefixed key).
+ */
+export const CAT_VIEW_MEMBERS = ['grid', 'list'] as const;
+
+export type CatViewMember = (typeof CAT_VIEW_MEMBERS)[number];
+
+/**
+ * v2.491.0 — THE FAMILY'S FORTY-EIGHTH WORD: the catalog's view rides
+ * the address. The catalog desk's view toggle — the shop floor's daily
+ * question, "how do I read the shelves?" — speaks its desk-prefixed
+ * `cat-view` (collision-checked at round start: the byte appeared
+ * NOWHERE before this word), the toggle's OWN spellings (`grid` and
+ * `list`, read through the generic named-member parser; a made-up
+ * member or a wrong case is an unknown word, not a clever match). THE
+ * DEFAULT WEARS NO WORD: grid is the address's silence — the key
+ * strips when the desk rests, and a landed word that names the default
+ * wears no chip. THE LANDING IS READ ONCE ON THE SHELL: a plain
+ * useState initializer — a dismissed chip can never resurrect (the
+ * SEVENTH shell-tab desk, the desk's SECOND word). THE VIEW WRITES
+ * BACK THROUGH THE FAMILY'S ONE READING: the guarded door from birth —
+ * no turn, no write, and the hand's turn retires the word (the chip
+ * speaks the ADDRESS BAR's landing, never the human's next choice —
+ * the reading the v2.488.0 verse named for the whole family). The chip
+ * wears the family's shared slate — the slate now serves four words
+ * (the week's word, the dashboard's word, the counter's own, and the
+ * catalog's own), the census holds.
+ */
+
+/**
  * v2.490.0 — THE FAMILY'S FORTY-SEVENTH WORD: the counter's view rides
  * the address. The POS desk's products pane — the desk's first daily
  * question, "how do I read the shelf?" — speaks its desk-prefixed

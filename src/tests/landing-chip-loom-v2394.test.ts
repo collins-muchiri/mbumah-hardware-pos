@@ -9,8 +9,10 @@
 // writes ride props; the loom never learns which desk is speaking.
 //
 // THE WORD-FREE LAW: the loom speaks NO lens word — no collision ledger
-// ever has to admit the component file. This suite derives the 32-word
-// vocabulary from the constitution itself and proves the loom silent.
+// ever has to admit the component file. This suite derives the whole
+// vocabulary from the constitution itself and proves the loom silent
+// (v2.491.0 dated: the prose rode "32-word" — a desks count wearing a
+// words robe, stale two ways; the prose rides the bytes that ARE).
 //
 // THE BYTE-FIDELITY LAW: composing the shared head with a registry entry
 // must reproduce the EXACT historic className that desk wore before the
@@ -124,7 +126,9 @@ describe('the loom — one component, eighteen hues, zero words', () => {
   // v2.490.0 (dated): the STALE-TITLE honest catch — the title read
   // "45 words" two rounds stale (the pins moved, the prose lagged);
   // the roll rides the bytes that ARE.
-  it('THE WORD-FREE LAW — the loom speaks none of the constitution\u2019s 47 words', () => {
+  // v2.491.0 (dated): the honest title roll — the count rides the
+  // bytes that ARE (forty-eight words).
+  it('THE WORD-FREE LAW — the loom speaks none of the constitution\u2019s 48 words', () => {
     // v2.487.0 (dated): the shift week joins the constitution; the
     // loom grew its slate line and stays word-free (the shift's word
     // is the chip's own — the desk never spells the bytes bare).
@@ -148,7 +152,10 @@ describe('the loom — one component, eighteen hues, zero words', () => {
     // v2.490.0 (dated): the counter's word joins the constitution;
     // the loom grew NO line and stays word-free (the view's word is
     // the chip's own — the desk never spells the bytes bare).
-    expect(rows.length).toBe(47);
+    // v2.491.0 (dated): the catalog's word joins the constitution;
+    // the loom grew NO line and stays word-free (the view's word is
+    // the chip's own — the desk never spells the bytes bare).
+    expect(rows.length).toBe(48);
     for (const row of rows) {
       expect(loom.includes(row.word), row.word).toBe(false);
     }
@@ -524,7 +531,9 @@ describe('the constitution under the loom', () => {
     // word rides the address; the counts roll with the constitution.
     // v2.490.0 (dated): the forty-seventh word — the counter's view
     // rides the address; the counts roll with the constitution.
-    expect(rows.length).toBe(47);
+    // v2.491.0 (dated): the forty-eighth word — the catalog's view
+    // rides the address; the counts roll with the constitution.
+    expect(rows.length).toBe(48);
     // v2.484.0 (dated): twenty-seven desks — the family's FIRST
     // non-tab desk joined with the window's word.
     // v2.485.0 (dated): twenty-eight desks — the SECOND shell-tab
@@ -537,6 +546,8 @@ describe('the constitution under the loom', () => {
     // desk joined with the dashboard's view.
     // v2.490.0 (dated): thirty-two desks — the SIXTH shell-tab
     // desk joined with the counter's view.
+    // v2.491.0 (dated): thirty-two desks HOLD — the SEVENTH shell-tab
+    // desk is the catalog's own SECOND word.
     expect(new Set(rows.map((r) => r.desk)).size).toBe(32);
     // v2.484.0 (dated): blue-300 joined with the window's word — the
     // families grew one (37) while the words grew two (the SECOND
@@ -556,6 +567,9 @@ describe('the constitution under the loom', () => {
     // v2.490.0 (dated): the families stay forty — the counter's word
     // wears the family's shared slate (the slate serves three words:
     // the week's, the dashboard's, the counter's own).
+    // v2.491.0 (dated): the families stay forty — the catalog's word
+    // wears the family's shared slate (the slate serves four words:
+    // the week's, the dashboard's, the counter's, the catalog's own).
     expect(new Set(rows.map((r) => r.family)).size).toBe(40);
   });
 
