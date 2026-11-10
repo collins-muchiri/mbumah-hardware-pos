@@ -994,6 +994,78 @@ export const AN_PERIOD_MEMBERS = ['today', 'week', 'month', 'year'] as const;
 export type AnPeriodMember = (typeof AN_PERIOD_MEMBERS)[number];
 
 /**
+ * THE SLUG-SHAPE LAW (v2.493.0) — the dynamic member's own word shape:
+ * a lens whose members are the STORE'S OWN ROWS (the categories, the
+ * shelves the ledger names) does not wear a fixed tuple — its word
+ * names the row by its SLUG. Two laws, one home:
+ *
+ *   • `categorySlug` — the row's own slug: lowercase, trimmed, runs of
+ *     spaces/&/dashes collapsed to ONE hyphen, everything but
+ *     alphanumerics and hyphens stripped ("Nails & Screws" wears
+ *     "nails-screws"; "Iron Bars" wears "iron-bars"). The slug is
+ *     derived, never stored — the ledger's name stays the one truth.
+ *   • `parseInitialNamedSlug` — the landing's read: the raw param
+ *     value as it lies (trimmed; an absent or empty value is null).
+ *     The slug is NEVER case-gamed — `?cat-category=Cement` is an
+ *     unknown word (the honest member law's own reading), because the
+ *     family's slugs are born lowercase. The RESOLUTION happens on the
+ *     desk when the rows arrive: a hit seeds the filter (the seed IS
+ *     the address's landing, never a hand turn — no write, no retire),
+ *     an unknown slug is silence (the landing retires, no chip).
+ *
+ * The shape's first wearer: `?cat-category=<slug>` (v2.493.0 — the
+ * family's fiftieth word, the catalog desk's THIRD word, the shop
+ * floor's daily question "which shelves do I read?" — BORN GUARDED:
+ * the family's ONE reading from birth — no turn, no write, and the
+ * hand's turn retires the word; THE DEFAULT WEARS NO WORD: 'all' is
+ * the address's silence — the key strips when the desk rests). The
+ * counter's and the inventory's own category wires wear this same law
+ * when their rounds come.
+ */
+export function categorySlug(name: string): string {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[\s&/\\,_]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+    .replace(/^-+|-+$/g, '');
+}
+
+export function parseInitialNamedSlug(search: string, key: string): string | null {
+  try {
+    const raw = new URLSearchParams(search).get(key);
+    if (!raw) return null;
+    const trimmed = raw.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * v2.493.0 — THE FAMILY'S FIFTIETH WORD: the catalog's category rides
+ * the address. The catalog desk's category lens — the shop floor's
+ * daily question, "which shelves do I read?" — speaks its desk-prefixed
+ * `cat-category` (collision-checked at round start: the byte appeared
+ * NOWHERE before this word), the lens's OWN rows read through the
+ * SLUG-SHAPE LAW (a made-up slug is an unknown word — silence, not a
+ * clever match). THE DEFAULT WEARS NO WORD: 'all' is the address's
+ * silence — the key strips when the desk rests, and a landed word that
+ * names the default wears no chip. THE LANDING IS READ ONCE ON THE
+ * SHELL: a plain useState initializer — a dismissed chip can never
+ * resurrect (the catalog desk's THIRD word — a desk may own many).
+ * THE LENS WRITES BACK THROUGH THE FAMILY'S ONE READING: the guarded
+ * door from birth — no turn, no write, and the hand's turn retires the
+ * word (the chip speaks the ADDRESS BAR's landing, never the human's
+ * next choice — the reading the v2.488.0 verse named for the whole
+ * family). The chip wears the family's shared slate — the slate now
+ * serves six words (the week's word, the dashboard's word, the
+ * counter's own, the catalog's view, the analytics' own, and the
+ * catalog's category), the census holds.
+ */
+
+/**
  * v2.492.0 — THE FAMILY'S FORTY-NINTH WORD: the analytics' period rides
  * the address. The analytics dashboard's period lens — the desk's first
  * daily question, "how far does the ledger see?" — speaks its
