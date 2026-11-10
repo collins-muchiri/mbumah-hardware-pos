@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Package, Search, LayoutGrid, List, ShoppingCart, Plus, Minus, Tag, X, SlidersHorizontal, Pencil, Trash2, MessageCircle, AlertTriangle, MoreVertical, Loader2, Copy, Smartphone } from 'lucide-react';
-import { CAT_VIEW_MEMBERS, parseInitialNamedMember } from '@/lib/tab-url';
+import { CAT_VIEW_MEMBERS, parseInitialNamedMember, categorySlug, parseInitialNamedSlug } from '@/lib/tab-url';
 import { useCartStore, useAppStore } from '@/lib/stores';
 import {
   productsApi, categoriesApi, whatsappApi, formatKES,
@@ -12,6 +12,7 @@ import {
   type ProductListItem, type CategoryItem, type CreateProductPayload,
 } from '@/lib/api';
 import { handleError } from '@/lib/error-handler';
+import { cn } from '@/lib/utils';
 import { formatQtyWithUnit } from '@/lib/utils/financialMath';
 import { unitLabel } from '@/lib/units';
 import { ProductImageUpload } from '@/components/product-image-upload';
@@ -71,6 +72,36 @@ function writeCatViewWord(view: ViewMode): void {
     window.history.replaceState(null, '', window.location.pathname + (qs ? `?${qs}` : ''));
   } catch {
     // The address never lies louder than the view
+  }
+}
+
+// THE CATALOG'S CATEGORY WORD (v2.493.0) — the shelves answer the bar
+// by NAME. `?cat-category=<slug>` — the lens's OWN rows read through
+// the SLUG-SHAPE LAW (the ONE home's categorySlug + parseInitialNamedSlug;
+// the slug is derived from the ledger's name, never stored; a made-up
+// slug is an unknown word — silence, not a clever match; the slug is
+// NEVER case-gamed — the family's slugs are born lowercase). THE
+// DEFAULT WEARS NO WORD: 'all' is the address's silence. THE LANDING
+// IS READ ONCE ON THE SHELL: a plain useState initializer — a
+// dismissed chip can never resurrect (the catalog desk's THIRD word).
+function initialCatCategory(): string | null {
+  if (typeof window === 'undefined') return null;
+  return parseInitialNamedSlug(window.location.search, 'cat-category');
+}
+
+// The write half — the category's own replaceState (preserve the other
+// params: the shell's tab word and every other desk's word ride
+// along). THE DEFAULT WEARS NO WORD: 'all' strips its key. The slug is
+// resolved by the door before the write (the row's own name speaks).
+function writeCatCategorySlug(slug: string | null): void {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (!slug) params.delete('cat-category');
+    else params.set('cat-category', slug);
+    const qs = params.toString();
+    window.history.replaceState(null, '', window.location.pathname + (qs ? `?${qs}` : ''));
+  } catch {
+    // The address never lies louder than the shelves
   }
 }
 
@@ -407,8 +438,49 @@ export default function CatalogTab() {
   }, [products, debouncedSearch, selectedCategory, stockFilter, priceMin, priceMax, sortKey]);
 
   // Safe array guards - prevent .map() crashes when API returns unexpected shapes
-  const safeCategories = Array.isArray(categories) ? categories : [];
+  // (v2.493.0: wrapped in its own useMemo — the landing's resolve reads
+  // it, and a stable identity keeps every dependent honest)
+  const safeCategories = useMemo(
+    () => (Array.isArray(categories) ? categories : []),
+    [categories],
+  );
   const safeFilteredProducts = Array.isArray(filteredProducts) ? filteredProducts : [];
+
+  // v2.493.0 THE CATEGORY'S OWN WORD — the shelf rows' landing state.
+  // The word names the category by its slug; the rows arrive from the
+  // store's own ledger, so the landing carries the raw slug until the
+  // resolve below.
+  const [landedCatCategory, setLandedCatCategory] = useState<string | null>(initialCatCategory);
+  const [catCategoryLandingLive, setCatCategoryLandingLive] = useState(true);
+  const [landedCatCategoryId, setLandedCatCategoryId] = useState<string | null>(null);
+  // v2.493.0 THE GUARDED DOOR — the family's ONE reading from birth:
+  // no turn, no write (a re-press of the standing member is not a
+  // turn), and the hand's turn retires the word — the chip speaks the
+  // ADDRESS BAR's landing, never the human's next choice. All THREE
+  // faces ride this one door — the Select, the All button, and the
+  // category chips.
+  const chooseCategory = (next: string) => {
+    if (next === selectedCategory) return;
+    if (next !== landedCatCategoryId) setCatCategoryLandingLive(false);
+    setSelectedCategory(next);
+    const hit = next === 'all' ? undefined : safeCategories.find((c) => c.id === next);
+    writeCatCategorySlug(hit ? categorySlug(hit.name) : null);
+  };
+  // v2.493.0 THE LANDING'S RESOLVE — the rows land from the ledger and
+  // the slug finds its row: a hit seeds the filter (the seed IS the
+  // address's landing, never a hand turn — no write, no retire), an
+  // unknown slug is silence (the landing retires, no chip). The resolve
+  // rides the render-adjust shape (the React law: a guarded derivation
+  // seeding state during render — no effect, no cascade).
+  if (landedCatCategory && !landedCatCategoryId && !categoriesLoading && safeCategories.length > 0) {
+    const hit = safeCategories.find((c) => categorySlug(c.name) === landedCatCategory);
+    if (hit) {
+      setLandedCatCategoryId(hit.id);
+      setSelectedCategory(hit.id);
+    } else {
+      setLandedCatCategory(null);
+    }
+  }
 
   // Handlers
 
@@ -938,6 +1010,22 @@ export default function CatalogTab() {
           />
         </div>
       )}
+      {/* v2.493.0 THE LANDING CHIP — the landed category wears the family's
+          shared slate beside the view's own (the chip speaks the ADDRESS
+          BAR's landing — resolved slugs only: THE DEFAULT WEARS NO WORD,
+          an unknown slug is silence), the dismissal retires through the
+          one door. */}
+      {catCategoryLandingLive && landedCatCategory && landedCatCategoryId && (
+        <div className="flex items-center">
+          <LandingChip
+            hue="slate"
+            label={`landed ?cat-category=${landedCatCategory}`}
+            onDismiss={() => { setCatCategoryLandingLive(false); chooseCategory('all'); }}
+            title="The category landed with this word from the address bar — dismiss to rest the catalog's own shelves"
+            data-testid="cat-category-landing-word"
+          />
+        </div>
+      )}
       {/* ---- Header bar ---- */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="relative flex-1 w-full">
@@ -1040,8 +1128,13 @@ export default function CatalogTab() {
             {/* Category */}
             <div className="space-y-1.5 min-w-[180px]">
               <label className="text-xs font-medium text-muted-foreground">Category</label>
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="h-9">
+              <Select value={selectedCategory} onValueChange={chooseCategory}>
+                <SelectTrigger
+                  className={cn(
+                    'h-9 transition-colors',
+                    selectedCategory !== 'all' ? 'bg-slate-100' : 'bg-background',
+                  )}
+                >
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1157,7 +1250,7 @@ export default function CatalogTab() {
           variant={selectedCategory === 'all' ? 'default' : 'outline'}
           size="sm"
           className="flex-shrink-0 h-8"
-          onClick={() => setSelectedCategory('all')}
+          onClick={() => chooseCategory('all')}
         >
           <Tag className="h-3.5 w-3.5 mr-1.5" />
           All
@@ -1168,7 +1261,7 @@ export default function CatalogTab() {
             variant={selectedCategory === c.id ? 'default' : 'outline'}
             size="sm"
             className="flex-shrink-0 h-8"
-            onClick={() => setSelectedCategory(c.id)}
+            onClick={() => chooseCategory(c.id)}
           >
             <span
               className="w-2 h-2 rounded-full mr-1.5 flex-shrink-0"

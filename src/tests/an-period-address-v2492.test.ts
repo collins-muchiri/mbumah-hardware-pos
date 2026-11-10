@@ -127,7 +127,7 @@ describe('the landed period wears the slate landing chip and the lens wears its 
 describe('the constitution walks the forty-ninth word', () => {
   it('the row is the registry\u2019s own (the self-reference, read from the constitution file)', () => {
     expect(constitution.includes("{ word: 'an-period', desk: 'src/components/analytics/analytics-dashboard.tsx', family: 'border-slate-300', suite: 'src/tests/an-period-address-v2492.test.ts' }")).toBe(true);
-    expect(constitution.includes('(forty-nine words, thirty-three desks)')).toBe(true);
+    expect(constitution.includes('(fifty words, thirty-three desks)')).toBe(true);
     // the admission line carries the word it admits (the sorted place)
     expect(constitution.includes('ad-severity < an-period < bank-mpesa')).toBe(true);
   });
@@ -157,9 +157,9 @@ describe('whats-new — the round leads the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.492.0');
+    expect(pkg.version).toBe('2.493.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
-    expect(readFileSync('VERSION', 'utf8').trim()).toBe('2.492.0');
+    expect(readFileSync('VERSION', 'utf8').trim()).toBe('2.493.0');
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.492.0]')).toBeGreaterThan(-1);
     expect(changelog.indexOf('[2.492.0]')).toBeLessThan(changelog.indexOf('[2.491.0]'));

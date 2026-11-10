@@ -215,6 +215,10 @@ describe('the address-bar vocabulary stays one-writer-per-word', () => {
       // speaks the words this ledger walks; its NAME carries them too)
       'src/tests/bank-mpesa-deep-link-v2388.test.ts',
       'src/tests/bank-type-deep-link-v2387.test.ts',
+      // the catalog's newest ledger — admitted (its registry section reads
+      // this file's rows; an admission line carries the word it admits;
+      // its sorted-place pin names this word as the ledger's elder neighbor)
+      'src/tests/cat-category-address-v2493.test.ts',
       // the twenty-ninth word's own ledger — admitted (its rides-beside truth names this file's word)
       'src/tests/debt-channel-deep-link-v2390.test.ts',
       // the twenty-eighth word's own ledger — admitted (its census list names this file)
@@ -267,7 +271,7 @@ describe('the address-bar vocabulary — the twenty-sixth row (cross-suite pins)
   const constitution = readFileSync('src/tests/transfer-status-deep-link-v2357.test.ts', 'utf8');
 
   it('the constitution walks TWENTY-SIX words over TWENTY-THREE desks', () => {
-    expect(constitution.includes('(forty-nine words, thirty-three desks)')).toBe(true);
+    expect(constitution.includes('(fifty words, thirty-three desks)')).toBe(true);
     expect(constitution.includes("{ word: 'bank-type', desk: 'src/app/(shell)/tabs/banking-tab.tsx', family: 'border-sky-300', suite: 'src/tests/bank-type-deep-link-v2387.test.ts' }")).toBe(true);
     expect(constitution.includes("'TWENTY-SIXTH'")).toBe(true);
   });
@@ -280,7 +284,7 @@ describe('the address-bar vocabulary — the twenty-sixth row (cross-suite pins)
 describe('whats-new — v2.480.0 leads the feed', () => {
   it('the entry exists, first, with the round\u2019s own story', () => {
     const head = WHATS_NEW[0];
-    expect(head.version).toBe('2.492.0');
+    expect(head.version).toBe('2.493.0');
     // the lead's story hand-over (v2.480.0, the Task 111 law's
     // eighty-sixth application): the head story is the hand-over's
     // voice — the carrying round: THE LENS'S WORD RIDES THE

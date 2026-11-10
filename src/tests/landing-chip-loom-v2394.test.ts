@@ -130,7 +130,9 @@ describe('the loom — one component, eighteen hues, zero words', () => {
   // bytes that ARE (forty-eight words).
   // v2.492.0 (dated): the honest title roll — the count rides the
   // bytes that ARE (forty-nine words).
-  it('THE WORD-FREE LAW — the loom speaks none of the constitution\u2019s 49 words', () => {
+  // v2.493.0 (dated): the honest title roll — the count rides the
+  // bytes that ARE (fifty words).
+  it('THE WORD-FREE LAW — the loom speaks none of the constitution\u2019s 50 words', () => {
     // v2.487.0 (dated): the shift week joins the constitution; the
     // loom grew its slate line and stays word-free (the shift's word
     // is the chip's own — the desk never spells the bytes bare).
@@ -160,7 +162,10 @@ describe('the loom — one component, eighteen hues, zero words', () => {
     // v2.492.0 (dated): the analytics' word joins the constitution;
     // the loom grew NO line and stays word-free (the lens's word is
     // the chip's own — the desk never spells the bytes bare).
-    expect(rows.length).toBe(49);
+    // v2.493.0 (dated): the catalog's category joins the constitution;
+    // the loom grew NO line and stays word-free (the shelves' word is
+    // the chip's own — the desk never spells the bytes bare).
+    expect(rows.length).toBe(50);
     for (const row of rows) {
       expect(loom.includes(row.word), row.word).toBe(false);
     }
@@ -540,7 +545,9 @@ describe('the constitution under the loom', () => {
     // rides the address; the counts roll with the constitution.
     // v2.492.0 (dated): the forty-ninth word — the analytics' period
     // rides the address; the counts roll with the constitution.
-    expect(rows.length).toBe(49);
+    // v2.493.0 (dated): the fiftieth word — the catalog's category
+    // rides the address; the counts roll with the constitution.
+    expect(rows.length).toBe(50);
     // v2.484.0 (dated): twenty-seven desks — the family's FIRST
     // non-tab desk joined with the window's word.
     // v2.485.0 (dated): twenty-eight desks — the SECOND shell-tab
@@ -557,6 +564,8 @@ describe('the constitution under the loom', () => {
     // desk is the catalog's own SECOND word.
     // v2.492.0 (dated): thirty-three desks — the analytics dashboard
     // joins as the family's FIRST component desk.
+    // v2.493.0 (dated): thirty-three desks HOLD — the FIFTIETH word is
+    // the catalog desk's THIRD word.
     expect(new Set(rows.map((r) => r.desk)).size).toBe(33);
     // v2.484.0 (dated): blue-300 joined with the window's word — the
     // families grew one (37) while the words grew two (the SECOND
@@ -583,6 +592,10 @@ describe('the constitution under the loom', () => {
     // wears the family's shared slate (the slate serves five words:
     // the week's, the dashboard's, the counter's, the catalog's, the
     // analytics' own).
+    // v2.493.0 (dated): the families stay forty — the catalog's
+    // category wears the family's shared slate (the slate serves six
+    // words: the week's, the dashboard's, the counter's, the catalog's
+    // view, the analytics' own, and the catalog's category).
     expect(new Set(rows.map((r) => r.family)).size).toBe(40);
   });
 

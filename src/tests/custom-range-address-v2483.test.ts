@@ -203,7 +203,7 @@ describe('the constitution — thirty-eight words, the first shared family', () 
   it('the pair\u2019s rows joined (the range\u2019s own violet serves both)', () => {
     expect(registry.includes("{ word: 'rep-from', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-violet-300', suite: 'src/tests/custom-range-address-v2483.test.ts' }")).toBe(true);
     expect(registry.includes("{ word: 'rep-to', desk: 'src/app/(shell)/tabs/reports-tab.tsx', family: 'border-violet-300', suite: 'src/tests/custom-range-address-v2483.test.ts' }")).toBe(true);
-    expect(registry.includes('(forty-nine words, thirty-three desks)')).toBe(true);
+    expect(registry.includes('(fifty words, thirty-three desks)')).toBe(true);
   });
 
   it('the stress walks the roll and the derived counts (36 \u2192 38, the living pins roll)', () => {
@@ -234,7 +234,10 @@ describe('the constitution — thirty-eight words, the first shared family', () 
     // v2.492.0 (dated): the living stress-pin rolls — the stress's
     // row count grew to forty-nine (the analytics' round); the
     // contains-pin rides the bytes that ARE.
-    expect(stress.includes('toBe(49)')).toBe(true);
+    // v2.493.0 (dated): the living stress-pin rolls — the stress's
+    // row count grew to fifty (the catalog's category round); the
+    // contains-pin rides the bytes that ARE.
+    expect(stress.includes('toBe(50)')).toBe(true);
     // v2.486.0 (dated): the living family-pin rolls — the families
     // grew to thirty-nine (red-300 joined); the contains-pin rides
     // the bytes that ARE.
@@ -280,7 +283,7 @@ describe('whats-new — the round, pinned in the feed', () => {
 
   it('the release surfaces speak with one voice', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(pkg.version).toBe('2.492.0');
+    expect(pkg.version).toBe('2.493.0');
     expect(WHATS_NEW[0].version).toBe(pkg.version);
     const changelog = readFileSync('CHANGELOG.md', 'utf8');
     expect(changelog.indexOf('[2.483.0]')).toBeGreaterThan(-1);
